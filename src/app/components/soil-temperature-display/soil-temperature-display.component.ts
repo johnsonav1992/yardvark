@@ -26,8 +26,10 @@ export class SoilTemperatureDisplayComponent {
   });
 
   public displayColor = computed(() => {
-    if (this.currentTemp()) {
-      return getSoilTemperatureDisplayColor(this.currentTemp()!);
+    const currentTemp = this.currentTemp();
+
+    if (currentTemp) {
+      return getSoilTemperatureDisplayColor(currentTemp);
     }
 
     return 'black';

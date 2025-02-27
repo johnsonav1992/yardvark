@@ -26,12 +26,12 @@ export type OpenMeteoQueryParams = {
   /**
    * Comma-separated floating point values
    */
-  latitude: string;
+  latitude: string | number;
 
   /**
    * Comma-separated floating point values
    */
-  longitude: string;
+  longitude: string | number;
 
   /**
    * Comma-separated floating point values

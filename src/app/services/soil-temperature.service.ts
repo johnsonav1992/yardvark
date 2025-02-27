@@ -24,8 +24,8 @@ export class SoilTemperatureService {
         ? {
             url: this._baseUrl,
             params: {
-              latitude: String(coords.lat),
-              longitude: String(coords.long),
+              latitude: coords.lat,
+              longitude: coords.long,
               hourly: ['soil_temperature_6cm', 'soil_temperature_18cm'],
               temperature_unit: 'fahrenheit',
               start_date: today,

@@ -1,9 +1,9 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { LatLong } from '../types/types';
 import { Observable } from 'rxjs';
-import { httpResource, HttpResourceRequest } from '@angular/common/http';
+import { httpResource } from '@angular/common/http';
 import { rxResource } from '@angular/core/rxjs-interop';
-import { DatePipe, formatDate } from '@angular/common';
+import { formatDate } from '@angular/common';
 import {
   DailySoilTemperatureResponse,
   OpenMeteoQueryParams,
@@ -30,7 +30,9 @@ export class SoilTemperatureService {
               temperature_unit: 'fahrenheit',
               start_date: today,
               end_date: today,
+              timezone: 'auto',
             } satisfies OpenMeteoQueryParams,
+            reportProgress: true,
           }
         : undefined;
     },

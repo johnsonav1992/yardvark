@@ -2,5 +2,5 @@
 
 An upcoming lawn care app for LCNs built in Angular! Stay tuned!
 
-![yardvark_logo](https://github.com/user-attachments/assets/6ad30cf7-f940-4679-a61d-9bd39c358174)
+![yardvark](https://github.com/user-attachments/assets/cca60b38-86d4-421f-94eb-369a29c4a47e)
 

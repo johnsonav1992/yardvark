@@ -14,15 +14,15 @@ export class AppComponent {
   private _soil = inject(SoilTemperatureService);
   private _auth = inject(AuthService);
 
-  public isLoading = signal(false);
+  public isAuthenticated = signal(false);
 
   public ngOnInit(): void {
-    this.isLoading.set(true);
     this._auth.isAuthenticated$.subscribe((isAuthenticated) => {
+      this.isAuthenticated.set(isAuthenticated);
+
       if (!isAuthenticated) {
         this._auth.loginWithRedirect();
       }
-      this.isLoading.set(false);
     });
   }
 

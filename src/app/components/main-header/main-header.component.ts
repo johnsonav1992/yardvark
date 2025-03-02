@@ -17,7 +17,15 @@ export class MainHeaderComponent {
 
   public menuItems: MenuItem[] = [
     {
+      label: 'Settings',
+      icon: 'ti ti-settings',
+      command: () => {
+        console.log('Settings');
+      },
+    },
+    {
       label: 'Logout',
+      icon: 'ti ti-logout',
       command: () => this.auth.logout(),
     },
   ];

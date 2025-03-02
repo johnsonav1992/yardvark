@@ -9,7 +9,8 @@
         "@schematics/angular:component": {
           "style": "scss",
           "path": "src/app/components",
-          "prefix": ""
+          "prefix": "",
+          "skipTests": true
         },
         "@schematics/angular:service": {
           "path": "src/app/services"
@@ -34,7 +35,10 @@
                 "input": "public"
               }
             ],
-            "styles": ["src/styles.scss"],
+            "styles": [
+              "src/styles.scss",
+              "node_modules/material-icons/iconfont/material-icons.scss"
+            ],
             "scripts": []
           },
           "configurations": {

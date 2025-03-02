@@ -20,21 +20,23 @@ export class SoilTemperatureService {
       const coords = this.currentLatLong.value();
       const today = formatDate(new Date(), 'YYYY-MM-dd', 'en-US')!;
 
-      return coords
-        ? {
-            url: this._baseUrl,
-            params: {
-              latitude: coords.lat,
-              longitude: coords.long,
-              hourly: ['soil_temperature_6cm', 'soil_temperature_18cm'],
-              temperature_unit: 'fahrenheit',
-              start_date: today,
-              end_date: today,
-              timezone: 'auto',
-            } satisfies OpenMeteoQueryParams,
-            reportProgress: true,
-          }
-        : undefined;
+      //   return coords
+      //     ? {
+      //         url: this._baseUrl,
+      //         params: {
+      //           latitude: coords.lat,
+      //           longitude: coords.long,
+      //           hourly: ['soil_temperature_6cm', 'soil_temperature_18cm'],
+      //           temperature_unit: 'fahrenheit',
+      //           start_date: today,
+      //           end_date: today,
+      //           timezone: 'auto',
+      //         } satisfies OpenMeteoQueryParams,
+      //         reportProgress: true,
+      //       }
+      //     : undefined;
+      // },
+      return undefined;
     },
   );
 

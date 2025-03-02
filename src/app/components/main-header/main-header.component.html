@@ -2,6 +2,11 @@
   <img src="" alt="logo" />
   <div class="menu">
     <i class="material-icons">settings</i>
-    <p-avatar shape="circle" [image]="user()?.picture" />
+    <p-avatar
+      shape="circle"
+      [image]="user()?.picture"
+      (click)="authMenu.show($event)"
+    />
+    <p-menu #authMenu [model]="menuItems" [popup]="true" />
   </div>
 </div>

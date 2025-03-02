@@ -17,6 +17,7 @@
     "@angular/platform-browser": "^19.2.0",
     "@angular/platform-browser-dynamic": "^19.2.0",
     "@angular/router": "^19.2.0",
+    "@auth0/auth0-angular": "^2.2.3",
     "@primeng/themes": "^19.0.9",
     "material-icons": "^1.13.14",
     "primeng": "^19.0.9",

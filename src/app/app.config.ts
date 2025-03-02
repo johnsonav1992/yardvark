@@ -6,6 +6,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import Nora from '@primeng/themes/nora';
+import { provideAuth0 } from '@auth0/auth0-angular';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -21,6 +22,13 @@ export const appConfig: ApplicationConfig = {
         },
       },
       ripple: true,
+    }),
+    provideAuth0({
+      domain: 'dev-w4uj6ulyqeacwtfi.us.auth0.com',
+      clientId: 'QRPi2KnSnV3pEnDiOqE2aN4zeNS8vRM5',
+      authorizationParams: {
+        redirect_uri: window.location.origin,
+      },
     }),
   ],
 };

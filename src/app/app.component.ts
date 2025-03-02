@@ -14,12 +14,17 @@ import { toSignal } from '@angular/core/rxjs-interop';
 })
 export class AppComponent {
   private _soil = inject(SoilTemperatureService);
-  public auth = inject(AuthService);
-  public user = toSignal(this.auth.user$);
+  private _auth = inject(AuthService);
 
-  _ = effect(() => {
-    console.log(this.user());
-  });
+  public ngOnInit(): void {
+    console.log(this._auth);
+    this._auth.isAuthenticated$.subscribe((isAuthenticated) => {
+      console.log(isAuthenticated);
+      if (!isAuthenticated) {
+        this._auth.loginWithRedirect();
+      }
+    });
+  }
 
   public soil = this._soil.soilTemperatureData;
   title = 'yardvark';

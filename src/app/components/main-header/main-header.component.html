@@ -6,6 +6,7 @@
       shape="circle"
       [image]="user()?.picture"
       (click)="authMenu.show($event)"
+      styleClass="user-logo"
     />
     <p-menu #authMenu [model]="menuItems" [popup]="true" />
   </div>

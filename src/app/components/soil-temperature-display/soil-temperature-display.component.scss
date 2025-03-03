@@ -1,0 +1,15 @@
+.outer-card {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border: 1px solid var(--p-surface-200);
+  border-radius: 4px;
+  width: max-content;
+  font-size: 24px;
+  align-items: center;
+  justify-content: space-between;
+
+  .temp {
+    display: flex;
+  }
+}

@@ -1,3 +1,11 @@
-<div [style.color]="displayColor()">
-  {{ tempToDisplay() }}
+<div class="outer-card">
+  <i class="ti ti-thermometer"></i>
+  @if (!hourlySoilTemperatures()) {
+    <i class="ti ti-loader-2 icon-spin"></i>
+  } @else {
+    <span class="temp">
+      <p>59</p>
+      <i class="ti ti-temperature-fahrenheit"></i>
+    </span>
+  }
 </div>

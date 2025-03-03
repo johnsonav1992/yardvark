@@ -19,6 +19,7 @@
     "@angular/router": "^19.2.0",
     "@auth0/auth0-angular": "^2.2.3",
     "@primeng/themes": "^19.0.9",
+    "chart.js": "^4.4.8",
     "material-icons": "^1.13.14",
     "ng2-charts": "^8.0.0",
     "primeng": "^19.0.9",

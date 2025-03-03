@@ -1,10 +1,10 @@
 <div class="outer-card">
-  <i class="ti ti-thermometer"></i>
-  @if (!hourlySoilTemperatures()) {
+  <i class="ti ti-thermometer" [style.font-size]="'30px'"></i>
+  @if (!tempToDisplay()) {
     <i class="ti ti-loader-2 icon-spin"></i>
   } @else {
-    <span class="temp">
-      <p>59</p>
+    <span class="temp" [style.color]="displayColor()">
+      <p>{{ tempToDisplay() }}</p>
       <i class="ti ti-temperature-fahrenheit"></i>
     </span>
   }

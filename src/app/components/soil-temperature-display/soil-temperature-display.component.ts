@@ -17,17 +17,15 @@ export class SoilTemperatureDisplayComponent {
   public currentTemp = computed(() => {
     const currentHour = new Date().getHours();
 
-    console.log({ currentHour });
-    console.log(this.hourlySoilTemperatures());
     return this.hourlySoilTemperatures()?.[currentHour];
   });
 
-  public tempToDisplay = computed<DegreesDisplay | null>(() => {
+  public tempToDisplay = computed<DegreesDisplay<false> | null>(() => {
     const currentTemp = this.currentTemp();
 
-    console.log(currentTemp);
+    currentTemp && getSoilTemperatureDisplayColor(currentTemp);
 
-    return currentTemp ? `${currentTemp}°` : null;
+    return currentTemp ? `${currentTemp}` : null;
   });
 
   public displayColor = computed(() => {

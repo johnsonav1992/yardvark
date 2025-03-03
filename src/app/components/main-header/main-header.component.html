@@ -1,6 +1,12 @@
 <div class="header">
-  <img src="assets/yardvark-logo.png" alt="logo" height="50px" width="auto" />
+  <img
+    src="assets/yardvark-logo-transparent.png"
+    alt="logo"
+    height="50px"
+    width="auto"
+  />
   <div class="menu">
+    <p>{{ user()?.name }}</p>
     <p-avatar
       shape="circle"
       [image]="user()?.picture"

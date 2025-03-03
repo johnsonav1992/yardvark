@@ -14,11 +14,11 @@ export class AppComponent {
   private _soil = inject(SoilTemperatureService);
   private _auth = inject(AuthService);
 
-  public isAuthenticated = signal(false);
+  public isLoggedIn = signal(false);
 
   public ngOnInit(): void {
     this._auth.isAuthenticated$.subscribe((isAuthenticated) => {
-      this.isAuthenticated.set(isAuthenticated);
+      this.isLoggedIn.set(isAuthenticated);
 
       if (!isAuthenticated) {
         this._auth.loginWithRedirect();

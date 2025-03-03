@@ -11,7 +11,6 @@ import { AuthService } from '@auth0/auth0-angular';
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  private _soil = inject(SoilTemperatureService);
   private _auth = inject(AuthService);
 
   public isLoggedIn = signal(false);
@@ -25,6 +24,4 @@ export class AppComponent {
       }
     });
   }
-
-  public soil = this._soil.soilTemperatureData;
 }

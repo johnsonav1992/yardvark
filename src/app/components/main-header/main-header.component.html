@@ -6,7 +6,9 @@
     width="auto"
   />
   <div class="menu">
-    <p>{{ user()?.name }}</p>
+    <soil-temperature-display
+      [hourlySoilTemperatures]="soilTempData()?.hourly?.soil_temperature_18cm"
+    />
     <p-avatar
       shape="circle"
       [image]="user()?.picture"

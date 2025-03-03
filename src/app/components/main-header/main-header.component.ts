@@ -4,16 +4,21 @@ import { AuthService } from '@auth0/auth0-angular';
 import { MenuItem } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
 import { MenuModule } from 'primeng/menu';
+import { SoilTemperatureDisplayComponent } from '../soil-temperature-display/soil-temperature-display.component';
+import { SoilTemperatureService } from '../../services/soil-temperature.service';
 
 @Component({
   selector: 'main-header',
-  imports: [AvatarModule, MenuModule],
+  imports: [AvatarModule, MenuModule, SoilTemperatureDisplayComponent],
   templateUrl: './main-header.component.html',
   styleUrl: './main-header.component.scss',
 })
 export class MainHeaderComponent {
-  public auth = inject(AuthService);
-  public user = toSignal(this.auth.user$);
+  private _authService = inject(AuthService);
+  private _soilTemperatureService = inject(SoilTemperatureService);
+
+  public user = toSignal(this._authService.user$);
+  public soilTempData = this._soilTemperatureService.soilTemperatureData.value;
 
   public menuItems: MenuItem[] = [
     {
@@ -26,7 +31,7 @@ export class MainHeaderComponent {
     {
       label: 'Logout',
       icon: 'ti ti-logout',
-      command: () => this.auth.logout(),
+      command: () => this._authService.logout(),
     },
   ];
 }

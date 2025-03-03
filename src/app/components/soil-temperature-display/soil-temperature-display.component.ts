@@ -16,11 +16,16 @@ export class SoilTemperatureDisplayComponent {
 
   public currentTemp = computed(() => {
     const currentHour = new Date().getHours();
+
+    console.log({ currentHour });
+    console.log(this.hourlySoilTemperatures());
     return this.hourlySoilTemperatures()?.[currentHour];
   });
 
   public tempToDisplay = computed<DegreesDisplay | null>(() => {
     const currentTemp = this.currentTemp();
+
+    console.log(currentTemp);
 
     return currentTemp ? `${currentTemp}°` : null;
   });

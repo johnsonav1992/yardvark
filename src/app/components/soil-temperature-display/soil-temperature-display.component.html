@@ -1,7 +1,12 @@
 <div class="outer-card">
   <i class="ti ti-thermometer" [style.font-size]="'30px'"></i>
-  @if (!tempToDisplay()) {
+  @if (soilTemperatureData.isLoading()) {
     <i class="ti ti-loader-2 icon-spin"></i>
+  } @else if (soilTemperatureData.error()) {
+    <i
+      class="ti ti-alert-triangle error"
+      pTooltip="There was an error loading soil temperature data"
+    ></i>
   } @else {
     <span class="temp" [style.color]="displayColor()">
       <p>{{ tempToDisplay() }}</p>

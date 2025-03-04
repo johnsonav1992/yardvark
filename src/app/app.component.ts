@@ -1,6 +1,5 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { SoilTemperatureService } from './services/soil-temperature.service';
 import { MainHeaderComponent } from './components/main-header/main-header.component';
 import { AuthService } from '@auth0/auth0-angular';
 

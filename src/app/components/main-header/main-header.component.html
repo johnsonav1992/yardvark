@@ -6,15 +6,14 @@
     width="auto"
   />
   <div class="menu">
-    <soil-temperature-display
-      [hourlySoilTemperatures]="soilTempData()?.hourly?.soil_temperature_18cm"
-    />
+    <soil-temperature-display />
     <p-avatar
       shape="circle"
-      [image]="user()?.picture"
       (click)="authMenu.show($event)"
       styleClass="user-logo"
-    />
+    >
+      <img [src]="user()?.picture" referrerpolicy="no-referrer" />
+    </p-avatar>
     <p-menu #authMenu [model]="menuItems" [popup]="true" />
   </div>
 </div>

@@ -1,23 +1,30 @@
-import { Component, computed, input } from '@angular/core';
-import { HourlySoilTemperatures } from '../../types/openmeteo.types';
+import { Component, computed, effect, inject } from '@angular/core';
 import { DegreesDisplay } from '../../types/types';
 import { getSoilTemperatureDisplayColor } from '../../utils/soilTemperatureUtils';
+import { SoilTemperatureService } from '../../services/soil-temperature.service';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'soil-temperature-display',
-  imports: [],
+  imports: [TooltipModule],
   templateUrl: './soil-temperature-display.component.html',
   styleUrl: './soil-temperature-display.component.scss',
 })
 export class SoilTemperatureDisplayComponent {
-  public hourlySoilTemperatures = input.required<
-    HourlySoilTemperatures['soil_temperature_18cm'] | undefined
-  >();
+  private _soilTemperatureService = inject(SoilTemperatureService);
+
+  public soilTemperatureData = this._soilTemperatureService.soilTemperatureData;
+
+  _ = effect(() => {
+    console.log(this.soilTemperatureData.error());
+  });
 
   public currentTemp = computed(() => {
+    const hourlySoilTemperatures =
+      this.soilTemperatureData.value()?.hourly.soil_temperature_18cm;
     const currentHour = new Date().getHours();
 
-    return this.hourlySoilTemperatures()?.[currentHour];
+    return hourlySoilTemperatures?.[currentHour];
   });
 
   public tempToDisplay = computed<DegreesDisplay<false> | null>(() => {
@@ -31,9 +38,7 @@ export class SoilTemperatureDisplayComponent {
   public displayColor = computed(() => {
     const currentTemp = this.currentTemp();
 
-    if (currentTemp) {
-      return getSoilTemperatureDisplayColor(currentTemp);
-    }
+    if (currentTemp) return getSoilTemperatureDisplayColor(currentTemp);
 
     return 'black';
   });

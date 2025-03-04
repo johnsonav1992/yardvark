@@ -20,3 +20,7 @@ html {
 .icon-spin {
   animation: spin 1.5s linear infinite;
 }
+
+.error {
+  color: var(--p-red-500);
+}

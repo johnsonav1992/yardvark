@@ -16,3 +16,9 @@ export const getSoilTemperatureDisplayColor = (soilTemp: number) => {
 
   return getPrimeNgHexColor('red.400');
 };
+
+export const calculate24HourSoilTempAverage = (soilTemps: number[]) => {
+  const totalTemp = soilTemps.reduce((sum, temp) => sum + temp, 0);
+
+  return Math.round((totalTemp / soilTemps.length) * 10) / 10;
+};

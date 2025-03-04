@@ -1,6 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { DegreesDisplay } from '../../types/types';
-import { getSoilTemperatureDisplayColor } from '../../utils/soilTemperatureUtils';
+import {
+  calculate24HourSoilTempAverage,
+  getSoilTemperatureDisplayColor,
+} from '../../utils/soilTemperatureUtils';
 import { SoilTemperatureService } from '../../services/soil-temperature.service';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
@@ -27,16 +30,9 @@ export class SoilTemperatureDisplayComponent {
         this.showDeepTemp() ? 'soil_temperature_18cm' : 'soil_temperature_6cm'
       ];
 
-    if (!hourlySoilTemperatures || hourlySoilTemperatures.length === 0) {
-      return null;
-    }
+    if (!hourlySoilTemperatures?.length) return null;
 
-    const totalTemp = hourlySoilTemperatures.reduce(
-      (sum, temp) => sum + temp,
-      0,
-    );
-
-    return Math.round((totalTemp / hourlySoilTemperatures.length) * 10) / 10;
+    return calculate24HourSoilTempAverage(hourlySoilTemperatures);
   });
 
   public tempToDisplay = computed<DegreesDisplay<false> | null>(() => {

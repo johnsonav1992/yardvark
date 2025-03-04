@@ -38,8 +38,6 @@ export class SoilTemperatureDisplayComponent {
   public tempToDisplay = computed<DegreesDisplay<false> | null>(() => {
     const averageTemp = this.average24HourTemp();
 
-    averageTemp && getSoilTemperatureDisplayColor(averageTemp);
-
     return averageTemp ? `${averageTemp}` : null;
   });
 

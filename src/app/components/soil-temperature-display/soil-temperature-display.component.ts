@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { DegreesDisplay } from '../../types/types';
 import { getSoilTemperatureDisplayColor } from '../../utils/soilTemperatureUtils';
 import { SoilTemperatureService } from '../../services/soil-temperature.service';
@@ -14,10 +14,6 @@ export class SoilTemperatureDisplayComponent {
   private _soilTemperatureService = inject(SoilTemperatureService);
 
   public soilTemperatureData = this._soilTemperatureService.soilTemperatureData;
-
-  _ = effect(() => {
-    console.log(this.soilTemperatureData.error());
-  });
 
   public currentTemp = computed(() => {
     const hourlySoilTemperatures =

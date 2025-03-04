@@ -3,13 +3,13 @@ import { DegreesDisplay } from '../../types/types';
 import { getSoilTemperatureDisplayColor } from '../../utils/soilTemperatureUtils';
 import { SoilTemperatureService } from '../../services/soil-temperature.service';
 import { TooltipModule } from 'primeng/tooltip';
-import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { PopoverModule } from 'primeng/popover';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'soil-temperature-display',
-  imports: [TooltipModule, OverlayPanelModule, ToggleSwitchModule, FormsModule],
+  imports: [TooltipModule, ToggleSwitchModule, FormsModule, PopoverModule],
   templateUrl: './soil-temperature-display.component.html',
   styleUrl: './soil-temperature-display.component.scss',
 })

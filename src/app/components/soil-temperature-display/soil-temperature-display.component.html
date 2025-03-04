@@ -8,9 +8,19 @@
       pTooltip="There was an error loading soil temperature data"
     ></i>
   } @else {
-    <span class="temp" [style.color]="displayColor()">
+    <span
+      (click)="depthOverlay.show($event)"
+      class="temp"
+      [style.color]="displayColor()"
+    >
       <p>{{ tempToDisplay() }}</p>
       <i class="ti ti-temperature-fahrenheit"></i>
     </span>
+    <p-overlayPanel #depthOverlay [dismissable]="true">
+      <div class="depth-overlay-inner">
+        <p>Show deeper temp</p>
+        <p-toggleSwitch [(ngModel)]="showDeepTemp" />
+      </div>
+    </p-overlayPanel>
   }
 </div>

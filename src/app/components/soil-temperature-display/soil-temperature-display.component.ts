@@ -1,38 +1,54 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { DegreesDisplay } from '../../types/types';
 import { getSoilTemperatureDisplayColor } from '../../utils/soilTemperatureUtils';
 import { SoilTemperatureService } from '../../services/soil-temperature.service';
 import { TooltipModule } from 'primeng/tooltip';
+import { OverlayPanelModule } from 'primeng/overlaypanel';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'soil-temperature-display',
-  imports: [TooltipModule],
+  imports: [TooltipModule, OverlayPanelModule, ToggleSwitchModule, FormsModule],
   templateUrl: './soil-temperature-display.component.html',
   styleUrl: './soil-temperature-display.component.scss',
 })
 export class SoilTemperatureDisplayComponent {
   private _soilTemperatureService = inject(SoilTemperatureService);
 
-  public soilTemperatureData = this._soilTemperatureService.soilTemperatureData;
+  public soilTemperatureData =
+    this._soilTemperatureService.past24HourSoilTemperatureData;
 
-  public currentTemp = computed(() => {
+  public showDeepTemp = signal<boolean>(false);
+
+  public average24HourTemp = computed(() => {
     const hourlySoilTemperatures =
-      this.soilTemperatureData.value()?.hourly.soil_temperature_18cm;
-    const currentHour = new Date().getHours();
+      this.soilTemperatureData.value()?.hourly[
+        this.showDeepTemp() ? 'soil_temperature_18cm' : 'soil_temperature_6cm'
+      ];
 
-    return hourlySoilTemperatures?.[currentHour];
+    if (!hourlySoilTemperatures || hourlySoilTemperatures.length === 0) {
+      return null;
+    }
+
+    const totalTemp = hourlySoilTemperatures.reduce(
+      (sum, temp) => sum + temp,
+      0,
+    );
+
+    return Math.round((totalTemp / hourlySoilTemperatures.length) * 10) / 10;
   });
 
   public tempToDisplay = computed<DegreesDisplay<false> | null>(() => {
-    const currentTemp = this.currentTemp();
+    const averageTemp = this.average24HourTemp();
 
-    currentTemp && getSoilTemperatureDisplayColor(currentTemp);
+    averageTemp && getSoilTemperatureDisplayColor(averageTemp);
 
-    return currentTemp ? `${currentTemp}` : null;
+    return averageTemp ? `${averageTemp}` : null;
   });
 
   public displayColor = computed(() => {
-    const currentTemp = this.currentTemp();
+    const currentTemp = this.average24HourTemp();
 
     if (currentTemp) return getSoilTemperatureDisplayColor(currentTemp);
 

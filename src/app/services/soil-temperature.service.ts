@@ -15,10 +15,16 @@ import {
 export class SoilTemperatureService {
   private readonly _baseUrl = 'https://api.open-meteo.com/v1/forecast';
 
-  public soilTemperatureData = httpResource<DailySoilTemperatureResponse>(
-    () => {
+  public past24HourSoilTemperatureData =
+    httpResource<DailySoilTemperatureResponse>(() => {
       const coords = this.currentLatLong.value();
-      const today = formatDate(new Date(), 'YYYY-MM-dd', 'en-US')!;
+      const now = new Date();
+      const endHour = formatDate(now, 'YYYY-MM-ddTHH:00', 'en-US')!;
+      const startHour = formatDate(
+        new Date(now.getTime() - 24 * 60 * 60 * 1000),
+        'YYYY-MM-ddTHH:00',
+        'en-US',
+      )!;
 
       return coords
         ? {
@@ -28,14 +34,13 @@ export class SoilTemperatureService {
               longitude: coords.long,
               hourly: ['soil_temperature_6cm', 'soil_temperature_18cm'],
               temperature_unit: 'fahrenheit',
-              start_date: today,
-              end_date: today,
+              start_hour: startHour,
+              end_hour: endHour,
               timezone: 'auto',
             } satisfies OpenMeteoQueryParams,
           }
         : undefined;
-    },
-  );
+    });
 
   public currentLatLong = rxResource({
     loader: () => this.getCurrentLatLong(),

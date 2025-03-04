@@ -12,5 +12,12 @@
   .temp {
     display: flex;
     font-weight: 500;
+    cursor: pointer;
   }
+}
+
+.depth-overlay-inner {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
 }

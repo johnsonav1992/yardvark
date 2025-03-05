@@ -1,8 +1,8 @@
-import { PrimeColorToken } from '../types/types';
+import { PrimeNGColorToken } from '../types/types';
 import { getPrimeNgHexColor } from './styleUtils';
 
 export const getSoilTemperatureDisplayColor = (soilTemp: number) => {
-  const temperatureColorMap: { [key: number]: PrimeColorToken } = {
+  const temperatureColorMap: { [key: number]: PrimeNGColorToken } = {
     25: 'indigo.400',
     40: 'blue.500',
     45: 'green.600',

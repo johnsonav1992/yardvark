@@ -1,7 +1,7 @@
 import { $dt } from '@primeng/themes';
-import { PrimeColorToken } from '../types/types';
+import { PrimeNGColorToken } from '../types/types';
 
-export const getPrimeNgHexColor = (tokenName: PrimeColorToken) => {
+export const getPrimeNgHexColor = (tokenName: PrimeNGColorToken) => {
   const token = $dt(tokenName);
 
   return token.value;

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { LatLong } from '../types/types';
 import { Observable } from 'rxjs';
 import { httpResource } from '@angular/common/http';
@@ -14,10 +14,28 @@ import {
 })
 export class SoilTemperatureService {
   private readonly _baseUrl = 'https://api.open-meteo.com/v1/forecast';
+  private readonly _baseOpenMeteoParams = computed<OpenMeteoQueryParams | null>(
+    () => {
+      const coords = this._currentLatLong.value();
+
+      if (!coords) return null;
+
+      return {
+        latitude: coords.lat,
+        longitude: coords.long,
+        hourly: ['soil_temperature_6cm', 'soil_temperature_18cm'],
+        temperature_unit: this.temperatureUnit(),
+        timezone: 'auto',
+      };
+    },
+  );
+
+  public temperatureUnit =
+    signal<OpenMeteoQueryParams['temperature_unit']>('fahrenheit');
 
   public past24HourSoilTemperatureData =
     httpResource<DailySoilTemperatureResponse>(() => {
-      const coords = this.currentLatLong.value();
+      const baseParams = this._baseOpenMeteoParams();
       const now = new Date();
       const endHour = formatDate(now, 'YYYY-MM-ddTHH:00', 'en-US')!;
       const startHour = formatDate(
@@ -26,23 +44,34 @@ export class SoilTemperatureService {
         'en-US',
       )!;
 
-      return coords
+      return baseParams
         ? {
             url: this._baseUrl,
             params: {
-              latitude: coords.lat,
-              longitude: coords.long,
-              hourly: ['soil_temperature_6cm', 'soil_temperature_18cm'],
-              temperature_unit: 'fahrenheit',
+              ...baseParams,
               start_hour: startHour,
               end_hour: endHour,
-              timezone: 'auto',
             } satisfies OpenMeteoQueryParams,
           }
         : undefined;
     });
 
-  public currentLatLong = rxResource({
+  public weeklySoilTemperatureData = httpResource(() => {
+    const baseParams = this._baseOpenMeteoParams();
+
+    return baseParams
+      ? {
+          url: this._baseUrl,
+          params: {
+            ...baseParams,
+            start_hour: '2023-12-01T00:00',
+            end_hour: '2023-12-31T23:00',
+          } satisfies OpenMeteoQueryParams,
+        }
+      : undefined;
+  });
+
+  private _currentLatLong = rxResource({
     loader: () => this.getCurrentLatLong(),
   });
 

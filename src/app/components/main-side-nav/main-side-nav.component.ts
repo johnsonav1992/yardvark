@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 import { MenuDesignTokens } from '@primeng/themes/types/menu';
 import { MenuItem } from 'primeng/api';
 import { DrawerModule } from 'primeng/drawer';
@@ -9,23 +9,27 @@ import { MenuModule } from 'primeng/menu';
   imports: [DrawerModule, MenuModule],
   templateUrl: './main-side-nav.component.html',
   styleUrl: './main-side-nav.component.scss',
+  encapsulation: ViewEncapsulation.None,
 })
 export class MainSideNavComponent {
   public menuItems: MenuItem[] = [
     {
       label: 'Dashboard',
       icon: 'ti ti-dashboard',
-      routerLink: '',
+      routerLink: '/',
+      routerLinkActiveOptions: { exact: true },
     },
     {
       label: 'Entry Log',
       icon: 'ti ti-calendar',
       routerLink: '/entry-log',
+      routerLinkActiveOptions: { exact: true },
     },
     {
       label: 'Soil data',
       icon: 'ti ti-shovel',
       routerLink: '/soil-data',
+      routerLinkActiveOptions: { exact: true },
     },
   ];
 
@@ -38,10 +42,8 @@ export class MainSideNavComponent {
     },
     item: {
       color: '{surface.500}',
-      focusBackground: '{lime.100}',
-      focusColor: '{lime.600}',
       icon: {
-        focusColor: '{lime.600}',
+        color: '{surface.500}',
       },
     },
   };

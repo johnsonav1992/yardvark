@@ -1,4 +1,4 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { LatLong } from '../types/types';
 import { Observable } from 'rxjs';
 import { httpResource } from '@angular/common/http';
@@ -14,28 +14,15 @@ import {
 })
 export class SoilTemperatureService {
   private readonly _baseUrl = 'https://api.open-meteo.com/v1/forecast';
-  private readonly _baseOpenMeteoParams = computed<OpenMeteoQueryParams | null>(
-    () => {
-      const coords = this._currentLatLong.value();
-
-      if (!coords) return null;
-
-      return {
-        latitude: coords.lat,
-        longitude: coords.long,
-        hourly: ['soil_temperature_6cm', 'soil_temperature_18cm'],
-        temperature_unit: this.temperatureUnit(),
-        timezone: 'auto',
-      };
-    },
-  );
 
   public temperatureUnit =
     signal<OpenMeteoQueryParams['temperature_unit']>('fahrenheit');
+  public startDate = signal<Date | null>(null);
+  public endDate = signal<Date | null>(null);
 
   public past24HourSoilTemperatureData =
     httpResource<DailySoilTemperatureResponse>(() => {
-      const baseParams = this._baseOpenMeteoParams();
+      const coords = this._currentLatLong?.value();
       const now = new Date();
       const endHour = formatDate(now, 'YYYY-MM-ddTHH:00', 'en-US')!;
       const startHour = formatDate(
@@ -44,11 +31,15 @@ export class SoilTemperatureService {
         'en-US',
       )!;
 
-      return baseParams
+      return coords
         ? {
             url: this._baseUrl,
             params: {
-              ...baseParams,
+              latitude: coords.lat,
+              longitude: coords.long,
+              hourly: ['soil_temperature_6cm', 'soil_temperature_18cm'],
+              temperature_unit: this.temperatureUnit()!,
+              timezone: 'auto',
               start_hour: startHour,
               end_hour: endHour,
             } satisfies OpenMeteoQueryParams,
@@ -57,15 +48,21 @@ export class SoilTemperatureService {
     });
 
   public weeklySoilTemperatureData = httpResource(() => {
-    const baseParams = this._baseOpenMeteoParams();
+    const coords = this._currentLatLong?.value();
+    const start = this.startDate();
+    const end = this.endDate();
 
-    return baseParams
+    return coords && start && end
       ? {
           url: this._baseUrl,
           params: {
-            ...baseParams,
-            start_hour: '2023-12-01T00:00',
-            end_hour: '2023-12-31T23:00',
+            latitude: coords.lat,
+            longitude: coords.long,
+            hourly: ['soil_temperature_6cm', 'soil_temperature_18cm'],
+            temperature_unit: this.temperatureUnit()!,
+            timezone: 'auto',
+            start_date: formatDate(start, 'YYYY-MM-dd', 'en-US'),
+            end_date: formatDate(end, 'YYYY-MM-dd', 'en-US'),
           } satisfies OpenMeteoQueryParams,
         }
       : undefined;

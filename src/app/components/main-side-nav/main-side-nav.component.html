@@ -2,8 +2,11 @@
   [modal]="false"
   [visible]="true"
   [closable]="false"
-  [transitionOptions]="'none'"
-  [style]="{ width: '250px !important', paddingTop: '75px' }"
+  [style]="{
+    width: '250px !important',
+    paddingTop: '75px',
+    transform: 'none !important',
+  }"
 >
   <ng-template #headless>
     <p-menu [model]="menuItems" [dt]="menuDt" [style]="{ fontSize: '24px' }" />

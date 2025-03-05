@@ -38,6 +38,11 @@ export class MainSideNavComponent {
     },
     item: {
       color: '{surface.500}',
+      focusBackground: '{lime.100}',
+      focusColor: '{lime.600}',
+      icon: {
+        focusColor: '{lime.600}',
+      },
     },
   };
 }

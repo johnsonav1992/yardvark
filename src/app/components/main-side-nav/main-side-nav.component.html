@@ -1,0 +1,11 @@
+<p-drawer
+  [modal]="false"
+  [visible]="true"
+  [closable]="false"
+  [transitionOptions]="'none'"
+  [style]="{ width: '250px !important', paddingTop: '75px' }"
+>
+  <ng-template #headless>
+    <p-menu [model]="menuItems" [dt]="menuDt" [style]="{ fontSize: '24px' }" />
+  </ng-template>
+</p-drawer>

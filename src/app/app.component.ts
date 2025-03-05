@@ -2,10 +2,11 @@ import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { MainHeaderComponent } from './components/main-header/main-header.component';
 import { AuthService } from '@auth0/auth0-angular';
+import { MainSideNavComponent } from './components/main-side-nav/main-side-nav.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MainHeaderComponent],
+  imports: [RouterOutlet, MainHeaderComponent, MainSideNavComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })

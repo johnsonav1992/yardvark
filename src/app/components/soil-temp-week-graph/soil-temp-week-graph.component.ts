@@ -13,7 +13,7 @@ import { getSoilTemperatureDisplayColor } from '../../utils/soilTemperatureUtils
 export class SoilTempWeekGraphComponent {
   public dailyAverageTemps = input.required<number[]>();
 
-  public data = computed<ChartData>(() => {
+  public data = computed<ChartData<'line'>>(() => {
     const averageOfAverages =
       this.dailyAverageTemps().reduce((acc, curr) => acc + curr, 0) / 7;
 
@@ -34,7 +34,7 @@ export class SoilTempWeekGraphComponent {
     };
   });
 
-  public options: ChartOptions = {
+  public options: ChartOptions<'line'> = {
     scales: {
       y: { beginAtZero: true },
     },

@@ -11,3 +11,15 @@ export const getFullWeekStartAndEndDates = () => {
     endDate,
   };
 };
+
+export const daysOfWeek = [
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+];
+
+export const HOURS_IN_A_DAY = 24;

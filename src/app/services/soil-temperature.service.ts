@@ -47,26 +47,28 @@ export class SoilTemperatureService {
         : undefined;
     });
 
-  public weeklySoilTemperatureData = httpResource(() => {
-    const coords = this._currentLatLong?.value();
-    const start = this.startDate();
-    const end = this.endDate();
+  public weeklySoilTemperatureData = httpResource<DailySoilTemperatureResponse>(
+    () => {
+      const coords = this._currentLatLong?.value();
+      const start = this.startDate();
+      const end = this.endDate();
 
-    return coords && start && end
-      ? {
-          url: this._baseUrl,
-          params: {
-            latitude: coords.lat,
-            longitude: coords.long,
-            hourly: ['soil_temperature_6cm', 'soil_temperature_18cm'],
-            temperature_unit: this.temperatureUnit()!,
-            timezone: 'auto',
-            start_date: formatDate(start, 'YYYY-MM-dd', 'en-US'),
-            end_date: formatDate(end, 'YYYY-MM-dd', 'en-US'),
-          } satisfies OpenMeteoQueryParams,
-        }
-      : undefined;
-  });
+      return coords && start && end
+        ? {
+            url: this._baseUrl,
+            params: {
+              latitude: coords.lat,
+              longitude: coords.long,
+              hourly: ['soil_temperature_6cm', 'soil_temperature_18cm'],
+              temperature_unit: this.temperatureUnit()!,
+              timezone: 'auto',
+              start_date: formatDate(start, 'YYYY-MM-dd', 'en-US'),
+              end_date: formatDate(end, 'YYYY-MM-dd', 'en-US'),
+            } satisfies OpenMeteoQueryParams,
+          }
+        : undefined;
+    },
+  );
 
   private _currentLatLong = rxResource({
     loader: () => this.getCurrentLatLong(),

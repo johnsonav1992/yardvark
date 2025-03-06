@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { LatLong } from '../types/types';
 import { Observable } from 'rxjs';
 import { httpResource } from '@angular/common/http';
@@ -15,6 +15,13 @@ import { getFullWeekStartAndEndDates } from '../utils/timeUtils';
 })
 export class SoilTemperatureService {
   private readonly _baseUrl = 'https://api.open-meteo.com/v1/forecast';
+  private readonly _sharedQueryParams = computed<Partial<OpenMeteoQueryParams>>(
+    () => ({
+      hourly: ['soil_temperature_6cm', 'soil_temperature_18cm'],
+      temperature_unit: this.temperatureUnit()!,
+      timezone: 'auto',
+    }),
+  );
 
   public temperatureUnit =
     signal<OpenMeteoQueryParams['temperature_unit']>('fahrenheit');
@@ -36,11 +43,9 @@ export class SoilTemperatureService {
         ? {
             url: this._baseUrl,
             params: {
+              ...this._sharedQueryParams(),
               latitude: coords.lat,
               longitude: coords.long,
-              hourly: ['soil_temperature_6cm', 'soil_temperature_18cm'],
-              temperature_unit: this.temperatureUnit()!,
-              timezone: 'auto',
               start_hour: startHour,
               end_hour: endHour,
             } satisfies OpenMeteoQueryParams,
@@ -57,11 +62,9 @@ export class SoilTemperatureService {
         ? {
             url: this._baseUrl,
             params: {
+              ...this._sharedQueryParams(),
               latitude: coords.lat,
               longitude: coords.long,
-              hourly: ['soil_temperature_6cm', 'soil_temperature_18cm'],
-              temperature_unit: this.temperatureUnit()!,
-              timezone: 'auto',
               start_date: formatDate(startDate, 'YYYY-MM-dd', 'en-US'),
               end_date: formatDate(endDate, 'YYYY-MM-dd', 'en-US'),
             } satisfies OpenMeteoQueryParams,

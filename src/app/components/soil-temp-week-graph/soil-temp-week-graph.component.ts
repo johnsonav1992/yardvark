@@ -3,6 +3,7 @@ import { ChartData, ChartOptions } from 'chart.js';
 import { ChartModule } from 'primeng/chart';
 import { getFullWeekOfDayLabelsCenteredAroundCurrentDay } from '../../utils/timeUtils';
 import { getSoilTemperatureDisplayColor } from '../../utils/soilTemperatureUtils';
+import { OpenMeteoQueryParams } from '../../types/openmeteo.types';
 
 @Component({
   selector: 'soil-temp-week-graph',
@@ -12,6 +13,8 @@ import { getSoilTemperatureDisplayColor } from '../../utils/soilTemperatureUtils
 })
 export class SoilTempWeekGraphComponent {
   public dailyAverageTemps = input.required<number[]>();
+  public tempUnit =
+    input.required<NonNullable<OpenMeteoQueryParams['temperature_unit']>>();
   public isLoadingChartData = input<boolean>(false);
 
   public data = computed<ChartData<'line'>>(() => {
@@ -23,7 +26,7 @@ export class SoilTempWeekGraphComponent {
       datasets: [
         {
           type: 'line',
-          label: 'Temperature',
+          label: `Temperature ${this.tempUnit() === 'fahrenheit' ? '°F' : '°C'}`,
           data: this.dailyAverageTemps(),
           fill: true,
           borderColor: getSoilTemperatureDisplayColor(averageOfAverages),
@@ -37,7 +40,14 @@ export class SoilTempWeekGraphComponent {
 
   public options: ChartOptions<'line'> = {
     scales: {
-      y: { beginAtZero: true },
+      y: {
+        beginAtZero: true,
+        min: 0,
+        max: 110,
+        ticks: {
+          stepSize: 10,
+        },
+      },
     },
   };
 }

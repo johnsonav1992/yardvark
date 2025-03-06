@@ -23,4 +23,8 @@ export class SoilDetailsComponent {
   public isLoadingAveragesChartData = computed(() =>
     this._soilTemperatureService.weeklySoilTemperatureData.isLoading(),
   );
+
+  public tempUnit = computed(
+    () => this._soilTemperatureService.temperatureUnit()!,
+  );
 }

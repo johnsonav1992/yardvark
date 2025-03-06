@@ -1,3 +1,10 @@
+/**
+ * Gets the start and end dates of a full week centered around the current date.
+ *
+ * @returns An object containing the start and end dates of the week.
+ * @property {Date} startDate - The start date of the week (3 days before today).
+ * @property {Date} endDate - The end date of the week (3 days after today).
+ */
 export const getFullWeekStartAndEndDates = () => {
   const today = new Date();
   const startDate = new Date(today);

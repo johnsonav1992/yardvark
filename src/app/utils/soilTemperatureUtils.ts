@@ -2,6 +2,12 @@ import { PrimeNGColorToken } from '../types/types';
 import { getPrimeNgHexColor } from './styleUtils';
 import { HOURS_IN_A_DAY } from './timeUtils';
 
+/**
+ * Returns the color to display for a given soil temperature.
+ *
+ * @param soilTemp - The soil temperature to get the color for.
+ * @returns The color to display for the given soil temperature.
+ */
 export const getSoilTemperatureDisplayColor = (soilTemp: number) => {
   const temperatureColorMap: { [key: number]: PrimeNGColorToken } = {
     25: 'indigo.400',
@@ -18,6 +24,12 @@ export const getSoilTemperatureDisplayColor = (soilTemp: number) => {
   return getPrimeNgHexColor('red.400');
 };
 
+/**
+ * Calculates the average soil temperature over a 24-hour period.
+ *
+ * @param soilTemps - An array of soil temperature readings taken over 24 hours.
+ * @returns The average soil temperature, rounded to one decimal place.
+ */
 export const calculate24HourSoilTempAverage = (soilTemps: number[]) => {
   const totalTemp = soilTemps.reduce((sum, temp) => sum + temp, 0);
 

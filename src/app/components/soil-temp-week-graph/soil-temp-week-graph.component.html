@@ -1,2 +1,10 @@
 <h3>Average daily soil temperatures</h3>
-<p-chart [type]="data().datasets[0].type" [data]="data()" [options]="options" />
+@if (isLoadingChartData()) {
+  Loading...
+} @else {
+  <p-chart
+    [type]="data().datasets[0].type"
+    [data]="data()"
+    [options]="options"
+  />
+}

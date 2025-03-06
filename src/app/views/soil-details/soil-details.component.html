@@ -1,4 +1,7 @@
 <div class="main-container">
   <h1>Soil details</h1>
-  <soil-temp-week-graph [dailyAverageTemps]="dailyAverageTemps()" />
+  <soil-temp-week-graph
+    [dailyAverageTemps]="dailyAverageTemps()"
+    [isLoadingChartData]="isLoadingAveragesChartData()"
+  />
 </div>

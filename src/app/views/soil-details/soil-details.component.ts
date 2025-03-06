@@ -21,6 +21,10 @@ export class SoilDetailsComponent implements OnInit {
     return getAllDailySoilTemperatureAverages(rawTempData || []);
   });
 
+  public isLoadingAveragesChartData = computed(() =>
+    this._soilTemperatureService.weeklySoilTemperatureData.isLoading(),
+  );
+
   public ngOnInit(): void {
     const { startDate, endDate } = getFullWeekStartAndEndDates();
 

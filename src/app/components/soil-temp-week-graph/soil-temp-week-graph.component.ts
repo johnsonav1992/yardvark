@@ -12,6 +12,7 @@ import { getSoilTemperatureDisplayColor } from '../../utils/soilTemperatureUtils
 })
 export class SoilTempWeekGraphComponent {
   public dailyAverageTemps = input.required<number[]>();
+  public isLoadingChartData = input<boolean>(false);
 
   public data = computed<ChartData<'line'>>(() => {
     const averageOfAverages =

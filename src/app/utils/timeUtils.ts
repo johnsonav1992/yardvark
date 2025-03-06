@@ -19,6 +19,24 @@ export const getFullWeekStartAndEndDates = () => {
   };
 };
 
+/**
+ * Gets the labels for the days of the week, centered around the current day.
+ *
+ * @returns An array of strings representing the days of the week.
+ */
+export const getFullWeekOfDayLabelsCenteredAroundCurrentDay = () => {
+  const today = new Date();
+  const todayIndex = today.getDay();
+  const labels = [];
+
+  for (let i = -3; i <= 3; i++) {
+    const dayIndex = (todayIndex + i + 7) % 7;
+    labels.push(daysOfWeek[dayIndex]);
+  }
+
+  return labels;
+};
+
 export const daysOfWeek = [
   'Sunday',
   'Monday',

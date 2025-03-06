@@ -8,6 +8,7 @@ import {
   DailySoilTemperatureResponse,
   OpenMeteoQueryParams,
 } from '../types/openmeteo.types';
+import { getFullWeekStartAndEndDates } from '../utils/timeUtils';
 
 @Injectable({
   providedIn: 'root',
@@ -50,10 +51,9 @@ export class SoilTemperatureService {
   public weeklySoilTemperatureData = httpResource<DailySoilTemperatureResponse>(
     () => {
       const coords = this._currentLatLong?.value();
-      const start = this.startDate();
-      const end = this.endDate();
+      const { startDate, endDate } = getFullWeekStartAndEndDates();
 
-      return coords && start && end
+      return coords && startDate && endDate
         ? {
             url: this._baseUrl,
             params: {
@@ -62,8 +62,8 @@ export class SoilTemperatureService {
               hourly: ['soil_temperature_6cm', 'soil_temperature_18cm'],
               temperature_unit: this.temperatureUnit()!,
               timezone: 'auto',
-              start_date: formatDate(start, 'YYYY-MM-dd', 'en-US'),
-              end_date: formatDate(end, 'YYYY-MM-dd', 'en-US'),
+              start_date: formatDate(startDate, 'YYYY-MM-dd', 'en-US'),
+              end_date: formatDate(endDate, 'YYYY-MM-dd', 'en-US'),
             } satisfies OpenMeteoQueryParams,
           }
         : undefined;

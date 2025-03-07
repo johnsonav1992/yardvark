@@ -1,0 +1,11 @@
+.chart-container {
+  margin-top: 1rem;
+  position: relative;
+  width: 75%;
+}
+
+@media (max-width: 1500px) {
+  .chart-container {
+    width: 100%;
+  }
+}

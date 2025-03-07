@@ -1,0 +1,14 @@
+<h3>Average daily soil temperatures - Rolling week</h3>
+@if (isLoadingChartData()) {
+  <div [style]="{ margin: '.5rem' }">
+    <chart-loader />
+  </div>
+} @else {
+  <div class="chart-container">
+    <p-chart
+      [type]="moistureChartData().datasets[0].type"
+      [data]="moistureChartData()"
+      [options]="options"
+    />
+  </div>
+}

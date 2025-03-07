@@ -5,7 +5,7 @@ import { PopoverModule } from 'primeng/popover';
 import { FormsModule } from '@angular/forms';
 import { SoilTemperatureService } from '../../../../services/soil-temperature.service';
 import {
-  calculate24HourSoilTempAverage,
+  calculate24HourNumericAverage,
   getSoilTemperatureDisplayColor
 } from '../../../../utils/soilTemperatureUtils';
 import { DegreesDisplay } from '../../../../types/types';
@@ -32,7 +32,7 @@ export class SoilTemperatureDisplayComponent {
 
     if (!hourlySoilTemperatures?.length) return null;
 
-    return calculate24HourSoilTempAverage(hourlySoilTemperatures);
+    return calculate24HourNumericAverage(hourlySoilTemperatures);
   });
 
   public tempToDisplay = computed<DegreesDisplay<false> | null>(() => {

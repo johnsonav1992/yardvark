@@ -14,7 +14,7 @@ export const getSoilTemperatureDisplayColor = (soilTemp: number) => {
     40: 'blue.500',
     45: 'green.600',
     50: 'amber.200',
-    70: 'amber.400',
+    70: 'amber.400'
   };
 
   for (const [temp, color] of Object.entries(temperatureColorMap)) {
@@ -25,32 +25,30 @@ export const getSoilTemperatureDisplayColor = (soilTemp: number) => {
 };
 
 /**
- * Calculates the average soil temperature over a 24-hour period.
+ * Calculates the average of numeric data over a 24-hour period.
  *
- * @param soilTemps - An array of soil temperature readings taken over 24 hours.
- * @returns The average soil temperature, rounded to one decimal place.
+ * @param numericData - An array of numeric readings taken over 24 hours.
+ * @returns The average value, rounded to one decimal place.
  */
-export const calculate24HourSoilTempAverage = (soilTemps: number[]) => {
-  const totalTemp = soilTemps.reduce((sum, temp) => sum + temp, 0);
+export const calculate24HourNumericAverage = (numericData: number[]) => {
+  const total = numericData.reduce((sum, temp) => sum + temp, 0);
 
-  return Math.round((totalTemp / soilTemps.length) * 10) / 10;
+  return Math.round((total / numericData.length) * 10) / 10;
 };
 
 /**
- * Takes an array of hourly soil temps
- * that will be chunked into sub-arrays of
- * 24 (for each hour of one day) to produce
- * a daily average for as many days as
- * the dataset can be split into.
+ * Calculates the daily averages from an array of hourly numeric data.
+ * The data is chunked into sub-arrays of 24 (representing each hour of one day)
+ * to produce a daily average for as many days as the dataset can be split into.
  */
-export const getAllDailySoilTemperatureAverages = (
-  hourlyTemps: number[],
+export const getAllDailyNumericDataAverages = (
+  hourlyNumericData: number[]
 ): number[] => {
   let dailyAverages: number[] = [];
 
-  for (let i = 0; i < hourlyTemps.length; i += HOURS_IN_A_DAY) {
-    const dailyTemps = hourlyTemps.slice(i, i + HOURS_IN_A_DAY);
-    const dailyAverage = calculate24HourSoilTempAverage(dailyTemps);
+  for (let i = 0; i < hourlyNumericData.length; i += HOURS_IN_A_DAY) {
+    const dailyData = hourlyNumericData.slice(i, i + HOURS_IN_A_DAY);
+    const dailyAverage = calculate24HourNumericAverage(dailyData);
 
     dailyAverages.push(dailyAverage);
   }

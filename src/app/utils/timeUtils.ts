@@ -36,6 +36,7 @@ export const getFullWeekOfDayLabelsCenteredAroundCurrentDay = (opts?: {
     const currentDate = new Date(today);
     currentDate.setDate(today.getDate() + i);
     const dayIndex = (todayIndex + i + 7) % 7;
+
     let label = opts?.shortDayNames
       ? daysOfWeek[dayIndex].substring(0, 3)
       : daysOfWeek[dayIndex];

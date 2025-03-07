@@ -12,10 +12,18 @@ import { getAllDailySoilTemperatureAverages } from '../../utils/soilTemperatureU
 export class SoilDetailsComponent {
   private _soilTemperatureService = inject(SoilTemperatureService);
 
-  public dailyAverageTemps = computed(() => {
+  public dailyAverageShallowTemps = computed(() => {
     const rawTempData =
       this._soilTemperatureService.weeklySoilTemperatureData.value()?.hourly
         .soil_temperature_6cm;
+
+    return getAllDailySoilTemperatureAverages(rawTempData || []);
+  });
+
+  public dailyAverageDeepTemps = computed(() => {
+    const rawTempData =
+      this._soilTemperatureService.weeklySoilTemperatureData.value()?.hourly
+        .soil_temperature_18cm;
 
     return getAllDailySoilTemperatureAverages(rawTempData || []);
   });

@@ -24,14 +24,25 @@ export const getRollingWeekStartAndEndDates = () => {
  *
  * @returns An array of strings representing the days of the week.
  */
-export const getFullWeekOfDayLabelsCenteredAroundCurrentDay = () => {
+export const getFullWeekOfDayLabelsCenteredAroundCurrentDay = (opts?: {
+  includeDates?: boolean;
+}) => {
   const today = new Date();
   const todayIndex = today.getDay();
   const labels = [];
 
   for (let i = -3; i <= 3; i++) {
+    const currentDate = new Date(today);
+    currentDate.setDate(today.getDate() + i);
     const dayIndex = (todayIndex + i + 7) % 7;
-    labels.push(daysOfWeek[dayIndex]);
+    let label = daysOfWeek[dayIndex];
+
+    if (opts?.includeDates) {
+      const dateStr = `${currentDate.getMonth() + 1}/${currentDate.getDate()}`;
+      label += ` ${dateStr}`;
+    }
+
+    labels.push(label);
   }
 
   return labels;

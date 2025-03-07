@@ -63,6 +63,10 @@ export class SoilTemperatureService {
             url: this._baseUrl,
             params: {
               ...this._sharedQueryParams(),
+              hourly: [
+                ...this._sharedQueryParams().hourly!,
+                'soil_moisture_3_to_9cm',
+              ],
               latitude: coords.lat,
               longitude: coords.long,
               start_date: formatDate(startDate, 'YYYY-MM-dd', 'en-US'),

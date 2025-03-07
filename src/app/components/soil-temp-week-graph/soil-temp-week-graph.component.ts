@@ -23,7 +23,9 @@ export class SoilTempWeekGraphComponent {
   );
 
   public tempsChartData = computed<ChartData<'line'>>(() => ({
-    labels: getFullWeekOfDayLabelsCenteredAroundCurrentDay(),
+    labels: getFullWeekOfDayLabelsCenteredAroundCurrentDay({
+      includeDates: true,
+    }),
     datasets: [
       {
         type: 'line',

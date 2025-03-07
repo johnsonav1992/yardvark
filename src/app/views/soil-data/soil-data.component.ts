@@ -4,12 +4,12 @@ import { SoilTempWeekGraphComponent } from '../../components/soil-temp-week-grap
 import { getAllDailySoilTemperatureAverages } from '../../utils/soilTemperatureUtils';
 
 @Component({
-  selector: 'soil-details',
+  selector: 'soil-data',
   imports: [SoilTempWeekGraphComponent],
-  templateUrl: './soil-details.component.html',
-  styleUrl: './soil-details.component.scss',
+  templateUrl: './soil-data.component.html',
+  styleUrl: './soil-data.component.scss',
 })
-export class SoilDetailsComponent {
+export class SoilDataComponent {
   private _soilTemperatureService = inject(SoilTemperatureService);
 
   public dailyAverageShallowTemps = computed(() => {

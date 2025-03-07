@@ -25,7 +25,7 @@ export class SoilMoistureWeekGraphComponent {
         type: 'line',
         label: 'Soil moisture',
         data: this.dailyMoistureData(),
-        borderColor: getPrimeNgHexColor('blue.400'),
+        borderColor: getPrimeNgHexColor('pink.400'),
         tension: 0.4
       }
     ]

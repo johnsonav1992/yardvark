@@ -27,7 +27,7 @@ export class SoilTempWeekGraphComponent {
     datasets: [
       {
         type: 'line',
-        label: `3in. Depth ${this.displayTempUnit()}`,
+        label: `3in. depth ${this.displayTempUnit()}`,
         data: this.dailyAverageShallowTemps(),
         borderColor: getPrimeNgHexColor('indigo.400'),
         tension: 0.4,

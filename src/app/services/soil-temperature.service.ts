@@ -8,7 +8,7 @@ import {
   DailySoilTemperatureResponse,
   OpenMeteoQueryParams,
 } from '../types/openmeteo.types';
-import { getFullWeekStartAndEndDates } from '../utils/timeUtils';
+import { getRollingWeekStartAndEndDates } from '../utils/timeUtils';
 
 @Injectable({
   providedIn: 'root',
@@ -53,10 +53,10 @@ export class SoilTemperatureService {
         : undefined;
     });
 
-  public weeklySoilTemperatureData = httpResource<DailySoilTemperatureResponse>(
-    () => {
+  public rollingWeekDailyAverageSoilData =
+    httpResource<DailySoilTemperatureResponse>(() => {
       const coords = this._currentLatLong?.value();
-      const { startDate, endDate } = getFullWeekStartAndEndDates();
+      const { startDate, endDate } = getRollingWeekStartAndEndDates();
 
       return coords && startDate && endDate
         ? {
@@ -70,8 +70,7 @@ export class SoilTemperatureService {
             } satisfies OpenMeteoQueryParams,
           }
         : undefined;
-    },
-  );
+    });
 
   private _currentLatLong = rxResource({
     loader: () => this.getCurrentLatLong(),

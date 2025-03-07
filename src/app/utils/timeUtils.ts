@@ -5,7 +5,7 @@
  * @property {Date} startDate - The start date of the week (3 days before today).
  * @property {Date} endDate - The end date of the week (3 days after today).
  */
-export const getFullWeekStartAndEndDates = () => {
+export const getRollingWeekStartAndEndDates = () => {
   const today = new Date();
   const startDate = new Date(today);
   const endDate = new Date(today);

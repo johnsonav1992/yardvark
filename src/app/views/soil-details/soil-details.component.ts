@@ -14,22 +14,22 @@ export class SoilDetailsComponent {
 
   public dailyAverageShallowTemps = computed(() => {
     const rawTempData =
-      this._soilTemperatureService.weeklySoilTemperatureData.value()?.hourly
-        .soil_temperature_6cm;
+      this._soilTemperatureService.rollingWeekDailyAverageSoilData.value()
+        ?.hourly.soil_temperature_6cm;
 
     return getAllDailySoilTemperatureAverages(rawTempData || []);
   });
 
   public dailyAverageDeepTemps = computed(() => {
     const rawTempData =
-      this._soilTemperatureService.weeklySoilTemperatureData.value()?.hourly
-        .soil_temperature_18cm;
+      this._soilTemperatureService.rollingWeekDailyAverageSoilData.value()
+        ?.hourly.soil_temperature_18cm;
 
     return getAllDailySoilTemperatureAverages(rawTempData || []);
   });
 
   public isLoadingAveragesChartData = computed(() =>
-    this._soilTemperatureService.weeklySoilTemperatureData.isLoading(),
+    this._soilTemperatureService.rollingWeekDailyAverageSoilData.isLoading(),
   );
 
   public tempUnit = computed(

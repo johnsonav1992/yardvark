@@ -18,17 +18,17 @@ export const appConfig: ApplicationConfig = {
       theme: {
         preset: theme,
         options: {
-          darkModeSelector: false,
-        },
+          darkModeSelector: false
+        }
       },
-      ripple: true,
+      ripple: true
     }),
     provideAuth0({
       domain: 'dev-w4uj6ulyqeacwtfi.us.auth0.com',
       clientId: 'QRPi2KnSnV3pEnDiOqE2aN4zeNS8vRM5',
       authorizationParams: {
-        redirect_uri: window.location.origin,
-      },
-    }),
-  ],
+        redirect_uri: window.location.origin
+      }
+    })
+  ]
 };

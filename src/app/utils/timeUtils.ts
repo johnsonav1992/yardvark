@@ -22,7 +22,10 @@ export const getRollingWeekStartAndEndDates = () => {
 /**
  * Gets the labels for the days of the week, centered around the current day.
  *
- * @returns An array of strings representing the days of the week.
+ * @param {Object} [opts] - Optional parameters.
+ * @param {boolean} [opts.includeDates] - Whether to include dates in the labels.
+ * @param {boolean} [opts.shortDayNames] - Whether to use short day names (e.g., Mon, Tue).
+ * @returns {string[]} An array of strings representing the days of the week.
  */
 export const getFullWeekOfDayLabelsCenteredAroundCurrentDay = (opts?: {
   includeDates?: boolean;
@@ -52,6 +55,9 @@ export const getFullWeekOfDayLabelsCenteredAroundCurrentDay = (opts?: {
   return labels;
 };
 
+/**
+ * An array of strings representing the days of the week.
+ */
 export const daysOfWeek = [
   'Sunday',
   'Monday',
@@ -62,4 +68,7 @@ export const daysOfWeek = [
   'Saturday',
 ];
 
+/**
+ * The number of hours in a day.
+ */
 export const HOURS_IN_A_DAY = 24;

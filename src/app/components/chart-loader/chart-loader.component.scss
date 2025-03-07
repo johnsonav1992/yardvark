@@ -1,0 +1,10 @@
+.outer-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  .inner-container {
+    display: flex;
+    gap: 0.25rem;
+  }
+}

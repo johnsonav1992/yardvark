@@ -1,6 +1,8 @@
 <h3>Average daily soil temperatures - Rolling week</h3>
 @if (isLoadingChartData()) {
-  Loading...
+  <div [style]="{ margin: '.5rem' }">
+    <chart-loader />
+  </div>
 } @else {
   <div class="chart-container">
     <p-chart

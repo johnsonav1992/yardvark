@@ -4,13 +4,13 @@ import { AuthService } from '@auth0/auth0-angular';
 import { MenuItem } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
 import { MenuModule } from 'primeng/menu';
-import { SoilTemperatureDisplayComponent } from '../soil-temperature-display/soil-temperature-display.component';
+import { SoilTemperatureDisplayComponent } from './soil-temperature-display/soil-temperature-display.component';
 
 @Component({
   selector: 'main-header',
   imports: [AvatarModule, MenuModule, SoilTemperatureDisplayComponent],
   templateUrl: './main-header.component.html',
-  styleUrl: './main-header.component.scss',
+  styleUrl: './main-header.component.scss'
 })
 export class MainHeaderComponent {
   private _authService = inject(AuthService);
@@ -23,12 +23,12 @@ export class MainHeaderComponent {
       icon: 'ti ti-settings',
       command: () => {
         console.log('Settings');
-      },
+      }
     },
     {
       label: 'Logout',
       icon: 'ti ti-logout',
-      command: () => this._authService.logout(),
-    },
+      command: () => this._authService.logout()
+    }
   ];
 }

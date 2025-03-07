@@ -1,20 +1,20 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { DegreesDisplay } from '../../types/types';
-import {
-  calculate24HourSoilTempAverage,
-  getSoilTemperatureDisplayColor,
-} from '../../utils/soilTemperatureUtils';
-import { SoilTemperatureService } from '../../services/soil-temperature.service';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { PopoverModule } from 'primeng/popover';
 import { FormsModule } from '@angular/forms';
+import { SoilTemperatureService } from '../../../../services/soil-temperature.service';
+import {
+  calculate24HourSoilTempAverage,
+  getSoilTemperatureDisplayColor
+} from '../../../../utils/soilTemperatureUtils';
+import { DegreesDisplay } from '../../../../types/types';
 
 @Component({
   selector: 'soil-temperature-display',
   imports: [TooltipModule, ToggleSwitchModule, FormsModule, PopoverModule],
   templateUrl: './soil-temperature-display.component.html',
-  styleUrl: './soil-temperature-display.component.scss',
+  styleUrl: './soil-temperature-display.component.scss'
 })
 export class SoilTemperatureDisplayComponent {
   private _soilTemperatureService = inject(SoilTemperatureService);

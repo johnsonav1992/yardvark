@@ -1,10 +1,10 @@
 import { Component, computed, input } from '@angular/core';
 import { ChartData, ChartOptions } from 'chart.js';
 import { ChartModule } from 'primeng/chart';
-import { getFullWeekOfDayLabelsCenteredAroundCurrentDay } from '../../utils/timeUtils';
-import { OpenMeteoQueryParams } from '../../types/openmeteo.types';
-import { getPrimeNgHexColor } from '../../utils/styleUtils';
-import { ChartLoaderComponent } from '../chart-loader/chart-loader.component';
+import { getFullWeekOfDayLabelsCenteredAroundCurrentDay } from '../../../utils/timeUtils';
+import { OpenMeteoQueryParams } from '../../../types/openmeteo.types';
+import { getPrimeNgHexColor } from '../../../utils/styleUtils';
+import { ChartLoaderComponent } from '../../chart-loader/chart-loader.component';
 
 @Component({
   selector: 'soil-temp-week-graph',

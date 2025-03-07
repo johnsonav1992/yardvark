@@ -7,7 +7,7 @@ export type DailySoilTemperatureResponse = {
   timezone_abbreviation: string;
   elevation: number;
   hourly_units: HourlyUnits;
-  hourly: HourlySoilTemperatures;
+  hourly: HourlySoilData;
 };
 
 export type HourlyUnits = {
@@ -16,10 +16,11 @@ export type HourlyUnits = {
   soil_temperature_18cm: string;
 };
 
-export type HourlySoilTemperatures = {
+export type HourlySoilData = {
   time: string[];
   soil_temperature_6cm: number[];
   soil_temperature_18cm: number[];
+  soil_moisture_3_to_9cm: number[];
 };
 
 export type OpenMeteoQueryParams = {
@@ -41,7 +42,12 @@ export type OpenMeteoQueryParams = {
   /**
    * List of weather variables
    */
-  hourly?: string[];
+  hourly?: Array<
+    | 'soil_temperature_6cm'
+    | 'soil_temperature_18cm'
+    | 'soil_moisture_3_to_9cm'
+    | (string & {})
+  >;
 
   /**
    * List of daily weather variable aggregations

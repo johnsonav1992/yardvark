@@ -1,13 +1,13 @@
 import { Component, computed, inject } from '@angular/core';
 import { SoilTemperatureService } from '../../services/soil-temperature.service';
-import { SoilTempWeekGraphComponent } from '../../components/soil-temp-week-graph/soil-temp-week-graph.component';
+import { SoilTempWeekGraphComponent } from '../../components/soil-data/soil-temp-week-graph/soil-temp-week-graph.component';
 import { getAllDailySoilTemperatureAverages } from '../../utils/soilTemperatureUtils';
 
 @Component({
   selector: 'soil-data',
   imports: [SoilTempWeekGraphComponent],
   templateUrl: './soil-data.component.html',
-  styleUrl: './soil-data.component.scss',
+  styleUrl: './soil-data.component.scss'
 })
 export class SoilDataComponent {
   private _soilTemperatureService = inject(SoilTemperatureService);
@@ -29,10 +29,10 @@ export class SoilDataComponent {
   });
 
   public isLoadingAveragesChartData = computed(() =>
-    this._soilTemperatureService.rollingWeekDailyAverageSoilData.isLoading(),
+    this._soilTemperatureService.rollingWeekDailyAverageSoilData.isLoading()
   );
 
   public tempUnit = computed(
-    () => this._soilTemperatureService.temperatureUnit()!,
+    () => this._soilTemperatureService.temperatureUnit()!
   );
 }

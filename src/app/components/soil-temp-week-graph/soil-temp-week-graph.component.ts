@@ -25,6 +25,7 @@ export class SoilTempWeekGraphComponent {
   public tempsChartData = computed<ChartData<'line'>>(() => ({
     labels: getFullWeekOfDayLabelsCenteredAroundCurrentDay({
       includeDates: true,
+      shortDayNames: true,
     }),
     datasets: [
       {
@@ -51,9 +52,9 @@ export class SoilTempWeekGraphComponent {
       y: {
         beginAtZero: true,
         min: 0,
-        max: 110,
+        max: 100,
         ticks: {
-          stepSize: 10,
+          stepSize: 20,
         },
       },
     },

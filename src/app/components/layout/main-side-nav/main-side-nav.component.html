@@ -2,12 +2,7 @@
   [modal]="false"
   [visible]="true"
   [closable]="false"
-  [style]="{
-    width: '250px !important',
-    paddingTop: '75px',
-    transform: 'none !important',
-    boxShadow: 'none'
-  }"
+  [styleClass]="'sidenav'"
 >
   <ng-template #headless>
     <p-menu [model]="menuItems" [dt]="menuDt" [style]="{ fontSize: '24px' }" />

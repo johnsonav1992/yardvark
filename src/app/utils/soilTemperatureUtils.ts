@@ -28,27 +28,40 @@ export const getSoilTemperatureDisplayColor = (soilTemp: number) => {
  * Calculates the average of numeric data over a 24-hour period.
  *
  * @param numericData - An array of numeric readings taken over 24 hours.
- * @returns The average value, rounded to one decimal place.
+ * @param options - An optional parameter to specify rounding precision.
+ * @returns The average value, rounded to the specified decimal places.
  */
-export const calculate24HourNumericAverage = (numericData: number[]) => {
+export const calculate24HourNumericAverage = (
+  numericData: number[],
+  options?: { precision?: number }
+) => {
   const total = numericData.reduce((sum, temp) => sum + temp, 0);
+  const precision = options?.precision ?? 1;
 
-  return Math.round((total / numericData.length) * 10) / 10;
+  return (
+    Math.round((total / numericData.length) * Math.pow(10, precision)) /
+    Math.pow(10, precision)
+  );
 };
 
 /**
  * Calculates the daily averages from an array of hourly numeric data.
  * The data is chunked into sub-arrays of 24 (representing each hour of one day)
  * to produce a daily average for as many days as the dataset can be split into.
+ *
+ * @param hourlyNumericData - An array of numeric readings taken hourly.
+ * @param options - An optional parameter to specify rounding precision.
+ * @returns An array of daily average values, rounded to the specified decimal places.
  */
 export const getAllDailyNumericDataAverages = (
-  hourlyNumericData: number[]
+  hourlyNumericData: number[],
+  options?: { precision?: number }
 ): number[] => {
   let dailyAverages: number[] = [];
 
   for (let i = 0; i < hourlyNumericData.length; i += HOURS_IN_A_DAY) {
     const dailyData = hourlyNumericData.slice(i, i + HOURS_IN_A_DAY);
-    const dailyAverage = calculate24HourNumericAverage(dailyData);
+    const dailyAverage = calculate24HourNumericAverage(dailyData, options);
 
     dailyAverages.push(dailyAverage);
   }

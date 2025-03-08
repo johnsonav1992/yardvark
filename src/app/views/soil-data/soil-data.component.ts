@@ -34,9 +34,9 @@ export class SoilDataComponent {
       this._soilTemperatureService.rollingWeekDailyAverageSoilData.value()
         ?.hourly.soil_moisture_3_to_9cm;
 
-    console.log({ rawMoistureData });
-
-    return getAllDailyNumericDataAverages(rawMoistureData || []);
+    return getAllDailyNumericDataAverages(rawMoistureData || [], {
+      precision: 2
+    });
   });
 
   public isLoadingAveragesChartData = computed(() =>

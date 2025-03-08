@@ -1,6 +1,6 @@
 .main-content-wrapper {
-  padding-left: 250px;
-  padding-top: 75px;
+  padding-left: var(--side-nav-width);
+  padding-top: var(--main-header-height);
 
   .inner-content-wrapper {
     padding: 1rem;

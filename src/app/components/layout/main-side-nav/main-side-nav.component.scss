@@ -1,5 +1,8 @@
 .sidenav {
-  width: 200px !important;
+  width: var(--side-nav-width) !important;
+  padding-top: var(--main-header-height);
+  transform: none !important;
+  box-shadow: none !important;
 }
 
 .menu {

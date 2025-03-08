@@ -37,6 +37,7 @@ export class SoilMoistureWeekGraphComponent {
     scales: {
       y: {
         beginAtZero: true,
+        max: 0.6,
         ticks: {
           stepSize: 0.1
         }

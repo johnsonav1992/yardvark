@@ -21,9 +21,7 @@ export class MainHeaderComponent {
     {
       label: 'Settings',
       icon: 'ti ti-settings',
-      command: () => {
-        console.log('Settings');
-      }
+      routerLink: '/settings'
     },
     {
       label: 'Logout',

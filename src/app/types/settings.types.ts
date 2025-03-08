@@ -1,3 +1,3 @@
 export type Settings = {
-  temperatureUnit: 'celsius' | 'fahrenheit';
+  temperatureUnit?: 'celsius' | 'fahrenheit';
 };

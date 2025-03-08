@@ -15,9 +15,7 @@ import { FormsModule } from '@angular/forms';
 export class SettingsComponent {
   public settings = httpResource<Settings>(beUrl('settings'));
 
-  public currentSettings = computed(
-    () => this.settings.value() || ({} as Settings)
-  );
+  public currentSettings = computed(() => this.settings.value());
 
   public updateSetting<
     TKey extends keyof Settings,

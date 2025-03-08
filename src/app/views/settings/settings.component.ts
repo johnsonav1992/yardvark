@@ -1,31 +1,18 @@
-import { Component, computed } from '@angular/core';
+import { Component } from '@angular/core';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
-import { httpResource } from '@angular/common/http';
-import { beUrl, putReq } from '../../utils/httpUtils';
-import { Settings } from '../../types/settings.types';
-import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
+import { SelectModule } from 'primeng/select';
+import { injectSettingsService } from '../../services/settings.service';
 
 @Component({
   selector: 'settings',
-  imports: [PageContainerComponent, DropdownModule, FormsModule],
+  imports: [PageContainerComponent, SelectModule, FormsModule],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'
 })
 export class SettingsComponent {
-  public settings = httpResource<Settings>(beUrl('settings'));
+  private _settingsService = injectSettingsService();
 
-  public currentSettings = computed(() => this.settings.value());
-
-  public updateSetting<
-    TKey extends keyof Settings,
-    TValue extends Settings[TKey]
-  >(settingName: TKey, newValue: TValue): void {
-    const updatedSettings: Settings = {
-      ...this.currentSettings(),
-      [settingName]: newValue
-    };
-
-    putReq<Settings>(beUrl('settings'), updatedSettings).subscribe();
-  }
+  public currentSettings = this._settingsService.currentSettings;
+  public updateSetting = this._settingsService.updateSetting;
 }

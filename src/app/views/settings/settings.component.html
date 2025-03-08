@@ -1,7 +1,8 @@
 <page-container pageTitle="Settings">
   <div style="display: flex; flex-direction: column; gap: 0.5rem">
     <h4>Temperature unit</h4>
-    <p-dropdown
+    <p-select
+      [style]="{ width: '300px' }"
       [options]="[
         { label: 'Fahrenheit', value: 'fahrenheit' },
         { label: 'Celsius', value: 'celsius' }

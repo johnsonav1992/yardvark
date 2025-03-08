@@ -9,11 +9,14 @@ import {
   OpenMeteoQueryParams
 } from '../types/openmeteo.types';
 import { getRollingWeekStartAndEndDates } from '../utils/timeUtils';
+import { injectSettingsService } from './settings.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SoilTemperatureService {
+  private _settingsService = injectSettingsService();
+
   private readonly _baseUrl = 'https://api.open-meteo.com/v1/forecast';
   private readonly _sharedQueryParams = computed<Partial<OpenMeteoQueryParams>>(
     () => ({
@@ -23,8 +26,10 @@ export class SoilTemperatureService {
     })
   );
 
-  public temperatureUnit =
-    signal<OpenMeteoQueryParams['temperature_unit']>('fahrenheit');
+  public temperatureUnit = computed(
+    () =>
+      this._settingsService.currentSettings()?.temperatureUnit || 'fahrenheit'
+  );
   public startDate = signal<Date | null>(null);
   public endDate = signal<Date | null>(null);
 

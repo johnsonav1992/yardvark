@@ -1,3 +1,5 @@
 {
-  "settings": { "temperatureUnit": "fahrenheit" }
+  "settings": {
+    "temperatureUnit": "celsius"
+  }
 }

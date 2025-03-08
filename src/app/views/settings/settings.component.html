@@ -1,1 +1,15 @@
-<page-container pageTitle="Settings"> here</page-container>
+<page-container pageTitle="Settings">
+  <div style="display: flex; flex-direction: column; gap: 0.5rem">
+    <h4>Temperature unit</h4>
+    <p-dropdown
+      [options]="[
+        { label: 'Fahrenheit', value: 'fahrenheit' },
+        { label: 'Celsius', value: 'celsius' }
+      ]"
+      [optionLabel]="'label'"
+      [optionValue]="'value'"
+      [ngModel]="currentSettings()?.temperatureUnit"
+      (onChange)="updateSetting('temperatureUnit', $event.value.toLowerCase())"
+    />
+  </div>
+</page-container>

@@ -9,6 +9,7 @@ import {
   getSoilTemperatureDisplayColor
 } from '../../../../utils/soilTemperatureUtils';
 import { DegreesDisplay } from '../../../../types/types';
+import { injectSettingsService } from '../../../../services/settings.service';
 
 @Component({
   selector: 'soil-temperature-display',
@@ -18,6 +19,7 @@ import { DegreesDisplay } from '../../../../types/types';
 })
 export class SoilTemperatureDisplayComponent {
   private _soilTemperatureService = inject(SoilTemperatureService);
+  private _settingsService = injectSettingsService();
 
   public soilTemperatureData =
     this._soilTemperatureService.past24HourSoilTemperatureData;
@@ -48,4 +50,9 @@ export class SoilTemperatureDisplayComponent {
 
     return 'black';
   });
+
+  public tempUnit = computed(
+    () =>
+      this._settingsService.currentSettings()?.temperatureUnit || 'fahrenheit'
+  );
 }

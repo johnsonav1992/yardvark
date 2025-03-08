@@ -14,7 +14,11 @@
       [style.color]="displayColor()"
     >
       <p>{{ tempToDisplay() }}</p>
-      <i class="ti ti-temperature-fahrenheit"></i>
+      <i
+        [class.ti]="true"
+        [class.ti-temperature-fahrenheit]="tempUnit() === 'fahrenheit'"
+        [class.ti-temperature-celsius]="tempUnit() === 'celsius'"
+      ></i>
     </span>
     <p-popover #depthPopover [dismissable]="true">
       <div class="depth-overlay-inner">

@@ -1,5 +1,4 @@
-<div class="main-container">
-  <h1>Soil data</h1>
+<page-container pageTitle="Soil data">
   <soil-temp-week-graph
     [dailyAverageShallowTemps]="dailyAverageShallowTemps()"
     [dailyAverageDeepTemps]="dailyAverageDeepTemps()"
@@ -10,4 +9,4 @@
     [dailyMoistureData]="dailyMoistureData()"
     [isLoadingChartData]="isLoadingAveragesChartData()"
   />
-</div>
+</page-container>

@@ -3,10 +3,15 @@ import { SoilTemperatureService } from '../../services/soil-temperature.service'
 import { SoilTempWeekGraphComponent } from '../../components/soil-data/soil-temp-week-graph/soil-temp-week-graph.component';
 import { getAllDailyNumericDataAverages } from '../../utils/soilTemperatureUtils';
 import { SoilMoistureWeekGraphComponent } from '../../components/soil-data/soil-moisture-week-graph/soil-moisture-week-graph.component';
+import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 
 @Component({
   selector: 'soil-data',
-  imports: [SoilTempWeekGraphComponent, SoilMoistureWeekGraphComponent],
+  imports: [
+    SoilTempWeekGraphComponent,
+    SoilMoistureWeekGraphComponent,
+    PageContainerComponent
+  ],
   templateUrl: './soil-data.component.html',
   styleUrl: './soil-data.component.scss'
 })

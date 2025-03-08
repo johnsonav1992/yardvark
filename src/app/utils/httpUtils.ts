@@ -4,6 +4,8 @@ import {
   EnvironmentInjector,
   runInInjectionContext
 } from '@angular/core';
+import { EndPoints } from '../types/endpoints.types';
+import { BE_URL } from '../constants/api-constants';
 
 let environmentInjector: EnvironmentInjector | null = null;
 
@@ -52,3 +54,5 @@ export const deleteReq = createHttpUtil(
     return http.delete<T>(...deleteArgs);
   }
 );
+
+export const beUrl = (path: EndPoints) => `${BE_URL}/${path}`;

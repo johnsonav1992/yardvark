@@ -15,15 +15,19 @@ import { FormsModule } from '@angular/forms';
 export class SettingsComponent {
   public settings = httpResource<Settings>(beUrl('settings'));
 
-  public currentSettings = computed(() => this.settings.value());
+  public currentSettings = computed(
+    () => this.settings.value() || ({} as Settings)
+  );
 
   public updateSetting<
     TKey extends keyof Settings,
     TValue extends Settings[TKey]
   >(settingName: TKey, newValue: TValue): void {
-    putReq(beUrl('settings'), {
+    const updatedSettings: Settings = {
       ...this.currentSettings(),
       [settingName]: newValue
-    }).subscribe();
+    };
+
+    putReq<Settings>(beUrl('settings'), updatedSettings).subscribe();
   }
 }

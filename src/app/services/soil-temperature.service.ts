@@ -26,12 +26,13 @@ export class SoilTemperatureService {
     })
   );
 
+  public startDate = signal<Date | null>(null);
+  public endDate = signal<Date | null>(null);
+
   public temperatureUnit = computed(
     () =>
       this._settingsService.currentSettings()?.temperatureUnit || 'fahrenheit'
   );
-  public startDate = signal<Date | null>(null);
-  public endDate = signal<Date | null>(null);
 
   public past24HourSoilTemperatureData =
     httpResource<DailySoilTemperatureResponse>(() => {

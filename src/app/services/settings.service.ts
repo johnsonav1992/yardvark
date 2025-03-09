@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, linkedSignal } from '@angular/core';
+import { inject, Injectable, linkedSignal } from '@angular/core';
 import { apiUrl, putReq } from '../utils/httpUtils';
 import { Settings } from '../types/settings.types';
 import { httpResource } from '@angular/common/http';

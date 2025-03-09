@@ -5,7 +5,7 @@ import {
   inject,
   runInInjectionContext
 } from '@angular/core';
-import { EndPoints } from '../types/endpoints.types';
+import { ApiEndpointRoutes } from '../types/endpoints.types';
 import { BE_URL } from '../constants/api-constants';
 
 let environmentInjector: EnvironmentInjector | null = null;
@@ -69,7 +69,7 @@ export const deleteReq = createHttpUtil(
  * @returns The full URL as a string.
  */
 export const apiUrl = (
-  path: EndPoints,
+  path: ApiEndpointRoutes,
   opts?: {
     params?: Array<string | number>;
     queryParams?: Record<string, unknown>;

@@ -1,7 +1,10 @@
 @if (isLoggedIn()) {
   <main-header />
   <main-side-nav />
-  <div class="main-content-wrapper">
+  <div
+    class="main-content-wrapper"
+    [style.padding-left]="isSmallScreen() ? 0 : undefined"
+  >
     <div class="inner-content-wrapper">
       <router-outlet />
     </div>

@@ -1,6 +1,6 @@
 import { $dt } from '@primeng/themes';
 import { PrimeNGColorToken } from '../types/style.types';
-import { inject, signal } from '@angular/core';
+import { inject } from '@angular/core';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';

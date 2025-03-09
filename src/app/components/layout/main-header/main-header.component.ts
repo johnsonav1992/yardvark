@@ -6,6 +6,7 @@ import { MenuModule } from 'primeng/menu';
 import { SoilTemperatureDisplayComponent } from './soil-temperature-display/soil-temperature-display.component';
 import { injectUserData } from '../../../utils/authUtils';
 import { injectBreakpointObserver } from '../../../utils/styleUtils';
+import { SM_BREAKPOINT } from '../../../constants/style-constants';
 
 @Component({
   selector: 'main-header',
@@ -16,7 +17,9 @@ import { injectBreakpointObserver } from '../../../utils/styleUtils';
 export class MainHeaderComponent {
   private _authService = inject(AuthService);
 
-  public isSmallScreen = injectBreakpointObserver('(max-width: 600px)');
+  public isSmallScreen = injectBreakpointObserver(
+    `(max-width: ${SM_BREAKPOINT})`
+  );
 
   public user = injectUserData();
 

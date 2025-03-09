@@ -6,7 +6,7 @@ import {
   runInInjectionContext
 } from '@angular/core';
 import { ApiEndpointRoutes } from '../types/endpoints.types';
-import { BE_URL } from '../constants/api-constants';
+import { BE_API_URL } from '../constants/api-constants';
 
 let environmentInjector: EnvironmentInjector | null = null;
 
@@ -75,7 +75,7 @@ export const apiUrl = (
     queryParams?: Record<string, unknown>;
   }
 ) => {
-  let url = `${BE_URL}/${path}`;
+  let url = `${BE_API_URL}/${path}`;
 
   if (opts?.params) {
     url += '/' + opts.params.join('/');

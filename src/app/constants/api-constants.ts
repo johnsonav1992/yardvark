@@ -1,1 +1,1 @@
-export const BE_URL = 'http://localhost:3000';
+export const BE_API_URL = 'http://localhost:3000';

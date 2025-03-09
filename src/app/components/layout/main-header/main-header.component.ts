@@ -7,10 +7,16 @@ import { SoilTemperatureDisplayComponent } from './soil-temperature-display/soil
 import { injectUserData } from '../../../utils/authUtils';
 import { injectBreakpointObserver } from '../../../utils/styleUtils';
 import { SM_BREAKPOINT } from '../../../constants/style-constants';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'main-header',
-  imports: [AvatarModule, MenuModule, SoilTemperatureDisplayComponent],
+  imports: [
+    AvatarModule,
+    MenuModule,
+    SoilTemperatureDisplayComponent,
+    RouterLink
+  ],
   templateUrl: './main-header.component.html',
   styleUrl: './main-header.component.scss'
 })

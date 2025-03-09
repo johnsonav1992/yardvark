@@ -22,7 +22,7 @@ export class MainSideNavComponent {
     {
       label: 'Dashboard',
       icon: 'ti ti-dashboard',
-      routerLink: '/',
+      routerLink: '/dashboard',
       routerLinkActiveOptions: { exact: true }
     },
     {

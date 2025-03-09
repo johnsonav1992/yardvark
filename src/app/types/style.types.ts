@@ -1,4 +1,6 @@
-export type PrimeNGColorToken = `${PrimeNGColors}.${PrimeNGShades}`;
+export type PrimeNGColorToken =
+  | `${PrimeNGColors}.${PrimeNGShades}`
+  | (string & {});
 
 export type PrimeNGColors =
   | 'emerald'

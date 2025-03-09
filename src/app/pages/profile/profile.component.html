@@ -1,7 +1,36 @@
 <page-container pageTitle="Profile">
   <div class="section-wrapper">
     <h4>Name:</h4>
-    <p>{{ user()?.name }}</p>
+    @if (isEditingField() === "name") {
+      <div style="display: flex; gap: 0.5rem; align-items: center">
+        <input pInputText [(ngModel)]="name" />
+        @if (name()) {
+          <p-button
+            [icon]="'ti ti-check'"
+            [severity]="'success'"
+            rounded
+            (click)="isEditingField.set(null)"
+          />
+        }
+        <p-button
+          [icon]="'ti ti-x'"
+          [severity]="'danger'"
+          outlined
+          rounded
+          (click)="isEditingField.set(null)"
+        />
+      </div>
+    } @else {
+      <div style="display: flex; gap: 0.5rem; align-items: center">
+        <p>{{ user()?.name }}</p>
+        <p-button
+          icon="ti ti-pencil"
+          text
+          rounded
+          (click)="isEditingField.set('name')"
+        />
+      </div>
+    }
   </div>
   <div class="section-wrapper">
     <h4>Email:</h4>

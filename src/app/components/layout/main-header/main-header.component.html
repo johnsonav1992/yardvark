@@ -1,6 +1,6 @@
 <div class="header">
   <img
-    src="assets/yardvark-logo-transparent.png"
+    [src]="`assets/yardvark-logo-${isSmallScreen() ? 'minimal' :'transparent'}.png`"
     alt="logo"
     height="50px"
     width="auto"

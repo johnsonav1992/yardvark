@@ -9,15 +9,13 @@
   </div>
   <img class="section-wrapper" />
   <h4>Profile picture:</h4>
-  <div style="position: relative; width: min-content">
-    @let picture = user()?.picture || undefined;
-    @let initials = `${user()?.given_name?.[0]}${user()?.family_name?.[0]}`;
+  @let picture = user()?.picture || undefined;
+  @let initials = `${user()?.given_name?.[0]}${user()?.family_name?.[0]}`;
 
-    <p-avatar
-      [label]="picture ? undefined : initials"
-      [dt]="avatarDt"
-      [shape]="'circle'"
-      [image]="picture"
-    />
-  </div>
+  <p-avatar
+    [label]="picture ? undefined : initials"
+    [dt]="avatarDt"
+    [shape]="'circle'"
+    [image]="picture"
+  />
 </page-container>

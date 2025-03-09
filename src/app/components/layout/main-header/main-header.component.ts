@@ -5,6 +5,7 @@ import { AvatarModule } from 'primeng/avatar';
 import { MenuModule } from 'primeng/menu';
 import { SoilTemperatureDisplayComponent } from './soil-temperature-display/soil-temperature-display.component';
 import { injectUserData } from '../../../utils/authUtils';
+import { injectBreakpointObserver } from '../../../utils/styleUtils';
 
 @Component({
   selector: 'main-header',
@@ -14,6 +15,8 @@ import { injectUserData } from '../../../utils/authUtils';
 })
 export class MainHeaderComponent {
   private _authService = inject(AuthService);
+
+  public isSmallScreen = injectBreakpointObserver('(max-width: 600px)');
 
   public user = injectUserData();
 

@@ -5,6 +5,7 @@ import { SoilDataComponent } from './pages/soil-data/soil-data.component';
 import { EntryLogComponent } from './pages/entry-log/entry-log.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { ProductsComponent } from './pages/products/products.component';
+import { EquipmentComponent } from './pages/equipment/equipment.component';
 
 export const productRoutes: Routes = [
   { path: ':productId', component: ProductsComponent }
@@ -31,6 +32,10 @@ export const mainRoutes: Routes = [
     path: 'products',
     component: ProductsComponent,
     children: productRoutes
+  },
+  {
+    path: 'equipment',
+    component: EquipmentComponent
   },
   {
     path: 'settings',

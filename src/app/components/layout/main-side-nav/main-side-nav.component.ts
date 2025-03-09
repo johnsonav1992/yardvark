@@ -32,9 +32,15 @@ export class MainSideNavComponent {
       routerLinkActiveOptions: { exact: true }
     },
     {
-      label: 'products',
-      icon: 'ti ti-garden-cart',
+      label: 'Products',
+      icon: 'ti ti-packages',
       routerLink: '/products',
+      routerLinkActiveOptions: { exact: true }
+    },
+    {
+      label: 'Equipment',
+      icon: 'ti ti-assembly',
+      routerLink: '/equipment',
       routerLinkActiveOptions: { exact: true }
     }
   ];

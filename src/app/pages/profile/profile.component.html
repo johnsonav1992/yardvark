@@ -1,6 +1,21 @@
 <page-container pageTitle="Profile">
-  <div style="display: flex; flex-direction: column; gap: 0.75rem">
+  <div style="display: flex; flex-direction: column; gap: 0.5rem">
     <h4>Name:</h4>
-    <p>{{ userName() }}</p>
+    <p>{{ user()?.name }}</p>
+  </div>
+  <div style="display: flex; flex-direction: column; gap: 0.5rem">
+    <h4>Email:</h4>
+    <p>{{ user()?.email }}</p>
+  </div>
+  <img style="display: flex; flex-direction: column; gap: 0.5rem" />
+  <h4>Profile picture:</h4>
+  <div style="position: relative; width: min-content">
+    <div class="edit-photo-overlay"></div>
+    <img
+      [src]="user()?.picture"
+      width="150"
+      height="150"
+      style="border-radius: 100%"
+    />
   </div>
 </page-container>

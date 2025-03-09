@@ -1,10 +1,10 @@
 import { Component, inject } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService } from '@auth0/auth0-angular';
 import { MenuItem } from 'primeng/api';
 import { AvatarModule } from 'primeng/avatar';
 import { MenuModule } from 'primeng/menu';
 import { SoilTemperatureDisplayComponent } from './soil-temperature-display/soil-temperature-display.component';
+import { injectUserData } from '../../../utils/authUtils';
 
 @Component({
   selector: 'main-header',
@@ -15,18 +15,18 @@ import { SoilTemperatureDisplayComponent } from './soil-temperature-display/soil
 export class MainHeaderComponent {
   private _authService = inject(AuthService);
 
-  public user = toSignal(this._authService.user$);
+  public user = injectUserData();
 
   public menuItems: MenuItem[] = [
-    {
-      label: 'Settings',
-      icon: 'ti ti-settings',
-      routerLink: '/settings'
-    },
     {
       label: 'Profile',
       icon: 'ti ti-user',
       routerLink: '/profile'
+    },
+    {
+      label: 'Settings',
+      icon: 'ti ti-settings',
+      routerLink: '/settings'
     },
     {
       label: 'Logout',

@@ -1,4 +1,4 @@
-import { PrimeNGColorToken } from '../types/types';
+import { PrimeNGColorToken } from '../types/style.types';
 import { getPrimeNgHexColor } from './styleUtils';
 import { HOURS_IN_A_DAY } from './timeUtils';
 

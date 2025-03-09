@@ -1,5 +1,5 @@
 import { computed, inject, Injectable, linkedSignal } from '@angular/core';
-import { beUrl, putReq } from '../utils/httpUtils';
+import { apiUrl, putReq } from '../utils/httpUtils';
 import { Settings } from '../types/settings.types';
 import { httpResource } from '@angular/common/http';
 
@@ -7,7 +7,7 @@ import { httpResource } from '@angular/common/http';
   providedIn: 'root'
 })
 export class SettingsService {
-  public settings = httpResource<Settings>(beUrl('settings'));
+  public settings = httpResource<Settings>(apiUrl('settings'));
 
   public currentSettings = linkedSignal(() => this.settings.value());
 
@@ -20,7 +20,7 @@ export class SettingsService {
       [settingName]: newValue
     };
 
-    putReq<Settings>(beUrl('settings'), updatedSettings).subscribe({
+    putReq<Settings>(apiUrl('settings'), updatedSettings).subscribe({
       next: (res) =>
         this.currentSettings.update((currSettings) => ({
           ...currSettings,

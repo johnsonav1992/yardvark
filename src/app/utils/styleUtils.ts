@@ -1,5 +1,5 @@
 import { $dt } from '@primeng/themes';
-import { PrimeNGColorToken } from '../types/types';
+import { PrimeNGColorToken } from '../types/style.types';
 
 /**
  * Returns the hex color value of a PrimeNG color token.

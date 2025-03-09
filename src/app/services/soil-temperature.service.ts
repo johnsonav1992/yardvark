@@ -1,5 +1,4 @@
-import { computed, Injectable, signal } from '@angular/core';
-import { LatLong } from '../types/types';
+import { computed, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { httpResource } from '@angular/common/http';
 import { rxResource } from '@angular/core/rxjs-interop';
@@ -10,6 +9,7 @@ import {
 } from '../types/openmeteo.types';
 import { getRollingWeekStartAndEndDates } from '../utils/timeUtils';
 import { injectSettingsService } from './settings.service';
+import { LatLong } from '../types/location.types';
 
 @Injectable({
   providedIn: 'root'
@@ -25,9 +25,6 @@ export class SoilTemperatureService {
       timezone: 'auto'
     })
   );
-
-  public startDate = signal<Date | null>(null);
-  public endDate = signal<Date | null>(null);
 
   public temperatureUnit = computed(
     () =>

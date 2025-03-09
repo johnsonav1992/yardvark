@@ -8,8 +8,8 @@ import {
   calculate24HourNumericAverage,
   getSoilTemperatureDisplayColor
 } from '../../../../utils/soilTemperatureUtils';
-import { DegreesDisplay } from '../../../../types/types';
 import { injectSettingsService } from '../../../../services/settings.service';
+import { DegreesDisplay } from '../../../../types/temperature.styles';
 
 @Component({
   selector: 'soil-temperature-display',

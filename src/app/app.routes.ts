@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
-import { DashboardComponent } from './views/dashboard/dashboard.component';
-import { ProfileComponent } from './views/profile/profile.component';
-import { SoilDataComponent } from './views/soil-data/soil-data.component';
-import { EntryLogComponent } from './views/entry-log/entry-log.component';
-import { SettingsComponent } from './views/settings/settings.component';
+import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { ProfileComponent } from './pages/profile/profile.component';
+import { SoilDataComponent } from './pages/soil-data/soil-data.component';
+import { EntryLogComponent } from './pages/entry-log/entry-log.component';
+import { SettingsComponent } from './pages/settings/settings.component';
 
 export const routes: Routes = [
   {

@@ -68,7 +68,7 @@ export const deleteReq = createHttpUtil(
  * @param opts - Optional parameters and query parameters to be included in the URL.
  * @returns The full URL as a string.
  */
-export const beUrl = (
+export const apiUrl = (
   path: EndPoints,
   opts?: {
     params?: Array<string | number>;

@@ -24,6 +24,11 @@ export class MainHeaderComponent {
       routerLink: '/settings'
     },
     {
+      label: 'Profile',
+      icon: 'ti ti-user',
+      routerLink: '/profile'
+    },
+    {
       label: 'Logout',
       icon: 'ti ti-logout',
       command: () => this._authService.logout()

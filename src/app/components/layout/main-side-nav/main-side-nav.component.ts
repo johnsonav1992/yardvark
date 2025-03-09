@@ -30,6 +30,12 @@ export class MainSideNavComponent {
       icon: 'ti ti-shovel',
       routerLink: '/soil-data',
       routerLinkActiveOptions: { exact: true }
+    },
+    {
+      label: 'products',
+      icon: 'ti ti-garden-cart',
+      routerLink: '/products',
+      routerLinkActiveOptions: { exact: true }
     }
   ];
 

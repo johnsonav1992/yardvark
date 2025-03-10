@@ -1,0 +1,21 @@
+import { Body, Controller, Get, Param, Put } from '@nestjs/common';
+import { SettingsService } from '../service/settings.service';
+
+@Controller('settings')
+export class SettingsController {
+  constructor(private _settingsService: SettingsService) {}
+
+  @Get(':userId')
+  getSettings(@Param('userId') userId: string) {
+    return this._settingsService.getSettings(userId);
+  }
+
+  @Put(':userId')
+  updateSettings(
+    @Param('userId') userId: string,
+    @Body() settings: Record<string, unknown>,
+  ) {
+    const settingsVal = JSON.stringify(settings);
+    return this._settingsService.updateSettings(userId, settingsVal);
+  }
+}

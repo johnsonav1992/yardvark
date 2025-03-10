@@ -12,11 +12,3 @@ export class Settings {
   @Column()
   value: string;
 }
-
-export type SettingsData = {
-  temperatureUnit: 'celsius' | 'fahrenheit';
-};
-
-export type SettingsResponse = Omit<InstanceType<typeof Settings>, 'value'> & {
-  value: SettingsData;
-};

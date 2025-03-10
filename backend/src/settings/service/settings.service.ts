@@ -1,11 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  Settings,
-  SettingsData,
-  SettingsResponse,
-} from '../models/settings.model';
+import { Settings } from '../models/settings.model';
 import { Repository } from 'typeorm';
+import { SettingsData, SettingsResponse } from '../models/settings.types';
 
 @Injectable()
 export class SettingsService {

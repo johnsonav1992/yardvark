@@ -3,10 +3,9 @@ import { apiUrl, putReq } from '../utils/httpUtils';
 import { httpResource } from '@angular/common/http';
 import { injectUserData } from '../utils/authUtils';
 import {
-  Settings,
   SettingsData,
   SettingsResponse
-} from '../../../backend/src/settings/models/settings.model';
+} from '../../../backend/src/settings/models/settings.types';
 
 @Injectable({
   providedIn: 'root'
@@ -34,7 +33,7 @@ export class SettingsService {
       [settingName]: newValue
     };
 
-    putReq<Settings>(
+    putReq<SettingsData>(
       apiUrl('settings', { params: [this.userId()] }),
       updatedSettings
     ).subscribe({

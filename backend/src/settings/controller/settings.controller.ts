@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Param, Put } from '@nestjs/common';
 import { SettingsService } from '../service/settings.service';
+import { SettingsData } from '../models/settings.types';
 
 @Controller('settings')
 export class SettingsController {
@@ -13,7 +14,7 @@ export class SettingsController {
   @Put(':userId')
   updateSettings(
     @Param('userId') userId: string,
-    @Body() settings: Record<string, unknown>,
+    @Body() settings: SettingsData,
   ) {
     const settingsVal = JSON.stringify(settings);
     return this._settingsService.updateSettings(userId, settingsVal);

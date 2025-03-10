@@ -16,10 +16,10 @@ import { injectUserData } from '../utils/authUtils';
 export class SettingsService {
   public user = injectUserData();
 
-  public userId = computed(() => this.user()?.sub);
+  public userId = computed(() => this.user()?.sub || '');
 
   public settings = httpResource<Settings>(() =>
-    apiUrl('settings', { params: [this.userId()!] })
+    this.userId() ? apiUrl('settings', { params: [this.userId()] }) : undefined
   );
 
   public currentSettings = linkedSignal(() => {
@@ -37,7 +37,7 @@ export class SettingsService {
     };
 
     putReq<Settings>(
-      apiUrl('settings', { params: ['google-oauth2|111643664660289512636'] }),
+      apiUrl('settings', { params: [this.userId()] }),
       updatedSettings
     ).subscribe({
       next: (res) =>

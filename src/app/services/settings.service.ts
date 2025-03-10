@@ -37,10 +37,10 @@ export class SettingsService {
       apiUrl('settings', { params: [this.userId()] }),
       updatedSettings
     ).subscribe({
-      next: () =>
+      next: (updatedSettingsRes) =>
         this.currentSettings.update((currSettings) => ({
           ...currSettings,
-          ...updatedSettings
+          ...updatedSettingsRes
         }))
     });
   };

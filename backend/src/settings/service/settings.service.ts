@@ -11,13 +11,15 @@ export class SettingsService {
   ) {}
 
   getSettings(userId: string) {
-    return this._settingsRepo.findBy({ userId });
+    return this._settingsRepo.findOneBy({ userId });
   }
 
   async updateSettings(userId: string, settings: string) {
     const userSettings = await this._settingsRepo.findBy({ userId });
 
-    if (userSettings) {
+    console.log(userSettings);
+
+    if (userSettings.length) {
       return this._settingsRepo.update({ userId }, { value: settings });
     }
 

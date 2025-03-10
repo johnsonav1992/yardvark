@@ -1,3 +1,7 @@
 export type Settings = {
-  temperatureUnit?: 'celsius' | 'fahrenheit';
+  id: number;
+  userId: string;
+  value: {
+    temperatureUnit?: 'celsius' | 'fahrenheit';
+  };
 };

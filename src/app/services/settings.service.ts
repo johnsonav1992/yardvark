@@ -15,9 +15,6 @@ import { injectUserData } from '../utils/authUtils';
 })
 export class SettingsService {
   public user = injectUserData();
-  _ = effect(() => {
-    console.log(this.userId());
-  });
 
   public userId = computed(() => this.user()?.sub);
 
@@ -25,7 +22,10 @@ export class SettingsService {
     apiUrl('settings', { params: [this.userId()!] })
   );
 
-  public currentSettings = linkedSignal(() => this.settings.value());
+  public currentSettings = linkedSignal(() => {
+    if (!this.settings.value()) return {} as Settings;
+    return JSON.parse(this.settings.value()!.value as string);
+  });
 
   public updateSetting<
     TKey extends keyof Settings,
@@ -36,16 +36,14 @@ export class SettingsService {
       [settingName]: newValue
     };
 
-    console.log(this.userId());
-
     putReq<Settings>(
-      apiUrl('settings', { params: [this.userId()!] }),
+      apiUrl('settings', { params: ['google-oauth2|111643664660289512636'] }),
       updatedSettings
     ).subscribe({
       next: (res) =>
         this.currentSettings.update((currSettings) => ({
           ...currSettings,
-          temperatureUnit: res.temperatureUnit
+          ...updatedSettings
         }))
     });
   }

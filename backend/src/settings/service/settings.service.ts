@@ -10,7 +10,7 @@ export class SettingsService {
     private _settingsRepo: Repository<Settings>,
   ) {}
 
-  getSettings(userId: string) {
+  getUserSettings(userId: string) {
     return this._settingsRepo.findOneBy({ userId });
   }
 

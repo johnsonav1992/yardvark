@@ -7,7 +7,7 @@ export class SettingsController {
 
   @Get(':userId')
   getSettings(@Param('userId') userId: string) {
-    return this._settingsService.getSettings(userId);
+    return this._settingsService.getUserSettings(userId);
   }
 
   @Put(':userId')

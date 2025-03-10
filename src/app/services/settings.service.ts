@@ -1,13 +1,29 @@
-import { inject, Injectable, linkedSignal } from '@angular/core';
+import {
+  computed,
+  effect,
+  inject,
+  Injectable,
+  linkedSignal
+} from '@angular/core';
 import { apiUrl, putReq } from '../utils/httpUtils';
 import { Settings } from '../types/settings.types';
 import { httpResource } from '@angular/common/http';
+import { injectUserData } from '../utils/authUtils';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SettingsService {
-  public settings = httpResource<Settings>(apiUrl('settings'));
+  public user = injectUserData();
+  _ = effect(() => {
+    console.log(this.userId());
+  });
+
+  public userId = computed(() => this.user()?.sub);
+
+  public settings = httpResource<Settings>(() =>
+    apiUrl('settings', { params: [this.userId()!] })
+  );
 
   public currentSettings = linkedSignal(() => this.settings.value());
 
@@ -20,7 +36,12 @@ export class SettingsService {
       [settingName]: newValue
     };
 
-    putReq<Settings>(apiUrl('settings'), updatedSettings).subscribe({
+    console.log(this.userId());
+
+    putReq<Settings>(
+      apiUrl('settings', { params: [this.userId()!] }),
+      updatedSettings
+    ).subscribe({
       next: (res) =>
         this.currentSettings.update((currSettings) => ({
           ...currSettings,

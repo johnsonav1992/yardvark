@@ -1,12 +1,12 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity('settings')
+@Unique(['userId'])
 export class Settings {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  @OneToOne(() => Settings, (settings) => settings.userId)
   userId: string;
 
   @Column()

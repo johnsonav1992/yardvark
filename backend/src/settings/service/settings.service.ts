@@ -14,7 +14,13 @@ export class SettingsService {
     return this._settingsRepo.findBy({ userId });
   }
 
-  updateSettings(userId: string, settings: string) {
+  async updateSettings(userId: string, settings: string) {
+    const userSettings = await this._settingsRepo.findBy({ userId });
+
+    if (userSettings) {
+      return this._settingsRepo.update({ userId }, { value: settings });
+    }
+
     return this._settingsRepo.save({ value: settings, userId });
   }
 }

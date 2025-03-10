@@ -1,14 +1,12 @@
-import {
-  computed,
-  effect,
-  inject,
-  Injectable,
-  linkedSignal
-} from '@angular/core';
+import { inject, Injectable, linkedSignal } from '@angular/core';
 import { apiUrl, putReq } from '../utils/httpUtils';
-import { Settings } from '../types/settings.types';
 import { httpResource } from '@angular/common/http';
 import { injectUserData } from '../utils/authUtils';
+import {
+  Settings,
+  SettingsData,
+  SettingsResponse
+} from '../../../backend/src/settings/models/settings.model';
 
 @Injectable({
   providedIn: 'root'
@@ -18,24 +16,21 @@ export class SettingsService {
 
   public userId = linkedSignal(() => this.user()?.sub || '');
 
-  public settings = httpResource<Settings>(() =>
+  public settings = httpResource<SettingsResponse>(() =>
     this.userId() ? apiUrl('settings', { params: [this.userId()] }) : undefined
   );
 
-  public currentSettings = linkedSignal(() => {
-    if (!this.settings.value()) return {} as Settings;
-    return JSON.parse(this.settings.value()!.value as string);
-  });
+  public currentSettings = linkedSignal(() => this.settings.value()?.value);
 
   public updateSetting = <
-    TKey extends keyof Settings['value'],
-    TValue extends Settings['value'][TKey]
+    TKey extends keyof SettingsData,
+    TValue extends SettingsData[TKey]
   >(
     settingName: TKey,
     newValue: TValue
   ): void => {
-    const updatedSettings: Settings = {
-      ...this.currentSettings(),
+    const updatedSettings: SettingsData = {
+      ...this.currentSettings()!,
       [settingName]: newValue
     };
 

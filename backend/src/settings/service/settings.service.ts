@@ -1,6 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Settings } from '../models/settings.model';
+import {
+  Settings,
+  SettingsData,
+  SettingsResponse,
+} from '../models/settings.model';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -10,13 +14,23 @@ export class SettingsService {
     private _settingsRepo: Repository<Settings>,
   ) {}
 
-  getUserSettings(userId: string) {
-    return this._settingsRepo.findOneBy({ userId });
+  async getUserSettings(userId: string): Promise<SettingsResponse> {
+    const settings = await this._settingsRepo.findOneBy({ userId });
+
+    if (!settings) return [] as unknown as SettingsResponse;
+
+    return {
+      ...settings,
+      value: JSON.parse(settings.value) as SettingsData,
+    };
   }
 
-  async updateSettings(userId: string, settings: string) {
+  async updateSettings(
+    userId: string,
+    settings: string,
+  ): Promise<SettingsData> {
     const userSettings = await this._settingsRepo.findBy({ userId });
-    const newSettings = JSON.parse(settings) as object;
+    const newSettings = JSON.parse(settings) as SettingsData;
 
     if (userSettings.length) {
       await this._settingsRepo.update({ userId }, { value: settings });

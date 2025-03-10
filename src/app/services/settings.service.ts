@@ -16,7 +16,7 @@ import { injectUserData } from '../utils/authUtils';
 export class SettingsService {
   public user = injectUserData();
 
-  public userId = computed(() => this.user()?.sub || '');
+  public userId = linkedSignal(() => this.user()?.sub || '');
 
   public settings = httpResource<Settings>(() =>
     this.userId() ? apiUrl('settings', { params: [this.userId()] }) : undefined
@@ -27,10 +27,13 @@ export class SettingsService {
     return JSON.parse(this.settings.value()!.value as string);
   });
 
-  public updateSetting<
-    TKey extends keyof Settings,
-    TValue extends Settings[TKey]
-  >(settingName: TKey, newValue: TValue): void {
+  public updateSetting = <
+    TKey extends keyof Settings['value'],
+    TValue extends Settings['value'][TKey]
+  >(
+    settingName: TKey,
+    newValue: TValue
+  ): void => {
     const updatedSettings: Settings = {
       ...this.currentSettings(),
       [settingName]: newValue
@@ -40,13 +43,13 @@ export class SettingsService {
       apiUrl('settings', { params: [this.userId()] }),
       updatedSettings
     ).subscribe({
-      next: (res) =>
+      next: () =>
         this.currentSettings.update((currSettings) => ({
           ...currSettings,
           ...updatedSettings
         }))
     });
-  }
+  };
 }
 
 export const injectSettingsService = () => inject(SettingsService);

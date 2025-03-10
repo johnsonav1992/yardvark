@@ -16,13 +16,14 @@ export class SettingsService {
 
   async updateSettings(userId: string, settings: string) {
     const userSettings = await this._settingsRepo.findBy({ userId });
-
-    console.log(userSettings);
+    const newSettings = JSON.parse(settings) as object;
 
     if (userSettings.length) {
-      return this._settingsRepo.update({ userId }, { value: settings });
+      await this._settingsRepo.update({ userId }, { value: settings });
+    } else {
+      await this._settingsRepo.save({ value: settings, userId });
     }
 
-    return this._settingsRepo.save({ value: settings, userId });
+    return newSettings;
   }
 }

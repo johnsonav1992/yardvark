@@ -29,6 +29,18 @@ export class EntryLogComponent {
   public markerButtonDt: ButtonDesignTokens = {
     root: {
       iconOnlyWidth: '2rem'
+    },
+    colorScheme: {
+      light: {
+        root: {
+          secondary: {
+            background: '{sky.200}',
+            borderColor: '{sky.200}',
+            hoverBackground: '{sky.300}',
+            hoverBorderColor: '{sky.300}'
+          }
+        }
+      }
     }
   };
 }

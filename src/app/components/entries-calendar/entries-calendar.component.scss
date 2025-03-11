@@ -37,12 +37,9 @@
   font-size: 0.875rem;
 
   .day {
-    margin-inline: auto;
     position: relative;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
     border-radius: 0.75rem;
     background-color: var(--p-surface-100);
     color: var(--p-surface-400);
@@ -51,7 +48,9 @@
     height: 10vw;
 
     .marker-container {
-      flex: 1;
+      display: flex;
+      flex-wrap: wrap;
+      row-gap: 0.25rem;
       width: 100%;
       padding: 0.5rem;
       color: black;

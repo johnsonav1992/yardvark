@@ -1,18 +1,18 @@
 <entries-calendar [markers]="days">
   <ng-template #marker let-dayMarkers>
     @for (marker of dayMarkers; track marker) {
-      <div>
-        <!-- {{ marker.data }} -->
+      <div [style.margin-left]="$index !== 0 ? '-.25rem' : ''">
         <p-button
           (click)="('')"
           [icon]="marker.icon"
           rounded
           size="small"
-          severity="contrast"
-          outlined
+          severity="secondary"
+          raised
           [dt]="markerButtonDt"
         />
       </div>
+      <!-- {{ marker.data }} -->
     }
   </ng-template>
 </entries-calendar>

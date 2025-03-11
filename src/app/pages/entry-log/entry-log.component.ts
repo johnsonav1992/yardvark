@@ -28,7 +28,7 @@ export class EntryLogComponent {
 
   public markerButtonDt: ButtonDesignTokens = {
     root: {
-      iconOnlyWidth: '1.5rem'
+      iconOnlyWidth: '2rem'
     }
   };
 }

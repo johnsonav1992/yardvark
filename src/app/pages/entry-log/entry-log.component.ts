@@ -4,6 +4,7 @@ import {
   EntriesCalendarComponent
 } from '../../components/entries-calendar/entries-calendar.component';
 import { ButtonModule } from 'primeng/button';
+import { ButtonDesignTokens } from '@primeng/themes/types/button';
 
 @Component({
   selector: 'entry-log',
@@ -12,11 +13,22 @@ import { ButtonModule } from 'primeng/button';
   styleUrl: './entry-log.component.scss'
 })
 export class EntryLogComponent {
-  days: CalendarMarkerData[] = [
+  public days: CalendarMarkerData[] = [
     {
       date: new Date(),
       data: 'test',
       icon: 'ti ti-garden-cart'
+    },
+    {
+      date: new Date(),
+      data: 'test',
+      icon: 'ti ti-check'
     }
   ];
+
+  public markerButtonDt: ButtonDesignTokens = {
+    root: {
+      iconOnlyWidth: '1.5rem'
+    }
+  };
 }

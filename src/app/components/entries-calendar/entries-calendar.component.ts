@@ -69,8 +69,8 @@ export class EntriesCalendarComponent {
   }
 }
 
-export interface CalendarMarkerData<Data = unknown> {
+export type CalendarMarkerData<TData = unknown> = {
   date: Date;
-  data: Data;
+  data: TData;
   icon?: string;
-}
+};

@@ -15,7 +15,7 @@ export const getRollingWeekStartAndEndDates = () => {
 
   return {
     startDate,
-    endDate,
+    endDate
   };
 };
 
@@ -65,10 +65,28 @@ export const daysOfWeek = [
   'Wednesday',
   'Thursday',
   'Friday',
-  'Saturday',
+  'Saturday'
 ];
 
 /**
  * The number of hours in a day.
  */
 export const HOURS_IN_A_DAY = 24;
+
+/**
+ * Simple debounce helper.
+ * @param func The function to debounce.
+ * @param delay The delay in milliseconds.
+ * @returns The debounced function.
+ */
+export const debounce = <T extends (...args: any[]) => void>(
+  func: T,
+  delay: number
+) => {
+  let timer: ReturnType<typeof setTimeout>;
+
+  return ((...args: Parameters<T>) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => func(...args), delay);
+  }) as T;
+};

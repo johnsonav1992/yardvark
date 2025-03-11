@@ -1,5 +1,5 @@
 <page-container pageTitle="Settings">
-  <div style="display: flex; flex-direction: column; gap: 0.5rem">
+  <div class="section-wrapper">
     <h4>Temperature unit</h4>
     <p-select
       [style]="{ width: '300px' }"
@@ -11,6 +11,30 @@
       [optionValue]="'value'"
       [ngModel]="currentSettings()?.temperatureUnit"
       (onChange)="updateSetting('temperatureUnit', $event.value.toLowerCase())"
+    />
+  </div>
+  <div class="section-wrapper">
+    <h4>Lawn type</h4>
+    <p-select
+      [style]="{ width: '300px' }"
+      [options]="[
+        { label: 'Warm season', value: 'warm' },
+        { label: 'Cool season', value: 'cool' }
+      ]"
+      [optionLabel]="'label'"
+      [optionValue]="'value'"
+      [ngModel]="currentSettings()?.grassType"
+      (onChange)="updateSetting('grassType', $event.value)"
+    />
+  </div>
+  <div class="section-wrapper">
+    <h4>Lawn size</h4>
+    <p-inputnumber
+      [(ngModel)]="lawnSize"
+      [suffix]="' ft²'"
+      allowEmpty
+      [inputStyle]="{ flex: 'none', width: '300px' }"
+      (ngModelChange)="setLawnSize($event)"
     />
   </div>
 </page-container>

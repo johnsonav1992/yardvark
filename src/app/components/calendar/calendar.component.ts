@@ -17,12 +17,13 @@ import {
   subMonths
 } from 'date-fns';
 import { getCalendarDaysData } from './utils';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'calendar',
   templateUrl: './calendar.component.html',
   standalone: true,
-  imports: [DatePipe, NgTemplateOutlet]
+  imports: [DatePipe, NgTemplateOutlet, ButtonModule]
 })
 export class CalendarComponent {
   public markers = input<CalendarMarkerData[], CalendarMarkerData[] | null>(

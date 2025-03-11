@@ -1,30 +1,31 @@
 <header class="calendar-header">
   <h2 class="month-title">
-    {{ this.currentMonth() }}
+    {{ currentMonth() }}
   </h2>
   <div class="buttons-container">
-    <p-button
-      (click)="this.toCurrentMonth()"
-      label="Today"
-      outlined
-      size="small"
-    />
+    <p-button (click)="toCurrentMonth()" label="Today" outlined size="small" />
     <p-button
       (click)="prevMonth()"
-      label="Previous Month"
+      [outlined]="false"
+      icon="ti ti-chevron-left"
       severity="secondary"
-      size="small"
+      text
+      rounded
+      size="large"
     />
     <p-button
       (click)="nextMonth()"
-      label="Next month"
+      [outlined]="false"
+      icon="ti ti-chevron-right"
       severity="secondary"
-      size="small"
+      text
+      rounded
+      size="large"
     />
   </div>
 </header>
 <div class="calendar-day-names-container">
-  @for (item of this.dayNamesFormatted; track item.dayName) {
+  @for (item of dayNamesFormatted; track item.dayName) {
     <div
       [style.color]="item.isToday ? 'inherit' : 'var(--p-surface-400)'"
       [style.fontWeight]="item.isToday ? '500' : '400'"
@@ -34,7 +35,7 @@
   }
 </div>
 <div class="calendar-grid">
-  @for (day of daysEnriched(); track day) {
+  @for (day of days(); track day) {
     <div
       class="day"
       [style.gridColumnStart]="day.gridColumnStart"
@@ -42,7 +43,7 @@
       [style.fontWeight]="day.isToday ? '500' : '400'"
     >
       <div class="marker-container">
-        @if (this.markerTpl(); as markerTpl) {
+        @if (markerTpl(); as markerTpl) {
           <ng-container
             *ngTemplateOutlet="markerTpl; context: { $implicit: day.markers }"
           ></ng-container>

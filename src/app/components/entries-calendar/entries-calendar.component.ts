@@ -72,4 +72,5 @@ export class EntriesCalendarComponent {
 export interface CalendarMarkerData<Data = unknown> {
   date: Date;
   data: Data;
+  icon?: string;
 }

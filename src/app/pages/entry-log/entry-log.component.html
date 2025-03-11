@@ -2,7 +2,15 @@
   <ng-template #marker let-dayMarkers>
     @for (marker of dayMarkers; track marker) {
       <div>
-        {{ marker.data }}
+        <!-- {{ marker.data }} -->
+        <p-button
+          (click)="('')"
+          [icon]="marker.icon"
+          rounded
+          size="large"
+          severity="contrast"
+          outlined
+        />
       </div>
     }
   </ng-template>

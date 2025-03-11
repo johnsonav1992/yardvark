@@ -1,1 +1,9 @@
-<calendar />
+<entries-calendar [markers]="days">
+  <ng-template #marker let-dayMarkers>
+    @for (marker of dayMarkers; track marker) {
+      <div>
+        {{ marker.data }}
+      </div>
+    }
+  </ng-template>
+</entries-calendar>

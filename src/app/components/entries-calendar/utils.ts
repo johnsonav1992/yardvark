@@ -6,7 +6,7 @@ import {
   isToday,
   startOfMonth
 } from 'date-fns';
-import { CalendarMarkerData } from './calendar.component';
+import { CalendarMarkerData } from './entries-calendar.component';
 
 export const getCalendarDaysData = (
   currentDate: Date,

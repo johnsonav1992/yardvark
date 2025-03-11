@@ -13,13 +13,13 @@ import { getCalendarDaysData } from './utils';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
-  selector: 'calendar',
-  templateUrl: './calendar.component.html',
-  styleUrl: './calendar.component.scss',
+  selector: 'entries-calendar',
+  templateUrl: './entries-calendar.component.html',
+  styleUrl: './entries-calendar.component.scss',
   standalone: true,
   imports: [DatePipe, NgTemplateOutlet, ButtonModule]
 })
-export class CalendarComponent {
+export class EntriesCalendarComponent {
   public markers = input<CalendarMarkerData[]>([]);
   public markerTpl =
     contentChild<TemplateRef<{ $implicit: CalendarMarkerData[] }>>('marker');

@@ -11,6 +11,9 @@
       [optionValue]="'value'"
       [ngModel]="currentSettings()?.temperatureUnit"
       (onChange)="updateSetting('temperatureUnit', $event.value.toLowerCase())"
+      [loading]="settingsAreLoading()"
+      [loadingIcon]="'ti ti-loader-2 icon-spin'"
+      [placeholder]="settingsAreLoading() ? 'Loading...' : ''"
     />
   </div>
   <div class="section-wrapper">
@@ -25,6 +28,9 @@
       [optionValue]="'value'"
       [ngModel]="currentSettings()?.grassType"
       (onChange)="updateSetting('grassType', $event.value)"
+      [loading]="settingsAreLoading()"
+      [loadingIcon]="'ti ti-loader-2 icon-spin'"
+      [placeholder]="settingsAreLoading() ? 'Loading...' : ''"
     />
   </div>
   <div class="section-wrapper">

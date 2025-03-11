@@ -21,6 +21,7 @@
     "@auth0/auth0-angular": "^2.2.3",
     "@primeng/themes": "^19.0.9",
     "chart.js": "^4.4.8",
+    "date-fns": "^4.1.0",
     "material-icons": "^1.13.14",
     "primeng": "^19.0.9",
     "rxjs": "~7.8.0",

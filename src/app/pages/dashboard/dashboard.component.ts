@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
+import { CalendarComponent } from '../../components/calendar/calendar.component';
 
 @Component({
   selector: 'dashboard',
-  imports: [],
+  imports: [CalendarComponent],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.scss',
+  styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent {}

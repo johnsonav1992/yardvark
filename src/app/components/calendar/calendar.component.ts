@@ -22,6 +22,7 @@ import { ButtonModule } from 'primeng/button';
 @Component({
   selector: 'calendar',
   templateUrl: './calendar.component.html',
+  styleUrl: './calendar.component.scss',
   standalone: true,
   imports: [DatePipe, NgTemplateOutlet, ButtonModule]
 })

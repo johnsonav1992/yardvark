@@ -1,8 +1,7 @@
 .calendar-header {
   margin-bottom: 1rem;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
 
   .month-title {
     font-size: 1.25rem;
@@ -13,13 +12,61 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.875rem;
     width: 100%;
+    justify-content: flex-end;
+  }
+}
 
-    .inner-buttons-container {
+.calendar-day-names-container {
+  margin-top: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 0.75rem;
+  line-height: 1.5rem;
+  color: var(--p-surface-500);
+}
+
+.calendar-grid {
+  margin-top: 0.5rem;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.25rem;
+  font-size: 0.875rem;
+
+  .day {
+    margin-inline: auto;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.75rem;
+    background-color: var(--p-surface-100);
+    color: var(--p-surface-400);
+    font-weight: 400;
+    width: 100%;
+    height: 6rem;
+
+    .marker-container {
+      flex: 1;
+      width: 100%;
+      padding: 0.5rem;
+    }
+
+    .day-number {
       display: flex;
+      height: 1.5rem;
+      width: 1.5rem;
       align-items: center;
-      gap: 0.25rem;
+      justify-content: center;
+      border-radius: 100%;
+      font-size: 0.875rem;
+      position: absolute;
+      bottom: 0.25rem;
+      right: 0.25rem;
+      background-color: white;
+      border: 1px solid var(--p-surface-200);
     }
   }
 }

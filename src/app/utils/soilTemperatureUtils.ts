@@ -55,7 +55,7 @@ export const calculate24HourNumericAverage = (
  */
 export const getAllDailyNumericDataAverages = (
   hourlyNumericData: number[],
-  options?: { precision?: number }
+  options?: { precision?: number; multiplicationFactor?: number }
 ): number[] => {
   let dailyAverages: number[] = [];
 
@@ -63,7 +63,7 @@ export const getAllDailyNumericDataAverages = (
     const dailyData = hourlyNumericData.slice(i, i + HOURS_IN_A_DAY);
     const dailyAverage = calculate24HourNumericAverage(dailyData, options);
 
-    dailyAverages.push(dailyAverage);
+    dailyAverages.push(dailyAverage * (options?.multiplicationFactor || 1));
   }
 
   return dailyAverages;

@@ -40,7 +40,8 @@ export class SoilDataComponent {
         ?.hourly.soil_moisture_3_to_9cm;
 
     return getAllDailyNumericDataAverages(rawMoistureData || [], {
-      precision: 2
+      precision: 2,
+      multiplicationFactor: 100
     });
   });
 

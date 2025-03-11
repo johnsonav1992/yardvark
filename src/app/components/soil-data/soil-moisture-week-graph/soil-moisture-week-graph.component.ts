@@ -4,10 +4,11 @@ import { getFullWeekOfDayLabelsCenteredAroundCurrentDay } from '../../../utils/t
 import { getPrimeNgHexColor } from '../../../utils/styleUtils';
 import { ChartLoaderComponent } from '../../chart-loader/chart-loader.component';
 import { ChartModule } from 'primeng/chart';
+import { PopoverModule } from 'primeng/popover';
 
 @Component({
   selector: 'soil-moisture-week-graph',
-  imports: [ChartLoaderComponent, ChartModule],
+  imports: [ChartLoaderComponent, ChartModule, PopoverModule],
   templateUrl: './soil-moisture-week-graph.component.html',
   styleUrl: './soil-moisture-week-graph.component.scss'
 })

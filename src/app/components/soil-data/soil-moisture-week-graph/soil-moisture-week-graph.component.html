@@ -1,4 +1,11 @@
-<h3>Average soil moisture</h3>
+<h3>
+  Average soil moisture
+  <i
+    class="ti ti-info-circle"
+    (mouseover)="popover.show($event)"
+    (mouseleave)="popover.hide()"
+  ></i>
+</h3>
 @if (isLoadingChartData()) {
   <div [style]="{ margin: '.5rem' }">
     <chart-loader />
@@ -12,3 +19,10 @@
     />
   </div>
 }
+
+<p-popover #popover>
+  <img
+    src="https://support.spruceirrigation.com/wp-content/uploads/2015/09/FieldCapacity.png"
+    width="500px"
+  />
+</p-popover>

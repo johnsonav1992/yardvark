@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { SettingsModule } from './settings/settings.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { ActivitiesModule } from './activities/activities.module';
+import { LawnSegmentsModule } from './lawn-segments/lawn-segments.module';
+import { EntriesModule } from './entries/entries.module';
 
 @Module({
   imports: [
@@ -18,6 +21,9 @@ import { ConfigModule } from '@nestjs/config';
       autoLoadEntities: true,
     }),
     SettingsModule,
+    ActivitiesModule,
+    LawnSegmentsModule,
+    EntriesModule,
   ],
   controllers: [],
   providers: [],

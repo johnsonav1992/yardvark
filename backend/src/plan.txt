@@ -1,0 +1,12 @@
+Activities - mow, watering,product application, etc.
+
+log entry
+
+id
+date
+title
+notes
+activityId (many)
+lawnSegmentId (many)
+imageUrl?
+

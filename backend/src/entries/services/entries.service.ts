@@ -14,7 +14,10 @@ export class EntriesService {
   getEntries(userId: number) {
     return this._entriesRepo.find({
       where: { userId },
-      relations: ['activities', 'lawnSegments'],
+      relations: {
+        activities: true,
+        lawnSegments: true,
+      },
     });
   }
 

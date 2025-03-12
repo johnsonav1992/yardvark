@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Put } from '@nestjs/common';
-import { SettingsService } from '../service/settings.service';
+import { SettingsService } from '../services/settings.service';
 import { SettingsData } from '../models/settings.types';
 
 @Controller('settings')

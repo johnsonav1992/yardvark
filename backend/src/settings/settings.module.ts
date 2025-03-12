@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { SettingsController } from './controller/settings.controller';
-import { SettingsService } from './service/settings.service';
+import { SettingsController } from './controllers/settings.controller';
+import { SettingsService } from './services/settings.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Settings } from './models/settings.model';
 

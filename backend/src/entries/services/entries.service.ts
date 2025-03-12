@@ -18,6 +18,7 @@ export class EntriesService {
         activities: true,
         lawnSegments: true,
       },
+      relationLoadStrategy: 'query',
     });
   }
 

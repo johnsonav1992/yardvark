@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { EntryCreationRequest } from '../models/entries.types';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { Entry } from '../models/entries.model';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -11,9 +11,15 @@ export class EntriesService {
     private _entriesRepo: Repository<Entry>,
   ) {}
 
-  getEntries(userId: number) {
+  getEntries(userId: number, startDate?: string, endDate?: string) {
     return this._entriesRepo.find({
-      where: { userId },
+      where: {
+        userId,
+        date:
+          startDate && endDate
+            ? Between(new Date(startDate), new Date(endDate))
+            : undefined,
+      },
       relations: {
         activities: true,
         lawnSegments: true,

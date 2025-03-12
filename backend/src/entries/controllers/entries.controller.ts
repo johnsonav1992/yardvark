@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { EntriesService } from '../services/entries.service';
 import { EntryCreationRequest } from '../models/entries.types';
 
@@ -7,8 +7,12 @@ export class EntriesController {
   constructor(private _entriesService: EntriesService) {}
 
   @Get(':userId')
-  getEntries(userId: number) {
-    return this._entriesService.getEntries(userId);
+  getEntries(
+    userId: number,
+    @Query('startDate') startDate: string,
+    @Query('endDate') endDate: string,
+  ) {
+    return this._entriesService.getEntries(userId, startDate, endDate);
   }
 
   @Post()

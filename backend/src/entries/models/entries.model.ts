@@ -27,17 +27,17 @@ export class Entry {
 
   @ManyToMany(() => Activity, (activity) => activity.entries)
   @JoinTable({
-    name: 'entryActivities',
-    joinColumn: { name: 'entryId', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'activityId', referencedColumnName: 'id' },
+    name: 'entry_activities',
+    joinColumn: { name: 'entry_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'activity_id', referencedColumnName: 'id' },
   })
   activities: Activity[];
 
   @ManyToMany(() => LawnSegment, (lawnSegment) => lawnSegment.entries)
   @JoinTable({
-    name: 'entryLawnSegments',
-    joinColumn: { name: 'entryId', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'lawnSegmentId', referencedColumnName: 'id' },
+    name: 'entry_lawn_segments',
+    joinColumn: { name: 'entry_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'lawn_segment_id', referencedColumnName: 'id' },
   })
   lawnSegments: LawnSegment[];
 }

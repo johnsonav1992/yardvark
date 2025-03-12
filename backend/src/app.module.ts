@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { ActivitiesModule } from './activities/activities.module';
 import { LawnSegmentsModule } from './lawn-segments/lawn-segments.module';
 import { EntriesModule } from './entries/entries.module';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { EntriesModule } from './entries/entries.module';
       ssl: true,
       synchronize: true,
       autoLoadEntities: true,
+      namingStrategy: new SnakeNamingStrategy(),
     }),
     SettingsModule,
     ActivitiesModule,

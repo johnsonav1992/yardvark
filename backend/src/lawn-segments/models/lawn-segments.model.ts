@@ -7,7 +7,7 @@ import {
   ManyToMany,
 } from 'typeorm';
 
-@Entity('lawnSegments')
+@Entity('lawn_segments')
 @Unique(['userId', 'name'])
 export class LawnSegment {
   @PrimaryGeneratedColumn()

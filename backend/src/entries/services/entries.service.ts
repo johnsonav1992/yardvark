@@ -11,6 +11,13 @@ export class EntriesService {
     private _entriesRepo: Repository<Entry>,
   ) {}
 
+  getEntries(userId: number) {
+    return this._entriesRepo.find({
+      where: { userId },
+      relations: ['activities', 'lawnSegments'],
+    });
+  }
+
   async createEntry(entry: EntryCreationRequest) {
     const newEntry = this._entriesRepo.create({
       ...entry,

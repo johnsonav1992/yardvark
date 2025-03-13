@@ -7,7 +7,7 @@ export class LawnSegmentsController {
   constructor(private _lawnSegmentService: LawnSegmentsService) {}
 
   @Get(':userId')
-  getLawnSegments(userId: number) {
+  getLawnSegments(userId: string) {
     return this._lawnSegmentService.getLawnSegments(userId);
   }
 

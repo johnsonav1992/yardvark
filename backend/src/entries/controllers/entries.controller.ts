@@ -8,7 +8,7 @@ export class EntriesController {
 
   @Get(':userId')
   getEntries(
-    userId: number,
+    userId: string,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {

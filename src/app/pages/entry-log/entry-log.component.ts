@@ -5,6 +5,10 @@ import {
 } from '../../components/entries-calendar/entries-calendar.component';
 import { ButtonModule } from 'primeng/button';
 import { ButtonDesignTokens } from '@primeng/themes/types/button';
+import { httpResource } from '@angular/common/http';
+import { apiUrl } from '../../utils/httpUtils';
+import { injectUserData } from '../../utils/authUtils';
+import { endOfMonth, startOfMonth } from 'date-fns';
 
 @Component({
   selector: 'entry-log',
@@ -13,6 +17,20 @@ import { ButtonDesignTokens } from '@primeng/themes/types/button';
   styleUrl: './entry-log.component.scss'
 })
 export class EntryLogComponent {
+  public user = injectUserData();
+
+  public entries = httpResource<unknown>(() =>
+    this.user()
+      ? apiUrl('entries', {
+          params: [this.user()?.sub || ''],
+          queryParams: {
+            startDate: startOfMonth(new Date()),
+            endDate: endOfMonth(new Date())
+          }
+        })
+      : undefined
+  );
+
   public days: CalendarMarkerData[] = [
     {
       date: new Date(),

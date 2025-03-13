@@ -14,7 +14,7 @@ export class Entry {
   id: number;
 
   @Column()
-  userId: number;
+  userId: string;
 
   @Column()
   date: Date;

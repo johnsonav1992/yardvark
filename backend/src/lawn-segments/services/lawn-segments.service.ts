@@ -11,7 +11,7 @@ export class LawnSegmentsService {
     private _lawnSegmentRepo: Repository<LawnSegment>,
   ) {}
 
-  async getLawnSegments(userId: number) {
+  async getLawnSegments(userId: string) {
     return this._lawnSegmentRepo.findBy({ userId });
   }
 

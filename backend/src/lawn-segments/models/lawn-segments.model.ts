@@ -14,7 +14,7 @@ export class LawnSegment {
   id: number;
 
   @Column()
-  userId: number;
+  userId: string;
 
   @Column()
   name: string;

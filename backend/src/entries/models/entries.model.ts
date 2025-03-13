@@ -5,8 +5,8 @@ import {
   ManyToMany,
   JoinTable,
 } from 'typeorm';
-import { Activity } from 'src/activities/models/activities.model';
 import { LawnSegment } from 'src/lawn-segments/models/lawn-segments.model';
+import { Activity } from 'src/activities/models/activities.model';
 
 @Entity('entries')
 export class Entry {

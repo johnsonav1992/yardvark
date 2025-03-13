@@ -1,9 +1,9 @@
-<entries-calendar [markers]="days" (monthChange)="changeMonths($event)">
+<entries-calendar [markers]="days()" (monthChange)="changeMonths($event)">
   <ng-template #marker let-dayMarkers>
     @for (marker of dayMarkers; track marker) {
       <div [style.margin-left]="$index !== 0 ? '-.25rem' : ''">
         <p-button
-          (click)="('')"
+          (click)="logData(marker.data)"
           [icon]="marker.icon"
           rounded
           size="small"
@@ -12,7 +12,6 @@
           [dt]="markerButtonDt"
         />
       </div>
-      <!-- {{ marker.data }} -->
     }
   </ng-template>
 </entries-calendar>

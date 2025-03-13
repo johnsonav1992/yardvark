@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, computed, signal } from '@angular/core';
 import {
   CalendarMarkerData,
   EntriesCalendarComponent
@@ -9,6 +9,7 @@ import { httpResource } from '@angular/common/http';
 import { apiUrl } from '../../utils/httpUtils';
 import { injectUserData } from '../../utils/authUtils';
 import { endOfMonth, startOfMonth } from 'date-fns';
+import { Entry } from '../../types/entries.types';
 
 @Component({
   selector: 'entry-log',
@@ -19,7 +20,7 @@ import { endOfMonth, startOfMonth } from 'date-fns';
 export class EntryLogComponent {
   public user = injectUserData();
 
-  public entries = httpResource<unknown>(() =>
+  public entries = httpResource<Entry[]>(() =>
     this.user()
       ? apiUrl('entries', {
           params: [this.user()!.sub || ''],
@@ -33,18 +34,19 @@ export class EntryLogComponent {
 
   public currentDate = signal(new Date());
 
-  public days: CalendarMarkerData[] = [
-    {
-      date: new Date(),
-      data: 'test',
-      icon: 'ti ti-garden-cart'
-    },
-    {
-      date: new Date(),
-      data: 'test',
-      icon: 'ti ti-check'
-    }
-  ];
+  public days = computed<CalendarMarkerData[]>(() => {
+    const currentMonthEntries = this.entries.value();
+
+    return (currentMonthEntries || []).map((entry) => ({
+      date: new Date(entry.date),
+      icon: 'ti ti-check',
+      data: entry
+    }));
+  });
+
+  public logData(entry: Entry): void {
+    console.log(entry);
+  }
 
   public markerButtonDt: ButtonDesignTokens = {
     root: {

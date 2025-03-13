@@ -11,10 +11,11 @@ import { injectUserData } from '../../utils/authUtils';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { Entry } from '../../types/entries.types';
 import { getEntryIcon } from '../../utils/entriesUtils';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'entry-log',
-  imports: [EntriesCalendarComponent, ButtonModule],
+  imports: [EntriesCalendarComponent, ButtonModule, TooltipModule],
   templateUrl: './entry-log.component.html',
   styleUrl: './entry-log.component.scss'
 })
@@ -74,4 +75,13 @@ export class EntryLogComponent {
   public changeMonths(newDate: Date): void {
     this.currentDate.set(newDate);
   }
+
+  public addButtonDt: ButtonDesignTokens = {
+    root: {
+      iconOnlyWidth: '5rem',
+      lg: {
+        fontSize: '36px'
+      }
+    }
+  };
 }

@@ -1,0 +1,11 @@
+.main-container {
+  position: relative;
+  height: calc(95vh - var(--main-header-height));
+  width: 100%;
+
+  .speed-dial {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+  }
+}

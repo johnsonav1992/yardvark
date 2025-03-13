@@ -1,17 +1,30 @@
-<entries-calendar [markers]="dayMarkers()" (monthChange)="changeMonths($event)">
-  <ng-template #marker let-dayMarkers>
-    @for (marker of dayMarkers; track marker) {
-      <div [style.margin-left]="$index !== 0 ? '-.25rem' : ''">
-        <p-button
-          (click)="logData(marker.data)"
-          [icon]="marker.icon"
-          rounded
-          size="small"
-          severity="secondary"
-          raised
-          [dt]="markerButtonDt"
-        />
-      </div>
-    }
-  </ng-template>
-</entries-calendar>
+<div class="main-container">
+  <entries-calendar
+    [markers]="dayMarkers()"
+    (monthChange)="changeMonths($event)"
+  >
+    <ng-template #marker let-dayMarkers>
+      @for (marker of dayMarkers; track marker) {
+        <div [style.margin-left]="$index !== 0 ? '-.25rem' : ''">
+          <p-button
+            (click)="logData(marker.data)"
+            [icon]="marker.icon"
+            rounded
+            size="small"
+            severity="secondary"
+            raised
+            [dt]="markerButtonDt"
+          />
+        </div>
+      }
+    </ng-template>
+  </entries-calendar>
+  <p-button
+    icon="ti ti-clipboard-plus"
+    class="speed-dial"
+    rounded
+    size="large"
+    [dt]="addButtonDt"
+    [pTooltip]="'Create entry'"
+  />
+</div>

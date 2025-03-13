@@ -54,6 +54,10 @@ export class EntryLogComponent {
     console.log(entry);
   }
 
+  public changeMonths(newDate: Date): void {
+    this.currentDate.set(newDate);
+  }
+
   public markerButtonDt: ButtonDesignTokens = {
     root: {
       iconOnlyWidth: '2rem'
@@ -71,10 +75,6 @@ export class EntryLogComponent {
       }
     }
   };
-
-  public changeMonths(newDate: Date): void {
-    this.currentDate.set(newDate);
-  }
 
   public addButtonDt: ButtonDesignTokens = {
     root: {

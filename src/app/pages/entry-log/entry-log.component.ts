@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import {
   CalendarMarkerData,
   EntriesCalendarComponent
@@ -22,14 +22,16 @@ export class EntryLogComponent {
   public entries = httpResource<unknown>(() =>
     this.user()
       ? apiUrl('entries', {
-          params: [this.user()?.sub || ''],
+          params: [this.user()!.sub || ''],
           queryParams: {
-            startDate: startOfMonth(new Date()),
-            endDate: endOfMonth(new Date())
+            startDate: startOfMonth(this.currentDate()),
+            endDate: endOfMonth(this.currentDate())
           }
         })
       : undefined
   );
+
+  public currentDate = signal(new Date());
 
   public days: CalendarMarkerData[] = [
     {
@@ -61,4 +63,8 @@ export class EntryLogComponent {
       }
     }
   };
+
+  public changeMonths(newDate: Date): void {
+    this.currentDate.set(newDate);
+  }
 }

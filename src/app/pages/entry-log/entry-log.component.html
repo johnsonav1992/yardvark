@@ -1,4 +1,4 @@
-<entries-calendar [markers]="days">
+<entries-calendar [markers]="days" (monthChange)="changeMonths($event)">
   <ng-template #marker let-dayMarkers>
     @for (marker of dayMarkers; track marker) {
       <div [style.margin-left]="$index !== 0 ? '-.25rem' : ''">

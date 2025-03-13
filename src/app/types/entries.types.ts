@@ -1,4 +1,5 @@
 import { Activity } from './activities.types';
+import { LawnSegment } from './lawnSegments.types';
 
 export type Entry = {
   id: number;
@@ -9,10 +10,3 @@ export type Entry = {
   activities: Activity[];
   lawnSegments: LawnSegment[];
 };
-
-export interface LawnSegment {
-  id: number;
-  userId: string;
-  name: string;
-  size: number;
-}

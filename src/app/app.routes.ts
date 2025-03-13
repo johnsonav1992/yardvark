@@ -6,9 +6,14 @@ import { EntryLogComponent } from './pages/entry-log/entry-log.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { ProductsComponent } from './pages/products/products.component';
 import { EquipmentComponent } from './pages/equipment/equipment.component';
+import { EntryViewComponent } from './pages/entry-log/entry-view/entry-view.component';
 
 export const productRoutes: Routes = [
   { path: ':productId', component: ProductsComponent }
+];
+
+export const entryRoutes: Routes = [
+  { path: ':entryId', component: EntryViewComponent }
 ];
 
 export const mainRoutes: Routes = [
@@ -27,7 +32,8 @@ export const mainRoutes: Routes = [
   },
   {
     path: 'entry-log',
-    component: EntryLogComponent
+    component: EntryLogComponent,
+    children: entryRoutes
   },
   {
     path: 'soil-data',

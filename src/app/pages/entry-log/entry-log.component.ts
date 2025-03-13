@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import {
   CalendarMarkerData,
   EntriesCalendarComponent
@@ -12,14 +12,22 @@ import { endOfMonth, startOfMonth } from 'date-fns';
 import { Entry } from '../../types/entries.types';
 import { getEntryIcon } from '../../utils/entriesUtils';
 import { TooltipModule } from 'primeng/tooltip';
+import { Router, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'entry-log',
-  imports: [EntriesCalendarComponent, ButtonModule, TooltipModule],
+  imports: [
+    EntriesCalendarComponent,
+    ButtonModule,
+    TooltipModule,
+    RouterOutlet
+  ],
   templateUrl: './entry-log.component.html',
   styleUrl: './entry-log.component.scss'
 })
 export class EntryLogComponent {
+  private _router = inject(Router);
+
   public user = injectUserData();
 
   public entries = httpResource<Entry[]>(() =>
@@ -52,6 +60,7 @@ export class EntryLogComponent {
 
   public logData(entry: Entry): void {
     console.log(entry);
+    this._router.navigate(['entry-log', entry.id]);
   }
 
   public changeMonths(newDate: Date): void {

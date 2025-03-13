@@ -11,7 +11,7 @@ export class EntriesService {
     private _entriesRepo: Repository<Entry>,
   ) {}
 
-  getEntries(userId: string, startDate?: string, endDate?: string) {
+  async getEntries(userId: string, startDate?: string, endDate?: string) {
     return this._entriesRepo.find({
       where: {
         userId,

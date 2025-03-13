@@ -10,6 +10,7 @@ import { apiUrl } from '../../utils/httpUtils';
 import { injectUserData } from '../../utils/authUtils';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { Entry } from '../../types/entries.types';
+import { getEntryIcon } from '../../utils/entriesUtils';
 
 @Component({
   selector: 'entry-log',
@@ -34,14 +35,18 @@ export class EntryLogComponent {
 
   public currentDate = signal(new Date());
 
-  public days = computed<CalendarMarkerData[]>(() => {
+  public dayMarkers = computed<CalendarMarkerData<Entry>[]>(() => {
     const currentMonthEntries = this.entries.value();
 
-    return (currentMonthEntries || []).map((entry) => ({
-      date: new Date(entry.date),
-      icon: 'ti ti-check',
-      data: entry
-    }));
+    return (currentMonthEntries || []).map((entry) => {
+      const icon = getEntryIcon(entry);
+
+      return {
+        date: new Date(entry.date),
+        icon,
+        data: entry
+      };
+    });
   });
 
   public logData(entry: Entry): void {

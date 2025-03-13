@@ -4,7 +4,7 @@
     (monthChange)="changeMonths($event)"
   >
     <ng-template #marker let-dayMarkers>
-      @for (marker of dayMarkers; track marker) {
+      @for (marker of dayMarkers; track marker.data.id) {
         <div [style.margin-left]="$index !== 0 ? '-.25rem' : ''">
           <p-button
             (click)="logData(marker.data)"

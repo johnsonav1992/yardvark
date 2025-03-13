@@ -77,8 +77,6 @@ export const apiUrl = (
 ) => {
   let url = `${BE_API_URL}/${path}`;
 
-  console.log(url);
-
   if (opts?.params) {
     url += '/' + opts.params.join('/');
   }
@@ -87,10 +85,6 @@ export const apiUrl = (
     const queryParams = new URLSearchParams(
       opts.queryParams as Record<string, string>
     ).toString();
-
-    console.log(url);
-
-    console.log(queryParams);
 
     if (queryParams) {
       url += `?${queryParams}`;

@@ -35,7 +35,7 @@
   }
 </div>
 <div class="calendar-grid">
-  @for (day of days(); track day) {
+  @for (day of days(); track day.date) {
     <div
       class="day"
       [style.gridColumnStart]="day.gridColumnStart"

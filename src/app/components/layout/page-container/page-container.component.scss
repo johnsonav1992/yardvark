@@ -3,4 +3,10 @@
   flex-direction: column;
   gap: 1.5rem;
   margin-bottom: 1rem;
+
+  .title-container {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
 }

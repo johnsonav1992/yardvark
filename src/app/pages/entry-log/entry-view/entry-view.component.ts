@@ -7,10 +7,12 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { httpResource } from '@angular/common/http';
 import { apiUrl } from '../../../utils/httpUtils';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'entry-view',
-  imports: [DatePipe, PageContainerComponent],
+  imports: [DatePipe, PageContainerComponent, ButtonModule, CardModule],
   templateUrl: './entry-view.component.html',
   styleUrl: './entry-view.component.scss'
 })

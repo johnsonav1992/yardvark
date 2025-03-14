@@ -9,6 +9,7 @@ import { httpResource } from '@angular/common/http';
 import { apiUrl } from '../../../utils/httpUtils';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { CardDesignTokens } from '@primeng/themes/types/card';
 
 @Component({
   selector: 'entry-view',
@@ -41,4 +42,10 @@ export class EntryViewComponent {
 
     entryData ? this.entryData.set(entryData) : this.shouldFetchEntry.set(true);
   }
+
+  public cardDt: CardDesignTokens = {
+    root: {
+      shadow: '2px 2px 8px 0 rgba(0, 0, 0, 0.2)'
+    }
+  };
 }

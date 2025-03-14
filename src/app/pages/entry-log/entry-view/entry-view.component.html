@@ -11,7 +11,7 @@
     }
   </div> -->
 
-  <p-card [style]="{ width: 'max-content' }">
+  <p-card [dt]="cardDt">
     <ng-template #title> {{ date }} </ng-template>
     <ng-template #subtitle>
       Soil temp: {{ entryData()?.soilTemperature }}°{{

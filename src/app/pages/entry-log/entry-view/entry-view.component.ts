@@ -37,8 +37,6 @@ export class EntryViewComponent {
     const entryData =
       this._router.getCurrentNavigation()?.extras.state?.['entry'];
 
-    console.log(entryData);
-
     entryData ? this.entryData.set(entryData) : this.shouldFetchEntry.set(true);
   }
 }

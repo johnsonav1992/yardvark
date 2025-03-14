@@ -15,7 +15,7 @@ export class EntriesController {
     return this._entriesService.getEntries(userId, startDate, endDate);
   }
 
-  @Get(':entryId')
+  @Get('single/:entryId')
   getEntry(entryId: number) {
     return this._entriesService.getEntry(entryId);
   }

@@ -23,21 +23,21 @@ export class EntryViewComponent {
   );
 
   public shouldFetchEntry = signal<boolean>(false);
-  public entryData = linkedSignal<Entry | undefined>(() => {
-    const data = this.entryResource.value();
-    console.log(data);
-    return data;
-  });
+  public entryData = linkedSignal<Entry | undefined>(() =>
+    this.entryResource.value()
+  );
 
   public entryResource = httpResource<Entry>(() =>
     this.shouldFetchEntry() && this.entryId()
-      ? apiUrl('entries', { params: [this.entryId()] })
+      ? apiUrl('entries/single', { params: [this.entryId()] })
       : undefined
   );
 
   public constructor() {
     const entryData =
       this._router.getCurrentNavigation()?.extras.state?.['entry'];
+
+    console.log(entryData);
 
     entryData ? this.entryData.set(entryData) : this.shouldFetchEntry.set(true);
   }

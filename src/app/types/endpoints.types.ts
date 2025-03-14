@@ -1,1 +1,1 @@
-export type ApiEndpointRoutes = 'settings' | 'entries';
+export type ApiEndpointRoutes = 'settings' | 'entries' | 'entries/single';

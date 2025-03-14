@@ -2,10 +2,12 @@
 
 <page-container pageTitle="Journal Entry">
   <div style="display: flex; flex-direction: column">
-    <p>
-      {{ date }} | Soil temp: {{ entryData()?.soilTemperature }}°{{
-        entryData()?.soilTemperatureUnit === "fahrenheit" ? "F" : "C"
-      }}
-    </p>
+    @if (entryData()) {
+      <p>
+        {{ date || "hey" }} | Soil temp: {{ entryData()?.soilTemperature }}°{{
+          entryData()?.soilTemperatureUnit === "fahrenheit" ? "F" : "C"
+        }}
+      </p>
+    }
   </div>
 </page-container>

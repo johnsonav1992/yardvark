@@ -4,6 +4,13 @@
   width: 100%;
   justify-content: space-between;
 
+  .header-inner-container {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    width: 100%;
+  }
+
   .month-title {
     font-size: 1.25rem;
     font-weight: bold;

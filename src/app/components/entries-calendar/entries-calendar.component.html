@@ -1,7 +1,16 @@
 <header class="calendar-header">
-  <h2 class="month-title">
-    {{ currentMonth() }}
-  </h2>
+  <div class="header-inner-container">
+    <p-button
+      icon="ti ti-arrow-left"
+      (click)="back()"
+      size="small"
+      outlined
+      severity="secondary"
+    />
+    <h2 class="month-title">
+      {{ currentMonth() }}
+    </h2>
+  </div>
   <div class="buttons-container">
     <p-button (click)="toCurrentMonth()" label="Today" outlined size="small" />
     <p-button

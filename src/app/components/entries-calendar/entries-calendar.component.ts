@@ -1,8 +1,9 @@
-import { DatePipe, NgTemplateOutlet } from '@angular/common';
+import { DatePipe, Location, NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   computed,
   contentChild,
+  inject,
   input,
   output,
   signal,
@@ -20,6 +21,8 @@ import { ButtonModule } from 'primeng/button';
   imports: [DatePipe, NgTemplateOutlet, ButtonModule]
 })
 export class EntriesCalendarComponent {
+  private _location = inject(Location);
+
   public markers = input<CalendarMarkerData[]>([]);
   public markerTpl =
     contentChild<TemplateRef<{ $implicit: CalendarMarkerData[] }>>('marker');
@@ -66,6 +69,10 @@ export class EntriesCalendarComponent {
 
   public getMarkerMapKey(date: Date): string {
     return format(date, 'yyyy-MM-dd');
+  }
+
+  public back(): void {
+    this._location.back();
   }
 }
 

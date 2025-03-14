@@ -15,6 +15,11 @@ export class EntriesController {
     return this._entriesService.getEntries(userId, startDate, endDate);
   }
 
+  @Get(':entryId')
+  getEntry(entryId: number) {
+    return this._entriesService.getEntry(entryId);
+  }
+
   @Post()
   createEntry(@Body() entry: EntryCreationRequest) {
     return this._entriesService.createEntry(entry);

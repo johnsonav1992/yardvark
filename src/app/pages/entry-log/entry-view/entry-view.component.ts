@@ -1,9 +1,12 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, linkedSignal, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Entry } from '../../../types/entries.types';
 import { PageContainerComponent } from '../../../components/layout/page-container/page-container.component';
-import { effectSignalLogger } from '../../../utils/generalUtils';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
+import { httpResource } from '@angular/common/http';
+import { apiUrl } from '../../../utils/httpUtils';
 
 @Component({
   selector: 'entry-view',
@@ -13,15 +16,29 @@ import { effectSignalLogger } from '../../../utils/generalUtils';
 })
 export class EntryViewComponent {
   private _router = inject(Router);
+  private _activatedRoute = inject(ActivatedRoute);
 
-  public entryData = signal<Entry | null>(null);
+  public entryId = toSignal(
+    this._activatedRoute.params.pipe(map((params) => params['entryId']))
+  );
 
-  _ = effectSignalLogger(this.entryData);
+  public shouldFetchEntry = signal<boolean>(false);
+  public entryData = linkedSignal<Entry | undefined>(() => {
+    const data = this.entryResource.value();
+    console.log(data);
+    return data;
+  });
+
+  public entryResource = httpResource<Entry>(() =>
+    this.shouldFetchEntry() && this.entryId()
+      ? apiUrl('entries', { params: [this.entryId()] })
+      : undefined
+  );
 
   public constructor() {
     const entryData =
       this._router.getCurrentNavigation()?.extras.state?.['entry'];
 
-    entryData && this.entryData.set(entryData);
+    entryData ? this.entryData.set(entryData) : this.shouldFetchEntry.set(true);
   }
 }

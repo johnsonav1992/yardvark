@@ -27,6 +27,16 @@ export class EntriesService {
     });
   }
 
+  async getEntry(entryId: number) {
+    return this._entriesRepo.findOne({
+      where: { id: entryId },
+      relations: {
+        activities: true,
+        lawnSegments: true,
+      },
+    });
+  }
+
   async createEntry(entry: EntryCreationRequest) {
     const newEntry = this._entriesRepo.create({
       ...entry,

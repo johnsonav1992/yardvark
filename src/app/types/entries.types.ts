@@ -7,6 +7,8 @@ export type Entry = {
   date: string;
   title: string;
   notes: string;
+  soilTemperature: number | string;
+  soilTemperatureUnit: string;
   activities: Activity[];
   lawnSegments: LawnSegment[];
 };

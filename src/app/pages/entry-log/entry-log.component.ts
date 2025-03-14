@@ -59,8 +59,7 @@ export class EntryLogComponent {
   });
 
   public logData(entry: Entry): void {
-    console.log(entry);
-    this._router.navigate(['entry-log', entry.id]);
+    this._router.navigate(['entry-log', entry.id], { state: { entry } });
   }
 
   public changeMonths(newDate: Date): void {

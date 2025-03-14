@@ -12,10 +12,6 @@ export const productRoutes: Routes = [
   { path: ':productId', component: ProductsComponent }
 ];
 
-export const entryRoutes: Routes = [
-  { path: ':entryId', component: EntryViewComponent }
-];
-
 export const mainRoutes: Routes = [
   {
     path: '',
@@ -32,8 +28,11 @@ export const mainRoutes: Routes = [
   },
   {
     path: 'entry-log',
-    component: EntryLogComponent,
-    children: entryRoutes
+    component: EntryLogComponent
+  },
+  {
+    path: 'entry-log/:entryId',
+    component: EntryViewComponent
   },
   {
     path: 'soil-data',

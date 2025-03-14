@@ -25,6 +25,12 @@ export class Entry {
   @Column()
   notes: string;
 
+  @Column('decimal')
+  soilTemperature: number;
+
+  @Column()
+  soilTemperatureUnit: string;
+
   @ManyToMany(() => Activity, (activity) => activity.entries)
   @JoinTable({
     name: 'entry_activities',

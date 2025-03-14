@@ -1,1 +1,11 @@
-<p>entry-view works!</p>
+@let date = entryData()?.date! | date: "M/dd/yyyy";
+
+<page-container pageTitle="Journal Entry">
+  <div style="display: flex; flex-direction: column">
+    <p>
+      {{ date }} | Soil temp: {{ entryData()?.soilTemperature }}°{{
+        entryData()?.soilTemperatureUnit === "fahrenheit" ? "F" : "C"
+      }}
+    </p>
+  </div>
+</page-container>

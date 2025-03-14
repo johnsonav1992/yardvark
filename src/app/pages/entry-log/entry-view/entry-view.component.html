@@ -18,6 +18,21 @@
         entryData()?.soilTemperatureUnit === "fahrenheit" ? "F" : "C"
       }}
     </ng-template>
+    <div>
+      Activities:
+      <ul>
+        @for (activity of entryData()?.activities; track activity.id) {
+          <li>{{ activity.name }}</li>
+        }
+      </ul>
+
+      Lawn segments:
+      <ul>
+        @for (segment of entryData()?.lawnSegments; track segment.id) {
+          <li>{{ segment.name }}</li>
+        }
+      </ul>
+    </div>
     <ng-template #footer>
       <div class="flex gap-4 mt-1">
         <p-button

@@ -15,6 +15,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { Router, RouterOutlet } from '@angular/router';
 import { DialogService } from 'primeng/dynamicdialog';
 import { EntryDialogComponent } from '../../components/entry-dialog/entry-dialog.component';
+import { EntryDialogFooterComponent } from '../../components/entry-dialog/entry-dialog-footer/entry-dialog-footer.component';
 
 @Component({
   selector: 'entry-log',
@@ -76,9 +77,12 @@ export class EntryLogComponent {
       modal: true,
       focusOnShow: false,
       width: '50%',
-      autoZIndex: true,
       dismissableMask: true,
-      closable: true
+      closable: true,
+      contentStyle: { overflow: 'visible' },
+      templates: {
+        footer: EntryDialogFooterComponent
+      }
     });
   }
 

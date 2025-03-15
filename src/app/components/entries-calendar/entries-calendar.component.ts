@@ -5,6 +5,7 @@ import {
   contentChild,
   inject,
   input,
+  linkedSignal,
   output,
   signal,
   TemplateRef
@@ -12,6 +13,9 @@ import {
 import { addMonths, format, startOfToday, subMonths } from 'date-fns';
 import { getCalendarDaysData } from './utils';
 import { ButtonModule } from 'primeng/button';
+import { Router } from '@angular/router';
+import { map } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'entries-calendar',
@@ -21,7 +25,14 @@ import { ButtonModule } from 'primeng/button';
   imports: [DatePipe, NgTemplateOutlet, ButtonModule]
 })
 export class EntriesCalendarComponent {
+  private _router = inject(Router);
   private _location = inject(Location);
+
+  private _dateQuery = toSignal(
+    this._router.routerState.root.queryParams.pipe(
+      map((params) => params['date'] as string)
+    )
+  );
 
   public markers = input<CalendarMarkerData[]>([]);
   public markerTpl =
@@ -29,7 +40,9 @@ export class EntriesCalendarComponent {
 
   public monthChange = output<Date>();
 
-  protected currentDate = signal(startOfToday());
+  protected currentDate = linkedSignal(() =>
+    this._dateQuery() ? new Date(this._dateQuery()!) : startOfToday()
+  );
   protected currentMonth = computed(() =>
     format(this.currentDate(), 'MMMM yyyy')
   );

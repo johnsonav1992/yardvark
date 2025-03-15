@@ -46,4 +46,12 @@ export class EntriesService {
 
     await this._entriesRepo.save(newEntry);
   }
+
+  async softDeleteEntry(entryId: number) {
+    await this._entriesRepo.softDelete(entryId);
+  }
+
+  async recoverEntry(entryId: number) {
+    await this._entriesRepo.restore(entryId);
+  }
 }

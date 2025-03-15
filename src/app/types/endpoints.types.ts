@@ -5,6 +5,6 @@ export type ApiEndpointRoutes =
   | LawnSegmentsRoutes;
 
 type SettingsRoutes = 'settings';
-type EntriesRoutes = 'entries' | 'entries/single';
+type EntriesRoutes = 'entries' | 'entries/single' | 'entries/recover';
 type ActivitiesRoutes = 'activities';
 type LawnSegmentsRoutes = 'lawn-segments';

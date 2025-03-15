@@ -63,8 +63,11 @@ export class EntryLogComponent {
     });
   });
 
-  public logData(entry: Entry): void {
-    this._router.navigate(['entry-log', entry.id], { state: { entry } });
+  public navigateToEntry(entry: Entry): void {
+    this._router.navigate(['entry-log', entry.id], {
+      state: { entry },
+      queryParams: { date: new Date(entry.date).toISOString() }
+    });
   }
 
   public changeMonths(newDate: Date): void {

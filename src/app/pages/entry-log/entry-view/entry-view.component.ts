@@ -1,4 +1,11 @@
-import { Component, inject, linkedSignal, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  linkedSignal,
+  signal
+} from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Entry } from '../../../types/entries.types';
@@ -6,7 +13,7 @@ import { PageContainerComponent } from '../../../components/layout/page-containe
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { httpResource } from '@angular/common/http';
-import { apiUrl } from '../../../utils/httpUtils';
+import { apiUrl, deleteReq } from '../../../utils/httpUtils';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { CardDesignTokens } from '@primeng/themes/types/card';
@@ -14,6 +21,8 @@ import { ChipModule } from 'primeng/chip';
 import { ChipDesignTokens } from '@primeng/themes/types/chip';
 import { DividerModule } from 'primeng/divider';
 import { SkeletonModule } from 'primeng/skeleton';
+import { capitalize } from '../../../utils/stringUtils';
+import { startOfMonth } from 'date-fns';
 
 @Component({
   selector: 'entry-view',
@@ -37,9 +46,25 @@ export class EntryViewComponent {
     this._activatedRoute.params.pipe(map((params) => params['entryId']))
   );
 
+  public entryDate = toSignal(
+    this._activatedRoute.queryParams.pipe(
+      map((params) => params['date'] as string)
+    )
+  );
+
+  public currentDate = computed<Date | null>(() =>
+    this.entryDate() ? new Date(this.entryDate()!) : null
+  );
+
   public shouldFetchEntry = signal<boolean>(false);
   public entryData = linkedSignal<Entry | undefined>(() =>
     this.entryResource.value()
+  );
+  public activities = computed(() =>
+    this.entryData()?.activities.map((act) => ({
+      ...act,
+      name: capitalize(act.name)
+    }))
   );
 
   public entryResource = httpResource<Entry>(() =>
@@ -53,6 +78,14 @@ export class EntryViewComponent {
       this._router.getCurrentNavigation()?.extras.state?.['entry'];
 
     entryData ? this.entryData.set(entryData) : this.shouldFetchEntry.set(true);
+  }
+
+  public deleteEntry() {
+    deleteReq(apiUrl('entries', { params: [this.entryId()] })).subscribe(() => {
+      this._router.navigate(['entry-log'], {
+        queryParams: { date: startOfMonth(this.currentDate() || new Date()) }
+      });
+    });
   }
 
   public cardDt: CardDesignTokens = {

@@ -4,6 +4,7 @@ import {
   PrimaryGeneratedColumn,
   ManyToMany,
   JoinTable,
+  DeleteDateColumn,
 } from 'typeorm';
 import { LawnSegment } from 'src/lawn-segments/models/lawn-segments.model';
 import { Activity } from 'src/activities/models/activities.model';
@@ -46,4 +47,7 @@ export class Entry {
     inverseJoinColumn: { name: 'lawn_segment_id', referencedColumnName: 'id' },
   })
   lawnSegments: LawnSegment[];
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

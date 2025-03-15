@@ -15,13 +15,25 @@
           <p-skeleton [width]="'50px'" [height]="'40px'" />
         } @else {
           {{ date }}
-          <p-button
-            label="Edit"
-            icon="ti ti-pencil"
-            outlined
-            (click)="('')"
-            severity="secondary"
-          />
+          @if (entryData()?.title) {
+            <h3>{{ entryData()?.title }}</h3>
+          }
+          <div style="display: flex; gap: 0.25rem">
+            <p-button
+              label="Edit"
+              icon="ti ti-pencil"
+              outlined
+              (click)="('')"
+              severity="secondary"
+            />
+            <p-button
+              label="Delete"
+              icon="ti ti-trash"
+              outlined
+              (click)="deleteEntry()"
+              severity="danger"
+            />
+          </div>
         }
       </div>
     </ng-template>
@@ -57,22 +69,28 @@
           <p-skeleton [width]="'90px'" />
         }
       } @else {
-        <div class="section-container">
-          <h3>Activities:</h3>
-          @for (activity of entryData()?.activities; track activity.id) {
-            <p>{{ activity.name }}</p>
-          }
-        </div>
-        <div class="section-container">
-          <h3>Lawn segments:</h3>
-          @for (segment of entryData()?.lawnSegments; track segment.id) {
-            <p>{{ segment.name }}</p>
-          }
-        </div>
-        <div class="section-container">
-          <h3>Notes:</h3>
-          {{ entryData()?.notes }}
-        </div>
+        @if (activities()?.length) {
+          <div class="section-container">
+            <h3>Activities:</h3>
+            @for (activity of activities(); track activity.id) {
+              <p>{{ activity.name }}</p>
+            }
+          </div>
+        }
+        @if (entryData()?.lawnSegments?.length) {
+          <div class="section-container">
+            <h3>Lawn segments:</h3>
+            @for (segment of entryData()?.lawnSegments; track segment.id) {
+              <p>{{ segment.name }}</p>
+            }
+          </div>
+        }
+        @if (entryData()?.notes) {
+          <div class="section-container">
+            <h3>Notes:</h3>
+            {{ entryData()?.notes }}
+          </div>
+        }
       }
     </div>
     <ng-template #footer> </ng-template>

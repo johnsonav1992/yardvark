@@ -26,9 +26,7 @@ import { LawnSegmentsService } from '../../services/lawn-segments.service';
   styleUrl: './entry-dialog.component.scss'
 })
 export class EntryDialogComponent {
-  private _activitiesService = inject(ActivitiesService);
-
-  public activitiesResource = this._activitiesService.activities;
+  public activitiesResource = inject(ActivitiesService).activities;
   public lawnSegmentsResource = inject(LawnSegmentsService).lawnSegments;
 
   public activities = computed(() =>

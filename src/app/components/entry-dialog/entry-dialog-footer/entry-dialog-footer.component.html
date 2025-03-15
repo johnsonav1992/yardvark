@@ -1,3 +1,8 @@
 <div style="display: flex; justify-content: flex-end">
-  <p-button label="Create" (click)="close()" />
+  <p-button
+    label="Create"
+    (click)="close()"
+    [disabled]="isLoading() || form?.invalid"
+    [icon]="isLoading() ? 'ti ti-loader-2 icon-spin' : ''"
+  />
 </div>

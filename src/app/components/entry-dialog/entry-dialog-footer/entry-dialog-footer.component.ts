@@ -1,6 +1,6 @@
-import { Component, DestroyRef, inject } from '@angular/core';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { EntryDialogComponent } from '../entry-dialog.component';
 import { apiUrl, postReq } from '../../../utils/httpUtils';
 import { injectUserData } from '../../../utils/authUtils';
@@ -17,12 +17,13 @@ import { EntryCreationRequest } from '../../../types/entries.types';
 export class EntryDialogFooterComponent {
   private _destroyRef = inject(DestroyRef);
   private _dialogRef = inject(DynamicDialogRef<EntryDialogComponent>);
-  private _dialogData = inject(DynamicDialogConfig).data;
   private _soilTempService = inject(SoilTemperatureService);
 
   public user = injectUserData();
 
   public form: InstanceType<typeof EntryDialogComponent>['form'] | null = null;
+
+  public isLoading = signal(false);
 
   constructor() {
     const compSub = this._dialogRef.onChildComponentLoaded.subscribe(
@@ -33,9 +34,9 @@ export class EntryDialogFooterComponent {
   }
 
   public close(): void {
-    console.log(this.form?.value);
-
     if (this.form?.invalid) return;
+
+    this.isLoading.set(true);
 
     postReq(apiUrl('entries'), {
       date: this.form?.value.date!,
@@ -50,9 +51,10 @@ export class EntryDialogFooterComponent {
       lawnSegmentIds: this.form?.value.lawnSegments?.map(({ id }) => id) || [],
       soilTemperatureUnit: this._soilTempService.temperatureUnit()
     } satisfies EntryCreationRequest).subscribe({
-      next: () => this._dialogRef.close('success')
+      next: () => {
+        this.isLoading.set(false);
+        this._dialogRef.close('success');
+      }
     });
-
-    // this._dialogRef.close();
   }
 }

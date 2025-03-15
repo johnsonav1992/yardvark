@@ -82,6 +82,9 @@ export class EntryLogComponent {
       contentStyle: { overflow: 'visible' },
       templates: {
         footer: EntryDialogFooterComponent
+      },
+      breakpoints: {
+        '800px': '95%'
       }
     });
 

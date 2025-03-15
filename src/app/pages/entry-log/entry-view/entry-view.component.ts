@@ -10,10 +10,20 @@ import { apiUrl } from '../../../utils/httpUtils';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { CardDesignTokens } from '@primeng/themes/types/card';
+import { ChipModule } from 'primeng/chip';
+import { ChipDesignTokens } from '@primeng/themes/types/chip';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
   selector: 'entry-view',
-  imports: [DatePipe, PageContainerComponent, ButtonModule, CardModule],
+  imports: [
+    DatePipe,
+    PageContainerComponent,
+    ButtonModule,
+    CardModule,
+    ChipModule,
+    DividerModule
+  ],
   templateUrl: './entry-view.component.html',
   styleUrl: './entry-view.component.scss'
 })
@@ -46,6 +56,16 @@ export class EntryViewComponent {
   public cardDt: CardDesignTokens = {
     root: {
       shadow: '2px 2px 8px 0 rgba(0, 0, 0, 0.2)'
+    }
+  };
+
+  public soilTempChipDt: ChipDesignTokens = {
+    root: {
+      background: '{primary.200}',
+      color: '{primary.800}'
+    },
+    icon: {
+      color: '{primary.800}'
     }
   };
 }

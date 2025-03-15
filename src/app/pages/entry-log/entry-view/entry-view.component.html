@@ -1,49 +1,52 @@
 @let date = entryData()?.date! | date: "M/dd/yyyy";
+@let soilTemp =
+  entryData()?.soilTemperature?.toString() +
+  "° " +
+  (entryData()?.soilTemperatureUnit === "fahrenheit" ? "F" : "C");
 
 <page-container pageTitle="Journal Entry">
-  <!-- <div style="display: flex; flex-direction: column">
-    @if (entryData()) {
-      <p>
-        {{ date || "hey" }} | Soil temp: {{ entryData()?.soilTemperature }}°{{
-          entryData()?.soilTemperatureUnit === "fahrenheit" ? "F" : "C"
-        }}
-      </p>
-    }
-  </div> -->
-
   <p-card [dt]="cardDt">
-    <ng-template #title> {{ date }} </ng-template>
-    <ng-template #subtitle>
-      Soil temp: {{ entryData()?.soilTemperature }}°{{
-        entryData()?.soilTemperatureUnit === "fahrenheit" ? "F" : "C"
-      }}
-    </ng-template>
-    <div>
-      Activities:
-      <ul>
-        @for (activity of entryData()?.activities; track activity.id) {
-          <li>{{ activity.name }}</li>
-        }
-      </ul>
-
-      Lawn segments:
-      <ul>
-        @for (segment of entryData()?.lawnSegments; track segment.id) {
-          <li>{{ segment.name }}</li>
-        }
-      </ul>
-    </div>
-    <ng-template #footer>
-      <div class="flex gap-4 mt-1">
+    <ng-template #title>
+      <div class="title-container">
+        {{ date }}
         <p-button
-          label="Cancel"
+          label="Edit"
+          icon="ti ti-pencil"
+          outlined
+          (click)="('')"
           severity="secondary"
-          class="w-full"
-          [outlined]="true"
-          styleClass="w-full"
         />
-        <p-button label="Save" class="w-full" styleClass="w-full" />
       </div>
     </ng-template>
+    <ng-template #subtitle>
+      @if (entryData()?.soilTemperature) {
+        Soil temp:
+        <p-chip
+          [label]="soilTemp"
+          icon="ti ti-thermometer"
+          [dt]="soilTempChipDt"
+        />
+      }
+    </ng-template>
+    <p-divider />
+    <div class="content-container">
+      <div class="section-container">
+        <h3>Activities:</h3>
+        @for (activity of entryData()?.activities; track activity.id) {
+          <p>{{ activity.name }}</p>
+        }
+      </div>
+      <div class="section-container">
+        <h3>Lawn segments:</h3>
+        @for (segment of entryData()?.lawnSegments; track segment.id) {
+          <p>{{ segment.name }}</p>
+        }
+      </div>
+      <div class="section-container">
+        <h3>Notes:</h3>
+        {{ entryData()?.notes }}
+      </div>
+    </div>
+    <ng-template #footer> </ng-template>
   </p-card>
 </page-container>

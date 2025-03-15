@@ -5,10 +5,16 @@ import { MainHeaderComponent } from './components/layout/main-header/main-header
 import { MainSideNavComponent } from './components/layout/main-side-nav/main-side-nav.component';
 import { injectBreakpointObserver } from './utils/styleUtils';
 import { SM_BREAKPOINT } from './constants/style-constants';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MainHeaderComponent, MainSideNavComponent],
+  imports: [
+    RouterOutlet,
+    MainHeaderComponent,
+    MainSideNavComponent,
+    ToastModule
+  ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

@@ -7,6 +7,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { providePrimeNG } from 'primeng/config';
 import { provideAuth0 } from '@auth0/auth0-angular';
 import { theme } from './theme/theme';
+import { MessageService } from 'primeng/api';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -29,6 +30,7 @@ export const appConfig: ApplicationConfig = {
       authorizationParams: {
         redirect_uri: window.location.origin
       }
-    })
+    }),
+    MessageService
   ]
 };

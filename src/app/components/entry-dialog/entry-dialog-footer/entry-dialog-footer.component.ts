@@ -7,6 +7,7 @@ import { injectUserData } from '../../../utils/authUtils';
 import { SoilTemperatureService } from '../../../services/soil-temperature.service';
 import { calculate24HourNumericAverage } from '../../../utils/soilTemperatureUtils';
 import { EntryCreationRequest } from '../../../types/entries.types';
+import { injectErrorToast } from '../../../utils/toastUtils';
 
 @Component({
   selector: 'entry-dialog-footer',
@@ -18,6 +19,7 @@ export class EntryDialogFooterComponent {
   private _destroyRef = inject(DestroyRef);
   private _dialogRef = inject(DynamicDialogRef<EntryDialogComponent>);
   private _soilTempService = inject(SoilTemperatureService);
+  private throwErrorToast = injectErrorToast();
 
   public user = injectUserData();
 
@@ -54,6 +56,10 @@ export class EntryDialogFooterComponent {
       next: () => {
         this.isLoading.set(false);
         this._dialogRef.close('success');
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.throwErrorToast('Failed to create entry');
       }
     });
   }

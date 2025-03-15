@@ -33,5 +33,9 @@ html {
 }
 
 .p-overlay-mask {
-  z-index: 50000 !important;
+  z-index: 10000 !important;
+}
+
+.p-toast {
+  z-index: 20000 !important;
 }

@@ -22,7 +22,7 @@ export class Entry {
   @Column()
   title: string;
 
-  @Column()
+  @Column({ nullable: true })
   notes: string;
 
   @Column('decimal')

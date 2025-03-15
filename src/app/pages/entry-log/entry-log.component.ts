@@ -72,7 +72,7 @@ export class EntryLogComponent {
   }
 
   public createEntry(): void {
-    this._dialogService.open(EntryDialogComponent, {
+    const dialogRef = this._dialogService.open(EntryDialogComponent, {
       header: 'Add Entry',
       modal: true,
       focusOnShow: false,
@@ -82,8 +82,13 @@ export class EntryLogComponent {
       contentStyle: { overflow: 'visible' },
       templates: {
         footer: EntryDialogFooterComponent
-      },
-      data: { yo: 'hey' }
+      }
+    });
+
+    dialogRef.onClose.subscribe((result: 'success' | undefined) => {
+      if (result === 'success') {
+        this.entries.reload();
+      }
     });
   }
 

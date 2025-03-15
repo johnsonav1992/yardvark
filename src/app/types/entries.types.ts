@@ -12,3 +12,14 @@ export type Entry = {
   activities: Activity[];
   lawnSegments: LawnSegment[];
 };
+
+export type EntryCreationRequest = {
+  date: Date;
+  notes: string;
+  title: string;
+  userId: string;
+  soilTemperature: number;
+  activityIds: number[];
+  lawnSegmentIds: number[];
+  soilTemperatureUnit: string;
+};

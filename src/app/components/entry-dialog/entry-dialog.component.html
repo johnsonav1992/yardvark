@@ -11,7 +11,11 @@
     formControlName="activities"
   />
   Lawn Segments:
-  <p-multiSelect [options]="[]" formControlName="lawnSegments" />
+  <p-multiSelect
+    [options]="lawnSegments()"
+    formControlName="lawnSegments"
+    optionLabel="name"
+  />
   Notes:
   <textarea pTextarea [rows]="4" formControlName="notes"></textarea>
 </form>

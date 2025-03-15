@@ -13,6 +13,7 @@ import { capitalize } from '../../utils/stringUtils';
 import { Activity } from '../../types/activities.types';
 import { LawnSegment } from '../../types/lawnSegments.types';
 import { LawnSegmentsService } from '../../services/lawn-segments.service';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'entry-dialog',
@@ -20,7 +21,8 @@ import { LawnSegmentsService } from '../../services/lawn-segments.service';
     DatePickerModule,
     MultiSelectModule,
     TextareaModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    InputTextModule
   ],
   templateUrl: './entry-dialog.component.html',
   styleUrl: './entry-dialog.component.scss'
@@ -38,6 +40,7 @@ export class EntryDialogComponent {
   public lawnSegments = computed(() => this.lawnSegmentsResource.value());
 
   public form = new FormGroup({
+    title: new FormControl<string>('', [Validators.required]),
     date: new FormControl(new Date(), [Validators.required]),
     activities: new FormControl<Activity[]>([]),
     lawnSegments: new FormControl<LawnSegment[]>([]),

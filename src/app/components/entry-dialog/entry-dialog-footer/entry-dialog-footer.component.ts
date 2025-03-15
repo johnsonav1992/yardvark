@@ -18,9 +18,7 @@ export class EntryDialogFooterComponent {
 
   constructor() {
     const compSub = this._dialogRef.onChildComponentLoaded.subscribe(
-      (comp: EntryDialogComponent) => {
-        this.form = comp.form;
-      }
+      (comp) => (this.form = comp.form)
     );
 
     this._destroyRef.onDestroy(() => compSub.unsubscribe());

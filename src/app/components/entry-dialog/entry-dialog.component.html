@@ -5,7 +5,7 @@
   Date:
   <p-datePicker [showIcon]="true" formControlName="date" />
   Activities:
-  <p-multiSelect [options]="[]" />
+  <p-multiSelect [options]="activities()" [optionLabel]="'name'" />
   Lawn Segments:
   <p-multiSelect [options]="[]" />
   Notes:

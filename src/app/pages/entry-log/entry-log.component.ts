@@ -82,7 +82,8 @@ export class EntryLogComponent {
       contentStyle: { overflow: 'visible' },
       templates: {
         footer: EntryDialogFooterComponent
-      }
+      },
+      data: { yo: 'hey' }
     });
   }
 

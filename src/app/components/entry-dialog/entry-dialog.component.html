@@ -1,10 +1,13 @@
-<div style="display: flex; flex-direction: column; gap: 1rem">
+<form
+  [formGroup]="form"
+  style="display: flex; flex-direction: column; gap: 1rem"
+>
   Date:
-  <p-datePicker [showIcon]="true" />
+  <p-datePicker [showIcon]="true" formControlName="date" />
   Activities:
   <p-multiSelect [options]="[]" />
   Lawn Segments:
   <p-multiSelect [options]="[]" />
   Notes:
   <textarea pTextarea [rows]="4"></textarea>
-</div>
+</form>

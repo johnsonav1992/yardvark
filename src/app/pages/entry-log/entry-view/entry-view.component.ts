@@ -13,6 +13,7 @@ import { CardDesignTokens } from '@primeng/themes/types/card';
 import { ChipModule } from 'primeng/chip';
 import { ChipDesignTokens } from '@primeng/themes/types/chip';
 import { DividerModule } from 'primeng/divider';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'entry-view',
@@ -22,7 +23,8 @@ import { DividerModule } from 'primeng/divider';
     ButtonModule,
     CardModule,
     ChipModule,
-    DividerModule
+    DividerModule,
+    SkeletonModule
   ],
   templateUrl: './entry-view.component.html',
   styleUrl: './entry-view.component.scss'

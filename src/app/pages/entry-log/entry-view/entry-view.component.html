@@ -4,48 +4,76 @@
   "° " +
   (entryData()?.soilTemperatureUnit === "fahrenheit" ? "F" : "C");
 
+@let isLoading = entryResource.isLoading();
+
 <page-container pageTitle="Journal Entry">
   <p-card [dt]="cardDt">
     <ng-template #title>
       <div class="title-container">
-        {{ date }}
-        <p-button
-          label="Edit"
-          icon="ti ti-pencil"
-          outlined
-          (click)="('')"
-          severity="secondary"
-        />
+        @if (isLoading) {
+          <p-skeleton [width]="'100px'" />
+          <p-skeleton [width]="'50px'" [height]="'40px'" />
+        } @else {
+          {{ date }}
+          <p-button
+            label="Edit"
+            icon="ti ti-pencil"
+            outlined
+            (click)="('')"
+            severity="secondary"
+          />
+        }
       </div>
     </ng-template>
     <ng-template #subtitle>
-      @if (entryData()?.soilTemperature) {
-        Soil temp:
-        <p-chip
-          [label]="soilTemp"
-          icon="ti ti-thermometer"
-          [dt]="soilTempChipDt"
-        />
+      @if (isLoading) {
+        <div
+          [style]="{
+            display: 'flex',
+            gap: '1rem',
+            marginTop: '1rem',
+            alignItems: 'center'
+          }"
+        >
+          <p-skeleton [width]="'100px'" />
+          <p-skeleton [width]="'80px'" height="30px" borderRadius=".75rem" />
+        </div>
+      } @else {
+        @if (entryData()?.soilTemperature) {
+          Soil temp:
+          <p-chip
+            [label]="soilTemp"
+            icon="ti ti-thermometer"
+            [dt]="soilTempChipDt"
+          />
+        }
       }
     </ng-template>
     <p-divider />
     <div class="content-container">
-      <div class="section-container">
-        <h3>Activities:</h3>
-        @for (activity of entryData()?.activities; track activity.id) {
-          <p>{{ activity.name }}</p>
+      @if (isLoading) {
+        @for (num of [1, 2, 3]; track num) {
+          <p-skeleton [width]="'175px'" height="20px" />
+          <p-skeleton [width]="'90px'" />
         }
-      </div>
-      <div class="section-container">
-        <h3>Lawn segments:</h3>
-        @for (segment of entryData()?.lawnSegments; track segment.id) {
-          <p>{{ segment.name }}</p>
-        }
-      </div>
-      <div class="section-container">
-        <h3>Notes:</h3>
-        {{ entryData()?.notes }}
-      </div>
+      } @else {
+        <div class="section-container">
+          <h3>Activities:</h3>
+          @for (activity of entryData()?.activities; track activity.id) {
+            <p>{{ activity.name }}</p>
+          }
+        </div>
+        <div class="section-container">
+          <h3>Lawn segments:</h3>
+          @for (segment of entryData()?.lawnSegments; track segment.id) {
+            <p>{{ segment.name }}</p>
+          }
+        </div>
+        <div class="section-container">
+          <h3>Notes:</h3>
+          {{ entryData()?.notes }}
+        </div>
+      }
     </div>
     <ng-template #footer> </ng-template>
   </p-card>

@@ -14,7 +14,7 @@ export const theme = definePreset(Aura, {
       700: '{lime.700}',
       800: '{lime.800}',
       900: '{lime.900}',
-      950: '{lime.950}',
-    },
-  },
+      950: '{lime.950}'
+    }
+  }
 });

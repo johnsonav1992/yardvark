@@ -13,6 +13,8 @@ import { Entry } from '../../types/entries.types';
 import { getEntryIcon } from '../../utils/entriesUtils';
 import { TooltipModule } from 'primeng/tooltip';
 import { Router, RouterOutlet } from '@angular/router';
+import { DialogService } from 'primeng/dynamicdialog';
+import { EntryDialogComponent } from '../../components/entry-dialog/entry-dialog.component';
 
 @Component({
   selector: 'entry-log',
@@ -23,10 +25,12 @@ import { Router, RouterOutlet } from '@angular/router';
     RouterOutlet
   ],
   templateUrl: './entry-log.component.html',
-  styleUrl: './entry-log.component.scss'
+  styleUrl: './entry-log.component.scss',
+  providers: [DialogService]
 })
 export class EntryLogComponent {
   private _router = inject(Router);
+  private _dialogService = inject(DialogService);
 
   public user = injectUserData();
 
@@ -64,6 +68,18 @@ export class EntryLogComponent {
 
   public changeMonths(newDate: Date): void {
     this.currentDate.set(newDate);
+  }
+
+  public createEntry(): void {
+    this._dialogService.open(EntryDialogComponent, {
+      header: 'Add Entry',
+      modal: true,
+      focusOnShow: false,
+      width: '50%',
+      autoZIndex: true,
+      dismissableMask: true,
+      closable: true
+    });
   }
 
   public markerButtonDt: ButtonDesignTokens = {

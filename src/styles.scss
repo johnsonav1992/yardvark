@@ -31,3 +31,7 @@ html {
 .error {
   color: var(--p-red-500);
 }
+
+.p-overlay-mask {
+  z-index: 50000 !important;
+}

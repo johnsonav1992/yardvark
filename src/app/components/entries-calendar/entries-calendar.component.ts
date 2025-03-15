@@ -39,6 +39,7 @@ export class EntriesCalendarComponent {
     contentChild<TemplateRef<{ $implicit: CalendarMarkerData[] }>>('marker');
 
   public monthChange = output<Date>();
+  public daySelected = output<Date>();
 
   protected currentDate = linkedSignal(() =>
     this._dateQuery() ? new Date(this._dateQuery()!) : startOfToday()
@@ -82,6 +83,10 @@ export class EntriesCalendarComponent {
 
   public getMarkerMapKey(date: Date): string {
     return format(date, 'yyyy-MM-dd');
+  }
+
+  public selectDay(date: Date): void {
+    this.daySelected.emit(date);
   }
 
   public back(): void {

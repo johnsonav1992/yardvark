@@ -74,7 +74,7 @@ export class EntryLogComponent {
     this.currentDate.set(newDate);
   }
 
-  public createEntry(): void {
+  public createEntry(date?: Date): void {
     const dialogRef = this._dialogService.open(EntryDialogComponent, {
       header: 'Add Entry',
       modal: true,
@@ -83,6 +83,9 @@ export class EntryLogComponent {
       dismissableMask: true,
       closable: true,
       contentStyle: { overflow: 'visible' },
+      inputValues: {
+        date
+      },
       templates: {
         footer: EntryDialogFooterComponent
       },
@@ -96,6 +99,10 @@ export class EntryLogComponent {
         this.entries.reload();
       }
     });
+  }
+
+  public selectDay(date: Date): void {
+    this.createEntry(date);
   }
 
   public markerButtonDt: ButtonDesignTokens = {

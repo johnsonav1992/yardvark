@@ -50,6 +50,8 @@
       [style.gridColumnStart]="day.gridColumnStart"
       [style.color]="day.isToday ? 'white' : 'var(--p-surface-400)'"
       [style.fontWeight]="day.isToday ? '500' : '400'"
+      [style.cursor]="'pointer'"
+      (click)="selectDay(day.date)"
     >
       <div class="marker-container">
         @if (markerTpl(); as markerTpl) {

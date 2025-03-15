@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, input, OnInit } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -27,9 +27,11 @@ import { InputTextModule } from 'primeng/inputtext';
   templateUrl: './entry-dialog.component.html',
   styleUrl: './entry-dialog.component.scss'
 })
-export class EntryDialogComponent {
+export class EntryDialogComponent implements OnInit {
   public activitiesResource = inject(ActivitiesService).activities;
   public lawnSegmentsResource = inject(LawnSegmentsService).lawnSegments;
+
+  public date = input<Date>();
 
   public activities = computed(() =>
     this.activitiesResource
@@ -46,4 +48,10 @@ export class EntryDialogComponent {
     lawnSegments: new FormControl<LawnSegment[]>([]),
     notes: new FormControl<string | null>(null)
   });
+
+  public ngOnInit(): void {
+    this.form.patchValue({
+      date: this.date()
+    });
+  }
 }

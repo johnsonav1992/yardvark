@@ -2,6 +2,7 @@
   <entries-calendar
     [markers]="dayMarkers()"
     (monthChange)="changeMonths($event)"
+    (daySelected)="selectDay($event)"
   >
     <ng-template #marker let-dayMarkers>
       @for (marker of dayMarkers; track marker.data.id) {

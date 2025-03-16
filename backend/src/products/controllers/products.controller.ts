@@ -14,7 +14,7 @@ export class ProductsController {
 
   @Post()
   @UseInterceptors(FileInterceptor('product-image'))
-  uploadFile(
+  addProduct(
     @UploadedFile(imageFileValidator)
     file: Express.Multer.File,
     @Body() body: any,

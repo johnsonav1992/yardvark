@@ -43,7 +43,7 @@ export class EntryDialogFooterComponent {
     postReq(apiUrl('entries'), {
       date: this.form?.value.date!,
       notes: this.form?.value.notes!,
-      title: 'A title',
+      title: this.form?.value.title!,
       userId: this.user()?.sub!,
       soilTemperature: calculate24HourNumericAverage(
         this._soilTempService.past24HourSoilTemperatureData.value()?.hourly

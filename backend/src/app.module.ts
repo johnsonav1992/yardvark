@@ -6,6 +6,7 @@ import { ActivitiesModule } from './activities/activities.module';
 import { LawnSegmentsModule } from './lawn-segments/lawn-segments.module';
 import { EntriesModule } from './entries/entries.module';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
     ActivitiesModule,
     LawnSegmentsModule,
     EntriesModule,
+    ProductsModule,
   ],
   controllers: [],
   providers: [],

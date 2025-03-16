@@ -1,14 +1,12 @@
 import {
   Body,
   Controller,
-  FileTypeValidator,
-  MaxFileSizeValidator,
-  ParseFilePipe,
   Post,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { imageFileValidator } from 'src/utils/fileUtils';
 
 @Controller('products')
 export class ProductsController {
@@ -17,14 +15,7 @@ export class ProductsController {
   @Post()
   @UseInterceptors(FileInterceptor('product-image'))
   uploadFile(
-    @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          new MaxFileSizeValidator({ maxSize: 1000 }),
-          new FileTypeValidator({ fileType: 'image' }),
-        ],
-      }),
-    )
+    @UploadedFile(imageFileValidator)
     file: Express.Multer.File,
     @Body() body: any,
   ) {

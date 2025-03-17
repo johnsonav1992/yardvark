@@ -1,0 +1,20 @@
+export type Product = {
+  id: number;
+  userId: string;
+  name: string;
+  brand: string;
+  description?: string;
+  category: string;
+  price?: number;
+  quantity: number;
+  quantityUnit?: string;
+  applicationRate?: string;
+  applicationMethod?: string;
+  coverage?: number;
+  coverageUnit?: string;
+  guaranteedAnalysis?: string;
+  imageUrl?: string;
+  createdAt: string;
+  updatedAt?: string;
+  deletedAt?: string;
+};

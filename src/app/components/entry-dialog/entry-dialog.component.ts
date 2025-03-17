@@ -1,7 +1,15 @@
-import { Component, computed, inject, input, OnInit } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  OnInit,
+  signal
+} from '@angular/core';
 import {
   FormControl,
   FormGroup,
+  FormsModule,
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
@@ -14,6 +22,11 @@ import { Activity } from '../../types/activities.types';
 import { LawnSegment } from '../../types/lawnSegments.types';
 import { LawnSegmentsService } from '../../services/lawn-segments.service';
 import { InputTextModule } from 'primeng/inputtext';
+import { ProductsService } from '../../services/products.service';
+import { Product } from '../../types/products.types';
+import { SelectModule } from 'primeng/select';
+import { QUANTITY_UNITS } from '../../constants/product-constants';
+import { InputNumber } from 'primeng/inputnumber';
 
 @Component({
   selector: 'entry-dialog',
@@ -22,7 +35,10 @@ import { InputTextModule } from 'primeng/inputtext';
     MultiSelectModule,
     TextareaModule,
     ReactiveFormsModule,
-    InputTextModule
+    InputTextModule,
+    FormsModule,
+    SelectModule,
+    InputNumber
   ],
   templateUrl: './entry-dialog.component.html',
   styleUrl: './entry-dialog.component.scss'
@@ -30,6 +46,9 @@ import { InputTextModule } from 'primeng/inputtext';
 export class EntryDialogComponent implements OnInit {
   public activitiesResource = inject(ActivitiesService).activities;
   public lawnSegmentsResource = inject(LawnSegmentsService).lawnSegments;
+  public products = inject(ProductsService).products;
+
+  public quantityUnits = QUANTITY_UNITS;
 
   public date = input<Date>();
 
@@ -46,6 +65,7 @@ export class EntryDialogComponent implements OnInit {
     date: new FormControl(new Date(), [Validators.required]),
     activities: new FormControl<Activity[]>([]),
     lawnSegments: new FormControl<LawnSegment[]>([]),
+    products: new FormControl<Product[]>([]),
     notes: new FormControl<string | null>(null)
   });
 

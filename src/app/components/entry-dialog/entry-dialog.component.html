@@ -24,6 +24,63 @@
     formControlName="lawnSegments"
     optionLabel="name"
   />
+  Products:
+  <p-multiSelect
+    [options]="products.value()"
+    optionLabel="name"
+    formControlName="products"
+  >
+    <ng-template let-product #item>
+      <div style="display: flex; gap: 0.5rem; align-items: center">
+        <img [src]="product.imageUrl" width="auto" height="30px" />
+        <div>
+          <p>{{ product.name }}</p>
+          <p>{{ product.quantity }}{{ product.quantityUnit }}</p>
+        </div>
+      </div>
+    </ng-template>
+    <ng-template let-items #selecteditems>
+      {{ items.length }} selected
+    </ng-template>
+  </p-multiSelect>
+  @let selectedProducts = form.controls.products.value;
+
+  @if (selectedProducts?.length) {
+    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+      @for (product of selectedProducts; track product.id) {
+        <div
+          style="
+            display: flex;
+            width: 100%;
+            align-items: center;
+            justify-content: space-between;
+            border: 1px dotted #ccc;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+          "
+        >
+          <div style="display: flex; gap: 0.5rem; align-items: center">
+            <img [src]="product.imageUrl" width="auto" height="30px" />
+            <div>
+              <p>{{ product.name }}</p>
+              <p>{{ product.quantity }}{{ product.quantityUnit }}</p>
+            </div>
+          </div>
+          <div style="display: flex; gap: 0.25rem">
+            <p-inputnumber
+              [showButtons]="true"
+              [min]="0"
+              [max]="100"
+              [maxFractionDigits]="2"
+              mode="decimal"
+              [inputStyle]="{ width: '6rem' }"
+            />
+            <p-select [options]="quantityUnits" />
+          </div>
+        </div>
+      }
+    </div>
+  }
   Notes:
   <textarea pTextarea [rows]="4" formControlName="notes"></textarea>
 </form>

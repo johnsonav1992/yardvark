@@ -2,16 +2,25 @@
   [formGroup]="form"
   style="display: flex; flex-direction: column; gap: 1rem"
 >
-  <span style="display: flex">
-    <p>Date:</p>
-    <small class="error">*</small>
-  </span>
-  <p-datePicker [showIcon]="true" formControlName="date" />
-  <span style="display: flex">
-    <p>Title:</p>
-    <small class="error">*</small>
-  </span>
-  <input pInputText formControlName="title" />
+  <div
+    style="
+      display: flex;
+      width: 100%;
+      justify-content: space-between;
+      align-items: center;
+    "
+  >
+    <span style="display: flex">
+      <p>Title:</p>
+      <small class="error">*</small>
+    </span>
+    <input pInputText formControlName="title" />
+    <span style="display: flex">
+      <p>Date:</p>
+      <small class="error">*</small>
+    </span>
+    <p-datePicker [showIcon]="true" formControlName="date" />
+  </div>
   Activities:
   <p-multiSelect
     [options]="activities()"
@@ -29,6 +38,8 @@
     [options]="products.value()"
     optionLabel="name"
     formControlName="products"
+    [placeholder]="products.isLoading() ? 'Loading...' : 'Select Products'"
+    [loading]="products.isLoading()"
   >
     <ng-template let-product #item>
       <div style="display: flex; gap: 0.5rem; align-items: center">
@@ -40,7 +51,9 @@
       </div>
     </ng-template>
     <ng-template let-items #selecteditems>
-      {{ items.length }} selected
+      @if (items?.length) {
+        {{ items.length }} selected
+      }
     </ng-template>
   </p-multiSelect>
   @let selectedProducts = form.controls.products.value;

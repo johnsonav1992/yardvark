@@ -26,10 +26,11 @@ export class S3Service {
     this.bucketName = process.env.AWS_S3_BUCKET_YARDVARK!;
   }
 
-  async uploadFile(file: Express.Multer.File, userId: string): Promise<string> {
-    const key = `${userId}/${randomUUID()}-${file.originalname}`;
-
-    console.log(this.bucketName);
+  public async uploadFile(
+    file: Express.Multer.File,
+    userId: string,
+  ): Promise<string> {
+    const key = this.createFileKey(userId, file.originalname as string);
 
     const uploadParams: PutObjectCommandInput = {
       Bucket: this.bucketName,
@@ -42,5 +43,9 @@ export class S3Service {
     await this.s3.send(new PutObjectCommand(uploadParams));
 
     return `https://${this.bucketName}.s3.${process.env.AWS_REGION_YARDVARK}.amazonaws.com/${key}`;
+  }
+
+  private createFileKey(userId: string, fileName: string): string {
+    return `${userId}/${fileName}-${randomUUID().substring(0, 4)}`;
   }
 }

@@ -1,29 +1,42 @@
 import {
   Body,
   Controller,
+  Get,
   Post,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { S3Service } from 'src/s3/s3.service';
-import { Stringified } from 'src/types/json-modified';
 import { imageFileValidator } from 'src/utils/fileUtils';
+import { ProductsService } from '../services/products.service';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private _s3Service: S3Service) {}
+  constructor(
+    private _s3Service: S3Service,
+    private _productsService: ProductsService,
+  ) {}
 
   @Post()
   @UseInterceptors(FileInterceptor('product-image'))
   async addProduct(
-    @UploadedFile(imageFileValidator)
-    file: Express.Multer.File,
-    @Body('body') body: Stringified<{ userId: string }>,
+    @UploadedFile(imageFileValidator) file: Express.Multer.File,
+    @Body() body: { userId: string },
   ) {
-    const userId = JSON.parse(body).userId;
-
     // just uploading the file for now
-    const imageUrl = await this._s3Service.uploadFile(file, userId);
+    const imageUrl = await this._s3Service.uploadFile(file, body.userId);
+
+    return imageUrl;
+  }
+
+  @Get(':userId')
+  getProducts(userId: string) {
+    return this._productsService.getProducts(userId);
+  }
+
+  @Get('user-only/:userId')
+  getUserProducts(userId: string) {
+    return this._productsService.getProducts(userId, { userOnly: true });
   }
 }

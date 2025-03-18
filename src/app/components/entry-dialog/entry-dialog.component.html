@@ -35,11 +35,14 @@
   />
   Products:
   <p-multiSelect
+    #productSelect
     [options]="products.value()"
     optionLabel="name"
     formControlName="products"
     [placeholder]="products.isLoading() ? 'Loading...' : 'Select Products'"
     [loading]="products.isLoading()"
+    [showClear]="true"
+    (onChange)="productSelect.hide()"
   >
     <ng-template let-product #item>
       <div style="display: flex; gap: 0.5rem; align-items: center">

@@ -7,6 +7,7 @@ import {
   signal
 } from '@angular/core';
 import {
+  FormArray,
   FormControl,
   FormGroup,
   FormsModule,
@@ -14,7 +15,7 @@ import {
   Validators
 } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
-import { MultiSelectModule } from 'primeng/multiselect';
+import { MultiSelectChangeEvent, MultiSelectModule } from 'primeng/multiselect';
 import { TextareaModule } from 'primeng/textarea';
 import { ActivitiesService } from '../../services/activities.service';
 import { capitalize } from '../../utils/stringUtils';
@@ -27,6 +28,7 @@ import { Product } from '../../types/products.types';
 import { SelectModule } from 'primeng/select';
 import { QUANTITY_UNITS } from '../../constants/product-constants';
 import { InputNumber } from 'primeng/inputnumber';
+import { createEntryProductRow } from '../../utils/entriesUtils';
 
 @Component({
   selector: 'entry-dialog',
@@ -65,7 +67,7 @@ export class EntryDialogComponent implements OnInit {
     date: new FormControl(new Date(), [Validators.required]),
     activities: new FormControl<Activity[]>([]),
     lawnSegments: new FormControl<LawnSegment[]>([]),
-    products: new FormControl<Product[]>([]),
+    products: new FormArray<ReturnType<typeof createEntryProductRow>>([]),
     notes: new FormControl<string | null>(null)
   });
 
@@ -73,5 +75,11 @@ export class EntryDialogComponent implements OnInit {
     this.form.patchValue({
       date: this.date()
     });
+  }
+
+  public addProductToForm(e: MultiSelectChangeEvent): void {
+    const product = e.itemValue as Product;
+
+    this.form.controls.products.push(createEntryProductRow(product));
   }
 }

@@ -38,11 +38,10 @@
     #productSelect
     [options]="products.value()"
     optionLabel="name"
-    formControlName="products"
     [placeholder]="products.isLoading() ? 'Loading...' : 'Select Products'"
     [loading]="products.isLoading()"
     [showClear]="true"
-    (onChange)="productSelect.hide()"
+    (onChange)="addProductToForm($event); productSelect.hide()"
   >
     <ng-template let-product #item>
       <div style="display: flex; gap: 0.5rem; align-items: center">
@@ -62,8 +61,11 @@
   @let selectedProducts = form.controls.products.value;
 
   @if (selectedProducts?.length) {
-    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
-      @for (product of selectedProducts; track product.id) {
+    <div
+      style="display: flex; gap: 0.5rem; flex-wrap: wrap"
+      formArrayName="products"
+    >
+      @for (item of selectedProducts; track item.product?.id) {
         <div
           style="
             display: flex;
@@ -74,12 +76,15 @@
             padding: 0.5rem;
             border-radius: 0.25rem;
           "
+          [formGroupName]="$index"
         >
           <div style="display: flex; gap: 0.5rem; align-items: center">
-            <img [src]="product.imageUrl" width="auto" height="30px" />
+            <img [src]="item.product?.imageUrl" width="auto" height="30px" />
             <div>
-              <p>{{ product.name }}</p>
-              <p>{{ product.quantity }}{{ product.quantityUnit }}</p>
+              <p>{{ item.product?.brand }} - {{ item.product?.name }}</p>
+              <p>
+                {{ item.product?.quantity }}{{ item.product?.quantityUnit }}
+              </p>
             </div>
           </div>
           <div style="display: flex; gap: 0.25rem">
@@ -90,8 +95,12 @@
               [maxFractionDigits]="2"
               mode="decimal"
               [inputStyle]="{ width: '6rem' }"
+              formControlName="quantity"
             />
-            <p-select [options]="quantityUnits" />
+            <p-select
+              [options]="quantityUnits"
+              formControlName="quantityUnit"
+            />
           </div>
         </div>
       }

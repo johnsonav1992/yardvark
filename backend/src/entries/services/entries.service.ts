@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EntryCreationRequest } from '../models/entries.types';
 import { Between, Repository } from 'typeorm';
-import { Entry, EntryProduct } from '../models/entries.model';
+import { Entry } from '../models/entries.model';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -9,8 +9,6 @@ export class EntriesService {
   constructor(
     @InjectRepository(Entry)
     private _entriesRepo: Repository<Entry>,
-    @InjectRepository(EntryProduct)
-    private _entryProductsRepo: Repository<EntryProduct>,
   ) {}
 
   async getEntries(userId: string, startDate?: string, endDate?: string) {
@@ -31,16 +29,20 @@ export class EntriesService {
       },
     });
 
-    return entries.map((entry) => ({
-      ...entry,
-      products: entry.entryProducts.map((entryProduct) => ({
-        productId: entryProduct.product.id,
-        name: entryProduct.product.name,
-        brand: entryProduct.product.brand,
-        productQuantity: entryProduct.productQuantity,
-        productQuantityUnit: entryProduct.productQuantityUnit,
-      })),
-    }));
+    return entries.map((entry) => {
+      const { entryProducts, ...rest } = entry;
+
+      return {
+        ...rest,
+        products: entryProducts.map((entryProduct) => ({
+          productId: entryProduct.product.id,
+          name: entryProduct.product.name,
+          brand: entryProduct.product.brand,
+          productQuantity: entryProduct.productQuantity,
+          productQuantityUnit: entryProduct.productQuantityUnit,
+        })),
+      };
+    });
   }
 
   async getEntry(entryId: number) {

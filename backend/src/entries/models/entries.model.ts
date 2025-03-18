@@ -30,7 +30,12 @@ export class Entry {
   @Column({ nullable: true })
   notes: string;
 
-  @Column('decimal')
+  @Column('decimal', {
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseFloat(value),
+    },
+  })
   soilTemperature: number;
 
   @Column()
@@ -79,7 +84,12 @@ export class EntryProduct {
   })
   product: Product;
 
-  @Column('decimal')
+  @Column('decimal', {
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseFloat(value),
+    },
+  })
   productQuantity: number;
 
   @Column()

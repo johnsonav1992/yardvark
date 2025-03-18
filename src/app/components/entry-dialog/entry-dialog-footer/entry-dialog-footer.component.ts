@@ -36,40 +36,37 @@ export class EntryDialogFooterComponent {
   }
 
   public close(): void {
-    console.log(this.form?.value);
     if (this.form?.invalid) return;
 
-    console.log(this.form?.value);
+    this.isLoading.set(true);
 
-    // this.isLoading.set(true);
-
-    // postReq<void, EntryCreationRequest>(apiUrl('entries'), {
-    //   date: this.form?.value.date!,
-    //   notes: this.form?.value.notes!,
-    //   title: this.form?.value.title!,
-    //   userId: this.user()?.sub!,
-    //   soilTemperature: calculate24HourNumericAverage(
-    //     this._soilTempService.past24HourSoilTemperatureData.value()?.hourly
-    //       .soil_temperature_6cm || []
-    //   ),
-    //   activityIds: this.form?.value.activities?.map(({ id }) => id) || [],
-    //   lawnSegmentIds: this.form?.value.lawnSegments?.map(({ id }) => id) || [],
-    //   products:
-    //     this.form?.value.products?.map((row) => ({
-    //       productId: row.product?.id,
-    //       productQuantity: row.quantity,
-    //       productQuantityUnit: row.quantityUnit
-    //     })) || [],
-    //   soilTemperatureUnit: this._soilTempService.temperatureUnit()
-    // }).subscribe({
-    //   next: () => {
-    //     this.isLoading.set(false);
-    //     this._dialogRef.close('success');
-    //   },
-    //   error: () => {
-    //     this.isLoading.set(false);
-    //     this.throwErrorToast('Failed to create entry');
-    //   }
-    // });
+    postReq<void, EntryCreationRequest>(apiUrl('entries'), {
+      date: this.form?.value.date!,
+      notes: this.form?.value.notes!,
+      title: this.form?.value.title!,
+      userId: this.user()?.sub!,
+      soilTemperature: calculate24HourNumericAverage(
+        this._soilTempService.past24HourSoilTemperatureData.value()?.hourly
+          .soil_temperature_6cm || []
+      ),
+      activityIds: this.form?.value.activities?.map(({ id }) => id) || [],
+      lawnSegmentIds: this.form?.value.lawnSegments?.map(({ id }) => id) || [],
+      products:
+        this.form?.value.products?.map((row) => ({
+          productId: row.product?.id,
+          productQuantity: row.quantity,
+          productQuantityUnit: row.quantityUnit
+        })) || [],
+      soilTemperatureUnit: this._soilTempService.temperatureUnit()
+    }).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        this._dialogRef.close('success');
+      },
+      error: () => {
+        this.isLoading.set(false);
+        this.throwErrorToast('Failed to create entry');
+      }
+    });
   }
 }

@@ -2,7 +2,7 @@
   <p-button
     label="Create"
     (click)="close()"
-    [disabled]="isLoading()"
+    [disabled]="isLoading() || form?.invalid"
     [icon]="isLoading() ? 'ti ti-loader-2 icon-spin' : ''"
   />
 </div>

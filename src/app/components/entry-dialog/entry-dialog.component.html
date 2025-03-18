@@ -42,6 +42,7 @@
     [loading]="products.isLoading()"
     [showClear]="true"
     (onChange)="addProductToForm($event); productSelect.hide()"
+    (onClear)="this.form.controls.products.clear()"
   >
     <ng-template let-product #item>
       <div style="display: flex; gap: 0.5rem; align-items: center">

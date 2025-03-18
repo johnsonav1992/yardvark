@@ -8,8 +8,8 @@
       <p>{{ product().brand }} - {{ product().name }}</p>
       <p class="sub-text">
         {{ product().guaranteedAnalysis }} |
-        {{ amountApplied() ? amountApplied() : product().quantity
-        }}{{ product().quantityUnit }}
+        {{ amountApplied() ? amountApplied() : product().quantity }}
+        {{ product().quantityUnit }}
         @if (amountApplied()) {
           Applied
         } @else {

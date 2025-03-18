@@ -38,8 +38,9 @@ export class EntriesService {
           productId: entryProduct.product.id,
           name: entryProduct.product.name,
           brand: entryProduct.product.brand,
-          productQuantity: entryProduct.productQuantity,
-          productQuantityUnit: entryProduct.productQuantityUnit,
+          imageUrl: entryProduct.product.imageUrl,
+          quantity: entryProduct.productQuantity,
+          quantityUnit: entryProduct.productQuantityUnit,
         })),
       };
     });

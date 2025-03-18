@@ -15,8 +15,9 @@ export type Entry = {
     productId: number;
     name: string;
     brand: string;
-    productQuantity: number;
-    productQuantityUnit: string;
+    imageUrl: string;
+    quantity: number;
+    quantityUnit: string;
   }>;
 };
 

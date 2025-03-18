@@ -91,6 +91,25 @@
             {{ entryData()?.notes }}
           </div>
         }
+        @if (entryData()?.products?.length) {
+          <div class="section-container">
+            <h3>Products:</h3>
+            <div class="products-wrapper" formArrayName="products">
+              @for (product of entryData()?.products; track product.productId) {
+                <div class="product-card">
+                  <div class="product-info-wrapper">
+                    <img [src]="product?.imageUrl" width="auto" height="30px" />
+                    <div>
+                      <p>{{ product?.brand }} - {{ product?.name }}</p>
+                      <p>{{ product?.quantity }}{{ product?.quantityUnit }}</p>
+                    </div>
+                  </div>
+                  <div class="product-input-wrapper"></div>
+                </div>
+              }
+            </div>
+          </div>
+        }
       }
     </div>
     <ng-template #footer> </ng-template>

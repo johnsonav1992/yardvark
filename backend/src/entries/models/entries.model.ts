@@ -7,7 +7,6 @@ import {
   DeleteDateColumn,
   PrimaryColumn,
   ManyToOne,
-  OneToMany,
 } from 'typeorm';
 import { LawnSegment } from 'src/lawn-segments/models/lawn-segments.model';
 import { Activity } from 'src/activities/models/activities.model';
@@ -57,7 +56,7 @@ export class Entry {
   })
   lawnSegments: LawnSegment[];
 
-  @OneToMany(() => EntryProduct, (entryProduct) => entryProduct.entry, {
+  @ManyToMany(() => EntryProduct, (entryProduct) => entryProduct.entry, {
     cascade: ['insert'],
   })
   entryProducts: EntryProduct[];

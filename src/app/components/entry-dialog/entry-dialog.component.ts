@@ -82,10 +82,16 @@ export class EntryDialogComponent implements OnInit {
     const fullList = e.value as Product[];
 
     if (!product && fullList.length) {
-      this.form.controls.products.clear();
+      const existingProducts = this.form.controls.products.value;
 
       fullList.forEach((prod) => {
-        this.form.controls.products.push(createEntryProductRow(prod));
+        const existingProductIndex = existingProducts.findIndex(
+          (p) => p.product?.id === prod.id
+        );
+
+        if (existingProductIndex === -1) {
+          this.form.controls.products.push(createEntryProductRow(prod));
+        }
       });
 
       return;

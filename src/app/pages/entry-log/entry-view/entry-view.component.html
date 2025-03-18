@@ -5,6 +5,11 @@
   (entryData()?.soilTemperatureUnit === "fahrenheit" ? "F" : "C");
 
 @let isLoading = entryResource.isLoading();
+@let hasAdditionalInfo =
+  entryData()?.activities?.length ||
+  entryData()?.lawnSegments?.length ||
+  entryData()?.products?.length ||
+  entryData()?.notes;
 
 <page-container pageTitle="Journal Entry">
   <p-card [dt]="cardDt">
@@ -61,57 +66,68 @@
         }
       }
     </ng-template>
-    <p-divider />
-    <div class="content-container">
-      @if (isLoading) {
-        @for (num of [1, 2, 3]; track num) {
-          <p-skeleton [width]="'175px'" height="20px" />
-          <p-skeleton [width]="'90px'" />
-        }
-      } @else {
-        @if (activities()?.length) {
-          <div class="section-container">
-            <h3>Activities:</h3>
-            @for (activity of activities(); track activity.id) {
-              <p>{{ activity.name }}</p>
-            }
-          </div>
-        }
-        @if (entryData()?.lawnSegments?.length) {
-          <div class="section-container">
-            <h3>Lawn segments:</h3>
-            @for (segment of entryData()?.lawnSegments; track segment.id) {
-              <p>{{ segment.name }}</p>
-            }
-          </div>
-        }
-        @if (entryData()?.notes) {
-          <div class="section-container">
-            <h3>Notes:</h3>
-            {{ entryData()?.notes }}
-          </div>
-        }
-        @if (entryData()?.products?.length) {
-          <div class="section-container">
-            <h3>Products:</h3>
-            <div class="products-wrapper" formArrayName="products">
-              @for (product of entryData()?.products; track product.productId) {
-                <div class="product-card">
-                  <div class="product-info-wrapper">
-                    <img [src]="product?.imageUrl" width="auto" height="30px" />
-                    <div>
-                      <p>{{ product?.brand }} - {{ product?.name }}</p>
-                      <p>{{ product?.quantity }}{{ product?.quantityUnit }}</p>
-                    </div>
-                  </div>
-                  <div class="product-input-wrapper"></div>
-                </div>
+    @if (hasAdditionalInfo) {
+      <p-divider />
+      <div class="content-container">
+        @if (isLoading) {
+          @for (num of [1, 2, 3]; track num) {
+            <p-skeleton [width]="'175px'" height="20px" />
+            <p-skeleton [width]="'90px'" />
+          }
+        } @else {
+          @if (activities()?.length) {
+            <div class="section-container">
+              <h3>Activities:</h3>
+              @for (activity of activities(); track activity.id) {
+                <p>{{ activity.name }}</p>
               }
             </div>
-          </div>
+          }
+          @if (entryData()?.lawnSegments?.length) {
+            <div class="section-container">
+              <h3>Lawn segments:</h3>
+              @for (segment of entryData()?.lawnSegments; track segment.id) {
+                <p>{{ segment.name }}</p>
+              }
+            </div>
+          }
+          @if (entryData()?.notes) {
+            <div class="section-container">
+              <h3>Notes:</h3>
+              {{ entryData()?.notes }}
+            </div>
+          }
+          @if (entryData()?.products?.length) {
+            <div class="section-container">
+              <h3>Products:</h3>
+              <div class="products-wrapper" formArrayName="products">
+                @for (
+                  product of entryData()?.products;
+                  track product.productId
+                ) {
+                  <div class="product-card">
+                    <div class="product-info-wrapper">
+                      <img
+                        [src]="product?.imageUrl"
+                        width="auto"
+                        height="30px"
+                      />
+                      <div>
+                        <p>{{ product?.brand }} - {{ product?.name }}</p>
+                        <p>
+                          {{ product?.quantity }}{{ product?.quantityUnit }}
+                        </p>
+                      </div>
+                    </div>
+                    <div class="product-input-wrapper"></div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
         }
-      }
-    </div>
+      </div>
+    }
     <ng-template #footer> </ng-template>
   </p-card>
 </page-container>

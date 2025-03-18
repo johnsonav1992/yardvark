@@ -2,7 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import {
   CalendarMarkerData,
   EntriesCalendarComponent
-} from '../../components/entries-calendar/entries-calendar.component';
+} from '../../components/entries/entries-calendar/entries-calendar.component';
 import { ButtonModule } from 'primeng/button';
 import { ButtonDesignTokens } from '@primeng/themes/types/button';
 import { httpResource } from '@angular/common/http';
@@ -14,8 +14,8 @@ import { getEntryIcon } from '../../utils/entriesUtils';
 import { TooltipModule } from 'primeng/tooltip';
 import { Router, RouterOutlet } from '@angular/router';
 import { DialogService } from 'primeng/dynamicdialog';
-import { EntryDialogComponent } from '../../components/entry-dialog/entry-dialog.component';
-import { EntryDialogFooterComponent } from '../../components/entry-dialog/entry-dialog-footer/entry-dialog-footer.component';
+import { EntryDialogComponent } from '../../components/entries/entry-dialog/entry-dialog.component';
+import { EntryDialogFooterComponent } from '../../components/entries/entry-dialog/entry-dialog-footer/entry-dialog-footer.component';
 
 @Component({
   selector: 'entry-log',

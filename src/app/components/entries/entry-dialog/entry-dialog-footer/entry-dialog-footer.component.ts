@@ -2,12 +2,12 @@ import { Component, DestroyRef, inject, signal } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { EntryDialogComponent } from '../entry-dialog.component';
-import { apiUrl, postReq } from '../../../utils/httpUtils';
-import { injectUserData } from '../../../utils/authUtils';
-import { SoilTemperatureService } from '../../../services/soil-temperature.service';
-import { calculate24HourNumericAverage } from '../../../utils/soilTemperatureUtils';
-import { EntryCreationRequest } from '../../../types/entries.types';
-import { injectErrorToast } from '../../../utils/toastUtils';
+import { apiUrl, postReq } from '../../../../utils/httpUtils';
+import { injectUserData } from '../../../../utils/authUtils';
+import { SoilTemperatureService } from '../../../../services/soil-temperature.service';
+import { calculate24HourNumericAverage } from '../../../../utils/soilTemperatureUtils';
+import { EntryCreationRequest } from '../../../../types/entries.types';
+import { injectErrorToast } from '../../../../utils/toastUtils';
 
 @Component({
   selector: 'entry-dialog-footer',

@@ -17,18 +17,18 @@ import {
 import { DatePickerModule } from 'primeng/datepicker';
 import { MultiSelectChangeEvent, MultiSelectModule } from 'primeng/multiselect';
 import { TextareaModule } from 'primeng/textarea';
-import { ActivitiesService } from '../../services/activities.service';
-import { capitalize } from '../../utils/stringUtils';
-import { Activity } from '../../types/activities.types';
-import { LawnSegment } from '../../types/lawnSegments.types';
-import { LawnSegmentsService } from '../../services/lawn-segments.service';
+import { ActivitiesService } from '../../../services/activities.service';
+import { capitalize } from '../../../utils/stringUtils';
+import { Activity } from '../../../types/activities.types';
+import { LawnSegment } from '../../../types/lawnSegments.types';
+import { LawnSegmentsService } from '../../../services/lawn-segments.service';
 import { InputTextModule } from 'primeng/inputtext';
-import { ProductsService } from '../../services/products.service';
-import { Product } from '../../types/products.types';
+import { ProductsService } from '../../../services/products.service';
+import { Product } from '../../../types/products.types';
 import { SelectModule } from 'primeng/select';
-import { QUANTITY_UNITS } from '../../constants/product-constants';
+import { QUANTITY_UNITS } from '../../../constants/product-constants';
 import { InputNumber } from 'primeng/inputnumber';
-import { createEntryProductRow } from '../../utils/entriesUtils';
+import { createEntryProductRow } from '../../../utils/entriesUtils';
 
 @Component({
   selector: 'entry-dialog',

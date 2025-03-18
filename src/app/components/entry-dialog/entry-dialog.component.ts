@@ -78,10 +78,21 @@ export class EntryDialogComponent implements OnInit {
   }
 
   public addProductToForm(e: MultiSelectChangeEvent): void {
-    const product = e.itemValue as Product;
+    const product = e.itemValue as Product | undefined;
+    const fullList = e.value as Product[];
+
+    if (!product && fullList.length) {
+      this.form.controls.products.clear();
+
+      fullList.forEach((prod) => {
+        this.form.controls.products.push(createEntryProductRow(prod));
+      });
+
+      return;
+    }
 
     const productIndex = this.form.controls.products.value.findIndex(
-      (p) => p.product?.id === product.id
+      (p) => p.product?.id === product?.id
     );
 
     if (productIndex !== -1) {

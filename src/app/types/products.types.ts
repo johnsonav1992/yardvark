@@ -13,6 +13,7 @@ export type Product = {
   coverage?: number;
   coverageUnit?: string;
   guaranteedAnalysis?: string;
+  containerType?: string;
   imageUrl?: string;
   createdAt: string;
   updatedAt?: string;

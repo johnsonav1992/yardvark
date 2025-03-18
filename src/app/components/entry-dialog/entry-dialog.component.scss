@@ -34,6 +34,11 @@
         display: flex;
         gap: 0.5rem;
         align-items: center;
+
+        .sub-text {
+          font-size: 0.75rem;
+          color: var(--p-surface-400);
+        }
       }
 
       .product-input-wrapper {
@@ -54,4 +59,9 @@
   display: flex;
   gap: 0.5rem;
   align-items: center;
+
+  .sub-text {
+    font-size: 0.75rem;
+    color: var(--p-surface-400);
+  }
 }

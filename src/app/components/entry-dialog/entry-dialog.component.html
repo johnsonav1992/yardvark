@@ -43,8 +43,12 @@
         <div class="product-item">
           <img [src]="product.imageUrl" width="auto" height="30px" />
           <div>
-            <p>{{ product.name }}</p>
-            <p>{{ product.quantity }}{{ product.quantityUnit }}</p>
+            <p>{{ product.brand }} - {{ product.name }}</p>
+            <p class="sub-text">
+              {{ product.guaranteedAnalysis }} | {{ product.quantity
+              }}{{ product.quantityUnit }}
+              {{ product.containerType }}
+            </p>
           </div>
         </div>
       </ng-template>
@@ -65,10 +69,10 @@
             <img [src]="item.product?.imageUrl" width="auto" height="30px" />
             <div>
               <p>{{ item.product?.brand }} - {{ item.product?.name }}</p>
-              <p>
+              <p class="sub-text">
+                {{ item.product?.guaranteedAnalysis }} |
                 {{ item.product?.quantity }}{{ item.product?.quantityUnit }}
-                <!-- need to figure out a good method for determining container type below -->
-                Bag
+                {{ item.product?.containerType }}
               </p>
             </div>
           </div>

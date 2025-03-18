@@ -56,6 +56,9 @@ export class Product {
   guaranteedAnalysis?: string;
 
   @Column({ nullable: true })
+  containerType?: string;
+
+  @Column({ nullable: true })
   imageUrl?: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })

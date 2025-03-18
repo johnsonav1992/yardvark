@@ -40,7 +40,7 @@ export class EntryDialogFooterComponent {
 
     this.isLoading.set(true);
 
-    postReq(apiUrl('entries'), {
+    postReq<void, EntryCreationRequest>(apiUrl('entries'), {
       date: this.form?.value.date!,
       notes: this.form?.value.notes!,
       title: this.form?.value.title!,
@@ -51,8 +51,14 @@ export class EntryDialogFooterComponent {
       ),
       activityIds: this.form?.value.activities?.map(({ id }) => id) || [],
       lawnSegmentIds: this.form?.value.lawnSegments?.map(({ id }) => id) || [],
+      products:
+        this.form?.value.products?.map((prod) => ({
+          productId: prod.id,
+          productQuantity: prod.quantity,
+          productQuantityUnit: prod.quantityUnit
+        })) || [],
       soilTemperatureUnit: this._soilTempService.temperatureUnit()
-    } satisfies EntryCreationRequest).subscribe({
+    }).subscribe({
       next: () => {
         this.isLoading.set(false);
         this._dialogRef.close('success');

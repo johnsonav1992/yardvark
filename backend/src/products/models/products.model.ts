@@ -2,9 +2,11 @@ import {
   Column,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { productTypesArray } from './products.types';
+import { EntryProduct } from 'src/entries/models/entries.model';
 
 @Entity('products')
 export class Product {
@@ -61,6 +63,9 @@ export class Product {
 
   @Column({ nullable: true })
   updatedAt?: Date;
+
+  @OneToMany(() => EntryProduct, (entryProduct) => entryProduct.product)
+  entryProducts: EntryProduct[];
 
   @DeleteDateColumn()
   deletedAt?: Date;

@@ -5,9 +5,13 @@ import {
   ManyToMany,
   JoinTable,
   DeleteDateColumn,
+  PrimaryColumn,
+  ManyToOne,
+  OneToMany,
 } from 'typeorm';
 import { LawnSegment } from 'src/lawn-segments/models/lawn-segments.model';
 import { Activity } from 'src/activities/models/activities.model';
+import { Product } from 'src/products/models/products.model';
 
 @Entity('entries')
 export class Entry {
@@ -48,6 +52,36 @@ export class Entry {
   })
   lawnSegments: LawnSegment[];
 
+  @OneToMany(() => EntryProduct, (entryProduct) => entryProduct.entry, {
+    cascade: ['insert'],
+  })
+  entryProducts: EntryProduct[];
+
   @DeleteDateColumn()
   deletedAt?: Date;
+}
+
+@Entity({ name: 'entry_products' })
+export class EntryProduct {
+  @PrimaryColumn()
+  entryId: number;
+
+  @PrimaryColumn()
+  productId: number;
+
+  @ManyToOne(() => Entry, (entry) => entry, {
+    onDelete: 'CASCADE',
+  })
+  entry: Entry;
+
+  @ManyToOne(() => Product, (product) => product, {
+    onDelete: 'CASCADE',
+  })
+  product: Product;
+
+  @Column('decimal')
+  productQuantity: number;
+
+  @Column()
+  productQuantityUnit: string;
 }

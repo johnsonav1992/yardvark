@@ -1,6 +1,13 @@
-import { Entry } from './entries.model';
+import { Entry, EntryProduct } from './entries.model';
 
 export type EntryCreationRequest = Omit<
   InstanceType<typeof Entry>,
   'id' | 'activities' | 'lawnSegments'
-> & { activityIds: number[]; lawnSegmentIds: number[] };
+> & {
+  activityIds: number[];
+  lawnSegmentIds: number[];
+  products: Pick<
+    EntryProduct,
+    'productId' | 'productQuantity' | 'productQuantityUnit'
+  >[];
+};

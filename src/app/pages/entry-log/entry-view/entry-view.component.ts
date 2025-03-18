@@ -23,6 +23,7 @@ import { DividerModule } from 'primeng/divider';
 import { SkeletonModule } from 'primeng/skeleton';
 import { capitalize } from '../../../utils/stringUtils';
 import { startOfMonth } from 'date-fns';
+import { ProductSmallCardComponent } from '../../../components/products/product-small-card/product-small-card.component';
 
 @Component({
   selector: 'entry-view',
@@ -33,7 +34,8 @@ import { startOfMonth } from 'date-fns';
     CardModule,
     ChipModule,
     DividerModule,
-    SkeletonModule
+    SkeletonModule,
+    ProductSmallCardComponent
   ],
   templateUrl: './entry-view.component.html',
   styleUrl: './entry-view.component.scss'

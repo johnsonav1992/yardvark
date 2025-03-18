@@ -41,6 +41,8 @@ export class EntriesService {
           imageUrl: entryProduct.product.imageUrl,
           quantity: entryProduct.productQuantity,
           quantityUnit: entryProduct.productQuantityUnit,
+          guaranteedAnalysis: entryProduct.product.guaranteedAnalysis,
+          containerType: entryProduct.product.containerType,
         })),
       };
     });

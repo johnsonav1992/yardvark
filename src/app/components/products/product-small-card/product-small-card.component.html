@@ -1,0 +1,22 @@
+<div
+  class="product-card"
+  [style.border]="showBorder() ? '1px dotted var(--p-surface-400)' : 'none'"
+>
+  <div class="product-info-wrapper">
+    <img [src]="product().imageUrl" width="auto" height="30px" />
+    <div>
+      <p>{{ product().brand }} - {{ product().name }}</p>
+      <p class="sub-text">
+        {{ product().guaranteedAnalysis }} |
+        {{ amountApplied() ? amountApplied() : product().quantity
+        }}{{ product().quantityUnit }}
+        @if (amountApplied()) {
+          Applied
+        } @else {
+          {{ product().containerType }}
+        }
+      </p>
+    </div>
+  </div>
+  <div class="product-input-wrapper"></div>
+</div>

@@ -40,17 +40,7 @@
       (onClear)="this.form.controls.products.clear()"
     >
       <ng-template let-product #item>
-        <div class="product-item">
-          <img [src]="product.imageUrl" width="auto" height="30px" />
-          <div>
-            <p>{{ product.brand }} - {{ product.name }}</p>
-            <p class="sub-text">
-              {{ product.guaranteedAnalysis }} | {{ product.quantity
-              }}{{ product.quantityUnit }}
-              {{ product.containerType }}
-            </p>
-          </div>
-        </div>
+        <product-small-card [product]="product" [showBorder]="false" />
       </ng-template>
       <ng-template let-items #selecteditems>
         @if (items?.length) {

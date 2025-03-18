@@ -18,6 +18,8 @@ export type Entry = {
     imageUrl: string;
     quantity: number;
     quantityUnit: string;
+    guaranteedAnalysis: string;
+    containerType: string;
   }>;
 };
 

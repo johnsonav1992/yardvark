@@ -29,6 +29,7 @@ import { SelectModule } from 'primeng/select';
 import { QUANTITY_UNITS } from '../../../constants/product-constants';
 import { InputNumber } from 'primeng/inputnumber';
 import { createEntryProductRow } from '../../../utils/entriesUtils';
+import { ProductSmallCardComponent } from '../../products/product-small-card/product-small-card.component';
 
 @Component({
   selector: 'entry-dialog',
@@ -40,7 +41,8 @@ import { createEntryProductRow } from '../../../utils/entriesUtils';
     InputTextModule,
     FormsModule,
     SelectModule,
-    InputNumber
+    InputNumber,
+    ProductSmallCardComponent
   ],
   templateUrl: './entry-dialog.component.html',
   styleUrl: './entry-dialog.component.scss'

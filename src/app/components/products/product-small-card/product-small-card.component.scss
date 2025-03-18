@@ -1,0 +1,24 @@
+.product-card {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+
+  .product-info-wrapper {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+
+    .sub-text {
+      font-size: 0.75rem;
+      color: var(--p-surface-400);
+    }
+  }
+
+  .product-input-wrapper {
+    display: flex;
+    gap: 0.25rem;
+  }
+}

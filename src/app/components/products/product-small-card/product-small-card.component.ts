@@ -13,7 +13,7 @@ export class ProductSmallCardComponent implements OnInit {
   public product = input.required<Partial<Product>>();
   public fullWidth = input<boolean>(false);
   public showBorder = input<boolean>(true);
-  public amountApplied = input<number | null>(null);
+  public asAppliedAmount = input<boolean>(false);
 
   public ngOnInit(): void {
     if (this.fullWidth()) {

@@ -7,6 +7,8 @@ import {
   DeleteDateColumn,
   PrimaryColumn,
   ManyToOne,
+  JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { LawnSegment } from 'src/lawn-segments/models/lawn-segments.model';
 import { Activity } from 'src/activities/models/activities.model';
@@ -56,7 +58,7 @@ export class Entry {
   })
   lawnSegments: LawnSegment[];
 
-  @ManyToMany(() => EntryProduct, (entryProduct) => entryProduct.entry, {
+  @OneToMany(() => EntryProduct, (entryProduct) => entryProduct.entry, {
     cascade: ['insert'],
   })
   entryProducts: EntryProduct[];
@@ -76,11 +78,13 @@ export class EntryProduct {
   @ManyToOne(() => Entry, (entry) => entry, {
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'entry_id' })
   entry: Entry;
 
   @ManyToOne(() => Product, (product) => product, {
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'product_id' })
   product: Product;
 
   @Column('decimal', {

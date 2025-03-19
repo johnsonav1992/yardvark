@@ -35,6 +35,7 @@
       optionLabel="name"
       [placeholder]="products.isLoading() ? 'Loading...' : 'Select Products'"
       [loading]="products.isLoading()"
+      [loadingIcon]="'ti ti-loader-2'"
       [showClear]="true"
       (onChange)="addProductToForm($event); productSelect.hide()"
       (onClear)="this.form.controls.products.clear()"
@@ -54,33 +55,26 @@
   @if (selectedProducts?.length) {
     <div class="products-wrapper" formArrayName="products">
       @for (item of selectedProducts; track item.product?.id) {
-        <div class="product-card" [formGroupName]="$index">
-          <div class="product-info-wrapper">
-            <img [src]="item.product?.imageUrl" width="auto" height="30px" />
-            <div>
-              <p>{{ item.product?.brand }} - {{ item.product?.name }}</p>
-              <p class="sub-text">
-                {{ item.product?.guaranteedAnalysis }} |
-                {{ item.product?.quantity }}{{ item.product?.quantityUnit }}
-                {{ item.product?.containerType }}
-              </p>
-            </div>
-          </div>
-          <div class="product-input-wrapper">
-            <p-inputNumber
-              [showButtons]="true"
-              [min]="0"
-              [max]="100"
-              [maxFractionDigits]="2"
-              mode="decimal"
-              [inputStyle]="{ width: '6rem' }"
-              formControlName="quantity"
-            />
-            <p-select
-              [options]="quantityUnits"
-              formControlName="quantityUnit"
-            />
-          </div>
+        <div [formGroupName]="$index">
+          <product-small-card [product]="item.product!">
+            <ng-template #actions>
+              <div class="product-input-wrapper">
+                <p-inputNumber
+                  [showButtons]="true"
+                  [min]="0"
+                  [max]="100"
+                  [maxFractionDigits]="2"
+                  mode="decimal"
+                  [inputStyle]="{ width: '6rem' }"
+                  formControlName="quantity"
+                />
+                <p-select
+                  [options]="quantityUnits"
+                  formControlName="quantityUnit"
+                />
+              </div>
+            </ng-template>
+          </product-small-card>
         </div>
       }
     </div>

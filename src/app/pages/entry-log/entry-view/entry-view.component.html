@@ -100,7 +100,7 @@
           @if (entryData()?.products?.length) {
             <div class="section-container">
               <h3>Products:</h3>
-              <div class="products-wrapper" formArrayName="products">
+              <div class="products-wrapper">
                 @for (
                   product of entryData()?.products;
                   track product.productId

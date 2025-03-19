@@ -18,5 +18,7 @@
       </p>
     </div>
   </div>
-  <div class="product-input-wrapper"></div>
+  @if (actions()) {
+    <ng-container *ngTemplateOutlet="actions() || null"></ng-container>
+  }
 </div>

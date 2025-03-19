@@ -24,7 +24,7 @@ export class EntriesController {
   }
 
   @Get('single/:entryId')
-  getEntry(entryId: number) {
+  getEntry(@Param('entryId') entryId: number) {
     return this._entriesService.getEntry(entryId);
   }
 

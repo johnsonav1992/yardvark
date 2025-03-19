@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import { Injectable } from '@nestjs/common';
 import {
   S3Client,
@@ -30,7 +28,7 @@ export class S3Service {
     file: Express.Multer.File,
     userId: string,
   ): Promise<string> {
-    const key = this.createFileKey(userId, file.originalname as string);
+    const key = this.createFileKey(userId, file.originalname);
 
     const uploadParams: PutObjectCommandInput = {
       Bucket: this.bucketName,

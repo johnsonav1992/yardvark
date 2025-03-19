@@ -49,14 +49,30 @@ export class EntriesService {
   }
 
   async getEntry(entryId: number) {
-    return this._entriesRepo.findOne({
+    const entry = await this._entriesRepo.findOne({
       where: { id: entryId },
       relations: {
         activities: true,
         lawnSegments: true,
-        entryProducts: true,
+        entryProducts: {
+          product: true,
+        },
       },
     });
+
+    return {
+      ...entry,
+      products: entry?.entryProducts.map((entryProduct) => ({
+        productId: entryProduct.product.id,
+        name: entryProduct.product.name,
+        brand: entryProduct.product.brand,
+        imageUrl: entryProduct.product.imageUrl,
+        quantity: entryProduct.productQuantity,
+        quantityUnit: entryProduct.productQuantityUnit,
+        guaranteedAnalysis: entryProduct.product.guaranteedAnalysis,
+        containerType: entryProduct.product.containerType,
+      })),
+    };
   }
 
   async createEntry(entry: EntryCreationRequest) {

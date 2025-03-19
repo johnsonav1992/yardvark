@@ -16,22 +16,7 @@
             @for (product of productsToShow(); track product.id) {
               <product-card [product]="product" />
             } @empty {
-              <div
-                style="
-                  width: 100%;
-                  display: flex;
-                  flex-direction: column;
-                  justify-content: center;
-                  align-items: center;
-                  gap: 1rem;
-                  font-size: 2rem;
-                  color: var(--p-surface-400);
-                  margin-top: 1rem;
-                "
-              >
-                <i class="ti ti-help" [style]="{ fontSize: '10rem' }"></i>
-                <h4>No Products found for this category</h4>
-              </div>
+              <empty-message message="No products found for this category" />
             }
           </div>
         </p-tabpanel>

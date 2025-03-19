@@ -7,10 +7,16 @@ import { ProductCardComponent } from '../../components/products/product-card/pro
 import { httpResource } from '@angular/common/http';
 import { apiUrl } from '../../utils/httpUtils';
 import { injectUserData } from '../../utils/authUtils';
+import { EmptyMessageComponent } from '../../components/miscellanious/empty-message/empty-message.component';
 
 @Component({
   selector: 'products',
-  imports: [TabsModule, PageContainerComponent, ProductCardComponent],
+  imports: [
+    TabsModule,
+    PageContainerComponent,
+    ProductCardComponent,
+    EmptyMessageComponent
+  ],
   templateUrl: './products.component.html',
   styleUrl: './products.component.scss'
 })

@@ -25,7 +25,9 @@ html {
 }
 
 .icon-spin {
+  display: inline-block;
   animation: spin 1.5s linear infinite;
+  transform-origin: 52% 52%;
 }
 
 .error {

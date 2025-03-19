@@ -7,7 +7,6 @@ import {
   input,
   linkedSignal,
   output,
-  signal,
   TemplateRef
 } from '@angular/core';
 import { addMonths, format, startOfToday, subMonths } from 'date-fns';
@@ -35,6 +34,7 @@ export class EntriesCalendarComponent {
   );
 
   public markers = input<CalendarMarkerData[]>([]);
+  public isLoadingData = input<boolean>(false);
   public markerTpl =
     contentChild<TemplateRef<{ $implicit: CalendarMarkerData[] }>>('marker');
 

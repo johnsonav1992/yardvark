@@ -7,9 +7,17 @@
       outlined
       severity="secondary"
     />
-    <h2 class="month-title">
-      {{ currentMonth() }}
-    </h2>
+    <div class="title-and-loader">
+      <h2 class="month-title">
+        {{ currentMonth() }}
+      </h2>
+      @if (isLoadingData()) {
+        <i
+          class="ti ti-loader-2 icon-spin"
+          [style]="{ fontSize: '1.5rem' }"
+        ></i>
+      }
+    </div>
   </div>
   <div class="buttons-container">
     <p-button (click)="toCurrentMonth()" label="Today" outlined size="small" />

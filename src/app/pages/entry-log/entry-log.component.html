@@ -1,6 +1,7 @@
 <div class="main-container">
   <entries-calendar
     [markers]="dayMarkers()"
+    [isLoadingData]="entries.isLoading()"
     (monthChange)="changeMonths($event)"
     (daySelected)="selectDay($event)"
   >

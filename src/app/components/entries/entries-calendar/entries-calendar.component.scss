@@ -9,6 +9,11 @@
     gap: 0.5rem;
     align-items: center;
     width: 100%;
+
+    .title-and-loader {
+      display: flex;
+      gap: 0.5rem;
+    }
   }
 
   .month-title {

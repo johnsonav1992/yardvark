@@ -1,0 +1,15 @@
+<p-card [style]="{ width: '25rem', overflow: 'hidden' }">
+  <ng-template #header>
+    <img alt="Card" width="100%" [src]="product().imageUrl" />
+  </ng-template>
+  <ng-template #title> {{ product().name }} </ng-template>
+  <ng-template #subtitle> {{ product().brand }}</ng-template>
+  <p>
+    {{ product().description }}
+  </p>
+  <ng-template #footer>
+    <div style="width: 100%; display: flex; justify-content: flex-end">
+      <p-button label="View product" />
+    </div>
+  </ng-template>
+</p-card>

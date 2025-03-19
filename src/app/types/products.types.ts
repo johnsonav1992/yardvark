@@ -1,3 +1,5 @@
+import { PRODUCT_TYPES } from '../../../backend/src/products/models/products.types';
+
 export type Product = {
   id: number;
   userId: string;
@@ -19,3 +21,7 @@ export type Product = {
   updatedAt?: string;
   deletedAt?: string;
 };
+
+export type ProductCategories = Capitalize<
+  (typeof PRODUCT_TYPES)[keyof typeof PRODUCT_TYPES]
+>;

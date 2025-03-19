@@ -8,6 +8,7 @@ import { providePrimeNG } from 'primeng/config';
 import { provideAuth0 } from '@auth0/auth0-angular';
 import { theme } from './theme/theme';
 import { MessageService } from 'primeng/api';
+import { SlicePipe } from '@angular/common';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -31,6 +32,7 @@ export const appConfig: ApplicationConfig = {
         redirect_uri: window.location.origin
       }
     }),
-    MessageService
+    MessageService,
+    SlicePipe
   ]
 };

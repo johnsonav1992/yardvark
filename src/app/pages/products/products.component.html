@@ -12,13 +12,19 @@
     <p-tabpanels>
       @for (tab of tabs; track tab.value) {
         <p-tabpanel [value]="tab.value">
-          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
-            @for (product of productsToShow(); track product.id) {
-              <product-card [product]="product" />
-            } @empty {
-              <empty-message message="No products found for this category" />
-            }
-          </div>
+          @if (products.isLoading()) {
+            <div style="display: flex; width: 100%; justify-content: center">
+              <p-progressSpinner [dt]="spinnerDt" />
+            </div>
+          } @else {
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+              @for (product of productsToShow(); track product.id) {
+                <product-card [product]="product" />
+              } @empty {
+                <empty-message message="No products found for this category" />
+              }
+            </div>
+          }
         </p-tabpanel>
       }
     </p-tabpanels>

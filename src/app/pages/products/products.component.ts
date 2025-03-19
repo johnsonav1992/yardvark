@@ -8,6 +8,8 @@ import { httpResource } from '@angular/common/http';
 import { apiUrl } from '../../utils/httpUtils';
 import { injectUserData } from '../../utils/authUtils';
 import { EmptyMessageComponent } from '../../components/miscellanious/empty-message/empty-message.component';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ProgressSpinnerDesignTokens } from '@primeng/themes/types/progressspinner';
 
 @Component({
   selector: 'products',
@@ -15,7 +17,8 @@ import { EmptyMessageComponent } from '../../components/miscellanious/empty-mess
     TabsModule,
     PageContainerComponent,
     ProductCardComponent,
-    EmptyMessageComponent
+    EmptyMessageComponent,
+    ProgressSpinnerModule
   ],
   templateUrl: './products.component.html',
   styleUrl: './products.component.scss'
@@ -53,4 +56,13 @@ export class ProductsComponent {
 
     this.selectedTab.set(selectedTab);
   }
+
+  public spinnerDt: ProgressSpinnerDesignTokens = {
+    root: {
+      'color.1': '{primary.500}',
+      'color.2': '{primary.500}',
+      'color.3': '{primary.500}',
+      'color.4': '{primary.500}'
+    }
+  };
 }

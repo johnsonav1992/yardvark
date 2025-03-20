@@ -13,6 +13,7 @@
     (onChange)="addProductToForm($event); productSelect.hide()"
     (onClear)="productsControl().clear()"
     [style]="{ width: inputWidth() }"
+    formArrayName="products"
   >
     <ng-template let-product #item>
       <product-small-card [product]="product" [showBorder]="false" />
@@ -28,7 +29,7 @@
 
   @if (selectedProducts?.length) {
     <div class="products-wrapper" formArrayName="products">
-      @for (item of selectedProducts; track item.product?.id) {
+      @for (item of selectedProducts; track item.product?.name) {
         <div [formGroupName]="$index">
           <product-small-card [product]="item.product!">
             <ng-template #actions>

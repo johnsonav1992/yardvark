@@ -136,6 +136,7 @@ export class EntryViewComponent {
       });
 
       this.entryData()?.products.forEach((prod) => {
+        console.log(prod);
         this.editForm.controls.products.push(
           createEntryProductRow(prod as never)
         );

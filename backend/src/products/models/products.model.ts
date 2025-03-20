@@ -35,9 +35,6 @@ export class Product {
   price?: number;
 
   @Column({ nullable: true })
-  quantity: number;
-
-  @Column({ nullable: true })
   quantityUnit?: string;
 
   @Column({ nullable: true })

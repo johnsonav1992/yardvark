@@ -65,7 +65,5 @@ export class EntryDialogComponent implements OnInit {
     this.form.patchValue({
       date: this.date()
     });
-
-    this.form.statusChanges.subscribe(console.log);
   }
 }

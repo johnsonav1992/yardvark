@@ -12,8 +12,7 @@
     [showClear]="true"
     (onChange)="addProductToForm($event); productSelect.hide()"
     (onClear)="productsControl().clear()"
-    [formGroup]="form()"
-    [style]="{ width: '100%' }"
+    [style]="{ width: inputWidth() }"
   >
     <ng-template let-product #item>
       <product-small-card [product]="product" [showBorder]="false" />

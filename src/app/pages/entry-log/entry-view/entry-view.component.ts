@@ -25,12 +25,19 @@ import { ProductSmallCardComponent } from '../../../components/products/product-
 import { EntriesService } from '../../../services/entries.service';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ActivitiesService } from '../../../services/activities.service';
-import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  FormArray,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
 import { Activity } from '../../../types/activities.types';
 import { LawnSegment } from '../../../types/lawnSegments.types';
 import { createEntryProductRow } from '../../../utils/entriesUtils';
 import { InputTextModule } from 'primeng/inputtext';
 import { LawnSegmentsService } from '../../../services/lawn-segments.service';
+import { ProductsSelectorComponent } from '../../../components/products/products-selector/products-selector.component';
 
 @Component({
   selector: 'entry-view',
@@ -44,7 +51,9 @@ import { LawnSegmentsService } from '../../../services/lawn-segments.service';
     SkeletonModule,
     ProductSmallCardComponent,
     MultiSelectModule,
-    InputTextModule
+    InputTextModule,
+    ProductsSelectorComponent,
+    ReactiveFormsModule
   ],
   templateUrl: './entry-view.component.html',
   styleUrl: './entry-view.component.scss'
@@ -58,7 +67,6 @@ export class EntryViewComponent {
 
   public editForm = new FormGroup({
     title: new FormControl<string>('', [Validators.required]),
-    date: new FormControl(new Date(), [Validators.required]),
     activities: new FormControl<Activity[]>([]),
     lawnSegments: new FormControl<LawnSegment[]>([]),
     products: new FormArray<ReturnType<typeof createEntryProductRow>>([]),
@@ -112,6 +120,31 @@ export class EntryViewComponent {
         queryParams: { date: startOfMonth(this.currentDate() || new Date()) }
       });
     });
+  }
+
+  public toggleEditMode() {
+    this.isInEditMode.update((prevMode) => !prevMode);
+
+    if (this.isInEditMode()) {
+      console.log('in if');
+      console.log(this.entryData());
+      this.editForm.patchValue({
+        title: this.entryData()?.title,
+        activities: this.entryData()?.activities,
+        lawnSegments: this.entryData()?.lawnSegments,
+        notes: this.entryData()?.notes
+      });
+
+      this.entryData()?.products.forEach((prod) => {
+        this.editForm.controls.products.push(
+          createEntryProductRow(prod as never)
+        );
+      });
+
+      this.editForm.updateValueAndValidity();
+
+      console.log(this.editForm.value);
+    }
   }
 
   public soilTempChipDt: ChipDesignTokens = {

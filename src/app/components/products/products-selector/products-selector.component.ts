@@ -27,6 +27,8 @@ export class ProductsSelectorComponent {
   public quantityUnits = QUANTITY_UNITS;
 
   public form = input.required<FormGroup>();
+  public inputWidth = input<string | number>('100%');
+
   public productsControl = computed(
     () =>
       this.form().get('products') as FormArray<

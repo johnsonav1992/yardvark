@@ -12,137 +12,146 @@
   entryData()?.notes;
 
 <page-container pageTitle="Journal Entry">
-  <p-card>
-    <ng-template #title>
-      <div class="title-container">
-        @if (isLoading) {
-          <p-skeleton [width]="'100px'" />
-          <p-skeleton [width]="'50px'" [height]="'40px'" />
-        } @else {
-          {{ date }}
-          @if (entryData()?.title) {
-            @if (isInEditMode()) {
-              <input
-                pInputText
-                formControlName="title"
-                placeholder="Enter title"
-                [style]="{ width: '50%' }"
-              />
-            } @else {
-              <h3>{{ entryData()?.title }}</h3>
+  <div [formGroup]="editForm">
+    <p-card>
+      <ng-template #title>
+        <div class="title-container">
+          @if (isLoading) {
+            <p-skeleton [width]="'100px'" />
+            <p-skeleton [width]="'50px'" [height]="'40px'" />
+          } @else {
+            {{ date }}
+            @if (entryData()?.title) {
+              @if (isInEditMode()) {
+                <input
+                  pInputText
+                  formControlName="title"
+                  placeholder="Enter title"
+                  [style]="{ width: '50%' }"
+                />
+              } @else {
+                <h3>{{ entryData()?.title }}</h3>
+              }
             }
+            <div style="display: flex; gap: 0.25rem">
+              <p-button
+                [label]="isInEditMode() ? 'Save' : 'Edit'"
+                [icon]="isInEditMode() ? 'ti ti-check' : 'ti ti-pencil'"
+                outlined
+                (click)="toggleEditMode()"
+                [severity]="isInEditMode() ? 'success' : 'secondary'"
+              />
+              <p-button
+                label="Delete"
+                icon="ti ti-trash"
+                outlined
+                (click)="deleteEntry()"
+                severity="danger"
+              />
+            </div>
           }
-          <div style="display: flex; gap: 0.25rem">
-            <p-button
-              [label]="isInEditMode() ? 'Save' : 'Edit'"
-              [icon]="isInEditMode() ? 'ti ti-check' : 'ti ti-pencil'"
-              outlined
-              (click)="isInEditMode.set(!isInEditMode())"
-              [severity]="isInEditMode() ? 'success' : 'secondary'"
-            />
-            <p-button
-              label="Delete"
-              icon="ti ti-trash"
-              outlined
-              (click)="deleteEntry()"
-              severity="danger"
-            />
-          </div>
-        }
-      </div>
-    </ng-template>
-    <ng-template #subtitle>
-      @if (isLoading) {
-        <div
-          [style]="{
-            display: 'flex',
-            gap: '1rem',
-            marginTop: '1rem',
-            alignItems: 'center'
-          }"
-        >
-          <p-skeleton [width]="'100px'" />
-          <p-skeleton [width]="'80px'" height="30px" borderRadius=".75rem" />
         </div>
-      } @else {
-        @if (entryData()?.soilTemperature) {
-          Soil temp:
-          <p-chip
-            [label]="soilTemp"
-            icon="ti ti-thermometer"
-            [dt]="soilTempChipDt"
-          />
-        }
-      }
-    </ng-template>
-    @if (hasAdditionalInfo) {
-      <p-divider />
-      <div class="content-container">
+      </ng-template>
+      <ng-template #subtitle>
         @if (isLoading) {
-          @for (num of [1, 2, 3]; track num) {
-            <p-skeleton [width]="'175px'" height="20px" />
-            <p-skeleton [width]="'90px'" />
-          }
+          <div
+            [style]="{
+              display: 'flex',
+              gap: '1rem',
+              marginTop: '1rem',
+              alignItems: 'center'
+            }"
+          >
+            <p-skeleton [width]="'100px'" />
+            <p-skeleton [width]="'80px'" height="30px" borderRadius=".75rem" />
+          </div>
         } @else {
-          @if (activities()?.length) {
-            <div class="section-container">
-              <h3>Activities:</h3>
-              @if (isInEditMode()) {
-                <p-multiSelect
-                  [options]="allActivities.value()"
-                  [optionLabel]="'name'"
-                  formControlName="activities"
-                  [style]="{ width: '50%' }"
-                />
-              } @else {
-                @for (activity of activities(); track activity.id) {
-                  <p>{{ activity.name }}</p>
-                }
-              }
-            </div>
+          @if (entryData()?.soilTemperature) {
+            Soil temp:
+            <p-chip
+              [label]="soilTemp"
+              icon="ti ti-thermometer"
+              [dt]="soilTempChipDt"
+            />
           }
-          @if (entryData()?.lawnSegments?.length) {
-            <div class="section-container">
-              <h3>Lawn segments:</h3>
-              @if (isInEditMode()) {
-                <p-multiSelect
-                  [options]="allLawnSegments.value()"
-                  [optionLabel]="'name'"
-                  formControlName="lawnSegments"
-                  [style]="{ width: '50%' }"
-                />
-              } @else {
-                @for (segment of entryData()?.lawnSegments; track segment.id) {
-                  <p>{{ segment.name }}</p>
-                }
-              }
-            </div>
-          }
-          @if (entryData()?.notes) {
-            <div class="section-container">
-              <h3>Notes:</h3>
-              {{ entryData()?.notes }}
-            </div>
-          }
-          @if (entryData()?.products?.length) {
-            <div class="section-container">
-              <h3>Products:</h3>
-              <div class="products-wrapper">
-                @for (
-                  product of entryData()?.products;
-                  track product.productId
-                ) {
-                  <product-small-card
-                    [product]="product"
-                    [asAppliedAmount]="true"
+        }
+      </ng-template>
+      @if (hasAdditionalInfo) {
+        <p-divider />
+        <div class="content-container">
+          @if (isLoading) {
+            @for (num of [1, 2, 3]; track num) {
+              <p-skeleton [width]="'175px'" height="20px" />
+              <p-skeleton [width]="'90px'" />
+            }
+          } @else {
+            @if (activities()?.length) {
+              <div class="section-container">
+                <h3>Activities:</h3>
+                @if (isInEditMode()) {
+                  <p-multiSelect
+                    [options]="allActivities.value()"
+                    [optionLabel]="'name'"
+                    formControlName="activities"
+                    [style]="{ width: '50%' }"
                   />
+                } @else {
+                  @for (activity of activities(); track activity.id) {
+                    <p>{{ activity.name }}</p>
+                  }
                 }
               </div>
-            </div>
+            }
+            @if (entryData()?.lawnSegments?.length) {
+              <div class="section-container">
+                <h3>Lawn segments:</h3>
+                @if (isInEditMode()) {
+                  <p-multiSelect
+                    [options]="allLawnSegments.value()"
+                    [optionLabel]="'name'"
+                    formControlName="lawnSegments"
+                    [style]="{ width: '50%' }"
+                  />
+                } @else {
+                  @for (
+                    segment of entryData()?.lawnSegments;
+                    track segment.id
+                  ) {
+                    <p>{{ segment.name }}</p>
+                  }
+                }
+              </div>
+            }
+            @if (entryData()?.notes) {
+              <div class="section-container">
+                <h3>Notes:</h3>
+                {{ entryData()?.notes }}
+              </div>
+            }
+            @if (entryData()?.products?.length) {
+              <div class="section-container">
+                <h3>Products:</h3>
+                @if (isInEditMode()) {
+                  <products-selector [form]="editForm" inputWidth="50%" />
+                } @else {
+                  <div class="products-wrapper">
+                    @for (
+                      product of entryData()?.products;
+                      track product.productId
+                    ) {
+                      <product-small-card
+                        [product]="product"
+                        [asAppliedAmount]="true"
+                      />
+                    }
+                  </div>
+                }
+              </div>
+            }
           }
-        }
-      </div>
-    }
-    <ng-template #footer> </ng-template>
-  </p-card>
+        </div>
+      }
+      <ng-template #footer> </ng-template>
+    </p-card>
+  </div>
 </page-container>

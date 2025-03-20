@@ -20,7 +20,7 @@ export const theme = definePreset(Aura, {
   components: {
     card: {
       root: {
-        shadow: '2px 2px 8px 0 rgba(0, 0, 0, 0.2)'
+        shadow: '2px 2px 6px 0 rgba(0, 0, 0, 0.2)'
       }
     }
   }

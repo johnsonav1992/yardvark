@@ -9,10 +9,11 @@ import {
 } from '@angular/core';
 import { Product } from '../../../types/products.types';
 import { NgTemplateOutlet } from '@angular/common';
+import { CapitalizePipe } from '../../../pipes/capitalize.pipe';
 
 @Component({
   selector: 'product-small-card',
-  imports: [NgTemplateOutlet],
+  imports: [NgTemplateOutlet, CapitalizePipe],
   templateUrl: './product-small-card.component.html',
   styleUrl: './product-small-card.component.scss'
 })

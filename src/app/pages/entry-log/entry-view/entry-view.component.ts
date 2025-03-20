@@ -23,6 +23,14 @@ import { capitalize } from '../../../utils/stringUtils';
 import { startOfMonth } from 'date-fns';
 import { ProductSmallCardComponent } from '../../../components/products/product-small-card/product-small-card.component';
 import { EntriesService } from '../../../services/entries.service';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { ActivitiesService } from '../../../services/activities.service';
+import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Activity } from '../../../types/activities.types';
+import { LawnSegment } from '../../../types/lawnSegments.types';
+import { createEntryProductRow } from '../../../utils/entriesUtils';
+import { InputTextModule } from 'primeng/inputtext';
+import { LawnSegmentsService } from '../../../services/lawn-segments.service';
 
 @Component({
   selector: 'entry-view',
@@ -34,7 +42,9 @@ import { EntriesService } from '../../../services/entries.service';
     ChipModule,
     DividerModule,
     SkeletonModule,
-    ProductSmallCardComponent
+    ProductSmallCardComponent,
+    MultiSelectModule,
+    InputTextModule
   ],
   templateUrl: './entry-view.component.html',
   styleUrl: './entry-view.component.scss'
@@ -43,6 +53,17 @@ export class EntryViewComponent {
   private _router = inject(Router);
   private _activatedRoute = inject(ActivatedRoute);
   private _entryService = inject(EntriesService);
+  private _activitiesService = inject(ActivitiesService);
+  private _lawnSegmentsService = inject(LawnSegmentsService);
+
+  public editForm = new FormGroup({
+    title: new FormControl<string>('', [Validators.required]),
+    date: new FormControl(new Date(), [Validators.required]),
+    activities: new FormControl<Activity[]>([]),
+    lawnSegments: new FormControl<LawnSegment[]>([]),
+    products: new FormArray<ReturnType<typeof createEntryProductRow>>([]),
+    notes: new FormControl<string | null>(null)
+  });
 
   public entryId = toSignal(
     this._activatedRoute.params.pipe(map((params) => params['entryId']))
@@ -54,14 +75,18 @@ export class EntryViewComponent {
     )
   );
 
-  public currentDate = computed<Date | null>(() =>
-    this.entryDate() ? new Date(this.entryDate()!) : null
-  );
-
   public shouldFetchEntry = signal<boolean>(false);
   public entryData = linkedSignal<Entry | undefined>(() =>
     this.entryResource.value()
   );
+  public isInEditMode = signal(false);
+
+  public currentDate = computed<Date | null>(() =>
+    this.entryDate() ? new Date(this.entryDate()!) : null
+  );
+
+  public allActivities = this._activitiesService.activities;
+  public allLawnSegments = this._lawnSegmentsService.lawnSegments;
   public activities = computed(() =>
     this.entryData()?.activities.map((act) => ({
       ...act,

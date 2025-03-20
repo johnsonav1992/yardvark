@@ -29,56 +29,8 @@
   </div>
   <div class="col-input-wrapper">
     Products:
-    <p-multiSelect
-      #productSelect
-      [options]="products.value()"
-      optionLabel="name"
-      [placeholder]="products.isLoading() ? 'Loading...' : 'Select Products'"
-      [loading]="products.isLoading()"
-      [loadingIcon]="'ti ti-loader-2'"
-      [showClear]="true"
-      (onChange)="addProductToForm($event); productSelect.hide()"
-      (onClear)="this.form.controls.products.clear()"
-    >
-      <ng-template let-product #item>
-        <product-small-card [product]="product" [showBorder]="false" />
-      </ng-template>
-      <ng-template let-items #selecteditems>
-        @if (items?.length) {
-          {{ items.length }} selected
-        }
-      </ng-template>
-    </p-multiSelect>
+    <products-selector [form]="form" />
   </div>
-  @let selectedProducts = form.controls.products.value;
-
-  @if (selectedProducts?.length) {
-    <div class="products-wrapper" formArrayName="products">
-      @for (item of selectedProducts; track item.product?.id) {
-        <div [formGroupName]="$index">
-          <product-small-card [product]="item.product!">
-            <ng-template #actions>
-              <div class="product-input-wrapper">
-                <p-inputNumber
-                  [showButtons]="true"
-                  [min]="0"
-                  [max]="100"
-                  [maxFractionDigits]="2"
-                  mode="decimal"
-                  [inputStyle]="{ width: '6rem' }"
-                  formControlName="quantity"
-                />
-                <p-select
-                  [options]="quantityUnits"
-                  formControlName="quantityUnit"
-                />
-              </div>
-            </ng-template>
-          </product-small-card>
-        </div>
-      }
-    </div>
-  }
   <div class="col-input-wrapper">
     Notes:
     <textarea pTextarea [rows]="3" formControlName="notes"></textarea>

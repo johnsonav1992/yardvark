@@ -1,0 +1,57 @@
+<div
+  [formGroup]="form()"
+  style="width: 100%; display: flex; flex-direction: column; gap: 0.75rem"
+>
+  <p-multiSelect
+    #productSelect
+    [options]="products.value()"
+    optionLabel="name"
+    [placeholder]="products.isLoading() ? 'Loading...' : 'Select Products'"
+    [loading]="products.isLoading()"
+    [loadingIcon]="'ti ti-loader-2'"
+    [showClear]="true"
+    (onChange)="addProductToForm($event); productSelect.hide()"
+    (onClear)="productsControl().clear()"
+    [formGroup]="form()"
+    [style]="{ width: '100%' }"
+  >
+    <ng-template let-product #item>
+      <product-small-card [product]="product" [showBorder]="false" />
+    </ng-template>
+    <ng-template let-items #selecteditems>
+      @if (items?.length) {
+        {{ items.length }} selected
+      }
+    </ng-template>
+  </p-multiSelect>
+
+  @let selectedProducts = productsControl().value;
+
+  @if (selectedProducts?.length) {
+    <div class="products-wrapper" formArrayName="products">
+      @for (item of selectedProducts; track item.product?.id) {
+        <div [formGroupName]="$index">
+          <product-small-card [product]="item.product!">
+            <ng-template #actions>
+              <div class="product-input-wrapper">
+                <p-inputNumber
+                  [showButtons]="true"
+                  [min]="0"
+                  [max]="100"
+                  [maxFractionDigits]="2"
+                  mode="decimal"
+                  [inputStyle]="{ width: '6rem' }"
+                  formControlName="quantity"
+                />
+                <p-select
+                  [options]="quantityUnits"
+                  formControlName="quantityUnit"
+                />
+              </div>
+            </ng-template>
+          </product-small-card>
+        </div>
+      }
+    </div>
+  }
+</div>

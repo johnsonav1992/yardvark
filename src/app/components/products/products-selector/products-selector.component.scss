@@ -1,0 +1,27 @@
+.product-input-wrapper {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.input-wrapper {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.product-item {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+
+  .sub-text {
+    font-size: 0.75rem;
+    color: var(--p-surface-400);
+  }
+}
+
+.products-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}

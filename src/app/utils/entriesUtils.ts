@@ -18,7 +18,7 @@ export const getEntryIcon = (entry: Entry) => {
 export const createEntryProductRow = (product?: Product) => {
   return new FormGroup({
     product: new FormControl<Product | null>(product || null),
-    quantity: new FormControl<number | null>(null, [Validators.required]),
+    quantity: new FormControl<number | null>(1, [Validators.min(0.1)]),
     quantityUnit: new FormControl<string>(
       product?.quantityUnit || QUANTITY_UNITS[0],
       [Validators.required]

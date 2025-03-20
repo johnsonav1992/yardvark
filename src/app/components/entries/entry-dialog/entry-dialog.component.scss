@@ -8,33 +8,12 @@
     width: 100%;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
   }
 
   .col-input-wrapper {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-  }
-}
-
-.product-input-wrapper {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.input-wrapper {
-  display: flex;
-  gap: 0.25rem;
-  align-items: center;
-}
-
-.product-item {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-
-  .sub-text {
-    font-size: 0.75rem;
-    color: var(--p-surface-400);
   }
 }

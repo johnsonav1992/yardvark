@@ -21,15 +21,24 @@
         } @else {
           {{ date }}
           @if (entryData()?.title) {
-            <h3>{{ entryData()?.title }}</h3>
+            @if (isInEditMode()) {
+              <input
+                pInputText
+                formControlName="title"
+                placeholder="Enter title"
+                [style]="{ width: '50%' }"
+              />
+            } @else {
+              <h3>{{ entryData()?.title }}</h3>
+            }
           }
           <div style="display: flex; gap: 0.25rem">
             <p-button
-              label="Edit"
-              icon="ti ti-pencil"
+              [label]="isInEditMode() ? 'Save' : 'Edit'"
+              [icon]="isInEditMode() ? 'ti ti-check' : 'ti ti-pencil'"
               outlined
-              (click)="('')"
-              severity="secondary"
+              (click)="isInEditMode.set(!isInEditMode())"
+              [severity]="isInEditMode() ? 'success' : 'secondary'"
             />
             <p-button
               label="Delete"
@@ -78,16 +87,34 @@
           @if (activities()?.length) {
             <div class="section-container">
               <h3>Activities:</h3>
-              @for (activity of activities(); track activity.id) {
-                <p>{{ activity.name }}</p>
+              @if (isInEditMode()) {
+                <p-multiSelect
+                  [options]="allActivities.value()"
+                  [optionLabel]="'name'"
+                  formControlName="activities"
+                  [style]="{ width: '50%' }"
+                />
+              } @else {
+                @for (activity of activities(); track activity.id) {
+                  <p>{{ activity.name }}</p>
+                }
               }
             </div>
           }
           @if (entryData()?.lawnSegments?.length) {
             <div class="section-container">
               <h3>Lawn segments:</h3>
-              @for (segment of entryData()?.lawnSegments; track segment.id) {
-                <p>{{ segment.name }}</p>
+              @if (isInEditMode()) {
+                <p-multiSelect
+                  [options]="allLawnSegments.value()"
+                  [optionLabel]="'name'"
+                  formControlName="lawnSegments"
+                  [style]="{ width: '50%' }"
+                />
+              } @else {
+                @for (segment of entryData()?.lawnSegments; track segment.id) {
+                  <p>{{ segment.name }}</p>
+                }
               }
             </div>
           }

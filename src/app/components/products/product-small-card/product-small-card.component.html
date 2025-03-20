@@ -7,9 +7,11 @@
     <div>
       <p>{{ product().brand }} - {{ product().name }}</p>
       <p class="sub-text">
-        {{ product().guaranteedAnalysis }}
+        {{ product().guaranteedAnalysis }} |
         @if (asAppliedAmount()) {
-          | {{ product().quantity }}{{ product().quantityUnit }} Applied
+          {{ product().quantity }}{{ product().quantityUnit }} Applied
+        } @else {
+          {{ product().category | capitalize }}
         }
       </p>
     </div>

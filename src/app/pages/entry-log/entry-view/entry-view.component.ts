@@ -2,7 +2,6 @@ import {
   Component,
   computed,
   inject,
-  input,
   linkedSignal,
   signal
 } from '@angular/core';
@@ -12,7 +11,6 @@ import { Entry } from '../../../types/entries.types';
 import { PageContainerComponent } from '../../../components/layout/page-container/page-container.component';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
-import { httpResource } from '@angular/common/http';
 import { apiUrl, deleteReq } from '../../../utils/httpUtils';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -24,6 +22,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { capitalize } from '../../../utils/stringUtils';
 import { startOfMonth } from 'date-fns';
 import { ProductSmallCardComponent } from '../../../components/products/product-small-card/product-small-card.component';
+import { EntriesService } from '../../../services/entries.service';
 
 @Component({
   selector: 'entry-view',
@@ -43,6 +42,7 @@ import { ProductSmallCardComponent } from '../../../components/products/product-
 export class EntryViewComponent {
   private _router = inject(Router);
   private _activatedRoute = inject(ActivatedRoute);
+  private _entryService = inject(EntriesService);
 
   public entryId = toSignal(
     this._activatedRoute.params.pipe(map((params) => params['entryId']))
@@ -69,10 +69,9 @@ export class EntryViewComponent {
     }))
   );
 
-  public entryResource = httpResource<Entry>(() =>
-    this.shouldFetchEntry() && this.entryId()
-      ? apiUrl('entries/single', { params: [this.entryId()] })
-      : undefined
+  public entryResource = this._entryService.getEntryResource(
+    this.shouldFetchEntry,
+    this.entryId
   );
 
   public constructor() {

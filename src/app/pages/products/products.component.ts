@@ -1,15 +1,13 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { TabsModule } from 'primeng/tabs';
 import { Tab } from '../../types/components.types';
-import { Product, ProductCategories } from '../../types/products.types';
+import { ProductCategories } from '../../types/products.types';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import { ProductCardComponent } from '../../components/products/product-card/product-card.component';
-import { httpResource } from '@angular/common/http';
-import { apiUrl } from '../../utils/httpUtils';
-import { injectUserData } from '../../utils/authUtils';
 import { EmptyMessageComponent } from '../../components/miscellanious/empty-message/empty-message.component';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ProgressSpinnerDesignTokens } from '@primeng/themes/types/progressspinner';
+import { ProductsService } from '../../services/products.service';
 
 @Component({
   selector: 'products',
@@ -24,7 +22,7 @@ import { ProgressSpinnerDesignTokens } from '@primeng/themes/types/progressspinn
   styleUrl: './products.component.scss'
 })
 export class ProductsComponent {
-  public user = injectUserData();
+  private _productsService = inject(ProductsService);
 
   public tabs: Tab<ProductCategories>[] = [
     { title: 'Fertilizer', value: 'fertilizer' },
@@ -37,11 +35,7 @@ export class ProductsComponent {
     { title: 'Other', value: 'other' }
   ];
 
-  public products = httpResource<Product[]>(() =>
-    this.user()
-      ? apiUrl('products', { params: [this.user()?.sub!] })
-      : undefined
-  );
+  public products = this._productsService.products;
 
   public selectedTab = signal<Uncapitalize<ProductCategories>>('fertilizer');
 

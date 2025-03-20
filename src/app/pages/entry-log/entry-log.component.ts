@@ -5,10 +5,7 @@ import {
 } from '../../components/entries/entries-calendar/entries-calendar.component';
 import { ButtonModule } from 'primeng/button';
 import { ButtonDesignTokens } from '@primeng/themes/types/button';
-import { httpResource } from '@angular/common/http';
-import { apiUrl } from '../../utils/httpUtils';
 import { injectUserData } from '../../utils/authUtils';
-import { endOfMonth, startOfMonth } from 'date-fns';
 import { Entry } from '../../types/entries.types';
 import { getEntryIcon } from '../../utils/entriesUtils';
 import { TooltipModule } from 'primeng/tooltip';
@@ -16,6 +13,7 @@ import { Router, RouterOutlet } from '@angular/router';
 import { DialogService } from 'primeng/dynamicdialog';
 import { EntryDialogComponent } from '../../components/entries/entry-dialog/entry-dialog.component';
 import { EntryDialogFooterComponent } from '../../components/entries/entry-dialog/entry-dialog-footer/entry-dialog-footer.component';
+import { EntriesService } from '../../services/entries.service';
 
 @Component({
   selector: 'entry-log',
@@ -32,20 +30,9 @@ import { EntryDialogFooterComponent } from '../../components/entries/entry-dialo
 export class EntryLogComponent {
   private _router = inject(Router);
   private _dialogService = inject(DialogService);
+  private _entriesService = inject(EntriesService);
 
   public user = injectUserData();
-
-  public entries = httpResource<Entry[]>(() =>
-    this.user()
-      ? apiUrl('entries', {
-          params: [this.user()!.sub || ''],
-          queryParams: {
-            startDate: startOfMonth(this.currentDate()),
-            endDate: endOfMonth(this.currentDate())
-          }
-        })
-      : undefined
-  );
 
   public currentDate = signal(new Date());
 
@@ -62,6 +49,11 @@ export class EntryLogComponent {
       };
     });
   });
+
+  public entries = this._entriesService.getMonthEntriesResource(
+    this.user,
+    this.currentDate
+  );
 
   public navigateToEntry(entry: Entry): void {
     this._router.navigate(['entry-log', entry.id], {

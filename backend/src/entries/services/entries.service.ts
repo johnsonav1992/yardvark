@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { EntryCreationRequest } from '../models/entries.types';
 import { Between, Repository } from 'typeorm';
-import { Entry } from '../models/entries.model';
+import { Entry, EntryProduct } from '../models/entries.model';
 import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
@@ -9,6 +9,8 @@ export class EntriesService {
   constructor(
     @InjectRepository(Entry)
     private _entriesRepo: Repository<Entry>,
+    @InjectRepository(EntryProduct)
+    private _entryProductsRepo: Repository<EntryProduct>,
   ) {}
 
   async getEntries(userId: string, startDate?: string, endDate?: string) {
@@ -98,9 +100,7 @@ export class EntriesService {
       relations: {
         lawnSegments: true,
         activities: true,
-        entryProducts: {
-          product: true,
-        },
+        entryProducts: true,
       },
     });
 

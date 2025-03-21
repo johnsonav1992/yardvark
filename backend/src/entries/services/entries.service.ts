@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { EntryCreationRequest } from '../models/entries.types';
 import { Between, Repository } from 'typeorm';
 import { Entry, EntryProduct } from '../models/entries.model';
@@ -105,7 +105,7 @@ export class EntriesService {
     });
 
     if (!entryToUpdate) {
-      throw new Error('Entry not found');
+      throw new HttpException('Entry not found', HttpStatus.NOT_FOUND);
     }
 
     entryToUpdate.lawnSegments = [];

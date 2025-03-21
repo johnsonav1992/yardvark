@@ -5,11 +5,6 @@
   (entryData()?.soilTemperatureUnit === "fahrenheit" ? "F" : "C");
 
 @let isLoading = entryResource.isLoading();
-@let hasAdditionalInfo =
-  entryData()?.activities?.length ||
-  entryData()?.lawnSegments?.length ||
-  entryData()?.products?.length ||
-  entryData()?.notes;
 
 <page-container pageTitle="Journal Entry">
   <div [formGroup]="editForm">
@@ -76,102 +71,97 @@
           }
         }
       </ng-template>
-      @if (hasAdditionalInfo) {
-        <p-divider />
-        <div class="content-container">
-          @if (isLoading) {
-            @for (num of [1, 2, 3]; track num) {
-              <p-skeleton [width]="'175px'" height="20px" />
-              <p-skeleton [width]="'90px'" />
-            }
-          } @else {
-            <div class="section-container">
-              <h3>Activities:</h3>
-              @if (isInEditMode()) {
-                <p-multiSelect
-                  [options]="allActivities.value()"
-                  [optionLabel]="'name'"
-                  formControlName="activities"
-                  [style]="{ width: '50%' }"
-                  [showClear]="true"
-                />
-              } @else {
-                @if (activities()?.length) {
-                  @for (activity of activities(); track activity.id) {
-                    <p>{{ activity.name }}</p>
-                  }
-                } @else {
-                  <p>N/A</p>
-                }
-              }
-            </div>
-            <div class="section-container">
-              <h3>Lawn segments:</h3>
-              @if (isInEditMode()) {
-                <p-multiSelect
-                  [options]="allLawnSegments.value()"
-                  [optionLabel]="'name'"
-                  formControlName="lawnSegments"
-                  [style]="{ width: '50%' }"
-                  [showClear]="true"
-                />
-              } @else {
-                @if (entryData()?.lawnSegments?.length) {
-                  @for (
-                    segment of entryData()?.lawnSegments;
-                    track segment.id
-                  ) {
-                    <p>{{ segment.name }}</p>
-                  }
-                } @else {
-                  <p>N/A</p>
-                }
-              }
-            </div>
-            <div class="section-container">
-              <h3>Notes:</h3>
-              @if (isInEditMode()) {
-                <textarea
-                  pTextarea
-                  [rows]="3"
-                  formControlName="notes"
-                  [style]="{ width: '50%' }"
-                ></textarea>
-              } @else {
-                @if (entryData()?.notes) {
-                  {{ entryData()?.notes }}
-                } @else {
-                  <p>N/A</p>
-                }
-              }
-            </div>
-            <div class="section-container">
-              <h3>Products:</h3>
-              @if (isInEditMode()) {
-                <products-selector
-                  [form]="editForm"
-                  inputWidth="50%"
-                  productCardsWidth="50%"
-                />
-              } @else {
-                @if (entryData()?.products?.length) {
-                  <div class="products-wrapper">
-                    @for (product of entryData()?.products; track product.id) {
-                      <product-small-card
-                        [product]="product"
-                        [asAppliedAmount]="true"
-                        [width]="'max-content'"
-                      />
-                    }
-                  </div>
-                } @else {
-                  <p>N/A</p>
-                }
-              }
-            </div>
+      <p-divider />
+      <div class="content-container">
+        @if (isLoading) {
+          @for (num of [1, 2, 3]; track num) {
+            <p-skeleton [width]="'175px'" height="20px" />
+            <p-skeleton [width]="'90px'" />
           }
-        </div>
-      }
+        } @else {
+          <div class="section-container">
+            <h3>Activities:</h3>
+            @if (isInEditMode()) {
+              <p-multiSelect
+                [options]="allActivities.value()"
+                [optionLabel]="'name'"
+                formControlName="activities"
+                [style]="{ width: '50%' }"
+                [showClear]="true"
+              />
+            } @else {
+              @if (activities()?.length) {
+                @for (activity of activities(); track activity.id) {
+                  <p>{{ activity.name }}</p>
+                }
+              } @else {
+                <p>N/A</p>
+              }
+            }
+          </div>
+          <div class="section-container">
+            <h3>Lawn segments:</h3>
+            @if (isInEditMode()) {
+              <p-multiSelect
+                [options]="allLawnSegments.value()"
+                [optionLabel]="'name'"
+                formControlName="lawnSegments"
+                [style]="{ width: '50%' }"
+                [showClear]="true"
+              />
+            } @else {
+              @if (entryData()?.lawnSegments?.length) {
+                @for (segment of entryData()?.lawnSegments; track segment.id) {
+                  <p>{{ segment.name }}</p>
+                }
+              } @else {
+                <p>N/A</p>
+              }
+            }
+          </div>
+          <div class="section-container">
+            <h3>Notes:</h3>
+            @if (isInEditMode()) {
+              <textarea
+                pTextarea
+                [rows]="3"
+                formControlName="notes"
+                [style]="{ width: '50%' }"
+              ></textarea>
+            } @else {
+              @if (entryData()?.notes) {
+                {{ entryData()?.notes }}
+              } @else {
+                <p>N/A</p>
+              }
+            }
+          </div>
+          <div class="section-container">
+            <h3>Products:</h3>
+            @if (isInEditMode()) {
+              <products-selector
+                [form]="editForm"
+                inputWidth="50%"
+                productCardsWidth="50%"
+              />
+            } @else {
+              @if (entryData()?.products?.length) {
+                <div class="products-wrapper">
+                  @for (product of entryData()?.products; track product.id) {
+                    <product-small-card
+                      [product]="product"
+                      [asAppliedAmount]="true"
+                      [width]="'max-content'"
+                    />
+                  }
+                </div>
+              } @else {
+                <p>N/A</p>
+              }
+            }
+          </div>
+        }
+      </div>
       <ng-template #footer> </ng-template>
     </p-card>
   </div>

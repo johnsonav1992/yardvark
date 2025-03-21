@@ -8,6 +8,9 @@ import { EmptyMessageComponent } from '../../components/miscellanious/empty-mess
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { ProgressSpinnerDesignTokens } from '@primeng/themes/types/progressspinner';
 import { ProductsService } from '../../services/products.service';
+import { ButtonModule } from 'primeng/button';
+import { ButtonDesignTokens } from '@primeng/themes/types/button';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'products',
@@ -16,7 +19,9 @@ import { ProductsService } from '../../services/products.service';
     PageContainerComponent,
     ProductCardComponent,
     EmptyMessageComponent,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    ButtonModule,
+    TooltipModule
   ],
   templateUrl: './products.component.html',
   styleUrl: './products.component.scss'
@@ -57,6 +62,15 @@ export class ProductsComponent {
       'color.2': '{primary.500}',
       'color.3': '{primary.500}',
       'color.4': '{primary.500}'
+    }
+  };
+
+  public addButtonDt: ButtonDesignTokens = {
+    root: {
+      iconOnlyWidth: '5rem',
+      lg: {
+        fontSize: '36px'
+      }
     }
   };
 }

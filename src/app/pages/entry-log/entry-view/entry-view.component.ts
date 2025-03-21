@@ -172,7 +172,10 @@ export class EntryViewComponent {
       notes: this.editForm.value.notes || ''
     };
 
-    putReq(apiUrl('entries', { params: [98987] }), updatedEntry).subscribe({
+    putReq(
+      apiUrl('entries', { params: [this.entryId()] }),
+      updatedEntry
+    ).subscribe({
       next: () => {
         this.isInEditMode.set(false);
         this.entryResource.reload();

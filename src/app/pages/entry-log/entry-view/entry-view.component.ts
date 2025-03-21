@@ -7,11 +7,15 @@ import {
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Entry, EntryProduct } from '../../../types/entries.types';
+import {
+  Entry,
+  EntryCreationRequest,
+  EntryProduct
+} from '../../../types/entries.types';
 import { PageContainerComponent } from '../../../components/layout/page-container/page-container.component';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
-import { apiUrl, deleteReq } from '../../../utils/httpUtils';
+import { apiUrl, deleteReq, putReq } from '../../../utils/httpUtils';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { CardDesignTokens } from '@primeng/themes/types/card';
@@ -43,6 +47,7 @@ import { LawnSegmentsService } from '../../../services/lawn-segments.service';
 import { ProductsSelectorComponent } from '../../../components/products/products-selector/products-selector.component';
 import { Product } from '../../../types/products.types';
 import { TextareaModule } from 'primeng/textarea';
+import { injectErrorToast } from '../../../utils/toastUtils';
 
 @Component({
   selector: 'entry-view',
@@ -70,6 +75,7 @@ export class EntryViewComponent {
   private _entryService = inject(EntriesService);
   private _activitiesService = inject(ActivitiesService);
   private _lawnSegmentsService = inject(LawnSegmentsService);
+  private _throwErrorToast = injectErrorToast();
 
   public editForm = new FormGroup({
     title: new FormControl<string>('', [Validators.required]),
@@ -149,6 +155,32 @@ export class EntryViewComponent {
 
       this.editForm.updateValueAndValidity();
     }
+  }
+
+  public submitEdits() {
+    const updatedEntry: Partial<EntryCreationRequest> = {
+      title: this.editForm.value.title!,
+      activityIds: this.editForm.value.activities?.map(({ id }) => id)!,
+      lawnSegmentIds: this.editForm.value.lawnSegments?.map(({ id }) => id)!,
+      products:
+        this.editForm?.value.products?.map((row) => ({
+          productId: row.product?.id!,
+          productQuantity: row.quantity!,
+          productQuantityUnit: row.quantityUnit!
+        })) || [],
+      notes: this.editForm.value.notes!
+    };
+
+    putReq(
+      apiUrl('entries', { params: [this.entryId()] }),
+      updatedEntry
+    ).subscribe({
+      next: () => {
+        this.isInEditMode.set(false);
+        this.entryResource.reload();
+      },
+      error: () => this._throwErrorToast('Failed to update entry')
+    });
   }
 
   public soilTempChipDt: ChipDesignTokens = {

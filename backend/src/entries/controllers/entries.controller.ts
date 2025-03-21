@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Query,
 } from '@nestjs/common';
 import { EntriesService } from '../services/entries.service';
@@ -31,6 +32,14 @@ export class EntriesController {
   @Post()
   createEntry(@Body() entry: EntryCreationRequest) {
     return this._entriesService.createEntry(entry);
+  }
+
+  @Put(':entryId')
+  updateEntry(
+    @Param('entryId') entryId: number,
+    @Body() entry: Partial<EntryCreationRequest>,
+  ) {
+    return this._entriesService.updateEntry(entryId, entry);
   }
 
   @Delete(':entryId')

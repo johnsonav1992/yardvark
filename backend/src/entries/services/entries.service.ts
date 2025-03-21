@@ -92,6 +92,31 @@ export class EntriesService {
     return newEntry;
   }
 
+  async updateEntry(entryId: number, entry: Partial<EntryCreationRequest>) {
+    const entryToUpdate = await this._entriesRepo.findOne({
+      where: { id: entryId },
+    });
+
+    if (!entryToUpdate) {
+      throw new Error('Entry not found');
+    }
+
+    const updatedEntry = this._entriesRepo.merge(entryToUpdate, {
+      ...entry,
+      activities: entry.activityIds?.map((id) => ({ id })),
+      lawnSegments: entry.lawnSegmentIds?.map((id) => ({ id })),
+      entryProducts: entry.products?.map((product) => ({
+        product: { id: product.productId },
+        productQuantity: product.productQuantity,
+        productQuantityUnit: product.productQuantityUnit,
+      })),
+    });
+
+    await this._entriesRepo.save(updatedEntry);
+
+    return updatedEntry;
+  }
+
   async softDeleteEntry(entryId: number) {
     await this._entriesRepo.softDelete(entryId);
   }

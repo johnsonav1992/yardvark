@@ -38,7 +38,7 @@
                 [label]="isInEditMode() ? 'Save' : 'Edit'"
                 [icon]="isInEditMode() ? 'ti ti-check' : 'ti ti-pencil'"
                 outlined
-                (click)="toggleEditMode()"
+                (click)="isInEditMode() ? submitEdits() : toggleEditMode()"
                 [severity]="isInEditMode() ? 'success' : 'secondary'"
               />
               <p-button

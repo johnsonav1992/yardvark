@@ -58,6 +58,7 @@ export class EntryDialogComponent implements OnInit {
     activities: new FormControl<Activity[]>([]),
     lawnSegments: new FormControl<LawnSegment[]>([]),
     products: new FormArray<ReturnType<typeof createEntryProductRow>>([]),
+    productsSelected: new FormControl<Product[]>([]), // Noop for this view to make Angular forms + primeng happy
     notes: new FormControl<string | null>(null)
   });
 

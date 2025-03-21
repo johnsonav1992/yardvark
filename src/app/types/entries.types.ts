@@ -11,16 +11,18 @@ export type Entry = {
   soilTemperatureUnit: string;
   activities: Activity[];
   lawnSegments: LawnSegment[];
-  products: Array<{
-    productId: number;
-    name: string;
-    brand: string;
-    imageUrl: string;
-    quantity: number;
-    quantityUnit: string;
-    guaranteedAnalysis: string;
-    containerType: string;
-  }>;
+  products: EntryProduct[];
+};
+
+export type EntryProduct = {
+  id: number;
+  name: string;
+  brand: string;
+  imageUrl: string;
+  quantity: number;
+  quantityUnit: string;
+  guaranteedAnalysis: string;
+  containerType: string;
 };
 
 export type EntryCreationRequest = {

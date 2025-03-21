@@ -5,6 +5,7 @@
   <p-multiSelect
     #productSelect
     [options]="products.value()"
+    dataKey="name"
     optionLabel="name"
     [placeholder]="products.isLoading() ? 'Loading...' : 'Select Products'"
     [loading]="products.isLoading()"
@@ -13,7 +14,7 @@
     (onChange)="addProductToForm($event); productSelect.hide()"
     (onClear)="productsControl().clear()"
     [style]="{ width: inputWidth() }"
-    formArrayName="products"
+    [formControlName]="'productsSelected'"
   >
     <ng-template let-product #item>
       <product-small-card [product]="product" [showBorder]="false" />

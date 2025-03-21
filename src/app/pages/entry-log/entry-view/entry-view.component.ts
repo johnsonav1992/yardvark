@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Entry } from '../../../types/entries.types';
+import { Entry, EntryProduct } from '../../../types/entries.types';
 import { PageContainerComponent } from '../../../components/layout/page-container/page-container.component';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
@@ -38,6 +38,7 @@ import { createEntryProductRow } from '../../../utils/entriesUtils';
 import { InputTextModule } from 'primeng/inputtext';
 import { LawnSegmentsService } from '../../../services/lawn-segments.service';
 import { ProductsSelectorComponent } from '../../../components/products/products-selector/products-selector.component';
+import { Product } from '../../../types/products.types';
 
 @Component({
   selector: 'entry-view',
@@ -70,6 +71,7 @@ export class EntryViewComponent {
     activities: new FormControl<Activity[]>([]),
     lawnSegments: new FormControl<LawnSegment[]>([]),
     products: new FormArray<ReturnType<typeof createEntryProductRow>>([]),
+    productsSelected: new FormControl<EntryProduct[]>([]),
     notes: new FormControl<string | null>(null)
   });
 
@@ -126,25 +128,19 @@ export class EntryViewComponent {
     this.isInEditMode.update((prevMode) => !prevMode);
 
     if (this.isInEditMode()) {
-      console.log('in if');
-      console.log(this.entryData());
       this.editForm.patchValue({
         title: this.entryData()?.title,
         activities: this.entryData()?.activities,
         lawnSegments: this.entryData()?.lawnSegments,
+        productsSelected: this.entryData()?.products,
         notes: this.entryData()?.notes
       });
 
       this.entryData()?.products.forEach((prod) => {
-        console.log(prod);
-        this.editForm.controls.products.push(
-          createEntryProductRow(prod as never)
-        );
+        this.editForm.controls.products.push(createEntryProductRow(prod));
       });
 
       this.editForm.updateValueAndValidity();
-
-      console.log(this.editForm.value);
     }
   }
 

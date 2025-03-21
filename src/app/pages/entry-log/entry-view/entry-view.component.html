@@ -135,10 +135,7 @@
                   <products-selector [form]="editForm" inputWidth="50%" />
                 } @else {
                   <div class="products-wrapper">
-                    @for (
-                      product of entryData()?.products;
-                      track product.productId
-                    ) {
+                    @for (product of entryData()?.products; track product.id) {
                       <product-small-card
                         [product]="product"
                         [asAppliedAmount]="true"

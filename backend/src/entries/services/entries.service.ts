@@ -35,7 +35,7 @@ export class EntriesService {
       return {
         ...rest,
         products: entryProducts.map((entryProduct) => ({
-          productId: entryProduct.product.id,
+          id: entryProduct.product.id,
           name: entryProduct.product.name,
           brand: entryProduct.product.brand,
           imageUrl: entryProduct.product.imageUrl,
@@ -63,7 +63,7 @@ export class EntriesService {
     return {
       ...entry,
       products: entry?.entryProducts.map((entryProduct) => ({
-        productId: entryProduct.product.id,
+        id: entryProduct.product.id,
         name: entryProduct.product.name,
         brand: entryProduct.product.brand,
         imageUrl: entryProduct.product.imageUrl,

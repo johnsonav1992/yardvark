@@ -28,6 +28,7 @@ export class ProductsSelectorComponent {
 
   public form = input.required<FormGroup>();
   public inputWidth = input<string | number>('100%');
+  public products = this._productsService.products;
 
   public productsControl = computed(
     () =>
@@ -35,8 +36,6 @@ export class ProductsSelectorComponent {
         ReturnType<typeof createEntryProductRow>
       >
   );
-
-  public products = this._productsService.products;
 
   public addProductToForm(e: MultiSelectChangeEvent): void {
     const product = e.itemValue as Product | undefined;

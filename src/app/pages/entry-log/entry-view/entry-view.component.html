@@ -21,15 +21,15 @@
             <p-skeleton [width]="'50px'" [height]="'40px'" />
           } @else {
             {{ date }}
-            @if (entryData()?.title) {
-              @if (isInEditMode()) {
-                <input
-                  pInputText
-                  formControlName="title"
-                  placeholder="Enter title"
-                  [style]="{ width: '50%' }"
-                />
-              } @else {
+            @if (isInEditMode()) {
+              <input
+                pInputText
+                formControlName="title"
+                placeholder="Enter title"
+                [style]="{ width: '50%' }"
+              />
+            } @else {
+              @if (entryData()?.title) {
                 <h3>{{ entryData()?.title }}</h3>
               }
             }
@@ -42,10 +42,10 @@
                 [severity]="isInEditMode() ? 'success' : 'secondary'"
               />
               <p-button
-                label="Delete"
-                icon="ti ti-trash"
+                [label]="isInEditMode() ? 'Cancel' : 'Delete'"
+                [icon]="isInEditMode() ? 'ti ti-x' : 'ti ti-trash-x'"
                 outlined
-                (click)="deleteEntry()"
+                (click)="isInEditMode() ? toggleEditMode() : deleteEntry()"
                 severity="danger"
               />
             </div>
@@ -85,66 +85,88 @@
               <p-skeleton [width]="'90px'" />
             }
           } @else {
-            @if (activities()?.length) {
-              <div class="section-container">
-                <h3>Activities:</h3>
-                @if (isInEditMode()) {
-                  <p-multiSelect
-                    [options]="allActivities.value()"
-                    [optionLabel]="'name'"
-                    formControlName="activities"
-                    [style]="{ width: '50%' }"
-                  />
-                } @else {
+            <div class="section-container">
+              <h3>Activities:</h3>
+              @if (isInEditMode()) {
+                <p-multiSelect
+                  [options]="allActivities.value()"
+                  [optionLabel]="'name'"
+                  formControlName="activities"
+                  [style]="{ width: '50%' }"
+                />
+              } @else {
+                @if (activities()?.length) {
                   @for (activity of activities(); track activity.id) {
                     <p>{{ activity.name }}</p>
                   }
-                }
-              </div>
-            }
-            @if (entryData()?.lawnSegments?.length) {
-              <div class="section-container">
-                <h3>Lawn segments:</h3>
-                @if (isInEditMode()) {
-                  <p-multiSelect
-                    [options]="allLawnSegments.value()"
-                    [optionLabel]="'name'"
-                    formControlName="lawnSegments"
-                    [style]="{ width: '50%' }"
-                  />
                 } @else {
+                  <p>N/A</p>
+                }
+              }
+            </div>
+            <div class="section-container">
+              <h3>Lawn segments:</h3>
+              @if (isInEditMode()) {
+                <p-multiSelect
+                  [options]="allLawnSegments.value()"
+                  [optionLabel]="'name'"
+                  formControlName="lawnSegments"
+                  [style]="{ width: '50%' }"
+                />
+              } @else {
+                @if (entryData()?.lawnSegments?.length) {
                   @for (
                     segment of entryData()?.lawnSegments;
                     track segment.id
                   ) {
                     <p>{{ segment.name }}</p>
                   }
-                }
-              </div>
-            }
-            @if (entryData()?.notes) {
-              <div class="section-container">
-                <h3>Notes:</h3>
-                {{ entryData()?.notes }}
-              </div>
-            }
-            @if (entryData()?.products?.length) {
-              <div class="section-container">
-                <h3>Products:</h3>
-                @if (isInEditMode()) {
-                  <products-selector [form]="editForm" inputWidth="50%" />
                 } @else {
+                  <p>N/A</p>
+                }
+              }
+            </div>
+            <div class="section-container">
+              <h3>Notes:</h3>
+              @if (isInEditMode()) {
+                <textarea
+                  pTextarea
+                  [rows]="3"
+                  formControlName="notes"
+                  [style]="{ width: '50%' }"
+                ></textarea>
+              } @else {
+                @if (entryData()?.notes) {
+                  {{ entryData()?.notes }}
+                } @else {
+                  <p>N/A</p>
+                }
+              }
+            </div>
+            <div class="section-container">
+              <h3>Products:</h3>
+              @if (isInEditMode()) {
+                <products-selector
+                  [form]="editForm"
+                  inputWidth="50%"
+                  productCardsWidth="50%"
+                />
+              } @else {
+                @if (entryData()?.products?.length) {
                   <div class="products-wrapper">
                     @for (product of entryData()?.products; track product.id) {
                       <product-small-card
                         [product]="product"
                         [asAppliedAmount]="true"
+                        [width]="'max-content'"
                       />
                     }
                   </div>
+                } @else {
+                  <p>N/A</p>
                 }
-              </div>
-            }
+              }
+            </div>
           }
         </div>
       }

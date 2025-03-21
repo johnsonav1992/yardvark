@@ -42,6 +42,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { LawnSegmentsService } from '../../../services/lawn-segments.service';
 import { ProductsSelectorComponent } from '../../../components/products/products-selector/products-selector.component';
 import { Product } from '../../../types/products.types';
+import { TextareaModule } from 'primeng/textarea';
 
 @Component({
   selector: 'entry-view',
@@ -57,7 +58,8 @@ import { Product } from '../../../types/products.types';
     MultiSelectModule,
     InputTextModule,
     ProductsSelectorComponent,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    TextareaModule
   ],
   templateUrl: './entry-view.component.html',
   styleUrl: './entry-view.component.scss'
@@ -139,9 +141,11 @@ export class EntryViewComponent {
         notes: this.entryData()?.notes
       });
 
-      this.entryData()?.products.forEach((prod) => {
-        this.editForm.controls.products.push(createEntryProductRow(prod));
-      });
+      if (!this.editForm.controls.products.length) {
+        this.entryData()?.products.forEach((prod) => {
+          this.editForm.controls.products.push(createEntryProductRow(prod));
+        });
+      }
 
       this.editForm.updateValueAndValidity();
     }

@@ -31,6 +31,7 @@ export class ProductsSelectorComponent {
 
   public form = input.required<FormGroup>();
   public inputWidth = input<string | number>('100%');
+  public productCardsWidth = input<string | number>('100%');
   public products = this._productsService.products;
 
   public productsControl = computed(

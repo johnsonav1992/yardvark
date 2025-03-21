@@ -21,15 +21,15 @@ export class ProductSmallCardComponent implements OnInit {
   private _el = inject(ElementRef);
 
   public product = input.required<Partial<Product>>();
-  public fullWidth = input<boolean>(false);
+  public width = input<string | number>('100%');
   public showBorder = input<boolean>(true);
   public asAppliedAmount = input<boolean>(false);
 
   public actions = contentChild<TemplateRef<unknown>>('actions');
 
   public ngOnInit(): void {
-    if (this.fullWidth()) {
-      this._el.nativeElement.style.width = '100%';
+    if (this.width()) {
+      this._el.nativeElement.style.width = this.width();
     }
   }
 }

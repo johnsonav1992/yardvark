@@ -27,3 +27,5 @@ export const createEntryProductRow = (product?: Product | EntryProduct) => {
     )
   });
 };
+
+export type EntryProductRow = ReturnType<typeof createEntryProductRow>;

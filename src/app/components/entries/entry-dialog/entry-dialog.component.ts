@@ -20,7 +20,10 @@ import { ProductsService } from '../../../services/products.service';
 import { Product } from '../../../types/products.types';
 import { SelectModule } from 'primeng/select';
 import { QUANTITY_UNITS } from '../../../constants/product-constants';
-import { createEntryProductRow } from '../../../utils/entriesUtils';
+import {
+  createEntryProductRow,
+  EntryProductRow
+} from '../../../utils/entriesUtils';
 import { ProductsSelectorComponent } from '../../products/products-selector/products-selector.component';
 
 @Component({
@@ -57,7 +60,7 @@ export class EntryDialogComponent implements OnInit {
     date: new FormControl(new Date(), [Validators.required]),
     activities: new FormControl<Activity[]>([]),
     lawnSegments: new FormControl<LawnSegment[]>([]),
-    products: new FormArray<ReturnType<typeof createEntryProductRow>>([]),
+    products: new FormArray<EntryProductRow>([]),
     productsSelected: new FormControl<Product[]>([]), // Noop for this view to make Angular forms + primeng happy
     notes: new FormControl<string | null>(null)
   });

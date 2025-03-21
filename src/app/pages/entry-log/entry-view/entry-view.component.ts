@@ -34,7 +34,10 @@ import {
 } from '@angular/forms';
 import { Activity } from '../../../types/activities.types';
 import { LawnSegment } from '../../../types/lawnSegments.types';
-import { createEntryProductRow } from '../../../utils/entriesUtils';
+import {
+  createEntryProductRow,
+  EntryProductRow
+} from '../../../utils/entriesUtils';
 import { InputTextModule } from 'primeng/inputtext';
 import { LawnSegmentsService } from '../../../services/lawn-segments.service';
 import { ProductsSelectorComponent } from '../../../components/products/products-selector/products-selector.component';
@@ -70,7 +73,7 @@ export class EntryViewComponent {
     title: new FormControl<string>('', [Validators.required]),
     activities: new FormControl<Activity[]>([]),
     lawnSegments: new FormControl<LawnSegment[]>([]),
-    products: new FormArray<ReturnType<typeof createEntryProductRow>>([]),
+    products: new FormArray<EntryProductRow>([]),
     productsSelected: new FormControl<EntryProduct[]>([]),
     notes: new FormControl<string | null>(null)
   });

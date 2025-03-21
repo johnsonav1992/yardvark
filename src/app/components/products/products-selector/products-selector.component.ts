@@ -7,7 +7,10 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { QUANTITY_UNITS } from '../../../constants/product-constants';
 import { Product } from '../../../types/products.types';
-import { createEntryProductRow } from '../../../utils/entriesUtils';
+import {
+  createEntryProductRow,
+  EntryProductRow
+} from '../../../utils/entriesUtils';
 
 @Component({
   selector: 'products-selector',
@@ -31,10 +34,7 @@ export class ProductsSelectorComponent {
   public products = this._productsService.products;
 
   public productsControl = computed(
-    () =>
-      this.form().get('products') as FormArray<
-        ReturnType<typeof createEntryProductRow>
-      >
+    () => this.form().get('products') as FormArray<EntryProductRow>
   );
 
   public addProductToForm(e: MultiSelectChangeEvent): void {

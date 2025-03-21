@@ -108,10 +108,20 @@ export class EntriesService {
       throw new Error('Entry not found');
     }
 
+    entryToUpdate.lawnSegments = [];
+    entryToUpdate.activities = [];
+
+    if (entryToUpdate.entryProducts?.length) {
+      await this._entryProductsRepo.remove(entryToUpdate.entryProducts);
+
+      entryToUpdate.entryProducts = [];
+    }
+
     const updatedEntry = this._entriesRepo.merge(entryToUpdate, {
       ...entry,
-      activities: entry.activityIds?.map((id) => ({ id })),
-      lawnSegments: entry.lawnSegmentIds?.map((id) => ({ id })),
+      // Set new relationships (or empty arrays if not provided)
+      activities: entry.activityIds?.map((id) => ({ id })) || [],
+      lawnSegments: entry.lawnSegmentIds?.map((id) => ({ id })) || [],
       entryProducts:
         entry.products?.map((product) => ({
           product: { id: product.productId },

@@ -77,12 +77,14 @@ export class EntryProduct {
 
   @ManyToOne(() => Entry, (entry) => entry, {
     onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'entry_id' })
   entry: Entry;
 
   @ManyToOne(() => Product, (product) => product, {
     onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
   })
   @JoinColumn({ name: 'product_id' })
   product: Product;

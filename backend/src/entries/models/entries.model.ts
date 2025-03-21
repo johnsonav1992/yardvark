@@ -59,7 +59,7 @@ export class Entry {
   lawnSegments: LawnSegment[];
 
   @OneToMany(() => EntryProduct, (entryProduct) => entryProduct.entry, {
-    cascade: ['insert'],
+    cascade: true,
   })
   entryProducts: EntryProduct[];
 

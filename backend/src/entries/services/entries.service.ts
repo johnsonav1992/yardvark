@@ -95,6 +95,13 @@ export class EntriesService {
   async updateEntry(entryId: number, entry: Partial<EntryCreationRequest>) {
     const entryToUpdate = await this._entriesRepo.findOne({
       where: { id: entryId },
+      relations: {
+        lawnSegments: true,
+        activities: true,
+        entryProducts: {
+          product: true,
+        },
+      },
     });
 
     if (!entryToUpdate) {
@@ -105,11 +112,12 @@ export class EntriesService {
       ...entry,
       activities: entry.activityIds?.map((id) => ({ id })),
       lawnSegments: entry.lawnSegmentIds?.map((id) => ({ id })),
-      entryProducts: entry.products?.map((product) => ({
-        product: { id: product.productId },
-        productQuantity: product.productQuantity,
-        productQuantityUnit: product.productQuantityUnit,
-      })),
+      entryProducts:
+        entry.products?.map((product) => ({
+          product: { id: product.productId },
+          productQuantity: product.productQuantity,
+          productQuantityUnit: product.productQuantityUnit,
+        })) || [],
     });
 
     await this._entriesRepo.save(updatedEntry);

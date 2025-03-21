@@ -93,6 +93,7 @@
                   [optionLabel]="'name'"
                   formControlName="activities"
                   [style]="{ width: '50%' }"
+                  [showClear]="true"
                 />
               } @else {
                 @if (activities()?.length) {
@@ -112,6 +113,7 @@
                   [optionLabel]="'name'"
                   formControlName="lawnSegments"
                   [style]="{ width: '50%' }"
+                  [showClear]="true"
                 />
               } @else {
                 @if (entryData()?.lawnSegments?.length) {

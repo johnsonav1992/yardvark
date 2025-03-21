@@ -159,16 +159,17 @@ export class EntryViewComponent {
 
   public submitEdits() {
     const updatedEntry: Partial<EntryCreationRequest> = {
-      title: this.editForm.value.title!,
-      activityIds: this.editForm.value.activities?.map(({ id }) => id)!,
-      lawnSegmentIds: this.editForm.value.lawnSegments?.map(({ id }) => id)!,
+      title: this.editForm.value.title || '',
+      activityIds: this.editForm.value.activities?.map(({ id }) => id) || [],
+      lawnSegmentIds:
+        this.editForm.value.lawnSegments?.map(({ id }) => id) || [],
       products:
         this.editForm?.value.products?.map((row) => ({
           productId: row.product?.id!,
           productQuantity: row.quantity!,
           productQuantityUnit: row.quantityUnit!
         })) || [],
-      notes: this.editForm.value.notes!
+      notes: this.editForm.value.notes || ''
     };
 
     putReq(

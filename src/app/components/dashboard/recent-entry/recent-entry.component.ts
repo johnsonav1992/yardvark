@@ -4,18 +4,31 @@ import { ProductSmallCardComponent } from '../../products/product-small-card/pro
 import { injectUserData } from '../../../utils/authUtils';
 import { EntriesService } from '../../../services/entries.service';
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
+import { ButtonModule } from 'primeng/button';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'recent-entry',
-  imports: [CardModule, ProductSmallCardComponent, DatePipe, NgTemplateOutlet],
+  imports: [
+    CardModule,
+    ProductSmallCardComponent,
+    DatePipe,
+    NgTemplateOutlet,
+    ButtonModule
+  ],
   templateUrl: './recent-entry.component.html',
   styleUrl: './recent-entry.component.scss'
 })
 export class RecentEntryComponent {
+  private _router = inject(Router);
   private _entriesService = inject(EntriesService);
 
   public user = injectUserData();
   public recentEntry = this._entriesService.getMostRecentEntryResource(
     this.user
   );
+
+  public goToEntry() {
+    this._router.navigate(['entry-log', this.recentEntry.value()?.id]);
+  }
 }

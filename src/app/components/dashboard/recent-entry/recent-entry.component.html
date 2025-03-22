@@ -1,5 +1,16 @@
 <p-card [style]="{ width: 'max-content', maxWidth: '400px' }">
-  <ng-template #title>Last Journal Entry</ng-template>
+  <ng-template #title>
+    <div style="display: flex; justify-content: space-between">
+      Last Journal Entry
+      <p-button
+        icon="ti ti-external-link"
+        size="small"
+        outlined
+        severity="secondary"
+        (click)="goToEntry()"
+      />
+    </div>
+  </ng-template>
   <ng-template #subtitle>
     {{ recentEntry.value()?.date | date: "M/dd/yyyy" }}
   </ng-template>
@@ -44,7 +55,7 @@
       }
     </div>
   } @else {
-    <ng-content *ngTemplateOutlet="noData"></ng-content>>
+    <ng-content *ngTemplateOutlet="noData"></ng-content>
   }
   <ng-template #noData>
     <p>No recent entries found.</p>

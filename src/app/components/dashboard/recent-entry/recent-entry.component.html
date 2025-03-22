@@ -1,38 +1,52 @@
-<p-card [style]="{ width: 'max-content' }">
+<p-card [style]="{ width: 'max-content', maxWidth: '400px' }">
   <ng-template #title>Last Journal Entry</ng-template>
-  <ng-template #subtitle>03/22/2025</ng-template>
+  <ng-template #subtitle>
+    {{ recentEntry.value()?.date | date: "M/dd/yyyy" }}
+  </ng-template>
 
-  <div class="content-container">
-    <div class="section-container">
-      <h3>Activities:</h3>
-      <p>Mowing</p>
-      <p>Watering</p>
+  @if (recentEntry.value(); as entry) {
+    <div class="content-container">
+      @if (entry.activities.length) {
+        <div class="section-container">
+          <h3>Activities:</h3>
+          @for (activity of entry.activities; track activity) {
+            <p>{{ activity.name }}</p>
+          }
+        </div>
+      }
+      @if (entry.lawnSegments.length) {
+        <div class="section-container">
+          <h3>Lawn segments:</h3>
+          @for (segment of entry.lawnSegments; track segment) {
+            <p>{{ segment.name }}</p>
+          }
+        </div>
+      }
+      @if (entry.notes) {
+        <div class="section-container">
+          <h3>Notes:</h3>
+          <p>{{ entry.notes }}</p>
+        </div>
+      }
+      @if (entry.products.length) {
+        <div class="section-container">
+          <h3>Products:</h3>
+          <div class="products-wrapper">
+            @for (product of entry.products; track product) {
+              <product-small-card
+                [product]="product"
+                [asAppliedAmount]="true"
+                [width]="'max-content'"
+              ></product-small-card>
+            }
+          </div>
+        </div>
+      }
     </div>
-    <div class="section-container">
-      <h3>Lawn segments:</h3>
-      <p>Front Yard</p>
-      <p>Back Yard</p>
-    </div>
-    <div class="section-container">
-      <h3>Notes:</h3>
-      <p>Applied fertilizer in the morning.</p>
-    </div>
-    <div class="section-container">
-      <h3>Products:</h3>
-      <div class="products-wrapper">
-        <product-small-card
-          [product]="{ name: 'Fertilizer' }"
-          [asAppliedAmount]="true"
-          [width]="'max-content'"
-        ></product-small-card>
-        <product-small-card
-          [product]="{ name: 'Weed Killer' }"
-          [asAppliedAmount]="true"
-          [width]="'max-content'"
-        ></product-small-card>
-      </div>
-    </div>
-  </div>
-
-  <ng-template #footer></ng-template>
+  } @else {
+    <ng-content *ngTemplateOutlet="noData"></ng-content>>
+  }
+  <ng-template #noData>
+    <p>No recent entries found.</p>
+  </ng-template>
 </p-card>

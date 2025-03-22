@@ -4,6 +4,7 @@ import { Entry } from '../types/entries.types';
 import { apiUrl } from '../utils/httpUtils';
 import { User } from '@auth0/auth0-angular';
 import { endOfMonth, startOfMonth } from 'date-fns';
+import { formatDate } from '@angular/common';
 
 @Injectable({
   providedIn: 'root'
@@ -16,6 +17,25 @@ export class EntriesService {
     httpResource<Entry>(() =>
       shouldFetchEntry() && entryId()
         ? apiUrl('entries/single', { params: [entryId()] })
+        : undefined
+    );
+
+  public getEntryByDateResource = (
+    user: Signal<User | null | undefined>,
+    date: Signal<Date | null>
+  ) =>
+    httpResource<Entry>(() =>
+      user()?.sub && date()
+        ? apiUrl('entries/single/by-date', {
+            params: [user()!.sub!, formatDate(date()!, 'MM-dd-yyyy', 'en-US')]
+          })
+        : undefined
+    );
+
+  public getMostRecentEntryResource = (user: Signal<User | null | undefined>) =>
+    httpResource<Entry>(() =>
+      user()?.sub
+        ? apiUrl('entries/single/most-recent', { params: [user()!.sub!] })
         : undefined
     );
 

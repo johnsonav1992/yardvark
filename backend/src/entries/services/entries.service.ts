@@ -3,6 +3,7 @@ import { EntryCreationRequest } from '../models/entries.types';
 import { Between, Repository } from 'typeorm';
 import { Entry, EntryProduct } from '../models/entries.model';
 import { InjectRepository } from '@nestjs/typeorm';
+import { getEntryProductMapping } from '../utils/entryUtils';
 
 @Injectable()
 export class EntriesService {
@@ -36,16 +37,7 @@ export class EntriesService {
 
       return {
         ...rest,
-        products: entryProducts.map((entryProduct) => ({
-          id: entryProduct.product.id,
-          name: entryProduct.product.name,
-          brand: entryProduct.product.brand,
-          imageUrl: entryProduct.product.imageUrl,
-          quantity: entryProduct.productQuantity,
-          quantityUnit: entryProduct.productQuantityUnit,
-          guaranteedAnalysis: entryProduct.product.guaranteedAnalysis,
-          containerType: entryProduct.product.containerType,
-        })),
+        products: getEntryProductMapping(entryProducts),
       };
     });
   }
@@ -64,16 +56,7 @@ export class EntriesService {
 
     return {
       ...entry,
-      products: entry?.entryProducts.map((entryProduct) => ({
-        id: entryProduct.product.id,
-        name: entryProduct.product.name,
-        brand: entryProduct.product.brand,
-        imageUrl: entryProduct.product.imageUrl,
-        quantity: entryProduct.productQuantity,
-        quantityUnit: entryProduct.productQuantityUnit,
-        guaranteedAnalysis: entryProduct.product.guaranteedAnalysis,
-        containerType: entryProduct.product.containerType,
-      })),
+      products: getEntryProductMapping(entry?.entryProducts || []),
     };
   }
 
@@ -91,16 +74,37 @@ export class EntriesService {
 
     return {
       ...entry,
-      products: entry?.entryProducts.map((entryProduct) => ({
-        id: entryProduct.product.id,
-        name: entryProduct.product.name,
-        brand: entryProduct.product.brand,
-        imageUrl: entryProduct.product.imageUrl,
-        quantity: entryProduct.productQuantity,
-        quantityUnit: entryProduct.productQuantityUnit,
-        guaranteedAnalysis: entryProduct.product.guaranteedAnalysis,
-        containerType: entryProduct.product.containerType,
-      })),
+      products: getEntryProductMapping(entry?.entryProducts || []),
+    };
+  }
+
+  async getMostRecentEntry(userId: string) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const endOfToday = new Date();
+    endOfToday.setHours(23, 59, 59, 999);
+
+    const entry = await this._entriesRepo.findOne({
+      where: {
+        userId,
+        date: Between(new Date(0), endOfToday),
+      },
+      order: { date: 'DESC' },
+      relations: {
+        activities: true,
+        lawnSegments: true,
+        entryProducts: { product: true },
+      },
+    });
+
+    if (!entry) return null;
+
+    const { entryProducts, ...rest } = entry;
+
+    return {
+      ...rest,
+      products: getEntryProductMapping(entryProducts),
     };
   }
 

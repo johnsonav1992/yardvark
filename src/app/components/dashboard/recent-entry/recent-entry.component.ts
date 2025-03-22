@@ -1,11 +1,21 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { ProductSmallCardComponent } from '../../products/product-small-card/product-small-card.component';
+import { injectUserData } from '../../../utils/authUtils';
+import { EntriesService } from '../../../services/entries.service';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'recent-entry',
-  imports: [CardModule, ProductSmallCardComponent],
+  imports: [CardModule, ProductSmallCardComponent, DatePipe, NgTemplateOutlet],
   templateUrl: './recent-entry.component.html',
   styleUrl: './recent-entry.component.scss'
 })
-export class RecentEntryComponent {}
+export class RecentEntryComponent {
+  private _entriesService = inject(EntriesService);
+
+  public user = injectUserData();
+  public recentEntry = this._entriesService.getMostRecentEntryResource(
+    this.user
+  );
+}

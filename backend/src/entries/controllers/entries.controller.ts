@@ -34,6 +34,11 @@ export class EntriesController {
     return this._entriesService.getEntryByDate(userId, date);
   }
 
+  @Get('single/most-recent/:userId')
+  getMostRecentEntry(@Param('userId') userId: string) {
+    return this._entriesService.getMostRecentEntry(userId);
+  }
+
   @Post()
   createEntry(@Body() entry: EntryCreationRequest) {
     return this._entriesService.createEntry(entry);

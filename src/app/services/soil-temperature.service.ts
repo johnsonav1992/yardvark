@@ -1,4 +1,4 @@
-import { computed, Injectable } from '@angular/core';
+import { computed, Injectable, Signal } from '@angular/core';
 import { Observable } from 'rxjs';
 import { httpResource } from '@angular/common/http';
 import { rxResource } from '@angular/core/rxjs-interop';
@@ -74,6 +74,24 @@ export class SoilTemperatureService {
               longitude: coords.long,
               start_date: formatDate(startDate, 'YYYY-MM-dd', 'en-US'),
               end_date: formatDate(endDate, 'YYYY-MM-dd', 'en-US')
+            } satisfies OpenMeteoQueryParams
+          }
+        : undefined;
+    });
+
+  public getPointInTimeSoilTemperature = (shouldFetch: Signal<boolean>) =>
+    httpResource<DailySoilTemperatureResponse>(() => {
+      const coords = this._currentLatLong?.value();
+
+      return coords && shouldFetch()
+        ? {
+            url: this._baseUrl,
+            params: {
+              ...this._sharedQueryParams(),
+              latitude: coords.lat,
+              longitude: coords.long,
+              start_hour: formatDate(new Date(), 'YYYY-MM-ddTHH:mm', 'en-US'),
+              end_hour: formatDate(new Date(), 'YYYY-MM-ddTHH:mm', 'en-US')
             } satisfies OpenMeteoQueryParams
           }
         : undefined;

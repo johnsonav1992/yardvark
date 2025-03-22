@@ -1,4 +1,11 @@
-import { Component, computed, inject, input, OnInit } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  OnInit,
+  signal
+} from '@angular/core';
 import {
   FormArray,
   FormControl,
@@ -25,6 +32,7 @@ import {
   EntryProductRow
 } from '../../../utils/entriesUtils';
 import { ProductsSelectorComponent } from '../../products/products-selector/products-selector.component';
+import { SoilTemperatureService } from '../../../services/soil-temperature.service';
 
 @Component({
   selector: 'entry-dialog',

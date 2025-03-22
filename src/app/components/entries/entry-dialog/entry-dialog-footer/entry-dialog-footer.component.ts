@@ -26,6 +26,11 @@ export class EntryDialogFooterComponent {
   public form: InstanceType<typeof EntryDialogComponent>['form'] | null = null;
 
   public isLoading = signal(false);
+  public shouldFetchSoilData = signal(false);
+  public pointInTimeSoilTemperature =
+    this._soilTempService.getPointInTimeSoilTemperature(
+      this.shouldFetchSoilData
+    );
 
   constructor() {
     const compSub = this._dialogRef.onChildComponentLoaded.subscribe(
@@ -33,6 +38,7 @@ export class EntryDialogFooterComponent {
     );
 
     this._destroyRef.onDestroy(() => compSub.unsubscribe());
+    this.shouldFetchSoilData.set(true);
   }
 
   public close(): void {
@@ -45,10 +51,9 @@ export class EntryDialogFooterComponent {
       notes: this.form?.value.notes!,
       title: this.form?.value.title!,
       userId: this.user()?.sub!,
-      soilTemperature: calculate24HourNumericAverage(
-        this._soilTempService.past24HourSoilTemperatureData.value()?.hourly
-          .soil_temperature_6cm || []
-      ),
+      soilTemperature:
+        this.pointInTimeSoilTemperature.value()?.hourly
+          .soil_temperature_6cm[0] || '',
       activityIds: this.form?.value.activities?.map(({ id }) => id) || [],
       lawnSegmentIds: this.form?.value.lawnSegments?.map(({ id }) => id) || [],
       products:

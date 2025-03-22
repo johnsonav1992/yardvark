@@ -79,19 +79,30 @@ export class SoilTemperatureService {
         : undefined;
     });
 
-  public getPointInTimeSoilTemperature = (shouldFetch: Signal<boolean>) =>
+  public getPointInTimeSoilTemperature = (
+    shouldFetch: Signal<boolean>,
+    date: Signal<Date | null>
+  ) =>
     httpResource<DailySoilTemperatureResponse>(() => {
       const coords = this._currentLatLong?.value();
 
-      return coords && shouldFetch()
+      return coords && shouldFetch() && date()
         ? {
             url: this._baseUrl,
             params: {
               ...this._sharedQueryParams(),
               latitude: coords.lat,
               longitude: coords.long,
-              start_hour: formatDate(new Date(), 'YYYY-MM-ddTHH:mm', 'en-US'),
-              end_hour: formatDate(new Date(), 'YYYY-MM-ddTHH:mm', 'en-US')
+              start_hour: formatDate(
+                date() || new Date(),
+                'YYYY-MM-ddTHH:mm',
+                'en-US'
+              ),
+              end_hour: formatDate(
+                date() || new Date(),
+                'YYYY-MM-ddTHH:mm',
+                'en-US'
+              )
             } satisfies OpenMeteoQueryParams
           }
         : undefined;

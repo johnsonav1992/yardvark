@@ -5,9 +5,9 @@ import { EntryDialogComponent } from '../entry-dialog.component';
 import { apiUrl, postReq } from '../../../../utils/httpUtils';
 import { injectUserData } from '../../../../utils/authUtils';
 import { SoilTemperatureService } from '../../../../services/soil-temperature.service';
-import { calculate24HourNumericAverage } from '../../../../utils/soilTemperatureUtils';
 import { EntryCreationRequest } from '../../../../types/entries.types';
 import { injectErrorToast } from '../../../../utils/toastUtils';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'entry-dialog-footer',
@@ -27,18 +27,25 @@ export class EntryDialogFooterComponent {
 
   public isLoading = signal(false);
   public shouldFetchSoilData = signal(false);
+  public soilTempDate = signal<Date | null>(null);
   public pointInTimeSoilTemperature =
     this._soilTempService.getPointInTimeSoilTemperature(
-      this.shouldFetchSoilData
+      this.shouldFetchSoilData,
+      this.soilTempDate
     );
 
   constructor() {
-    const compSub = this._dialogRef.onChildComponentLoaded.subscribe(
-      (comp) => (this.form = comp.form)
-    );
+    this._dialogRef.onChildComponentLoaded
+      .pipe(takeUntilDestroyed(this._destroyRef))
+      .subscribe((comp) => {
+        this.form = comp.form;
 
-    this._destroyRef.onDestroy(() => compSub.unsubscribe());
-    this.shouldFetchSoilData.set(true);
+        this.shouldFetchSoilData.set(true);
+
+        this.form?.controls.date.valueChanges
+          .pipe(takeUntilDestroyed(this._destroyRef))
+          .subscribe(this.soilTempDate.set);
+      });
   }
 
   public close(): void {

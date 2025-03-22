@@ -77,6 +77,33 @@ export class EntriesService {
     };
   }
 
+  async getEntryByDate(userId: string, date: string) {
+    const entry = await this._entriesRepo.findOne({
+      where: { userId, date: new Date(date) },
+      relations: {
+        activities: true,
+        lawnSegments: true,
+        entryProducts: {
+          product: true,
+        },
+      },
+    });
+
+    return {
+      ...entry,
+      products: entry?.entryProducts.map((entryProduct) => ({
+        id: entryProduct.product.id,
+        name: entryProduct.product.name,
+        brand: entryProduct.product.brand,
+        imageUrl: entryProduct.product.imageUrl,
+        quantity: entryProduct.productQuantity,
+        quantityUnit: entryProduct.productQuantityUnit,
+        guaranteedAnalysis: entryProduct.product.guaranteedAnalysis,
+        containerType: entryProduct.product.containerType,
+      })),
+    };
+  }
+
   async createEntry(entry: EntryCreationRequest) {
     const newEntry = this._entriesRepo.create({
       ...entry,

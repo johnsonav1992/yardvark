@@ -29,6 +29,11 @@ export class EntriesController {
     return this._entriesService.getEntry(entryId);
   }
 
+  @Get('single/by-date/:userId/:date')
+  getEntryByDate(@Param('userId') userId: string, @Param('date') date: string) {
+    return this._entriesService.getEntryByDate(userId, date);
+  }
+
   @Post()
   createEntry(@Body() entry: EntryCreationRequest) {
     return this._entriesService.createEntry(entry);

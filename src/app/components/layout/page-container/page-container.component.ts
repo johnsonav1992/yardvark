@@ -12,6 +12,7 @@ export class PageContainerComponent {
   private _location = inject(Location);
 
   public pageTitle = input.required<string>();
+  public hideBackButton = input<boolean>(false);
 
   public back() {
     this._location.back();

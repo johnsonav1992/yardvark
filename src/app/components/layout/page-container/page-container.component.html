@@ -1,12 +1,14 @@
 <div class="main-container">
   <div class="title-container">
-    <p-button
-      icon="ti ti-arrow-left"
-      (click)="back()"
-      size="small"
-      outlined
-      severity="secondary"
-    />
+    @if (!hideBackButton()) {
+      <p-button
+        icon="ti ti-arrow-left"
+        (click)="back()"
+        size="small"
+        outlined
+        severity="secondary"
+      />
+    }
     <h1>{{ pageTitle() }}</h1>
   </div>
   <ng-content></ng-content>

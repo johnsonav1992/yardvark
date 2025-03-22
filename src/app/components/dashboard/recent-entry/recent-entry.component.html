@@ -1,0 +1,38 @@
+<p-card [style]="{ width: 'max-content' }">
+  <ng-template #title>Last Journal Entry</ng-template>
+  <ng-template #subtitle>03/22/2025</ng-template>
+
+  <div class="content-container">
+    <div class="section-container">
+      <h3>Activities:</h3>
+      <p>Mowing</p>
+      <p>Watering</p>
+    </div>
+    <div class="section-container">
+      <h3>Lawn segments:</h3>
+      <p>Front Yard</p>
+      <p>Back Yard</p>
+    </div>
+    <div class="section-container">
+      <h3>Notes:</h3>
+      <p>Applied fertilizer in the morning.</p>
+    </div>
+    <div class="section-container">
+      <h3>Products:</h3>
+      <div class="products-wrapper">
+        <product-small-card
+          [product]="{ name: 'Fertilizer' }"
+          [asAppliedAmount]="true"
+          [width]="'max-content'"
+        ></product-small-card>
+        <product-small-card
+          [product]="{ name: 'Weed Killer' }"
+          [asAppliedAmount]="true"
+          [width]="'max-content'"
+        ></product-small-card>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #footer></ng-template>
+</p-card>

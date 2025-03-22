@@ -1,0 +1,16 @@
+.content-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.section-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.products-wrapper {
+  display: flex;
+  gap: 1rem;
+}

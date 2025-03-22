@@ -10,6 +10,7 @@ import {
 import { getRollingWeekStartAndEndDates } from '../utils/timeUtils';
 import { injectSettingsService } from './settings.service';
 import { LatLong } from '../types/location.types';
+import { isWithinInterval } from 'date-fns';
 
 @Injectable({
   providedIn: 'root'
@@ -82,11 +83,17 @@ export class SoilTemperatureService {
   public getPointInTimeSoilTemperature = (
     shouldFetch: Signal<boolean>,
     date: Signal<Date | null>
-  ) =>
-    httpResource<DailySoilTemperatureResponse>(() => {
+  ) => {
+    return httpResource<DailySoilTemperatureResponse>(() => {
       const coords = this._currentLatLong?.value();
+      const today = new Date();
+      const maxFutureDate = new Date(today);
+      maxFutureDate.setDate(today.getDate() + 7);
+      const isWithinFutureInterval =
+        date() &&
+        isWithinInterval(date()!, { start: today, end: maxFutureDate });
 
-      return coords && shouldFetch() && date()
+      return coords && shouldFetch() && date() && isWithinFutureInterval
         ? {
             url: this._baseUrl,
             params: {
@@ -107,6 +114,7 @@ export class SoilTemperatureService {
           }
         : undefined;
     });
+  };
 
   private _currentLatLong = rxResource({
     loader: () => this.getCurrentLatLong()

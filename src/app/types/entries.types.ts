@@ -30,7 +30,7 @@ export type EntryCreationRequest = {
   notes: string;
   title: string;
   userId: string;
-  soilTemperature: number;
+  soilTemperature: number | null;
   activityIds: number[];
   lawnSegmentIds: number[];
   products: Array<{

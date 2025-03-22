@@ -60,7 +60,7 @@ export class EntryDialogFooterComponent {
       userId: this.user()?.sub!,
       soilTemperature:
         this.pointInTimeSoilTemperature.value()?.hourly
-          .soil_temperature_6cm[0] || '',
+          .soil_temperature_6cm[0] || null,
       activityIds: this.form?.value.activities?.map(({ id }) => id) || [],
       lawnSegmentIds: this.form?.value.lawnSegments?.map(({ id }) => id) || [],
       products:

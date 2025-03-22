@@ -36,6 +36,7 @@ export class Entry {
       to: (value: number) => value,
       from: (value: string) => parseFloat(value),
     },
+    nullable: true,
   })
   soilTemperature: number;
 

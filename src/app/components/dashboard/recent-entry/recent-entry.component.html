@@ -1,21 +1,23 @@
 <p-card [style]="{ width: 'max-content', maxWidth: '400px' }">
   <ng-template #title>
-    <div style="display: flex; justify-content: space-between">
+    <div style="display: flex; justify-content: space-between; gap: 1rem">
       Last Journal Entry
-      <p-button
-        icon="ti ti-external-link"
-        size="small"
-        outlined
-        severity="secondary"
-        (click)="goToEntry()"
-      />
+      @if (recentEntry.value()) {
+        <p-button
+          icon="ti ti-external-link"
+          size="small"
+          outlined
+          severity="secondary"
+          (click)="goToEntry()"
+        />
+      }
     </div>
   </ng-template>
   <ng-template #subtitle>
     {{ recentEntry.value()?.date | date: "M/dd/yyyy" }}
   </ng-template>
 
-  @if (recentEntry.value(); as entry) {
+  @if (recentEntry.value()!; as entry) {
     <div class="content-container">
       @if (entry.activities.length) {
         <div class="section-container">

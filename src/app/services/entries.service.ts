@@ -33,10 +33,12 @@ export class EntriesService {
     );
 
   public getMostRecentEntryResource = (user: Signal<User | null | undefined>) =>
-    httpResource<Entry>(() =>
-      user()?.sub
-        ? apiUrl('entries/single/most-recent', { params: [user()!.sub!] })
-        : undefined
+    httpResource<Entry | null>(
+      () =>
+        user()?.sub
+          ? apiUrl('entries/single/most-recent', { params: [user()!.sub!] })
+          : undefined,
+      { parse: () => null }
     );
 
   public getMonthEntriesResource = (

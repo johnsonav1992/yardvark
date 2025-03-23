@@ -43,6 +43,14 @@ export class SoilTemperatureService {
         'en-US'
       )!;
 
+      console.log(
+        'calling open-meteo',
+        coords,
+        startHour,
+        endHour,
+        this._baseUrl
+      );
+
       return coords
         ? {
             url: this._baseUrl,
@@ -122,8 +130,10 @@ export class SoilTemperatureService {
 
   private getCurrentLatLong(): Observable<LatLong | null> {
     return new Observable((observer) => {
+      console.log('getting location');
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          console.log(position);
           observer.next({
             lat: position.coords.latitude,
             long: position.coords.longitude

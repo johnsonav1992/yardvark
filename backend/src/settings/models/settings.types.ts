@@ -11,6 +11,18 @@ export type SettingsData = {
    * Lawn size in sqft
    */
   lawnSize: number;
+  /**
+   * The user's preferred location
+   */
+  locationAddress: string;
+  /**
+   * The user's preferred location latitude
+   */
+  locationLat: number;
+  /**
+   * The user's preferred location longitude
+   */
+  locationLong: number;
 };
 
 export type SettingsResponse = {

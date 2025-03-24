@@ -1,5 +1,31 @@
 <page-container pageTitle="Settings">
   <div class="section-wrapper">
+    <h4>Location</h4>
+    <small><em>*Will be used to determine soil temperature data</em></small>
+    <p-autoComplete
+      [suggestions]="foundLocations.value() || []"
+      [forceSelection]="true"
+      [ngModel]="currentSettings()?.locationAddress"
+      (completeMethod)="searchLocations($event)"
+      (onSelect)="('')"
+      [inputStyle]="{ width: '300px' }"
+      placeholder="Search for a location"
+    >
+      <ng-template #item let-location>
+        <div style="display: flex; gap: 0.25rem; align-items: center">
+          <i class="ti ti-map-pin"></i>
+          {{ location.properties.full_address }}
+        </div>
+      </ng-template>
+      <ng-template #selectedItem let-location>
+        <div style="display: flex; gap: 0.25rem; align-items: center">
+          <i class="ti ti-map-pin"></i>
+          {{ location.properties.full_address }}
+        </div>
+      </ng-template>
+    </p-autoComplete>
+  </div>
+  <div class="section-wrapper">
     <h4>Temperature unit</h4>
     <p-select
       [style]="{ width: '300px' }"

@@ -1,29 +1,56 @@
-import { Component, linkedSignal } from '@angular/core';
+import { Component, inject, linkedSignal, signal } from '@angular/core';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
 import { injectSettingsService } from '../../services/settings.service';
 import { InputNumber } from 'primeng/inputnumber';
 import { debounce } from '../../utils/timeUtils';
+import {
+  AutoCompleteCompleteEvent,
+  AutoCompleteModule
+} from 'primeng/autocomplete';
+import { Feature } from '../../types/location.types';
+import { LocationService } from '../../services/location.service';
+import { rxResource } from '@angular/core/rxjs-interop';
+import { debouncedSignal } from '../../utils/signalUtils';
 
 @Component({
   selector: 'settings',
-  imports: [PageContainerComponent, SelectModule, FormsModule, InputNumber],
+  imports: [
+    PageContainerComponent,
+    SelectModule,
+    FormsModule,
+    InputNumber,
+    AutoCompleteModule
+  ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'
 })
 export class SettingsComponent {
   private _settingsService = injectSettingsService();
+  private _locationService = inject(LocationService);
 
   public currentSettings = this._settingsService.currentSettings;
   public settingsAreLoading = this._settingsService.settings.isLoading;
 
   public lawnSize = linkedSignal(() => this.currentSettings()?.lawnSize);
+  public locationSearchText = signal<string>('');
+  public debouncedSearchText = debouncedSignal(this.locationSearchText, 700);
+
+  public foundLocations = rxResource({
+    request: () => ({ query: this.debouncedSearchText() }),
+    loader: ({ request }) =>
+      this._locationService.searchForLocation(request.query || '')
+  });
 
   public updateSetting = this._settingsService.updateSetting;
 
   public setLawnSize(newVal: number): void {
     this.debouncedLawnSizeSetter(newVal);
+  }
+
+  public searchLocations(e: AutoCompleteCompleteEvent): void {
+    this.locationSearchText.set(e.query);
   }
 
   private debouncedLawnSizeSetter = debounce(

@@ -39,9 +39,12 @@ export class SettingsComponent {
   public debouncedSearchText = debouncedSignal(this.locationSearchText, 700);
 
   public foundLocations = rxResource({
-    request: () => ({ query: this.debouncedSearchText() }),
+    request: () =>
+      this.debouncedSearchText()
+        ? { query: this.debouncedSearchText() }
+        : undefined,
     loader: ({ request }) =>
-      this._locationService.searchForLocation(request.query || '')
+      this._locationService.searchForLocation(request?.query || '')
   });
 
   public updateSetting = this._settingsService.updateSetting;

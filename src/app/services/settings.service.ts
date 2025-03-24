@@ -1,7 +1,6 @@
 import { inject, Injectable, linkedSignal } from '@angular/core';
 import { apiUrl, putReq } from '../utils/httpUtils';
 import { httpResource } from '@angular/common/http';
-import { injectUserData } from '../utils/authUtils';
 import {
   SettingsData,
   SettingsResponse

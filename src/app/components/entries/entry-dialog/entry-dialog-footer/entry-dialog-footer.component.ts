@@ -57,7 +57,6 @@ export class EntryDialogFooterComponent {
       date: this.form?.value.date!,
       notes: this.form?.value.notes!,
       title: this.form?.value.title!,
-      userId: this.user()?.sub!,
       soilTemperature:
         this.pointInTimeSoilTemperature.value()?.hourly
           .soil_temperature_6cm[0] || null,

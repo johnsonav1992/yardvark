@@ -42,8 +42,8 @@ export class EntriesController {
   }
 
   @Post()
-  createEntry(@Body() entry: EntryCreationRequest) {
-    return this._entriesService.createEntry(entry);
+  createEntry(@Req() req: Request, @Body() entry: EntryCreationRequest) {
+    return this._entriesService.createEntry(req.user.userId, entry);
   }
 
   @Put(':entryId')

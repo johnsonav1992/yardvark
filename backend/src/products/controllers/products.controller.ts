@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Req,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -10,6 +11,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { S3Service } from 'src/s3/s3.service';
 import { imageFileValidator } from 'src/utils/fileUtils';
 import { ProductsService } from '../services/products.service';
+import { Request } from 'express';
 
 @Controller('products')
 export class ProductsController {
@@ -30,13 +32,15 @@ export class ProductsController {
     return imageUrl;
   }
 
-  @Get(':userId')
-  getProducts(userId: string) {
-    return this._productsService.getProducts(userId);
+  @Get()
+  getProducts(@Req() req: Request) {
+    return this._productsService.getProducts(req.user.userId);
   }
 
-  @Get('user-only/:userId')
-  getUserProducts(userId: string) {
-    return this._productsService.getProducts(userId, { userOnly: true });
+  @Get('user-only')
+  getUserProducts(@Req() req: Request) {
+    return this._productsService.getProducts(req.user.userId, {
+      userOnly: true,
+    });
   }
 }

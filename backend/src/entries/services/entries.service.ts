@@ -108,9 +108,10 @@ export class EntriesService {
     };
   }
 
-  async createEntry(entry: EntryCreationRequest) {
+  async createEntry(userId: string, entry: EntryCreationRequest) {
     const newEntry = this._entriesRepo.create({
       ...entry,
+      userId,
       activities: entry.activityIds?.map((id) => ({ id })),
       lawnSegments: entry.lawnSegmentIds?.map((id) => ({ id })),
       entryProducts: entry.products.map((product) => ({
@@ -150,7 +151,6 @@ export class EntriesService {
 
     const updatedEntry = this._entriesRepo.merge(entryToUpdate, {
       ...entry,
-      // Set new relationships (or empty arrays if not provided)
       activities: entry.activityIds?.map((id) => ({ id })) || [],
       lawnSegments: entry.lawnSegmentIds?.map((id) => ({ id })) || [],
       entryProducts:

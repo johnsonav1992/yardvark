@@ -23,22 +23,17 @@ export class EntriesController {
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {
-    return this._entriesService.getEntries(
-      req.user!.userId!,
-      startDate,
-      endDate,
-    );
+    return this._entriesService.getEntries(req.user.userId, startDate, endDate);
   }
 
   @Get('single/most-recent')
   getMostRecentEntry(@Req() req: Request) {
-    console.log({ userId: req.user!.userId! });
-    return this._entriesService.getMostRecentEntry(req.user!.userId!);
+    return this._entriesService.getMostRecentEntry(req.user.userId);
   }
 
   @Get('single/by-date/:date')
   getEntryByDate(@Req() req: Request, @Param('date') date: string) {
-    return this._entriesService.getEntryByDate(req.user!.userId!, date);
+    return this._entriesService.getEntryByDate(req.user.userId, date);
   }
 
   @Get('single/:entryId')

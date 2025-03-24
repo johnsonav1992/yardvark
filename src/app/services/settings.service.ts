@@ -11,13 +11,7 @@ import {
   providedIn: 'root'
 })
 export class SettingsService {
-  public user = injectUserData();
-
-  public userId = linkedSignal(() => this.user()?.sub || '');
-
-  public settings = httpResource<SettingsResponse>(() =>
-    this.userId() ? apiUrl('settings', { params: [this.userId()] }) : undefined
-  );
+  public settings = httpResource<SettingsResponse>(() => apiUrl('settings'));
 
   public currentSettings = linkedSignal(() => this.settings.value()?.value);
 
@@ -33,10 +27,7 @@ export class SettingsService {
       [settingName]: newValue
     };
 
-    putReq<SettingsData>(
-      apiUrl('settings', { params: [this.userId()] }),
-      updatedSettings
-    ).subscribe({
+    putReq<SettingsData>(apiUrl('settings'), updatedSettings).subscribe({
       next: (updatedSettingsRes) =>
         this.currentSettings.update((currSettings) => ({
           ...currSettings,

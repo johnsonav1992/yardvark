@@ -34,7 +34,8 @@ export class SoilTemperatureService {
 
   public past24HourSoilTemperatureData =
     httpResource<DailySoilTemperatureResponse>(() => {
-      const coords = this._currentLatLong?.value();
+      const coords =
+        this._locationService.userLatLong() || this._currentLatLong?.value();
       const now = new Date();
       const endHour = formatDate(now, 'YYYY-MM-ddTHH:00', 'en-US')!;
       const startHour = formatDate(
@@ -59,7 +60,8 @@ export class SoilTemperatureService {
 
   public rollingWeekDailyAverageSoilData =
     httpResource<DailySoilTemperatureResponse>(() => {
-      const coords = this._currentLatLong?.value();
+      const coords =
+        this._locationService.userLatLong() || this._currentLatLong?.value();
       const { startDate, endDate } = getRollingWeekStartAndEndDates();
 
       return coords && startDate && endDate
@@ -85,7 +87,8 @@ export class SoilTemperatureService {
     date: Signal<Date | null>
   ) => {
     return httpResource<DailySoilTemperatureResponse>(() => {
-      const coords = this._currentLatLong?.value();
+      const coords =
+        this._locationService.userLatLong() || this._currentLatLong?.value();
       const today = new Date();
       const maxFutureDate = new Date(today);
       maxFutureDate.setDate(today.getDate() + 7);
@@ -117,6 +120,6 @@ export class SoilTemperatureService {
   };
 
   private _currentLatLong = rxResource({
-    loader: () => this._locationService.getCurrentLatLong()
+    loader: () => this._locationService.getLatLongFromCurrentPosition()
   });
 }

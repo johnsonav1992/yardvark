@@ -5,9 +5,10 @@
     <p-autoComplete
       [suggestions]="foundLocations.value() || []"
       [forceSelection]="true"
-      [ngModel]="currentSettings()?.locationAddress"
+      [ngModel]="currentSettings()?.location?.address || ''"
       (completeMethod)="searchLocations($event)"
-      (onSelect)="('')"
+      (onSelect)="updateLocationSetting($event)"
+      optionLabel="properties.full_address"
       [inputStyle]="{ width: '300px' }"
       placeholder="Search for a location"
     >

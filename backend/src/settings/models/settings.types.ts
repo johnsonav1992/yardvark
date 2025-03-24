@@ -12,17 +12,13 @@ export type SettingsData = {
    */
   lawnSize: number;
   /**
-   * The user's preferred location
+   * The user's preferred location address and lat/long
    */
-  locationAddress: string;
-  /**
-   * The user's preferred location latitude
-   */
-  locationLat: number;
-  /**
-   * The user's preferred location longitude
-   */
-  locationLong: number;
+  location: {
+    address: string;
+    lat: number;
+    long: number;
+  };
 };
 
 export type SettingsResponse = {

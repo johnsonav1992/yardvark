@@ -12,10 +12,7 @@ import {
 export class SettingsService {
   public settings = httpResource<SettingsResponse>(() => apiUrl('settings'));
 
-  public currentSettings = linkedSignal(() => ({
-    ...this.settings.value()?.value!,
-    locationAddress: 'something something'
-  }));
+  public currentSettings = linkedSignal(() => this.settings.value()?.value);
 
   public updateSetting = <
     TKey extends keyof SettingsData,

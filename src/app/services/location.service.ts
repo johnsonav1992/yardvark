@@ -1,13 +1,16 @@
-import { Injectable } from '@angular/core';
+import { Injectable, linkedSignal, signal } from '@angular/core';
 import { getReq } from '../utils/httpUtils';
 import { LatLong, MapboxGeocodingResponse } from '../types/location.types';
 import { map } from 'rxjs';
 import { Observable } from 'rxjs';
+import { injectSettingsService } from './settings.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LocationService {
+  private _settingsService = injectSettingsService();
+
   private readonly _mapboxGeocodingUrl =
     'https://api.mapbox.com/search/geocode/v6/forward';
 
@@ -22,7 +25,13 @@ export class LocationService {
     }).pipe(map((response) => response.features));
   }
 
-  public getCurrentLatLong(): Observable<LatLong | null> {
+  public userLatLong = linkedSignal<LatLong | null>(() => {
+    const location = this._settingsService.currentSettings()?.location;
+
+    return location ? { lat: location.lat, long: location.long } : null;
+  });
+
+  public getLatLongFromCurrentPosition(): Observable<LatLong | null> {
     return new Observable((observer) => {
       navigator.geolocation.getCurrentPosition(
         (position) => {

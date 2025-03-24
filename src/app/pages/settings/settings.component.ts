@@ -7,7 +7,8 @@ import { InputNumber } from 'primeng/inputnumber';
 import { debounce } from '../../utils/timeUtils';
 import {
   AutoCompleteCompleteEvent,
-  AutoCompleteModule
+  AutoCompleteModule,
+  AutoCompleteSelectEvent
 } from 'primeng/autocomplete';
 import { Feature } from '../../types/location.types';
 import { LocationService } from '../../services/location.service';
@@ -51,6 +52,18 @@ export class SettingsComponent {
 
   public searchLocations(e: AutoCompleteCompleteEvent): void {
     this.locationSearchText.set(e.query);
+  }
+
+  public updateLocationSetting(e: AutoCompleteSelectEvent): void {
+    const locationFeature = e.value as Feature;
+    const lat = locationFeature.geometry.coordinates[1];
+    const long = locationFeature.geometry.coordinates[0];
+
+    this.updateSetting('location', {
+      lat,
+      long,
+      address: locationFeature.properties.full_address
+    });
   }
 
   private debouncedLawnSizeSetter = debounce(

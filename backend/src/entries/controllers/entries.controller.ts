@@ -7,21 +7,27 @@ import {
   Post,
   Put,
   Query,
+  Req,
 } from '@nestjs/common';
 import { EntriesService } from '../services/entries.service';
 import { EntryCreationRequest } from '../models/entries.types';
+import { Request } from 'express';
 
 @Controller('entries')
 export class EntriesController {
   constructor(private _entriesService: EntriesService) {}
 
-  @Get(':userId')
+  @Get()
   getEntries(
-    userId: string,
+    @Req() req: Request,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {
-    return this._entriesService.getEntries(userId, startDate, endDate);
+    return this._entriesService.getEntries(
+      req.user!.userId!,
+      startDate,
+      endDate,
+    );
   }
 
   @Get('single/:entryId')
@@ -29,9 +35,9 @@ export class EntriesController {
     return this._entriesService.getEntry(entryId);
   }
 
-  @Get('single/by-date/:userId/:date')
-  getEntryByDate(@Param('userId') userId: string, @Param('date') date: string) {
-    return this._entriesService.getEntryByDate(userId, date);
+  @Get('single/by-date/:date')
+  getEntryByDate(@Req() req: Request, @Param('date') date: string) {
+    return this._entriesService.getEntryByDate(req.user!.userId!, date);
   }
 
   @Get('single/most-recent/:userId')

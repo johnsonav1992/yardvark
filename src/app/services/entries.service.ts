@@ -20,14 +20,11 @@ export class EntriesService {
         : undefined
     );
 
-  public getEntryByDateResource = (
-    user: Signal<User | null | undefined>,
-    date: Signal<Date | null>
-  ) =>
+  public getEntryByDateResource = (date: Signal<Date | null>) =>
     httpResource<Entry>(() =>
-      user()?.sub && date()
+      date()
         ? apiUrl('entries/single/by-date', {
-            params: [user()!.sub!, formatDate(date()!, 'MM-dd-yyyy', 'en-US')]
+            params: [formatDate(date()!, 'MM-dd-yyyy', 'en-US')]
           })
         : undefined
     );
@@ -41,19 +38,13 @@ export class EntriesService {
       { parse: () => null }
     );
 
-  public getMonthEntriesResource = (
-    user: Signal<User | null | undefined>,
-    currentDate: Signal<Date>
-  ) =>
+  public getMonthEntriesResource = (currentDate: Signal<Date>) =>
     httpResource<Entry[]>(() =>
-      user()
-        ? apiUrl('entries', {
-            params: [user()!.sub || ''],
-            queryParams: {
-              startDate: startOfMonth(currentDate()),
-              endDate: endOfMonth(currentDate())
-            }
-          })
-        : undefined
+      apiUrl('entries', {
+        queryParams: {
+          startDate: startOfMonth(currentDate()),
+          endDate: endOfMonth(currentDate())
+        }
+      })
     );
 }

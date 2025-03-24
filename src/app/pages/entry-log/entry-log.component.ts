@@ -51,7 +51,6 @@ export class EntryLogComponent {
   });
 
   public entries = this._entriesService.getMonthEntriesResource(
-    this.user,
     this.currentDate
   );
 

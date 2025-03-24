@@ -17,6 +17,7 @@ export const authInterceptor: HttpInterceptorFn = (
     take(1),
     switchMap((token) => {
       if (token) {
+        console.log(token);
         const cloned = req.clone({
           setHeaders: {
             Authorization: `Bearer ${token.__raw}`

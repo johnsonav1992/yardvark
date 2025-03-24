@@ -1,5 +1,4 @@
-import { computed, Injectable, Signal } from '@angular/core';
-import { Observable } from 'rxjs';
+import { computed, inject, Injectable, Signal } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { formatDate } from '@angular/common';
@@ -9,14 +8,15 @@ import {
 } from '../types/openmeteo.types';
 import { getRollingWeekStartAndEndDates } from '../utils/timeUtils';
 import { injectSettingsService } from './settings.service';
-import { LatLong } from '../types/location.types';
 import { isWithinInterval } from 'date-fns';
+import { LocationService } from './location.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SoilTemperatureService {
   private _settingsService = injectSettingsService();
+  private _locationService = inject(LocationService);
 
   private readonly _baseUrl = 'https://api.open-meteo.com/v1/forecast';
   private readonly _sharedQueryParams = computed<Partial<OpenMeteoQueryParams>>(
@@ -117,24 +117,6 @@ export class SoilTemperatureService {
   };
 
   private _currentLatLong = rxResource({
-    loader: () => this.getCurrentLatLong()
+    loader: () => this._locationService.getCurrentLatLong()
   });
-
-  private getCurrentLatLong(): Observable<LatLong | null> {
-    return new Observable((observer) => {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          observer.next({
-            lat: position.coords.latitude,
-            long: position.coords.longitude
-          });
-
-          observer.complete();
-        },
-        (error) => {
-          observer.error(`Error fetching user location: ${error}`);
-        }
-      );
-    });
-  }
 }

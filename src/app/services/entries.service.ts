@@ -29,14 +29,8 @@ export class EntriesService {
         : undefined
     );
 
-  public getMostRecentEntryResource = (user: Signal<User | null | undefined>) =>
-    httpResource<Entry | null>(
-      () =>
-        user()?.sub
-          ? apiUrl('entries/single/most-recent', { params: [user()!.sub!] })
-          : undefined,
-      { parse: () => null }
-    );
+  public getMostRecentEntryResource = () =>
+    httpResource<Entry | null>(() => apiUrl('entries/single/most-recent'));
 
   public getMonthEntriesResource = (currentDate: Signal<Date>) =>
     httpResource<Entry[]>(() =>

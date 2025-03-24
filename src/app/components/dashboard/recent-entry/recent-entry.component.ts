@@ -23,10 +23,7 @@ export class RecentEntryComponent {
   private _router = inject(Router);
   private _entriesService = inject(EntriesService);
 
-  public user = injectUserData();
-  public recentEntry = this._entriesService.getMostRecentEntryResource(
-    this.user
-  );
+  public recentEntry = this._entriesService.getMostRecentEntryResource();
 
   public goToEntry() {
     this._router.navigate(['entry-log', this.recentEntry.value()?.id]);

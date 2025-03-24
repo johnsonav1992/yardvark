@@ -30,9 +30,10 @@ export class EntriesController {
     );
   }
 
-  @Get('single/:entryId')
-  getEntry(@Param('entryId') entryId: number) {
-    return this._entriesService.getEntry(entryId);
+  @Get('single/most-recent')
+  getMostRecentEntry(@Req() req: Request) {
+    console.log({ userId: req.user!.userId! });
+    return this._entriesService.getMostRecentEntry(req.user!.userId!);
   }
 
   @Get('single/by-date/:date')
@@ -40,9 +41,9 @@ export class EntriesController {
     return this._entriesService.getEntryByDate(req.user!.userId!, date);
   }
 
-  @Get('single/most-recent/:userId')
-  getMostRecentEntry(@Param('userId') userId: string) {
-    return this._entriesService.getMostRecentEntry(userId);
+  @Get('single/:entryId')
+  getEntry(@Param('entryId') entryId: number) {
+    return this._entriesService.getEntry(entryId);
   }
 
   @Post()

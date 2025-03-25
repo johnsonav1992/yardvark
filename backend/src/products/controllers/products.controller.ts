@@ -12,6 +12,7 @@ import { S3Service } from 'src/s3/s3.service';
 import { imageFileValidator } from 'src/utils/fileUtils';
 import { ProductsService } from '../services/products.service';
 import { Request } from 'express';
+import { Public } from 'src/decorators/public.decorator';
 
 @Controller('products')
 export class ProductsController {
@@ -22,6 +23,7 @@ export class ProductsController {
 
   @Post()
   @UseInterceptors(FileInterceptor('product-image'))
+  @Public()
   async addProduct(
     @UploadedFile(imageFileValidator) file: Express.Multer.File,
     @Body() body: { userId: string },

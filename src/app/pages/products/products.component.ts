@@ -33,6 +33,7 @@ export class ProductsComponent {
     { title: 'Fertilizer', value: 'fertilizer' },
     { title: 'Pre-emergent', value: 'pre-emergent' },
     { title: 'Post-emergent', value: 'post-emergent' },
+    { title: 'Bio-stimulant', value: 'bio-stimulant' },
     { title: 'Plant-fertilizer', value: 'plant-fertilizer' },
     { title: 'Fungus-control', value: 'fungus-control' },
     { title: 'Insect-control', value: 'insect-control' },

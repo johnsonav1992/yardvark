@@ -86,12 +86,12 @@
           <th></th>
         </tr>
       </ng-template>
-      <ng-template #body let-segment>
+      <ng-template #body let-segment let-editing="editing">
         <tr [pEditableRow]="segment">
           <td>
             <p-cellEditor>
               <ng-template #input>
-                <input pInputText [style]="{ width: '50%' }" />
+                <input pInputText [style]="{ width: '75%' }" />
               </ng-template>
               <ng-template #output>
                 {{ segment.name }}
@@ -101,7 +101,7 @@
           <td>
             <p-cellEditor>
               <ng-template #input>
-                <input pInputText [style]="{ width: '50%' }" />
+                <input pInputText [style]="{ width: '75%' }" />
               </ng-template>
               <ng-template #output>
                 {{ segment.size }}
@@ -110,18 +110,29 @@
           </td>
           <td [width]="'10%'">
             <div style="display: flex; gap: 0.5rem">
-              <p-button
-                icon="ti ti-pencil"
-                (onClick)="editLawnSegment(segment)"
-                rounded
-                outlined
-                severity="info"
-                pInitEditableRow
-                [disabled]="
-                  currentlyEditingLawnSegmentId() &&
-                  segment.id !== currentlyEditingLawnSegmentId()
-                "
-              />
+              @let isRowBeingEdited = editing;
+              @let isInEditingMode = !!currentlyEditingLawnSegmentId();
+
+              @if (isRowBeingEdited && isInEditingMode) {
+                <p-button
+                  [icon]="'ti ti-x'"
+                  rounded
+                  outlined
+                  severity="info"
+                  pCancelEditableRow
+                  (onClick)="currentlyEditingLawnSegmentId.set(null)"
+                />
+              } @else {
+                <p-button
+                  [icon]="'ti ti-pencil'"
+                  (onClick)="editLawnSegment(segment)"
+                  rounded
+                  outlined
+                  severity="info"
+                  pInitEditableRow
+                  [disabled]="isInEditingMode && !isRowBeingEdited"
+                />
+              }
               <p-button
                 icon="ti ti-trash"
                 (onClick)="('')"

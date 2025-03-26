@@ -108,10 +108,6 @@ export class SettingsComponent {
     this.lawnSegmentTable()?.initRowEdit(newRow);
   }
 
-  public log(e: any) {
-    console.log(e);
-  }
-
   private debouncedLawnSizeSetter = debounce(
     (newVal: number) => this.updateSetting('lawnSize', newVal),
     1500

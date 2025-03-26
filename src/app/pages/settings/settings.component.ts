@@ -1,4 +1,10 @@
-import { Component, inject, linkedSignal, signal } from '@angular/core';
+import {
+  Component,
+  inject,
+  linkedSignal,
+  signal,
+  viewChild
+} from '@angular/core';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
@@ -15,11 +21,12 @@ import { LocationService } from '../../services/location.service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { debouncedSignal } from '../../utils/signalUtils';
 import { LawnSegmentsService } from '../../services/lawn-segments.service';
-import { TableModule } from 'primeng/table';
+import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { DataTableDesignTokens } from '@primeng/themes/types/datatable';
 import { InputTextModule } from 'primeng/inputtext';
 import { LawnSegment } from '../../types/lawnSegments.types';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'settings',
@@ -31,7 +38,8 @@ import { LawnSegment } from '../../types/lawnSegments.types';
     AutoCompleteModule,
     TableModule,
     ButtonModule,
-    InputTextModule
+    InputTextModule,
+    TooltipModule
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'
@@ -50,6 +58,8 @@ export class SettingsComponent {
 
   public locationSearchText = signal<string>('');
   public debouncedSearchText = debouncedSignal(this.locationSearchText, 700);
+
+  public lawnSegmentTable = viewChild(Table);
 
   public foundLocations = rxResource({
     request: () =>
@@ -84,6 +94,22 @@ export class SettingsComponent {
 
   public editLawnSegment(segment: LawnSegment): void {
     this.currentlyEditingLawnSegmentId.set(segment.id);
+  }
+
+  public addLawnSegmentRow(): void {
+    const newId = Math.random();
+    const newRow = { id: newId, name: '', area: 0, userId: '', size: 0 };
+
+    this.lawnSegments.update((prev) => {
+      return [...prev!, newRow];
+    });
+
+    this.currentlyEditingLawnSegmentId.set(newId);
+    this.lawnSegmentTable()?.initRowEdit(newRow);
+  }
+
+  public log(e: any) {
+    console.log(e);
   }
 
   private debouncedLawnSizeSetter = debounce(

@@ -78,6 +78,8 @@
       [dt]="lawnSegsTableDt"
       editMode="row"
       dataKey="id"
+      #lawnSegmentTable
+      (onEditInit)="log($event)"
     >
       <ng-template #header>
         <tr>
@@ -143,6 +145,14 @@
             </div>
           </td>
         </tr>
+      </ng-template>
+      <ng-template #footer>
+        <p-button
+          [icon]="'ti ti-plus'"
+          rounded
+          pTooltip="Add lawn segment"
+          (onClick)="addLawnSegmentRow()"
+        />
       </ng-template>
     </p-table>
   </div>

@@ -70,4 +70,69 @@
       (ngModelChange)="setLawnSize($event)"
     />
   </div>
+  <div class="section-wrapper">
+    <h4>Lawn Segments</h4>
+    <p-table
+      [value]="lawnSegments.value() || []"
+      [loadingIcon]="'ti ti-loader-2 icon-spin'"
+      [dt]="lawnSegsTableDt"
+      editMode="row"
+      dataKey="id"
+    >
+      <ng-template #header>
+        <tr>
+          <th>Name</th>
+          <th>Size (ft²)</th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-segment>
+        <tr [pEditableRow]="segment">
+          <td>
+            <p-cellEditor>
+              <ng-template #input>
+                <input pInputText [style]="{ width: '50%' }" />
+              </ng-template>
+              <ng-template #output>
+                {{ segment.name }}
+              </ng-template>
+            </p-cellEditor>
+          </td>
+          <td>
+            <p-cellEditor>
+              <ng-template #input>
+                <input pInputText [style]="{ width: '50%' }" />
+              </ng-template>
+              <ng-template #output>
+                {{ segment.size }}
+              </ng-template>
+            </p-cellEditor>
+          </td>
+          <td [width]="'10%'">
+            <div style="display: flex; gap: 0.5rem">
+              <p-button
+                icon="ti ti-pencil"
+                (onClick)="editLawnSegment(segment)"
+                rounded
+                outlined
+                severity="info"
+                pInitEditableRow
+                [disabled]="
+                  currentlyEditingLawnSegmentId() &&
+                  segment.id !== currentlyEditingLawnSegmentId()
+                "
+              />
+              <p-button
+                icon="ti ti-trash"
+                (onClick)="('')"
+                rounded
+                outlined
+                severity="danger"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
 </page-container>

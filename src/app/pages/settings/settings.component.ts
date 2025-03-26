@@ -14,6 +14,12 @@ import { Feature } from '../../types/location.types';
 import { LocationService } from '../../services/location.service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { debouncedSignal } from '../../utils/signalUtils';
+import { LawnSegmentsService } from '../../services/lawn-segments.service';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { DataTableDesignTokens } from '@primeng/themes/types/datatable';
+import { InputTextModule } from 'primeng/inputtext';
+import { LawnSegment } from '../../types/lawnSegments.types';
 
 @Component({
   selector: 'settings',
@@ -22,7 +28,10 @@ import { debouncedSignal } from '../../utils/signalUtils';
     SelectModule,
     FormsModule,
     InputNumber,
-    AutoCompleteModule
+    AutoCompleteModule,
+    TableModule,
+    ButtonModule,
+    InputTextModule
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'
@@ -30,11 +39,15 @@ import { debouncedSignal } from '../../utils/signalUtils';
 export class SettingsComponent {
   private _settingsService = injectSettingsService();
   private _locationService = inject(LocationService);
+  private _lawnSegmentsService = inject(LawnSegmentsService);
 
   public currentSettings = this._settingsService.currentSettings;
   public settingsAreLoading = this._settingsService.settings.isLoading;
+  public lawnSegments = this._lawnSegmentsService.lawnSegments;
 
   public lawnSize = linkedSignal(() => this.currentSettings()?.lawnSize);
+  public currentlyEditingLawnSegmentId = signal<number | null>(null);
+
   public locationSearchText = signal<string>('');
   public debouncedSearchText = debouncedSignal(this.locationSearchText, 700);
 
@@ -69,8 +82,17 @@ export class SettingsComponent {
     });
   }
 
+  public editLawnSegment(segment: LawnSegment): void {
+    this.currentlyEditingLawnSegmentId.set(segment.id);
+  }
+
   private debouncedLawnSizeSetter = debounce(
     (newVal: number) => this.updateSetting('lawnSize', newVal),
     1500
   );
+
+  public lawnSegsTableDt: DataTableDesignTokens = {
+    bodyCell: { padding: '.25rem' },
+    headerCell: { padding: '.25rem' }
+  };
 }

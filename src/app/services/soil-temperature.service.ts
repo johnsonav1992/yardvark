@@ -92,11 +92,16 @@ export class SoilTemperatureService {
       const coords =
         this._locationService.userLatLong() ||
         this._currentPositionLatLong?.value();
+
       const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
       const maxFutureDate = new Date(today);
       maxFutureDate.setDate(today.getDate() + 7);
+      maxFutureDate.setHours(23, 59, 59, 999);
+
       const isWithinFutureInterval =
-        date() &&
+        !!date() &&
         isWithinInterval(date()!, { start: today, end: maxFutureDate });
 
       return coords && shouldFetch() && date() && isWithinFutureInterval

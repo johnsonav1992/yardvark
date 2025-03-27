@@ -8,7 +8,7 @@ import {
 } from '../types/openmeteo.types';
 import { getRollingWeekStartAndEndDates } from '../utils/timeUtils';
 import { injectSettingsService } from './settings.service';
-import { isBefore, isWithinInterval } from 'date-fns';
+import { addDays, isBefore } from 'date-fns';
 import { LocationService } from './location.service';
 
 @Injectable({
@@ -95,12 +95,7 @@ export class SoilTemperatureService {
         this._locationService.userLatLong() ||
         this._currentPositionLatLong?.value();
 
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const maxFutureDate = new Date(today);
-      maxFutureDate.setDate(today.getDate() + 7);
-      maxFutureDate.setHours(23, 59, 59, 999);
+      const maxFutureDate = addDays(new Date(), 7);
       const isBeforeToday = isBefore(date() || new Date(), new Date());
 
       const isWithinFutureInterval =

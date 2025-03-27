@@ -1,10 +1,4 @@
-import {
-  Component,
-  inject,
-  linkedSignal,
-  signal,
-  viewChild
-} from '@angular/core';
+import { Component, inject, linkedSignal, signal } from '@angular/core';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
@@ -21,12 +15,10 @@ import { LocationService } from '../../services/location.service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { debouncedSignal } from '../../utils/signalUtils';
 import { LawnSegmentsService } from '../../services/lawn-segments.service';
-import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { DataTableDesignTokens } from '@primeng/themes/types/datatable';
 import { InputTextModule } from 'primeng/inputtext';
-import { LawnSegment } from '../../types/lawnSegments.types';
 import { TooltipModule } from 'primeng/tooltip';
+import { LawnSegmentsTableComponent } from '../../components/settings/lawn-segments-table/lawn-segments-table.component';
 
 @Component({
   selector: 'settings',
@@ -36,10 +28,10 @@ import { TooltipModule } from 'primeng/tooltip';
     FormsModule,
     InputNumber,
     AutoCompleteModule,
-    TableModule,
     ButtonModule,
     InputTextModule,
-    TooltipModule
+    TooltipModule,
+    LawnSegmentsTableComponent
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'
@@ -58,8 +50,6 @@ export class SettingsComponent {
 
   public locationSearchText = signal<string>('');
   public debouncedSearchText = debouncedSignal(this.locationSearchText, 700);
-
-  public lawnSegmentTable = viewChild(Table);
 
   public foundLocations = rxResource({
     request: () =>
@@ -92,29 +82,8 @@ export class SettingsComponent {
     });
   }
 
-  public editLawnSegment(segment: LawnSegment): void {
-    this.currentlyEditingLawnSegmentId.set(segment.id);
-  }
-
-  public addLawnSegmentRow(): void {
-    const newId = Math.random();
-    const newRow = { id: newId, name: '', area: 0, userId: '', size: 0 };
-
-    this.lawnSegments.update((prev) => {
-      return [...prev!, newRow];
-    });
-
-    this.currentlyEditingLawnSegmentId.set(newId);
-    this.lawnSegmentTable()?.initRowEdit(newRow);
-  }
-
   private debouncedLawnSizeSetter = debounce(
     (newVal: number) => this.updateSetting('lawnSize', newVal),
     1500
   );
-
-  public lawnSegsTableDt: DataTableDesignTokens = {
-    bodyCell: { padding: '.25rem' },
-    headerCell: { padding: '.25rem' }
-  };
 }

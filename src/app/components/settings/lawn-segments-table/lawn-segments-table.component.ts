@@ -1,0 +1,46 @@
+import { Component, input, model, viewChild } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
+import { Table, TableModule } from 'primeng/table';
+import { LawnSegment } from '../../../types/lawnSegments.types';
+import { DataTableDesignTokens } from '@primeng/themes/types/datatable';
+import { FormsModule } from '@angular/forms';
+import { InputTextModule } from 'primeng/inputtext';
+
+@Component({
+  selector: 'lawn-segments-table',
+  imports: [TableModule, ButtonModule, FormsModule, InputTextModule],
+  templateUrl: './lawn-segments-table.component.html',
+  styleUrl: './lawn-segments-table.component.scss'
+})
+export class LawnSegmentsTableComponent {
+  public lawnSegments = model.required<LawnSegment[] | undefined>();
+  public currentlyEditingLawnSegmentId = model.required<number | null>();
+
+  public lawnSegmentTable = viewChild(Table);
+
+  public editLawnSegment(segment: LawnSegment): void {
+    this.currentlyEditingLawnSegmentId.set(segment.id);
+  }
+
+  public addLawnSegmentRow(): void {
+    const newId = Math.random();
+    const newRow = { id: newId, name: '', area: 0, userId: '', size: 0 };
+
+    this.lawnSegments.update((prev) => {
+      return [...prev!, newRow];
+    });
+
+    this.currentlyEditingLawnSegmentId.set(newId);
+    this.lawnSegmentTable()?.initRowEdit(newRow);
+  }
+
+  public onRowSave(segment: LawnSegment): void {
+    console.log(segment);
+    this.currentlyEditingLawnSegmentId.set(null);
+  }
+
+  public lawnSegsTableDt: DataTableDesignTokens = {
+    bodyCell: { padding: '.25rem' },
+    headerCell: { padding: '.25rem' }
+  };
+}

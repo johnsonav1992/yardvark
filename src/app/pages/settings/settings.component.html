@@ -72,87 +72,9 @@
   </div>
   <div class="section-wrapper">
     <h4>Lawn Segments</h4>
-    <p-table
-      [value]="lawnSegments.value() || []"
-      [loadingIcon]="'ti ti-loader-2 icon-spin'"
-      [dt]="lawnSegsTableDt"
-      editMode="row"
-      dataKey="id"
-      #lawnSegmentTable
-    >
-      <ng-template #header>
-        <tr>
-          <th>Name</th>
-          <th>Size (ft²)</th>
-          <th></th>
-        </tr>
-      </ng-template>
-      <ng-template #body let-segment let-editing="editing">
-        <tr [pEditableRow]="segment">
-          <td>
-            <p-cellEditor>
-              <ng-template #input>
-                <input pInputText [style]="{ width: '75%' }" />
-              </ng-template>
-              <ng-template #output>
-                {{ segment.name }}
-              </ng-template>
-            </p-cellEditor>
-          </td>
-          <td>
-            <p-cellEditor>
-              <ng-template #input>
-                <input pInputText [style]="{ width: '75%' }" />
-              </ng-template>
-              <ng-template #output>
-                {{ segment.size }}
-              </ng-template>
-            </p-cellEditor>
-          </td>
-          <td [width]="'10%'">
-            <div style="display: flex; gap: 0.5rem">
-              @let isRowBeingEdited = editing;
-              @let isInEditingMode = !!currentlyEditingLawnSegmentId();
-
-              @if (isRowBeingEdited && isInEditingMode) {
-                <p-button
-                  [icon]="'ti ti-x'"
-                  rounded
-                  outlined
-                  severity="info"
-                  pCancelEditableRow
-                  (onClick)="currentlyEditingLawnSegmentId.set(null)"
-                />
-              } @else {
-                <p-button
-                  [icon]="'ti ti-pencil'"
-                  (onClick)="editLawnSegment(segment)"
-                  rounded
-                  outlined
-                  severity="info"
-                  pInitEditableRow
-                  [disabled]="isInEditingMode && !isRowBeingEdited"
-                />
-              }
-              <p-button
-                icon="ti ti-trash"
-                (onClick)="('')"
-                rounded
-                outlined
-                severity="danger"
-              />
-            </div>
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template #footer>
-        <p-button
-          [icon]="'ti ti-plus'"
-          rounded
-          pTooltip="Add lawn segment"
-          (onClick)="addLawnSegmentRow()"
-        />
-      </ng-template>
-    </p-table>
+    <lawn-segments-table
+      [currentlyEditingLawnSegmentId]="currentlyEditingLawnSegmentId()"
+      [lawnSegments]="lawnSegments.value()"
+    />
   </div>
 </page-container>

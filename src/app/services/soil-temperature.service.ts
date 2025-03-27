@@ -8,7 +8,7 @@ import {
 } from '../types/openmeteo.types';
 import { getRollingWeekStartAndEndDates } from '../utils/timeUtils';
 import { injectSettingsService } from './settings.service';
-import { isWithinInterval } from 'date-fns';
+import { isBefore, isWithinInterval } from 'date-fns';
 import { LocationService } from './location.service';
 
 @Injectable({
@@ -19,6 +19,8 @@ export class SoilTemperatureService {
   private _locationService = inject(LocationService);
 
   private readonly _baseUrl = 'https://api.open-meteo.com/v1/forecast';
+  private readonly _historicalBaseUrl =
+    'https://historical-forecast-api.open-meteo.com/v1/forecast';
   private readonly _sharedQueryParams = computed<Partial<OpenMeteoQueryParams>>(
     () => ({
       hourly: ['soil_temperature_6cm', 'soil_temperature_18cm'],
@@ -99,14 +101,14 @@ export class SoilTemperatureService {
       const maxFutureDate = new Date(today);
       maxFutureDate.setDate(today.getDate() + 7);
       maxFutureDate.setHours(23, 59, 59, 999);
+      const isBeforeToday = isBefore(date() || new Date(), new Date());
 
       const isWithinFutureInterval =
-        !!date() &&
-        isWithinInterval(date()!, { start: today, end: maxFutureDate });
+        !!date() && isBefore(date()!, maxFutureDate);
 
       return coords && shouldFetch() && date() && isWithinFutureInterval
         ? {
-            url: this._baseUrl,
+            url: isBeforeToday ? this._historicalBaseUrl : this._baseUrl,
             params: {
               ...this._sharedQueryParams(),
               latitude: coords.lat,

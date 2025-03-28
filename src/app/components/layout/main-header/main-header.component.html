@@ -8,6 +8,7 @@
     [style]="{ cursor: 'pointer' }"
   />
   <div class="menu">
+    <p-menu #authMenu [model]="menuItems" [popup]="true" />
     <soil-temperature-display />
     <p-avatar
       shape="circle"
@@ -26,4 +27,3 @@
     }
   </div>
 </div>
-<p-menu #authMenu [model]="menuItems" [popup]="true" />

@@ -4,6 +4,7 @@
   [dt]="lawnSegsTableDt"
   editMode="row"
   dataKey="id"
+  [loading]="lawnSegmentsAreLoading()"
   #lawnSegmentTable
 >
   <ng-template #header>
@@ -91,12 +92,53 @@
       </td>
     </tr>
   </ng-template>
+  <ng-template #emptymessage>
+    <td colspan="3">
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          justify-content: center;
+          align-items: center;
+        "
+      >
+        <i
+          class="ti ti-table"
+          style="font-size: 5rem; color: var(--text-color)"
+        ></i>
+        <h3 style="margin: 0">No lawn segments found</h3>
+        <p>Click the plus icon to add a new lawn segment.</p>
+      </div>
+    </td>
+  </ng-template>
+  <ng-template #loadingbody>
+    <td colspan="3">
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          justify-content: center;
+          align-items: center;
+        "
+      >
+        <i
+          class="ti ti-loader-2 icon-spin"
+          style="font-size: 5rem; color: var(--text-color)"
+        ></i>
+        <h3 style="margin: 0">Loading lawn segments...</h3>
+      </div>
+    </td>
+  </ng-template>
   <ng-template #footer>
-    <p-button
-      [icon]="'ti ti-plus'"
-      rounded
-      pTooltip="Add lawn segment"
-      (onClick)="addLawnSegmentRow()"
-    />
+    <div style="margin-top: 1rem">
+      <p-button
+        [icon]="'ti ti-plus'"
+        rounded
+        pTooltip="Add lawn segment"
+        (onClick)="addLawnSegmentRow()"
+      />
+    </div>
   </ng-template>
 </p-table>

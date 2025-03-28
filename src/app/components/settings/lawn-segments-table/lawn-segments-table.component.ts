@@ -23,6 +23,9 @@ export class LawnSegmentsTableComponent {
 
   public lawnSegmentTable = viewChild(Table);
 
+  public lawnSegmentsAreLoading =
+    this._lawnSegmentsService.lawnSegments.isLoading;
+
   public editLawnSegment(segment: LawnSegment): void {
     this.currentlyEditingLawnSegmentId.set(segment.id);
   }

@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { LawnSegmentsService } from '../services/lawn-segments.service';
 import { LawnSegmentCreationRequest } from '../models/lawn-segments.types';
 import { Request } from 'express';
@@ -21,5 +29,10 @@ export class LawnSegmentsController {
       req.user.userId,
       lawnSegment,
     );
+  }
+
+  @Delete(':id')
+  deleteLawnSegment(@Param('id') id: number) {
+    return this._lawnSegmentService.deleteLawnSegment(id);
   }
 }

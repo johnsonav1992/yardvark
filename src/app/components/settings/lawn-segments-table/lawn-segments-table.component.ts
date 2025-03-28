@@ -55,6 +55,17 @@ export class LawnSegmentsTableComponent {
     });
   }
 
+  public deleteSegment(segmentId: number): void {
+    this._lawnSegmentsService.deleteLawnSegment(segmentId).subscribe({
+      next: () => {
+        this._lawnSegmentsService.lawnSegments.reload();
+      },
+      error: () => {
+        this._throwErrorToast('Error deleting lawn segment');
+      }
+    });
+  }
+
   public lawnSegsTableDt: DataTableDesignTokens = {
     bodyCell: { padding: '.25rem' },
     headerCell: { padding: '.25rem' }

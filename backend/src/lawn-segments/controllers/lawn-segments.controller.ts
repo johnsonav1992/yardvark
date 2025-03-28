@@ -13,7 +13,13 @@ export class LawnSegmentsController {
   }
 
   @Post()
-  createLawnSegment(@Body() lawnSegment: LawnSegmentCreationRequest) {
-    return this._lawnSegmentService.createLawnSegment(lawnSegment);
+  createLawnSegment(
+    @Req() req: Request,
+    @Body() lawnSegment: LawnSegmentCreationRequest,
+  ) {
+    return this._lawnSegmentService.createLawnSegment(
+      req.user.userId,
+      lawnSegment,
+    );
   }
 }

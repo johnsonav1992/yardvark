@@ -6,6 +6,7 @@ import { DataTableDesignTokens } from '@primeng/themes/types/datatable';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { LawnSegmentsService } from '../../../services/lawn-segments.service';
+import { injectErrorToast } from '../../../utils/toastUtils';
 
 @Component({
   selector: 'lawn-segments-table',
@@ -15,6 +16,7 @@ import { LawnSegmentsService } from '../../../services/lawn-segments.service';
 })
 export class LawnSegmentsTableComponent {
   private _lawnSegmentsService = inject(LawnSegmentsService);
+  private _throwErrorToast = injectErrorToast();
 
   public lawnSegments = model.required<LawnSegment[] | undefined>();
   public currentlyEditingLawnSegmentId = model.required<number | null>();
@@ -38,12 +40,17 @@ export class LawnSegmentsTableComponent {
   }
 
   public onRowSave(segment: LawnSegment): void {
-    console.log(segment);
-
     this._lawnSegmentsService.addLawnSegment(segment).subscribe({
       next: () => {
         this._lawnSegmentsService.lawnSegments.reload();
         this.currentlyEditingLawnSegmentId.set(null);
+      },
+      error: () => {
+        this._throwErrorToast('Error saving lawn segment');
+
+        this.lawnSegments.update((prev) => {
+          return prev?.filter((seg) => seg.id !== segment.id);
+        });
       }
     });
   }

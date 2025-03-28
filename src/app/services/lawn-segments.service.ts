@@ -16,7 +16,7 @@ export class LawnSegmentsService {
     return postReq(apiUrl('lawn-segments'), {
       name: newSegment.name,
       size: newSegment.size
-    });
+    } satisfies Pick<LawnSegment, 'name' | 'size'>);
   }
 
   public deleteLawnSegment(id: number): Observable<void> {

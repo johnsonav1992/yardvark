@@ -24,6 +24,10 @@ export class LawnSegmentsService {
     return this._lawnSegmentRepo.save(lawnSeg);
   }
 
+  async updateLawnSegment(lawnSegment: LawnSegment) {
+    return this._lawnSegmentRepo.save(lawnSegment);
+  }
+
   async deleteLawnSegment(id: number) {
     return this._lawnSegmentRepo.delete({ id });
   }

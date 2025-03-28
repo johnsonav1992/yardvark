@@ -5,11 +5,13 @@ import {
   Get,
   Param,
   Post,
+  Put,
   Req,
 } from '@nestjs/common';
 import { LawnSegmentsService } from '../services/lawn-segments.service';
 import { LawnSegmentCreationRequest } from '../models/lawn-segments.types';
 import { Request } from 'express';
+import { LawnSegment } from '../models/lawn-segments.model';
 
 @Controller('lawn-segments')
 export class LawnSegmentsController {
@@ -29,6 +31,11 @@ export class LawnSegmentsController {
       req.user.userId,
       lawnSegment,
     );
+  }
+
+  @Put(':id')
+  updateLawnSegment(@Body() lawnSegment: LawnSegment) {
+    return this._lawnSegmentService.updateLawnSegment(lawnSegment);
   }
 
   @Delete(':id')

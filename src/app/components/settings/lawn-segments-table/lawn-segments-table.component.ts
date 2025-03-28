@@ -40,7 +40,11 @@ export class LawnSegmentsTableComponent {
   }
 
   public onRowSave(segment: LawnSegment): void {
-    this._lawnSegmentsService.addLawnSegment(segment).subscribe({
+    const isNewSegment = segment.id < 1;
+
+    this._lawnSegmentsService[
+      isNewSegment ? 'addLawnSegment' : 'updateLawnSegment'
+    ](segment).subscribe({
       next: () => {
         this._lawnSegmentsService.lawnSegments.reload();
         this.currentlyEditingLawnSegmentId.set(null);
@@ -48,9 +52,13 @@ export class LawnSegmentsTableComponent {
       error: () => {
         this._throwErrorToast('Error saving lawn segment');
 
-        this.lawnSegments.update((prev) => {
-          return prev?.filter((seg) => seg.id !== segment.id);
-        });
+        if (isNewSegment) {
+          this.lawnSegments.update((prev) => {
+            return prev?.filter((seg) => seg.id !== segment.id);
+          });
+        }
+
+        this.currentlyEditingLawnSegmentId.set(null);
       }
     });
   }

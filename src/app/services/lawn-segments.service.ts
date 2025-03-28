@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { LawnSegment } from '../types/lawnSegments.types';
-import { apiUrl, deleteReq, postReq } from '../utils/httpUtils';
+import { apiUrl, deleteReq, postReq, putReq } from '../utils/httpUtils';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -17,6 +17,10 @@ export class LawnSegmentsService {
       name: newSegment.name,
       size: newSegment.size
     } satisfies Pick<LawnSegment, 'name' | 'size'>);
+  }
+
+  public updateLawnSegment(segment: LawnSegment): Observable<void> {
+    return putReq(apiUrl('lawn-segments', { params: [segment.id] }), segment);
   }
 
   public deleteLawnSegment(id: number): Observable<void> {

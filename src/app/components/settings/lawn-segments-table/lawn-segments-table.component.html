@@ -47,6 +47,7 @@
         <div style="display: flex; gap: 0.5rem; justify-content: flex-end">
           @let isRowBeingEdited = editing;
           @let isInEditingMode = !!currentlyEditingLawnSegmentId();
+          @let isNewSegment = segment.id < 1;
 
           @if (isRowBeingEdited && isInEditingMode) {
             <p-button
@@ -64,7 +65,7 @@
               outlined
               severity="info"
               pCancelEditableRow
-              (onClick)="currentlyEditingLawnSegmentId.set(null)"
+              (onClick)="cancelRowEdit(segment)"
             />
           } @else {
             <p-button
@@ -77,13 +78,15 @@
               [disabled]="isInEditingMode && !isRowBeingEdited"
             />
           }
-          <p-button
-            icon="ti ti-trash"
-            (onClick)="deleteSegment(segment.id)"
-            rounded
-            outlined
-            severity="danger"
-          />
+          @if (!isNewSegment) {
+            <p-button
+              icon="ti ti-trash"
+              (onClick)="deleteSegment(segment.id)"
+              rounded
+              outlined
+              severity="danger"
+            />
+          }
         </div>
       </td>
     </tr>

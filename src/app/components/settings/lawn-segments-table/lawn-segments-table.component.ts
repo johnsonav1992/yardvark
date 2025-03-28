@@ -74,6 +74,18 @@ export class LawnSegmentsTableComponent {
     });
   }
 
+  public cancelRowEdit(segment: LawnSegment): void {
+    const isNewSegment = segment.id < 1;
+
+    if (isNewSegment) {
+      this.lawnSegments.update((prev) => {
+        return prev?.filter((seg) => seg.id !== segment.id);
+      });
+    }
+
+    this.currentlyEditingLawnSegmentId.set(null);
+  }
+
   public lawnSegsTableDt: DataTableDesignTokens = {
     bodyCell: { padding: '.25rem' },
     headerCell: { padding: '.25rem' }

@@ -1,10 +1,11 @@
-import { Component, input, model, viewChild } from '@angular/core';
+import { Component, inject, model, viewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { Table, TableModule } from 'primeng/table';
 import { LawnSegment } from '../../../types/lawnSegments.types';
 import { DataTableDesignTokens } from '@primeng/themes/types/datatable';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
+import { LawnSegmentsService } from '../../../services/lawn-segments.service';
 
 @Component({
   selector: 'lawn-segments-table',
@@ -13,6 +14,8 @@ import { InputTextModule } from 'primeng/inputtext';
   styleUrl: './lawn-segments-table.component.scss'
 })
 export class LawnSegmentsTableComponent {
+  private _lawnSegmentsService = inject(LawnSegmentsService);
+
   public lawnSegments = model.required<LawnSegment[] | undefined>();
   public currentlyEditingLawnSegmentId = model.required<number | null>();
 
@@ -36,7 +39,13 @@ export class LawnSegmentsTableComponent {
 
   public onRowSave(segment: LawnSegment): void {
     console.log(segment);
-    this.currentlyEditingLawnSegmentId.set(null);
+
+    this._lawnSegmentsService.addLawnSegment(segment).subscribe({
+      next: () => {
+        this._lawnSegmentsService.lawnSegments.reload();
+        this.currentlyEditingLawnSegmentId.set(null);
+      }
+    });
   }
 
   public lawnSegsTableDt: DataTableDesignTokens = {

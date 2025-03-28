@@ -16,6 +16,14 @@
     >
       <img [src]="user()?.picture" referrerpolicy="no-referrer" />
     </p-avatar>
-    <p-menu #authMenu [model]="menuItems" [popup]="true" />
+    @if (isSmallScreen()) {
+      <p-button
+        icon="ti ti-menu-2"
+        (click)="toggleSideNav()"
+        variant="text"
+        size="large"
+      />
+    }
   </div>
 </div>
+<p-menu #authMenu [model]="menuItems" [popup]="true" />

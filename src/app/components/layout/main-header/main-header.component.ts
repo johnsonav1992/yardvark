@@ -8,6 +8,8 @@ import { injectUserData } from '../../../utils/authUtils';
 import { injectBreakpointObserver } from '../../../utils/styleUtils';
 import { SM_BREAKPOINT } from '../../../constants/style-constants';
 import { RouterLink } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { GlobalUiService } from '../../../services/global-ui.service';
 
 @Component({
   selector: 'main-header',
@@ -15,13 +17,15 @@ import { RouterLink } from '@angular/router';
     AvatarModule,
     MenuModule,
     SoilTemperatureDisplayComponent,
-    RouterLink
+    RouterLink,
+    ButtonModule
   ],
   templateUrl: './main-header.component.html',
   styleUrl: './main-header.component.scss'
 })
 export class MainHeaderComponent {
   private _authService = inject(AuthService);
+  private _globalUiService = inject(GlobalUiService);
 
   public isSmallScreen = injectBreakpointObserver(
     `(max-width: ${SM_BREAKPOINT})`
@@ -46,4 +50,8 @@ export class MainHeaderComponent {
       command: () => this._authService.logout()
     }
   ];
+
+  public toggleSideNav(): void {
+    this._globalUiService.isMobileSidebarOpen.update((isOpen) => !isOpen);
+  }
 }

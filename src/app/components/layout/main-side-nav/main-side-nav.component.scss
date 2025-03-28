@@ -5,6 +5,11 @@
   box-shadow: none !important;
 }
 
+.mobile-nav {
+  width: var(--side-nav-width) !important;
+  padding-top: var(--main-header-height);
+}
+
 .menu {
   border: none;
 }

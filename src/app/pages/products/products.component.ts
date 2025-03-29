@@ -11,6 +11,7 @@ import { ProductsService } from '../../services/products.service';
 import { ButtonModule } from 'primeng/button';
 import { ButtonDesignTokens } from '@primeng/themes/types/button';
 import { TooltipModule } from 'primeng/tooltip';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'products',
@@ -28,6 +29,7 @@ import { TooltipModule } from 'primeng/tooltip';
 })
 export class ProductsComponent {
   private _productsService = inject(ProductsService);
+  private _router = inject(Router);
 
   public tabs: Tab<ProductCategories>[] = [
     { title: 'Fertilizer', value: 'fertilizer' },
@@ -55,6 +57,10 @@ export class ProductsComponent {
     const selectedTab = tab as Uncapitalize<ProductCategories>;
 
     this.selectedTab.set(selectedTab);
+  }
+
+  public navToAddProduct(): void {
+    this._router.navigate(['products', 'add']);
   }
 
   public spinnerDt: ProgressSpinnerDesignTokens = {

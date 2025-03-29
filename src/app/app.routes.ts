@@ -7,10 +7,7 @@ import { SettingsComponent } from './pages/settings/settings.component';
 import { ProductsComponent } from './pages/products/products.component';
 import { EquipmentComponent } from './pages/equipment/equipment.component';
 import { EntryViewComponent } from './pages/entry-log/entry-view/entry-view.component';
-
-export const productRoutes: Routes = [
-  { path: ':productId', component: ProductsComponent }
-];
+import { AddProductComponent } from './pages/products/add-product/add-product.component';
 
 export const mainRoutes: Routes = [
   {
@@ -39,9 +36,16 @@ export const mainRoutes: Routes = [
     component: SoilDataComponent
   },
   {
+    path: 'products/add',
+    component: AddProductComponent
+  },
+  {
+    path: 'products/:productId',
+    component: ProductsComponent
+  },
+  {
     path: 'products',
-    component: ProductsComponent,
-    children: productRoutes
+    component: ProductsComponent
   },
   {
     path: 'equipment',

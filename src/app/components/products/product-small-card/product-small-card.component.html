@@ -5,9 +5,9 @@
   <div class="product-info-wrapper">
     <img [src]="product().imageUrl" width="auto" height="30px" />
     <div>
-      <p>{{ product().brand }} - {{ product().name }}</p>
+      {{ product().name }}
       <p class="sub-text">
-        {{ product().guaranteedAnalysis }} |
+        {{ product().brand }} | {{ product().guaranteedAnalysis }} |
         @if (asAppliedAmount()) {
           {{ product().quantity }}{{ product().quantityUnit }} Applied
         } @else {

@@ -1,4 +1,4 @@
-<page-container pageTitle="Add product">
+<page-container pageTitle="Add product" gap="1rem">
   <div style="display: flex; gap: 1rem; width: 100%">
     <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%">
       <div class="input-container">
@@ -62,5 +62,77 @@
         </div>
       </ng-template>
     </p-fileUpload>
+  </div>
+  <div class="input-container">
+    Guaranteed analysis
+    <input
+      pInputText
+      placeholder="N-P-K (i.e. 7-0-20)"
+      [style]="{ width: '100%' }"
+    />
+  </div>
+  <div class="input-container">
+    Category
+    <p-dropdown
+      [options]="[]"
+      [optionLabel]="'name'"
+      [showClear]="true"
+      [placeholder]="'Select a category'"
+      [style]="{ width: '100%' }"
+    />
+  </div>
+  <div class="input-container">
+    Application rate
+    <input pInputText placeholder="3lb/1000sqft" />
+  </div>
+  <div class="input-container">
+    Application method
+    <p-dropdown
+      [options]="[]"
+      [optionLabel]="'name'"
+      [showClear]="true"
+      [placeholder]="'Select an application method'"
+      [style]="{ width: '100%' }"
+    />
+  </div>
+  <div class="input-container">
+    Quantity unit
+    <p-dropdown
+      [options]="[]"
+      [optionLabel]="'name'"
+      [showClear]="true"
+      [placeholder]="'Unit of measure for the product'"
+      [style]="{ width: '100%' }"
+    />
+  </div>
+  <div class="input-container">
+    Coverage amount
+    <p-inputNumber
+      [mode]="'decimal'"
+      [min]="0"
+      [max]="10000"
+      [showButtons]="true"
+      [style]="{ width: '100%' }"
+    />
+  </div>
+  <div class="input-container">
+    Coverage unit
+    <p-dropdown
+      [options]="[]"
+      [optionLabel]="'name'"
+      [showClear]="true"
+      [placeholder]="'Unit of measure for the coverage'"
+      [style]="{ width: '100%' }"
+    />
+  </div>
+  <div class="input-container">
+    Container type
+    <p-dropdown
+      [options]="[]"
+      [optionLabel]="'name'"
+      [showClear]="true"
+      [placeholder]="'Select a container type'"
+      [style]="{ width: '100%' }"
+    />
   </div>
 </page-container>

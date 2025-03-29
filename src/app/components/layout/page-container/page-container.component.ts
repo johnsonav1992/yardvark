@@ -13,6 +13,7 @@ export class PageContainerComponent {
 
   public pageTitle = input.required<string>();
   public hideBackButton = input<boolean>(false);
+  public gap = input<string>('1.5rem');
 
   public back() {
     this._location.back();

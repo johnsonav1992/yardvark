@@ -12,6 +12,7 @@ import { ButtonModule } from 'primeng/button';
 import { ButtonDesignTokens } from '@primeng/themes/types/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { Router } from '@angular/router';
+import { GlobalUiService } from '../../services/global-ui.service';
 
 @Component({
   selector: 'products',
@@ -30,6 +31,9 @@ import { Router } from '@angular/router';
 export class ProductsComponent {
   private _productsService = inject(ProductsService);
   private _router = inject(Router);
+  private _globalUiService = inject(GlobalUiService);
+
+  public isMobile = this._globalUiService.isMobile;
 
   public tabs: Tab<ProductCategories>[] = [
     { title: 'Fertilizer', value: 'fertilizer' },

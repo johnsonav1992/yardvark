@@ -17,7 +17,10 @@
               <p-progressSpinner [dt]="spinnerDt" />
             </div>
           } @else {
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap">
+            <div
+              style="display: flex; gap: 0.5rem; flex-wrap: wrap"
+              [style.justify-content]="isMobile() ? 'center' : ''"
+            >
               @for (product of productsToShow(); track product.id) {
                 <product-card [product]="product" />
               } @empty {

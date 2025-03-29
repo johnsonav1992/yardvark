@@ -1,10 +1,10 @@
 import {
   Component,
   contentChild,
+  effect,
   ElementRef,
   inject,
   input,
-  OnInit,
   TemplateRef
 } from '@angular/core';
 import { Product } from '../../../types/products.types';
@@ -17,7 +17,7 @@ import { CapitalizePipe } from '../../../pipes/capitalize.pipe';
   templateUrl: './product-small-card.component.html',
   styleUrl: './product-small-card.component.scss'
 })
-export class ProductSmallCardComponent implements OnInit {
+export class ProductSmallCardComponent {
   private _el = inject(ElementRef);
 
   public product = input.required<Partial<Product>>();
@@ -27,9 +27,9 @@ export class ProductSmallCardComponent implements OnInit {
 
   public actions = contentChild<TemplateRef<unknown>>('actions');
 
-  public ngOnInit(): void {
+  public widthSetter = effect(() => {
     if (this.width()) {
       this._el.nativeElement.style.width = this.width();
     }
-  }
+  });
 }

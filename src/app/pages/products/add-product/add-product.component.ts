@@ -1,11 +1,20 @@
 import { Component } from '@angular/core';
+import { PageContainerComponent } from '../../../components/layout/page-container/page-container.component';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { FileUploadModule } from 'primeng/fileupload';
 
 @Component({
   selector: 'add-product',
-  imports: [],
+  imports: [
+    PageContainerComponent,
+    InputTextModule,
+    TextareaModule,
+    InputNumberModule,
+    FileUploadModule
+  ],
   templateUrl: './add-product.component.html',
   styleUrl: './add-product.component.scss'
 })
-export class AddProductComponent {
-
-}
+export class AddProductComponent {}

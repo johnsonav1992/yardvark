@@ -4,6 +4,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { FileUploadModule } from 'primeng/fileupload';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'add-product',
@@ -12,7 +13,8 @@ import { FileUploadModule } from 'primeng/fileupload';
     InputTextModule,
     TextareaModule,
     InputNumberModule,
-    FileUploadModule
+    FileUploadModule,
+    ButtonModule
   ],
   templateUrl: './add-product.component.html',
   styleUrl: './add-product.component.scss'

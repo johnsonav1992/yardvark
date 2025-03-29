@@ -9,9 +9,14 @@
         Brand
         <input pInputText />
       </div>
+      <div class="input-container">
+        Description
+        <textarea pTextarea rows="5"></textarea>
+      </div>
     </div>
     <p-fileUpload
       #imageUploader
+      [maxFileSize]="200000000"
       [style]="{
         width: '100%',
         height: '300px',
@@ -23,6 +28,17 @@
       <ng-template #toolbar></ng-template>
       <ng-template #file let-file>
         <img [src]="file.objectURL" height="200px" />
+        <p-button
+          icon="ti ti-trash"
+          severity="danger"
+          rounded
+          (click)="imageUploader.remove($event, 0)"
+          [style]="{
+            position: 'absolute',
+            bottom: '0.5rem',
+            right: '0.5rem'
+          }"
+        />
       </ng-template>
       <ng-template #empty>
         <div

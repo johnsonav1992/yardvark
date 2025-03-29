@@ -18,7 +18,6 @@ import { map } from 'rxjs';
 import { apiUrl, deleteReq, putReq } from '../../../utils/httpUtils';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { CardDesignTokens } from '@primeng/themes/types/card';
 import { ChipModule } from 'primeng/chip';
 import { ChipDesignTokens } from '@primeng/themes/types/chip';
 import { DividerModule } from 'primeng/divider';
@@ -81,8 +80,6 @@ export class EntryViewComponent {
   private _globalUiService = inject(GlobalUiService);
 
   public isMobile = this._globalUiService.isMobile;
-
-  _ = effectSignalLogger(this.isMobile);
 
   public editForm = new FormGroup({
     title: new FormControl<string>('', [Validators.required]),

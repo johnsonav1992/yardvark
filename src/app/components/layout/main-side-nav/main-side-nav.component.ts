@@ -3,8 +3,6 @@ import { MenuDesignTokens } from '@primeng/themes/types/menu';
 import { MenuItem } from 'primeng/api';
 import { DrawerModule } from 'primeng/drawer';
 import { MenuModule } from 'primeng/menu';
-import { injectBreakpointObserver } from '../../../utils/styleUtils';
-import { SM_BREAKPOINT } from '../../../constants/style-constants';
 import { GlobalUiService } from '../../../services/global-ui.service';
 
 @Component({
@@ -17,9 +15,7 @@ import { GlobalUiService } from '../../../services/global-ui.service';
 export class MainSideNavComponent {
   private _globalUiService = inject(GlobalUiService);
 
-  public isSmallScreen = injectBreakpointObserver(
-    `(max-width: ${SM_BREAKPOINT})`
-  );
+  public isMobile = this._globalUiService.isMobile;
 
   public isMobileSidebarOpen = this._globalUiService.isMobileSidebarOpen;
 

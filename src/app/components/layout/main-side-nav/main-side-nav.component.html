@@ -1,9 +1,9 @@
 <p-drawer
   [modal]="false"
-  [visible]="isSmallScreen() ? isMobileSidebarOpen() : true"
-  [closable]="isSmallScreen()"
-  [styleClass]="isSmallScreen() ? 'mobile-nav' : 'sidenav'"
-  [position]="isSmallScreen() && isMobileSidebarOpen() ? 'right' : 'left'"
+  [visible]="isMobile() ? isMobileSidebarOpen() : true"
+  [closable]="isMobile()"
+  [styleClass]="isMobile() ? 'mobile-nav' : 'sidenav'"
+  [position]="isMobile() && isMobileSidebarOpen() ? 'right' : 'left'"
 >
   <ng-template #headless>
     <p-menu [model]="menuItems" [dt]="menuDt" [style]="{ fontSize: '24px' }" />

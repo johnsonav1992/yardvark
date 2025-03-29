@@ -3,9 +3,8 @@ import { RouterOutlet } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
 import { MainHeaderComponent } from './components/layout/main-header/main-header.component';
 import { MainSideNavComponent } from './components/layout/main-side-nav/main-side-nav.component';
-import { injectBreakpointObserver } from './utils/styleUtils';
-import { SM_BREAKPOINT } from './constants/style-constants';
 import { ToastModule } from 'primeng/toast';
+import { GlobalUiService } from './services/global-ui.service';
 
 @Component({
   selector: 'app-root',
@@ -20,10 +19,9 @@ import { ToastModule } from 'primeng/toast';
 })
 export class AppComponent {
   private _auth = inject(AuthService);
+  private _globalUiService = inject(GlobalUiService);
 
-  public isSmallScreen = injectBreakpointObserver(
-    `(max-width: ${SM_BREAKPOINT})`
-  );
+  public isMobile = this._globalUiService.isMobile;
 
   public isLoggedIn = signal(false);
 

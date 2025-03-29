@@ -48,6 +48,8 @@ import { ProductsSelectorComponent } from '../../../components/products/products
 import { Product } from '../../../types/products.types';
 import { TextareaModule } from 'primeng/textarea';
 import { injectErrorToast } from '../../../utils/toastUtils';
+import { GlobalUiService } from '../../../services/global-ui.service';
+import { effectSignalLogger } from '../../../utils/generalUtils';
 
 @Component({
   selector: 'entry-view',
@@ -76,6 +78,11 @@ export class EntryViewComponent {
   private _activitiesService = inject(ActivitiesService);
   private _lawnSegmentsService = inject(LawnSegmentsService);
   private _throwErrorToast = injectErrorToast();
+  private _globalUiService = inject(GlobalUiService);
+
+  public isMobile = this._globalUiService.isMobile;
+
+  _ = effectSignalLogger(this.isMobile);
 
   public editForm = new FormGroup({
     title: new FormControl<string>('', [Validators.required]),

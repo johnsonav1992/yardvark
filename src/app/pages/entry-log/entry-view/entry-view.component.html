@@ -151,7 +151,7 @@
                     <product-small-card
                       [product]="product"
                       [asAppliedAmount]="true"
-                      [width]="'max-content'"
+                      [width]="isMobile() ? '100%' : ''"
                     />
                   }
                 </div>

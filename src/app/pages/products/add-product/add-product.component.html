@@ -67,7 +67,7 @@
     Guaranteed analysis
     <input
       pInputText
-      placeholder="N-P-K (i.e. 7-0-20)"
+      placeholder="N-P-K (i.e. 7-0-20) | N/A if none"
       [style]="{ width: '100%' }"
     />
   </div>
@@ -105,25 +105,26 @@
       [style]="{ width: '100%' }"
     />
   </div>
-  <div class="input-container">
-    Coverage amount
-    <p-inputNumber
-      [mode]="'decimal'"
-      [min]="0"
-      [max]="10000"
-      [showButtons]="true"
-      [style]="{ width: '100%' }"
-    />
-  </div>
-  <div class="input-container">
-    Coverage unit
-    <p-dropdown
-      [options]="[]"
-      [optionLabel]="'name'"
-      [showClear]="true"
-      [placeholder]="'Unit of measure for the coverage'"
-      [style]="{ width: '100%' }"
-    />
+  <div style="display: flex; gap: 0.5rem; width: 100%">
+    <div class="input-container">
+      Coverage amount
+      <p-inputNumber
+        [mode]="'decimal'"
+        [min]="0"
+        [max]="10000"
+        [showButtons]="true"
+        [style]="{ width: '100%' }"
+      />
+    </div>
+    <div class="input-container">
+      Coverage unit
+      <p-dropdown
+        [options]="[]"
+        [optionLabel]="'name'"
+        [showClear]="true"
+        [style]="{ width: '100%' }"
+      />
+    </div>
   </div>
   <div class="input-container">
     Container type

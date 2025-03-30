@@ -1,156 +1,160 @@
-<page-container pageTitle="Add product" gap="1rem">
-  <div style="display: flex; gap: 1rem; width: 100%">
-    <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%">
-      <div class="input-container">
-        Product Name
-        <input pInputText />
-      </div>
-      <div class="input-container">
-        Brand
-        <input pInputText />
-      </div>
-      <div class="input-container">
-        Description
-        <textarea pTextarea rows="5"></textarea>
-      </div>
-    </div>
-    <p-fileUpload
-      #imageUploader
-      [maxFileSize]="200000000"
-      [style]="{
-        width: '100%',
-        height: '300px',
-        display: 'flex',
-        flexDirection: 'column'
-      }"
-      [multiple]="false"
-    >
-      <ng-template #toolbar></ng-template>
-      <ng-template #file let-file>
-        <img [src]="file.objectURL" height="200px" />
-        <p-button
-          icon="ti ti-trash"
-          severity="danger"
-          rounded
-          (click)="imageUploader.remove($event, 0)"
-          [style]="{
-            position: 'absolute',
-            bottom: '0.5rem',
-            right: '0.5rem'
-          }"
-        />
-      </ng-template>
-      <ng-template #empty>
-        <div
-          style="
-            width: 100%;
-            display: flex;
-            height: 100%;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            cursor: pointer;
-          "
-          (click)="imageUploader.choose()"
-        >
-          <p>Drag and drop file here or click to upload</p>
-          <i
-            class="ti ti-cloud-upload"
-            style="font-size: 5rem; color: var(--p-surface-300)"
-          ></i>
+<page-container pageTitle="Add product">
+  <form [formGroup]="form" class="form-container">
+    <div style="display: flex; gap: 1rem; width: 100%">
+      <div
+        style="display: flex; flex-direction: column; gap: 1rem; width: 100%"
+      >
+        <div class="input-container">
+          Product Name
+          <input pInputText />
         </div>
-      </ng-template>
-    </p-fileUpload>
-  </div>
-  <div style="display: flex; gap: 0.5rem; width: 100%">
+        <div class="input-container">
+          Brand
+          <input pInputText />
+        </div>
+        <div class="input-container">
+          Description
+          <textarea pTextarea rows="5"></textarea>
+        </div>
+      </div>
+      <p-fileUpload
+        #imageUploader
+        [maxFileSize]="200000000"
+        [style]="{
+          width: '100%',
+          height: '300px',
+          display: 'flex',
+          flexDirection: 'column'
+        }"
+        [multiple]="false"
+      >
+        <ng-template #toolbar></ng-template>
+        <ng-template #file let-file>
+          <img [src]="file.objectURL" height="200px" />
+          <p-button
+            icon="ti ti-trash"
+            severity="danger"
+            rounded
+            (click)="imageUploader.remove($event, 0)"
+            [style]="{
+              position: 'absolute',
+              bottom: '0.5rem',
+              right: '0.5rem'
+            }"
+          />
+        </ng-template>
+        <ng-template #empty>
+          <div
+            style="
+              width: 100%;
+              display: flex;
+              height: 100%;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+              text-align: center;
+              cursor: pointer;
+            "
+            (click)="imageUploader.choose()"
+          >
+            <p>Drag and drop file here or click to upload</p>
+            <i
+              class="ti ti-cloud-upload"
+              style="font-size: 5rem; color: var(--p-surface-300)"
+            ></i>
+          </div>
+        </ng-template>
+      </p-fileUpload>
+    </div>
+    <div style="display: flex; gap: 0.5rem; width: 100%">
+      <div class="input-container">
+        Coverage amount
+        <p-inputNumber
+          [mode]="'decimal'"
+          [min]="0"
+          [max]="10000"
+          [showButtons]="true"
+          [style]="{ width: '100%' }"
+        />
+      </div>
+      <div class="input-container">
+        Coverage unit
+        <p-dropdown
+          [options]="[]"
+          [optionLabel]="'name'"
+          [showClear]="true"
+          [style]="{ width: '100%' }"
+        />
+      </div>
+    </div>
+    <div style="display: flex; gap: 0.5rem; width: 100%">
+      <div class="input-container">
+        Application rate
+        <input pInputText placeholder="3lb/1000sqft" />
+      </div>
+      <div class="input-container">
+        Application method
+        <p-dropdown
+          [options]="[]"
+          [optionLabel]="'name'"
+          [showClear]="true"
+          [style]="{ width: '100%' }"
+        />
+      </div>
+    </div>
     <div class="input-container">
-      Coverage amount
-      <p-inputNumber
-        [mode]="'decimal'"
-        [min]="0"
-        [max]="10000"
-        [showButtons]="true"
+      Guaranteed analysis
+      <input
+        pInputText
+        placeholder="N-P-K (i.e. 7-0-20) | N/A if none"
         [style]="{ width: '100%' }"
       />
     </div>
     <div class="input-container">
-      Coverage unit
+      Category
       <p-dropdown
         [options]="[]"
         [optionLabel]="'name'"
         [showClear]="true"
+        [placeholder]="'Select a category'"
         [style]="{ width: '100%' }"
       />
     </div>
-  </div>
-  <div style="display: flex; gap: 0.5rem; width: 100%">
     <div class="input-container">
-      Application rate
-      <input pInputText placeholder="3lb/1000sqft" />
-    </div>
-    <div class="input-container">
-      Application method
+      Quantity unit
       <p-dropdown
         [options]="[]"
         [optionLabel]="'name'"
         [showClear]="true"
+        [placeholder]="'Unit of measure for the product'"
         [style]="{ width: '100%' }"
       />
     </div>
-  </div>
-  <div class="input-container">
-    Guaranteed analysis
-    <input
-      pInputText
-      placeholder="N-P-K (i.e. 7-0-20) | N/A if none"
-      [style]="{ width: '100%' }"
-    />
-  </div>
-  <div class="input-container">
-    Category
-    <p-dropdown
-      [options]="[]"
-      [optionLabel]="'name'"
-      [showClear]="true"
-      [placeholder]="'Select a category'"
-      [style]="{ width: '100%' }"
-    />
-  </div>
-  <div class="input-container">
-    Quantity unit
-    <p-dropdown
-      [options]="[]"
-      [optionLabel]="'name'"
-      [showClear]="true"
-      [placeholder]="'Unit of measure for the product'"
-      [style]="{ width: '100%' }"
-    />
-  </div>
-  <div class="input-container">
-    Container type
-    <p-dropdown
-      [options]="[]"
-      [optionLabel]="'name'"
-      [showClear]="true"
-      [placeholder]="'Select a container type'"
-      [style]="{ width: '100%' }"
-    />
-  </div>
-  <div style="display: flex; gap: 0.5rem; justify-content: flex-end">
-    <p-button
-      label="Cancel"
-      icon="ti ti-x"
-      severity="secondary"
-      [style]="{ width: '100%' }"
-      (click)="('')"
-    />
-    <p-button
-      label="Save"
-      icon="ti ti-check"
-      severity="primary"
-      [style]="{ width: '100%' }"
-      (click)="('')"
-    />
-  </div>
+    <div class="input-container">
+      Container type
+      <p-dropdown
+        [options]="[]"
+        [optionLabel]="'name'"
+        [showClear]="true"
+        [placeholder]="'Select a container type'"
+        [style]="{ width: '100%' }"
+      />
+    </div>
+    <div style="display: flex; gap: 0.5rem; justify-content: flex-end">
+      <p-button
+        label="Cancel"
+        icon="ti ti-x"
+        severity="secondary"
+        [style]="{ width: '100%' }"
+        (click)="('')"
+      />
+      <p-button
+        label="Save"
+        icon="ti ti-check"
+        severity="primary"
+        [style]="{ width: '100%' }"
+        (click)="('')"
+      />
+    </div>
+  </form>
 </page-container>

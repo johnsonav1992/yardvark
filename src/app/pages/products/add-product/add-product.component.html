@@ -119,6 +119,11 @@
         [style]="{ width: '100%' }"
         formControlName="guaranteedAnalysis"
       />
+      @if (form.controls.guaranteedAnalysis.hasError("invalidAnalysis")) {
+        <small class="error">
+          Invalid guaranteed analysis format. Use "N/A" if none.
+        </small>
+      }
     </div>
     <div class="input-container">
       Category

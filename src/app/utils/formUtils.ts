@@ -1,11 +1,15 @@
 import { ValidatorFn } from '@angular/forms';
 
+export const GUARANTEED_ANALYSIS_FORMAT_REGEX =
+  /^([0-9]|[1-9][0-9]|100)-([0-9]|[1-9][0-9]|100)-([0-9]|[1-9][0-9]|100)$/;
+
 export const guaranteedAnalysisFieldValidator: ValidatorFn = (control) => {
   const val = control.value;
 
   if (val && val.length > 0) {
-    const regex = /^[a-zA-Z0-9\s]+$/;
-    const isValid = regex.test(val);
+    const isValid =
+      GUARANTEED_ANALYSIS_FORMAT_REGEX.test(val) ||
+      val.toLowerCase() === 'N/A'.toLowerCase();
 
     return isValid ? null : { invalidAnalysis: true };
   }

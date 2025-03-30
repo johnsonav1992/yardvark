@@ -1,22 +1,29 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { PageContainerComponent } from '../../../components/layout/page-container/page-container.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { InputNumberModule } from 'primeng/inputnumber';
-import {
-  FileSelectEvent,
-  FileUploadHandlerEvent,
-  FileUploadModule
-} from 'primeng/fileupload';
+import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
 import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
 import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators
 } from '@angular/forms';
-import { guaranteedAnalysisFieldValidator } from '../../../utils/formUtils';
+import {
+  applicationRateFieldValidator,
+  guaranteedAnalysisFieldValidator
+} from '../../../utils/formUtils';
+import {
+  APPLICATION_METHODS,
+  CONTAINER_TYPES,
+  COVERAGE_UNITS,
+  PRODUCT_CATEGORIES,
+  QUANTITY_UNITS
+} from '../../../constants/product-constants';
+import { SelectModule } from 'primeng/select';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'add-product',
@@ -27,21 +34,29 @@ import { guaranteedAnalysisFieldValidator } from '../../../utils/formUtils';
     InputNumberModule,
     FileUploadModule,
     ButtonModule,
-    DropdownModule,
+    SelectModule,
     ReactiveFormsModule
   ],
   templateUrl: './add-product.component.html',
   styleUrl: './add-product.component.scss'
 })
 export class AddProductComponent {
+  private _location = inject(Location);
+  public applicationMethods = APPLICATION_METHODS;
+  public containerTypes = CONTAINER_TYPES;
+  public productCategories = PRODUCT_CATEGORIES;
+  public quantityUnits = QUANTITY_UNITS;
+  public coverageUnits = COVERAGE_UNITS;
+
   public form = new FormGroup({
     name: new FormControl('', [Validators.required]),
     brand: new FormControl('', [Validators.required]),
     description: new FormControl('', [Validators.required]),
     coverageAmount: new FormControl<number | null>(null, [Validators.required]),
-    coverageUnit: new FormControl('', [Validators.required]),
+    coverageUnit: new FormControl('sqft', [Validators.required]),
     applicationRate: new FormControl<number | null>(null, [
-      Validators.required
+      Validators.required,
+      applicationRateFieldValidator
     ]),
     applicationMethod: new FormControl('', [Validators.required]),
     guaranteedAnalysis: new FormControl('', [guaranteedAnalysisFieldValidator]),
@@ -58,6 +73,10 @@ export class AddProductComponent {
 
   public fileClear(): void {
     this.form.patchValue({ image: null });
+  }
+
+  public back(): void {
+    this._location.back();
   }
 
   public submit(): void {

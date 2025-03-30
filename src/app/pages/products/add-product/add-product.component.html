@@ -22,7 +22,7 @@
         [maxFileSize]="200000000"
         [style]="{
           width: '100%',
-          height: '300px',
+          height: '295px',
           display: 'flex',
           flexDirection: 'column'
         }"
@@ -32,7 +32,7 @@
       >
         <ng-template #toolbar></ng-template>
         <ng-template #file let-file>
-          <img [src]="file.objectURL" height="200px" />
+          <img [src]="file.objectURL" style="object-fit: contain; width: 90%" />
           <p-button
             icon="ti ti-trash"
             severity="danger"
@@ -82,9 +82,8 @@
       </div>
       <div class="input-container">
         Coverage unit
-        <p-dropdown
-          [options]="[]"
-          [optionLabel]="'name'"
+        <p-select
+          [options]="coverageUnits"
           [showClear]="true"
           [style]="{ width: '100%' }"
           formControlName="coverageUnit"
@@ -99,12 +98,17 @@
           placeholder="3lb/1000sqft"
           formControlName="applicationRate"
         />
+        @if (form.controls.applicationRate.hasError("invalidApplicationRate")) {
+          <small class="error">
+            Invalid application rate format. Must be
+            (amount)(unit)/(amount)sqft.
+          </small>
+        }
       </div>
       <div class="input-container">
         Application method
-        <p-dropdown
-          [options]="[]"
-          [optionLabel]="'name'"
+        <p-select
+          [options]="applicationMethods"
           [showClear]="true"
           [style]="{ width: '100%' }"
           formControlName="applicationMethod"
@@ -127,9 +131,8 @@
     </div>
     <div class="input-container">
       Category
-      <p-dropdown
-        [options]="[]"
-        [optionLabel]="'name'"
+      <p-select
+        [options]="productCategories"
         [showClear]="true"
         [placeholder]="'Select a category'"
         [style]="{ width: '100%' }"
@@ -138,9 +141,8 @@
     </div>
     <div class="input-container">
       Quantity unit
-      <p-dropdown
-        [options]="[]"
-        [optionLabel]="'name'"
+      <p-select
+        [options]="quantityUnits"
         [showClear]="true"
         [placeholder]="'Unit of measure for the product'"
         [style]="{ width: '100%' }"
@@ -149,9 +151,8 @@
     </div>
     <div class="input-container">
       Container type
-      <p-dropdown
-        [options]="[]"
-        [optionLabel]="'name'"
+      <p-select
+        [options]="containerTypes"
         [showClear]="true"
         [placeholder]="'Select a container type'"
         [style]="{ width: '100%' }"
@@ -164,7 +165,7 @@
         icon="ti ti-x"
         severity="secondary"
         [style]="{ width: '100%' }"
-        (click)="('')"
+        (click)="back()"
       />
       <p-button
         label="Save"

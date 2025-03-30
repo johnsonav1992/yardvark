@@ -31,3 +31,8 @@
     display: none !important;
   }
 }
+
+:host::ng-deep .p-fileupload-file-list {
+  flex-direction: row;
+  justify-content: center;
+}

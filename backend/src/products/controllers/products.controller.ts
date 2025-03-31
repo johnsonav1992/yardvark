@@ -31,15 +31,21 @@ export class ProductsController {
     @UploadedFile(imageFileValidator) file: Express.Multer.File,
     @Body() body: Product,
   ) {
-    const { data: imageUrl, error } = await tryCatch(() =>
-      this._s3Service.uploadFile(file, req.user.userId),
-    );
+    let imageUrl: string | null = null;
 
-    if (error) {
-      throw new HttpException(
-        `Error uploading file to S3 - ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
+    if (file) {
+      const { data, error } = await tryCatch(() =>
+        this._s3Service.uploadFile(file, req.user.userId),
       );
+
+      imageUrl = data;
+
+      if (error) {
+        throw new HttpException(
+          `Error uploading file to S3 - ${error.message}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
     }
 
     return this._productsService.addProduct({

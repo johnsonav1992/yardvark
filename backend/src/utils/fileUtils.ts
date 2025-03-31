@@ -10,4 +10,5 @@ export const imageFileValidator = new ParseFilePipe({
     new MaxFileSizeValidator({ maxSize: MAX_FILE_UPLOAD_SIZE }),
     new FileTypeValidator({ fileType: 'image' }),
   ],
+  fileIsRequired: false,
 });

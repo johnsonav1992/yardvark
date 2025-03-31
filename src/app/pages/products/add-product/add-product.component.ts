@@ -25,6 +25,7 @@ import {
 import { SelectModule } from 'primeng/select';
 import { Location } from '@angular/common';
 import { ProductsService } from '../../../services/products.service';
+import { injectErrorToast } from '../../../utils/toastUtils';
 
 @Component({
   selector: 'add-product',
@@ -44,6 +45,7 @@ import { ProductsService } from '../../../services/products.service';
 export class AddProductComponent {
   private _location = inject(Location);
   private _productsService = inject(ProductsService);
+  public throwErrorToast = injectErrorToast();
 
   public applicationMethods = APPLICATION_METHODS;
   public containerTypes = CONTAINER_TYPES;
@@ -83,12 +85,21 @@ export class AddProductComponent {
   }
 
   public submit(): void {
-    console.log(this.form.value);
+    if (this.form.invalid) {
+      Object.entries(this.form.controls).forEach(([_, ctrl]) =>
+        ctrl.markAsDirty()
+      );
+
+      return this.form.markAllAsTouched();
+    }
 
     this._productsService.addProduct(this.form.value).subscribe({
-      next: () => {},
-      error: (err) => {
-        console.error(err);
+      next: () => {
+        this._productsService.products.reload();
+        this._location.back();
+      },
+      error: () => {
+        this.throwErrorToast('Error adding product');
       }
     });
   }

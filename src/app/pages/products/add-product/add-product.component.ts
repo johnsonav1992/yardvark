@@ -24,6 +24,7 @@ import {
 } from '../../../constants/product-constants';
 import { SelectModule } from 'primeng/select';
 import { Location } from '@angular/common';
+import { ProductsService } from '../../../services/products.service';
 
 @Component({
   selector: 'add-product',
@@ -42,6 +43,8 @@ import { Location } from '@angular/common';
 })
 export class AddProductComponent {
   private _location = inject(Location);
+  private _productsService = inject(ProductsService);
+
   public applicationMethods = APPLICATION_METHODS;
   public containerTypes = CONTAINER_TYPES;
   public productCategories = PRODUCT_CATEGORIES;
@@ -81,5 +84,12 @@ export class AddProductComponent {
 
   public submit(): void {
     console.log(this.form.value);
+
+    this._productsService.addProduct(this.form.value).subscribe({
+      next: () => {},
+      error: (err) => {
+        console.error(err);
+      }
+    });
   }
 }

@@ -44,6 +44,6 @@ export class S3Service {
   }
 
   private createFileKey(userId: string, fileName: string): string {
-    return `${userId}/${fileName}-${randomUUID().substring(0, 4)}`;
+    return `${userId}/${randomUUID().substring(0, 4)}-${fileName}`;
   }
 }

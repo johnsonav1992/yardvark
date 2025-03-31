@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpException,
+  HttpStatus,
   Post,
   Req,
   UploadedFile,
@@ -13,6 +15,8 @@ import { imageFileValidator } from 'src/utils/fileUtils';
 import { ProductsService } from '../services/products.service';
 import { Request } from 'express';
 import { Public } from 'src/decorators/public.decorator';
+import { tryCatch } from 'src/utils/tryCatch';
+import { Product } from '../models/products.model';
 
 @Controller('products')
 export class ProductsController {
@@ -26,12 +30,23 @@ export class ProductsController {
   @Public()
   async addProduct(
     @UploadedFile(imageFileValidator) file: Express.Multer.File,
-    @Body() body: { userId: string },
+    @Body() body: Product,
   ) {
-    // just uploading the file for now
-    const imageUrl = await this._s3Service.uploadFile(file, body.userId);
+    const { data: imageUrl, error } = await tryCatch(() =>
+      this._s3Service.uploadFile(file, body.userId),
+    );
 
-    return imageUrl;
+    if (error) {
+      throw new HttpException(
+        'Error uploading file to S3',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return this._productsService.addProduct({
+      ...body,
+      imageUrl: imageUrl || undefined,
+    });
   }
 
   @Get()

@@ -24,4 +24,9 @@ export class ProductsService {
       where,
     });
   }
+
+  async addProduct(product: Product) {
+    const newProduct = this._productsRepo.create(product);
+    return await this._productsRepo.save(newProduct);
+  }
 }

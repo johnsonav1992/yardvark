@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { PageContainerComponent } from '../../../components/layout/page-container/page-container.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
@@ -26,6 +26,7 @@ import { SelectModule } from 'primeng/select';
 import { Location } from '@angular/common';
 import { ProductsService } from '../../../services/products.service';
 import { injectErrorToast } from '../../../utils/toastUtils';
+import { GlobalUiService } from '../../../services/global-ui.service';
 
 @Component({
   selector: 'add-product',
@@ -45,6 +46,7 @@ import { injectErrorToast } from '../../../utils/toastUtils';
 export class AddProductComponent {
   private _location = inject(Location);
   private _productsService = inject(ProductsService);
+  private _globalUiService = inject(GlobalUiService);
   public throwErrorToast = injectErrorToast();
 
   public applicationMethods = APPLICATION_METHODS;
@@ -52,6 +54,8 @@ export class AddProductComponent {
   public productCategories = PRODUCT_CATEGORIES;
   public quantityUnits = QUANTITY_UNITS;
   public coverageUnits = COVERAGE_UNITS;
+
+  public isMobile = this._globalUiService.isMobile;
 
   public form = new FormGroup({
     name: new FormControl('', [Validators.required]),
@@ -70,6 +74,8 @@ export class AddProductComponent {
     containerType: new FormControl('', [Validators.required]),
     image: new FormControl<File | null>(null)
   });
+
+  public isLoading = signal(false);
 
   public fileUpload(e: FileSelectEvent): void {
     const file = e.files[0];
@@ -93,12 +99,15 @@ export class AddProductComponent {
       return this.form.markAllAsTouched();
     }
 
+    this.isLoading.set(true);
     this._productsService.addProduct(this.form.value).subscribe({
       next: () => {
         this._productsService.products.reload();
+        this.isLoading.set(false);
         this._location.back();
       },
       error: () => {
+        this.isLoading.set(false);
         this.throwErrorToast('Error adding product');
       }
     });

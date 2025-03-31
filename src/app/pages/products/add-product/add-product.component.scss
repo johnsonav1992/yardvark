@@ -35,4 +35,6 @@
 :host::ng-deep .p-fileupload-file-list {
   flex-direction: row;
   justify-content: center;
+  max-height: 100%;
+  max-width: 100%;
 }

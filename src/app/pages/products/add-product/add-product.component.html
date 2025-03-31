@@ -84,7 +84,6 @@
         Coverage unit
         <p-select
           [options]="coverageUnits"
-          [showClear]="true"
           [style]="{ width: '100%' }"
           formControlName="coverageUnit"
         />
@@ -109,7 +108,6 @@
         Application method
         <p-select
           [options]="applicationMethods"
-          [showClear]="true"
           [style]="{ width: '100%' }"
           formControlName="applicationMethod"
         />
@@ -133,7 +131,6 @@
       Category
       <p-select
         [options]="productCategories"
-        [showClear]="true"
         [placeholder]="'Select a category'"
         [style]="{ width: '100%' }"
         formControlName="category"
@@ -143,7 +140,6 @@
       Quantity unit
       <p-select
         [options]="quantityUnits"
-        [showClear]="true"
         [placeholder]="'Unit of measure for the product'"
         [style]="{ width: '100%' }"
         formControlName="quantityUnit"
@@ -153,7 +149,6 @@
       Container type
       <p-select
         [options]="containerTypes"
-        [showClear]="true"
         [placeholder]="'Select a container type'"
         [style]="{ width: '100%' }"
         formControlName="containerType"
@@ -162,14 +157,12 @@
     <div style="display: flex; gap: 0.5rem; justify-content: flex-end">
       <p-button
         label="Cancel"
-        icon="ti ti-x"
         severity="secondary"
         [style]="{ width: '100%' }"
         (click)="back()"
       />
       <p-button
         label="Save"
-        icon="ti ti-check"
         severity="primary"
         [style]="{ width: '100%' }"
         (click)="submit()"

@@ -32,7 +32,7 @@ export class LoggingInterceptor implements NestInterceptor {
         let logMessage = `${method} ${url} ${statusCode} - ${duration}ms`;
 
         if (body) {
-          logMessage += ` - ${JSON.stringify(body, null, 2)}`;
+          logMessage += ` - BODY: ${JSON.stringify(body, null, 2)}`;
         }
 
         this.logger.log(logMessage);

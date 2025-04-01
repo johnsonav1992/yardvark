@@ -1,4 +1,4 @@
-@let date = entryData()?.date! | date: "M/dd/yyyy";
+@let date = entryData()?.date! | date: "M/d/yyyy";
 @let soilTemp =
   entryData()?.soilTemperature?.toString() +
   "° " +
@@ -25,7 +25,9 @@
               />
             } @else {
               @if (!isMobile() && entryData()?.title) {
-                <h3>{{ entryData()?.title }}</h3>
+                <h3>
+                  {{ entryData()?.title }}
+                </h3>
               }
             }
             <div style="display: flex; gap: 0.25rem">
@@ -55,7 +57,7 @@
           />
         } @else {
           @if (isMobile() && entryData()?.title) {
-            <h3>{{ entryData()?.title }}</h3>
+            <h3 [style.margin-block]="'.5rem'">{{ entryData()?.title }}</h3>
           }
         }
       </ng-template>
@@ -174,7 +176,6 @@
           </div>
         }
       </div>
-      <ng-template #footer> </ng-template>
     </p-card>
   </div>
 </page-container>

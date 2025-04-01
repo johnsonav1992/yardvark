@@ -31,3 +31,14 @@
     $bgColor: white
   );
 }
+
+:host::ng-deep {
+  .p-card-body {
+    height: 100%;
+    flex-grow: 1;
+  }
+
+  .p-card-footer {
+    margin-top: auto;
+  }
+}

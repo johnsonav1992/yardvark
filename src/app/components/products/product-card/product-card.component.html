@@ -1,6 +1,6 @@
-<p-card [style]="{ width: '25rem', overflow: 'hidden' }">
+<p-card [style]="{ width: '25rem', overflow: 'hidden', minHeight: '608px' }">
   <ng-template #header>
-    <img alt="Card" width="100%" [src]="product().imageUrl" />
+    <img alt="Card" width="100%" [src]="product().imageUrl || noImageUrl" />
   </ng-template>
   <ng-template #title> {{ product().name }} </ng-template>
   <ng-template #subtitle> {{ product().brand }}</ng-template>

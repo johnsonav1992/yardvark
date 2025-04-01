@@ -78,7 +78,7 @@ export class ProductsComponent {
 
   public addButtonDt: ButtonDesignTokens = {
     root: {
-      iconOnlyWidth: '5rem',
+      iconOnlyWidth: this.isMobile() ? '4rem' : '5rem',
       lg: {
         fontSize: '36px'
       }

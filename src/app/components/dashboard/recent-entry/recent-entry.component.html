@@ -1,4 +1,7 @@
-<p-card [style]="{ width: 'max-content', maxWidth: '400px' }">
+<p-card
+  [style.max-width]="{ 'max-width': isMobile() ? '100%' : '400px' }"
+  [style.width]="{ width: isMobile() ? '100%' : 'max-content' }"
+>
   <ng-template #title>
     <div style="display: flex; justify-content: space-between; gap: 1rem">
       Last Journal Entry

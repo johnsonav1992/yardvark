@@ -9,6 +9,7 @@
     ></i>
   } @else {
     <span
+      #tempDisplay
       (click)="depthPopover.show($event)"
       class="temp"
       [style.color]="displayColor()"
@@ -20,7 +21,7 @@
         [class.ti-temperature-celsius]="tempUnit() === 'celsius'"
       ></i>
     </span>
-    <p-popover #depthPopover [dismissable]="true">
+    <p-popover #depthPopover [dismissable]="true" [appendTo]="tempDisplay">
       <div class="depth-overlay-inner">
         <p>Show deeper temp</p>
         <p-toggleSwitch [(ngModel)]="showDeepTemp" />

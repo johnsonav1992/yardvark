@@ -39,7 +39,7 @@
     raised
     size="large"
     [dt]="addButtonDt"
-    [pTooltip]="'Add product'"
+    [pTooltip]="isMobile() ? '' : 'Add product'"
     (click)="navToAddProduct()"
   />
 </page-container>

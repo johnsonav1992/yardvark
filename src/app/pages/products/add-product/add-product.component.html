@@ -158,14 +158,14 @@
       <p-button
         label="Cancel"
         severity="secondary"
-        [style]="{ width: '100%' }"
+        size="large"
         (click)="back()"
       />
       <p-button
         label="Save"
         severity="primary"
         [icon]="isLoading() ? 'ti ti-loader-2 icon-spin' : ''"
-        [style]="{ width: '100%' }"
+        size="large"
         [disabled]="isLoading()"
         (click)="submit()"
       />

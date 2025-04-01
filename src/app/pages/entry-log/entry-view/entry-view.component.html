@@ -16,7 +16,7 @@
             <p-skeleton [width]="'50px'" [height]="'40px'" />
           } @else {
             {{ date }}
-            @if (isInEditMode()) {
+            @if (!isMobile() && isInEditMode()) {
               <input
                 pInputText
                 formControlName="title"
@@ -24,7 +24,7 @@
                 [style]="{ width: '50%' }"
               />
             } @else {
-              @if (entryData()?.title) {
+              @if (!isMobile() && entryData()?.title) {
                 <h3>{{ entryData()?.title }}</h3>
               }
             }
@@ -46,6 +46,18 @@
             </div>
           }
         </div>
+        @if (isMobile() && isInEditMode()) {
+          <input
+            pInputText
+            formControlName="title"
+            placeholder="Enter title"
+            [style]="{ width: '50%', marginTop: '.5rem' }"
+          />
+        } @else {
+          @if (isMobile() && entryData()?.title) {
+            <h3>{{ entryData()?.title }}</h3>
+          }
+        }
       </ng-template>
       <ng-template #subtitle>
         @if (isLoading) {
@@ -86,7 +98,7 @@
                 [options]="allActivities.value()"
                 [optionLabel]="'name'"
                 formControlName="activities"
-                [style]="{ width: '50%' }"
+                [style]="{ width: isMobile() ? '100%' : '50%' }"
                 [showClear]="true"
               />
             } @else {
@@ -106,7 +118,7 @@
                 [options]="allLawnSegments.value()"
                 [optionLabel]="'name'"
                 formControlName="lawnSegments"
-                [style]="{ width: '50%' }"
+                [style]="{ width: isMobile() ? '100%' : '50%' }"
                 [showClear]="true"
               />
             } @else {
@@ -126,7 +138,7 @@
                 pTextarea
                 [rows]="3"
                 formControlName="notes"
-                [style]="{ width: '50%' }"
+                [style]="{ width: isMobile() ? '100%' : '50%' }"
               ></textarea>
             } @else {
               @if (entryData()?.notes) {
@@ -141,7 +153,7 @@
             @if (isInEditMode()) {
               <products-selector
                 [form]="editForm"
-                inputWidth="50%"
+                [inputWidth]="isMobile() ? '100%' : '50%'"
                 productCardsWidth="50%"
               />
             } @else {

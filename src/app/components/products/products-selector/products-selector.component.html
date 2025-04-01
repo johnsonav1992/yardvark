@@ -36,7 +36,10 @@
     >
       @for (item of selectedProducts; track item.product?.name) {
         <div [formGroupName]="$index">
-          <product-small-card [product]="item.product!">
+          <product-small-card
+            [product]="item.product!"
+            [hideSubtitle]="isMobile()"
+          >
             <ng-template #actions>
               <div class="product-input-wrapper">
                 <p-inputNumber

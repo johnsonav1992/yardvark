@@ -11,6 +11,7 @@ import {
   createEntryProductRow,
   EntryProductRow
 } from '../../../utils/entriesUtils';
+import { GlobalUiService } from '../../../services/global-ui.service';
 
 @Component({
   selector: 'products-selector',
@@ -26,8 +27,10 @@ import {
 })
 export class ProductsSelectorComponent {
   private _productsService = inject(ProductsService);
+  private _globalUiService = inject(GlobalUiService);
 
   public quantityUnits = QUANTITY_UNITS;
+  public isMobile = this._globalUiService.isMobile;
 
   public form = input.required<FormGroup>();
   public inputWidth = input<string | number>('100%');

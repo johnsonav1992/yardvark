@@ -6,14 +6,16 @@
     <img [src]="product().imageUrl" width="auto" height="30px" />
     <div>
       {{ product().name }}
-      <p class="sub-text">
-        {{ product().brand }} | {{ product().guaranteedAnalysis }} |
-        @if (asAppliedAmount()) {
-          {{ product().quantity }}{{ product().quantityUnit }} Applied
-        } @else {
-          {{ product().category | capitalize }}
-        }
-      </p>
+      @if (!hideSubtitle()) {
+        <p class="sub-text">
+          {{ product().brand }} | {{ product().guaranteedAnalysis }} |
+          @if (asAppliedAmount()) {
+            {{ product().quantity }}{{ product().quantityUnit }} Applied
+          } @else {
+            {{ product().category | capitalize }}
+          }
+        </p>
+      }
     </div>
   </div>
   @if (actions()) {

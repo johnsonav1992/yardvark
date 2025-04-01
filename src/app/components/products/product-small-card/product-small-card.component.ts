@@ -23,6 +23,7 @@ export class ProductSmallCardComponent {
   public product = input.required<Partial<Product>>();
   public width = input<string | number>('100%');
   public showBorder = input<boolean>(true);
+  public hideSubtitle = input<boolean>(false);
   public asAppliedAmount = input<boolean>(false);
 
   public actions = contentChild<TemplateRef<unknown>>('actions');

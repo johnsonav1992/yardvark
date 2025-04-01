@@ -156,7 +156,7 @@
               <products-selector
                 [form]="editForm"
                 [inputWidth]="isMobile() ? '100%' : '50%'"
-                productCardsWidth="50%"
+                [productCardsWidth]="isMobile() ? '100%' : '50%'"
               />
             } @else {
               @if (entryData()?.products?.length) {

@@ -23,12 +23,12 @@
     } @else {
       <div style="display: flex; gap: 0.5rem; align-items: center">
         <p>{{ user()?.name }}</p>
-        <p-button
+        <!-- <p-button
           icon="ti ti-pencil"
           text
           rounded
           (click)="isEditingField.set('name')"
-        />
+        /> -->
       </div>
     }
   </div>
@@ -47,4 +47,6 @@
     [shape]="'circle'"
     [image]="picture"
   />
+
+  <h2>Editable profile coming soon!</h2>
 </page-container>

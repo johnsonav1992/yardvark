@@ -14,7 +14,7 @@
         <p-tabpanel [value]="tab.value">
           @if (products.isLoading()) {
             <div style="display: flex; width: 100%; justify-content: center">
-              <p-progressSpinner [dt]="spinnerDt" />
+              <loading-spinner />
             </div>
           } @else {
             <div

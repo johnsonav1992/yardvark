@@ -28,10 +28,10 @@
       @for (entry of selectedMobileDateEntries(); track entry.id) {
         {{ entry.title }}
       } @empty {
-        No entries for this date
+        <p class="small-text">No entries for this date</p>
       }
     } @else {
-      <p [style]="{ color: 'var(--p-surface-400)' }">
+      <p class="small-text">
         Tap on a date to view entries or click the button below to create a new
         entry
       </p>

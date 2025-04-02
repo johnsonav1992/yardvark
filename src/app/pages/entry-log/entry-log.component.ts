@@ -16,6 +16,7 @@ import { EntryDialogFooterComponent } from '../../components/entries/entry-dialo
 import { EntriesService } from '../../services/entries.service';
 import { GlobalUiService } from '../../services/global-ui.service';
 import { DividerModule } from 'primeng/divider';
+import { isSameDay } from 'date-fns';
 
 @Component({
   selector: 'entry-log',
@@ -106,7 +107,7 @@ export class EntryLogComponent {
 
       this.selectedMobileDateEntries.set(
         this.entries.value()?.filter((entry) => {
-          return new Date(entry.date).toDateString() === date.toDateString();
+          return isSameDay(new Date(entry.date), date);
         }) || []
       );
     } else {

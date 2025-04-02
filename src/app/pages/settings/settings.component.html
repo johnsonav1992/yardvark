@@ -1,3 +1,5 @@
+@let inputWidth = isMobile() ? "100%" : "300px";
+
 <page-container pageTitle="Settings">
   <div class="section-wrapper">
     <h4>Location</h4>
@@ -9,7 +11,8 @@
       (completeMethod)="searchLocations($event)"
       (onSelect)="updateLocationSetting($event)"
       optionLabel="properties.full_address"
-      [inputStyle]="{ width: '300px' }"
+      [inputStyle]="{ width: inputWidth }"
+      [style]="{ width: inputWidth }"
       placeholder="Search for a location"
     >
       <ng-template #item let-location>
@@ -29,7 +32,7 @@
   <div class="section-wrapper">
     <h4>Temperature unit</h4>
     <p-select
-      [style]="{ width: '300px' }"
+      [style]="{ width: inputWidth }"
       [options]="[
         { label: 'Fahrenheit', value: 'fahrenheit' },
         { label: 'Celsius', value: 'celsius' }
@@ -46,7 +49,7 @@
   <div class="section-wrapper">
     <h4>Lawn type</h4>
     <p-select
-      [style]="{ width: '300px' }"
+      [style]="{ width: inputWidth }"
       [options]="[
         { label: 'Warm season', value: 'warm' },
         { label: 'Cool season', value: 'cool' }
@@ -66,7 +69,7 @@
       [(ngModel)]="lawnSize"
       [suffix]="' ft²'"
       allowEmpty
-      [inputStyle]="{ flex: 'none', width: '300px' }"
+      [inputStyle]="{ flex: 'none', width: inputWidth }"
       (ngModelChange)="setLawnSize($event)"
     />
   </div>

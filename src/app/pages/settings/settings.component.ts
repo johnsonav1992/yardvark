@@ -19,6 +19,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { LawnSegmentsTableComponent } from '../../components/settings/lawn-segments-table/lawn-segments-table.component';
+import { GlobalUiService } from '../../services/global-ui.service';
 
 @Component({
   selector: 'settings',
@@ -40,7 +41,9 @@ export class SettingsComponent {
   private _settingsService = injectSettingsService();
   private _locationService = inject(LocationService);
   private _lawnSegmentsService = inject(LawnSegmentsService);
+  private _globalUiService = inject(GlobalUiService);
 
+  public isMobile = this._globalUiService.isMobile;
   public currentSettings = this._settingsService.currentSettings;
   public settingsAreLoading = this._settingsService.settings.isLoading;
   public lawnSegments = this._lawnSegmentsService.lawnSegments;

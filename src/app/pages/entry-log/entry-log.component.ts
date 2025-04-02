@@ -14,6 +14,8 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { EntryDialogComponent } from '../../components/entries/entry-dialog/entry-dialog.component';
 import { EntryDialogFooterComponent } from '../../components/entries/entry-dialog/entry-dialog-footer/entry-dialog-footer.component';
 import { EntriesService } from '../../services/entries.service';
+import { GlobalUiService } from '../../services/global-ui.service';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
   selector: 'entry-log',
@@ -21,7 +23,8 @@ import { EntriesService } from '../../services/entries.service';
     EntriesCalendarComponent,
     ButtonModule,
     TooltipModule,
-    RouterOutlet
+    RouterOutlet,
+    DividerModule
   ],
   templateUrl: './entry-log.component.html',
   styleUrl: './entry-log.component.scss',
@@ -31,10 +34,15 @@ export class EntryLogComponent {
   private _router = inject(Router);
   private _dialogService = inject(DialogService);
   private _entriesService = inject(EntriesService);
+  private _globalUiService = inject(GlobalUiService);
+
+  public isMobile = this._globalUiService.isMobile;
 
   public user = injectUserData();
 
   public currentDate = signal(new Date());
+  public selectedMobileDateToView = signal<Date | null>(null);
+  public selectedMobileDateEntries = signal<Entry[]>([]);
 
   public dayMarkers = computed<CalendarMarkerData<Entry>[]>(() => {
     const currentMonthEntries = this.entries.value();
@@ -93,7 +101,17 @@ export class EntryLogComponent {
   }
 
   public selectDay(date: Date): void {
-    this.createEntry(date);
+    if (this.isMobile()) {
+      this.selectedMobileDateToView.set(date);
+
+      this.selectedMobileDateEntries.set(
+        this.entries.value()?.filter((entry) => {
+          return new Date(entry.date).toDateString() === date.toDateString();
+        }) || []
+      );
+    } else {
+      this.createEntry(date);
+    }
   }
 
   public markerButtonDt: ButtonDesignTokens = {

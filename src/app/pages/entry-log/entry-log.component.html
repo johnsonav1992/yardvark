@@ -2,6 +2,7 @@
   <entries-calendar
     [markers]="dayMarkers()"
     [isLoadingData]="entries.isLoading()"
+    [mobileDateSelected]="selectedMobileDateToView()"
     (monthChange)="changeMonths($event)"
     (daySelected)="selectDay($event)"
   >
@@ -21,6 +22,21 @@
       }
     </ng-template>
   </entries-calendar>
+  @if (isMobile()) {
+    <p-divider />
+    @if (selectedMobileDateToView()) {
+      @for (entry of selectedMobileDateEntries(); track entry.id) {
+        {{ entry.title }}
+      } @empty {
+        No entries for this date
+      }
+    } @else {
+      <p [style]="{ color: 'var(--p-surface-400)' }">
+        Tap on a date to view entries or click the button below to create a new
+        entry
+      </p>
+    }
+  }
   <p-button
     icon="ti ti-clipboard-plus"
     class="speed-dial"

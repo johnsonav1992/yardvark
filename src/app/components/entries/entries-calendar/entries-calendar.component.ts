@@ -41,6 +41,7 @@ export class EntriesCalendarComponent {
   public isLoadingData = input<boolean>(false);
   public markerTpl =
     contentChild<TemplateRef<{ $implicit: CalendarMarkerData[] }>>('marker');
+  public mobileDateSelected = input<Date | null>(null);
 
   public monthChange = output<Date>();
   public daySelected = output<Date>();

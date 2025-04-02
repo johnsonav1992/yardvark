@@ -59,6 +59,11 @@
       [style.color]="day.isToday ? 'white' : 'var(--p-surface-400)'"
       [style.fontWeight]="day.isToday ? '500' : '400'"
       [style.cursor]="'pointer'"
+      [style.backgroundColor]="
+        mobileDateSelected()?.getDate() === day.date.getDate()
+          ? 'var(--p-surface-300)'
+          : ''
+      "
       (click)="selectDay(day.date)"
     >
       @if (!isMobile()) {

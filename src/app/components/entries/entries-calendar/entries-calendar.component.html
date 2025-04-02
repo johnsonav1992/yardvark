@@ -61,15 +61,22 @@
       [style.cursor]="'pointer'"
       (click)="selectDay(day.date)"
     >
-      <div class="marker-container">
-        @if (markerTpl(); as markerTpl) {
-          <ng-container
-            *ngTemplateOutlet="markerTpl; context: { $implicit: day.markers }"
-          ></ng-container>
+      @if (!isMobile()) {
+        <div class="marker-container">
+          @if (markerTpl(); as markerTpl) {
+            <ng-container
+              *ngTemplateOutlet="markerTpl; context: { $implicit: day.markers }"
+            ></ng-container>
+          }
+        </div>
+      } @else {
+        @if (day.markers.length > 0) {
+          <div class="mobile-markers-indicator"></div>
         }
-      </div>
+      }
       <footer
         class="day-number"
+        [class.mobile]="isMobile()"
         [style.backgroundColor]="day.isToday ? 'var(--p-primary-500)' : 'white'"
         [style.color]="day.isToday ? 'white' : 'inherit'"
       >

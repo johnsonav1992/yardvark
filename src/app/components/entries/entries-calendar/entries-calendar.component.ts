@@ -15,6 +15,7 @@ import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
 import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { GlobalUiService } from '../../../services/global-ui.service';
 
 @Component({
   selector: 'entries-calendar',
@@ -26,6 +27,9 @@ import { toSignal } from '@angular/core/rxjs-interop';
 export class EntriesCalendarComponent {
   private _router = inject(Router);
   private _location = inject(Location);
+  private _globalUiService = inject(GlobalUiService);
+
+  public isMobile = this._globalUiService.isMobile;
 
   private _dateQuery = toSignal(
     this._router.routerState.root.queryParams.pipe(

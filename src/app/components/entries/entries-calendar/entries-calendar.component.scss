@@ -68,6 +68,16 @@
       color: black;
     }
 
+    .mobile-markers-indicator {
+      height: 0.75rem;
+      width: 0.75rem;
+      border-radius: 100%;
+      background-color: var(--p-primary-300);
+      position: absolute;
+      top: 0.25rem;
+      left: 0.25rem;
+    }
+
     .day-number {
       display: flex;
       height: 1.5rem;
@@ -80,6 +90,13 @@
       bottom: 0.25rem;
       right: 0.25rem;
       background-color: white;
+
+      &.mobile {
+        width: 1rem;
+        height: 1rem;
+        bottom: 0.35rem;
+        right: 0.35rem;
+      }
     }
   }
 }

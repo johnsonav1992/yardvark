@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import {
-  ApplicationRef,
   EnvironmentInjector,
   inject,
   runInInjectionContext
@@ -11,15 +10,13 @@ import { environment } from '../../environments/environment';
 let environmentInjector: EnvironmentInjector | null = null;
 
 /**
- * Initializes the HTTP utilities by injecting the necessary dependencies.
- *
- * @param appRef - The reference to the application, used to access the injector.
+ * Allows HTTP utils to be set up by setting the global environmentInjector for the app.
  */
-export const initHttpUtils = (appRef: ApplicationRef) => {
-  environmentInjector = appRef.injector.get(EnvironmentInjector);
+export const initHttpUtils = () => {
+  environmentInjector = inject(EnvironmentInjector);
 };
 
-const createHttpUtil = <T, TArgs extends unknown[]>(
+const createHttpUtil = <T, TArgs extends any[]>(
   utilFn: (http: HttpClient, ...args: TArgs) => T
 ) => {
   return (...args: TArgs): T => {

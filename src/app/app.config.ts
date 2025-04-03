@@ -1,4 +1,8 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig,
+  provideAppInitializer,
+  provideZoneChangeDetection
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { mainRoutes } from './app.routes';
@@ -10,6 +14,7 @@ import { theme } from './theme/theme';
 import { MessageService } from 'primeng/api';
 import { SlicePipe } from '@angular/common';
 import { authInterceptor } from './interceptors/auth.interceptor';
+import { initHttpUtils } from './utils/httpUtils';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -33,6 +38,7 @@ export const appConfig: ApplicationConfig = {
         redirect_uri: window.location.origin
       }
     }),
+    provideAppInitializer(() => initHttpUtils()),
     MessageService,
     SlicePipe
   ]

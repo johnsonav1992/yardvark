@@ -29,6 +29,7 @@ import { injectErrorToast } from '../../../utils/toastUtils';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { CheckboxModule } from 'primeng/checkbox';
 import { injectUserData } from '../../../utils/authUtils';
+import { ProductFormData } from '../../../types/products.types';
 
 @Component({
   selector: 'add-product',
@@ -106,16 +107,18 @@ export class AddProductComponent {
     }
 
     this.isLoading.set(true);
-    this._productsService.addProduct(this.form.value).subscribe({
-      next: () => {
-        this._productsService.products.reload();
-        this.isLoading.set(false);
-        this._location.back();
-      },
-      error: () => {
-        this.isLoading.set(false);
-        this.throwErrorToast('Error adding product');
-      }
-    });
+    this._productsService
+      .addProduct(this.form.value as ProductFormData)
+      .subscribe({
+        next: () => {
+          this._productsService.products.reload();
+          this.isLoading.set(false);
+          this._location.back();
+        },
+        error: () => {
+          this.isLoading.set(false);
+          this.throwErrorToast('Error adding product');
+        }
+      });
   }
 }

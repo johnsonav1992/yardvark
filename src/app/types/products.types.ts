@@ -22,6 +22,22 @@ export type Product = {
   deletedAt?: string;
 };
 
+export type ProductFormData = {
+  name: string;
+  brand: string;
+  description: string;
+  coverageAmount: number | null;
+  coverageUnit: string;
+  applicationRate: number | null;
+  applicationMethod: string;
+  guaranteedAnalysis: string;
+  category: string;
+  quantityUnit: string;
+  containerType: string;
+  image: File | null;
+  systemProduct: boolean;
+};
+
 export type ProductCategories = Capitalize<
   (typeof PRODUCT_TYPES)[keyof typeof PRODUCT_TYPES]
 >;

@@ -96,8 +96,11 @@ export class EntryLogComponent {
       },
       breakpoints: {
         '800px': '95%'
-      }
+      },
+      maximizable: true
     });
+
+    if (this.isMobile()) this._dialogService.getInstance(dialogRef).maximize();
 
     dialogRef.onClose.subscribe((result: 'success' | undefined) => {
       if (result === 'success') {

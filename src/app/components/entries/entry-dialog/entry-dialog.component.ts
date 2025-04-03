@@ -1,11 +1,4 @@
-import {
-  Component,
-  computed,
-  inject,
-  input,
-  OnInit,
-  signal
-} from '@angular/core';
+import { Component, computed, inject, input, OnInit } from '@angular/core';
 import {
   FormArray,
   FormControl,
@@ -15,7 +8,7 @@ import {
   Validators
 } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
-import { MultiSelectChangeEvent, MultiSelectModule } from 'primeng/multiselect';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { TextareaModule } from 'primeng/textarea';
 import { ActivitiesService } from '../../../services/activities.service';
 import { capitalize } from '../../../utils/stringUtils';
@@ -23,16 +16,10 @@ import { Activity } from '../../../types/activities.types';
 import { LawnSegment } from '../../../types/lawnSegments.types';
 import { LawnSegmentsService } from '../../../services/lawn-segments.service';
 import { InputTextModule } from 'primeng/inputtext';
-import { ProductsService } from '../../../services/products.service';
 import { Product } from '../../../types/products.types';
 import { SelectModule } from 'primeng/select';
-import { QUANTITY_UNITS } from '../../../constants/product-constants';
-import {
-  createEntryProductRow,
-  EntryProductRow
-} from '../../../utils/entriesUtils';
+import { EntryProductRow } from '../../../utils/entriesUtils';
 import { ProductsSelectorComponent } from '../../products/products-selector/products-selector.component';
-import { SoilTemperatureService } from '../../../services/soil-temperature.service';
 
 @Component({
   selector: 'entry-dialog',

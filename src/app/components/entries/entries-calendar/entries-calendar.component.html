@@ -12,10 +12,7 @@
         {{ currentMonth() }}
       </h2>
       @if (isLoadingData()) {
-        <i
-          class="ti ti-loader-2 icon-spin"
-          [style]="{ fontSize: '1.5rem' }"
-        ></i>
+        <loading-spinner [size]="'xs'" />
       }
     </div>
   </div>

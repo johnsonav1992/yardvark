@@ -12,7 +12,7 @@
     <p-tabpanels>
       @for (tab of tabs; track tab.value) {
         <p-tabpanel [value]="tab.value">
-          @if (products.isLoading()) {
+          @if (!products.isLoading()) {
             <div style="display: flex; width: 100%; justify-content: center">
               <loading-spinner />
             </div>

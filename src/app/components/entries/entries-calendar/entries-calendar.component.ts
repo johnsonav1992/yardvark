@@ -16,13 +16,14 @@ import { Router } from '@angular/router';
 import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { GlobalUiService } from '../../../services/global-ui.service';
+import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'entries-calendar',
   templateUrl: './entries-calendar.component.html',
   styleUrl: './entries-calendar.component.scss',
   standalone: true,
-  imports: [DatePipe, NgTemplateOutlet, ButtonModule]
+  imports: [DatePipe, NgTemplateOutlet, ButtonModule, LoadingSpinnerComponent]
 })
 export class EntriesCalendarComponent {
   private _router = inject(Router);

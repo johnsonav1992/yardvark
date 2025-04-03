@@ -162,7 +162,7 @@
         align-items: center;
       "
     >
-      @if (user()?.name?.toLowerCase() === "alex johnson") {
+      @if (isMasterUser()) {
         <div
           style="
             margin-right: auto;

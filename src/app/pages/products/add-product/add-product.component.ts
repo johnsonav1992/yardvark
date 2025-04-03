@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { PageContainerComponent } from '../../../components/layout/page-container/page-container.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
@@ -28,8 +28,9 @@ import { ProductsService } from '../../../services/products.service';
 import { injectErrorToast } from '../../../utils/toastUtils';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { CheckboxModule } from 'primeng/checkbox';
-import { injectUserData } from '../../../utils/authUtils';
+import { injectUserData, isMasterUser } from '../../../utils/authUtils';
 import { ProductFormData } from '../../../types/products.types';
+import { effectSignalLogger } from '../../../utils/generalUtils';
 
 @Component({
   selector: 'add-product',
@@ -52,6 +53,8 @@ export class AddProductComponent {
   private _productsService = inject(ProductsService);
   private _globalUiService = inject(GlobalUiService);
   public user = injectUserData();
+
+  public isMasterUser = computed(() => isMasterUser(this.user()));
 
   public throwErrorToast = injectErrorToast();
 

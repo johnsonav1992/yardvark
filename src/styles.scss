@@ -45,3 +45,8 @@ html {
 .p-datatable-mask {
   display: none !important;
 }
+
+// Need to make sure this doesn't break anything else
+.p-overlay {
+  z-index: 10000 !important;
+}

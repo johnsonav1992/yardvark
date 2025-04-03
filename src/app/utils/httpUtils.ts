@@ -74,8 +74,6 @@ export const apiUrl = (
 ) => {
   let url = `${environment.apiUrl}/${path}`;
 
-  console.log(environment);
-
   if (opts?.params) {
     url += '/' + opts.params.join('/');
   }

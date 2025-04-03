@@ -54,6 +54,8 @@
                 <p-select
                   [options]="quantityUnits"
                   formControlName="quantityUnit"
+                  appendTo="body"
+                  [panelStyle]="{ zIndex: 20000, position: 'relative' }"
                 />
               </div>
             </ng-template>

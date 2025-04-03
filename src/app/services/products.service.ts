@@ -19,6 +19,10 @@ export class ProductsService {
           formData.append('product-image', value);
         } else {
           formData.append(key, String(value));
+
+          if ('systemProduct' in product && product.systemProduct) {
+            formData.append('systemProduct', 'true');
+          }
         }
       });
     }

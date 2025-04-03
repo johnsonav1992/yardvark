@@ -29,7 +29,7 @@ export class ProductsController {
   async addProduct(
     @Req() req: Request,
     @UploadedFile(imageFileValidator) file: Express.Multer.File,
-    @Body() body: Product,
+    @Body() body: Product & { systemProduct?: boolean },
   ) {
     let imageUrl: string | null = null;
 
@@ -50,7 +50,7 @@ export class ProductsController {
 
     return this._productsService.addProduct({
       ...body,
-      userId: req.user.userId,
+      userId: body.systemProduct ? 'system' : req.user.userId,
       imageUrl: imageUrl || undefined,
     });
   }

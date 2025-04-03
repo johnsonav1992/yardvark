@@ -27,6 +27,8 @@ import { Location } from '@angular/common';
 import { ProductsService } from '../../../services/products.service';
 import { injectErrorToast } from '../../../utils/toastUtils';
 import { GlobalUiService } from '../../../services/global-ui.service';
+import { CheckboxModule } from 'primeng/checkbox';
+import { injectUserData } from '../../../utils/authUtils';
 
 @Component({
   selector: 'add-product',
@@ -38,7 +40,8 @@ import { GlobalUiService } from '../../../services/global-ui.service';
     FileUploadModule,
     ButtonModule,
     SelectModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    CheckboxModule
   ],
   templateUrl: './add-product.component.html',
   styleUrl: './add-product.component.scss'
@@ -47,6 +50,8 @@ export class AddProductComponent {
   private _location = inject(Location);
   private _productsService = inject(ProductsService);
   private _globalUiService = inject(GlobalUiService);
+  public user = injectUserData();
+
   public throwErrorToast = injectErrorToast();
 
   public applicationMethods = APPLICATION_METHODS;
@@ -72,7 +77,8 @@ export class AddProductComponent {
     category: new FormControl('', [Validators.required]),
     quantityUnit: new FormControl('', [Validators.required]),
     containerType: new FormControl('', [Validators.required]),
-    image: new FormControl<File | null>(null)
+    image: new FormControl<File | null>(null),
+    systemProduct: new FormControl(false)
   });
 
   public isLoading = signal(false);

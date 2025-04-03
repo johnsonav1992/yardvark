@@ -154,7 +154,18 @@
         formControlName="containerType"
       />
     </div>
-    <div style="display: flex; gap: 0.5rem; justify-content: flex-end">
+    <div
+      style="
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+        align-items: center;
+      "
+    >
+      @if (user()?.name?.toLowerCase() === "alex johnson") {
+        <p>System product</p>
+        <p-checkbox formControlName="systemProduct" [binary]="true" />
+      }
       <p-button
         label="Cancel"
         severity="secondary"

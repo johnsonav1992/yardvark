@@ -1,14 +1,22 @@
 <form [formGroup]="form" class="main-form">
   <div class="date-title-wrapper">
     <span class="input-wrapper">
-      <p>Title:</p>
-      <small class="error">*</small>
-      <input pInputText formControlName="title" />
+      <div style="display: flex">
+        <p>Title:</p>
+        <small class="error">*</small>
+      </div>
+      <input pInputText formControlName="title" [style]="{ width: '100%' }" />
     </span>
     <span class="input-wrapper">
-      <p>Date:</p>
-      <small class="error">*</small>
-      <p-datePicker [showIcon]="true" formControlName="date" />
+      <div style="display: flex">
+        <p>Date:</p>
+        <small class="error">*</small>
+      </div>
+      <p-datePicker
+        [showIcon]="true"
+        formControlName="date"
+        [style]="{ width: '100%' }"
+      />
     </span>
   </div>
   <div class="col-input-wrapper">

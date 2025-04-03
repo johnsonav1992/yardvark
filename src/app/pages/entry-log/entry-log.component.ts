@@ -76,6 +76,7 @@ export class EntryLogComponent {
 
   public changeMonths(newDate: Date): void {
     this.currentDate.set(newDate);
+    this.selectedMobileDateToView.set(null);
   }
 
   public createEntry(date?: Date): void {

@@ -53,16 +53,18 @@
 </div>
 <div class="calendar-grid">
   @for (day of days(); track day.date) {
+    @let isSelectedDateSameAsThisDate =
+      mobileDateSelected()?.getDate() === day.date.getDate();
+
     <div
       class="day"
+      [class.mobile]="isMobile()"
       [style.gridColumnStart]="day.gridColumnStart"
       [style.color]="day.isToday ? 'white' : 'var(--p-surface-400)'"
       [style.fontWeight]="day.isToday ? '500' : '400'"
       [style.cursor]="'pointer'"
       [style.backgroundColor]="
-        mobileDateSelected()?.getDate() === day.date.getDate()
-          ? 'var(--p-surface-300)'
-          : ''
+        isSelectedDateSameAsThisDate ? 'var(--p-surface-200)' : ''
       "
       (click)="selectDay(day.date)"
     >
@@ -76,7 +78,12 @@
         </div>
       } @else {
         @if (day.markers.length > 0) {
-          <div class="mobile-markers-indicator"></div>
+          <div
+            class="mobile-markers-indicator"
+            [style.backgroundColor]="
+              isSelectedDateSameAsThisDate ? 'var(--p-primary-400)' : ''
+            "
+          ></div>
         }
       }
       <footer

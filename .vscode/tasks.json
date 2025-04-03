@@ -5,7 +5,7 @@
     {
       "label": "Start Frontend",
       "type": "npm",
-      "script": "start",
+      "script": "dev",
       "isBackground": true,
       "problemMatcher": {
         "owner": "typescript",

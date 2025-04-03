@@ -25,11 +25,18 @@
   @if (isMobile()) {
     <p-divider />
     @if (selectedMobileDateToView()) {
-      @for (entry of selectedMobileDateEntries(); track entry.id) {
-        {{ entry.title }}
-      } @empty {
-        <p class="small-text">No entries for this date</p>
-      }
+      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+        @for (entry of selectedMobileDateEntries(); track entry.id) {
+          <p-card (click)="navigateToEntry(entry)">
+            {{ entry.date | date: "M/d/yyyy" }}
+            @if (entry.title) {
+              - {{ entry.title }}
+            }
+          </p-card>
+        } @empty {
+          <p class="small-text">No entries for this date</p>
+        }
+      </div>
     } @else {
       <p class="small-text">
         Tap on a date to view entries or click the button below to create a new

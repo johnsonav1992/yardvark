@@ -17,6 +17,8 @@ import { EntriesService } from '../../services/entries.service';
 import { GlobalUiService } from '../../services/global-ui.service';
 import { DividerModule } from 'primeng/divider';
 import { isSameDay } from 'date-fns';
+import { CardModule } from 'primeng/card';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'entry-log',
@@ -25,7 +27,9 @@ import { isSameDay } from 'date-fns';
     ButtonModule,
     TooltipModule,
     RouterOutlet,
-    DividerModule
+    DividerModule,
+    CardModule,
+    DatePipe
   ],
   templateUrl: './entry-log.component.html',
   styleUrl: './entry-log.component.scss',

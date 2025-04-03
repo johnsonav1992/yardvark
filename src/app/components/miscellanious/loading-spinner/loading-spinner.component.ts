@@ -12,16 +12,14 @@ export class LoadingSpinnerComponent {
   public size = input<'xs' | 's' | 'm' | 'l'>('l');
 
   public renderedSize = computed(() => {
-    switch (this.size()) {
-      case 'xs':
-        return '30px';
-      case 's':
-        return '50px';
-      case 'm':
-        return '80px';
-      case 'l':
-        return '100px';
-    }
+    const sizeMap = {
+      xs: '20px',
+      s: '50px',
+      m: '80px',
+      l: '100px'
+    };
+
+    return sizeMap[this.size()] || sizeMap['l'];
   });
 
   public spinnerDt: ProgressSpinnerDesignTokens = {

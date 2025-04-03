@@ -163,8 +163,17 @@
       "
     >
       @if (user()?.name?.toLowerCase() === "alex johnson") {
-        <p>System product</p>
-        <p-checkbox formControlName="systemProduct" [binary]="true" />
+        <div
+          style="
+            margin-right: auto;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+          "
+        >
+          <p>System product</p>
+          <p-checkbox formControlName="systemProduct" [binary]="true" />
+        </div>
       }
       <p-button
         label="Cancel"

@@ -22,7 +22,7 @@ export class Entry {
   @Column()
   userId: string;
 
-  @Column()
+  @Column('timestamptz')
   date: Date;
 
   @Column()

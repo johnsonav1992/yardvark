@@ -17,7 +17,7 @@ import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loading-spinner.component';
-import { LongPressDirective } from '../../../directives/long-press.directive';
+import { DoubleTapDirective } from '../../../directives/double-tap.directive';
 
 @Component({
   selector: 'entries-calendar',
@@ -29,7 +29,7 @@ import { LongPressDirective } from '../../../directives/long-press.directive';
     NgTemplateOutlet,
     ButtonModule,
     LoadingSpinnerComponent,
-    LongPressDirective
+    DoubleTapDirective
   ]
 })
 export class EntriesCalendarComponent {

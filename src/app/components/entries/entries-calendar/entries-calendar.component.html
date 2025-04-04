@@ -81,6 +81,9 @@
               isSelectedDateSameAsThisDate ? 'var(--p-primary-400)' : ''
             "
           ></div>
+          @if (day.markers.length > 1) {
+            <p class="additional-count">+{{ day.markers.length - 1 }}</p>
+          }
         }
       }
       <footer

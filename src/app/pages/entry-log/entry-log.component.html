@@ -28,10 +28,10 @@
       <div style="display: flex; flex-direction: column; gap: 0.5rem">
         @for (entry of selectedMobileDateEntries(); track entry.id) {
           <p-card (click)="navigateToEntry(entry)">
-            {{ entry.date | date: "M/d/yyyy" }}
-            @if (entry.title) {
-              - {{ entry.title }}
-            }
+            <div style="display: flex; align-items: center; gap: 0.5rem">
+              <i class="ti ti-notebook" [style]="{ fontSize: '24px' }"></i>
+              <p>{{ entry.date | date: "M/d/yyyy" }} - {{ entry.title }}</p>
+            </div>
           </p-card>
         } @empty {
           <p class="small-text">No entries for this date</p>

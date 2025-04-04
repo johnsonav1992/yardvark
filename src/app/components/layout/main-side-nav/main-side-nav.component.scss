@@ -7,7 +7,7 @@
 
 .mobile-nav {
   width: var(--side-nav-width) !important;
-  padding-top: var(--main-header-height);
+  z-index: 100000 !important;
 }
 
 .menu {

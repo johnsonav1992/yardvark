@@ -30,7 +30,6 @@ import { GlobalUiService } from '../../../services/global-ui.service';
 import { CheckboxModule } from 'primeng/checkbox';
 import { injectUserData, isMasterUser } from '../../../utils/authUtils';
 import { ProductFormData } from '../../../types/products.types';
-import { effectSignalLogger } from '../../../utils/generalUtils';
 
 @Component({
   selector: 'add-product',

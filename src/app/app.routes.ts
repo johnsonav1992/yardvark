@@ -8,6 +8,7 @@ import { ProductsComponent } from './pages/products/products.component';
 import { EquipmentComponent } from './pages/equipment/equipment.component';
 import { EntryViewComponent } from './pages/entry-log/entry-view/entry-view.component';
 import { AddProductComponent } from './pages/products/add-product/add-product.component';
+import { authGuard } from './guards/auth.guard';
 
 export const mainRoutes: Routes = [
   {
@@ -17,42 +18,52 @@ export const mainRoutes: Routes = [
   },
   {
     path: 'dashboard',
-    component: DashboardComponent
+    component: DashboardComponent,
+    canActivate: [authGuard]
   },
   {
     path: 'profile',
-    component: ProfileComponent
+    component: ProfileComponent,
+    canActivate: [authGuard]
   },
   {
     path: 'entry-log',
-    component: EntryLogComponent
+    component: EntryLogComponent,
+    canActivate: [authGuard]
   },
   {
     path: 'entry-log/:entryId',
-    component: EntryViewComponent
+    component: EntryViewComponent,
+    canActivate: [authGuard]
   },
   {
     path: 'soil-data',
-    component: SoilDataComponent
+    component: SoilDataComponent,
+    canActivate: [authGuard]
   },
   {
     path: 'products/add',
-    component: AddProductComponent
+    component: AddProductComponent,
+    canActivate: [authGuard]
   },
   {
     path: 'products/:productId',
-    component: ProductsComponent
+    component: ProductsComponent,
+    canActivate: [authGuard]
   },
   {
     path: 'products',
-    component: ProductsComponent
+    component: ProductsComponent,
+    canActivate: [authGuard]
   },
   {
     path: 'equipment',
-    component: EquipmentComponent
+    component: EquipmentComponent,
+    canActivate: [authGuard]
   },
   {
     path: 'settings',
-    component: SettingsComponent
+    component: SettingsComponent,
+    canActivate: [authGuard]
   }
 ];

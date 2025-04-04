@@ -23,6 +23,6 @@
 <p-popover #popover>
   <img
     src="https://support.spruceirrigation.com/wp-content/uploads/2015/09/FieldCapacity.png"
-    width="500px"
+    [style.width]="isMobile() ? '350px' : '500px'"
   />
 </p-popover>

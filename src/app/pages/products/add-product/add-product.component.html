@@ -32,7 +32,10 @@
       >
         <ng-template #toolbar></ng-template>
         <ng-template #file let-file>
-          <img [src]="file.objectURL" style="max-height: 100%" />
+          <img
+            [src]="file.objectURL"
+            style="max-height: 100%; max-width: 100%"
+          />
           <p-button
             icon="ti ti-trash"
             severity="danger"

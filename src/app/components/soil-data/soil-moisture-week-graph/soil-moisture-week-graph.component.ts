@@ -1,10 +1,11 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { ChartData, ChartOptions } from 'chart.js';
 import { getFullWeekOfDayLabelsCenteredAroundCurrentDay } from '../../../utils/timeUtils';
 import { getPrimeNgHexColor } from '../../../utils/styleUtils';
 import { ChartLoaderComponent } from '../../chart-loader/chart-loader.component';
 import { ChartModule } from 'primeng/chart';
 import { PopoverModule } from 'primeng/popover';
+import { GlobalUiService } from '../../../services/global-ui.service';
 
 @Component({
   selector: 'soil-moisture-week-graph',
@@ -13,6 +14,10 @@ import { PopoverModule } from 'primeng/popover';
   styleUrl: './soil-moisture-week-graph.component.scss'
 })
 export class SoilMoistureWeekGraphComponent {
+  private _globalUiService = inject(GlobalUiService);
+
+  public isMobile = this._globalUiService.isMobile;
+
   public dailyMoistureData = input.required<number[]>();
   public isLoadingChartData = input<boolean>(false);
 

@@ -17,13 +17,20 @@ import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loading-spinner.component';
+import { LongPressDirective } from '../../../directives/long-press.directive';
 
 @Component({
   selector: 'entries-calendar',
   templateUrl: './entries-calendar.component.html',
   styleUrl: './entries-calendar.component.scss',
   standalone: true,
-  imports: [DatePipe, NgTemplateOutlet, ButtonModule, LoadingSpinnerComponent]
+  imports: [
+    DatePipe,
+    NgTemplateOutlet,
+    ButtonModule,
+    LoadingSpinnerComponent,
+    LongPressDirective
+  ]
 })
 export class EntriesCalendarComponent {
   private _router = inject(Router);
@@ -45,7 +52,7 @@ export class EntriesCalendarComponent {
   public mobileDateSelected = input<Date | null>(null);
 
   public monthChange = output<Date>();
-  public daySelected = output<Date>();
+  public daySelected = output<DaySelectedEvent>();
 
   protected currentDate = linkedSignal(() =>
     this._dateQuery() ? new Date(this._dateQuery()!) : startOfToday()
@@ -91,8 +98,8 @@ export class EntriesCalendarComponent {
     return format(date, 'yyyy-MM-dd');
   }
 
-  public selectDay(date: Date): void {
-    this.daySelected.emit(date);
+  public selectDay(date: Date, type: 'normal' | 'long-press'): void {
+    this.daySelected.emit({ date, type });
   }
 
   public back(): void {
@@ -104,4 +111,9 @@ export type CalendarMarkerData<TData = unknown> = {
   date: Date;
   data: TData;
   icon?: string;
+};
+
+export type DaySelectedEvent = {
+  date: Date;
+  type: 'normal' | 'long-press';
 };

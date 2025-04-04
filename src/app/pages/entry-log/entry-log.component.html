@@ -40,7 +40,10 @@
     } @else {
       <p class="small-text">
         Tap on a date to view entries or click the button below to create a new
-        entry
+        entry.
+        @if (isMobile()) {
+          Long press a date to create a new entry for that date.
+        }
       </p>
     }
   }

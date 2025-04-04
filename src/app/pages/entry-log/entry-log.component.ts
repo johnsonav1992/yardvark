@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import {
   CalendarMarkerData,
+  DaySelectedEvent,
   EntriesCalendarComponent
 } from '../../components/entries/entries-calendar/entries-calendar.component';
 import { ButtonModule } from 'primeng/button';
@@ -109,8 +110,10 @@ export class EntryLogComponent {
     });
   }
 
-  public selectDay(date: Date): void {
-    if (this.isMobile()) {
+  public selectDay(e: DaySelectedEvent): void {
+    const { date, type } = e;
+
+    if (this.isMobile() && type !== 'long-press') {
       this.selectedMobileDateToView.set(date);
 
       this.selectedMobileDateEntries.set(

@@ -63,7 +63,9 @@
       [style.backgroundColor]="
         isSelectedDateSameAsThisDate ? 'var(--p-surface-200)' : ''
       "
-      (click)="selectDay(day.date)"
+      (click)="selectDay(day.date, 'normal')"
+      longPress
+      (longPress)="selectDay(day.date, 'long-press')"
     >
       @if (!isMobile()) {
         <div class="marker-container">

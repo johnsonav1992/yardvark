@@ -22,7 +22,7 @@ export class DoubleTapDirective {
         takeUntilDestroyed(),
         buffer(this.click$.pipe(debounceTime(250))),
         map((list) => list.length),
-        filter((x) => x === 2)
+        filter((numberOfTaps) => numberOfTaps === 2)
       )
       .subscribe(() => {
         this.onDoubleTap.emit();

@@ -12,10 +12,14 @@
     <soil-temperature-display />
     <p-avatar
       shape="circle"
+      [label]="isDefaultPicture() ? userInitials() : undefined"
       (click)="authMenu.show($event)"
       styleClass="user-logo"
+      [dt]="avatarDt"
     >
-      <img [src]="user()?.picture" referrerpolicy="no-referrer" />
+      @if (!isDefaultPicture()) {
+        <img [src]="user()?.picture" referrerpolicy="no-referrer" />
+      }
     </p-avatar>
     @if (isMobile()) {
       <p-button

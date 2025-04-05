@@ -31,8 +31,6 @@ export class MainHeaderComponent {
 
   public user = injectUserData();
 
-  _ = effectSignalLogger(this.user);
-
   public isDefaultPicture = computed(() =>
     this.user()?.picture?.includes('gravatar')
   );

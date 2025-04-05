@@ -2,6 +2,7 @@ import { inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService, User } from '@auth0/auth0-angular';
 import { MASTER_USER, ROLES_CLAIM } from '../constants/auth-constants';
+import { Maybe } from '../types/utils.types';
 
 /**
  * Retrieves the user data from the authentication service and stores it in a signal.
@@ -14,11 +15,11 @@ export const injectUserData = () => {
   return toSignal(authService.user$);
 };
 
-export const isMasterUser = (user: User | null | undefined): boolean => {
+export const isMasterUser = (user: Maybe<User>): boolean => {
   return user?.[ROLES_CLAIM].includes(MASTER_USER);
 };
 
-export const getUserInitials = (user: User | null | undefined): string => {
+export const getUserInitials = (user: Maybe<User>): string => {
   if (!user?.name) return '';
 
   const nameParts = user.name.split(' ');

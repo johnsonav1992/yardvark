@@ -9,6 +9,7 @@ import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { AvatarDesignTokens } from '@primeng/themes/types/avatar';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'main-header',
@@ -50,7 +51,12 @@ export class MainHeaderComponent {
     {
       label: 'Logout',
       icon: 'ti ti-logout',
-      command: () => this._authService.logout()
+      command: () =>
+        this._authService.logout({
+          logoutParams: {
+            returnTo: environment.feAppUrl
+          }
+        })
     }
   ];
 

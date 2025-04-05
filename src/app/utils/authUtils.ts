@@ -1,11 +1,7 @@
 import { inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService, User } from '@auth0/auth0-angular';
-
-export const CUSTOM_CLAIM_BASE = 'https://www.yardvark.com';
-export const ROLES_CLAIM = `${CUSTOM_CLAIM_BASE}/roles`;
-
-export const MASTER_USER = 'Master User';
+import { MASTER_USER, ROLES_CLAIM } from '../constants/auth-constants';
 
 /**
  * Retrieves the user data from the authentication service and stores it in a signal.

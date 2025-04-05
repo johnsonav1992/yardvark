@@ -9,7 +9,6 @@ import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { AvatarDesignTokens } from '@primeng/themes/types/avatar';
-import { effectSignalLogger } from '../../../utils/generalUtils';
 
 @Component({
   selector: 'main-header',

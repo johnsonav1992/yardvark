@@ -3,6 +3,5 @@ import { Environment } from '../app/types/environments.types';
 
 export const environment: Environment = {
   production: true,
-  apiUrl: PROD_BE_API_URL,
-  masterUserEmail: 'johnsonav1992@gmail.com'
+  apiUrl: PROD_BE_API_URL
 };

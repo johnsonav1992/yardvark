@@ -1,7 +1,11 @@
 import { inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { AuthService, User } from '@auth0/auth0-angular';
-import { environment } from '../../environments/environment';
+
+export const CUSTOM_CLAIM_BASE = 'https://www.yardvark.com';
+export const ROLES_CLAIM = `${CUSTOM_CLAIM_BASE}/roles`;
+
+export const MASTER_USER = 'Master User';
 
 /**
  * Retrieves the user data from the authentication service and stores it in a signal.
@@ -15,7 +19,7 @@ export const injectUserData = () => {
 };
 
 export const isMasterUser = (user: User | null | undefined): boolean => {
-  return user?.email === environment.masterUserEmail;
+  return user?.[ROLES_CLAIM].includes(MASTER_USER);
 };
 
 export const getUserInitials = (user: User | null | undefined): string => {

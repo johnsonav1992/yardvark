@@ -5,6 +5,7 @@ import { MainHeaderComponent } from './components/layout/main-header/main-header
 import { MainSideNavComponent } from './components/layout/main-side-nav/main-side-nav.component';
 import { ToastModule } from 'primeng/toast';
 import { GlobalUiService } from './services/global-ui.service';
+import LogRocket from 'logrocket';
 
 @Component({
   selector: 'app-root',
@@ -31,6 +32,15 @@ export class AppComponent {
 
       if (!isAuthenticated) {
         this._auth.loginWithRedirect();
+      }
+    });
+
+    this._auth.user$.subscribe((user) => {
+      if (user) {
+        LogRocket.identify(user.sub!, {
+          name: user.name!,
+          email: user.email!
+        });
       }
     });
   }

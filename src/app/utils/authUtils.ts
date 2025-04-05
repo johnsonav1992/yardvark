@@ -17,3 +17,18 @@ export const injectUserData = () => {
 export const isMasterUser = (user: User | null | undefined): boolean => {
   return user?.email === environment.masterUserEmail;
 };
+
+export const getUserInitials = (user: User | null | undefined): string => {
+  if (!user?.name) return '';
+
+  const nameParts = user.name.split(' ');
+
+  if (nameParts.length === 1) {
+    return nameParts[0].charAt(0).toUpperCase();
+  } else {
+    return (
+      nameParts[0].charAt(0).toUpperCase() +
+      nameParts[nameParts.length - 1].charAt(0).toUpperCase()
+    );
+  }
+};

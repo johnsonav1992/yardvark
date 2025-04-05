@@ -7,7 +7,7 @@ import { debounceTime, filter, map } from 'rxjs/operators';
   selector: '[doubleTap]'
 })
 export class DoubleTapDirective {
-  private _el = inject(ElementRef);
+  private _el = inject<ElementRef<HTMLElement>>(ElementRef<HTMLElement>);
 
   public click$ = fromEvent(this._el.nativeElement, 'touchstart');
 
@@ -21,11 +21,9 @@ export class DoubleTapDirective {
       .pipe(
         takeUntilDestroyed(),
         buffer(this.click$.pipe(debounceTime(250))),
-        map((list) => list.length),
+        map((taps) => taps.length),
         filter((numberOfTaps) => numberOfTaps === 2)
       )
-      .subscribe(() => {
-        this.onDoubleTap.emit();
-      });
+      .subscribe({ next: () => this.onDoubleTap.emit() });
   }
 }

@@ -1,4 +1,22 @@
-@if (isLoggedIn()) {
+@if (isAuthLoading()) {
+  <div
+    style="
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+    "
+  >
+    <img
+      src="assets/yardvark-logo-transparent.png"
+      [style.width]="isMobile() ? '250px' : '500px'"
+    />
+    <loading-spinner />
+  </div>
+} @else if (isLoggedIn()) {
   <main-header />
   <main-side-nav />
   <div

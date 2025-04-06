@@ -6,6 +6,8 @@ import { MainSideNavComponent } from './components/layout/main-side-nav/main-sid
 import { ToastModule } from 'primeng/toast';
 import { GlobalUiService } from './services/global-ui.service';
 import LogRocket from 'logrocket';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { LoadingSpinnerComponent } from './components/miscellanious/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-root',
@@ -13,7 +15,8 @@ import LogRocket from 'logrocket';
     RouterOutlet,
     MainHeaderComponent,
     MainSideNavComponent,
-    ToastModule
+    ToastModule,
+    LoadingSpinnerComponent
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
@@ -25,6 +28,7 @@ export class AppComponent {
   public isMobile = this._globalUiService.isMobile;
 
   public isLoggedIn = signal(false);
+  public isAuthLoading = toSignal(this._auth.isLoading$);
 
   public ngOnInit(): void {
     this._auth.isAuthenticated$.subscribe((isAuthenticated) => {

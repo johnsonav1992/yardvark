@@ -24,6 +24,7 @@ export class SwipeDirective {
 
   private handleSwipeGesture() {
     const deltaX = this.touchEndX() - this.touchStartX();
+
     if (Math.abs(deltaX) > this.minSwipeDistance) {
       if (deltaX < 0) {
         this.onSwipeLeft.emit();

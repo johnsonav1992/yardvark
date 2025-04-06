@@ -30,6 +30,7 @@ import { GlobalUiService } from '../../../services/global-ui.service';
 import { CheckboxModule } from 'primeng/checkbox';
 import { injectUserData, isMasterUser } from '../../../utils/authUtils';
 import { ProductFormData } from '../../../types/products.types';
+import { YVUser } from '../../../types/user.types';
 
 @Component({
   selector: 'add-product',
@@ -53,7 +54,7 @@ export class AddProductComponent {
   private _globalUiService = inject(GlobalUiService);
   public user = injectUserData();
 
-  public isMasterUser = computed(() => isMasterUser(this.user()));
+  public isMasterUser = computed(() => isMasterUser(this.user() as YVUser));
 
   public throwErrorToast = injectErrorToast();
 

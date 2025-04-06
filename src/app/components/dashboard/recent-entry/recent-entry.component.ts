@@ -28,7 +28,11 @@ export class RecentEntryComponent {
 
   public recentEntry = this._entriesService.getMostRecentEntryResource();
 
-  public goToEntry() {
+  public goToEntry(): void {
     this._router.navigate(['entry-log', this.recentEntry.value()?.id]);
+  }
+
+  public navToEntryCreation(): void {
+    this._router.navigate(['entry-log'], { queryParams: { create: true } });
   }
 }

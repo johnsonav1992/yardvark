@@ -2,11 +2,13 @@
   @if (recentEntries.isLoading()) {
     <loading-spinner />
   } @else {
-    <p-message
-      icon="ti ti-comet"
-      text="Welcome to Yardvark!"
-      severity="success"
-    />
+    @if (!userIsNewWithNoEntries()) {
+      <p-message
+        icon="ti ti-comet"
+        text="Welcome to Yardvark! Click below to create your first entry."
+        severity="success"
+      />
+    }
     <recent-entry />
   }
 </page-container>

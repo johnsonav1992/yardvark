@@ -10,6 +10,7 @@ import { ButtonModule } from 'primeng/button';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { AvatarDesignTokens } from '@primeng/themes/types/avatar';
 import { environment } from '../../../../environments/environment';
+import { YVUser } from '../../../types/user.types';
 
 @Component({
   selector: 'main-header',
@@ -35,7 +36,7 @@ export class MainHeaderComponent {
     this.user()?.picture?.includes('gravatar')
   );
 
-  public userInitials = computed(() => getUserInitials(this.user()));
+  public userInitials = computed(() => getUserInitials(this.user() as YVUser));
 
   public menuItems: MenuItem[] = [
     {

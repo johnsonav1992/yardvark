@@ -64,6 +64,7 @@ export class EntryLogComponent implements OnInit {
 
   public currentDate = signal(new Date());
   public selectedMobileDateToView = signal<Date | null>(null);
+
   public selectedMobileDateEntries = linkedSignal({
     source: this.selectedMobileDateToView,
     computation: (newMobileDateToView) => {

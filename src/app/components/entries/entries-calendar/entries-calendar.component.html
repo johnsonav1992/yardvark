@@ -48,7 +48,12 @@
     </div>
   }
 </div>
-<div class="calendar-grid">
+<div
+  class="calendar-grid"
+  swipeDetection
+  (onSwipeLeft)="prevMonth()"
+  (onSwipeRight)="nextMonth()"
+>
   @for (day of days(); track day.date) {
     @let isSelectedDateSameAsThisDate =
       mobileDateSelected()?.getDate() === day.date.getDate();

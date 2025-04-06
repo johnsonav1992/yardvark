@@ -18,6 +18,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loading-spinner.component';
 import { DoubleTapDirective } from '../../../directives/double-tap.directive';
+import { SwipeDirective } from '../../../directives/swipe.directive';
 
 @Component({
   selector: 'entries-calendar',
@@ -29,7 +30,8 @@ import { DoubleTapDirective } from '../../../directives/double-tap.directive';
     NgTemplateOutlet,
     ButtonModule,
     LoadingSpinnerComponent,
-    DoubleTapDirective
+    DoubleTapDirective,
+    SwipeDirective
   ]
 })
 export class EntriesCalendarComponent {

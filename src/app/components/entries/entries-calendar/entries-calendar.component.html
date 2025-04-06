@@ -51,8 +51,8 @@
 <div
   class="calendar-grid"
   swipeDetection
-  (onSwipeLeft)="prevMonth()"
-  (onSwipeRight)="nextMonth()"
+  (onSwipeLeft)="nextMonth()"
+  (onSwipeRight)="prevMonth()"
 >
   @for (day of days(); track day.date) {
     @let isSelectedDateSameAsThisDate =

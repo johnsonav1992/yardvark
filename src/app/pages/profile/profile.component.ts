@@ -12,9 +12,8 @@ import { AvatarDesignTokens } from '@primeng/themes/types/avatar';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
-import { AUTH0_USER_MANAGEMENT_URL } from '../../constants/api-constants';
-import { postReq } from '../../utils/httpUtils';
 import { AuthService } from '@auth0/auth0-angular';
+import { YVUser } from '../../types/user.types';
 
 @Component({
   selector: 'profile',
@@ -32,7 +31,7 @@ export class ProfileComponent {
   private _auth = inject(AuthService);
 
   public user = injectUserData();
-  public userInitials = computed(() => getUserInitials(this.user()));
+  public userInitials = computed(() => getUserInitials(this.user() as YVUser));
 
   public isEditingField = signal<'name' | 'email' | null>(null);
 

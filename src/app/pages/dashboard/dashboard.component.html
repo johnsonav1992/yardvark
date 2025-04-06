@@ -2,6 +2,11 @@
   @if (recentEntries.isLoading()) {
     <loading-spinner />
   } @else {
+    <p-message
+      icon="ti ti-comet"
+      text="Welcome to Yardvark!"
+      severity="success"
+    />
     <recent-entry />
   }
 </page-container>

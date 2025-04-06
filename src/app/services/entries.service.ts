@@ -2,7 +2,6 @@ import { httpResource } from '@angular/common/http';
 import { Injectable, Signal } from '@angular/core';
 import { Entry } from '../types/entries.types';
 import { apiUrl } from '../utils/httpUtils';
-import { User } from '@auth0/auth0-angular';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { formatDate } from '@angular/common';
 

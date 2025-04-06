@@ -1,6 +1,12 @@
-import { Component, inject, linkedSignal, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  linkedSignal,
+  signal
+} from '@angular/core';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
-import { injectUserData } from '../../utils/authUtils';
+import { getUserInitials, injectUserData } from '../../utils/authUtils';
 import { AvatarModule } from 'primeng/avatar';
 import { AvatarDesignTokens } from '@primeng/themes/types/avatar';
 import { InputTextModule } from 'primeng/inputtext';
@@ -26,6 +32,7 @@ export class ProfileComponent {
   private _auth = inject(AuthService);
 
   public user = injectUserData();
+  public userInitials = computed(() => getUserInitials(this.user()));
 
   public isEditingField = signal<'name' | 'email' | null>(null);
 
@@ -62,6 +69,7 @@ export class ProfileComponent {
   public avatarDt: AvatarDesignTokens = {
     root: {
       fontSize: '5rem',
+      background: '{primary.400}',
       width: '150px',
       height: '150px'
     }

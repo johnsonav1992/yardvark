@@ -16,6 +16,7 @@
       (click)="authMenu.show($event)"
       styleClass="user-logo"
       [dt]="avatarDt"
+      [style]="{ color: 'var(--p-surface-400)' }"
     >
       @if (!isDefaultPicture()) {
         <img [src]="user()?.picture" referrerpolicy="no-referrer" />

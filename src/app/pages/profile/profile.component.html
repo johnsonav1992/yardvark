@@ -38,15 +38,15 @@
   </div>
   <img class="section-wrapper" />
   <h4>Profile picture:</h4>
-  @let picture = user()?.picture || undefined;
-  @let initials = `${user()?.given_name?.[0]}${user()?.family_name?.[0]}`;
+  @let picture =
+    user()?.picture?.includes("gravatar") ? undefined : user()?.picture;
 
   <p-avatar
-    [label]="picture ? undefined : initials"
+    [label]="picture ? undefined : userInitials()"
     [dt]="avatarDt"
     [shape]="'circle'"
     [image]="picture"
+    [style]="{ color: 'var(--p-surface-400)' }"
   />
-
   <h2>Editable profile coming soon!</h2>
 </page-container>

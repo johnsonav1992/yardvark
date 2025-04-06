@@ -66,7 +66,8 @@ export class MainHeaderComponent {
 
   public avatarDt: AvatarDesignTokens = {
     root: {
-      background: '{primary.300}'
+      background: '{primary.400}',
+      fontSize: '.9rem'
     }
   };
 }

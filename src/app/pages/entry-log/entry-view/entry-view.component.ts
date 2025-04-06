@@ -23,7 +23,7 @@ import { ChipDesignTokens } from '@primeng/themes/types/chip';
 import { DividerModule } from 'primeng/divider';
 import { SkeletonModule } from 'primeng/skeleton';
 import { capitalize } from '../../../utils/stringUtils';
-import { startOfMonth } from 'date-fns';
+import { format, startOfMonth } from 'date-fns';
 import { ProductSmallCardComponent } from '../../../components/products/product-small-card/product-small-card.component';
 import { EntriesService } from '../../../services/entries.service';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -132,9 +132,13 @@ export class EntryViewComponent {
   }
 
   public deleteEntry() {
+    const dateOfDeletedEntry = this.entryData()?.date;
+
     deleteReq(apiUrl('entries', { params: [this.entryId()] })).subscribe(() => {
       this._router.navigate(['entry-log'], {
-        queryParams: { date: startOfMonth(this.currentDate() || new Date()) }
+        queryParams: {
+          date: new Date(dateOfDeletedEntry!)
+        }
       });
     });
   }

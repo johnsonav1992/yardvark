@@ -20,7 +20,7 @@
     {{ recentEntry.value()?.date | date: "M/dd/yyyy" }}
   </ng-template>
 
-  @if (recentEntry.value()!; as entry) {
+  @if (recentEntry.value(); as entry) {
     <div class="content-container">
       @if (entry.activities.length) {
         <div class="section-container">
@@ -58,7 +58,7 @@
         </div>
       }
     </div>
-  } @else {
+  } @else if (!recentEntry.isLoading()) {
     <ng-content *ngTemplateOutlet="noData"></ng-content>
   }
   <ng-template #noData>

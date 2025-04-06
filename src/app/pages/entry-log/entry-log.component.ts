@@ -58,6 +58,27 @@ export class EntryLogComponent implements OnInit {
     )
   );
 
+  public directDateNavigation = toSignal(
+    this._activatedRoute.queryParams.pipe(
+      map((params) => {
+        const date = params['date'];
+
+        if (date) {
+          const parsedDate = new Date(date);
+
+          if (!isNaN(parsedDate.getTime())) {
+            return parsedDate;
+          }
+        }
+
+        return null;
+      })
+    ),
+    {
+      initialValue: null
+    }
+  );
+
   public isMobile = this._globalUiService.isMobile;
 
   public user = injectUserData();
@@ -99,6 +120,14 @@ export class EntryLogComponent implements OnInit {
   public ngOnInit(): void {
     if (this.isCreateOnOpen()) {
       this.createEntry();
+    }
+
+    if (this.directDateNavigation()) {
+      this.changeMonths(this.directDateNavigation()!);
+
+      if (this.isMobile()) {
+        this.selectedMobileDateToView.set(this.directDateNavigation()!);
+      }
     }
   }
 

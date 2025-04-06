@@ -2,7 +2,7 @@
   @if (recentEntries.isLoading()) {
     <loading-spinner />
   } @else {
-    @if (!userIsNewWithNoEntries()) {
+    @if (userIsNewWithNoEntries()) {
       <p-message
         icon="ti ti-comet"
         text="Welcome to Yardvark! Click below to create your first entry."

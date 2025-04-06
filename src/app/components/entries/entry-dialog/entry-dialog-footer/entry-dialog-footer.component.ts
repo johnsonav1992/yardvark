@@ -72,7 +72,7 @@ export class EntryDialogFooterComponent {
     }).subscribe({
       next: () => {
         this.isLoading.set(false);
-        this._dialogRef.close('success');
+        this._dialogRef.close(this.form?.value.date!);
       },
       error: () => {
         this.isLoading.set(false);

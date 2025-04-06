@@ -1,4 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  linkedSignal,
+  OnInit,
+  signal
+} from '@angular/core';
 import {
   CalendarMarkerData,
   DaySelectedEvent,
@@ -57,7 +64,18 @@ export class EntryLogComponent implements OnInit {
 
   public currentDate = signal(new Date());
   public selectedMobileDateToView = signal<Date | null>(null);
-  public selectedMobileDateEntries = signal<Entry[]>([]);
+  public selectedMobileDateEntries = linkedSignal({
+    source: this.selectedMobileDateToView,
+    computation: (newMobileDateToView) => {
+      if (newMobileDateToView) {
+        return this.entries.value()?.filter((entry) => {
+          return isSameDay(new Date(entry.date), newMobileDateToView);
+        });
+      }
+
+      return null;
+    }
+  });
 
   public dayMarkers = computed<CalendarMarkerData<Entry>[]>(() => {
     const currentMonthEntries = this.entries.value();
@@ -118,8 +136,13 @@ export class EntryLogComponent implements OnInit {
 
     if (this.isMobile()) this._dialogService.getInstance(dialogRef).maximize();
 
-    dialogRef.onClose.subscribe((result: 'success' | undefined) => {
-      if (result === 'success') {
+    dialogRef.onClose.subscribe((result?: string) => {
+      if (result) {
+        this.changeMonths(new Date(result));
+
+        if (this.isMobile())
+          this.selectedMobileDateToView.set(new Date(result));
+
         this.entries.reload();
       }
     });

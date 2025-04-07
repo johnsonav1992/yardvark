@@ -10,5 +10,12 @@
       />
     }
     <recent-entry />
+    @if (isMobile()) {
+      <p-speeddial
+        icon="ti ti-plus"
+        [model]="mobileSpeedDialMenu"
+        [style]="{ position: 'absolute', bottom: '10px', right: '10px' }"
+      />
+    }
   }
 </page-container>

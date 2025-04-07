@@ -7,6 +7,11 @@ import { MessageModule } from 'primeng/message';
 import { injectUserData } from '../../utils/authUtils';
 import { YVUser } from '../../types/user.types';
 import { isToday } from 'date-fns';
+import { SpeedDialModule } from 'primeng/speeddial';
+import { MenuItem } from 'primeng/api';
+import { SpeedDialDesignTokens } from '@primeng/themes/types/speeddial';
+import { GlobalUiService } from '../../services/global-ui.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'dashboard',
@@ -14,15 +19,19 @@ import { isToday } from 'date-fns';
     PageContainerComponent,
     RecentEntryComponent,
     LoadingSpinnerComponent,
-    MessageModule
+    MessageModule,
+    SpeedDialModule
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent {
   private _entriesService = inject(EntriesService);
+  private _globalUiService = inject(GlobalUiService);
+  private _router = inject(Router);
 
   public user = injectUserData();
+  public isMobile = this._globalUiService.isMobile;
 
   public userIsNewWithNoEntries = computed(() => {
     const user = this.user() as YVUser;
@@ -34,4 +43,16 @@ export class DashboardComponent {
   });
 
   public recentEntries = this._entriesService.getMostRecentEntryResource();
+
+  public mobileSpeedDialMenu: MenuItem[] = [
+    {
+      label: 'Create entry',
+      tooltip: 'Create entry',
+      icon: 'ti ti-notebook',
+      style: { width: '70px', height: '70px' },
+      command: () => {
+        this._router.navigate(['entry-log'], { queryParams: { create: true } });
+      }
+    }
+  ];
 }

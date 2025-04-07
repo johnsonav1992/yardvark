@@ -1,0 +1,11 @@
+:host::ng-deep {
+  .p-speeddial-button,
+  .p-speeddial-action {
+    width: 70px;
+    height: 70px !important;
+
+    > span {
+      font-size: 24px;
+    }
+  }
+}

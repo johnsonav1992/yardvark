@@ -23,7 +23,6 @@ import { ChipDesignTokens } from '@primeng/themes/types/chip';
 import { DividerModule } from 'primeng/divider';
 import { SkeletonModule } from 'primeng/skeleton';
 import { capitalize } from '../../../utils/stringUtils';
-import { format, startOfMonth } from 'date-fns';
 import { ProductSmallCardComponent } from '../../../components/products/product-small-card/product-small-card.component';
 import { EntriesService } from '../../../services/entries.service';
 import { MultiSelectModule } from 'primeng/multiselect';

@@ -2,6 +2,7 @@ import { CanActivateFn } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
 import { inject } from '@angular/core';
 import { first } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export const authGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
@@ -11,7 +12,9 @@ export const authGuard: CanActivateFn = () => {
       if (isAuthenticated) {
         resolve(true);
       } else {
-        authService.loginWithRedirect();
+        authService.logout({
+          logoutParams: { returnTo: environment.feAppUrl }
+        });
         resolve(false);
       }
     });

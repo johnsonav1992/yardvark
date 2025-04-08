@@ -10,6 +10,7 @@ import {
 } from '../../../../utils/soilTemperatureUtils';
 import { injectSettingsService } from '../../../../services/settings.service';
 import { DegreesDisplay } from '../../../../types/temperature.styles';
+import { GlobalUiService } from '../../../../services/global-ui.service';
 
 @Component({
   selector: 'soil-temperature-display',
@@ -20,6 +21,9 @@ import { DegreesDisplay } from '../../../../types/temperature.styles';
 export class SoilTemperatureDisplayComponent {
   private _soilTemperatureService = inject(SoilTemperatureService);
   private _settingsService = injectSettingsService();
+  private _globalUiService = inject(GlobalUiService);
+
+  public isDarkMode = this._globalUiService.isDarkMode;
 
   public soilTemperatureData =
     this._soilTemperatureService.past24HourSoilTemperatureData;

@@ -4,10 +4,12 @@ import { MenuItem } from 'primeng/api';
 import { DrawerModule } from 'primeng/drawer';
 import { MenuModule } from 'primeng/menu';
 import { GlobalUiService } from '../../../services/global-ui.service';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'main-side-nav',
-  imports: [DrawerModule, MenuModule],
+  imports: [DrawerModule, MenuModule, ToggleSwitchModule, FormsModule],
   templateUrl: './main-side-nav.component.html',
   styleUrl: './main-side-nav.component.scss',
   encapsulation: ViewEncapsulation.None
@@ -16,10 +18,17 @@ export class MainSideNavComponent {
   private _globalUiService = inject(GlobalUiService);
 
   public isMobile = this._globalUiService.isMobile;
+  public isDarkMode = this._globalUiService.isDarkMode;
 
   public isMobileSidebarOpen = this._globalUiService.isMobileSidebarOpen;
 
-  public closeSidebar = () => this.isMobileSidebarOpen.set(false);
+  public closeSidebar(): void {
+    this.isMobileSidebarOpen.set(false);
+  }
+
+  public toggleDarkMode(): void {
+    this._globalUiService.toggleDarkMode();
+  }
 
   public menuItems: MenuItem[] = [
     {

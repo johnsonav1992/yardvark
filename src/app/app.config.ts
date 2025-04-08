@@ -16,6 +16,7 @@ import { MessageService } from 'primeng/api';
 import { SlicePipe } from '@angular/common';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { initHttpUtils } from './utils/httpUtils';
+import { YV_DARK_MODE_SELECTOR } from './constants/style-constants';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -27,7 +28,7 @@ export const appConfig: ApplicationConfig = {
       theme: {
         preset: theme,
         options: {
-          darkModeSelector: false
+          darkModeSelector: `.${YV_DARK_MODE_SELECTOR}`
         }
       },
       ripple: true

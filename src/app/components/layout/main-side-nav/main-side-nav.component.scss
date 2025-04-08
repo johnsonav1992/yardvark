@@ -42,10 +42,20 @@
 }
 
 .p-menu-item-link-active {
+  border-radius: 2px !important;
   color: var(--p-primary-600) !important;
   background-color: var(--p-primary-50) !important;
 
+  :root.yv-dark-mode & {
+    background-color: var(--p-primary-900) !important;
+    color: var(--p-primary-100) !important;
+  }
+
   > span {
     color: var(--p-primary-600) !important;
+
+    :root.yv-dark-mode & {
+      color: var(--p-primary-100) !important;
+    }
   }
 }

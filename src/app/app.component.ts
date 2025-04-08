@@ -8,6 +8,7 @@ import { GlobalUiService } from './services/global-ui.service';
 import LogRocket from 'logrocket';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LoadingSpinnerComponent } from './components/miscellanious/loading-spinner/loading-spinner.component';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -39,13 +40,14 @@ export class AppComponent {
       }
     });
 
-    this._auth.user$.subscribe((user) => {
-      if (user) {
-        LogRocket.identify(user.sub!, {
-          name: user.name!,
-          email: user.email!
-        });
-      }
-    });
+    environment.production &&
+      this._auth.user$.subscribe((user) => {
+        if (user) {
+          LogRocket.identify(user.sub!, {
+            name: user.name!,
+            email: user.email!
+          });
+        }
+      });
   }
 }

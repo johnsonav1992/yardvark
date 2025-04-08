@@ -29,6 +29,7 @@ export class MainHeaderComponent {
   private _globalUiService = inject(GlobalUiService);
 
   public isMobile = this._globalUiService.isMobile;
+  public isDarkMode = this._globalUiService.isDarkMode;
 
   public user = injectUserData();
 

@@ -1,4 +1,4 @@
-<div class="header">
+<div class="header" [class.dark-mode]="isDarkMode()">
   <img
     [src]="`assets/yardvark-logo-${isMobile() ? 'minimal' :'transparent'}.png`"
     alt="logo"

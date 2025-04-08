@@ -1,4 +1,4 @@
-import { Component, inject, ViewEncapsulation } from '@angular/core';
+import { Component, computed, inject, ViewEncapsulation } from '@angular/core';
 import { MenuDesignTokens } from '@primeng/themes/types/menu';
 import { MenuItem } from 'primeng/api';
 import { DrawerModule } from 'primeng/drawer';
@@ -68,7 +68,7 @@ export class MainSideNavComponent {
     }
   ];
 
-  public menuDt: MenuDesignTokens = {
+  public menuDt = computed<MenuDesignTokens>(() => ({
     root: {
       borderColor: 'transparent'
     },
@@ -76,10 +76,10 @@ export class MainSideNavComponent {
       gap: '.5rem'
     },
     item: {
-      color: '{surface.500}',
+      color: this.isDarkMode() ? '{surface.200}' : '{surface.500}',
       icon: {
-        color: '{surface.500}'
+        color: this.isDarkMode() ? '{surface.200}' : '{surface.500}'
       }
     }
-  };
+  }));
 }

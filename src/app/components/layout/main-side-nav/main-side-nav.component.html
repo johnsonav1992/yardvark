@@ -11,7 +11,7 @@
     <div class="sidenav-container" [style.margin-top]="isMobile() ? '5px' : ''">
       <p-menu
         [model]="menuItems"
-        [dt]="menuDt"
+        [dt]="menuDt()"
         [style]="{ fontSize: '24px' }"
       />
       <div class="dark-mode-container">

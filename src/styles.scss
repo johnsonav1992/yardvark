@@ -12,7 +12,11 @@
 
 html {
   font-family: "Inter", sans-serif;
-  color: var(--p-surface-600);
+  color: var(--text-color, var(--p-surface-600));
+
+  @media (prefers-color-scheme: dark) {
+    color: var(--text-color-dark, var(--p-surface-300));
+  }
 }
 
 @keyframes spin {

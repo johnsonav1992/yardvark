@@ -1,6 +1,7 @@
 import {
   ApplicationConfig,
   provideAppInitializer,
+  provideExperimentalZonelessChangeDetection,
   provideZoneChangeDetection
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
@@ -18,7 +19,7 @@ import { initHttpUtils } from './utils/httpUtils';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideZoneChangeDetection({ eventCoalescing: true }),
+    provideExperimentalZonelessChangeDetection(),
     provideRouter(mainRoutes),
     provideHttpClient(withInterceptors([authInterceptor])),
     provideAnimationsAsync(),

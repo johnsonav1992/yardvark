@@ -8,6 +8,10 @@
   (onHide)="isMobileSidebarOpen.set(false)"
 >
   <ng-template #headless>
-    <p-menu [model]="menuItems" [dt]="menuDt" [style]="{ fontSize: '24px' }" />
+    <p-menu
+      [model]="menuItems"
+      [dt]="menuDt"
+      [style]="{ fontSize: '24px', marginTop: isMobile() ? '5px' : '' }"
+    />
   </ng-template>
 </p-drawer>

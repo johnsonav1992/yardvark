@@ -9,9 +9,11 @@
 >
   <ng-template #header>
     <tr>
-      <th>Name</th>
-      <th>Size (ft²)</th>
-      <th></th>
+      @if (lawnSegments()?.length) {
+        <th>Name</th>
+        <th>Size (ft²)</th>
+        <th></th>
+      }
     </tr>
   </ng-template>
   <ng-template #body let-segment let-editing="editing">

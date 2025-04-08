@@ -14,7 +14,7 @@ html {
   font-family: "Inter", sans-serif;
   color: var(--text-color, var(--p-surface-600));
 
-  @media (prefers-color-scheme: dark) {
+  &.yv-dark-mode {
     color: var(--text-color-dark, var(--p-surface-300));
   }
 }

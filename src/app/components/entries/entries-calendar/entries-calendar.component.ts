@@ -40,6 +40,7 @@ export class EntriesCalendarComponent {
   private _globalUiService = inject(GlobalUiService);
 
   public isMobile = this._globalUiService.isMobile;
+  public isDarkMode = this._globalUiService.isDarkMode;
 
   private _dateQuery = toSignal(
     this._router.routerState.root.queryParams.pipe(

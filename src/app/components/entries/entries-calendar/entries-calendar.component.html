@@ -61,12 +61,17 @@
     <div
       class="day"
       [class.mobile]="isMobile()"
+      [class.dark-mode]="isDarkMode()"
       [style.gridColumnStart]="day.gridColumnStart"
       [style.color]="day.isToday ? 'white' : 'var(--p-surface-400)'"
       [style.fontWeight]="day.isToday ? '500' : '400'"
       [style.cursor]="'pointer'"
       [style.backgroundColor]="
-        isSelectedDateSameAsThisDate ? 'var(--p-surface-200)' : ''
+        isSelectedDateSameAsThisDate
+          ? isDarkMode()
+            ? 'var(--p-surface-600)'
+            : 'var(--p-surface-200)'
+          : ''
       "
       (click)="selectDay(day.date, 'normal')"
       doubleTap
@@ -96,7 +101,14 @@
       <footer
         class="day-number"
         [class.mobile]="isMobile()"
-        [style.backgroundColor]="day.isToday ? 'var(--p-primary-500)' : 'white'"
+        [class.dark-mode]="isDarkMode()"
+        [style.backgroundColor]="
+          day.isToday
+            ? isDarkMode()
+              ? 'var(--p-primary-600) !important'
+              : 'var(--p-primary-500)'
+            : 'white'
+        "
         [style.color]="day.isToday ? 'white' : 'inherit'"
       >
         {{ day.date | date: "d" }}

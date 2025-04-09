@@ -61,6 +61,10 @@
     width: 100%;
     height: 10vw;
 
+    &.dark-mode {
+      background-color: var(--p-surface-800);
+    }
+
     &.mobile {
       height: 11vw;
       border-radius: 0.25rem;
@@ -103,6 +107,10 @@
       bottom: 0.25rem;
       right: 0.25rem;
       background-color: white;
+
+      &.dark-mode {
+        background-color: var(--p-surface-700) !important;
+      }
 
       &.mobile {
         width: 1.2rem;

@@ -22,13 +22,13 @@ export class MainSideNavComponent {
 
   public isMobileSidebarOpen = this._globalUiService.isMobileSidebarOpen;
 
-  public closeSidebar(): void {
+  public closeSidebar = () => {
     this.isMobileSidebarOpen.set(false);
-  }
+  };
 
-  public toggleDarkMode(): void {
+  public toggleDarkMode = () => {
     this._globalUiService.toggleDarkMode();
-  }
+  };
 
   public menuItems: MenuItem[] = [
     {

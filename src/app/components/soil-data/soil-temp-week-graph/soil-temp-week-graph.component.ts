@@ -1,10 +1,11 @@
-import { Component, computed, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { ChartData, ChartOptions } from 'chart.js';
 import { ChartModule } from 'primeng/chart';
 import { getFullWeekOfDayLabelsCenteredAroundCurrentDay } from '../../../utils/timeUtils';
 import { OpenMeteoQueryParams } from '../../../types/openmeteo.types';
 import { getPrimeNgHexColor } from '../../../utils/styleUtils';
 import { ChartLoaderComponent } from '../../chart-loader/chart-loader.component';
+import { GlobalUiService } from '../../../services/global-ui.service';
 
 @Component({
   selector: 'soil-temp-week-graph',
@@ -13,6 +14,10 @@ import { ChartLoaderComponent } from '../../chart-loader/chart-loader.component'
   styleUrl: './soil-temp-week-graph.component.scss'
 })
 export class SoilTempWeekGraphComponent {
+  private _globalUiService = inject(GlobalUiService);
+
+  public isDarkMode = this._globalUiService.isDarkMode;
+
   public dailyAverageShallowTemps = input.required<number[]>();
   public dailyAverageDeepTemps = input.required<number[]>();
   public tempUnit =
@@ -46,7 +51,7 @@ export class SoilTempWeekGraphComponent {
     ]
   }));
 
-  public options: ChartOptions<'line'> = {
+  public options = computed<ChartOptions<'line'>>(() => ({
     maintainAspectRatio: false,
     aspectRatio: 0.75,
     scales: {
@@ -56,7 +61,19 @@ export class SoilTempWeekGraphComponent {
         max: 100,
         ticks: {
           stepSize: 20
-        }
+        },
+        grid: this.isDarkMode()
+          ? {
+              color: 'rgba(200, 200, 200, 0.2)'
+            }
+          : undefined
+      },
+      x: {
+        grid: this.isDarkMode()
+          ? {
+              color: 'rgba(200, 200, 200, 0.2)'
+            }
+          : undefined
       }
     },
     plugins: {
@@ -65,5 +82,5 @@ export class SoilTempWeekGraphComponent {
         align: 'end'
       }
     }
-  };
+  }));
 }

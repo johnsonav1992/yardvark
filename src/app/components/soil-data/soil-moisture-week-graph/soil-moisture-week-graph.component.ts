@@ -17,6 +17,7 @@ export class SoilMoistureWeekGraphComponent {
   private _globalUiService = inject(GlobalUiService);
 
   public isMobile = this._globalUiService.isMobile;
+  public isDarkMode = this._globalUiService.isDarkMode;
 
   public dailyMoistureData = input.required<number[]>();
   public isLoadingChartData = input<boolean>(false);
@@ -37,7 +38,7 @@ export class SoilMoistureWeekGraphComponent {
     ]
   }));
 
-  public options: ChartOptions<'line'> = {
+  public options = computed<ChartOptions<'line'>>(() => ({
     maintainAspectRatio: false,
     aspectRatio: 0.75,
     scales: {
@@ -47,7 +48,19 @@ export class SoilMoistureWeekGraphComponent {
         ticks: {
           stepSize: 10,
           callback: (val) => `${val}%`
-        }
+        },
+        grid: this.isDarkMode()
+          ? {
+              color: 'rgba(200, 200, 200, 0.2)'
+            }
+          : undefined
+      },
+      x: {
+        grid: this.isDarkMode()
+          ? {
+              color: 'rgba(200, 200, 200, 0.2)'
+            }
+          : undefined
       }
     },
     plugins: {
@@ -56,5 +69,5 @@ export class SoilMoistureWeekGraphComponent {
         align: 'end'
       }
     }
-  };
+  }));
 }

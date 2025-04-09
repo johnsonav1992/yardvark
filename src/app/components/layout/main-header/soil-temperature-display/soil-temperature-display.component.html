@@ -10,7 +10,7 @@
   } @else {
     <span
       #tempDisplay
-      (click)="depthPopover.show($event)"
+      (click)="depthPopover.show($event, tempDisplay)"
       class="temp"
       [style.color]="displayColor()"
     >

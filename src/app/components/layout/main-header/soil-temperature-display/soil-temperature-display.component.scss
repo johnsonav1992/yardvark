@@ -8,13 +8,12 @@
   font-size: 24px;
   align-items: center;
   justify-content: space-between;
-  background-color: white;
-  opacity: 0.75;
+  background-color: rgba(255, 255, 0255, 0.75);
 
   &.dark-mode {
     background-color: var(--p-surface-900);
     border: 1px solid var(--p-surface-700);
-    opacity: 1;
+    background-color: rgba(0, 0, 0, 0.5);
   }
 
   .temp {

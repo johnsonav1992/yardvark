@@ -3,6 +3,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { buffer, fromEvent } from 'rxjs';
 import { debounceTime, filter, map } from 'rxjs/operators';
 
+/**
+ * A directive that detects double taps on an element.
+ *
+ * Usage:
+ * ```html
+ * <div doubleTap (onDoubleTap)="handleDoubleTap()"></div>
+ * ```
+ */
 @Directive({
   selector: '[doubleTap]'
 })

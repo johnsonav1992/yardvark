@@ -1,5 +1,13 @@
 import { Directive, HostListener, output, signal } from '@angular/core';
 
+/**
+ * A directive that detects swipe gestures on an element.
+ *
+ * Usage:
+ * ```html
+ * <div swipeDetection (onSwipeLeft)="handleSwipeLeft()" (onSwipeRight)="handleSwipeRight()"></div>
+ * ```
+ */
 @Directive({
   selector: '[swipeDetection]'
 })

@@ -25,10 +25,10 @@
   @if (isMobile()) {
     <p-divider />
     @if (selectedMobileDateToView()) {
-      <div style="display: flex; flex-direction: column; gap: 0.5rem">
+      <div class="mobile-entries-container">
         @for (entry of selectedMobileDateEntries(); track entry.id) {
           <p-card (click)="navigateToEntry(entry)">
-            <div style="display: flex; align-items: center; gap: 0.5rem">
+            <div class="mobile-entry-preview-card">
               <i class="ti ti-notebook" [style]="{ fontSize: '24px' }"></i>
               <p>{{ entry.date | date: "M/d/yyyy" }} - {{ entry.title }}</p>
             </div>

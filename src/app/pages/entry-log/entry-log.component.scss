@@ -12,4 +12,16 @@
     font-size: 0.8rem;
     color: var(--p-surface-400);
   }
+
+  .mobile-entries-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .mobile-entry-preview-card {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
 }

@@ -13,12 +13,12 @@
       @for (tab of tabs; track tab.value) {
         <p-tabpanel [value]="tab.value">
           @if (products.isLoading()) {
-            <div style="display: flex; width: 100%; justify-content: center">
+            <div class="loading-container">
               <loading-spinner />
             </div>
           } @else {
             <div
-              style="display: flex; gap: 0.5rem; flex-wrap: wrap"
+              class="cards-container"
               [style.justify-content]="isMobile() ? 'center' : ''"
             >
               @for (product of productsToShow(); track product.id) {

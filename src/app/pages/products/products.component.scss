@@ -3,3 +3,15 @@
   bottom: 20px;
   right: 20px;
 }
+
+.loading-container {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
+.cards-container {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}

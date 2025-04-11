@@ -1,14 +1,14 @@
 <form [formGroup]="form" class="main-form">
   <div class="date-title-wrapper">
     <span class="input-wrapper">
-      <div style="display: flex">
+      <div [style]="{ display: 'flex' }">
         <p>Title:</p>
         <small class="error">*</small>
       </div>
       <input pInputText formControlName="title" [style]="{ width: '100%' }" />
     </span>
     <span class="input-wrapper">
-      <div style="display: flex">
+      <div [style]="{ display: 'flex' }">
         <p>Date:</p>
         <small class="error">*</small>
       </div>

@@ -3,7 +3,7 @@
   [style.width]="{ width: isMobile() ? '100%' : 'max-content' }"
 >
   <ng-template #title>
-    <div style="display: flex; justify-content: space-between; gap: 1rem">
+    <div class="title-link-container">
       Last Journal Entry
       @if (recentEntry.value()) {
         <p-button
@@ -62,7 +62,7 @@
     <ng-content *ngTemplateOutlet="noData"></ng-content>
   }
   <ng-template #noData>
-    <div style="display: flex; flex-direction: column; gap: 1rem">
+    <div class="empty-container">
       <p>No recent entries found.</p>
       <p-button
         label="Create Entry"

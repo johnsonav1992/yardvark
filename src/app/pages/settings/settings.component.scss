@@ -3,3 +3,9 @@
   flex-direction: column;
   gap: 0.5rem;
 }
+
+.item-wrapper {
+  display: flex;
+  gap: 0.25rem;
+  align-items: center;
+}

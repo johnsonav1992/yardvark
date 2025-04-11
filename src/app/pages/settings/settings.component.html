@@ -16,13 +16,13 @@
       placeholder="Search for a location"
     >
       <ng-template #item let-location>
-        <div style="display: flex; gap: 0.25rem; align-items: center">
+        <div class="item-wrapper">
           <i class="ti ti-map-pin"></i>
           {{ location.properties.full_address }}
         </div>
       </ng-template>
       <ng-template #selectedItem let-location>
-        <div style="display: flex; gap: 0.25rem; align-items: center">
+        <div class="item-wrapper">
           <i class="ti ti-map-pin"></i>
           {{ location.properties.full_address }}
         </div>

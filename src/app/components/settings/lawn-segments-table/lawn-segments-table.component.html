@@ -98,7 +98,7 @@
     <td colspan="3">
       <div class="empty-or-loading">
         <i class="ti ti-table" [class.icon]="true"></i>
-        <h3 style="margin: 0">No lawn segments found</h3>
+        <h3 [style]="{ margin: 0 }">No lawn segments found</h3>
         <p>Click the plus icon to add a new lawn segment.</p>
       </div>
     </td>
@@ -107,12 +107,12 @@
     <td colspan="3">
       <div class="empty-or-loading">
         <i class="ti ti-loader-2 icon-spin" [class.icon]="true"></i>
-        <h3 style="margin: 0">Loading lawn segments...</h3>
+        <h3 [style]="{ margin: 0 }">Loading lawn segments...</h3>
       </div>
     </td>
   </ng-template>
   <ng-template #footer>
-    <div style="margin-top: 1rem">
+    <div [style]="{ marginTop: '1rem' }">
       <p-button
         [icon]="'ti ti-plus'"
         rounded

@@ -1,13 +1,6 @@
 <p-card [style]="{ width: '25rem', overflow: 'hidden', minHeight: '608px' }">
   <ng-template #header>
-    <div
-      style="
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      "
-    >
+    <div class="header">
       <img
         alt="Card"
         [style.max-height]="'400px'"
@@ -21,7 +14,7 @@
     {{ product().description }}
   </p>
   <ng-template #footer>
-    <div style="width: 100%; display: flex; justify-content: flex-end">
+    <div class="footer">
       <p-button
         label="View product"
         pTooltip="Coming soon..."

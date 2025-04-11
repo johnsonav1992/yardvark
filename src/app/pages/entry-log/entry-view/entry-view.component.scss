@@ -19,5 +19,9 @@
     display: flex;
     gap: 0.5rem;
     flex-wrap: wrap;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 }

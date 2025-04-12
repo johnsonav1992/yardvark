@@ -103,7 +103,7 @@ export class EntryLogComponent implements OnInit {
 
             return {
               ...entry,
-              time: format(time, 'hh:mm a')
+              time: time ? format(time, 'hh:mm a') : ''
             };
           });
       }
@@ -196,12 +196,6 @@ export class EntryLogComponent implements OnInit {
 
     if (this.isMobile() && type !== 'long-press') {
       this.selectedMobileDateToView.set(date);
-
-      this.selectedMobileDateEntries.set(
-        this.entries.value()?.filter((entry) => {
-          return isSameDay(new Date(entry.date), date);
-        }) || []
-      );
     } else {
       this.createEntry(date);
     }

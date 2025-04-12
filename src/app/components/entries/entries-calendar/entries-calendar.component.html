@@ -75,7 +75,7 @@
       "
       (click)="selectDay(day.date, 'normal')"
       doubleTap
-      (onDoubleTap)="selectDay(day.date, 'long-press')"
+      (onDoubleTap)="selectDay(day.date, 'double-tap')"
     >
       @if (!isMobile()) {
         <div class="marker-container">

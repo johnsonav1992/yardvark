@@ -101,7 +101,7 @@ export class EntriesCalendarComponent {
     return format(date, 'yyyy-MM-dd');
   }
 
-  public selectDay(date: Date, type: 'normal' | 'long-press'): void {
+  public selectDay(date: Date, type: 'normal' | 'double-tap'): void {
     this.daySelected.emit({ date, type });
   }
 
@@ -118,5 +118,5 @@ export type CalendarMarkerData<TData = unknown> = {
 
 export type DaySelectedEvent = {
   date: Date;
-  type: 'normal' | 'long-press';
+  type: 'normal' | 'double-tap';
 };

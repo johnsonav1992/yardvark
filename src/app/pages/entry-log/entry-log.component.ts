@@ -194,7 +194,7 @@ export class EntryLogComponent implements OnInit {
   public selectDay(e: DaySelectedEvent): void {
     const { date, type } = e;
 
-    if (this.isMobile() && type !== 'long-press') {
+    if (this.isMobile() && type !== 'double-tap') {
       this.selectedMobileDateToView.set(date);
     } else {
       this.createEntry(date);

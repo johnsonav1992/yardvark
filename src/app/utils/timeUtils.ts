@@ -101,9 +101,19 @@ export const convertTimeStringToDate = (
 ): Date | null => {
   if (!timeString) return null;
 
+  console.log(timeString);
+
   const today = new Date();
   const [hours, minutes, seconds] = timeString.split(':').map(Number);
 
   today.setHours(hours || 0, minutes || 0, seconds || 0, 0);
   return today;
+};
+
+/**
+ * Checks to see if a string is a valid time string in the format HH:mm:ss.
+ */
+export const isTimeString = (value: string): boolean => {
+  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
+  return timeRegex.test(value);
 };

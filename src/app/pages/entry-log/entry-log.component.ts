@@ -147,7 +147,10 @@ export class EntryLogComponent implements OnInit {
 
   public navigateToEntry(entry: Entry): void {
     this._router.navigate(['entry-log', entry.id], {
-      state: { entry },
+      state: {
+        ...entry,
+        time: this.entries.value()?.find((e) => e.id === entry.id)?.time
+      },
       queryParams: { date: new Date(entry.date).toISOString() }
     });
   }

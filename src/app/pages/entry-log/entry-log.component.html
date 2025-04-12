@@ -26,11 +26,18 @@
     <p-divider />
     @if (selectedMobileDateToView()) {
       <div class="mobile-entries-container">
-        @for (entry of selectedMobileDateEntries(); track entry.id) {
-          <p-card (click)="navigateToEntry(entry)">
+        @for (
+          selectedEntry of selectedMobileDateEntries();
+          track selectedEntry.id
+        ) {
+          <p-card (click)="navigateToEntry(selectedEntry)">
             <div class="mobile-entry-preview-card">
               <i class="ti ti-notebook" [style]="{ fontSize: '24px' }"></i>
-              <p>{{ entry.date | date: "M/d/yyyy" }} - {{ entry.title }}</p>
+              <p>
+                {{ selectedEntry.date | date: "M/d/yyyy" }}
+                {{ selectedEntry.time ? " - " + selectedEntry.time : "" }}
+                {{ selectedEntry.title ? " | " + selectedEntry.title : "" }}
+              </p>
             </div>
           </p-card>
         } @empty {

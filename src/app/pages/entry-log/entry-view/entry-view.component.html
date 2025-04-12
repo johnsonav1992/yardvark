@@ -1,4 +1,5 @@
 @let date = entryData()?.date! | date: "M/d/yyyy";
+@let time = entryTime() | date: "h:mm a";
 @let soilTemp =
   entryData()?.soilTemperature?.toString() +
   "° " +
@@ -49,13 +50,16 @@
           }
         </div>
         @if (isMobile() && isInEditMode()) {
-          <input
-            pInputText
-            formControlName="title"
-            placeholder="Enter title"
-            [style]="{ width: '50%', marginTop: '.5rem' }"
-          />
+          <div class="time-title-edit-container">
+            <p-datePicker timeOnly [hourFormat]="'12'" formControlName="time" />
+            <input
+              pInputText
+              formControlName="title"
+              placeholder="Enter title"
+            />
+          </div>
         } @else {
+          <small>{{ time }}</small>
           @if (isMobile() && entryData()?.title) {
             <h3 [style.margin-block]="'.5rem'">{{ entryData()?.title }}</h3>
           }

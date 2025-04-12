@@ -48,6 +48,9 @@ import { TextareaModule } from 'primeng/textarea';
 import { injectErrorToast } from '../../../utils/toastUtils';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { effectSignalLogger } from '../../../utils/generalUtils';
+import { convertTimeStringToDate } from '../../../utils/timeUtils';
+import { DatePickerModule } from 'primeng/datepicker';
+import { format } from 'date-fns';
 
 @Component({
   selector: 'entry-view',
@@ -64,7 +67,8 @@ import { effectSignalLogger } from '../../../utils/generalUtils';
     InputTextModule,
     ProductsSelectorComponent,
     ReactiveFormsModule,
-    TextareaModule
+    TextareaModule,
+    DatePickerModule
   ],
   templateUrl: './entry-view.component.html',
   styleUrl: './entry-view.component.scss'
@@ -81,6 +85,7 @@ export class EntryViewComponent {
   public isMobile = this._globalUiService.isMobile;
 
   public editForm = new FormGroup({
+    time: new FormControl<Date | null>(null),
     title: new FormControl<string>('', [Validators.required]),
     activities: new FormControl<Activity[]>([]),
     lawnSegments: new FormControl<LawnSegment[]>([]),
@@ -104,6 +109,10 @@ export class EntryViewComponent {
     this.entryResource.value()
   );
   public isInEditMode = signal(false);
+
+  public entryTime = computed(() =>
+    convertTimeStringToDate(this.entryData()?.time!)
+  );
 
   public currentDate = computed<Date | null>(() =>
     this.entryDate() ? new Date(this.entryDate()!) : null
@@ -147,6 +156,7 @@ export class EntryViewComponent {
 
     if (this.isInEditMode()) {
       this.editForm.patchValue({
+        time: convertTimeStringToDate(this.entryData()?.time!),
         title: this.entryData()?.title,
         activities: this.entryData()?.activities,
         lawnSegments: this.entryData()?.lawnSegments,
@@ -166,6 +176,7 @@ export class EntryViewComponent {
 
   public submitEdits() {
     const updatedEntry: Partial<EntryCreationRequest> = {
+      time: format(this.editForm.value.time!, 'HH:mm:ss'),
       title: this.editForm.value.title || '',
       activityIds: this.editForm.value.activities?.map(({ id }) => id) || [],
       lawnSegmentIds:

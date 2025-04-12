@@ -24,11 +24,12 @@ import { EntryDialogFooterComponent } from '../../components/entries/entry-dialo
 import { EntriesService } from '../../services/entries.service';
 import { GlobalUiService } from '../../services/global-ui.service';
 import { DividerModule } from 'primeng/divider';
-import { isSameDay } from 'date-fns';
+import { format, isSameDay } from 'date-fns';
 import { CardModule } from 'primeng/card';
 import { DatePipe } from '@angular/common';
 import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { convertTimeStringToDate } from '../../utils/timeUtils';
 
 @Component({
   selector: 'entry-log',
@@ -90,9 +91,21 @@ export class EntryLogComponent implements OnInit {
     source: this.selectedMobileDateToView,
     computation: (newMobileDateToView) => {
       if (newMobileDateToView) {
-        return this.entries.value()?.filter((entry) => {
-          return isSameDay(new Date(entry.date), newMobileDateToView);
-        });
+        return this.entries
+          .value()
+          ?.filter((entry) =>
+            isSameDay(new Date(entry.date), newMobileDateToView)
+          )
+          .map((entry) => {
+            const time = entry.time
+              ? (convertTimeStringToDate(entry.time) as Date)
+              : '';
+
+            return {
+              ...entry,
+              time: format(time, 'hh:mm a')
+            };
+          });
       }
 
       return null;

@@ -5,6 +5,7 @@ export type Entry = {
   id: number;
   userId: string;
   date: string;
+  time: string;
   title: string;
   notes: string;
   soilTemperature: number | string;
@@ -27,7 +28,7 @@ export type EntryProduct = {
 
 export type EntryCreationRequest = {
   date: Date;
-  time: Date;
+  time: string;
   notes: string;
   title: string;
   userId: string;

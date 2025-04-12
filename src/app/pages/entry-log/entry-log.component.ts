@@ -81,6 +81,7 @@ export class EntryLogComponent implements OnInit {
   );
 
   public isMobile = this._globalUiService.isMobile;
+  public darkMode = this._globalUiService.isDarkMode;
 
   public user = injectUserData();
 
@@ -212,7 +213,8 @@ export class EntryLogComponent implements OnInit {
             background: '{sky.200}',
             borderColor: '{sky.200}',
             hoverBackground: '{sky.300}',
-            hoverBorderColor: '{sky.300}'
+            hoverBorderColor: '{sky.300}',
+            color: this.darkMode() ? '{surface.600}' : ''
           }
         }
       }

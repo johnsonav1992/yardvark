@@ -90,3 +90,20 @@ export const debounce = <T extends (...args: any[]) => void>(
     timer = setTimeout(() => func(...args), delay);
   }) as T;
 };
+
+/**
+ * Converts a time string (HH:mm:ss) to a Date object.
+ * @param timeString The time string to convert.
+ * @returns A Date object with the time set, or null if the input is null.
+ */
+export const convertTimeStringToDate = (
+  timeString: string | null
+): Date | null => {
+  if (!timeString) return null;
+
+  const today = new Date();
+  const [hours, minutes, seconds] = timeString.split(':').map(Number);
+
+  today.setHours(hours || 0, minutes || 0, seconds || 0, 0);
+  return today;
+};

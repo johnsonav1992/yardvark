@@ -25,8 +25,11 @@ export class Entry {
   @Column('timestamptz')
   date: Date;
 
-  @Column()
-  title: string;
+  @Column('time', { nullable: true })
+  time?: string;
+
+  @Column({ nullable: true })
+  title?: string;
 
   @Column({ nullable: true })
   notes: string;

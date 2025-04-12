@@ -27,6 +27,7 @@ export type EntryProduct = {
 
 export type EntryCreationRequest = {
   date: Date;
+  time: Date;
   notes: string;
   title: string;
   userId: string;

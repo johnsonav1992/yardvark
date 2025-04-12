@@ -8,6 +8,7 @@ import { SoilTemperatureService } from '../../../../services/soil-temperature.se
 import { EntryCreationRequest } from '../../../../types/entries.types';
 import { injectErrorToast } from '../../../../utils/toastUtils';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { format } from 'date-fns';
 
 @Component({
   selector: 'entry-dialog-footer',
@@ -55,6 +56,7 @@ export class EntryDialogFooterComponent {
 
     postReq<void, EntryCreationRequest>(apiUrl('entries'), {
       date: this.form?.value.date!,
+      time: format(this.form?.value.time!, 'HH:mm:ss'),
       notes: this.form?.value.notes!,
       title: this.form?.value.title!,
       soilTemperature:

@@ -1,12 +1,11 @@
 <form [formGroup]="form" class="main-form">
+  <span class="input-wrapper">
+    <div [style]="{ display: 'flex' }">
+      <p>Title (optional):</p>
+    </div>
+    <input pInputText formControlName="title" [style]="{ width: '100%' }" />
+  </span>
   <div class="date-title-wrapper">
-    <span class="input-wrapper">
-      <div [style]="{ display: 'flex' }">
-        <p>Title:</p>
-        <small class="error">*</small>
-      </div>
-      <input pInputText formControlName="title" [style]="{ width: '100%' }" />
-    </span>
     <span class="input-wrapper">
       <div [style]="{ display: 'flex' }">
         <p>Date:</p>
@@ -16,6 +15,17 @@
         [showIcon]="true"
         formControlName="date"
         [style]="{ width: '100%' }"
+      />
+    </span>
+    <span class="input-wrapper">
+      <div [style]="{ display: 'flex' }">
+        <p>Time:</p>
+      </div>
+      <p-datePicker
+        formControlName="time"
+        [style]="{ width: '100%' }"
+        [hourFormat]="'12'"
+        timeOnly
       />
     </span>
   </div>

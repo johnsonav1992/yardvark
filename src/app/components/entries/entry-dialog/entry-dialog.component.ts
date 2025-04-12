@@ -20,6 +20,7 @@ import { Product } from '../../../types/products.types';
 import { SelectModule } from 'primeng/select';
 import { EntryProductRow } from '../../../utils/entriesUtils';
 import { ProductsSelectorComponent } from '../../products/products-selector/products-selector.component';
+import { convertTimeStringToDate } from '../../../utils/timeUtils';
 
 @Component({
   selector: 'entry-dialog',
@@ -51,8 +52,9 @@ export class EntryDialogComponent implements OnInit {
   public lawnSegments = computed(() => this.lawnSegmentsResource.value());
 
   public form = new FormGroup({
-    title: new FormControl<string>('', [Validators.required]),
+    title: new FormControl<string>(''),
     date: new FormControl(new Date(), [Validators.required]),
+    time: new FormControl<Date | null>(null),
     activities: new FormControl<Activity[]>([]),
     lawnSegments: new FormControl<LawnSegment[]>([]),
     products: new FormArray<EntryProductRow>([]),

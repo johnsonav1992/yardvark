@@ -176,7 +176,9 @@ export class EntryViewComponent {
 
   public submitEdits() {
     const updatedEntry: Partial<EntryCreationRequest> = {
-      time: format(this.editForm.value.time!, 'HH:mm:ss'),
+      time: this.editForm.value.time
+        ? format(this.editForm.value.time!, 'HH:mm:ss')
+        : null,
       title: this.editForm.value.title || '',
       activityIds: this.editForm.value.activities?.map(({ id }) => id) || [],
       lawnSegmentIds:

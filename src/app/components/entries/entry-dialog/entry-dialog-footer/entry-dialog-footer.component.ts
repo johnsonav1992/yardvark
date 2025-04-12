@@ -56,7 +56,9 @@ export class EntryDialogFooterComponent {
 
     postReq<void, EntryCreationRequest>(apiUrl('entries'), {
       date: this.form?.value.date!,
-      time: format(this.form?.value.time!, 'HH:mm:ss'),
+      time: this.form?.value.time
+        ? format(this.form?.value.time!, 'HH:mm:ss')
+        : null,
       notes: this.form?.value.notes!,
       title: this.form?.value.title!,
       soilTemperature:

@@ -101,8 +101,6 @@ export const convertTimeStringToDate = (
 ): Date | null => {
   if (!timeString) return null;
 
-  console.log(timeString);
-
   const today = new Date();
   const [hours, minutes, seconds] = timeString.split(':').map(Number);
 

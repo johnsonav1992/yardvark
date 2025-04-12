@@ -49,19 +49,22 @@
             </div>
           }
         </div>
-        @if (isMobile() && isInEditMode()) {
+        @if (isInEditMode()) {
           <div class="time-title-edit-container">
             <p-datePicker
               timeOnly
               [hourFormat]="'12'"
               formControlName="time"
               placeholder="Select time"
+              [style]="!isMobile() ? { width: '100px' } : {}"
             />
-            <input
-              pInputText
-              formControlName="title"
-              placeholder="Enter title"
-            />
+            @if (isMobile()) {
+              <input
+                pInputText
+                formControlName="title"
+                placeholder="Enter title"
+              />
+            }
           </div>
         } @else {
           <small>{{ time }}</small>

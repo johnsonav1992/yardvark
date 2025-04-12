@@ -51,7 +51,12 @@
         </div>
         @if (isMobile() && isInEditMode()) {
           <div class="time-title-edit-container">
-            <p-datePicker timeOnly [hourFormat]="'12'" formControlName="time" />
+            <p-datePicker
+              timeOnly
+              [hourFormat]="'12'"
+              formControlName="time"
+              placeholder="Select time"
+            />
             <input
               pInputText
               formControlName="title"

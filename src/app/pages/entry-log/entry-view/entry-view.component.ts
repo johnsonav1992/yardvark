@@ -110,9 +110,9 @@ export class EntryViewComponent {
   );
   public isInEditMode = signal(false);
 
-  public entryTime = computed(() =>
-    convertTimeStringToDate(this.entryData()?.time!)
-  );
+  public entryTime = computed(() => {
+    return convertTimeStringToDate(this.entryData()?.time!);
+  });
 
   public currentDate = computed<Date | null>(() =>
     this.entryDate() ? new Date(this.entryDate()!) : null

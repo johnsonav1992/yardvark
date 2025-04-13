@@ -20,7 +20,6 @@ import { Product } from '../../../types/products.types';
 import { SelectModule } from 'primeng/select';
 import { EntryProductRow } from '../../../utils/entriesUtils';
 import { ProductsSelectorComponent } from '../../products/products-selector/products-selector.component';
-import { convertTimeStringToDate } from '../../../utils/timeUtils';
 
 @Component({
   selector: 'entry-dialog',

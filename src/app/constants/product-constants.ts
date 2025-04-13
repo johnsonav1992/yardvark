@@ -6,6 +6,7 @@ export const QUANTITY_UNITS = [
   'gal',
   'qt',
   'pt',
+  'tsp',
   'fl oz',
   'mL',
   'L',

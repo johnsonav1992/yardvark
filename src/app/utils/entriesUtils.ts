@@ -2,6 +2,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Entry, EntryProduct } from '../types/entries.types';
 import { Product } from '../types/products.types';
 import { QUANTITY_UNITS } from '../constants/product-constants';
+import { getDefaultProductAmount } from './productUtils';
 
 export const getEntryIcon = (entry: Entry) => {
   const entriesIconMap = {
@@ -18,9 +19,11 @@ export const getEntryIcon = (entry: Entry) => {
 export const createEntryProductRow = (product?: Product | EntryProduct) => {
   return new FormGroup({
     product: new FormControl<Product | EntryProduct | null>(product || null),
-    quantity: new FormControl<number | null>(product?.quantity || 1, [
-      Validators.min(0.1)
-    ]),
+    quantity: new FormControl<number | null>(
+      product?.quantity ||
+        (!!product ? getDefaultProductAmount(product as Product) : 1),
+      [Validators.min(0.1)]
+    ),
     quantityUnit: new FormControl<string>(
       product?.quantityUnit || QUANTITY_UNITS[0],
       [Validators.required]

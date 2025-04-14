@@ -11,6 +11,12 @@
       <h2 class="month-title">
         {{ currentMonth() }}
       </h2>
+      <p-button
+        icon="ti ti-search"
+        rounded
+        text
+        (onClick)="openEntrySearchSidebar()"
+      />
       @if (isLoadingData()) {
         <loading-spinner [size]="'xs'" />
       }
@@ -116,3 +122,5 @@
     </div>
   }
 </div>
+
+<entry-search-sidebar [isOpen]="isEntrySearchSidebarOpen()" />

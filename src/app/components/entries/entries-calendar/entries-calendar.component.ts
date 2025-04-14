@@ -7,6 +7,7 @@ import {
   input,
   linkedSignal,
   output,
+  signal,
   TemplateRef
 } from '@angular/core';
 import { addMonths, format, startOfToday, subMonths } from 'date-fns';
@@ -19,6 +20,7 @@ import { GlobalUiService } from '../../../services/global-ui.service';
 import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loading-spinner.component';
 import { DoubleTapDirective } from '../../../directives/double-tap.directive';
 import { SwipeDirective } from '../../../directives/swipe.directive';
+import { EntrySearchSidebarComponent } from '../../components/entries/entry-search-sidebar/entry-search-sidebar.component';
 
 @Component({
   selector: 'entries-calendar',
@@ -31,7 +33,8 @@ import { SwipeDirective } from '../../../directives/swipe.directive';
     ButtonModule,
     LoadingSpinnerComponent,
     DoubleTapDirective,
-    SwipeDirective
+    SwipeDirective,
+    EntrySearchSidebarComponent
   ]
 })
 export class EntriesCalendarComponent {
@@ -56,6 +59,8 @@ export class EntriesCalendarComponent {
 
   public monthChange = output<Date>();
   public daySelected = output<DaySelectedEvent>();
+
+  public isEntrySearchSidebarOpen = signal(false);
 
   protected currentDate = linkedSignal(() =>
     this._dateQuery() ? new Date(this._dateQuery()!) : startOfToday()
@@ -103,6 +108,10 @@ export class EntriesCalendarComponent {
 
   public selectDay(date: Date, type: 'normal' | 'double-tap'): void {
     this.daySelected.emit({ date, type });
+  }
+
+  public openEntrySearchSidebar(): void {
+    this.isEntrySearchSidebarOpen.set(true);
   }
 
   public back(): void {

@@ -1,0 +1,20 @@
+<p-drawer
+  [(visible)]="isOpen"
+  [modal]="true"
+  [position]="'right'"
+  styleClass="sidebar"
+  header="Find entries"
+>
+  <div class="search-container">
+    Find Entries
+    <p-iconfield>
+      <p-inputicon styleClass="ti ti-search" />
+      <input
+        type="text"
+        pInputText
+        placeholder="Search"
+        [style.width]="'100%'"
+      />
+    </p-iconfield>
+  </div>
+</p-drawer>

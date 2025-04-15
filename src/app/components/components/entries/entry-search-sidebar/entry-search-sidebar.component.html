@@ -57,7 +57,15 @@
       />
       <label for="products">Products</label>
     </p-floatlabel>
-    <p-divider />
+    <div class="button-container">
+      <p-button
+        label="Search"
+        icon="ti ti-search"
+        size="small"
+        (onClick)="('')"
+      />
+    </div>
+    <p-divider [styleClass]="'divider'" />
     No entries found
   </div>
 </p-drawer>

@@ -11,6 +11,7 @@ import { LawnSegmentsService } from '../../../../services/lawn-segments.service'
 import { ProductsService } from '../../../../services/products.service';
 import { GlobalUiService } from '../../../../services/global-ui.service';
 import { DatePickerModule } from 'primeng/datepicker';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'entry-search-sidebar',
@@ -22,7 +23,8 @@ import { DatePickerModule } from 'primeng/datepicker';
     DividerModule,
     MultiSelectModule,
     FloatLabelModule,
-    DatePickerModule
+    DatePickerModule,
+    ButtonModule
   ],
   templateUrl: './entry-search-sidebar.component.html',
   styleUrl: './entry-search-sidebar.component.scss'

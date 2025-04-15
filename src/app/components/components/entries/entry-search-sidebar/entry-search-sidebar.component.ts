@@ -1,9 +1,14 @@
-import { Component, model } from '@angular/core';
+import { Component, inject, model } from '@angular/core';
 import { DividerModule } from 'primeng/divider';
 import { DrawerModule } from 'primeng/drawer';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { ActivitiesService } from '../../../../services/activities.service';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { LawnSegmentsService } from '../../../../services/lawn-segments.service';
+import { ProductsService } from '../../../../services/products.service';
 
 @Component({
   selector: 'entry-search-sidebar',
@@ -12,11 +17,21 @@ import { InputTextModule } from 'primeng/inputtext';
     InputIconModule,
     InputTextModule,
     DrawerModule,
-    DividerModule
+    DividerModule,
+    MultiSelectModule,
+    FloatLabelModule
   ],
   templateUrl: './entry-search-sidebar.component.html',
   styleUrl: './entry-search-sidebar.component.scss'
 })
 export class EntrySearchSidebarComponent {
+  private _activitiesService = inject(ActivitiesService);
+  private _lawnSegmentsService = inject(LawnSegmentsService);
+  private _productsService = inject(ProductsService);
+
   public isOpen = model(false);
+
+  public activities = this._activitiesService.activities;
+  public lawnSegments = this._lawnSegmentsService.lawnSegments;
+  public products = this._productsService.products;
 }

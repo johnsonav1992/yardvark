@@ -12,6 +12,10 @@ import { ProductsService } from '../../../../services/products.service';
 import { GlobalUiService } from '../../../../services/global-ui.service';
 import { DatePickerModule } from 'primeng/datepicker';
 import { ButtonModule } from 'primeng/button';
+import { FormControl, FormGroup } from '@angular/forms';
+import { Activity } from '../../../../types/activities.types';
+import { LawnSegment } from '../../../../types/lawnSegments.types';
+import { Product } from '../../../../types/products.types';
 
 @Component({
   selector: 'entry-search-sidebar',
@@ -35,11 +39,19 @@ export class EntrySearchSidebarComponent {
   private _productsService = inject(ProductsService);
   private _globalUiService = inject(GlobalUiService);
 
-  public isOpen = model(false);
-
   public activities = this._activitiesService.activities;
   public lawnSegments = this._lawnSegmentsService.lawnSegments;
   public products = this._productsService.products;
 
   public isMobile = this._globalUiService.isMobile;
+
+  public isOpen = model(false);
+
+  public form = new FormGroup({
+    titleOrDescription: new FormControl(''),
+    dates: new FormControl<Date[]>([]),
+    activities: new FormControl<Activity['id'][]>([]),
+    lawnSegments: new FormControl<LawnSegment['id'][]>([]),
+    products: new FormControl<Product['id'][]>([])
+  });
 }

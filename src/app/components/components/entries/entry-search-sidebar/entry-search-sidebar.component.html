@@ -5,11 +5,16 @@
   styleClass="sidebar"
   header="Find entries"
   [fullScreen]="isMobile()"
+  (onHide)="form.reset()"
 >
   <form class="search-container" [formGroup]="form">
-    <p style="font-size: 10px">
-      Search by title/description, date, time, activities, or products
-    </p>
+    <div [style]="{ fontSize: '10px' }">
+      <p>Search by title/description, date, time, activities, or products.</p>
+      <p>
+        By default, if no date range is selected, the current month is used as
+        the range
+      </p>
+    </div>
     <p-floatlabel variant="on" [style]="{ width: '100%' }">
       <p-iconfield>
         <input

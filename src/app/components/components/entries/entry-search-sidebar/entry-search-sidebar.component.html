@@ -6,13 +6,19 @@
   header="Find entries"
   [fullScreen]="isMobile()"
 >
-  <div class="search-container">
+  <form class="search-container" [formGroup]="form">
     <p style="font-size: 10px">
       Search by title/description, date, time, activities, or products
     </p>
     <p-floatlabel variant="on" [style]="{ width: '100%' }">
       <p-iconfield>
-        <input id="search" type="text" pInputText [style.width]="'100%'" />
+        <input
+          id="search"
+          type="text"
+          pInputText
+          [style.width]="'100%'"
+          formControlName="titleOrDescription"
+        />
         <p-inputicon styleClass="ti ti-search" />
       </p-iconfield>
       <label for="search">Title or description</label>
@@ -20,7 +26,7 @@
     <p-floatlabel variant="on" [style]="{ width: '100%' }">
       <p-datePicker
         id="date"
-        formControlName="date"
+        formControlName="dates"
         [showIcon]="true"
         [style]="{ width: '100%' }"
         selectionMode="range"
@@ -32,6 +38,7 @@
         id="activities"
         [options]="activities.value()"
         [optionLabel]="'name'"
+        [optionValue]="'id'"
         formControlName="activities"
         [style]="{ width: '100%' }"
       />
@@ -42,7 +49,8 @@
         id="segments"
         [options]="lawnSegments.value()"
         [optionLabel]="'name'"
-        formControlName="segments"
+        [optionValue]="'id'"
+        formControlName="lawnSegments"
         [style]="{ width: '100%' }"
       />
       <label for="segments">Lawn segments</label>
@@ -52,6 +60,7 @@
         id="products"
         [options]="products.value()"
         [optionLabel]="'name'"
+        [optionValue]="'id'"
         formControlName="products"
         [style]="{ width: '100%' }"
       />
@@ -62,10 +71,10 @@
         label="Search"
         icon="ti ti-search"
         size="small"
-        (onClick)="('')"
+        (onClick)="submit()"
       />
     </div>
     <p-divider [styleClass]="'divider'" />
     No entries found
-  </div>
+  </form>
 </p-drawer>

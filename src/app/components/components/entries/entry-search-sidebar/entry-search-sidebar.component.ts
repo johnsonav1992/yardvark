@@ -12,7 +12,7 @@ import { ProductsService } from '../../../../services/products.service';
 import { GlobalUiService } from '../../../../services/global-ui.service';
 import { DatePickerModule } from 'primeng/datepicker';
 import { ButtonModule } from 'primeng/button';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Activity } from '../../../../types/activities.types';
 import { LawnSegment } from '../../../../types/lawnSegments.types';
 import { Product } from '../../../../types/products.types';
@@ -28,7 +28,8 @@ import { Product } from '../../../../types/products.types';
     MultiSelectModule,
     FloatLabelModule,
     DatePickerModule,
-    ButtonModule
+    ButtonModule,
+    ReactiveFormsModule
   ],
   templateUrl: './entry-search-sidebar.component.html',
   styleUrl: './entry-search-sidebar.component.scss'
@@ -54,4 +55,8 @@ export class EntrySearchSidebarComponent {
     lawnSegments: new FormControl<LawnSegment['id'][]>([]),
     products: new FormControl<Product['id'][]>([])
   });
+
+  public submit(): void {
+    console.log(this.form.value);
+  }
 }

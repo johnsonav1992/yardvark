@@ -5,11 +5,11 @@
   styleClass="sidebar"
   header="Find entries"
   [fullScreen]="isMobile()"
-  (onHide)="form.reset()"
+  (onHide)="onCloseSidebar()"
 >
   <form class="search-container" [formGroup]="form">
     <div [style]="{ fontSize: '10px' }">
-      <p>Search by title/description, date, time, activities, or products.</p>
+      <p>Search by title/notes, date, time, activities, or products.</p>
       <p>
         By default, if no date range is selected, year-to-date is used as the
         range
@@ -22,11 +22,11 @@
           type="text"
           pInputText
           [style.width]="'100%'"
-          formControlName="titleOrDescription"
+          formControlName="titleOrNotes"
         />
         <p-inputicon styleClass="ti ti-search" />
       </p-iconfield>
-      <label for="search">Title or description</label>
+      <label for="search">Title or notes</label>
     </p-floatlabel>
     <p-floatlabel variant="on" [style]="{ width: '100%' }">
       <p-datePicker
@@ -73,6 +73,13 @@
     </p-floatlabel>
     <div class="button-container">
       <p-button
+        icon="ti ti-zoom-reset"
+        rounded
+        text
+        (onClick)="form.reset()"
+        pTooltip="Reset"
+      />
+      <p-button
         label="Search"
         icon="ti ti-search"
         size="small"
@@ -80,6 +87,18 @@
       />
     </div>
     <p-divider [styleClass]="'divider'" />
-    No entries found
+    @if (!results()) {
+      Search for entries to view them here.
+    } @else {
+      @if (isLoading()) {
+        <loading-spinner size="m" />
+      } @else {
+        @for (entry of displayedEntries(); track entry.id) {
+          <mobile-entry-preview-card [entry]="entry" />
+        } @empty {
+          No entries found
+        }
+      }
+    }
   </form>
 </p-drawer>

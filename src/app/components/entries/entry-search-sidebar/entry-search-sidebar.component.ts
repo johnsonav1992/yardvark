@@ -1,22 +1,27 @@
-import { Component, inject, model } from '@angular/core';
+import { Component, computed, inject, model, signal } from '@angular/core';
 import { DividerModule } from 'primeng/divider';
 import { DrawerModule } from 'primeng/drawer';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { ActivitiesService } from '../../../../services/activities.service';
+import { ActivitiesService } from '../../../services/activities.service';
 import { FloatLabelModule } from 'primeng/floatlabel';
-import { LawnSegmentsService } from '../../../../services/lawn-segments.service';
-import { ProductsService } from '../../../../services/products.service';
-import { GlobalUiService } from '../../../../services/global-ui.service';
+import { LawnSegmentsService } from '../../../services/lawn-segments.service';
+import { ProductsService } from '../../../services/products.service';
+import { GlobalUiService } from '../../../services/global-ui.service';
 import { DatePickerModule } from 'primeng/datepicker';
 import { ButtonModule } from 'primeng/button';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { Activity } from '../../../../types/activities.types';
-import { LawnSegment } from '../../../../types/lawnSegments.types';
-import { Product } from '../../../../types/products.types';
-import { EntriesService } from '../../../../services/entries.service';
+import { Activity } from '../../../types/activities.types';
+import { LawnSegment } from '../../../types/lawnSegments.types';
+import { Product } from '../../../types/products.types';
+import { EntriesService } from '../../../services/entries.service';
+import { TooltipModule } from 'primeng/tooltip';
+import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loading-spinner.component';
+import { MobileEntryPreviewCardComponent } from '../mobile-entry-preview-card/mobile-entry-preview-card.component';
+import { convertTimeStringToDate } from '../../../utils/timeUtils';
+import { format } from 'date-fns';
 
 @Component({
   selector: 'entry-search-sidebar',
@@ -30,7 +35,10 @@ import { EntriesService } from '../../../../services/entries.service';
     FloatLabelModule,
     DatePickerModule,
     ButtonModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    TooltipModule,
+    LoadingSpinnerComponent,
+    MobileEntryPreviewCardComponent
   ],
   templateUrl: './entry-search-sidebar.component.html',
   styleUrl: './entry-search-sidebar.component.scss'
@@ -50,27 +58,49 @@ export class EntrySearchSidebarComponent {
 
   public isOpen = model(false);
 
+  public isLoading = signal(false);
+  public results = signal<any[] | null>(null);
+
+  public displayedEntries = computed(() => {
+    return this.results()?.map((entry) => {
+      const time = entry.time
+        ? (convertTimeStringToDate(entry.time) as Date)
+        : '';
+
+      return {
+        ...entry,
+        time: time ? format(time, 'hh:mm a') : ''
+      };
+    });
+  });
+
   public form = new FormGroup({
-    titleOrDescription: new FormControl(''),
+    titleOrNotes: new FormControl(''),
     dates: new FormControl<Date[]>([]),
     activities: new FormControl<Activity['id'][]>([]),
     lawnSegments: new FormControl<LawnSegment['id'][]>([]),
     products: new FormControl<Product['id'][]>([])
   });
 
+  public onCloseSidebar(): void {
+    this.form.reset();
+    this.results.set(null);
+  }
+
   public submit(): void {
-    console.log(this.form.value);
+    this.isLoading.set(true);
 
     this._entriesService
       .searchEntries({
-        titleOrDescription: this.form.value.titleOrDescription!,
+        titleOrNotes: this.form.value.titleOrNotes!,
         dateRange: this.form.value.dates?.map((date) => date.toISOString())!,
         activities: this.form.value.activities!,
         lawnSegments: this.form.value.lawnSegments!,
         products: this.form.value.products!
       })
       .subscribe((response) => {
-        console.log(response);
+        this.isLoading.set(false);
+        this.results.set(response as any[]);
       });
   }
 }

@@ -3,7 +3,7 @@ import {
   EntriesSearchRequest,
   EntryCreationRequest,
 } from '../models/entries.types';
-import { Between, In, Repository, ILike } from 'typeorm';
+import { Between, In, Repository, ILike, FindOptionsWhere } from 'typeorm';
 import { Entry, EntryProduct } from '../models/entries.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getEntryProductMapping } from '../utils/entryUtils';
@@ -191,31 +191,39 @@ export class EntriesService {
       ? new Date(searchCriteria.dateRange[1])
       : today;
 
-    const where: Record<string, unknown> = {
+    const baseConditions: FindOptionsWhere<Entry> = {
       userId,
       date: Between(startDate, endDate),
     };
 
-    if (searchCriteria.titleOrDescription) {
-      where.title = ILike(`%${searchCriteria.titleOrDescription}%`);
-    }
-
     if (searchCriteria.activities?.length > 0) {
-      where.activities = { id: In(searchCriteria.activities) };
+      baseConditions.activities = { id: In(searchCriteria.activities) };
     }
 
     if (searchCriteria.lawnSegments?.length > 0) {
-      where.lawnSegments = { id: In(searchCriteria.lawnSegments) };
+      baseConditions.lawnSegments = { id: In(searchCriteria.lawnSegments) };
     }
 
     if (searchCriteria.products?.length > 0) {
-      where.entryProducts = {
+      baseConditions.entryProducts = {
         product: { id: In(searchCriteria.products) },
       };
     }
 
+    let where: FindOptionsWhere<Entry> | FindOptionsWhere<Entry>[] =
+      baseConditions;
+
+    if (searchCriteria.titleOrNotes) {
+      const searchVal = ILike(`%${searchCriteria.titleOrNotes}%`);
+
+      where = [
+        { ...baseConditions, title: searchVal },
+        { ...baseConditions, notes: searchVal },
+      ];
+    }
+
     const entries = await this._entriesRepo.find({
-      where: where,
+      where,
       relations: {
         activities: true,
         lawnSegments: true,

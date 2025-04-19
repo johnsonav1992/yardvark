@@ -20,7 +20,7 @@ import { GlobalUiService } from '../../../services/global-ui.service';
 import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loading-spinner.component';
 import { DoubleTapDirective } from '../../../directives/double-tap.directive';
 import { SwipeDirective } from '../../../directives/swipe.directive';
-import { EntrySearchSidebarComponent } from '../../components/entries/entry-search-sidebar/entry-search-sidebar.component';
+import { EntrySearchSidebarComponent } from '../entry-search-sidebar/entry-search-sidebar.component';
 
 @Component({
   selector: 'entries-calendar',

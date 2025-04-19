@@ -9,10 +9,13 @@
 
   .divider {
     margin: 0;
+    margin-bottom: 0.5rem;
   }
 
   .button-container {
     display: flex;
     justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
   }
 }

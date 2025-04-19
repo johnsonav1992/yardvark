@@ -30,6 +30,7 @@ import { DatePipe } from '@angular/common';
 import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { convertTimeStringToDate } from '../../utils/timeUtils';
+import { MobileEntryPreviewCardComponent } from '../../components/entries/mobile-entry-preview-card/mobile-entry-preview-card.component';
 
 @Component({
   selector: 'entry-log',
@@ -40,7 +41,8 @@ import { convertTimeStringToDate } from '../../utils/timeUtils';
     RouterOutlet,
     DividerModule,
     CardModule,
-    DatePipe
+    DatePipe,
+    MobileEntryPreviewCardComponent
   ],
   templateUrl: './entry-log.component.html',
   styleUrl: './entry-log.component.scss',

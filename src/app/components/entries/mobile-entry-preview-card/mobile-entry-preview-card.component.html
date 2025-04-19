@@ -1,0 +1,10 @@
+<p-card (click)="navigateToEntry(entry())">
+  <div class="mobile-entry-preview-card">
+    <i class="ti ti-notebook" [style]="{ fontSize: '24px' }"></i>
+    <p>
+      {{ entry().date | date: "M/d/yyyy" }}
+      {{ entry().time ? " - " + entry().time : "" }}
+      {{ entry().title ? " | " + entry().title : "" }}
+    </p>
+  </div>
+</p-card>

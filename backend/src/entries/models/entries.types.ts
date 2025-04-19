@@ -14,7 +14,7 @@ export type EntryCreationRequest = Omit<
 
 export type EntriesSearchRequest = {
   dateRange: string[];
-  titleOrDescription: string;
+  titleOrNotes: string;
   activities: number[];
   lawnSegments: number[];
   products: number[];

@@ -30,16 +30,7 @@
           selectedEntry of selectedMobileDateEntries();
           track selectedEntry.id
         ) {
-          <p-card (click)="navigateToEntry(selectedEntry)">
-            <div class="mobile-entry-preview-card">
-              <i class="ti ti-notebook" [style]="{ fontSize: '24px' }"></i>
-              <p>
-                {{ selectedEntry.date | date: "M/d/yyyy" }}
-                {{ selectedEntry.time ? " - " + selectedEntry.time : "" }}
-                {{ selectedEntry.title ? " | " + selectedEntry.title : "" }}
-              </p>
-            </div>
-          </p-card>
+          <mobile-entry-preview-card [entry]="selectedEntry" />
         } @empty {
           <p class="small-text">
             No entries for this date. Double tap it to add an entry.

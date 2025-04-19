@@ -1,9 +1,10 @@
 import { httpResource } from '@angular/common/http';
 import { Injectable, Signal } from '@angular/core';
-import { Entry } from '../types/entries.types';
-import { apiUrl } from '../utils/httpUtils';
+import { EntriesSearchRequest, Entry } from '../types/entries.types';
+import { apiUrl, postReq } from '../utils/httpUtils';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { formatDate } from '@angular/common';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -40,4 +41,13 @@ export class EntriesService {
         }
       })
     );
+
+  public searchEntries(
+    searchCriteria: EntriesSearchRequest
+  ): Observable<unknown> {
+    return postReq<unknown, EntriesSearchRequest>(
+      apiUrl('entries/search'),
+      searchCriteria
+    );
+  }
 }

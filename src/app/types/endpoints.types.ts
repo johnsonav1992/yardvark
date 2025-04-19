@@ -11,7 +11,8 @@ type EntriesRoutes =
   | 'entries/single'
   | 'entries/single/by-date'
   | 'entries/single/most-recent'
-  | 'entries/recover';
+  | 'entries/recover'
+  | 'entries/search';
 type ActivitiesRoutes = 'activities';
 type LawnSegmentsRoutes = 'lawn-segments';
 type ProductsRoutes = 'products';

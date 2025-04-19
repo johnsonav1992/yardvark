@@ -16,6 +16,7 @@ import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Activity } from '../../../../types/activities.types';
 import { LawnSegment } from '../../../../types/lawnSegments.types';
 import { Product } from '../../../../types/products.types';
+import { EntriesService } from '../../../../services/entries.service';
 
 @Component({
   selector: 'entry-search-sidebar',
@@ -39,6 +40,7 @@ export class EntrySearchSidebarComponent {
   private _lawnSegmentsService = inject(LawnSegmentsService);
   private _productsService = inject(ProductsService);
   private _globalUiService = inject(GlobalUiService);
+  private _entriesService = inject(EntriesService);
 
   public activities = this._activitiesService.activities;
   public lawnSegments = this._lawnSegmentsService.lawnSegments;
@@ -58,5 +60,17 @@ export class EntrySearchSidebarComponent {
 
   public submit(): void {
     console.log(this.form.value);
+
+    this._entriesService
+      .searchEntries({
+        titleOrDescription: this.form.value.titleOrDescription!,
+        dateRange: this.form.value.dates?.map((date) => date.toISOString())!,
+        activities: this.form.value.activities!,
+        lawnSegments: this.form.value.lawnSegments!,
+        products: this.form.value.products!
+      })
+      .subscribe((response) => {
+        console.log(response);
+      });
   }
 }

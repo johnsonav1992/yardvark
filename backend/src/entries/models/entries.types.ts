@@ -11,3 +11,11 @@ export type EntryCreationRequest = Omit<
     'productId' | 'productQuantity' | 'productQuantityUnit'
   >[];
 };
+
+export type EntriesSearchRequest = {
+  dateRange: string[];
+  titleOrDescription: string;
+  activities: number[];
+  lawnSegments: number[];
+  products: number[];
+};

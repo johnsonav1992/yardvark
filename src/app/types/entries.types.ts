@@ -42,3 +42,11 @@ export type EntryCreationRequest = {
   }>;
   soilTemperatureUnit: string;
 };
+
+export type EntriesSearchRequest = {
+  dateRange: string[];
+  titleOrDescription: string;
+  activities: number[];
+  lawnSegments: number[];
+  products: number[];
+};

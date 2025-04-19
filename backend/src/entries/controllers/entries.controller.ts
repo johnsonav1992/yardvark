@@ -10,7 +10,10 @@ import {
   Req,
 } from '@nestjs/common';
 import { EntriesService } from '../services/entries.service';
-import { EntryCreationRequest } from '../models/entries.types';
+import {
+  EntriesSearchRequest,
+  EntryCreationRequest,
+} from '../models/entries.types';
 import { Request } from 'express';
 
 @Controller('entries')
@@ -62,5 +65,13 @@ export class EntriesController {
   @Post('recover/:entryId')
   recoverEntry(@Param('entryId') entryId: number) {
     return this._entriesService.recoverEntry(entryId);
+  }
+
+  @Post('search')
+  searchEntries(
+    @Req() req: Request,
+    @Body() searchCriteria: EntriesSearchRequest,
+  ) {
+    return this._entriesService.searchEntries(req.user.userId, searchCriteria);
   }
 }

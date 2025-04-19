@@ -1,6 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { EntryCreationRequest } from '../models/entries.types';
-import { Between, Repository } from 'typeorm';
+import {
+  EntriesSearchRequest,
+  EntryCreationRequest,
+} from '../models/entries.types';
+import { Between, In, Repository, ILike } from 'typeorm';
 import { Entry, EntryProduct } from '../models/entries.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getEntryProductMapping } from '../utils/entryUtils';
@@ -90,7 +93,10 @@ export class EntriesService {
         userId,
         date: Between(new Date(0), endOfToday),
       },
-      order: { date: 'DESC' },
+      order: {
+        date: 'DESC',
+        time: 'DESC',
+      },
       relations: {
         activities: true,
         lawnSegments: true,
@@ -172,5 +178,58 @@ export class EntriesService {
 
   async recoverEntry(entryId: number) {
     await this._entriesRepo.restore(entryId);
+  }
+
+  async searchEntries(userId: string, searchCriteria: EntriesSearchRequest) {
+    const today = new Date();
+    const startOfYear = new Date(today.getFullYear(), 0, 1);
+
+    const startDate = searchCriteria.dateRange?.[0]
+      ? new Date(searchCriteria.dateRange[0])
+      : startOfYear;
+    const endDate = searchCriteria.dateRange?.[1]
+      ? new Date(searchCriteria.dateRange[1])
+      : today;
+
+    const where: Record<string, unknown> = {
+      userId,
+      date: Between(startDate, endDate),
+    };
+
+    if (searchCriteria.titleOrDescription) {
+      where.title = ILike(`%${searchCriteria.titleOrDescription}%`);
+    }
+
+    if (searchCriteria.activities?.length > 0) {
+      where.activities = { id: In(searchCriteria.activities) };
+    }
+
+    if (searchCriteria.lawnSegments?.length > 0) {
+      where.lawnSegments = { id: In(searchCriteria.lawnSegments) };
+    }
+
+    if (searchCriteria.products?.length > 0) {
+      where.entryProducts = {
+        product: { id: In(searchCriteria.products) },
+      };
+    }
+
+    const entries = await this._entriesRepo.find({
+      where: where,
+      relations: {
+        activities: true,
+        lawnSegments: true,
+        entryProducts: { product: true },
+      },
+    });
+
+    return entries.map((entry) => {
+      const { entryProducts, ...rest } = entry;
+
+      return {
+        ...rest,
+        products: getEntryProductMapping(entryProducts),
+      };
+    });
   }
 }

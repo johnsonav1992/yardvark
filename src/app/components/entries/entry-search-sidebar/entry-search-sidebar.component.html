@@ -83,6 +83,7 @@
         label="Search"
         icon="ti ti-search"
         size="small"
+        [disabled]="form.pristine"
         (onClick)="submit()"
       />
     </div>

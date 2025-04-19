@@ -22,6 +22,7 @@ import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loa
 import { MobileEntryPreviewCardComponent } from '../mobile-entry-preview-card/mobile-entry-preview-card.component';
 import { convertTimeStringToDate } from '../../../utils/timeUtils';
 import { format } from 'date-fns';
+import { Entry } from '../../../types/entries.types';
 
 @Component({
   selector: 'entry-search-sidebar',
@@ -59,7 +60,7 @@ export class EntrySearchSidebarComponent {
   public isOpen = model(false);
 
   public isLoading = signal(false);
-  public results = signal<any[] | null>(null);
+  public results = signal<Entry[] | null>(null);
 
   public displayedEntries = computed(() => {
     return this.results()?.map((entry) => {
@@ -98,9 +99,15 @@ export class EntrySearchSidebarComponent {
         lawnSegments: this.form.value.lawnSegments!,
         products: this.form.value.products!
       })
-      .subscribe((response) => {
-        this.isLoading.set(false);
-        this.results.set(response as any[]);
+      .subscribe({
+        next: (entries) => {
+          this.isLoading.set(false);
+          this.results.set(entries);
+        },
+        error: () => {
+          console.error('Error searching entries');
+          this.isLoading.set(false);
+        }
       });
   }
 }

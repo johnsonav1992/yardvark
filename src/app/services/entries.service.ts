@@ -44,8 +44,8 @@ export class EntriesService {
 
   public searchEntries(
     searchCriteria: EntriesSearchRequest
-  ): Observable<unknown> {
-    return postReq<unknown, EntriesSearchRequest>(
+  ): Observable<Entry[]> {
+    return postReq<Entry[], EntriesSearchRequest>(
       apiUrl('entries/search'),
       searchCriteria
     );

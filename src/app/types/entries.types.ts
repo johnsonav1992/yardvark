@@ -31,7 +31,7 @@ export type EntryCreationRequest = {
   time: string | null;
   notes: string;
   title: string;
-  userId: string;
+  userId?: string;
   soilTemperature: number | null;
   activityIds: number[];
   lawnSegmentIds: number[];

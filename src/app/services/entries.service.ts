@@ -1,6 +1,10 @@
 import { httpResource } from '@angular/common/http';
 import { Injectable, Signal } from '@angular/core';
-import { EntriesSearchRequest, Entry } from '../types/entries.types';
+import {
+  EntriesSearchRequest,
+  Entry,
+  EntryCreationRequest
+} from '../types/entries.types';
 import { apiUrl, deleteReq, postReq } from '../utils/httpUtils';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { formatDate } from '@angular/common';
@@ -41,6 +45,10 @@ export class EntriesService {
         }
       })
     );
+
+  public addEntry(req: EntryCreationRequest): Observable<void> {
+    return postReq<void, EntryCreationRequest>(apiUrl('entries'), req);
+  }
 
   public deleteEntry(entryId: number): Observable<void> {
     return deleteReq(apiUrl('entries', { params: [entryId] }));

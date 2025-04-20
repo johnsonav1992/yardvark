@@ -9,6 +9,7 @@ import { EntryCreationRequest } from '../../../../types/entries.types';
 import { injectErrorToast } from '../../../../utils/toastUtils';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { format } from 'date-fns';
+import { EntriesService } from '../../../../services/entries.service';
 
 @Component({
   selector: 'entry-dialog-footer',
@@ -20,6 +21,7 @@ export class EntryDialogFooterComponent {
   private _destroyRef = inject(DestroyRef);
   private _dialogRef = inject(DynamicDialogRef<EntryDialogComponent>);
   private _soilTempService = inject(SoilTemperatureService);
+  private _entriesService = inject(EntriesService);
   private throwErrorToast = injectErrorToast();
 
   public user = injectUserData();
@@ -54,7 +56,7 @@ export class EntryDialogFooterComponent {
 
     this.isLoading.set(true);
 
-    postReq<void, EntryCreationRequest>(apiUrl('entries'), {
+    const req = {
       date: this.form?.value.date!,
       time: this.form?.value.time
         ? format(this.form?.value.time!, 'HH:mm:ss')
@@ -68,12 +70,14 @@ export class EntryDialogFooterComponent {
       lawnSegmentIds: this.form?.value.lawnSegments?.map(({ id }) => id) || [],
       products:
         this.form?.value.products?.map((row) => ({
-          productId: row.product?.id,
-          productQuantity: row.quantity,
-          productQuantityUnit: row.quantityUnit
+          productId: row.product?.id!,
+          productQuantity: row.quantity!,
+          productQuantityUnit: row.quantityUnit!
         })) || [],
       soilTemperatureUnit: this._soilTempService.temperatureUnit()
-    }).subscribe({
+    };
+
+    this._entriesService.addEntry(req).subscribe({
       next: () => {
         this.isLoading.set(false);
         this._dialogRef.close(this.form?.value.date!);

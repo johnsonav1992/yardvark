@@ -14,7 +14,6 @@ import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '@auth0/auth0-angular';
 import { YVUser } from '../../types/user.types';
-import { AUTH0_USER_MANAGEMENT_URL } from '../../constants/api-constants';
 
 @Component({
   selector: 'profile',
@@ -41,28 +40,6 @@ export class ProfileComponent {
   public updateName(): void {
     const data = JSON.stringify({
       name: this.name()
-    });
-
-    this._auth.getAccessTokenSilently().subscribe({
-      next: (token) => {
-        console.log({ data });
-
-        const config = {
-          method: 'patch',
-          maxBodyLength: Infinity,
-          headers: {
-            'Content-Type': 'application/json',
-            Accept: 'application/json',
-            Authorization: `Bearer ${token}`
-          }
-        };
-
-        postReq(
-          `${AUTH0_USER_MANAGEMENT_URL}/${this.user()?.sub}`,
-          data,
-          config
-        );
-      }
     });
   }
 

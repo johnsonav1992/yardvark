@@ -94,7 +94,7 @@ export class EntryViewComponent {
     notes: new FormControl<string | null>(null)
   });
 
-  public entryId = toSignal(
+  public entryId = toSignal<number>(
     this._activatedRoute.params.pipe(map((params) => params['entryId']))
   );
 
@@ -142,7 +142,7 @@ export class EntryViewComponent {
   public deleteEntry() {
     const dateOfDeletedEntry = this.entryData()?.date;
 
-    deleteReq(apiUrl('entries', { params: [this.entryId()] })).subscribe(() => {
+    this._entryService.deleteEntry(this.entryId()!).subscribe(() => {
       this._router.navigate(['entry-log'], {
         queryParams: {
           date: new Date(dateOfDeletedEntry!)
@@ -193,7 +193,7 @@ export class EntryViewComponent {
     };
 
     putReq(
-      apiUrl('entries', { params: [this.entryId()] }),
+      apiUrl('entries', { params: [this.entryId()!] }),
       updatedEntry
     ).subscribe({
       next: () => {

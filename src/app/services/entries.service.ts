@@ -1,7 +1,7 @@
 import { httpResource } from '@angular/common/http';
 import { Injectable, Signal } from '@angular/core';
 import { EntriesSearchRequest, Entry } from '../types/entries.types';
-import { apiUrl, postReq } from '../utils/httpUtils';
+import { apiUrl, deleteReq, postReq } from '../utils/httpUtils';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { formatDate } from '@angular/common';
 import { Observable } from 'rxjs';
@@ -12,11 +12,11 @@ import { Observable } from 'rxjs';
 export class EntriesService {
   public getEntryResource = (
     shouldFetchEntry: Signal<boolean>,
-    entryId: Signal<number>
+    entryId: Signal<number | undefined>
   ) =>
     httpResource<Entry>(() =>
       shouldFetchEntry() && entryId()
-        ? apiUrl('entries/single', { params: [entryId()] })
+        ? apiUrl('entries/single', { params: [entryId()!] })
         : undefined
     );
 
@@ -41,6 +41,10 @@ export class EntriesService {
         }
       })
     );
+
+  public deleteEntry(entryId: number): Observable<void> {
+    return deleteReq(apiUrl('entries', { params: [entryId] }));
+  }
 
   public searchEntries(
     searchCriteria: EntriesSearchRequest

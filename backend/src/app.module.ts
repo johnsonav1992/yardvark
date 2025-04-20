@@ -10,6 +10,9 @@ import { ProductsModule } from './products/products.module';
 import { JwtStrategy } from './guards/jwt.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/auth.guard';
+import { UsersController } from './users/controllers/users.controller';
+import { UsersService } from './users/services/users.service';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -31,14 +34,16 @@ import { JwtAuthGuard } from './guards/auth.guard';
     LawnSegmentsModule,
     EntriesModule,
     ProductsModule,
+    UsersModule,
   ],
-  controllers: [],
+  controllers: [UsersController],
   providers: [
     JwtStrategy,
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
     },
+    UsersService,
   ],
 })
 export class AppModule {}

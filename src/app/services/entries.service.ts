@@ -5,7 +5,7 @@ import {
   Entry,
   EntryCreationRequest
 } from '../types/entries.types';
-import { apiUrl, deleteReq, postReq } from '../utils/httpUtils';
+import { apiUrl, deleteReq, postReq, putReq } from '../utils/httpUtils';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { formatDate } from '@angular/common';
 import { Observable } from 'rxjs';
@@ -48,6 +48,16 @@ export class EntriesService {
 
   public addEntry(req: EntryCreationRequest): Observable<void> {
     return postReq<void, EntryCreationRequest>(apiUrl('entries'), req);
+  }
+
+  public editEntry(
+    entryId: number | undefined,
+    updatedEntry: Partial<EntryCreationRequest>
+  ): Observable<void> {
+    return putReq<void, Partial<EntryCreationRequest>>(
+      apiUrl('entries', { params: [entryId!] }),
+      updatedEntry
+    );
   }
 
   public deleteEntry(entryId: number): Observable<void> {

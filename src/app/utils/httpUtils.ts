@@ -47,7 +47,7 @@ export const getReq = createHttpUtil(
 );
 
 export const putReq = createHttpUtil(
-  <T>(http: HttpClient, ...putArgs: Parameters<HttpClient['put']>) => {
+  <T, D>(http: HttpClient, ...putArgs: Parameters<HttpClient['put']>) => {
     return http.put<T>(...putArgs);
   }
 );

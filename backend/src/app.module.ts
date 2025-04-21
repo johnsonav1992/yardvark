@@ -13,6 +13,7 @@ import { JwtAuthGuard } from './guards/auth.guard';
 import { UsersController } from './users/controllers/users.controller';
 import { UsersService } from './users/services/users.service';
 import { UsersModule } from './users/users.module';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { UsersModule } from './users/users.module';
     EntriesModule,
     ProductsModule,
     UsersModule,
+    HttpModule,
   ],
   controllers: [UsersController],
   providers: [

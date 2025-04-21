@@ -19,7 +19,7 @@ export class LawnSegment {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
   size: number;
 
   @ManyToMany(() => Entry, (entry) => entry.lawnSegments)

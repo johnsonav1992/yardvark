@@ -49,7 +49,6 @@ export class SettingsComponent {
   public lawnSegments = this._lawnSegmentsService.lawnSegments;
 
   public lawnSize = linkedSignal(() => this.currentSettings()?.lawnSize);
-  public currentlyEditingLawnSegmentId = signal<number | null>(null);
 
   public locationSearchText = signal<string>('');
   public debouncedSearchText = debouncedSignal(this.locationSearchText, 700);

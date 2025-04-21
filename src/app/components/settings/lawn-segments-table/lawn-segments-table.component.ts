@@ -1,4 +1,4 @@
-import { Component, inject, model, viewChild } from '@angular/core';
+import { Component, inject, model, signal, viewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { Table, TableModule } from 'primeng/table';
 import { LawnSegment } from '../../../types/lawnSegments.types';
@@ -19,7 +19,7 @@ export class LawnSegmentsTableComponent {
   private _throwErrorToast = injectErrorToast();
 
   public lawnSegments = model.required<LawnSegment[] | undefined>();
-  public currentlyEditingLawnSegmentId = model.required<number | null>();
+  public currentlyEditingLawnSegmentIds = signal<number[] | null>(null);
 
   public lawnSegmentTable = viewChild(Table);
 
@@ -27,7 +27,9 @@ export class LawnSegmentsTableComponent {
     this._lawnSegmentsService.lawnSegments.isLoading;
 
   public editLawnSegment(segment: LawnSegment): void {
-    this.currentlyEditingLawnSegmentId.set(segment.id);
+    this.currentlyEditingLawnSegmentIds.update((prev) => {
+      return prev ? [...prev, segment.id] : [segment.id];
+    });
   }
 
   public addLawnSegmentRow(): void {
@@ -38,7 +40,9 @@ export class LawnSegmentsTableComponent {
       return [...prev!, newRow];
     });
 
-    this.currentlyEditingLawnSegmentId.set(newId);
+    this.currentlyEditingLawnSegmentIds.update((prev) => {
+      return prev ? [...prev, newId] : [newId];
+    });
     this.lawnSegmentTable()?.initRowEdit(newRow);
   }
 
@@ -48,9 +52,14 @@ export class LawnSegmentsTableComponent {
     this._lawnSegmentsService[
       isNewSegment ? 'addLawnSegment' : 'updateLawnSegment'
     ](segment).subscribe({
-      next: () => {
-        this._lawnSegmentsService.lawnSegments.reload();
-        this.currentlyEditingLawnSegmentId.set(null);
+      next: (newSeg) => {
+        this.removeSegmentFromEditingList(segment.id);
+
+        this.lawnSegments.update((prev) => {
+          return prev?.map((seg) =>
+            seg.name.toLowerCase() === newSeg.name.toLowerCase() ? newSeg : seg
+          );
+        });
       },
       error: () => {
         this._throwErrorToast('Error saving lawn segment');
@@ -61,7 +70,7 @@ export class LawnSegmentsTableComponent {
           });
         }
 
-        this.currentlyEditingLawnSegmentId.set(null);
+        this.currentlyEditingLawnSegmentIds.set(null);
       }
     });
   }
@@ -86,7 +95,15 @@ export class LawnSegmentsTableComponent {
       });
     }
 
-    this.currentlyEditingLawnSegmentId.set(null);
+    this.removeSegmentFromEditingList(segment.id);
+  }
+
+  private removeSegmentFromEditingList(segmentId: number): void {
+    this.currentlyEditingLawnSegmentIds.update((prev) => {
+      const filtered = prev?.filter((id) => id !== segmentId);
+
+      return filtered?.length ? filtered : null;
+    });
   }
 
   public lawnSegsTableDt: DataTableDesignTokens = {

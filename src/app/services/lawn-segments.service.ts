@@ -12,15 +12,18 @@ export class LawnSegmentsService {
     apiUrl('lawn-segments')
   );
 
-  public addLawnSegment(newSegment: LawnSegment): Observable<void> {
-    return postReq(apiUrl('lawn-segments'), {
+  public addLawnSegment(newSegment: LawnSegment): Observable<LawnSegment> {
+    return postReq<LawnSegment>(apiUrl('lawn-segments'), {
       name: newSegment.name,
       size: newSegment.size
     } satisfies Pick<LawnSegment, 'name' | 'size'>);
   }
 
-  public updateLawnSegment(segment: LawnSegment): Observable<void> {
-    return putReq(apiUrl('lawn-segments', { params: [segment.id] }), segment);
+  public updateLawnSegment(segment: LawnSegment): Observable<LawnSegment> {
+    return putReq<LawnSegment>(
+      apiUrl('lawn-segments', { params: [segment.id] }),
+      segment
+    );
   }
 
   public deleteLawnSegment(id: number): Observable<void> {

@@ -49,7 +49,8 @@
       <td [width]="'15%'">
         <div class="buttons-container">
           @let isRowBeingEdited = editing;
-          @let isInEditingMode = !!currentlyEditingLawnSegmentId();
+          @let isInEditingMode =
+            !!currentlyEditingLawnSegmentIds()?.includes(segment.id);
           @let isNewSegment = segment.id < 1;
 
           @if (isRowBeingEdited && isInEditingMode) {

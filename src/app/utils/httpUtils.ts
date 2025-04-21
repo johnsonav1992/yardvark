@@ -35,7 +35,10 @@ const createHttpUtil = <T, TArgs extends any[]>(
 };
 
 export const postReq = createHttpUtil(
-  <T, D>(http: HttpClient, ...postArgs: Parameters<HttpClient['post']>) => {
+  <T, D = unknown>(
+    http: HttpClient,
+    ...postArgs: Parameters<HttpClient['post']>
+  ) => {
     return http.post<T>(...postArgs);
   }
 );
@@ -47,7 +50,10 @@ export const getReq = createHttpUtil(
 );
 
 export const putReq = createHttpUtil(
-  <T, D>(http: HttpClient, ...putArgs: Parameters<HttpClient['put']>) => {
+  <T, D = unknown>(
+    http: HttpClient,
+    ...putArgs: Parameters<HttpClient['put']>
+  ) => {
     return http.put<T>(...putArgs);
   }
 );

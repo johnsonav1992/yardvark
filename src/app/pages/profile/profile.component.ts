@@ -12,7 +12,7 @@ import { AvatarDesignTokens } from '@primeng/themes/types/avatar';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
-import { AuthService } from '@auth0/auth0-angular';
+import { AuthService, User } from '@auth0/auth0-angular';
 import { YVUser } from '../../types/user.types';
 import { apiUrl, putReq } from '../../utils/httpUtils';
 
@@ -39,15 +39,11 @@ export class ProfileComponent {
   public name = linkedSignal(() => this.user()?.name);
 
   public updateName(): void {
-    const data = JSON.stringify({
-      name: this.name()
-    });
+    const userData: Partial<User> = { name: this.name() };
 
-    putReq(apiUrl('users', { params: [this.user()!.sub!] }), data).subscribe(
-      (response) => {
-        console.log(response);
-      }
-    );
+    putReq(apiUrl('users'), userData).subscribe((response) => {
+      console.log(response);
+    });
   }
 
   public avatarDt: AvatarDesignTokens = {

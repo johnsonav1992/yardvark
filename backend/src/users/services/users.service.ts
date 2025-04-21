@@ -39,4 +39,24 @@ export class UsersService {
 
     return response.data.access_token;
   }
+
+  async updateUser(userId: string, data: any): Promise<any> {
+    const token = await this.getManagementToken();
+
+    console.log(token);
+
+    // const response = await firstValueFrom(
+    //   this.httpService.patch<any>(
+    //     `https://${this.auth0Domain}/api/v2/users/${userId}`,
+    //     data,
+    //     {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`,
+    //       },
+    //     },
+    //   ),
+    // );
+
+    // return response.data;
+  }
 }

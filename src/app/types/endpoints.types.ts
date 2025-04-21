@@ -3,7 +3,8 @@ export type ApiEndpointRoutes =
   | EntriesRoutes
   | ActivitiesRoutes
   | LawnSegmentsRoutes
-  | ProductsRoutes;
+  | ProductsRoutes
+  | UsersRoutes;
 
 type SettingsRoutes = 'settings';
 type EntriesRoutes =
@@ -16,3 +17,4 @@ type EntriesRoutes =
 type ActivitiesRoutes = 'activities';
 type LawnSegmentsRoutes = 'lawn-segments';
 type ProductsRoutes = 'products';
+type UsersRoutes = 'users';

@@ -14,6 +14,7 @@ import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '@auth0/auth0-angular';
 import { YVUser } from '../../types/user.types';
+import { apiUrl, putReq } from '../../utils/httpUtils';
 
 @Component({
   selector: 'profile',
@@ -41,6 +42,12 @@ export class ProfileComponent {
     const data = JSON.stringify({
       name: this.name()
     });
+
+    putReq(apiUrl('users', { params: [this.user()!.sub!] }), data).subscribe(
+      (response) => {
+        console.log(response);
+      }
+    );
   }
 
   public avatarDt: AvatarDesignTokens = {

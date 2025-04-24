@@ -2,7 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
-import { User } from '@auth0/auth0-angular';
+import { User } from '../Models/user.model';
 
 @Injectable()
 export class UsersService {

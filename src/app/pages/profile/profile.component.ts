@@ -3,7 +3,8 @@ import {
   computed,
   inject,
   linkedSignal,
-  signal
+  signal,
+  WritableSignal
 } from '@angular/core';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import { getUserInitials, injectUserData } from '../../utils/authUtils';
@@ -15,6 +16,7 @@ import { FormsModule } from '@angular/forms';
 import { AuthService, User } from '@auth0/auth0-angular';
 import { YVUser } from '../../types/user.types';
 import { apiUrl, putReq } from '../../utils/httpUtils';
+import { injectErrorToast } from '../../utils/toastUtils';
 
 @Component({
   selector: 'profile',
@@ -29,7 +31,7 @@ import { apiUrl, putReq } from '../../utils/httpUtils';
   styleUrl: './profile.component.scss'
 })
 export class ProfileComponent {
-  private _auth = inject(AuthService);
+  private throwErrorToast = injectErrorToast();
 
   public user = injectUserData();
   public userInitials = computed(() => getUserInitials(this.user() as YVUser));
@@ -37,12 +39,29 @@ export class ProfileComponent {
   public isEditingField = signal<'name' | 'email' | null>(null);
 
   public name = linkedSignal(() => this.user()?.name);
+  public email = linkedSignal(() => this.user()?.email);
 
-  public updateName(): void {
-    const userData: Partial<User> = { name: this.name() };
+  public fieldNamesMap: Record<
+    keyof User,
+    WritableSignal<unknown | undefined>
+  > = {
+    name: this.name,
+    email: this.email
+  };
 
-    putReq(apiUrl('users'), userData).subscribe((response) => {
-      console.log(response);
+  public updateField(fieldName: keyof User, oldFieldValue: unknown): void {
+    const userData: Partial<User> = {
+      [fieldName]: this.fieldNamesMap[fieldName]()
+    };
+
+    const updatedField = this.fieldNamesMap[fieldName];
+
+    putReq<Partial<User>>(apiUrl('users'), userData).subscribe({
+      next: (userRes) => updatedField.set(userRes[fieldName]),
+      error: () => {
+        this.throwErrorToast('There was an error updating your profile');
+        updatedField.set(oldFieldValue);
+      }
     });
   }
 

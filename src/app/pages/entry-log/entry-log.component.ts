@@ -215,11 +215,12 @@ export class EntryLogComponent implements OnInit {
       light: {
         root: {
           secondary: {
-            background: '{sky.200}',
-            borderColor: '{sky.200}',
-            hoverBackground: '{sky.300}',
-            hoverBorderColor: '{sky.300}',
-            color: this.darkMode() ? '{surface.600}' : ''
+            background: '{primary.300}',
+            borderColor: '{primary.300}',
+            hoverBackground: '{primary.200}',
+            hoverBorderColor: '{primary.200}',
+            color: this.darkMode() ? '{surface.600}' : '',
+            hoverColor: '{surface.600}'
           }
         }
       }

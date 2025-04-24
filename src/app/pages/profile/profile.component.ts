@@ -17,6 +17,10 @@ import { AuthService, User } from '@auth0/auth0-angular';
 import { YVUser } from '../../types/user.types';
 import { apiUrl, putReq } from '../../utils/httpUtils';
 import { injectErrorToast } from '../../utils/toastUtils';
+import { switchMap } from 'rxjs';
+import { finalize } from 'rxjs/operators';
+import { MessageModule } from 'primeng/message';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'profile',
@@ -25,16 +29,22 @@ import { injectErrorToast } from '../../utils/toastUtils';
     AvatarModule,
     InputTextModule,
     ButtonModule,
-    FormsModule
+    FormsModule,
+    MessageModule,
+    TooltipModule
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })
 export class ProfileComponent {
   private throwErrorToast = injectErrorToast();
+  private auth = inject(AuthService);
 
   public user = injectUserData();
   public userInitials = computed(() => getUserInitials(this.user() as YVUser));
+  public isGoogleUser = computed(() =>
+    this.user()?.sub?.includes('google-oauth2')
+  );
 
   public isEditingField = signal<'name' | 'email' | null>(null);
 
@@ -56,13 +66,27 @@ export class ProfileComponent {
 
     const updatedField = this.fieldNamesMap[fieldName];
 
-    putReq<Partial<User>>(apiUrl('users'), userData).subscribe({
-      next: (userRes) => updatedField.set(userRes[fieldName]),
-      error: () => {
-        this.throwErrorToast('There was an error updating your profile');
-        updatedField.set(oldFieldValue);
-      }
-    });
+    putReq<Partial<User>>(apiUrl('users'), userData)
+      .pipe(
+        switchMap((userRes) => {
+          updatedField.set(userRes[fieldName]);
+
+          return this.refreshUser();
+        }),
+        finalize(() => {
+          this.isEditingField.set(null);
+        })
+      )
+      .subscribe({
+        error: () => {
+          this.throwErrorToast('There was an error updating your profile');
+          updatedField.set(oldFieldValue);
+        }
+      });
+  }
+
+  private refreshUser() {
+    return this.auth.getAccessTokenSilently({ cacheMode: 'off' });
   }
 
   public avatarDt: AvatarDesignTokens = {

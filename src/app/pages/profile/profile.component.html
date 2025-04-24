@@ -1,10 +1,16 @@
 <page-container pageTitle="Profile">
+  @if (isGoogleUser()) {
+    <p-message severity="info"
+      >This account is linked to Google. You cannot change your profile in this
+      app - please change it in your Google account.
+    </p-message>
+  }
   <div class="section-wrapper">
     <h4>Name:</h4>
     <div class="input-container">
       @if (isEditingField() === "name") {
         <input pInputText [(ngModel)]="name" />
-        @if (name()) {
+        @if (name() && !isGoogleUser()) {
           <p-button
             [icon]="'ti ti-check'"
             [severity]="'success'"
@@ -23,21 +29,31 @@
         />
       } @else {
         <p>{{ name() }}</p>
-        <p-button
-          icon="ti ti-pencil"
-          text
-          rounded
-          (click)="isEditingField.set('name')"
-        />
+        @if (!isGoogleUser()) {
+          <p-button
+            icon="ti ti-pencil"
+            text
+            rounded
+            (click)="isEditingField.set('name')"
+          />
+        }
       }
     </div>
   </div>
   <div class="section-wrapper">
-    <h4>Email:</h4>
+    <h4>
+      Email:
+      @if (!isGoogleUser()) {
+        <i
+          class="ti ti-info-circle"
+          pTooltip="Updating your email will require a re-login"
+        ></i>
+      }
+    </h4>
     <div class="input-container">
       @if (isEditingField() === "email") {
         <input pInputText [(ngModel)]="email" />
-        @if (name()) {
+        @if (email()) {
           <p-button
             [icon]="'ti ti-check'"
             [severity]="'success'"
@@ -56,12 +72,14 @@
         />
       } @else {
         <p>{{ email() }}</p>
-        <p-button
-          icon="ti ti-pencil"
-          text
-          rounded
-          (click)="isEditingField.set('email')"
-        />
+        @if (!isGoogleUser()) {
+          <p-button
+            icon="ti ti-pencil"
+            text
+            rounded
+            (click)="isEditingField.set('email')"
+          />
+        }
       }
     </div>
   </div>
@@ -77,5 +95,4 @@
     [image]="picture"
     [style]="{ color: 'var(--p-surface-400)' }"
   />
-  <h2>Editable profile coming soon!</h2>
 </page-container>

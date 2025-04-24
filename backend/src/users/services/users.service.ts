@@ -9,7 +9,7 @@ export class UsersService {
   private readonly auth0Domain: string = '';
   private readonly clientId: string = '';
   private readonly clientSecret: string = '';
-  private readonly audience: string = '';
+  private readonly usersUrl: string = '';
 
   constructor(
     private readonly httpService: HttpService,
@@ -20,9 +20,7 @@ export class UsersService {
     this.clientSecret = this.configService.get<string>(
       'AUTH0_BACKEND_CLIENT_SECRET',
     )!;
-    this.audience = this.configService.get<string>(
-      'AUTH0_BACKEND_AUDIENCE_URL',
-    )!;
+    this.usersUrl = `https://${this.auth0Domain}/api/v2/users`;
   }
 
   async getManagementToken(): Promise<string> {
@@ -41,22 +39,15 @@ export class UsersService {
     return response.data.access_token;
   }
 
-  async updateUser(userId: string, data: Partial<User>): Promise<any> {
+  async updateUser(userId: string, userData: Partial<User>): Promise<any> {
     const token = await this.getManagementToken();
 
-    console.log(token);
-    console.log(data);
-
     const response = await firstValueFrom(
-      this.httpService.patch<any>(
-        `https://${this.auth0Domain}/api/v2/users/${userId}`,
-        { user_metadata: data },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      this.httpService.patch(`${this.usersUrl}/${userId}`, userData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-      ),
+      }),
     );
 
     return response.data;

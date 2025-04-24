@@ -14,8 +14,6 @@ export class UsersController {
   ): Promise<any> {
     const userId = req.user.userId;
 
-    console.log(data);
-
     return this.usersService.updateUser(userId, data);
   }
 }

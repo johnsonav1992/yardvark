@@ -1,7 +1,7 @@
 import { Body, Controller, Put, Req } from '@nestjs/common';
 import { UsersService } from '../services/users.service';
-import { User } from '@auth0/auth0-angular';
 import { Request } from 'express';
+import { User } from '../Models/user.model';
 
 @Controller('users')
 export class UsersController {

@@ -8,10 +8,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Put()
-  async updateUser(
-    @Req() req: Request,
-    @Body() data: Partial<User>,
-  ): Promise<any> {
+  updateUser(@Req() req: Request, @Body() data: Partial<User>) {
     const userId = req.user.userId;
 
     return this.usersService.updateUser(userId, data);

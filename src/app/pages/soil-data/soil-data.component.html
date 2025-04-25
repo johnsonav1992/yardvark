@@ -1,12 +1,30 @@
 <page-container pageTitle="Soil data">
-  <soil-temp-week-graph
-    [dailyAverageShallowTemps]="dailyAverageShallowTemps()"
-    [dailyAverageDeepTemps]="dailyAverageDeepTemps()"
-    [isLoadingChartData]="isLoadingAveragesChartData()"
-    [tempUnit]="tempUnit()"
-  />
-  <soil-moisture-week-graph
-    [dailyMoistureData]="dailyMoistureData()"
-    [isLoadingChartData]="isLoadingAveragesChartData()"
-  />
+  @if (!userHasALocation()) {
+    <p-card>
+      <div class="no-loc-container">
+        <h2>It looks like you haven't set your location yet!</h2>
+        <p>
+          Go to settings to set your location and start receiving soil
+          temperature data.
+        </p>
+        <p-button
+          label="Go to settings"
+          icon="ti ti-settings"
+          size="large"
+          (click)="goToSettings()"
+        />
+      </div>
+    </p-card>
+  } @else {
+    <soil-temp-week-graph
+      [dailyAverageShallowTemps]="dailyAverageShallowTemps()"
+      [dailyAverageDeepTemps]="dailyAverageDeepTemps()"
+      [isLoadingChartData]="isLoadingAveragesChartData()"
+      [tempUnit]="tempUnit()"
+    />
+    <soil-moisture-week-graph
+      [dailyMoistureData]="dailyMoistureData()"
+      [isLoadingChartData]="isLoadingAveragesChartData()"
+    />
+  }
 </page-container>

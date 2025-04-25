@@ -4,19 +4,31 @@ import { SoilTempWeekGraphComponent } from '../../components/soil-data/soil-temp
 import { getAllDailyNumericDataAverages } from '../../utils/soilTemperatureUtils';
 import { SoilMoistureWeekGraphComponent } from '../../components/soil-data/soil-moisture-week-graph/soil-moisture-week-graph.component';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
+import { LocationService } from '../../services/location.service';
+import { ButtonModule } from 'primeng/button';
+import { Router } from '@angular/router';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'soil-data',
   imports: [
     SoilTempWeekGraphComponent,
     SoilMoistureWeekGraphComponent,
-    PageContainerComponent
+    PageContainerComponent,
+    ButtonModule,
+    CardModule
   ],
   templateUrl: './soil-data.component.html',
   styleUrl: './soil-data.component.scss'
 })
 export class SoilDataComponent {
   private _soilTemperatureService = inject(SoilTemperatureService);
+  private _locationService = inject(LocationService);
+  private _router = inject(Router);
+
+  public userHasALocation = computed(
+    () => !!this._locationService.userLatLong()
+  );
 
   public dailyAverageShallowTemps = computed(() => {
     const rawTempData =
@@ -52,4 +64,8 @@ export class SoilDataComponent {
   public tempUnit = computed(
     () => this._soilTemperatureService.temperatureUnit()!
   );
+
+  public goToSettings(): void {
+    this._router.navigate(['settings']);
+  }
 }

@@ -11,6 +11,7 @@ import { SpeedDialModule } from 'primeng/speeddial';
 import { MenuItem } from 'primeng/api';
 import { GlobalUiService } from '../../services/global-ui.service';
 import { Router } from '@angular/router';
+import { LocationService } from '../../services/location.service';
 
 @Component({
   selector: 'dashboard',
@@ -28,9 +29,14 @@ export class DashboardComponent {
   private _entriesService = inject(EntriesService);
   private _globalUiService = inject(GlobalUiService);
   private _router = inject(Router);
+  private _locationService = inject(LocationService);
 
   public user = injectUserData();
   public isMobile = this._globalUiService.isMobile;
+
+  public userHasALocation = computed(
+    () => !!this._locationService.userLatLong()
+  );
 
   public userIsNewWithNoEntries = computed(() => {
     const user = this.user() as YVUser;

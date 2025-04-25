@@ -9,6 +9,13 @@
         severity="success"
       />
     }
+    @if (!userHasALocation()) {
+      <p-message
+        icon="ti ti-info-circle"
+        text="It looks like you haven't set your location yet! Go to settings to set your location and start receiving soil temperature data."
+        severity="warn"
+      />
+    }
     <recent-entry />
     @if (isMobile()) {
       <p-speeddial

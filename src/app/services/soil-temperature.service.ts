@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, Signal } from '@angular/core';
+import { computed, inject, Injectable, signal, Signal } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { formatDate } from '@angular/common';
@@ -10,6 +10,7 @@ import { getRollingWeekStartAndEndDates } from '../utils/timeUtils';
 import { injectSettingsService } from './settings.service';
 import { addDays, isBefore } from 'date-fns';
 import { LocationService } from './location.service';
+import { of } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -33,6 +34,9 @@ export class SoilTemperatureService {
     () =>
       this._settingsService.currentSettings()?.temperatureUnit || 'fahrenheit'
   );
+
+  // Shutting this off for now - will find a way to toggle it later
+  public useCurrentPositionLatLong = signal<boolean>(false);
 
   public past24HourSoilTemperatureData =
     httpResource<DailySoilTemperatureResponse>(() => {
@@ -125,6 +129,9 @@ export class SoilTemperatureService {
   };
 
   private _currentPositionLatLong = rxResource({
-    loader: () => this._locationService.getLatLongFromCurrentPosition()
+    loader: () =>
+      this.useCurrentPositionLatLong()
+        ? this._locationService.getLatLongFromCurrentPosition()
+        : of(undefined)
   });
 }

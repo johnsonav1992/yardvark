@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { PopoverModule } from 'primeng/popover';
@@ -11,6 +11,7 @@ import {
 import { injectSettingsService } from '../../../../services/settings.service';
 import { DegreesDisplay } from '../../../../types/temperature.styles';
 import { GlobalUiService } from '../../../../services/global-ui.service';
+import { LocationService } from '../../../../services/location.service';
 
 @Component({
   selector: 'soil-temperature-display',
@@ -22,6 +23,7 @@ export class SoilTemperatureDisplayComponent {
   private _soilTemperatureService = inject(SoilTemperatureService);
   private _settingsService = injectSettingsService();
   private _globalUiService = inject(GlobalUiService);
+  private _locationService = inject(LocationService);
 
   public isDarkMode = this._globalUiService.isDarkMode;
 
@@ -29,6 +31,10 @@ export class SoilTemperatureDisplayComponent {
     this._soilTemperatureService.past24HourSoilTemperatureData;
 
   public showDeepTemp = signal<boolean>(false);
+
+  public userHasALocation = computed(
+    () => !!this._locationService.userLatLong()
+  );
 
   public average24HourTemp = computed(() => {
     const hourlySoilTemperatures =

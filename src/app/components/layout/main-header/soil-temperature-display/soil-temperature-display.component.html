@@ -2,6 +2,11 @@
   <i class="ti ti-thermometer" [style.font-size]="'30px'"></i>
   @if (soilTemperatureData.isLoading()) {
     <i class="ti ti-loader-2 icon-spin"></i>
+  } @else if (!userHasALocation()) {
+    <i
+      class="ti ti-info-circle"
+      pTooltip="Go to settings to set your location and start receiving soil temperature data"
+    ></i>
   } @else if (soilTemperatureData.error()) {
     <i
       class="ti ti-alert-triangle error"

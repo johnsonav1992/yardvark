@@ -8,6 +8,7 @@ import { TitleCasePipe } from '@angular/common';
 import { effectSignalLogger } from '../../../utils/generalUtils';
 import { DividerModule } from 'primeng/divider';
 import { DividerDesignTokens } from '@primeng/themes/types/divider';
+import { GlobalUiService } from '../../../services/global-ui.service';
 
 @Component({
   selector: 'product-view',
@@ -18,6 +19,9 @@ import { DividerDesignTokens } from '@primeng/themes/types/divider';
 export class ProductViewComponent {
   private _route = inject(ActivatedRoute);
   private _productsService = inject(ProductsService);
+  private _globalUiService = inject(GlobalUiService);
+
+  public isMobile = this._globalUiService.isMobile;
 
   public productId = toSignal(
     this._route.params.pipe(map((params) => parseInt(params['productId'])))

@@ -5,14 +5,19 @@ import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs';
 import { ProductsService } from '../../../services/products.service';
 import { TitleCasePipe } from '@angular/common';
-import { effectSignalLogger } from '../../../utils/generalUtils';
 import { DividerModule } from 'primeng/divider';
 import { DividerDesignTokens } from '@primeng/themes/types/divider';
 import { GlobalUiService } from '../../../services/global-ui.service';
+import { LoadingSpinnerComponent } from '../../../components/miscellanious/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'product-view',
-  imports: [PageContainerComponent, TitleCasePipe, DividerModule],
+  imports: [
+    PageContainerComponent,
+    TitleCasePipe,
+    DividerModule,
+    LoadingSpinnerComponent
+  ],
   templateUrl: './product-view.component.html',
   styleUrl: './product-view.component.scss'
 })
@@ -27,13 +32,13 @@ export class ProductViewComponent {
     this._route.params.pipe(map((params) => parseInt(params['productId'])))
   );
 
+  public isLoading = computed(() => this._productsService.products.isLoading());
+
   public product = computed(() =>
     this._productsService.products
       .value()
       ?.find((product) => product.id === this.productId())
   );
-
-  _ = effectSignalLogger(this.product);
 
   public dividerDt: DividerDesignTokens = {
     horizontal: {

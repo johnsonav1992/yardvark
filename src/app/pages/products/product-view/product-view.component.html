@@ -1,46 +1,52 @@
 <page-container [pageTitle]="product()?.name || ''">
   <div class="main-container">
-    @if (isMobile()) {
-      <img
-        [src]="product()?.imageUrl"
-        alt="{{ product()?.name }}"
-        width="60%"
-        [style]="{ alignSelf: 'center', marginBottom: '1rem' }"
-      />
-    }
-    <div class="top-container">
-      @if (!isMobile()) {
+    @if (isLoading()) {
+      <loading-spinner />
+    } @else {
+      @if (isMobile()) {
         <img
           [src]="product()?.imageUrl"
           alt="{{ product()?.name }}"
-          width="40%"
+          width="60%"
+          [style]="{ alignSelf: 'center', marginBottom: '1rem' }"
         />
       }
-      <div class="top-details">
-        <div class="name-container">
-          <h2>{{ product()?.name }}</h2>
-          <h3>{{ product()?.brand }}</h3>
+      <div class="top-container">
+        @if (!isMobile()) {
+          <img
+            [src]="product()?.imageUrl"
+            alt="{{ product()?.name }}"
+            width="40%"
+          />
+        }
+        <div class="top-details">
+          <div class="name-container">
+            <h2>{{ product()?.name }}</h2>
+            <h3>{{ product()?.brand }}</h3>
+          </div>
+          <p>{{ product()?.description }}</p>
+          <p-divider [dt]="dividerDt" />
+          <p>
+            <strong>Category:</strong> {{ product()?.category | titlecase }}
+          </p>
+          <p>
+            <strong>Guaranteed Analysis:</strong>
+            {{ product()?.guaranteedAnalysis }}
+          </p>
+          <p>
+            <strong>Application method:</strong>
+            {{ product()?.applicationMethod | titlecase }}
+          </p>
+          <p>
+            <strong>Application rate:</strong>
+            {{ product()?.applicationRate | titlecase }}
+          </p>
+          <p>
+            <strong>Container Type:</strong>
+            {{ product()?.containerType | titlecase }}
+          </p>
         </div>
-        <p>{{ product()?.description }}</p>
-        <p-divider [dt]="dividerDt" />
-        <p><strong>Category:</strong> {{ product()?.category | titlecase }}</p>
-        <p>
-          <strong>Guaranteed Analysis:</strong>
-          {{ product()?.guaranteedAnalysis }}
-        </p>
-        <p>
-          <strong>Application method:</strong>
-          {{ product()?.applicationMethod | titlecase }}
-        </p>
-        <p>
-          <strong>Application rate:</strong>
-          {{ product()?.applicationRate | titlecase }}
-        </p>
-        <p>
-          <strong>Container Type:</strong>
-          {{ product()?.containerType | titlecase }}
-        </p>
       </div>
-    </div>
+    }
   </div>
 </page-container>

@@ -4,10 +4,14 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
 import { map } from 'rxjs';
 import { ProductsService } from '../../../services/products.service';
+import { TitleCasePipe } from '@angular/common';
+import { effectSignalLogger } from '../../../utils/generalUtils';
+import { DividerModule } from 'primeng/divider';
+import { DividerDesignTokens } from '@primeng/themes/types/divider';
 
 @Component({
   selector: 'product-view',
-  imports: [PageContainerComponent],
+  imports: [PageContainerComponent, TitleCasePipe, DividerModule],
   templateUrl: './product-view.component.html',
   styleUrl: './product-view.component.scss'
 })
@@ -25,7 +29,11 @@ export class ProductViewComponent {
       ?.find((product) => product.id === this.productId())
   );
 
-  public pageTitle = computed(
-    () => `${this.product()?.brand} - ${this.product()?.name}`
-  );
+  _ = effectSignalLogger(this.product);
+
+  public dividerDt: DividerDesignTokens = {
+    horizontal: {
+      margin: '0'
+    }
+  };
 }

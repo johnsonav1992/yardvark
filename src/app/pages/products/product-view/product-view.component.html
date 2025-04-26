@@ -1,1 +1,36 @@
-<page-container [pageTitle]="pageTitle()"></page-container>
+<page-container [pageTitle]="product()?.name || ''">
+  <div class="main-container">
+    <div class="top-container">
+      <img
+        [src]="product()?.imageUrl"
+        alt="{{ product()?.name }}"
+        width="40%"
+      />
+      <div class="top-details">
+        <div class="name-container">
+          <h2>{{ product()?.name }}</h2>
+          <h3>{{ product()?.brand }}</h3>
+        </div>
+        <p>{{ product()?.description }}</p>
+        <p-divider [dt]="dividerDt" />
+        <p><strong>Category:</strong> {{ product()?.category | titlecase }}</p>
+        <p>
+          <strong>Guaranteed Analysis:</strong>
+          {{ product()?.guaranteedAnalysis }}
+        </p>
+        <p>
+          <strong>Application method:</strong>
+          {{ product()?.applicationMethod | titlecase }}
+        </p>
+        <p>
+          <strong>Application rate:</strong>
+          {{ product()?.applicationRate | titlecase }}
+        </p>
+        <p>
+          <strong>Container Type:</strong>
+          {{ product()?.containerType | titlecase }}
+        </p>
+      </div>
+    </div>
+  </div>
+</page-container>

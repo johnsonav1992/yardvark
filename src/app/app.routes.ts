@@ -9,6 +9,7 @@ import { EquipmentComponent } from './pages/equipment/equipment.component';
 import { EntryViewComponent } from './pages/entry-log/entry-view/entry-view.component';
 import { AddProductComponent } from './pages/products/add-product/add-product.component';
 import { authGuard } from './guards/auth.guard';
+import { ProductViewComponent } from './pages/products/product-view/product-view.component';
 
 export const mainRoutes: Routes = [
   {
@@ -48,7 +49,7 @@ export const mainRoutes: Routes = [
   },
   {
     path: 'products/:productId',
-    component: ProductsComponent,
+    component: ProductViewComponent,
     canActivate: [authGuard]
   },
   {

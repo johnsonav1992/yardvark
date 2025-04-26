@@ -1,9 +1,10 @@
-import { Component, input } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { Product } from '../../../types/products.types';
 import { TooltipModule } from 'primeng/tooltip';
 import { NO_IMAGE_URL } from '../../../constants/style-constants';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'product-card',
@@ -12,7 +13,13 @@ import { NO_IMAGE_URL } from '../../../constants/style-constants';
   styleUrl: './product-card.component.scss'
 })
 export class ProductCardComponent {
+  private _router = inject(Router);
+
   public product = input.required<Product>();
 
   public noImageUrl = NO_IMAGE_URL;
+
+  public viewProduct(): void {
+    this._router.navigate(['products', this.product().id]);
+  }
 }

@@ -15,11 +15,7 @@
   </p>
   <ng-template #footer>
     <div class="footer">
-      <p-button
-        label="View product"
-        pTooltip="Coming soon..."
-        [disabled]="true"
-      />
+      <p-button label="View product" (onClick)="viewProduct()" />
     </div>
   </ng-template>
 </p-card>

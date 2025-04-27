@@ -29,7 +29,7 @@ export class Equipment {
   imageUrl?: string;
 
   @Column({ nullable: true })
-  serialNumber: string;
+  serialNumber?: string;
 
   @Column({ nullable: true })
   purchaseDate?: Date;

@@ -27,7 +27,7 @@ import { EquipmentModule } from './equipment/equipment.module';
       password: process.env.PRODPGPASSWORD,
       database: process.env.PRODPGDATABASE,
       ssl: true,
-      synchronize: true,
+      synchronize: false,
       autoLoadEntities: true,
       namingStrategy: new SnakeNamingStrategy(),
     }),

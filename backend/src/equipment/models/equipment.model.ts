@@ -3,7 +3,9 @@ import {
   DeleteDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  OneToMany,
 } from 'typeorm';
+import { EquipmentMaintenance } from './equipmentMaintainence.model';
 
 @Entity('equipment')
 export class Equipment {
@@ -51,4 +53,7 @@ export class Equipment {
 
   @DeleteDateColumn()
   deletedAt?: Date;
+
+  @OneToMany(() => EquipmentMaintenance, (maintenance) => maintenance.equipment)
+  maintenanceRecords: EquipmentMaintenance[];
 }

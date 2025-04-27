@@ -14,6 +14,7 @@ import { UsersController } from './users/controllers/users.controller';
 import { UsersService } from './users/services/users.service';
 import { UsersModule } from './users/users.module';
 import { HttpModule } from '@nestjs/axios';
+import { EquipmentModule } from './equipment/equipment.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { HttpModule } from '@nestjs/axios';
     ProductsModule,
     UsersModule,
     HttpModule,
+    EquipmentModule,
   ],
   controllers: [UsersController],
   providers: [

@@ -4,7 +4,6 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  Param,
   Post,
   Req,
   UploadedFile,
@@ -13,7 +12,6 @@ import {
 import { Request } from 'express';
 import { EquipmentService } from '../services/equipment.service';
 import { Equipment } from '../models/equipment.model';
-import { Public } from 'src/decorators/public.decorator';
 import { imageFileValidator } from 'src/utils/fileUtils';
 import { S3Service } from 'src/s3/s3.service';
 import { tryCatch } from 'src/utils/tryCatch';
@@ -26,10 +24,9 @@ export class EquipmentController {
     private readonly _s3Service: S3Service,
   ) {}
 
-  @Get(':userId')
-  @Public()
-  getAllUserEquipment(@Param('userId') userId: string) {
-    // const userId = req.user.userId;
+  @Get()
+  getAllUserEquipment(@Req() req: Request) {
+    const userId = req.user.userId;
 
     return this._equipmentService.getAllUserEquipment(userId);
   }

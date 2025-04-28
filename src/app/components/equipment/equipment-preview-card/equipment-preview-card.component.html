@@ -1,14 +1,31 @@
-<p-card>
+<p-card [style]="{ height: '175px' }">
   <ng-template #title>
-    <h2>{{ equipment().name }}</h2>
+    <h2>{{ equipment().brand }} {{ equipment().name }}</h2>
   </ng-template>
   <div class="content-container">
-    <img
-      [src]="equipment().imageUrl"
-      alt="{{ equipment().name }}"
-      width="10%"
-      class="equipment-img"
+    <div class="img-desc">
+      <img
+        [src]="equipment().imageUrl"
+        alt="{{ equipment().name }}"
+        class="equipment-img"
+      />
+      <div class="inner-content">
+        <p>{{ equipment().description }}</p>
+        <p>
+          <em> Last maintenance: </em>
+          {{
+            equipment().maintenanceRecords[0]?.maintenanceDate
+              | date: "MM/dd/yyyy"
+          }}
+        </p>
+      </div>
+    </div>
+    <p-button
+      icon="ti ti-hammer"
+      outlined
+      rounded
+      severity="secondary"
+      [style]="{ alignSelf: 'flex-end' }"
     />
-    <p>{{ equipment().description }}</p>
   </div>
 </p-card>

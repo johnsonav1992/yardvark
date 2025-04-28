@@ -1,8 +1,25 @@
 .content-container {
   display: flex;
   gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
 
-  .equipment-img {
-    border-radius: 0.25rem;
+  .img-desc {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    .equipment-img {
+      border-radius: 0.25rem;
+      // I want the image to fit the container and not overflow
+      object-fit: cover;
+      width: 4rem;
+    }
+
+    .inner-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
   }
 }

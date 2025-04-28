@@ -1,0 +1,14 @@
+<p-card>
+  <ng-template #title>
+    <h2>{{ equipment().name }}</h2>
+  </ng-template>
+  <div class="content-container">
+    <img
+      [src]="equipment().imageUrl"
+      alt="{{ equipment().name }}"
+      width="10%"
+      class="equipment-img"
+    />
+    <p>{{ equipment().description }}</p>
+  </div>
+</p-card>

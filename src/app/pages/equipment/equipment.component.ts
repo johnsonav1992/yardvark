@@ -1,13 +1,16 @@
 import { Component, inject } from '@angular/core';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import { EquipmentService } from '../../services/equipment.service';
+import { EquipmentPreviewCardComponent } from '../../components/equipment/equipment-preview-card/equipment-preview-card.component';
 
 @Component({
   selector: 'equipment',
-  imports: [PageContainerComponent],
+  imports: [PageContainerComponent, EquipmentPreviewCardComponent],
   templateUrl: './equipment.component.html',
   styleUrl: './equipment.component.scss'
 })
 export class EquipmentComponent {
   private _equipmentService = inject(EquipmentService);
+
+  public equipment = this._equipmentService.equipment;
 }

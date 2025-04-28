@@ -173,6 +173,14 @@ export class EntriesService {
   }
 
   async softDeleteEntry(entryId: number) {
+    const entry = await this._entriesRepo.findOne({
+      where: { id: entryId },
+    });
+
+    if (!entry) {
+      throw new HttpException('Entry not found', HttpStatus.NOT_FOUND);
+    }
+
     await this._entriesRepo.softDelete(entryId);
   }
 

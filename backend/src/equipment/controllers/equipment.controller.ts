@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
@@ -74,5 +75,10 @@ export class EquipmentController {
       equipmentId,
       maintenanceData,
     );
+  }
+
+  @Delete('maintenance/:maintenanceId')
+  deleteMaintenanceRecord(@Param('maintenanceId') maintenanceId: number) {
+    return this._equipmentService.deleteMaintenanceRecord(maintenanceId);
   }
 }

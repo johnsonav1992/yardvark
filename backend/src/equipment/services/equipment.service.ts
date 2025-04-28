@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Equipment } from '../models/equipment.model';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EquipmentMaintenance } from '../models/equipmentMaintainence.model';
+import { EquipmentMaintenance } from '../models/equipmentMaintenance.model';
 
 @Injectable()
 export class EquipmentService {

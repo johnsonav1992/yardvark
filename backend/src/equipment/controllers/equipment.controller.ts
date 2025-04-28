@@ -20,7 +20,7 @@ import { imageFileValidator } from 'src/utils/fileUtils';
 import { S3Service } from 'src/s3/s3.service';
 import { tryCatch } from 'src/utils/tryCatch';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { EquipmentMaintenance } from '../models/equipmentMaintainence.model';
+import { EquipmentMaintenance } from '../models/equipmentMaintenance.model';
 
 @Controller('equipment')
 export class EquipmentController {

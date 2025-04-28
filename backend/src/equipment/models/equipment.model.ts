@@ -5,7 +5,7 @@ import {
   PrimaryGeneratedColumn,
   OneToMany,
 } from 'typeorm';
-import { EquipmentMaintenance } from './equipmentMaintainence.model';
+import { EquipmentMaintenance } from './equipmentMaintenance.model';
 
 @Entity('equipment')
 export class Equipment {

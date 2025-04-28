@@ -7,6 +7,8 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
+  Query,
   Req,
   UploadedFile,
   UseInterceptors,
@@ -66,7 +68,18 @@ export class EquipmentController {
     });
   }
 
-  @Post('maintenance/:equipmentId')
+  @Put(':equipmentId')
+  toggleEquipmentArchiveStatus(
+    @Param('equipmentId') equipmentId: number,
+    @Query('isActive') isActive: boolean,
+  ) {
+    return this._equipmentService.toggleEquipmentArchiveStatus(
+      equipmentId,
+      isActive,
+    );
+  }
+
+  @Post(':equipmentId/maintenance')
   createMaintenanceRecord(
     @Param('equipmentId') equipmentId: number,
     @Body() maintenanceData: Partial<EquipmentMaintenance>,

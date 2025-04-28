@@ -12,7 +12,7 @@ export class EquipmentMaintenance {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'date', nullable: false })
+  @Column({ type: 'timestamptz', nullable: false })
   maintenanceDate: Date;
 
   @Column({ type: 'text' })

@@ -4,10 +4,12 @@ import { EquipmentService } from './services/equipment.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Equipment } from './models/equipment.model';
 import { EquipmentMaintenance } from './models/equipmentMaintainence.model';
+import { S3Service } from 'src/s3/s3.service';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Equipment, EquipmentMaintenance])],
   controllers: [EquipmentController],
-  providers: [EquipmentService],
+  providers: [EquipmentService, S3Service, ConfigService],
 })
 export class EquipmentModule {}

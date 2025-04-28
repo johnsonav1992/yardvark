@@ -4,6 +4,7 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Param,
   Post,
   Req,
   UploadedFile,
@@ -16,6 +17,7 @@ import { imageFileValidator } from 'src/utils/fileUtils';
 import { S3Service } from 'src/s3/s3.service';
 import { tryCatch } from 'src/utils/tryCatch';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { EquipmentMaintenance } from '../models/equipmentMaintainence.model';
 
 @Controller('equipment')
 export class EquipmentController {
@@ -61,5 +63,16 @@ export class EquipmentController {
       ...equipmentData,
       imageUrl,
     });
+  }
+
+  @Post('maintenance/:equipmentId')
+  createMaintenanceRecord(
+    @Param('equipmentId') equipmentId: number,
+    @Body() maintenanceData: Partial<EquipmentMaintenance>,
+  ) {
+    return this._equipmentService.createMaintenanceRecord(
+      equipmentId,
+      maintenanceData,
+    );
   }
 }

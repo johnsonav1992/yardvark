@@ -34,6 +34,15 @@ export class EntriesController {
     return this._entriesService.getMostRecentEntry(req.user.userId);
   }
 
+  @Get('last-mow')
+  async getLastMowDate(@Req() req: Request) {
+    const lastMowDate = await this._entriesService.getLastMowDate(
+      req.user.userId,
+    );
+
+    return { lastMowDate };
+  }
+
   @Get('single/by-date/:date')
   getEntryByDate(@Req() req: Request, @Param('date') date: string) {
     return this._entriesService.getEntryByDate(req.user.userId, date);

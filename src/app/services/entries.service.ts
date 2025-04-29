@@ -36,6 +36,11 @@ export class EntriesService {
   public getMostRecentEntryResource = () =>
     httpResource<Entry | null>(() => apiUrl('entries/single/most-recent'));
 
+  public getLastMowDateResource = () =>
+    httpResource<{ lastMowDate: Date | null }>(() =>
+      apiUrl('entries/last-mow')
+    );
+
   public getMonthEntriesResource = (currentDate: Signal<Date>) =>
     httpResource<Entry[]>(() =>
       apiUrl('entries', {

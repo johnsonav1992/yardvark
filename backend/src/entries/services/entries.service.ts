@@ -7,6 +7,7 @@ import { Between, In, Repository, ILike, FindOptionsWhere } from 'typeorm';
 import { Entry, EntryProduct } from '../models/entries.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getEntryProductMapping } from '../utils/entryUtils';
+import { ACTIVITY_IDS } from 'src/constants/activities.constants';
 
 @Injectable()
 export class EntriesService {
@@ -112,6 +113,22 @@ export class EntriesService {
       ...rest,
       products: getEntryProductMapping(entryProducts),
     };
+  }
+
+  async getLastMowDate(userId: string) {
+    const entry = await this._entriesRepo.findOne({
+      where: {
+        userId,
+        date: Between(new Date(0), new Date()),
+        activities: { id: ACTIVITY_IDS.MOW },
+      },
+      order: {
+        date: 'DESC',
+        time: 'DESC',
+      },
+    });
+
+    return entry?.date || null;
   }
 
   async createEntry(userId: string, entry: EntryCreationRequest) {

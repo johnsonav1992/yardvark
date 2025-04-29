@@ -1,4 +1,4 @@
-import { Injectable, linkedSignal, signal } from '@angular/core';
+import { Injectable, linkedSignal } from '@angular/core';
 import { getReq } from '../utils/httpUtils';
 import { LatLong, MapboxGeocodingResponse } from '../types/location.types';
 import { map } from 'rxjs';

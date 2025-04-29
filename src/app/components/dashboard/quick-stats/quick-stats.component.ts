@@ -28,7 +28,7 @@ export class QuickStatsComponent {
 
     const daysSince = differenceInDays(new Date(), new Date(lastMowDate));
 
-    return daysSince;
+    return daysSince ?? 'N/A';
   });
 
   public daysSinceLastEntry = computed(() => {
@@ -38,7 +38,21 @@ export class QuickStatsComponent {
 
     const daysSince = differenceInDays(new Date(), new Date(lastEntry.date));
 
-    return daysSince;
+    return daysSince ?? 'N/A';
+  });
+
+  public daysSinceLastProductApplication = computed(() => {
+    const lastProductAppDate =
+      this._entriesService.lastProductApp.value()?.lastProductAppDate;
+
+    if (!lastProductAppDate) return null;
+
+    const daysSince = differenceInDays(
+      new Date(),
+      new Date(lastProductAppDate)
+    );
+
+    return daysSince ?? 'N/A';
   });
 
   public lawnSeasonPercentage = computed(() => {

@@ -2,16 +2,21 @@
   <ng-template #title> Quick Stats </ng-template>
   <div class="stats-container">
     <p class="stat">
+      <i class="ti ti-calendar"></i> Days since last entry:
+      {{ daysSinceLastEntry() }}
+    </p>
+    <p-divider [dt]="dividerDt" />
+    <p class="stat">
       <i class="li li-lawnmower"></i> Days since last mow:
       {{ daysSinceLastMow() }}
     </p>
     <p-divider [dt]="dividerDt" />
     <p class="stat">
-      <i class="ti ti-calendar"></i> Days since last entry:
-      {{ daysSinceLastEntry() }}
+      <i class="ti ti-package"></i> Days since last product app:
+      {{ daysSinceLastProductApplication() }}
     </p>
-    <p-divider [dt]="dividerDt" />
     @if (lawnSeasonPercentage()) {
+      <p-divider [dt]="dividerDt" />
       <div class="season-progress">
         <p class="stat">Season progress:</p>
         <p-progressbar [value]="lawnSeasonPercentage()" />

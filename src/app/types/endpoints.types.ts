@@ -15,7 +15,8 @@ type EntriesRoutes =
   | 'entries/single/most-recent'
   | 'entries/recover'
   | 'entries/search'
-  | 'entries/last-mow';
+  | 'entries/last-mow'
+  | 'entries/last-product-app';
 type ActivitiesRoutes = 'activities';
 type LawnSegmentsRoutes = 'lawn-segments';
 type ProductsRoutes = 'products';

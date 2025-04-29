@@ -41,6 +41,10 @@ export class EntriesService {
     apiUrl('entries/last-mow')
   );
 
+  public lastProductApp = httpResource<{ lastProductAppDate: Date | null }>(
+    () => apiUrl('entries/last-product-app')
+  );
+
   public getMonthEntriesResource = (currentDate: Signal<Date>) =>
     httpResource<Entry[]>(() =>
       apiUrl('entries', {

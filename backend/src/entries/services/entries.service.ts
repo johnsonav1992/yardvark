@@ -3,7 +3,14 @@ import {
   EntriesSearchRequest,
   EntryCreationRequest,
 } from '../models/entries.types';
-import { Between, In, Repository, ILike, FindOptionsWhere } from 'typeorm';
+import {
+  Between,
+  In,
+  Repository,
+  ILike,
+  FindOptionsWhere,
+  Brackets,
+} from 'typeorm';
 import { Entry, EntryProduct } from '../models/entries.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getEntryProductMapping } from '../utils/entryUtils';
@@ -127,6 +134,27 @@ export class EntriesService {
         time: 'DESC',
       },
     });
+
+    return entry?.date || null;
+  }
+
+  async getLastProductApplicationDate(userId: string) {
+    const entry = await this._entriesRepo
+      .createQueryBuilder('entry')
+      .leftJoin('entry.activities', 'activity')
+      .leftJoin('entry.entryProducts', 'product')
+      .where('entry.userId = :userId', { userId })
+      .andWhere('entry.date <= :today', { today: new Date() })
+      .andWhere(
+        new Brackets((qb) => {
+          qb.where('activity.id = :activityId', {
+            activityId: ACTIVITY_IDS.PRODUCT_APPLICATION,
+          }).orWhere('product.product_id IS NOT NULL');
+        }),
+      )
+      .orderBy('entry.date', 'DESC')
+      .addOrderBy('entry.time', 'DESC')
+      .getOne();
 
     return entry?.date || null;
   }

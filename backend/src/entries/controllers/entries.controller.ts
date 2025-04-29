@@ -43,6 +43,14 @@ export class EntriesController {
     return { lastMowDate };
   }
 
+  @Get('last-product-app')
+  async getLastProductAppDate(@Req() req: Request) {
+    const lastProductAppDate =
+      await this._entriesService.getLastProductApplicationDate(req.user.userId);
+
+    return { lastProductAppDate };
+  }
+
   @Get('single/by-date/:date')
   getEntryByDate(@Req() req: Request, @Param('date') date: string) {
     return this._entriesService.getEntryByDate(req.user.userId, date);

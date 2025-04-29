@@ -15,7 +15,14 @@
   flex-wrap: wrap;
   gap: 1rem;
 
-  @media (max-width: 600px) {
+  > * {
+    flex: 0 0 400px;
+    min-width: 400px;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  @media (max-width: 900px) {
     > * {
       flex: 0 0 100%;
     }

@@ -13,6 +13,7 @@ import { GlobalUiService } from '../../services/global-ui.service';
 import { Router } from '@angular/router';
 import { LocationService } from '../../services/location.service';
 import { SettingsService } from '../../services/settings.service';
+import { QuickStatsComponent } from '../../components/dashboard/quick-stats/quick-stats.component';
 
 @Component({
   selector: 'dashboard',
@@ -21,7 +22,8 @@ import { SettingsService } from '../../services/settings.service';
     RecentEntryComponent,
     LoadingSpinnerComponent,
     MessageModule,
-    SpeedDialModule
+    SpeedDialModule,
+    QuickStatsComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'

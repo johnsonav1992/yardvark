@@ -1,8 +1,6 @@
 .content-container {
   display: flex;
   gap: 1rem;
-  justify-content: space-between;
-  align-items: center;
 
   .img-desc {
     display: flex;
@@ -11,12 +9,25 @@
 
     .equipment-img {
       border-radius: 0.25rem;
+      max-height: 60px;
     }
 
     .inner-content {
       display: flex;
       flex-direction: column;
       gap: 0.25rem;
+
+      .desc {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
   }
+}
+
+.button-wrapper {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
 }

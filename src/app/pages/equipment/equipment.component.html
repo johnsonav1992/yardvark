@@ -1,5 +1,19 @@
 <page-container pageTitle="Equipment" [hideBackButton]="true">
-  @for (equipmentItem of equipment.value(); track equipmentItem.id) {
-    <equipment-preview-card [equipment]="equipmentItem" />
+  @if (equipment.isLoading()) {
+    <loading-spinner />
+  } @else {
+    @for (equipmentItem of []; track equipmentItem) {
+      <equipment-preview-card [equipment]="equipmentItem" />
+    } @empty {
+      <p-card>
+        <ng-template #title>
+          <h2>No equipment found</h2>
+        </ng-template>
+        <div class="empty-card-content">
+          <p>Try adding some equipment to your inventory.</p>
+          <p-button icon="ti ti-plus" label="Add Equipment" (click)="('')" />
+        </div>
+      </p-card>
+    }
   }
 </page-container>

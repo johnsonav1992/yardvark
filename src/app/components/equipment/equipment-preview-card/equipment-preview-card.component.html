@@ -1,4 +1,4 @@
-<p-card [style]="{ height: '175px' }">
+<p-card [style]="{ position: 'relative', cursor: 'pointer' }" (click)="('')">
   <ng-template #title>
     <h2>{{ equipment().brand }} {{ equipment().name }}</h2>
   </ng-template>
@@ -10,7 +10,7 @@
         class="equipment-img"
       />
       <div class="inner-content">
-        <p>{{ equipment().description }}</p>
+        <p class="desc">{{ equipment().description }}</p>
         <p>
           <em> Last maintenance: </em>
           {{
@@ -20,12 +20,14 @@
         </p>
       </div>
     </div>
+  </div>
+  <div class="button-wrapper">
     <p-button
       icon="ti ti-hammer"
       outlined
       rounded
       severity="secondary"
-      [style]="{ alignSelf: 'flex-end' }"
+      pTooltip="Add maintenance record"
     />
   </div>
 </p-card>

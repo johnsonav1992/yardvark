@@ -1,10 +1,21 @@
 <p-card>
   <ng-template #title> Quick Stats </ng-template>
-  <div>
-    <p>
+  <div class="stats-container">
+    <p class="stat">
       <i class="li li-lawnmower"></i> Days since last mow:
       {{ daysSinceLastMow() }}
     </p>
-    <p><i class="ti ti-calendar"></i> Days since last entry: 10</p>
+    <p-divider [dt]="dividerDt" />
+    <p class="stat">
+      <i class="ti ti-calendar"></i> Days since last entry:
+      {{ daysSinceLastEntry() }}
+    </p>
+    <p-divider [dt]="dividerDt" />
+    @if (lawnSeasonPercentage()) {
+      <div class="season-progress">
+        <p class="stat">Season progress:</p>
+        <p-progressbar [value]="lawnSeasonPercentage()" />
+      </div>
+    }
   </div>
 </p-card>

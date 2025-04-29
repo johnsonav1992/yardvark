@@ -50,11 +50,11 @@ export class DashboardComponent {
 
     return (
       isToday(user['https://yardvark.netlify.app/signup-date']) &&
-      !this.recentEntries.value()
+      !this.recentEntry.value()
     );
   });
 
-  public recentEntries = this._entriesService.getMostRecentEntryResource();
+  public recentEntry = this._entriesService.recentEntry;
 
   public mobileSpeedDialMenu: MenuItem[] = [
     {

@@ -12,6 +12,7 @@ import { differenceInDays } from 'date-fns';
 export class QuickStatsComponent {
   private _entriesService = inject(EntriesService);
   public lastMowDate = this._entriesService.getLastMowDateResource();
+  // public lastEntry = this._entriesService.getMostRecentEntryResource();
 
   public daysSinceLastMow = computed(() => {
     const lastMowDate = this.lastMowDate.value()?.lastMowDate;

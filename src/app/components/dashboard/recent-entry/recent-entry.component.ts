@@ -26,7 +26,7 @@ export class RecentEntryComponent {
 
   public isMobile = this._globalUiService.isMobile;
 
-  public recentEntry = this._entriesService.getMostRecentEntryResource();
+  public recentEntry = this._entriesService.recentEntry;
 
   public goToEntry(): void {
     this._router.navigate(['entry-log', this.recentEntry.value()?.id]);

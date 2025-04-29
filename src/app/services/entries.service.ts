@@ -1,5 +1,5 @@
 import { httpResource } from '@angular/common/http';
-import { Injectable, Signal } from '@angular/core';
+import { computed, Injectable, Signal } from '@angular/core';
 import {
   EntriesSearchRequest,
   Entry,
@@ -33,8 +33,9 @@ export class EntriesService {
         : undefined
     );
 
-  public getMostRecentEntryResource = () =>
-    httpResource<Entry | null>(() => apiUrl('entries/single/most-recent'));
+  public recentEntry = httpResource<Entry | null>(() =>
+    apiUrl('entries/single/most-recent')
+  );
 
   public getLastMowDateResource = () =>
     httpResource<{ lastMowDate: Date | null }>(() =>

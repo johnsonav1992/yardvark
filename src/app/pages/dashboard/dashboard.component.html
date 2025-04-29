@@ -1,5 +1,5 @@
 <page-container pageTitle="Dashboard" [hideBackButton]="true">
-  @if (recentEntries.isLoading()) {
+  @if (recentEntry.isLoading()) {
     <loading-spinner />
   } @else {
     @if (userIsNewWithNoEntries()) {

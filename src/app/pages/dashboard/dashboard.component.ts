@@ -12,6 +12,7 @@ import { MenuItem } from 'primeng/api';
 import { GlobalUiService } from '../../services/global-ui.service';
 import { Router } from '@angular/router';
 import { LocationService } from '../../services/location.service';
+import { SettingsService } from '../../services/settings.service';
 
 @Component({
   selector: 'dashboard',
@@ -30,10 +31,14 @@ export class DashboardComponent {
   private _globalUiService = inject(GlobalUiService);
   private _router = inject(Router);
   private _locationService = inject(LocationService);
+  private _settingsService = inject(SettingsService);
 
   public user = injectUserData();
   public isMobile = this._globalUiService.isMobile;
 
+  public isLocationLoading = computed(() =>
+    this._settingsService.settings.isLoading()
+  );
   public userHasALocation = computed(
     () => !!this._locationService.userLatLong()
   );

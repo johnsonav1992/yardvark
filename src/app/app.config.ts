@@ -12,7 +12,6 @@ import { providePrimeNG } from 'primeng/config';
 import { provideAuth0 } from '@auth0/auth0-angular';
 import { theme } from './theme/theme';
 import { MessageService } from 'primeng/api';
-import { SlicePipe } from '@angular/common';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { initHttpUtils } from './utils/httpUtils';
 import { YV_DARK_MODE_SELECTOR } from './constants/style-constants';
@@ -41,7 +40,6 @@ export const appConfig: ApplicationConfig = {
       }
     }),
     provideAppInitializer(() => initHttpUtils()),
-    MessageService,
-    SlicePipe
+    MessageService
   ]
 };

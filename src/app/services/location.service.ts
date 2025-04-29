@@ -4,6 +4,7 @@ import { LatLong, MapboxGeocodingResponse } from '../types/location.types';
 import { map } from 'rxjs';
 import { Observable } from 'rxjs';
 import { injectSettingsService } from './settings.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -19,8 +20,7 @@ export class LocationService {
       params: {
         proximity: 'ip',
         q: query,
-        access_token:
-          'pk.eyJ1Ijoiam9obnNvbmF2IiwiYSI6ImNtOG1mMWE0aDBnbjgyaW9tcWc2c2JhczUifQ.2jMp1pCJKr2RDKIVfXwwNQ'
+        access_token: environment.mapBoxPublicKey
       }
     }).pipe(map((response) => response.features));
   }

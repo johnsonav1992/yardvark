@@ -1,8 +1,7 @@
 import {
   ApplicationConfig,
   provideAppInitializer,
-  provideExperimentalZonelessChangeDetection,
-  provideZoneChangeDetection
+  provideExperimentalZonelessChangeDetection
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
@@ -17,6 +16,7 @@ import { SlicePipe } from '@angular/common';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { initHttpUtils } from './utils/httpUtils';
 import { YV_DARK_MODE_SELECTOR } from './constants/style-constants';
+import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -34,8 +34,8 @@ export const appConfig: ApplicationConfig = {
       ripple: true
     }),
     provideAuth0({
-      domain: 'dev-w4uj6ulyqeacwtfi.us.auth0.com',
-      clientId: 'QRPi2KnSnV3pEnDiOqE2aN4zeNS8vRM5',
+      domain: environment.auth0Domain,
+      clientId: environment.auth0ClientId,
       authorizationParams: {
         redirect_uri: window.location.origin
       }

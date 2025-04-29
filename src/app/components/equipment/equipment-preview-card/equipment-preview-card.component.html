@@ -13,10 +13,14 @@
         <p class="desc">{{ equipment().description }}</p>
         <p>
           <em> Last maintenance: </em>
-          {{
-            equipment().maintenanceRecords[0]?.maintenanceDate
-              | date: "MM/dd/yyyy"
-          }}
+          @if (equipment().maintenanceRecords.length > 0) {
+            {{
+              equipment().maintenanceRecords[0].maintenanceDate
+                | date: "MM/dd/yyyy"
+            }}
+          } @else {
+            <em>N/A</em>
+          }
         </p>
       </div>
     </div>

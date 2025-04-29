@@ -9,3 +9,15 @@
     }
   }
 }
+
+.cards-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  @media (max-width: 600px) {
+    > * {
+      flex: 0 0 100%;
+    }
+  }
+}

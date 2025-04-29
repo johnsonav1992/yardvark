@@ -2,7 +2,7 @@
   @if (equipment.isLoading()) {
     <loading-spinner />
   } @else {
-    @for (equipmentItem of []; track equipmentItem) {
+    @for (equipmentItem of equipment.value(); track equipmentItem.id) {
       <equipment-preview-card [equipment]="equipmentItem" />
     } @empty {
       <p-card>

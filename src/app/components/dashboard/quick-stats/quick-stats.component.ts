@@ -7,6 +7,7 @@ import { getLawnSeasonCompletedPercentage } from '../../../utils/lawnSeasonUtils
 import { ProgressBarModule } from 'primeng/progressbar';
 import { DividerModule } from 'primeng/divider';
 import { DividerDesignTokens } from '@primeng/themes/types/divider';
+import { GlobalUiService } from '../../../services/global-ui.service';
 
 @Component({
   selector: 'quick-stats',
@@ -17,6 +18,9 @@ import { DividerDesignTokens } from '@primeng/themes/types/divider';
 export class QuickStatsComponent {
   private _entriesService = inject(EntriesService);
   private _settingsService = inject(SettingsService);
+  private _globalUiService = inject(GlobalUiService);
+
+  public isMobile = this._globalUiService.isMobile;
 
   public lastMowDate = this._entriesService.lastMow;
   public lastEntry = this._entriesService.recentEntry;
@@ -60,7 +64,13 @@ export class QuickStatsComponent {
 
     if (grassType === 'cool') return null;
 
-    return getLawnSeasonCompletedPercentage();
+    const progressPercentage = getLawnSeasonCompletedPercentage();
+
+    if (progressPercentage < 0 || progressPercentage > 100) {
+      return null;
+    }
+
+    return progressPercentage;
   });
 
   public dividerDt: DividerDesignTokens = {

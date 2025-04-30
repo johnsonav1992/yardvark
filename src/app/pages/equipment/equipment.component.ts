@@ -5,6 +5,9 @@ import { EquipmentPreviewCardComponent } from '../../components/equipment/equipm
 import { CardModule } from 'primeng/card';
 import { LoadingSpinnerComponent } from '../../components/miscellanious/loading-spinner/loading-spinner.component';
 import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
+import { GlobalUiService } from '../../services/global-ui.service';
+import { ButtonDesignTokens } from '@primeng/themes/types/button';
 
 @Component({
   selector: 'equipment',
@@ -13,13 +16,29 @@ import { ButtonModule } from 'primeng/button';
     EquipmentPreviewCardComponent,
     CardModule,
     LoadingSpinnerComponent,
-    ButtonModule
+    ButtonModule,
+    ButtonModule,
+    TooltipModule
   ],
   templateUrl: './equipment.component.html',
   styleUrl: './equipment.component.scss'
 })
 export class EquipmentComponent {
   private _equipmentService = inject(EquipmentService);
+  private _globalUiService = inject(GlobalUiService);
+
+  public isMobile = this._globalUiService.isMobile;
 
   public equipment = this._equipmentService.equipment;
+
+  public navToAddEquipment(): void {}
+
+  public addButtonDt: ButtonDesignTokens = {
+    root: {
+      iconOnlyWidth: this.isMobile() ? '4rem' : '5rem',
+      lg: {
+        fontSize: '36px'
+      }
+    }
+  };
 }

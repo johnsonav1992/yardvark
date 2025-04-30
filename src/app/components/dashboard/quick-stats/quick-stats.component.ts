@@ -28,7 +28,7 @@ export class QuickStatsComponent {
   public daysSinceLastMow = computed(() => {
     const lastMowDate = this.lastMowDate.value()?.lastMowDate;
 
-    if (!lastMowDate) return null;
+    if (!lastMowDate) return 'N/A';
 
     const daysSince = differenceInDays(new Date(), new Date(lastMowDate));
 
@@ -38,9 +38,11 @@ export class QuickStatsComponent {
   public daysSinceLastEntry = computed(() => {
     const lastEntry = this.lastEntry.value();
 
-    if (!lastEntry) return null;
+    if (!lastEntry) return 'N/A';
 
     const daysSince = differenceInDays(new Date(), new Date(lastEntry.date));
+
+    console.log({ daysSince });
 
     return daysSince ?? 'N/A';
   });
@@ -49,7 +51,7 @@ export class QuickStatsComponent {
     const lastProductAppDate =
       this._entriesService.lastProductApp.value()?.lastProductAppDate;
 
-    if (!lastProductAppDate) return null;
+    if (!lastProductAppDate) return 'N/A';
 
     const daysSince = differenceInDays(
       new Date(),

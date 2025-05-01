@@ -1,4 +1,7 @@
-<p-card [style]="{ position: 'relative', cursor: 'pointer' }" (click)="('')">
+<p-card
+  [style]="{ position: 'relative', cursor: 'pointer' }"
+  (click)="goToEquipment()"
+>
   <ng-template #title>
     <h2>{{ equipment().brand }} {{ equipment().name }}</h2>
   </ng-template>

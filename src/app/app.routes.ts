@@ -10,6 +10,7 @@ import { EntryViewComponent } from './pages/entry-log/entry-view/entry-view.comp
 import { AddProductComponent } from './pages/products/add-product/add-product.component';
 import { authGuard } from './guards/auth.guard';
 import { ProductViewComponent } from './pages/products/product-view/product-view.component';
+import { EquipmentViewComponent } from './pages/equipment/equipment-view/equipment-view.component';
 
 export const mainRoutes: Routes = [
   {
@@ -60,6 +61,11 @@ export const mainRoutes: Routes = [
   {
     path: 'equipment',
     component: EquipmentComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'equipment/:id',
+    component: EquipmentViewComponent,
     canActivate: [authGuard]
   },
   {

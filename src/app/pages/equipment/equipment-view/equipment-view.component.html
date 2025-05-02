@@ -1,1 +1,52 @@
-<p>equipment-view works!</p>
+<page-container [pageTitle]="equipment()?.name || ''">
+  <div class="main-container">
+    @if (isLoading()) {
+      <loading-spinner />
+    } @else {
+      @if (isMobile()) {
+        <img
+          [src]="equipment()?.imageUrl"
+          alt="{{ equipment()?.name }}"
+          width="60%"
+          [style]="{ alignSelf: 'center', marginBottom: '1rem' }"
+        />
+      }
+      <div class="top-container">
+        @if (!isMobile()) {
+          <img
+            [src]="equipment()?.imageUrl"
+            alt="{{ equipment()?.name }}"
+            width="40%"
+          />
+        }
+        <div class="top-details">
+          <div class="name-container">
+            <h2>{{ equipment()?.name }}</h2>
+            <h3>{{ equipment()?.brand }}</h3>
+          </div>
+          <p>{{ equipment()?.description }}</p>
+          <p-divider [dt]="dividerDt" />
+          <!-- <p>
+            <strong>Category:</strong> {{ equipment()?.category | titlecase }}
+          </p>
+          <p>
+            <strong>Guaranteed Analysis:</strong>
+            {{ equipment()?.guaranteedAnalysis }}
+          </p>
+          <p>
+            <strong>Application method:</strong>
+            {{ equipment()?.applicationMethod | titlecase }}
+          </p>
+          <p>
+            <strong>Application rate:</strong>
+            {{ equipment()?.applicationRate | titlecase }}
+          </p>
+          <p>
+            <strong>Container Type:</strong>
+            {{ equipment()?.containerType | titlecase }}
+          </p> -->
+        </div>
+      </div>
+    }
+  </div>
+</page-container>

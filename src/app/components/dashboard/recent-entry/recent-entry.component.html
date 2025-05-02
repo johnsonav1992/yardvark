@@ -14,7 +14,8 @@
     </div>
   </ng-template>
   <ng-template #subtitle>
-    {{ recentEntry.value()?.date | date: "M/dd/yyyy" }}
+    {{ recentEntry.value()?.date | date: "M/dd/yyyy" }} -
+    {{ recentEntry.value()?.title }}
   </ng-template>
 
   @if (recentEntry.value(); as entry) {

@@ -64,7 +64,7 @@ export const mainRoutes: Routes = [
     canActivate: [authGuard]
   },
   {
-    path: 'equipment/:id',
+    path: 'equipment/:equipmentId',
     component: EquipmentViewComponent,
     canActivate: [authGuard]
   },

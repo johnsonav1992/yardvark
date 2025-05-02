@@ -16,7 +16,8 @@ import { LoadingSpinnerComponent } from '../../../components/miscellanious/loadi
     PageContainerComponent,
     TitleCasePipe,
     DividerModule,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    TitleCasePipe
   ],
   templateUrl: './product-view.component.html',
   styleUrl: './product-view.component.scss'

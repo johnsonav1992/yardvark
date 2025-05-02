@@ -9,6 +9,9 @@ import { ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { CurrencyPipe, DatePipe, TitleCasePipe } from '@angular/common';
+import { TableModule } from 'primeng/table';
+import { CardModule } from 'primeng/card';
+import { CardDesignTokens } from '@primeng/themes/types/card';
 
 @Component({
   selector: 'equipment-view',
@@ -18,7 +21,9 @@ import { CurrencyPipe, DatePipe, TitleCasePipe } from '@angular/common';
     DividerModule,
     TitleCasePipe,
     DatePipe,
-    CurrencyPipe
+    CurrencyPipe,
+    TableModule,
+    CardModule
   ],
   templateUrl: './equipment-view.component.html',
   styleUrl: './equipment-view.component.scss'
@@ -48,5 +53,10 @@ export class EquipmentViewComponent {
     horizontal: {
       margin: '0'
     }
+  };
+
+  public cardDt: CardDesignTokens = {
+    root: { shadow: '0 0 2px rgba(0, 0, 0, 0.3)' },
+    body: { padding: '1rem .75rem' }
   };
 }

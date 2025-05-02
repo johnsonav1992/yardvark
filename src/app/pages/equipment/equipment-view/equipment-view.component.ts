@@ -8,10 +8,18 @@ import { DividerDesignTokens } from '@primeng/themes/types/divider';
 import { ActivatedRoute } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
+import { CurrencyPipe, DatePipe, TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'equipment-view',
-  imports: [PageContainerComponent, LoadingSpinnerComponent, DividerModule],
+  imports: [
+    PageContainerComponent,
+    LoadingSpinnerComponent,
+    DividerModule,
+    TitleCasePipe,
+    DatePipe,
+    CurrencyPipe
+  ],
   templateUrl: './equipment-view.component.html',
   styleUrl: './equipment-view.component.scss'
 })

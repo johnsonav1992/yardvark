@@ -26,25 +26,23 @@
           </div>
           <p>{{ equipment()?.description }}</p>
           <p-divider [dt]="dividerDt" />
-          <!-- <p>
-            <strong>Category:</strong> {{ equipment()?.category | titlecase }}
+          <p><strong>Brand:</strong> {{ equipment()?.brand | titlecase }}</p>
+          <p>
+            <strong>Model:</strong>
+            {{ equipment()?.model | titlecase }}
           </p>
           <p>
-            <strong>Guaranteed Analysis:</strong>
-            {{ equipment()?.guaranteedAnalysis }}
+            <strong>Purchase Date:</strong>
+            {{ (equipment()?.purchaseDate | date: "M/dd/yyyy") || "N/A" }}
           </p>
           <p>
-            <strong>Application method:</strong>
-            {{ equipment()?.applicationMethod | titlecase }}
+            <strong>Purchase Price:</strong>
+            {{ (equipment()?.purchasePrice | currency) || "N/A" }}
           </p>
           <p>
-            <strong>Application rate:</strong>
-            {{ equipment()?.applicationRate | titlecase }}
+            <strong>Fuel Type:</strong>
+            {{ equipment()?.fuelType | titlecase }}
           </p>
-          <p>
-            <strong>Container Type:</strong>
-            {{ equipment()?.containerType | titlecase }}
-          </p> -->
         </div>
       </div>
     }

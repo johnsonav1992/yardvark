@@ -42,8 +42,6 @@ export class QuickStatsComponent {
 
     const daysSince = differenceInDays(new Date(), new Date(lastEntry.date));
 
-    console.log({ daysSince });
-
     return daysSince ?? 'N/A';
   });
 

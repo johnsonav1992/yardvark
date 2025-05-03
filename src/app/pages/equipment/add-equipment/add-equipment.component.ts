@@ -105,7 +105,8 @@ export class AddEquipmentComponent {
         this.back();
       },
       error: () => {
-        this.throwErrorToast('Error creating equipment');
+        this.isLoading.set(false);
+        this.throwErrorToast('Error creating equipment. Please try again.');
       }
     });
   }

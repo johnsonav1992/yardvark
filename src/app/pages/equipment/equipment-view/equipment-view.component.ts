@@ -12,6 +12,7 @@ import { CurrencyPipe, DatePipe, TitleCasePipe } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { CardDesignTokens } from '@primeng/themes/types/card';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'equipment-view',
@@ -23,7 +24,8 @@ import { CardDesignTokens } from '@primeng/themes/types/card';
     DatePipe,
     CurrencyPipe,
     TableModule,
-    CardModule
+    CardModule,
+    ButtonModule
   ],
   templateUrl: './equipment-view.component.html',
   styleUrl: './equipment-view.component.scss'

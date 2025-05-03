@@ -53,6 +53,7 @@
               <th>Service Date</th>
               <th>Service Cost</th>
               <th>Notes</th>
+              <th></th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-record>
@@ -60,7 +61,30 @@
               <td>{{ record.createdAt | date: "M/dd/yyyy" }}</td>
               <td>{{ (record.cost | currency) || "N/A" }}</td>
               <td>{{ record.notes }}</td>
+              <td>
+                <div class="action-buttons">
+                  <p-button
+                    icon="ti ti-pencil"
+                    severity="secondary"
+                    outlined
+                    rounded
+                    (click)="('')"
+                  />
+                  <p-button
+                    icon="ti ti-trash"
+                    severity="danger"
+                    outlined
+                    rounded
+                    (click)="('')"
+                  />
+                </div>
+              </td>
             </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <div [style]="{ margin: '.75rem' }">
+              No Records found. Click on the button to add a new record.
+            </div>
           </ng-template>
         </p-table>
       </p-card>

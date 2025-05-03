@@ -85,7 +85,11 @@ export class EquipmentService {
       );
     }
 
-    const updated = { ...maintenanceRecord, ...maintenanceData };
+    const updated: EquipmentMaintenance = {
+      ...maintenanceRecord,
+      ...maintenanceData,
+      updatedAt: new Date(),
+    };
 
     return this._equipmentMaintenanceRepo.save(updated);
   }

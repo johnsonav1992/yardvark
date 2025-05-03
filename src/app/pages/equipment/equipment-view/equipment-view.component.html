@@ -58,7 +58,7 @@
           </ng-template>
           <ng-template pTemplate="body" let-record>
             <tr>
-              <td>{{ record.createdAt | date: "M/dd/yyyy" }}</td>
+              <td>{{ record.maintenanceDate | date: "M/dd/yyyy" }}</td>
               <td>{{ (record.cost | currency) || "N/A" }}</td>
               <td>{{ record.notes }}</td>
               <td>
@@ -68,7 +68,7 @@
                     severity="secondary"
                     outlined
                     rounded
-                    (click)="('')"
+                    (click)="openEquipmentModal()"
                   />
                   <p-button
                     icon="ti ti-trash"

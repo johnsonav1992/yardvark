@@ -13,6 +13,9 @@ import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { CardDesignTokens } from '@primeng/themes/types/card';
 import { ButtonModule } from 'primeng/button';
+import { DialogService } from 'primeng/dynamicdialog';
+import { EquipmentMaintenanceAddEditModalComponent } from '../../../components/equipment/equipment-maintenance-add-edit-modal/equipment-maintenance-add-edit-modal.component';
+import { EquipmentMaintenance } from '../../../types/equipment.types';
 
 @Component({
   selector: 'equipment-view',
@@ -28,12 +31,14 @@ import { ButtonModule } from 'primeng/button';
     ButtonModule
   ],
   templateUrl: './equipment-view.component.html',
-  styleUrl: './equipment-view.component.scss'
+  styleUrl: './equipment-view.component.scss',
+  providers: [DialogService]
 })
 export class EquipmentViewComponent {
   private _globalUiService = inject(GlobalUiService);
   private _equipmentService = inject(EquipmentService);
   private _route = inject(ActivatedRoute);
+  private _dialogService = inject(DialogService);
 
   public isMobile = this._globalUiService.isMobile;
 
@@ -50,6 +55,32 @@ export class EquipmentViewComponent {
       .value()
       ?.find((equipment) => equipment.id === this.equipmentId())
   );
+
+  public openEquipmentModal(maintenanceRecord?: EquipmentMaintenance): void {
+    const dialogRef = this._dialogService.open(
+      EquipmentMaintenanceAddEditModalComponent,
+      {
+        header: 'Edit Maintenance Record',
+        modal: true,
+        focusOnShow: false,
+        width: '50%',
+        dismissableMask: true,
+        closable: true,
+        contentStyle: { overflow: 'visible' },
+        inputValues: {
+          date: maintenanceRecord?.maintenanceDate,
+          notes: maintenanceRecord?.notes,
+          cost: maintenanceRecord?.cost
+        },
+        breakpoints: {
+          '800px': '95%'
+        },
+        maximizable: true
+      }
+    );
+
+    if (this.isMobile()) this._dialogService.getInstance(dialogRef).maximize();
+  }
 
   public dividerDt: DividerDesignTokens = {
     horizontal: {

@@ -1,0 +1,41 @@
+<div
+  style="display: flex; flex-direction: column; gap: 1rem; width: 100%"
+  [formGroup]="form"
+>
+  <p-floatlabel variant="on" [style]="{ width: '100%' }">
+    <p-datePicker
+      formControlName="date"
+      id="date"
+      showIcon
+      [style]="{ width: '100%' }"
+    />
+    <label for="date">Date of maintenance</label>
+  </p-floatlabel>
+  <p-floatlabel variant="on" [style]="{ width: '100%' }">
+    <p-inputNumber
+      formControlName="cost"
+      id="cost"
+      mode="currency"
+      currency="USD"
+      locale="en-US"
+      [min]="0"
+      [max]="9999999"
+      styleClass="cost-input"
+      [inputStyle]="{ width: '100%' }"
+    />
+    <label for="cost">Cost</label>
+  </p-floatlabel>
+  <p-floatlabel variant="on" [style]="{ width: '100%' }">
+    <textarea
+      formControlName="notes"
+      id="notes"
+      rows="5"
+      pTextarea
+      [style]="{ width: '100%' }"
+    ></textarea>
+    <label for="notes">Notes</label>
+  </p-floatlabel>
+  <div [style]="{ alignSelf: 'flex-end' }">
+    <p-button label="Save" icon="ti ti-check" (click)="submit()" />
+  </div>
+</div>

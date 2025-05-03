@@ -81,6 +81,17 @@
               </td>
             </tr>
           </ng-template>
+          <ng-template pTemplate="footer">
+            <tr>
+              <td colspan="4" style="text-align: right">
+                <p-button
+                  icon="ti ti-plus"
+                  label="Add Record"
+                  (click)="openEquipmentModal()"
+                />
+              </td>
+            </tr>
+          </ng-template>
           <ng-template #emptymessage>
             <div [style]="{ margin: '.75rem' }">
               No Records found. Click on the button to add a new record.

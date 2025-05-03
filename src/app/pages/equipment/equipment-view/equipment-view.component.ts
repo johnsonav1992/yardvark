@@ -60,7 +60,7 @@ export class EquipmentViewComponent {
     const dialogRef = this._dialogService.open(
       EquipmentMaintenanceAddEditModalComponent,
       {
-        header: 'Edit Maintenance Record',
+        header: `${maintenanceRecord ? 'Edit' : 'Add'} Maintenance Record`,
         modal: true,
         focusOnShow: false,
         width: '50%',
@@ -68,7 +68,9 @@ export class EquipmentViewComponent {
         closable: true,
         contentStyle: { overflow: 'visible' },
         inputValues: {
-          date: new Date(maintenanceRecord?.maintenanceDate!),
+          date: maintenanceRecord?.maintenanceDate
+            ? new Date(maintenanceRecord?.maintenanceDate)
+            : undefined,
           notes: maintenanceRecord?.notes,
           cost: maintenanceRecord?.cost,
           equipmentId: this.equipmentId(),

@@ -70,23 +70,40 @@ export class EquipmentMaintenanceAddEditModalComponent implements OnInit {
 
     const maintenanceId = this.maintenanceId();
 
-    if (!maintenanceId) return;
-
-    this._equipmentService
-      .updateMaintenanceRecord(maintenanceId, {
-        maintenanceDate: this.form.value.date!,
-        notes: this.form.value.notes!,
-        cost: this.form.value.cost!
-      })
-      .subscribe({
-        next: () => {
-          this._dialogRef.close('success');
-        },
-        error: () => {
-          this.throwErrorToast(
-            'Error updating maintenance record. Please try again.'
-          );
-        }
-      });
+    if (maintenanceId) {
+      this._equipmentService
+        .updateMaintenanceRecord(maintenanceId, {
+          maintenanceDate: this.form.value.date!,
+          notes: this.form.value.notes!,
+          cost: this.form.value.cost!
+        })
+        .subscribe({
+          next: () => {
+            this._dialogRef.close('success');
+          },
+          error: () => {
+            this.throwErrorToast(
+              'Error updating maintenance record. Please try again.'
+            );
+          }
+        });
+    } else {
+      this._equipmentService
+        .addMaintenanceRecord(this.equipmentId()!, {
+          maintenanceDate: this.form.value.date!,
+          notes: this.form.value.notes!,
+          cost: this.form.value.cost!
+        })
+        .subscribe({
+          next: () => {
+            this._dialogRef.close('success');
+          },
+          error: () => {
+            this.throwErrorToast(
+              'Error adding maintenance record. Please try again.'
+            );
+          }
+        });
+    }
   }
 }

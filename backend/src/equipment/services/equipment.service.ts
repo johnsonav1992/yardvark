@@ -63,7 +63,7 @@ export class EquipmentService {
       ...maintenanceData,
     });
 
-    equipment.maintenanceRecords.push(newMaintenanceRecord);
+    (equipment.maintenanceRecords || []).push(newMaintenanceRecord);
 
     await this._equipmentRepo.save(equipment);
 

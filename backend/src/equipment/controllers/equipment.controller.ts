@@ -90,6 +90,17 @@ export class EquipmentController {
     );
   }
 
+  @Put('maintenance/:maintenanceId')
+  updateMaintenanceRecord(
+    @Param('maintenanceId') maintenanceId: number,
+    @Body() maintenanceData: Partial<EquipmentMaintenance>,
+  ) {
+    return this._equipmentService.updateMaintenanceRecord(
+      maintenanceId,
+      maintenanceData,
+    );
+  }
+
   @Delete('maintenance/:maintenanceId')
   deleteMaintenanceRecord(@Param('maintenanceId') maintenanceId: number) {
     return this._equipmentService.deleteMaintenanceRecord(maintenanceId);

@@ -70,6 +70,26 @@ export class EquipmentService {
     return newMaintenanceRecord;
   }
 
+  async updateMaintenanceRecord(
+    maintenanceId: number,
+    maintenanceData: Partial<EquipmentMaintenance>,
+  ): Promise<EquipmentMaintenance> {
+    const maintenanceRecord = await this._equipmentMaintenanceRepo.findOne({
+      where: { id: maintenanceId },
+    });
+
+    if (!maintenanceRecord) {
+      throw new HttpException(
+        'Maintenance record not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const updated = { ...maintenanceRecord, ...maintenanceData };
+
+    return this._equipmentMaintenanceRepo.save(updated);
+  }
+
   async deleteMaintenanceRecord(maintenanceId: number): Promise<void> {
     const maintenanceRecord = await this._equipmentMaintenanceRepo.findOne({
       where: { id: maintenanceId },

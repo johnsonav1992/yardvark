@@ -68,9 +68,11 @@ export class EquipmentViewComponent {
         closable: true,
         contentStyle: { overflow: 'visible' },
         inputValues: {
-          date: maintenanceRecord?.maintenanceDate,
+          date: new Date(maintenanceRecord?.maintenanceDate!),
           notes: maintenanceRecord?.notes,
-          cost: maintenanceRecord?.cost
+          cost: maintenanceRecord?.cost,
+          equipmentId: this.equipmentId(),
+          maintenanceId: maintenanceRecord?.id
         },
         breakpoints: {
           '800px': '95%'
@@ -80,6 +82,12 @@ export class EquipmentViewComponent {
     );
 
     if (this.isMobile()) this._dialogService.getInstance(dialogRef).maximize();
+
+    dialogRef.onClose.subscribe((result) => {
+      if (result === 'success') {
+        this._equipmentService.equipment.reload();
+      }
+    });
   }
 
   public dividerDt: DividerDesignTokens = {

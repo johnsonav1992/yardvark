@@ -1,4 +1,4 @@
-import { Component, input, OnInit } from '@angular/core';
+import { Component, inject, input, OnInit } from '@angular/core';
 import {
   FormControl,
   FormGroup,
@@ -14,6 +14,9 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { showAllFormErrorsOnSubmit } from '../../../utils/formUtils';
+import { EquipmentService } from '../../../services/equipment.service';
+import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { injectErrorToast } from '../../../utils/toastUtils';
 
 @Component({
   selector: 'equipment-maintenance-add-edit-modal',
@@ -32,9 +35,15 @@ import { showAllFormErrorsOnSubmit } from '../../../utils/formUtils';
   styleUrl: './equipment-maintenance-add-edit-modal.component.scss'
 })
 export class EquipmentMaintenanceAddEditModalComponent implements OnInit {
+  private _equipmentService = inject(EquipmentService);
+  private _dialogRef = inject(DynamicDialogRef);
+  public throwErrorToast = injectErrorToast();
+
   public date = input<Date>();
   public notes = input<string>();
   public cost = input<number>();
+  public equipmentId = input<number>();
+  public maintenanceId = input<number>();
 
   public form = new FormGroup({
     date: new FormControl<Date | null>(null, [Validators.required]),
@@ -50,11 +59,34 @@ export class EquipmentMaintenanceAddEditModalComponent implements OnInit {
     });
   }
 
+  public closeModal(): void {
+    this._dialogRef.close();
+  }
+
   public submit(): void {
     if (this.form.invalid) {
       return showAllFormErrorsOnSubmit(this.form);
     }
 
-    console.log(this.form.value);
+    const maintenanceId = this.maintenanceId();
+
+    if (!maintenanceId) return;
+
+    this._equipmentService
+      .updateMaintenanceRecord(maintenanceId, {
+        maintenanceDate: this.form.value.date!,
+        notes: this.form.value.notes!,
+        cost: this.form.value.cost!
+      })
+      .subscribe({
+        next: () => {
+          this._dialogRef.close('success');
+        },
+        error: () => {
+          this.throwErrorToast(
+            'Error updating maintenance record. Please try again.'
+          );
+        }
+      });
   }
 }

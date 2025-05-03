@@ -59,13 +59,13 @@ export class EquipmentService {
     }
 
     const newMaintenanceRecord = this._equipmentMaintenanceRepo.create({
-      equipment,
       ...maintenanceData,
+      equipment: {
+        id: equipmentId,
+      },
     });
 
-    (equipment.maintenanceRecords || []).push(newMaintenanceRecord);
-
-    await this._equipmentRepo.save(equipment);
+    await this._equipmentMaintenanceRepo.save(newMaintenanceRecord);
 
     return newMaintenanceRecord;
   }

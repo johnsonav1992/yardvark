@@ -16,6 +16,7 @@ import { ButtonModule } from 'primeng/button';
 import { DialogService } from 'primeng/dynamicdialog';
 import { EquipmentMaintenanceAddEditModalComponent } from '../../../components/equipment/equipment-maintenance-add-edit-modal/equipment-maintenance-add-edit-modal.component';
 import { EquipmentMaintenance } from '../../../types/equipment.types';
+import { injectErrorToast } from '../../../utils/toastUtils';
 
 @Component({
   selector: 'equipment-view',
@@ -39,6 +40,7 @@ export class EquipmentViewComponent {
   private _equipmentService = inject(EquipmentService);
   private _route = inject(ActivatedRoute);
   private _dialogService = inject(DialogService);
+  public throwErrorToast = injectErrorToast();
 
   public isMobile = this._globalUiService.isMobile;
 
@@ -88,6 +90,19 @@ export class EquipmentViewComponent {
     dialogRef.onClose.subscribe((result) => {
       if (result === 'success') {
         this._equipmentService.equipment.reload();
+      }
+    });
+  }
+
+  public deleteMaintenanceRecord(maintenanceId: number): void {
+    this._equipmentService.deleteMaintenanceRecord(maintenanceId).subscribe({
+      next: () => {
+        this._equipmentService.equipment.reload();
+      },
+      error: () => {
+        this.throwErrorToast(
+          'Error deleting maintenance record. Please try again.'
+        );
       }
     });
   }

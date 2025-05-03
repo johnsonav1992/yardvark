@@ -1,6 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { apiUrl, postReq, putReq } from '../utils/httpUtils';
+import { apiUrl, deleteReq, postReq, putReq } from '../utils/httpUtils';
 import { Equipment, EquipmentMaintenance } from '../types/equipment.types';
 
 @Injectable({
@@ -21,5 +21,9 @@ export class EquipmentService {
     newData: Partial<EquipmentMaintenance>
   ) {
     return putReq(apiUrl(`equipment/maintenance/${maintenanceId}`), newData);
+  }
+
+  public deleteMaintenanceRecord(maintenanceId: number) {
+    return deleteReq(apiUrl(`equipment/maintenance/${maintenanceId}`));
   }
 }

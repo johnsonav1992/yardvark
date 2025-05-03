@@ -75,7 +75,7 @@
                     severity="danger"
                     outlined
                     rounded
-                    (click)="('')"
+                    (click)="deleteMaintenanceRecord(record.id)"
                   />
                 </div>
               </td>
@@ -83,7 +83,15 @@
           </ng-template>
           <ng-template pTemplate="footer">
             <tr>
-              <td colspan="4" style="text-align: right">
+              <td
+                colspan="4"
+                style="
+                  text-align: right;
+                  border-bottom: none;
+                  padding: 0;
+                  padding-top: 1rem;
+                "
+              >
                 <p-button
                   icon="ti ti-plus"
                   label="Add Record"

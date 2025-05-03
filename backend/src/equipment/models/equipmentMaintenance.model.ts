@@ -4,6 +4,7 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { Equipment } from './equipment.model';
 
@@ -28,6 +29,7 @@ export class EquipmentMaintenance {
   updatedAt?: Date;
 
   @Column({ nullable: true })
+  @DeleteDateColumn()
   deletedAt?: Date;
 
   @ManyToOne(() => Equipment, (equipment) => equipment.maintenanceRecords, {

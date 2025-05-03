@@ -17,6 +17,11 @@ export class EquipmentService {
     return this._equipmentRepo.find({
       where: { userId },
       relations: { maintenanceRecords: true },
+      order: {
+        maintenanceRecords: {
+          maintenanceDate: 'DESC',
+        },
+      },
     });
   }
 

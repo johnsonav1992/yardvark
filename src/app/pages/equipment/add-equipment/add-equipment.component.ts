@@ -20,7 +20,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { injectUserData } from '../../../utils/authUtils';
 import { EquipmentService } from '../../../services/equipment.service';
 import { DatePickerModule } from 'primeng/datepicker';
-import { Equipment, EquipmentFormData } from '../../../types/equipment.types';
+import { EquipmentFormData } from '../../../types/equipment.types';
 
 @Component({
   selector: 'add-equipment',

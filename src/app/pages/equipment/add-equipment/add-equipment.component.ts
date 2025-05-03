@@ -19,6 +19,7 @@ import { GlobalUiService } from '../../../services/global-ui.service';
 import { CheckboxModule } from 'primeng/checkbox';
 import { injectUserData } from '../../../utils/authUtils';
 import { EquipmentService } from '../../../services/equipment.service';
+import { DatePickerModule } from 'primeng/datepicker';
 
 @Component({
   selector: 'add-equipment',
@@ -31,7 +32,8 @@ import { EquipmentService } from '../../../services/equipment.service';
     ButtonModule,
     SelectModule,
     ReactiveFormsModule,
-    CheckboxModule
+    CheckboxModule,
+    DatePickerModule
   ],
   templateUrl: './add-equipment.component.html',
   styleUrl: './add-equipment.component.scss'
@@ -81,6 +83,8 @@ export class AddEquipmentComponent {
       return showAllFormErrorsOnSubmit(this.form);
     }
 
-    this.isLoading.set(true);
+    // this.isLoading.set(true);
+
+    console.log(this.form.value);
   }
 }

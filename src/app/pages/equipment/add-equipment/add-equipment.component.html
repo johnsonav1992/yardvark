@@ -49,92 +49,46 @@
         </ng-template>
       </p-fileUpload>
     </div>
-    <!-- <div class="grouped-bottom-section">
-      <div class="input-container">
-        Coverage amount
-        <p-inputNumber
-          [mode]="'decimal'"
-          [min]="0"
-          [max]="10000"
-          [showButtons]="true"
-          [style]="{ width: '100%' }"
-          formControlName="coverageAmount"
-        />
-      </div>
-      <div class="input-container">
-        Coverage unit
-        <p-select
-          [options]="coverageUnits"
-          [style]="{ width: '100%' }"
-          formControlName="coverageUnit"
-        />
-      </div>
-    </div>
     <div class="grouped-bottom-section">
       <div class="input-container">
-        Application rate
-        <input
-          pInputText
-          placeholder="3lb/1000sqft"
-          formControlName="applicationRate"
+        Purchase date
+        <p-datePicker
+          formControlName="purchaseDate"
+          id="purchaseDate"
+          showIcon
+          [style]="{ width: '100%' }"
         />
-        @if (form.controls.applicationRate.hasError("invalidApplicationRate")) {
-          <small class="error">
-            Invalid application rate format. Must be
-            (amount)(unit)/(amount)sqft.
-          </small>
-        }
       </div>
       <div class="input-container">
-        Application method
-        <p-select
-          [options]="applicationMethods"
+        Purchase price
+        <p-inputNumber
+          mode="currency"
+          currency="USD"
+          locale="en-US"
+          [min]="0"
+          [max]="9999999"
           [style]="{ width: '100%' }"
-          formControlName="applicationMethod"
+          formControlName="purchasePrice"
         />
       </div>
     </div>
     <div class="input-container">
-      Guaranteed analysis
+      Serial number
       <input
         pInputText
-        placeholder="N-P-K (i.e. 7-0-20) | N/A if none"
         [style]="{ width: '100%' }"
-        formControlName="guaranteedAnalysis"
-      />
-      @if (form.controls.guaranteedAnalysis.hasError("invalidAnalysis")) {
-        <small class="error">
-          Invalid guaranteed analysis format. Use "N/A" if none.
-        </small>
-      }
-    </div>
-    <div class="input-container">
-      Category
-      <p-select
-        [options]="productCategories"
-        [placeholder]="'Select a category'"
-        [style]="{ width: '100%' }"
-        formControlName="category"
+        formControlName="serialNumber"
       />
     </div>
     <div class="input-container">
-      Quantity unit
-      <p-select
-        [options]="quantityUnits"
-        [placeholder]="'Unit of measure for the product'"
+      Fuel type
+      <input
+        pInputText
         [style]="{ width: '100%' }"
-        formControlName="quantityUnit"
+        placeholder="Gasoline, Diesel, Battery, etc."
+        formControlName="fuelType"
       />
     </div>
-    <div class="input-container">
-      Container type
-      <p-select
-        [options]="containerTypes"
-        [placeholder]="'Select a container type'"
-        [style]="{ width: '100%' }"
-        formControlName="containerType"
-      />
-    </div> -->
     <div class="button-container">
       <p-button
         label="Cancel"

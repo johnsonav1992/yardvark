@@ -1,0 +1,111 @@
+.form-container {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+  gap: 1rem;
+
+  .inner-form-container {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+
+    .top-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      width: 100%;
+    }
+  }
+
+  .grouped-bottom-section {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .button-container {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    align-items: center;
+
+    .master-user-controls {
+      margin-right: auto;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+  }
+}
+
+.input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+:host::ng-deep .p-fileupload-content {
+  height: 100% !important;
+}
+
+:host::ng-deep .p-fileupload-header {
+  display: none !important;
+}
+
+:host::ng-deep .p-fileupload-content {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  p-progressbar {
+    display: none !important;
+  }
+}
+
+:host::ng-deep .p-fileupload-file-list {
+  flex-direction: row;
+  justify-content: center;
+  max-height: 100%;
+  max-width: 100%;
+}
+
+:host::ng-deep .p-fileupload {
+  width: 100%;
+  height: 370px;
+  display: flex;
+  flex-direction: column;
+}
+
+.file-image {
+  max-height: 100%;
+  max-width: 250px;
+
+  &.mobile {
+    max-width: 100%;
+  }
+}
+
+.trash-button {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+}
+
+.empty-file {
+  width: 100%;
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+
+  .upload-icon {
+    font-size: 5rem;
+    color: var(--p-surface-300);
+  }
+}

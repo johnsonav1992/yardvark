@@ -11,6 +11,7 @@ import { AddProductComponent } from './pages/products/add-product/add-product.co
 import { authGuard } from './guards/auth.guard';
 import { ProductViewComponent } from './pages/products/product-view/product-view.component';
 import { EquipmentViewComponent } from './pages/equipment/equipment-view/equipment-view.component';
+import { AddEquipmentComponent } from './pages/equipment/add-equipment/add-equipment.component';
 
 export const mainRoutes: Routes = [
   {
@@ -59,13 +60,18 @@ export const mainRoutes: Routes = [
     canActivate: [authGuard]
   },
   {
-    path: 'equipment',
-    component: EquipmentComponent,
+    path: 'equipment/add',
+    component: AddEquipmentComponent,
     canActivate: [authGuard]
   },
   {
     path: 'equipment/:equipmentId',
     component: EquipmentViewComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'equipment',
+    component: EquipmentComponent,
     canActivate: [authGuard]
   },
   {

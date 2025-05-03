@@ -20,6 +20,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { injectUserData } from '../../../utils/authUtils';
 import { EquipmentService } from '../../../services/equipment.service';
 import { DatePickerModule } from 'primeng/datepicker';
+import { Equipment, EquipmentFormData } from '../../../types/equipment.types';
 
 @Component({
   selector: 'add-equipment',
@@ -83,8 +84,29 @@ export class AddEquipmentComponent {
       return showAllFormErrorsOnSubmit(this.form);
     }
 
-    // this.isLoading.set(true);
+    this.isLoading.set(true);
 
-    console.log(this.form.value);
+    const newEquipment: EquipmentFormData = {
+      name: this.form.value.name!,
+      brand: this.form.value.brand!,
+      model: this.form.value.model!,
+      description: this.form.value.description!,
+      serialNumber: this.form.value.serialNumber!,
+      purchaseDate: this.form.value.purchaseDate!,
+      purchasePrice: this.form.value.purchasePrice!,
+      fuelType: this.form.value.fuelType!,
+      image: this.form.value.image!
+    };
+
+    this._equipmentService.createEquipment(newEquipment).subscribe({
+      next: () => {
+        this.isLoading.set(false);
+        this._equipmentService.equipment.reload();
+        this.back();
+      },
+      error: () => {
+        this.throwErrorToast('Error creating equipment');
+      }
+    });
   }
 }

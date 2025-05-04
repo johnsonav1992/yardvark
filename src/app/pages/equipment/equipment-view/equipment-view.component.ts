@@ -22,6 +22,7 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { EquipmentMaintenanceAddEditModalComponent } from '../../../components/equipment/equipment-maintenance-add-edit-modal/equipment-maintenance-add-edit-modal.component';
 import { EquipmentMaintenance } from '../../../types/equipment.types';
 import { injectErrorToast } from '../../../utils/toastUtils';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'equipment-view',
@@ -46,7 +47,7 @@ export class EquipmentViewComponent {
   private _route = inject(ActivatedRoute);
   private _dialogService = inject(DialogService);
   private _router = inject(Router);
-  private _location = inject(Location);
+  private _confirmationService = inject(ConfirmationService);
   public throwErrorToast = injectErrorToast();
 
   public isMobile = this._globalUiService.isMobile;
@@ -98,6 +99,18 @@ export class EquipmentViewComponent {
       if (result === 'success') {
         this._equipmentService.equipment.reload();
       }
+    });
+  }
+
+  public openConfirmDelete(): void {
+    this._confirmationService.confirm({
+      message: 'Are you sure you want to delete this equipment?',
+      header: 'Delete Equipment',
+      icon: 'ti ti-alert-triangle',
+      accept: () => {
+        this.deleteEquipment();
+      },
+      reject: () => {}
     });
   }
 

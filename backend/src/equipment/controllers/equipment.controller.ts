@@ -101,6 +101,11 @@ export class EquipmentController {
     );
   }
 
+  @Delete(':equipmentId')
+  deleteEquipment(@Param('equipmentId') equipmentId: number) {
+    return this._equipmentService.deleteEquipment(equipmentId);
+  }
+
   @Delete('maintenance/:maintenanceId')
   deleteMaintenanceRecord(@Param('maintenanceId') maintenanceId: number) {
     return this._equipmentService.deleteMaintenanceRecord(maintenanceId);

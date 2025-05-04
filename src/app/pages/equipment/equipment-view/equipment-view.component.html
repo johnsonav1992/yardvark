@@ -1,4 +1,15 @@
 <page-container [pageTitle]="equipment()?.name || ''">
+  <ng-template #action1>
+    <p-button icon="ti ti-pencil" outlined severity="secondary" />
+  </ng-template>
+  <ng-template #action2>
+    <p-button
+      icon="ti ti-trash"
+      outlined
+      severity="danger"
+      (onClick)="deleteEquipment()"
+    />
+  </ng-template>
   <div class="main-container">
     @if (isLoading()) {
       <loading-spinner />

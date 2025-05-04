@@ -99,6 +99,16 @@ export class EquipmentService {
     return this._equipmentMaintenanceRepo.save(updated);
   }
 
+  async deleteEquipment(equipmentId: number): Promise<void> {
+    const equipment = await this.findEquipmentById(equipmentId);
+
+    if (!equipment) {
+      throw new HttpException('Equipment not found', HttpStatus.NOT_FOUND);
+    }
+
+    await this._equipmentRepo.softDelete(equipmentId);
+  }
+
   async deleteMaintenanceRecord(maintenanceId: number): Promise<void> {
     const maintenanceRecord = await this._equipmentMaintenanceRepo.findOne({
       where: { id: maintenanceId },

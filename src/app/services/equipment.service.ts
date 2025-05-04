@@ -43,6 +43,10 @@ export class EquipmentService {
     return putReq(apiUrl(`equipment/maintenance/${maintenanceId}`), newData);
   }
 
+  public deleteEquipment(equipmentId: number) {
+    return deleteReq(apiUrl(`equipment/${equipmentId}`));
+  }
+
   public deleteMaintenanceRecord(maintenanceId: number) {
     return deleteReq(apiUrl(`equipment/maintenance/${maintenanceId}`));
   }

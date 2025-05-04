@@ -5,10 +5,15 @@ import { DividerModule } from 'primeng/divider';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { EquipmentService } from '../../../services/equipment.service';
 import { DividerDesignTokens } from '@primeng/themes/types/divider';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
-import { CurrencyPipe, DatePipe, TitleCasePipe } from '@angular/common';
+import {
+  CurrencyPipe,
+  DatePipe,
+  Location,
+  TitleCasePipe
+} from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { CardDesignTokens } from '@primeng/themes/types/card';
@@ -40,6 +45,8 @@ export class EquipmentViewComponent {
   private _equipmentService = inject(EquipmentService);
   private _route = inject(ActivatedRoute);
   private _dialogService = inject(DialogService);
+  private _router = inject(Router);
+  private _location = inject(Location);
   public throwErrorToast = injectErrorToast();
 
   public isMobile = this._globalUiService.isMobile;
@@ -90,6 +97,18 @@ export class EquipmentViewComponent {
     dialogRef.onClose.subscribe((result) => {
       if (result === 'success') {
         this._equipmentService.equipment.reload();
+      }
+    });
+  }
+
+  public deleteEquipment(): void {
+    this._equipmentService.deleteEquipment(this.equipmentId()!).subscribe({
+      next: () => {
+        this._router.navigate(['/equipment']);
+        this._equipmentService.equipment.reload();
+      },
+      error: () => {
+        this.throwErrorToast('Error deleting equipment. Please try again.');
       }
     });
   }

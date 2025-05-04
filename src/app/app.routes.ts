@@ -60,6 +60,12 @@ export const mainRoutes: Routes = [
     canActivate: [authGuard]
   },
   {
+    path: 'equipment',
+    component: EquipmentComponent,
+    canActivate: [authGuard],
+    pathMatch: 'full'
+  },
+  {
     path: 'equipment/add',
     component: AddEquipmentComponent,
     canActivate: [authGuard]
@@ -67,11 +73,6 @@ export const mainRoutes: Routes = [
   {
     path: 'equipment/:equipmentId',
     component: EquipmentViewComponent,
-    canActivate: [authGuard]
-  },
-  {
-    path: 'equipment',
-    component: EquipmentComponent,
     canActivate: [authGuard]
   },
   {

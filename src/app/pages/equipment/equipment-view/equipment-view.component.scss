@@ -2,16 +2,16 @@
   display: flex;
   flex-direction: column;
 
+  img {
+    border: 1px solid var(--p-surface-300);
+    border-radius: 0.5rem;
+  }
+
   .top-container {
     display: flex;
     gap: 1rem;
     width: 100%;
     margin-bottom: 2rem;
-
-    img {
-      border: 1px solid var(--p-surface-300);
-      border-radius: 0.5rem;
-    }
 
     .top-details {
       display: flex;
@@ -30,4 +30,17 @@
     gap: 0.5rem;
     justify-content: flex-end;
   }
+}
+
+.maintenance-title-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.mobile-card-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
 }

@@ -23,6 +23,7 @@ import { EquipmentMaintenanceAddEditModalComponent } from '../../../components/e
 import { EquipmentMaintenance } from '../../../types/equipment.types';
 import { injectErrorToast } from '../../../utils/toastUtils';
 import { ConfirmationService } from 'primeng/api';
+import { ButtonDesignTokens } from '@primeng/themes/types/button';
 
 @Component({
   selector: 'equipment-view',
@@ -145,8 +146,20 @@ export class EquipmentViewComponent {
     }
   };
 
+  public mobileBottomDividerDt: DividerDesignTokens = {
+    horizontal: {
+      margin: '0 0 .75rem 0'
+    }
+  };
+
   public cardDt: CardDesignTokens = {
     root: { shadow: '0 0 2px rgba(0, 0, 0, 0.3)' },
     body: { padding: '1rem .75rem 1.5rem .75rem' }
+  };
+
+  public mobileAddMaintenanceButtonDt: ButtonDesignTokens = {
+    root: {
+      iconOnlyWidth: '1.75rem'
+    }
   };
 }

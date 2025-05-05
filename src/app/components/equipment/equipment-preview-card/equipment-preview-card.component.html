@@ -3,7 +3,17 @@
   (click)="goToEquipment()"
 >
   <ng-template #title>
-    <h2>{{ equipment().brand }} {{ equipment().name }}</h2>
+    <div class="title-wrapper">
+      <h3>{{ equipment().brand }} {{ equipment().name }}</h3>
+      <p-button
+        icon="ti ti-hammer"
+        outlined
+        rounded
+        severity="secondary"
+        pTooltip="Add maintenance record"
+        (onClick)="openMaintenanceRecordModal($event, equipment().id)"
+      />
+    </div>
   </ng-template>
   <div class="content-container">
     <div class="img-desc">
@@ -13,7 +23,7 @@
         class="equipment-img"
       />
       <div class="inner-content">
-        <p class="desc">{{ equipment().description }}</p>
+        <p>{{ equipment().description }}</p>
         <p>
           <em> Last maintenance: </em>
           @if (equipment().maintenanceRecords.length > 0) {
@@ -27,15 +37,5 @@
         </p>
       </div>
     </div>
-  </div>
-  <div class="button-wrapper">
-    <p-button
-      icon="ti ti-hammer"
-      outlined
-      rounded
-      severity="secondary"
-      pTooltip="Add maintenance record"
-      (onClick)="openMaintenanceRecordModal($event, equipment().id)"
-    />
   </div>
 </p-card>

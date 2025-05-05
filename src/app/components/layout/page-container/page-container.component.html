@@ -1,15 +1,25 @@
 <div class="main-container" [style]="{ gap: gap() }">
   <div class="title-container">
-    @if (!hideBackButton()) {
-      <p-button
-        icon="ti ti-arrow-left"
-        (click)="back()"
-        size="small"
-        outlined
-        severity="secondary"
-      />
-    }
-    <h1>{{ pageTitle() }}</h1>
+    <div class="inner-title">
+      @if (!hideBackButton()) {
+        <p-button
+          icon="ti ti-arrow-left"
+          (click)="back()"
+          size="small"
+          outlined
+          severity="secondary"
+        />
+      }
+      <h1>{{ pageTitle() }}</h1>
+    </div>
+    <div class="actions">
+      @if (action1()) {
+        <ng-container [ngTemplateOutlet]="action1()!"></ng-container>
+      }
+      @if (action2()) {
+        <ng-container [ngTemplateOutlet]="action2()!"></ng-container>
+      }
+    </div>
   </div>
   <ng-content></ng-content>
 </div>

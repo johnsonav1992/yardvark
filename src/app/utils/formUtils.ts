@@ -1,4 +1,4 @@
-import { ValidatorFn } from '@angular/forms';
+import { FormGroup, ValidatorFn } from '@angular/forms';
 
 export const GUARANTEED_ANALYSIS_FORMAT_REGEX =
   /^([0-9]|[1-9][0-9]|100)-([0-9]|[1-9][0-9]|100)-([0-9]|[1-9][0-9]|100)$/;
@@ -28,4 +28,10 @@ export const applicationRateFieldValidator: ValidatorFn = (control) => {
   }
 
   return null;
+};
+
+export const showAllFormErrorsOnSubmit = (form: FormGroup) => {
+  Object.entries(form.controls).forEach(([_, ctrl]) => ctrl.markAsDirty());
+
+  return form.markAllAsTouched();
 };

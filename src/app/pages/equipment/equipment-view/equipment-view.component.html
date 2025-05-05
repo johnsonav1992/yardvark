@@ -1,0 +1,173 @@
+<page-container [pageTitle]="equipment()?.name || ''">
+  <!-- <ng-template #action1>
+    <p-button icon="ti ti-pencil" outlined severity="secondary" />
+  </ng-template> -->
+  <ng-template #action2>
+    <p-button
+      icon="ti ti-trash"
+      outlined
+      severity="danger"
+      (onClick)="openConfirmDelete()"
+    />
+  </ng-template>
+  <div class="main-container">
+    @if (isLoading()) {
+      <loading-spinner />
+    } @else {
+      @if (isMobile()) {
+        <img
+          [src]="equipment()?.imageUrl"
+          alt="{{ equipment()?.name }}"
+          width="60%"
+          [style]="{ alignSelf: 'center', marginBottom: '1rem' }"
+        />
+      }
+      <div class="top-container">
+        @if (!isMobile()) {
+          <img
+            [src]="equipment()?.imageUrl"
+            alt="{{ equipment()?.name }}"
+            width="40%"
+          />
+        }
+        <div class="top-details">
+          <div class="name-container">
+            <h2>{{ equipment()?.name }}</h2>
+            <h3>{{ equipment()?.brand }}</h3>
+          </div>
+          <p>{{ equipment()?.description }}</p>
+          <p-divider [dt]="dividerDt" />
+          <p><strong>Brand:</strong> {{ equipment()?.brand | titlecase }}</p>
+          <p>
+            <strong>Model:</strong>
+            {{ equipment()?.model | titlecase }}
+          </p>
+          <p>
+            <strong>Purchase Date:</strong>
+            {{ (equipment()?.purchaseDate | date: "M/dd/yyyy") || "N/A" }}
+          </p>
+          <p>
+            <strong>Purchase Price:</strong>
+            {{ (equipment()?.purchasePrice | currency) || "N/A" }}
+          </p>
+          <p>
+            <strong>Fuel Type:</strong>
+            {{ equipment()?.fuelType | titlecase }}
+          </p>
+        </div>
+      </div>
+      <div class="maintenance-title-container">
+        <h3 [style]="{ marginBottom: '.75rem' }">Maintenance History</h3>
+        @if (isMobile()) {
+          <p-button
+            icon="ti ti-plus"
+            (click)="openEquipmentModal()"
+            rounded
+            size="small"
+            [dt]="mobileAddMaintenanceButtonDt"
+          />
+        }
+      </div>
+      @if (isMobile()) {
+        <p-divider [dt]="mobileBottomDividerDt" />
+        @for (record of equipment()?.maintenanceRecords; track record.id) {
+          <p-card>
+            <div class="mobile-card-top-row">
+              {{
+                (record.maintenanceDate | date: "M/dd/yyyy") +
+                  (record.cost ? " - " + (record.cost | currency) : "")
+              }}
+              <div class="action-buttons">
+                <p-button
+                  icon="ti ti-pencil"
+                  severity="secondary"
+                  outlined
+                  rounded
+                  (click)="openEquipmentModal(record)"
+                />
+                <p-button
+                  icon="ti ti-trash"
+                  severity="danger"
+                  outlined
+                  rounded
+                  (click)="deleteMaintenanceRecord(record.id)"
+                />
+              </div>
+            </div>
+            <p>{{ record.notes }}</p>
+          </p-card>
+        } @empty {
+          <div [style]="{ margin: '.75rem' }">
+            No Records found. Click on the button to add a new record.
+          </div>
+        }
+      } @else {
+        <ng-container [ngTemplateOutlet]="table"></ng-container>
+      }
+    }
+  </div>
+</page-container>
+
+<ng-template #table>
+  <p-card [dt]="cardDt">
+    <p-table [value]="equipment()?.maintenanceRecords || []">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Service Date</th>
+          <th>Service Cost</th>
+          <th>Notes</th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-record>
+        <tr>
+          <td>{{ record.maintenanceDate | date: "M/dd/yyyy" }}</td>
+          <td>{{ (record.cost | currency) || "N/A" }}</td>
+          <td>{{ record.notes }}</td>
+          <td>
+            <div class="action-buttons">
+              <p-button
+                icon="ti ti-pencil"
+                severity="secondary"
+                outlined
+                rounded
+                (click)="openEquipmentModal(record)"
+              />
+              <p-button
+                icon="ti ti-trash"
+                severity="danger"
+                outlined
+                rounded
+                (click)="deleteMaintenanceRecord(record.id)"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <tr>
+          <td
+            colspan="4"
+            style="
+              text-align: right;
+              border-bottom: none;
+              padding: 0;
+              padding-top: 1rem;
+            "
+          >
+            <p-button
+              icon="ti ti-plus"
+              label="Add Record"
+              (click)="openEquipmentModal()"
+            />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <div [style]="{ margin: '.75rem' }">
+          No Records found. Click on the button to add a new record.
+        </div>
+      </ng-template>
+    </p-table>
+  </p-card>
+</ng-template>

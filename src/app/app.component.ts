@@ -9,6 +9,7 @@ import LogRocket from 'logrocket';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { LoadingSpinnerComponent } from './components/miscellanious/loading-spinner/loading-spinner.component';
 import { environment } from '../environments/environment';
+import { ConfirmDialog } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +18,8 @@ import { environment } from '../environments/environment';
     MainHeaderComponent,
     MainSideNavComponent,
     ToastModule,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    ConfirmDialog
   ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'

@@ -16,18 +16,12 @@
       display: flex;
       flex-direction: column;
       gap: 0.25rem;
-
-      .desc {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
     }
   }
 }
 
-.button-wrapper {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
+.title-wrapper {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: space-between;
 }

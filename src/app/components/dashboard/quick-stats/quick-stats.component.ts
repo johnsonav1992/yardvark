@@ -7,6 +7,7 @@ import { getLawnSeasonCompletedPercentage } from '../../../utils/lawnSeasonUtils
 import { ProgressBarModule } from 'primeng/progressbar';
 import { DividerModule } from 'primeng/divider';
 import { DividerDesignTokens } from '@primeng/themes/types/divider';
+import { GlobalUiService } from '../../../services/global-ui.service';
 
 @Component({
   selector: 'quick-stats',
@@ -17,6 +18,9 @@ import { DividerDesignTokens } from '@primeng/themes/types/divider';
 export class QuickStatsComponent {
   private _entriesService = inject(EntriesService);
   private _settingsService = inject(SettingsService);
+  private _globalUiService = inject(GlobalUiService);
+
+  public isMobile = this._globalUiService.isMobile;
 
   public lastMowDate = this._entriesService.lastMow;
   public lastEntry = this._entriesService.recentEntry;
@@ -24,7 +28,7 @@ export class QuickStatsComponent {
   public daysSinceLastMow = computed(() => {
     const lastMowDate = this.lastMowDate.value()?.lastMowDate;
 
-    if (!lastMowDate) return null;
+    if (!lastMowDate) return 'N/A';
 
     const daysSince = differenceInDays(new Date(), new Date(lastMowDate));
 
@@ -34,7 +38,7 @@ export class QuickStatsComponent {
   public daysSinceLastEntry = computed(() => {
     const lastEntry = this.lastEntry.value();
 
-    if (!lastEntry) return null;
+    if (!lastEntry) return 'N/A';
 
     const daysSince = differenceInDays(new Date(), new Date(lastEntry.date));
 
@@ -45,7 +49,7 @@ export class QuickStatsComponent {
     const lastProductAppDate =
       this._entriesService.lastProductApp.value()?.lastProductAppDate;
 
-    if (!lastProductAppDate) return null;
+    if (!lastProductAppDate) return 'N/A';
 
     const daysSince = differenceInDays(
       new Date(),
@@ -60,7 +64,13 @@ export class QuickStatsComponent {
 
     if (grassType === 'cool') return null;
 
-    return getLawnSeasonCompletedPercentage();
+    const progressPercentage = getLawnSeasonCompletedPercentage();
+
+    if (progressPercentage < 0 || progressPercentage > 100) {
+      return null;
+    }
+
+    return progressPercentage;
   });
 
   public dividerDt: DividerDesignTokens = {

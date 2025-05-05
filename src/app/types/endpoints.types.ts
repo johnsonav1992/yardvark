@@ -23,5 +23,7 @@ type ProductsRoutes = 'products';
 type UsersRoutes = 'users';
 type EquipmentRoutes =
   | 'equipment'
+  | `equipment/${number}`
   | `equipment/${number}/maintenance`
-  | 'equipment/maintenance';
+  | 'equipment/maintenance'
+  | `equipment/maintenance/${number}`;

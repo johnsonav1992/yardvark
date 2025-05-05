@@ -17,6 +17,11 @@ export class EquipmentService {
     return this._equipmentRepo.find({
       where: { userId },
       relations: { maintenanceRecords: true },
+      order: {
+        maintenanceRecords: {
+          maintenanceDate: 'DESC',
+        },
+      },
     });
   }
 
@@ -59,15 +64,49 @@ export class EquipmentService {
     }
 
     const newMaintenanceRecord = this._equipmentMaintenanceRepo.create({
-      equipment,
       ...maintenanceData,
+      equipment: {
+        id: equipmentId,
+      },
     });
 
-    equipment.maintenanceRecords.push(newMaintenanceRecord);
-
-    await this._equipmentRepo.save(equipment);
+    await this._equipmentMaintenanceRepo.save(newMaintenanceRecord);
 
     return newMaintenanceRecord;
+  }
+
+  async updateMaintenanceRecord(
+    maintenanceId: number,
+    maintenanceData: Partial<EquipmentMaintenance>,
+  ): Promise<EquipmentMaintenance> {
+    const maintenanceRecord = await this._equipmentMaintenanceRepo.findOne({
+      where: { id: maintenanceId },
+    });
+
+    if (!maintenanceRecord) {
+      throw new HttpException(
+        'Maintenance record not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const updated: EquipmentMaintenance = {
+      ...maintenanceRecord,
+      ...maintenanceData,
+      updatedAt: new Date(),
+    };
+
+    return this._equipmentMaintenanceRepo.save(updated);
+  }
+
+  async deleteEquipment(equipmentId: number): Promise<void> {
+    const equipment = await this.findEquipmentById(equipmentId);
+
+    if (!equipment) {
+      throw new HttpException('Equipment not found', HttpStatus.NOT_FOUND);
+    }
+
+    await this._equipmentRepo.softDelete(equipmentId);
   }
 
   async deleteMaintenanceRecord(maintenanceId: number): Promise<void> {

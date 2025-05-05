@@ -1,4 +1,4 @@
-<page-container pageTitle="Equipment" [hideBackButton]="true">
+<page-container pageTitle="Equipment">
   @if (equipment.isLoading()) {
     <loading-spinner />
   } @else {
@@ -16,4 +16,14 @@
       </p-card>
     }
   }
+  <p-button
+    icon="ti ti-layout-grid-add"
+    class="add-equipment-button"
+    rounded
+    raised
+    size="large"
+    [dt]="addButtonDt"
+    [pTooltip]="isMobile() ? '' : 'Add equipment'"
+    (click)="navToAddEquipment()"
+  />
 </page-container>

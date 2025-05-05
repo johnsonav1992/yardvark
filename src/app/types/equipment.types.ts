@@ -27,3 +27,15 @@ export type EquipmentMaintenance = {
   deletedAt?: Date;
   equipmentId?: number;
 };
+
+export type EquipmentFormData = {
+  name: string;
+  brand: string;
+  model: string;
+  description: string;
+  serialNumber: string;
+  purchaseDate: Date | null;
+  purchasePrice: number | null;
+  fuelType: string;
+  image: File | null;
+};

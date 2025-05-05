@@ -1,0 +1,17 @@
+{
+  "name": "yardvark",
+  "short_name": "yardvark",
+  "theme_color": "#64a40b",
+  "background_color": "#fafafa",
+  "display": "standalone",
+  "scope": "./",
+  "start_url": "./",
+  "icons": [
+    {
+      "src": "icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ]
+}

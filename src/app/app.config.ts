@@ -1,7 +1,7 @@
 import {
   ApplicationConfig,
   provideAppInitializer,
-  provideExperimentalZonelessChangeDetection
+  provideExperimentalZonelessChangeDetection, isDevMode
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
@@ -16,6 +16,7 @@ import { authInterceptor } from './interceptors/auth.interceptor';
 import { initHttpUtils } from './utils/httpUtils';
 import { YV_DARK_MODE_SELECTOR } from './constants/style-constants';
 import { environment } from '../environments/environment';
+import { provideServiceWorker } from '@angular/service-worker';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -41,6 +42,12 @@ export const appConfig: ApplicationConfig = {
     }),
     provideAppInitializer(() => initHttpUtils()),
     MessageService,
-    ConfirmationService
+    ConfirmationService, provideServiceWorker('ngsw-worker.js', {
+            enabled: !isDevMode(),
+            registrationStrategy: 'registerWhenStable:30000'
+          }), provideServiceWorker('ngsw-worker.js', {
+            enabled: !isDevMode(),
+            registrationStrategy: 'registerWhenStable:30000'
+          })
   ]
 };

@@ -3,6 +3,10 @@
   flex-direction: column;
   margin-bottom: 1rem;
 
+  @media screen and (max-width: 768px) {
+    margin-bottom: 4rem;
+  }
+
   .title-container {
     display: flex;
     gap: 0.5rem;

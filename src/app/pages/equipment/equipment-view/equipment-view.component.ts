@@ -12,6 +12,7 @@ import {
   CurrencyPipe,
   DatePipe,
   Location,
+  NgTemplateOutlet,
   TitleCasePipe
 } from '@angular/common';
 import { TableModule } from 'primeng/table';
@@ -36,7 +37,8 @@ import { ButtonDesignTokens } from '@primeng/themes/types/button';
     CurrencyPipe,
     TableModule,
     CardModule,
-    ButtonModule
+    ButtonModule,
+    NgTemplateOutlet
   ],
   templateUrl: './equipment-view.component.html',
   styleUrl: './equipment-view.component.scss',

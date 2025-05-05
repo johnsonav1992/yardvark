@@ -58,45 +58,51 @@
       </div>
       <div class="maintenance-title-container">
         <h3 [style]="{ marginBottom: '.75rem' }">Maintenance History</h3>
-        <p-button
-          icon="ti ti-plus"
-          (click)="openEquipmentModal()"
-          rounded
-          size="small"
-          [dt]="mobileAddMaintenanceButtonDt"
-        />
+        @if (isMobile()) {
+          <p-button
+            icon="ti ti-plus"
+            (click)="openEquipmentModal()"
+            rounded
+            size="small"
+            [dt]="mobileAddMaintenanceButtonDt"
+          />
+        }
       </div>
-      <p-divider [dt]="mobileBottomDividerDt" />
-      @for (record of equipment()?.maintenanceRecords; track record.id) {
-        <p-card>
-          <div class="mobile-card-top-row">
-            {{
-              (record.maintenanceDate | date: "M/dd/yyyy") +
-                (record.cost ? " - " + (record.cost | currency) : "")
-            }}
-            <div class="action-buttons">
-              <p-button
-                icon="ti ti-pencil"
-                severity="secondary"
-                outlined
-                rounded
-                (click)="openEquipmentModal(record)"
-              />
-              <p-button
-                icon="ti ti-trash"
-                severity="danger"
-                outlined
-                rounded
-                (click)="deleteMaintenanceRecord(record.id)"
-              />
+      @if (isMobile()) {
+        <p-divider [dt]="mobileBottomDividerDt" />
+        @for (record of equipment()?.maintenanceRecords; track record.id) {
+          <p-card>
+            <div class="mobile-card-top-row">
+              {{
+                (record.maintenanceDate | date: "M/dd/yyyy") +
+                  (record.cost ? " - " + (record.cost | currency) : "")
+              }}
+              <div class="action-buttons">
+                <p-button
+                  icon="ti ti-pencil"
+                  severity="secondary"
+                  outlined
+                  rounded
+                  (click)="openEquipmentModal(record)"
+                />
+                <p-button
+                  icon="ti ti-trash"
+                  severity="danger"
+                  outlined
+                  rounded
+                  (click)="deleteMaintenanceRecord(record.id)"
+                />
+              </div>
             </div>
+            <p>{{ record.notes }}</p>
+          </p-card>
+        } @empty {
+          <div [style]="{ margin: '.75rem' }">
+            No Records found. Click on the button to add a new record.
           </div>
-          <p>{{ record.notes }}</p>
-        </p-card>
-      } @empty {
-        <div [style]="{ margin: '.75rem' }">
-          No Records found. Click on the button to add a new record.
-        </div>
+        }
+      } @else {
+        <ng-container [ngTemplateOutlet]="table"></ng-container>
       }
     }
   </div>

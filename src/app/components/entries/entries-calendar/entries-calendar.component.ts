@@ -6,6 +6,7 @@ import {
   inject,
   input,
   linkedSignal,
+  model,
   output,
   signal,
   TemplateRef
@@ -21,6 +22,11 @@ import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loa
 import { DoubleTapDirective } from '../../../directives/double-tap.directive';
 import { SwipeDirective } from '../../../directives/swipe.directive';
 import { EntrySearchSidebarComponent } from '../entry-search-sidebar/entry-search-sidebar.component';
+import { ButtonDesignTokens } from '@primeng/themes/types/button';
+import { PopoverModule } from 'primeng/popover';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { FormsModule } from '@angular/forms';
+import { SettingsService } from '../../../services/settings.service';
 
 @Component({
   selector: 'entries-calendar',
@@ -34,13 +40,17 @@ import { EntrySearchSidebarComponent } from '../entry-search-sidebar/entry-searc
     LoadingSpinnerComponent,
     DoubleTapDirective,
     SwipeDirective,
-    EntrySearchSidebarComponent
+    EntrySearchSidebarComponent,
+    PopoverModule,
+    ToggleSwitchModule,
+    FormsModule
   ]
 })
 export class EntriesCalendarComponent {
   private _router = inject(Router);
   private _location = inject(Location);
   private _globalUiService = inject(GlobalUiService);
+  private _settingsService = inject(SettingsService);
 
   public isMobile = this._globalUiService.isMobile;
   public isDarkMode = this._globalUiService.isDarkMode;
@@ -56,6 +66,7 @@ export class EntriesCalendarComponent {
   public markerTpl =
     contentChild<TemplateRef<{ $implicit: CalendarMarkerData[] }>>('marker');
   public mobileDateSelected = input<Date | null>(null);
+  public mode = model<'calendar' | 'list'>('calendar');
 
   public monthChange = output<Date>();
   public daySelected = output<DaySelectedEvent>();
@@ -114,9 +125,23 @@ export class EntriesCalendarComponent {
     this.isEntrySearchSidebarOpen.set(true);
   }
 
+  public updateViewMode(e: boolean): void {
+    const newMode = e ? 'list' : 'calendar';
+
+    this.mode.set(newMode);
+
+    this._settingsService.updateSetting('entryView', newMode);
+  }
+
   public back(): void {
     this._location.back();
   }
+
+  public textButtonDt = computed<ButtonDesignTokens>(() => ({
+    root: {
+      iconOnlyWidth: this.isMobile() ? '1.75rem' : '3rem'
+    }
+  }));
 }
 
 export type CalendarMarkerData<TData = unknown> = {

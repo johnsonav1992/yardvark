@@ -25,11 +25,14 @@ export class LocationService {
     }).pipe(map((response) => response.features));
   }
 
-  public userLatLong = linkedSignal<LatLong | null>(() => {
-    const location = this._settingsService.currentSettings()?.location;
+  public userLatLong = linkedSignal<LatLong | null>(
+    () => {
+      const location = this._settingsService.currentSettings()?.location;
 
-    return location ? { lat: location.lat, long: location.long } : null;
-  });
+      return location ? { lat: location.lat, long: location.long } : null;
+    },
+    { equal: (a, b) => a?.lat === b?.lat && a?.long === b?.long }
+  );
 
   public getLatLongFromCurrentPosition(): Observable<LatLong | null> {
     return new Observable((observer) => {

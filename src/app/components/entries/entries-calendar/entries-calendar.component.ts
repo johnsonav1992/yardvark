@@ -77,7 +77,7 @@ export class EntriesCalendarComponent {
     this._dateQuery() ? new Date(this._dateQuery()!) : startOfToday()
   );
   protected currentMonth = computed(() =>
-    format(this.currentDate(), 'MMMM yyyy')
+    format(this.currentDate(), this.isMobile() ? 'MMM yyyy' : 'MMMM yyyy')
   );
 
   public days = computed(() =>

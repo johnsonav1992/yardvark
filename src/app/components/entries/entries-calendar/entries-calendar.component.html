@@ -11,12 +11,31 @@
       <h2 class="month-title">
         {{ currentMonth() }}
       </h2>
-      <p-button
-        icon="ti ti-search"
-        rounded
-        text
-        (onClick)="openEntrySearchSidebar()"
-      />
+      <div [style.display]="'flex'" [style.alignItems]="'center'">
+        <p-button
+          icon="ti ti-search"
+          rounded
+          text
+          [dt]="textButtonDt()"
+          (onClick)="openEntrySearchSidebar()"
+        />
+        <p-button
+          icon="ti ti-settings"
+          rounded
+          text
+          [dt]="textButtonDt()"
+          (click)="settingsPopover.show($event)"
+        />
+        <p-popover #settingsPopover [dismissable]="true">
+          <div class="depth-overlay-inner">
+            <p>List Mode</p>
+            <p-toggleSwitch
+              [ngModel]="mode"
+              (ngModelChange)="mode.set($event ? 'list' : 'calendar')"
+            />
+          </div>
+        </p-popover>
+      </div>
       @if (isLoadingData()) {
         <loading-spinner [size]="'xs'" />
       }
@@ -44,83 +63,88 @@
     />
   </div>
 </header>
-<div class="calendar-day-names-container">
-  @for (item of dayNamesFormatted; track item.dayName) {
-    <div
-      [style.color]="item.isToday ? 'inherit' : 'var(--p-surface-400)'"
-      [style.fontWeight]="item.isToday ? '500' : '400'"
-    >
-      {{ item.dayName }}
-    </div>
-  }
-</div>
-<div
-  class="calendar-grid"
-  swipeDetection
-  (onSwipeLeft)="nextMonth()"
-  (onSwipeRight)="prevMonth()"
->
-  @for (day of days(); track day.date) {
-    @let isSelectedDateSameAsThisDate =
-      mobileDateSelected()?.getDate() === day.date.getDate();
+@if (mode() === "calendar") {
+  <div class="calendar-day-names-container">
+    @for (item of dayNamesFormatted; track item.dayName) {
+      <div
+        [style.color]="item.isToday ? 'inherit' : 'var(--p-surface-400)'"
+        [style.fontWeight]="item.isToday ? '500' : '400'"
+      >
+        {{ item.dayName }}
+      </div>
+    }
+  </div>
+  <div
+    class="calendar-grid"
+    swipeDetection
+    (onSwipeLeft)="nextMonth()"
+    (onSwipeRight)="prevMonth()"
+  >
+    @for (day of days(); track day.date) {
+      @let isSelectedDateSameAsThisDate =
+        mobileDateSelected()?.getDate() === day.date.getDate();
 
-    <div
-      class="day"
-      [class.mobile]="isMobile()"
-      [class.dark-mode]="isDarkMode()"
-      [style.gridColumnStart]="day.gridColumnStart"
-      [style.color]="day.isToday ? 'white' : 'var(--p-surface-400)'"
-      [style.fontWeight]="day.isToday ? '500' : '400'"
-      [style.cursor]="'pointer'"
-      [style.backgroundColor]="
-        isSelectedDateSameAsThisDate
-          ? isDarkMode()
-            ? 'var(--p-surface-600)'
-            : 'var(--p-surface-200)'
-          : ''
-      "
-      (click)="selectDay(day.date, 'normal')"
-      doubleTap
-      (onDoubleTap)="selectDay(day.date, 'double-tap')"
-    >
-      @if (!isMobile()) {
-        <div class="marker-container">
-          @if (markerTpl(); as markerTpl) {
-            <ng-container
-              *ngTemplateOutlet="markerTpl; context: { $implicit: day.markers }"
-            ></ng-container>
-          }
-        </div>
-      } @else {
-        @if (day.markers.length > 0) {
-          <div
-            class="mobile-markers-indicator"
-            [style.backgroundColor]="
-              isSelectedDateSameAsThisDate ? 'var(--p-primary-400)' : ''
-            "
-          ></div>
-          @if (day.markers.length > 1) {
-            <p class="additional-count">+{{ day.markers.length - 1 }}</p>
-          }
-        }
-      }
-      <footer
-        class="day-number"
+      <div
+        class="day"
         [class.mobile]="isMobile()"
         [class.dark-mode]="isDarkMode()"
+        [style.gridColumnStart]="day.gridColumnStart"
+        [style.color]="day.isToday ? 'white' : 'var(--p-surface-400)'"
+        [style.fontWeight]="day.isToday ? '500' : '400'"
+        [style.cursor]="'pointer'"
         [style.backgroundColor]="
-          day.isToday
+          isSelectedDateSameAsThisDate
             ? isDarkMode()
-              ? 'var(--p-primary-600) !important'
-              : 'var(--p-primary-500)'
-            : 'white'
+              ? 'var(--p-surface-600)'
+              : 'var(--p-surface-200)'
+            : ''
         "
-        [style.color]="day.isToday ? 'white' : 'inherit'"
+        (click)="selectDay(day.date, 'normal')"
+        doubleTap
+        (onDoubleTap)="selectDay(day.date, 'double-tap')"
       >
-        {{ day.date | date: "d" }}
-      </footer>
-    </div>
-  }
-</div>
+        @if (!isMobile()) {
+          <div class="marker-container">
+            @if (markerTpl(); as markerTpl) {
+              <ng-container
+                *ngTemplateOutlet="
+                  markerTpl;
+                  context: { $implicit: day.markers }
+                "
+              ></ng-container>
+            }
+          </div>
+        } @else {
+          @if (day.markers.length > 0) {
+            <div
+              class="mobile-markers-indicator"
+              [style.backgroundColor]="
+                isSelectedDateSameAsThisDate ? 'var(--p-primary-400)' : ''
+              "
+            ></div>
+            @if (day.markers.length > 1) {
+              <p class="additional-count">+{{ day.markers.length - 1 }}</p>
+            }
+          }
+        }
+        <footer
+          class="day-number"
+          [class.mobile]="isMobile()"
+          [class.dark-mode]="isDarkMode()"
+          [style.backgroundColor]="
+            day.isToday
+              ? isDarkMode()
+                ? 'var(--p-primary-600) !important'
+                : 'var(--p-primary-500)'
+              : 'white'
+          "
+          [style.color]="day.isToday ? 'white' : 'inherit'"
+        >
+          {{ day.date | date: "d" }}
+        </footer>
+      </div>
+    }
+  </div>
+}
 
 <entry-search-sidebar [(isOpen)]="isEntrySearchSidebarOpen" />

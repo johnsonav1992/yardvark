@@ -89,6 +89,7 @@ export class EntryLogComponent implements OnInit {
 
   public currentDate = signal(new Date());
   public selectedMobileDateToView = signal<Date | null>(null);
+  public viewMode = signal<'calendar' | 'list'>('calendar');
 
   public selectedMobileDateEntries = linkedSignal({
     source: this.selectedMobileDateToView,
@@ -132,6 +133,24 @@ export class EntryLogComponent implements OnInit {
   public entries = this._entriesService.getMonthEntriesResource(
     this.currentDate
   );
+
+  public listViewEntries = linkedSignal({
+    source: this.entries.value,
+    computation: (entries) => {
+      if (entries) {
+        return entries.map((entry) => {
+          const time = entry.time
+            ? (convertTimeStringToDate(entry.time) as Date)
+            : '';
+          return {
+            ...entry,
+            time: time ? format(time, 'hh:mm a') : ''
+          };
+        });
+      }
+      return null;
+    }
+  });
 
   public ngOnInit(): void {
     if (this.isCreateOnOpen()) {

@@ -3,6 +3,7 @@
     [markers]="dayMarkers()"
     [isLoadingData]="entries.isLoading()"
     [mobileDateSelected]="selectedMobileDateToView()"
+    [(mode)]="viewMode"
     (monthChange)="changeMonths($event)"
     (daySelected)="selectDay($event)"
   >
@@ -22,10 +23,24 @@
       }
     </ng-template>
   </entries-calendar>
-  @if (isMobile()) {
+  @if (isMobile() || viewMode() === "list") {
     <p-divider />
+    @if (viewMode() === "list") {
+      <div class="list-entries-container">
+        @for (entry of listViewEntries(); track entry.id) {
+          <mobile-entry-preview-card [entry]="entry" />
+        } @empty {
+          @if (!entries.isLoading()) {
+            <p class="small-text">
+              No entries for this month. Click the button below to create a new
+              entry.
+            </p>
+          }
+        }
+      </div>
+    }
     @if (selectedMobileDateToView()) {
-      <div class="mobile-entries-container">
+      <div class="list-entries-container">
         @for (
           selectedEntry of selectedMobileDateEntries();
           track selectedEntry.id
@@ -37,7 +52,7 @@
           </p>
         }
       </div>
-    } @else {
+    } @else if (isMobile() && viewMode() !== "list") {
       <p class="small-text">
         Tap on a date to view entries or click the button below to create a new
         entry.

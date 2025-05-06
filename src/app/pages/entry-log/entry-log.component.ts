@@ -254,12 +254,12 @@ export class EntryLogComponent implements OnInit {
     }
   };
 
-  public addButtonDt: ButtonDesignTokens = {
+  public addButtonDt = computed<ButtonDesignTokens>(() => ({
     root: {
-      iconOnlyWidth: '5rem',
+      iconOnlyWidth: this.isMobile() ? '4rem' : '5rem',
       lg: {
-        fontSize: '36px'
+        fontSize: this.isMobile() ? '28px' : '36px'
       }
     }
-  };
+  }));
 }

@@ -26,7 +26,7 @@
   @if (isMobile() || viewMode() === "list") {
     <p-divider />
     @if (viewMode() === "list") {
-      <div class="list-entries-container">
+      <div class="list-entries-container" [style.paddingBottom]="'3rem'">
         @for (entry of listViewEntries(); track entry.id) {
           <mobile-entry-preview-card [entry]="entry" />
         } @empty {
@@ -38,8 +38,7 @@
           }
         }
       </div>
-    }
-    @if (selectedMobileDateToView()) {
+    } @else if (selectedMobileDateToView()) {
       <div class="list-entries-container">
         @for (
           selectedEntry of selectedMobileDateEntries();

@@ -26,6 +26,7 @@ import { ButtonDesignTokens } from '@primeng/themes/types/button';
 import { PopoverModule } from 'primeng/popover';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { FormsModule } from '@angular/forms';
+import { SettingsService } from '../../../services/settings.service';
 
 @Component({
   selector: 'entries-calendar',
@@ -49,6 +50,7 @@ export class EntriesCalendarComponent {
   private _router = inject(Router);
   private _location = inject(Location);
   private _globalUiService = inject(GlobalUiService);
+  private _settingsService = inject(SettingsService);
 
   public isMobile = this._globalUiService.isMobile;
   public isDarkMode = this._globalUiService.isDarkMode;
@@ -121,6 +123,14 @@ export class EntriesCalendarComponent {
 
   public openEntrySearchSidebar(): void {
     this.isEntrySearchSidebarOpen.set(true);
+  }
+
+  public updateViewMode(e: boolean): void {
+    const newMode = e ? 'list' : 'calendar';
+
+    this.mode.set(newMode);
+
+    this._settingsService.updateSetting('entryView', newMode);
   }
 
   public back(): void {

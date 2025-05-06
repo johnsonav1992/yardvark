@@ -30,8 +30,8 @@
           <div class="depth-overlay-inner">
             <p>List Mode</p>
             <p-toggleSwitch
-              [ngModel]="mode"
-              (ngModelChange)="mode.set($event ? 'list' : 'calendar')"
+              [ngModel]="mode() === 'list'"
+              (ngModelChange)="updateViewMode($event)"
             />
           </div>
         </p-popover>

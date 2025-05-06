@@ -31,6 +31,8 @@ import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { convertTimeStringToDate } from '../../utils/timeUtils';
 import { MobileEntryPreviewCardComponent } from '../../components/entries/mobile-entry-preview-card/mobile-entry-preview-card.component';
+import { SettingsService } from '../../services/settings.service';
+import { SettingsData } from '../../../../backend/src/settings/models/settings.types';
 
 @Component({
   selector: 'entry-log',
@@ -54,6 +56,7 @@ export class EntryLogComponent implements OnInit {
   private _dialogService = inject(DialogService);
   private _entriesService = inject(EntriesService);
   private _globalUiService = inject(GlobalUiService);
+  private _settingsService = inject(SettingsService);
 
   public isCreateOnOpen = toSignal(
     this._activatedRoute.queryParams.pipe(
@@ -89,7 +92,12 @@ export class EntryLogComponent implements OnInit {
 
   public currentDate = signal(new Date());
   public selectedMobileDateToView = signal<Date | null>(null);
-  public viewMode = signal<'calendar' | 'list'>('calendar');
+  public viewMode = linkedSignal<SettingsData | undefined, 'calendar' | 'list'>(
+    {
+      source: this._settingsService.currentSettings,
+      computation: (settings) => settings?.entryView || 'calendar'
+    }
+  );
 
   public selectedMobileDateEntries = linkedSignal({
     source: this.selectedMobileDateToView,

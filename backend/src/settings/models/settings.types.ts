@@ -19,6 +19,10 @@ export type SettingsData = {
     lat: number;
     long: number;
   };
+  /**
+   * current settings for the entry log view
+   */
+  entryView: 'calendar' | 'list';
 };
 
 export type SettingsResponse = {

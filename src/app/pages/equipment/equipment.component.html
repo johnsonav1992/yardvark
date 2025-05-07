@@ -1,7 +1,12 @@
 <page-container pageTitle="Equipment">
   <ng-template #action1>
-    <p-floatlabel variant="on">
-      <p-iconfield>
+    <p-floatlabel
+      variant="on"
+      [style.marginLeft]="'auto'"
+      [style.width]="isMobile() ? '60%' : ''"
+    >
+      <p-iconfield iconPosition="left">
+        <p-inputicon styleClass="ti ti-search" />
         <input
           id="search"
           type="text"
@@ -10,7 +15,6 @@
           [disabled]="!equipment.hasValue()"
           [(ngModel)]="searchQuery"
         />
-        <p-inputicon styleClass="ti ti-search" />
       </p-iconfield>
       <label for="search">Search</label>
     </p-floatlabel>

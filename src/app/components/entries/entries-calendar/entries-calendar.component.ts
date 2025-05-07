@@ -101,11 +101,15 @@ export class EntriesCalendarComponent {
   public nextMonth() {
     this.currentDate.set(addMonths(this.currentDate(), 1));
     this.monthChange.emit(this.currentDate());
+
+    this.navToMonth();
   }
 
   public prevMonth() {
     this.currentDate.set(subMonths(this.currentDate(), 1));
     this.monthChange.emit(this.currentDate());
+
+    this.navToMonth();
   }
 
   public toCurrentMonth(): void {
@@ -135,6 +139,13 @@ export class EntriesCalendarComponent {
 
   public back(): void {
     this._location.back();
+  }
+
+  private navToMonth() {
+    this._router.navigate([], {
+      queryParams: { date: format(this.currentDate(), 'yyyy-MM-dd') },
+      queryParamsHandling: 'merge'
+    });
   }
 
   public textButtonDt = computed<ButtonDesignTokens>(() => ({

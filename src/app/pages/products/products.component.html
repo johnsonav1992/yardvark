@@ -1,4 +1,24 @@
 <page-container pageTitle="Products">
+  <ng-template #action1>
+    <p-floatlabel
+      variant="on"
+      [style.marginLeft]="'auto'"
+      [style.width]="isMobile() ? '60%' : ''"
+    >
+      <p-iconfield iconPosition="left">
+        <p-inputicon styleClass="ti ti-search" />
+        <input
+          id="search"
+          type="text"
+          pInputText
+          [style.width]="'100%'"
+          [disabled]="!products.hasValue()"
+          [(ngModel)]="searchQuery"
+        />
+      </p-iconfield>
+      <label for="search">Search</label>
+    </p-floatlabel>
+  </ng-template>
   <p-tabs
     [value]="selectedTab()"
     scrollable

@@ -1,37 +1,76 @@
 <page-container pageTitle="Products">
-  <p-tabs
-    [value]="selectedTab()"
-    scrollable
-    (valueChange)="onTabChange($event)"
-  >
-    <p-tablist>
-      @for (tab of tabs; track tab.value) {
-        <p-tab [value]="tab.value">{{ tab.title }}</p-tab>
-      }
-    </p-tablist>
-    <p-tabpanels>
-      @for (tab of tabs; track tab.value) {
-        <p-tabpanel [value]="tab.value">
-          @if (products.isLoading()) {
-            <div class="loading-container">
-              <loading-spinner />
-            </div>
-          } @else {
-            <div
-              class="cards-container"
-              [style.justify-content]="isMobile() ? 'center' : ''"
-            >
-              @for (product of productsToShow(); track product.id) {
-                <product-card [product]="product" />
-              } @empty {
-                <empty-message message="No products found for this category" />
-              }
-            </div>
-          }
-        </p-tabpanel>
-      }
-    </p-tabpanels>
-  </p-tabs>
+  <ng-template #action1>
+    <p-floatlabel
+      variant="on"
+      [style.marginLeft]="'auto'"
+      [style.width]="isMobile() ? '60%' : ''"
+    >
+      <p-iconfield iconPosition="left">
+        <p-inputicon styleClass="ti ti-search" />
+        <input
+          id="search"
+          type="text"
+          pInputText
+          [style.width]="'100%'"
+          [disabled]="!products.hasValue()"
+          [(ngModel)]="searchQuery"
+        />
+      </p-iconfield>
+      <label for="search">Search</label>
+    </p-floatlabel>
+  </ng-template>
+  @if (searchQuery()) {
+    <div class="outer-search-res-container">
+      <h3>Search results</h3>
+      <p-divider />
+      <div
+        class="cards-container"
+        [style.justify-content]="isMobile() ? 'center' : ''"
+      >
+        @for (product of filteredProducts(); track product.id) {
+          <product-card [product]="product" />
+        } @empty {
+          <empty-message message="No products found for this search" />
+        }
+      </div>
+    </div>
+  } @else {
+    <p-tabs
+      [value]="selectedTab()"
+      scrollable
+      (valueChange)="onTabChange($event)"
+    >
+      <p-tablist>
+        @for (tab of tabs; track tab.value) {
+          <p-tab [value]="tab.value">{{ tab.title }}</p-tab>
+        }
+      </p-tablist>
+      <p-tabpanels>
+        @for (tab of tabs; track tab.value) {
+          <p-tabpanel [value]="tab.value">
+            @if (products.isLoading()) {
+              <div class="loading-container">
+                <loading-spinner />
+              </div>
+            } @else {
+              <div
+                class="cards-container"
+                [style.justify-content]="isMobile() ? 'center' : ''"
+              >
+                @for (product of productsToShow(); track product.id) {
+                  <product-card [product]="product" />
+                } @empty {
+                  <empty-message
+                    message="No products found for this category"
+                  />
+                }
+              </div>
+            }
+          </p-tabpanel>
+        }
+      </p-tabpanels>
+    </p-tabs>
+  }
   <p-button
     icon="ti ti-layout-grid-add"
     class="speed-dial"

@@ -16,6 +16,8 @@ export class MobileEntryPreviewCardComponent {
   public entry = input.required<Entry>();
 
   public navigateToEntry(entry: Entry): void {
-    this._router.navigate(['entry-log', entry.id]);
+    this._router.navigate(['entry-log', entry.id], {
+      queryParams: { date: new Date(entry.date).toISOString() }
+    });
   }
 }

@@ -12,6 +12,12 @@ import { TooltipModule } from 'primeng/tooltip';
 import { Router } from '@angular/router';
 import { GlobalUiService } from '../../services/global-ui.service';
 import { LoadingSpinnerComponent } from '../../components/miscellanious/loading-spinner/loading-spinner.component';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { FormsModule } from '@angular/forms';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
   selector: 'products',
@@ -22,7 +28,13 @@ import { LoadingSpinnerComponent } from '../../components/miscellanious/loading-
     EmptyMessageComponent,
     ButtonModule,
     TooltipModule,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    FloatLabelModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule,
+    FormsModule,
+    DividerModule
   ],
   templateUrl: './products.component.html',
   styleUrl: './products.component.scss'
@@ -49,11 +61,29 @@ export class ProductsComponent {
   public products = this._productsService.products;
 
   public selectedTab = signal<Uncapitalize<ProductCategories>>('fertilizer');
+  public searchQuery = signal('');
 
   public productsToShow = computed(() => {
     return this.products
       .value()
       ?.filter((product) => product.category === this.selectedTab());
+  });
+
+  public filteredProducts = computed(() => {
+    return this.products
+      .value()
+      ?.filter(
+        (product) =>
+          product.name
+            .toLowerCase()
+            .includes(this.searchQuery().toLowerCase()) ||
+          product.description
+            ?.toLowerCase()
+            .includes(this.searchQuery().toLowerCase()) ||
+          product.guaranteedAnalysis
+            ?.toLowerCase()
+            .includes(this.searchQuery().toLowerCase())
+      );
   });
 
   public onTabChange(tab: string | number): void {

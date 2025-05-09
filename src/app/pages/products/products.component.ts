@@ -17,6 +17,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
   selector: 'products',
@@ -32,7 +33,8 @@ import { FormsModule } from '@angular/forms';
     IconFieldModule,
     InputIconModule,
     InputTextModule,
-    FormsModule
+    FormsModule,
+    DividerModule
   ],
   templateUrl: './products.component.html',
   styleUrl: './products.component.scss'
@@ -65,6 +67,23 @@ export class ProductsComponent {
     return this.products
       .value()
       ?.filter((product) => product.category === this.selectedTab());
+  });
+
+  public filteredProducts = computed(() => {
+    return this.products
+      .value()
+      ?.filter(
+        (product) =>
+          product.name
+            .toLowerCase()
+            .includes(this.searchQuery().toLowerCase()) ||
+          product.description
+            ?.toLowerCase()
+            .includes(this.searchQuery().toLowerCase()) ||
+          product.guaranteedAnalysis
+            ?.toLowerCase()
+            .includes(this.searchQuery().toLowerCase())
+      );
   });
 
   public onTabChange(tab: string | number): void {

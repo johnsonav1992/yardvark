@@ -1,2 +1,4 @@
 <i class="ti ti-info-circle" [style]="{ fontSize: iconSize() || '10rem' }"></i>
-<h4 [style.font-size]="messageFontSize() || ''">{{ message() }}</h4>
+<h4 [style.font-size]="messageFontSize() || ''" [style.textAlign]="'center'">
+  {{ message() }}
+</h4>

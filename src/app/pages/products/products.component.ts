@@ -105,6 +105,14 @@ export class ProductsComponent {
   }
 
   public hideProduct(productId: number): void {
+    const currentProductsState = this.productsToShow();
+
+    this._productsService.hideProduct(productId).subscribe({
+      error: () => {
+        this.productsToShow.set(currentProductsState);
+      }
+    });
+
     this.productsToShow.update((products) => {
       if (!products) return [];
 

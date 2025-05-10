@@ -9,7 +9,10 @@ import { TabsModule } from 'primeng/tabs';
 import { Tab } from '../../types/components.types';
 import { Product, ProductCategories } from '../../types/products.types';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
-import { ProductCardComponent } from '../../components/products/product-card/product-card.component';
+import {
+  ProductCardComponent,
+  ProductVisibilityToggleEvent
+} from '../../components/products/product-card/product-card.component';
 import { EmptyMessageComponent } from '../../components/miscellanious/empty-message/empty-message.component';
 import { ProductsService } from '../../services/products.service';
 import { ButtonModule } from 'primeng/button';
@@ -99,10 +102,10 @@ export class ProductsComponent {
     this.selectedTab.set(selectedTab);
   }
 
-  public hideProduct(productId: number): void {
+  public toggleProductVisibility(e: ProductVisibilityToggleEvent): void {
     const currentProductsState = this.productsToShow();
 
-    this._productsService.hideProduct(productId).subscribe({
+    this._productsService.hideProduct(e.id).subscribe({
       error: () => {
         this.products.set(currentProductsState);
         this.ghostProducts.set(currentProductsState);
@@ -114,7 +117,7 @@ export class ProductsComponent {
 
       return products.map((product) => ({
         ...product,
-        isHidden: product.id === productId || product.isHidden
+        isHidden: product.id === e.id || product.isHidden
       }));
     });
 
@@ -124,7 +127,7 @@ export class ProductsComponent {
       return products
         .map((product) => ({
           ...product,
-          isHidden: product.id === productId || product.isHidden
+          isHidden: product.id === e.id || product.isHidden
         }))
         .filter((product) => !product.isHidden);
     });

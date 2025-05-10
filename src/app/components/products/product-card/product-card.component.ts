@@ -1,7 +1,7 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { Product } from '../../../types/products.types';
+import { Product, ProductWithVisibility } from '../../../types/products.types';
 import { TooltipModule } from 'primeng/tooltip';
 import { NO_IMAGE_URL } from '../../../constants/style-constants';
 import { Router } from '@angular/router';
@@ -20,9 +20,9 @@ export class ProductCardComponent {
   private _globalUiService = inject(GlobalUiService);
   public user = injectUserData();
 
-  public product = input.required<Product>();
+  public product = input.required<ProductWithVisibility>();
 
-  public onHideProduct = output<Product['id']>();
+  public onToggleProductVisibility = output<ProductVisibilityToggleEvent>();
 
   public noImageUrl = NO_IMAGE_URL;
   public isMobile = this._globalUiService.isMobile;
@@ -32,7 +32,15 @@ export class ProductCardComponent {
     this._router.navigate(['products', this.product().id]);
   }
 
-  public hideProduct(): void {
-    this.onHideProduct.emit(this.product().id);
+  public toggleProductVisibility(): void {
+    this.onToggleProductVisibility.emit({
+      id: this.product().id,
+      visible: !this.product().isHidden
+    });
   }
 }
+
+export type ProductVisibilityToggleEvent = {
+  id: Product['id'];
+  visible: boolean;
+};

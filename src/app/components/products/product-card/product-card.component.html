@@ -21,13 +21,15 @@
       </div>
       <div class="hide-container">
         @if (isMobile()) {
-          <small>Hide</small>
+          <small>{{ product().isHidden ? "Unhide" : "Hide" }}</small>
         }
         <i
-          class="ti ti-eye-off"
-          pTooltip="Hide product"
+          [class]="product().isHidden ? 'ti ti-eye' : 'ti ti-eye-off'"
+          pTooltip="{{
+            product().isHidden ? 'Unhide product' : 'Hide product'
+          }}"
           [style.cursor]="'pointer'"
-          (click)="hideProduct()"
+          (click)="toggleProductVisibility()"
         ></i>
       </div>
     </div>

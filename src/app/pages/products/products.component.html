@@ -38,7 +38,7 @@
         @for (product of filteredProducts(); track product.id) {
           <product-card
             [product]="product"
-            (onHideProduct)="hideProduct($event)"
+            (onToggleProductVisibility)="toggleProductVisibility($event)"
           />
         } @empty {
           <empty-message message="No products found for this search" />
@@ -71,7 +71,9 @@
                 @for (product of productsToShow(); track product.id) {
                   <product-card
                     [product]="product"
-                    (onHideProduct)="hideProduct($event)"
+                    (onToggleProductVisibility)="
+                      toggleProductVisibility($event)
+                    "
                   />
                 } @empty {
                   <empty-message

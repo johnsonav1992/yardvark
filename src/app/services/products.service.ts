@@ -33,4 +33,8 @@ export class ProductsService {
   public hideProduct(productId: number): Observable<void> {
     return putReq(apiUrl('products/hide', { params: [productId] }), {});
   }
+
+  public unHideProduct(productId: number): Observable<void> {
+    return putReq(apiUrl('products/unhide', { params: [productId] }), {});
+  }
 }

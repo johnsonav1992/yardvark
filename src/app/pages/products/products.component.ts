@@ -72,19 +72,19 @@ export class ProductsComponent {
   ];
 
   public products = this._productsService.products;
-  public ghostProducts = linkedSignal(() => this.products.value());
+  public optimisticProducts = linkedSignal(() => this.products.value());
 
   public selectedTab = signal<Uncapitalize<ProductCategories>>('fertilizer');
   public searchQuery = signal('');
 
   public productsToShow = linkedSignal(() => {
-    return this.ghostProducts()?.filter(
+    return this.optimisticProducts()?.filter(
       (product) => product.category === this.selectedTab() && !product.isHidden
     );
   });
 
   public filteredProducts = linkedSignal(() => {
-    return this.ghostProducts()?.filter(
+    return this.optimisticProducts()?.filter(
       (product) =>
         product.name.toLowerCase().includes(this.searchQuery().toLowerCase()) ||
         product.description
@@ -108,7 +108,7 @@ export class ProductsComponent {
     this._productsService.hideProduct(e.id).subscribe({
       error: () => {
         this.products.set(currentProductsState);
-        this.ghostProducts.set(currentProductsState);
+        this.optimisticProducts.set(currentProductsState);
       }
     });
 
@@ -121,7 +121,7 @@ export class ProductsComponent {
       }));
     });
 
-    this.ghostProducts.update((products) => {
+    this.optimisticProducts.update((products) => {
       if (!products) return [];
 
       return products

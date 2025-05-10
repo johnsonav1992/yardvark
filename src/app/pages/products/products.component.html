@@ -19,6 +19,14 @@
       <label for="search">Search</label>
     </p-floatlabel>
   </ng-template>
+  <ng-template #action2>
+    <p-button
+      rounded
+      outlined
+      icon="ti ti-eye"
+      (onClick)="openHiddenProductsModal()"
+    />
+  </ng-template>
   @if (searchQuery()) {
     <div class="outer-search-res-container">
       <h3>Search results</h3>

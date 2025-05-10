@@ -129,6 +129,8 @@ export class ProductsComponent {
     this._router.navigate(['products', 'add']);
   }
 
+  public openHiddenProductsModal(): void {}
+
   public addButtonDt: ButtonDesignTokens = {
     root: {
       iconOnlyWidth: this.isMobile() ? '4rem' : '5rem',

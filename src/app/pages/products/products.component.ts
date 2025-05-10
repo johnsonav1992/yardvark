@@ -24,7 +24,8 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { DividerModule } from 'primeng/divider';
-import { effectSignalLogger } from '../../utils/generalUtils';
+import { DialogService } from 'primeng/dynamicdialog';
+import { ProductsVisibilityModalComponent } from '../../components/products/products-visibility-modal/products-visibility-modal.component';
 
 @Component({
   selector: 'products',
@@ -44,12 +45,14 @@ import { effectSignalLogger } from '../../utils/generalUtils';
     DividerModule
   ],
   templateUrl: './products.component.html',
-  styleUrl: './products.component.scss'
+  styleUrl: './products.component.scss',
+  providers: [DialogService]
 })
 export class ProductsComponent {
   private _productsService = inject(ProductsService);
   private _router = inject(Router);
   private _globalUiService = inject(GlobalUiService);
+  private _dialogService = inject(DialogService);
 
   public isMobile = this._globalUiService.isMobile;
 
@@ -66,36 +69,28 @@ export class ProductsComponent {
   ];
 
   public products = this._productsService.products;
+  public ghostProducts = linkedSignal(() => this.products.value());
 
   public selectedTab = signal<Uncapitalize<ProductCategories>>('fertilizer');
   public searchQuery = signal('');
 
   public productsToShow = linkedSignal(() => {
-    return this.products
-      .value()
-      ?.filter(
-        (product) =>
-          product.category === this.selectedTab() && !product.isHidden
-      );
+    return this.ghostProducts()?.filter(
+      (product) => product.category === this.selectedTab() && !product.isHidden
+    );
   });
 
-  _ = effectSignalLogger(this.productsToShow);
-
   public filteredProducts = linkedSignal(() => {
-    return this.products
-      .value()
-      ?.filter(
-        (product) =>
-          product.name
-            .toLowerCase()
-            .includes(this.searchQuery().toLowerCase()) ||
-          product.description
-            ?.toLowerCase()
-            .includes(this.searchQuery().toLowerCase()) ||
-          product.guaranteedAnalysis
-            ?.toLowerCase()
-            .includes(this.searchQuery().toLowerCase())
-      );
+    return this.ghostProducts()?.filter(
+      (product) =>
+        product.name.toLowerCase().includes(this.searchQuery().toLowerCase()) ||
+        product.description
+          ?.toLowerCase()
+          .includes(this.searchQuery().toLowerCase()) ||
+        product.guaranteedAnalysis
+          ?.toLowerCase()
+          .includes(this.searchQuery().toLowerCase())
+    );
   });
 
   public onTabChange(tab: string | number): void {
@@ -113,7 +108,16 @@ export class ProductsComponent {
       }
     });
 
-    this.products.value?.update((products) => {
+    this.products.update((products) => {
+      if (!products) return [];
+
+      return products.map((product) => ({
+        ...product,
+        isHidden: product.id === productId || product.isHidden
+      }));
+    });
+
+    this.ghostProducts.update((products) => {
       if (!products) return [];
 
       return products
@@ -129,7 +133,26 @@ export class ProductsComponent {
     this._router.navigate(['products', 'add']);
   }
 
-  public openHiddenProductsModal(): void {}
+  public openProductsVisibilityModal(): void {
+    const dialogRef = this._dialogService.open(
+      ProductsVisibilityModalComponent,
+      {
+        header: `Hidden Products`,
+        modal: true,
+        focusOnShow: false,
+        width: '50%',
+        dismissableMask: true,
+        closable: true,
+        contentStyle: { overflow: 'visible' },
+        breakpoints: {
+          '800px': '95%'
+        },
+        maximizable: true
+      }
+    );
+
+    if (this.isMobile()) this._dialogService.getInstance(dialogRef).maximize();
+  }
 
   public addButtonDt: ButtonDesignTokens = {
     root: {

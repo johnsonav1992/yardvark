@@ -1,0 +1,5 @@
+<div class="main-container">
+  @for (product of hiddenProducts(); track product.id) {
+    <product-card [product]="product" />
+  }
+</div>

@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { Product } from '../../../types/products.types';
@@ -17,11 +17,15 @@ export class ProductCardComponent {
 
   public product = input.required<Product>();
 
+  public onHideProduct = output<Product['id']>();
+
   public noImageUrl = NO_IMAGE_URL;
 
   public viewProduct(): void {
     this._router.navigate(['products', this.product().id]);
   }
 
-  public hideProduct(): void {}
+  public hideProduct(): void {
+    this.onHideProduct.emit(this.product().id);
+  }
 }

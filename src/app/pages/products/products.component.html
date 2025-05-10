@@ -58,7 +58,10 @@
                 [style.justify-content]="isMobile() ? 'center' : ''"
               >
                 @for (product of productsToShow(); track product.id) {
-                  <product-card [product]="product" />
+                  <product-card
+                    [product]="product"
+                    (onHideProduct)="hideProduct($event)"
+                  />
                 } @empty {
                   <empty-message
                     message="No products found for this category"

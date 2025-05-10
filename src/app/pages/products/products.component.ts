@@ -1,4 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  linkedSignal,
+  signal
+} from '@angular/core';
 import { TabsModule } from 'primeng/tabs';
 import { Tab } from '../../types/components.types';
 import { ProductCategories } from '../../types/products.types';
@@ -18,6 +24,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { DividerModule } from 'primeng/divider';
+import { effectSignalLogger } from '../../utils/generalUtils';
 
 @Component({
   selector: 'products',
@@ -63,11 +70,16 @@ export class ProductsComponent {
   public selectedTab = signal<Uncapitalize<ProductCategories>>('fertilizer');
   public searchQuery = signal('');
 
-  public productsToShow = computed(() => {
+  public productsToShow = linkedSignal(() => {
     return this.products
       .value()
-      ?.filter((product) => product.category === this.selectedTab());
+      ?.filter(
+        (product) =>
+          product.category === this.selectedTab() && !product.isHidden
+      );
   });
+
+  _ = effectSignalLogger(this.productsToShow);
 
   public filteredProducts = computed(() => {
     return this.products
@@ -90,6 +102,19 @@ export class ProductsComponent {
     const selectedTab = tab as Uncapitalize<ProductCategories>;
 
     this.selectedTab.set(selectedTab);
+  }
+
+  public hideProduct(productId: number): void {
+    this.productsToShow.update((products) => {
+      if (!products) return [];
+
+      return products
+        .map((product) => ({
+          ...product,
+          isHidden: product.id === productId || product.isHidden
+        }))
+        .filter((product) => !product.isHidden);
+    });
   }
 
   public navToAddProduct(): void {

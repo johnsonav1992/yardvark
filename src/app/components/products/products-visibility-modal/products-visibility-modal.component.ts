@@ -6,6 +6,7 @@ import {
 } from '../product-card/product-card.component';
 import { tap } from 'rxjs';
 import { EmptyMessageComponent } from '../../miscellanious/empty-message/empty-message.component';
+import { GlobalUiService } from '../../../services/global-ui.service';
 
 @Component({
   selector: 'products-visibility-modal',
@@ -15,8 +16,10 @@ import { EmptyMessageComponent } from '../../miscellanious/empty-message/empty-m
 })
 export class ProductsVisibilityModalComponent {
   private _productsService = inject(ProductsService);
+  private _globalUiService = inject(GlobalUiService);
 
   public products = this._productsService.products;
+  public isMobile = this._globalUiService.isMobile;
 
   public hiddenProducts = computed(() =>
     this.products.value()?.filter((product) => product.isHidden)

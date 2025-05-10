@@ -1,4 +1,4 @@
-<div class="main-container">
+<div class="main-container" [style.max-height]="isMobile() ? '90vh' : '80vh'">
   @for (product of hiddenProducts(); track product.id) {
     <product-card
       [product]="product"

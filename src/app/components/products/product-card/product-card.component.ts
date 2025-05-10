@@ -2,7 +2,6 @@ import { Component, computed, inject, input, output } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { Product, ProductWithVisibility } from '../../../types/products.types';
-import { TooltipModule } from 'primeng/tooltip';
 import { NO_IMAGE_URL } from '../../../constants/style-constants';
 import { Router } from '@angular/router';
 import { GlobalUiService } from '../../../services/global-ui.service';
@@ -11,7 +10,7 @@ import { YVUser } from '../../../types/user.types';
 
 @Component({
   selector: 'product-card',
-  imports: [CardModule, ButtonModule, TooltipModule],
+  imports: [CardModule, ButtonModule],
   templateUrl: './product-card.component.html',
   styleUrl: './product-card.component.scss'
 })

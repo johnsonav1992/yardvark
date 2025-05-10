@@ -104,7 +104,8 @@ export class ProductsComponent {
 
     this._productsService.hideProduct(productId).subscribe({
       error: () => {
-        this.productsToShow.set(currentProductsState);
+        this.products.set(currentProductsState);
+        this.ghostProducts.set(currentProductsState);
       }
     });
 

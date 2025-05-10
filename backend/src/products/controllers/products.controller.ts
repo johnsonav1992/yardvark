@@ -4,7 +4,9 @@ import {
   Get,
   HttpException,
   HttpStatus,
+  Param,
   Post,
+  Put,
   Req,
   UploadedFile,
   UseInterceptors,
@@ -65,5 +67,15 @@ export class ProductsController {
     return this._productsService.getProducts(req.user.userId, {
       userOnly: true,
     });
+  }
+
+  @Put('hide/:productId')
+  hideProduct(@Req() req: Request, @Param('productId') productId: number) {
+    return this._productsService.hideProduct(req.user.userId, productId);
+  }
+
+  @Put('unhide/:productId')
+  unhideProduct(@Req() req: Request, @Param('productId') productId: number) {
+    return this._productsService.unhideProduct(req.user.userId, productId);
   }
 }

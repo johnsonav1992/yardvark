@@ -22,4 +22,6 @@ export class ProductCardComponent {
   public viewProduct(): void {
     this._router.navigate(['products', this.product().id]);
   }
+
+  public hideProduct(): void {}
 }

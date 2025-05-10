@@ -22,6 +22,8 @@ export type Product = {
   deletedAt?: string;
 };
 
+export type GetProductsResponse = Array<Product & { isHidden: boolean }>;
+
 export type ProductFormData = {
   name: string;
   brand: string;

@@ -8,7 +8,17 @@
       />
     </div>
   </ng-template>
-  <ng-template #title> {{ product().name }} </ng-template>
+  <ng-template #title>
+    <div style="display: flex; justify-content: space-between">
+      {{ product().name }}
+      <i
+        class="ti ti-eye-off"
+        pTooltip="Hide product"
+        [style.cursor]="'pointer'"
+        (click)="hideProduct()"
+      ></i>
+    </div>
+  </ng-template>
   <ng-template #subtitle> {{ product().brand }}</ng-template>
   <p class="desc">
     {{ product().description }}

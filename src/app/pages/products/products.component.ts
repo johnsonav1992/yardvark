@@ -7,7 +7,7 @@ import {
 } from '@angular/core';
 import { TabsModule } from 'primeng/tabs';
 import { Tab } from '../../types/components.types';
-import { ProductCategories } from '../../types/products.types';
+import { Product, ProductCategories } from '../../types/products.types';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import { ProductCardComponent } from '../../components/products/product-card/product-card.component';
 import { EmptyMessageComponent } from '../../components/miscellanious/empty-message/empty-message.component';
@@ -81,7 +81,7 @@ export class ProductsComponent {
 
   _ = effectSignalLogger(this.productsToShow);
 
-  public filteredProducts = computed(() => {
+  public filteredProducts = linkedSignal(() => {
     return this.products
       .value()
       ?.filter(
@@ -113,7 +113,7 @@ export class ProductsComponent {
       }
     });
 
-    this.productsToShow.update((products) => {
+    this.products.value?.update((products) => {
       if (!products) return [];
 
       return products

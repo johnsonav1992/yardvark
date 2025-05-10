@@ -9,14 +9,27 @@
     </div>
   </ng-template>
   <ng-template #title>
-    <div style="display: flex; justify-content: space-between">
-      {{ product().name }}
-      <i
-        class="ti ti-eye-off"
-        pTooltip="Hide product"
-        [style.cursor]="'pointer'"
-        (click)="hideProduct()"
-      ></i>
+    <div class="title-container">
+      <div class="product-name-container">
+        {{ product().name }}
+        @if (product().userId === "system" && isMasterUser()) {
+          <i
+            class="ti ti-square-letter-s"
+            [style.color]="'var(--p-primary-500)'"
+          ></i>
+        }
+      </div>
+      <div class="hide-container">
+        @if (isMobile()) {
+          <small>Hide</small>
+        }
+        <i
+          class="ti ti-eye-off"
+          pTooltip="Hide product"
+          [style.cursor]="'pointer'"
+          (click)="hideProduct()"
+        ></i>
+      </div>
     </div>
   </ng-template>
   <ng-template #subtitle> {{ product().brand }}</ng-template>

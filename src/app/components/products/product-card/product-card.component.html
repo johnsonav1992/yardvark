@@ -8,14 +8,36 @@
       />
     </div>
   </ng-template>
-  <ng-template #title> {{ product().name }} </ng-template>
+  <ng-template #title>
+    <div class="title-container">
+      <div class="product-name-container">
+        {{ product().name }}
+        @if (product().userId === "system" && isMasterUser()) {
+          <i
+            class="ti ti-square-letter-s"
+            [style.color]="'var(--p-primary-500)'"
+          ></i>
+        }
+      </div>
+      <div class="hide-container">
+        <small>{{ product().isHidden ? "Unhide" : "Hide" }}</small>
+        <i
+          [class]="product().isHidden ? 'ti ti-eye' : 'ti ti-eye-off'"
+          [style.cursor]="'pointer'"
+          (click)="toggleProductVisibility()"
+        ></i>
+      </div>
+    </div>
+  </ng-template>
   <ng-template #subtitle> {{ product().brand }}</ng-template>
   <p class="desc">
     {{ product().description }}
   </p>
-  <ng-template #footer>
-    <div class="footer">
-      <p-button label="View product" (onClick)="viewProduct()" />
-    </div>
-  </ng-template>
+  @if (!product().isHidden) {
+    <ng-template #footer>
+      <div class="footer">
+        <p-button label="View product" (onClick)="viewProduct()" />
+      </div>
+    </ng-template>
+  }
 </p-card>

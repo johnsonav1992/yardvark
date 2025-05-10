@@ -4,7 +4,7 @@ import { ChartModule } from 'primeng/chart';
 import { getFullWeekOfDayLabelsCenteredAroundCurrentDay } from '../../../utils/timeUtils';
 import { OpenMeteoQueryParams } from '../../../types/openmeteo.types';
 import { getPrimeNgHexColor } from '../../../utils/styleUtils';
-import { ChartLoaderComponent } from '../../chart-loader/chart-loader.component';
+import { ChartLoaderComponent } from '../../miscellanious/chart-loader/chart-loader.component';
 import { GlobalUiService } from '../../../services/global-ui.service';
 
 @Component({

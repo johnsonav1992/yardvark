@@ -1,9 +1,18 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  linkedSignal,
+  signal
+} from '@angular/core';
 import { TabsModule } from 'primeng/tabs';
 import { Tab } from '../../types/components.types';
-import { ProductCategories } from '../../types/products.types';
+import { Product, ProductCategories } from '../../types/products.types';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
-import { ProductCardComponent } from '../../components/products/product-card/product-card.component';
+import {
+  ProductCardComponent,
+  ProductVisibilityToggleEvent
+} from '../../components/products/product-card/product-card.component';
 import { EmptyMessageComponent } from '../../components/miscellanious/empty-message/empty-message.component';
 import { ProductsService } from '../../services/products.service';
 import { ButtonModule } from 'primeng/button';
@@ -18,6 +27,8 @@ import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule } from '@angular/forms';
 import { DividerModule } from 'primeng/divider';
+import { DialogService } from 'primeng/dynamicdialog';
+import { ProductsVisibilityModalComponent } from '../../components/products/products-visibility-modal/products-visibility-modal.component';
 
 @Component({
   selector: 'products',
@@ -37,12 +48,14 @@ import { DividerModule } from 'primeng/divider';
     DividerModule
   ],
   templateUrl: './products.component.html',
-  styleUrl: './products.component.scss'
+  styleUrl: './products.component.scss',
+  providers: [DialogService]
 })
 export class ProductsComponent {
   private _productsService = inject(ProductsService);
   private _router = inject(Router);
   private _globalUiService = inject(GlobalUiService);
+  private _dialogService = inject(DialogService);
 
   public isMobile = this._globalUiService.isMobile;
 
@@ -59,31 +72,28 @@ export class ProductsComponent {
   ];
 
   public products = this._productsService.products;
+  public optimisticProducts = linkedSignal(() => this.products.value());
 
   public selectedTab = signal<Uncapitalize<ProductCategories>>('fertilizer');
   public searchQuery = signal('');
 
-  public productsToShow = computed(() => {
-    return this.products
-      .value()
-      ?.filter((product) => product.category === this.selectedTab());
+  public productsToShow = linkedSignal(() => {
+    return this.optimisticProducts()?.filter(
+      (product) => product.category === this.selectedTab() && !product.isHidden
+    );
   });
 
-  public filteredProducts = computed(() => {
-    return this.products
-      .value()
-      ?.filter(
-        (product) =>
-          product.name
-            .toLowerCase()
-            .includes(this.searchQuery().toLowerCase()) ||
-          product.description
-            ?.toLowerCase()
-            .includes(this.searchQuery().toLowerCase()) ||
-          product.guaranteedAnalysis
-            ?.toLowerCase()
-            .includes(this.searchQuery().toLowerCase())
-      );
+  public filteredProducts = linkedSignal(() => {
+    return this.optimisticProducts()?.filter(
+      (product) =>
+        product.name.toLowerCase().includes(this.searchQuery().toLowerCase()) ||
+        product.description
+          ?.toLowerCase()
+          .includes(this.searchQuery().toLowerCase()) ||
+        product.guaranteedAnalysis
+          ?.toLowerCase()
+          .includes(this.searchQuery().toLowerCase())
+    );
   });
 
   public onTabChange(tab: string | number): void {
@@ -92,8 +102,60 @@ export class ProductsComponent {
     this.selectedTab.set(selectedTab);
   }
 
+  public toggleProductVisibility(e: ProductVisibilityToggleEvent): void {
+    const currentProductsState = this.productsToShow();
+
+    this._productsService.hideProduct(e.id).subscribe({
+      error: () => {
+        this.products.set(currentProductsState);
+        this.optimisticProducts.set(currentProductsState);
+      }
+    });
+
+    this.products.update((products) => {
+      if (!products) return [];
+
+      return products.map((product) => ({
+        ...product,
+        isHidden: product.id === e.id || product.isHidden
+      }));
+    });
+
+    this.optimisticProducts.update((products) => {
+      if (!products) return [];
+
+      return products
+        .map((product) => ({
+          ...product,
+          isHidden: product.id === e.id || product.isHidden
+        }))
+        .filter((product) => !product.isHidden);
+    });
+  }
+
   public navToAddProduct(): void {
     this._router.navigate(['products', 'add']);
+  }
+
+  public openProductsVisibilityModal(): void {
+    const dialogRef = this._dialogService.open(
+      ProductsVisibilityModalComponent,
+      {
+        header: `Hidden Products`,
+        modal: true,
+        focusOnShow: false,
+        width: '50%',
+        dismissableMask: true,
+        closable: true,
+        contentStyle: { overflow: 'visible' },
+        breakpoints: {
+          '800px': '95%'
+        },
+        maximizable: true
+      }
+    );
+
+    if (this.isMobile()) this._dialogService.getInstance(dialogRef).maximize();
   }
 
   public addButtonDt: ButtonDesignTokens = {

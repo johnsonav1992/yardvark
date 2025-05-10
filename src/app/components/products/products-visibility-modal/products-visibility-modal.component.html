@@ -1,0 +1,14 @@
+<div class="main-container" [style.max-height]="isMobile() ? '90vh' : '80vh'">
+  @for (product of hiddenProducts(); track product.id) {
+    <product-card
+      [product]="product"
+      (onToggleProductVisibility)="toggleProductVisibility($event)"
+    />
+  } @empty {
+    <empty-message
+      message="There are currently no hidden products. Click on the eye icon of a product
+      to hide it."
+      icon="ti ti-eye"
+    />
+  }
+</div>

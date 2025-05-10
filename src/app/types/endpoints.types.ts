@@ -19,7 +19,7 @@ type EntriesRoutes =
   | 'entries/last-product-app';
 type ActivitiesRoutes = 'activities';
 type LawnSegmentsRoutes = 'lawn-segments';
-type ProductsRoutes = 'products';
+type ProductsRoutes = 'products' | 'products/hide' | 'products/unhide';
 type UsersRoutes = 'users';
 type EquipmentRoutes =
   | 'equipment'

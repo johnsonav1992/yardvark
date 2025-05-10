@@ -19,6 +19,14 @@
       <label for="search">Search</label>
     </p-floatlabel>
   </ng-template>
+  <ng-template #action2>
+    <p-button
+      rounded
+      outlined
+      icon="ti ti-eye"
+      (onClick)="openProductsVisibilityModal()"
+    />
+  </ng-template>
   @if (searchQuery()) {
     <div class="outer-search-res-container">
       <h3>Search results</h3>
@@ -28,7 +36,10 @@
         [style.justify-content]="isMobile() ? 'center' : ''"
       >
         @for (product of filteredProducts(); track product.id) {
-          <product-card [product]="product" />
+          <product-card
+            [product]="product"
+            (onToggleProductVisibility)="toggleProductVisibility($event)"
+          />
         } @empty {
           <empty-message message="No products found for this search" />
         }
@@ -58,7 +69,12 @@
                 [style.justify-content]="isMobile() ? 'center' : ''"
               >
                 @for (product of productsToShow(); track product.id) {
-                  <product-card [product]="product" />
+                  <product-card
+                    [product]="product"
+                    (onToggleProductVisibility)="
+                      toggleProductVisibility($event)
+                    "
+                  />
                 } @empty {
                   <empty-message
                     message="No products found for this category"

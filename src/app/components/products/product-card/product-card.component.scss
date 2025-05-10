@@ -32,3 +32,14 @@
   display: flex;
   justify-content: flex-end;
 }
+
+.title-container {
+  display: flex;
+  justify-content: space-between;
+
+  .hide-container {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+}

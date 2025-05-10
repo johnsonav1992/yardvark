@@ -2,7 +2,7 @@ import { Component, computed, inject, input } from '@angular/core';
 import { ChartData, ChartOptions } from 'chart.js';
 import { getFullWeekOfDayLabelsCenteredAroundCurrentDay } from '../../../utils/timeUtils';
 import { getPrimeNgHexColor } from '../../../utils/styleUtils';
-import { ChartLoaderComponent } from '../../chart-loader/chart-loader.component';
+import { ChartLoaderComponent } from '../../miscellanious/chart-loader/chart-loader.component';
 import { ChartModule } from 'primeng/chart';
 import { PopoverModule } from 'primeng/popover';
 import { GlobalUiService } from '../../../services/global-ui.service';

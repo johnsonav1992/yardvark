@@ -72,7 +72,7 @@ export class ProductsComponent {
   ];
 
   public products = this._productsService.products;
-  public optimisticProducts = linkedSignal(() => this.products.value());
+  public optimisticProducts = this._productsService.optimisticProducts;
 
   public selectedTab = signal<Uncapitalize<ProductCategories>>('fertilizer');
   public searchQuery = signal('');

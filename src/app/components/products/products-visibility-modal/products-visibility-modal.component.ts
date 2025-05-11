@@ -4,7 +4,6 @@ import {
   ProductCardComponent,
   ProductVisibilityToggleEvent
 } from '../product-card/product-card.component';
-import { tap } from 'rxjs';
 import { EmptyMessageComponent } from '../../miscellanious/empty-message/empty-message.component';
 import { GlobalUiService } from '../../../services/global-ui.service';
 

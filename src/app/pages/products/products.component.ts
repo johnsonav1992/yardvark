@@ -1,13 +1,7 @@
-import {
-  Component,
-  computed,
-  inject,
-  linkedSignal,
-  signal
-} from '@angular/core';
+import { Component, inject, linkedSignal, signal } from '@angular/core';
 import { TabsModule } from 'primeng/tabs';
 import { Tab } from '../../types/components.types';
-import { Product, ProductCategories } from '../../types/products.types';
+import { ProductCategories } from '../../types/products.types';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import {
   ProductCardComponent,

@@ -65,6 +65,13 @@ export class MainSideNavComponent {
       routerLink: '/equipment',
       command: this.closeSidebar,
       routerLinkActiveOptions: { exact: true }
+    },
+    {
+      label: 'Analytics',
+      icon: 'ti ti-chart-dots',
+      routerLink: '/analytics',
+      command: this.closeSidebar,
+      routerLinkActiveOptions: { exact: true }
     }
   ];
 

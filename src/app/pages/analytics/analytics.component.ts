@@ -4,6 +4,7 @@ import { CardModule } from 'primeng/card';
 import { ChartData } from 'chart.js';
 import { ChartModule } from 'primeng/chart';
 import { GlobalUiService } from '../../services/global-ui.service';
+import { getMonthAbbreviationsCenteredAroundToday } from '../../utils/analyticsUtils';
 
 @Component({
   selector: 'analytics',
@@ -20,7 +21,18 @@ export class AnalyticsComponent {
     return [
       {
         title: 'Mowing Frequency Over Time',
-        chartData: this.mowingChartData(),
+        chartData: {
+          labels: getMonthAbbreviationsCenteredAroundToday(),
+          datasets: [
+            {
+              type: 'line' as const,
+              label: `Mowing Frequency`,
+              data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+              borderColor: 'red',
+              tension: 0.4
+            }
+          ]
+        },
         options: {
           maintainAspectRatio: false,
           aspectRatio: 0.75,
@@ -51,30 +63,4 @@ export class AnalyticsComponent {
       }
     ];
   });
-
-  public mowingChartData = computed<ChartData<'line'>>(() => ({
-    labels: [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec'
-    ],
-    datasets: [
-      {
-        type: 'line',
-        label: `Mowing Frequency`,
-        data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-        borderColor: 'red',
-        tension: 0.4
-      }
-    ]
-  }));
 }

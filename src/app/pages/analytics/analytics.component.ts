@@ -4,7 +4,7 @@ import { CardModule } from 'primeng/card';
 import { ChartData } from 'chart.js';
 import { ChartModule } from 'primeng/chart';
 import { GlobalUiService } from '../../services/global-ui.service';
-import { getMonthAbbreviationsCenteredAroundToday } from '../../utils/analyticsUtils';
+import { getMonthAbbreviationsUpToToday } from '../../utils/analyticsUtils';
 
 @Component({
   selector: 'analytics',
@@ -22,7 +22,7 @@ export class AnalyticsComponent {
       {
         title: 'Mowing Frequency Over Time',
         chartData: {
-          labels: getMonthAbbreviationsCenteredAroundToday(),
+          labels: getMonthAbbreviationsUpToToday(),
           datasets: [
             {
               type: 'line' as const,

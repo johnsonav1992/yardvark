@@ -1,22 +1,21 @@
 import { shortMonthNames } from '../constants/time-constants';
 
 /**
- * Returns an array of month abbreviations centered around the current month.
- * The array contains 12 month abbreviations, starting from the current month
- * and going back 6 months and forward 5 months.
+ * Returns an array of month abbreviations from the start of the lawn season up to and including the current month.
  *
- * @returns {string[]} An array of month abbreviations.
+ * @param startMonth - The starting month index of the lawn season (0 for January, 1 for February, etc.)
+ * @returns An array of month abbreviations from the lawn season start to the current month.
  */
-export const getMonthAbbreviationsCenteredAroundToday = () => {
+export const getMonthAbbreviationsFromSeasonStartToToday = (startMonth = 1) => {
   const today = new Date();
   const monthNames = shortMonthNames;
-
   const currentMonthIndex = today.getMonth();
-  const months = [];
+  const months: string[] = [];
 
-  for (let i = -6; i <= 5; i++) {
-    const monthIndex = (currentMonthIndex + i + 12) % 12;
-    months.push(monthNames[monthIndex]);
+  if (currentMonthIndex < startMonth) return months;
+
+  for (let i = startMonth; i <= currentMonthIndex; i++) {
+    months.push(monthNames[i]);
   }
 
   return months;

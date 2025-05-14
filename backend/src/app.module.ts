@@ -16,22 +16,12 @@ import { UsersModule } from './users/users.module';
 import { HttpModule } from '@nestjs/axios';
 import { EquipmentModule } from './equipment/equipment.module';
 import { AnalyticsModule } from './analytics/analytics.module';
+import { dataSource } from './db.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: '.env' }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.PRODPGHOST,
-      port: 5432,
-      username: process.env.PRODPGUSER,
-      password: process.env.PRODPGPASSWORD,
-      database: process.env.PRODPGDATABASE,
-      ssl: true,
-      synchronize: false,
-      autoLoadEntities: true,
-      namingStrategy: new SnakeNamingStrategy(),
-    }),
+    TypeOrmModule.forRoot(dataSource.options),
     SettingsModule,
     ActivitiesModule,
     LawnSegmentsModule,

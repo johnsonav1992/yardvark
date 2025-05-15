@@ -14,6 +14,6 @@ export const dataSource = new DataSource({
   ssl: true,
   synchronize: false,
   migrationsRun: false,
-  migrations: ['./migrations/*.{ts,js}'],
+  migrations: ['./src/migrations/*.{ts,js}'],
   namingStrategy: new SnakeNamingStrategy(),
 });

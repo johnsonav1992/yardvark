@@ -1,10 +1,9 @@
 import { Component, computed, inject } from '@angular/core';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import { CardModule } from 'primeng/card';
-import { ChartData } from 'chart.js';
 import { ChartModule } from 'primeng/chart';
 import { GlobalUiService } from '../../services/global-ui.service';
-import { getMonthAbbreviationsUpToToday } from '../../utils/analyticsUtils';
+import { getMonthAbbreviationsFromSeasonStartToToday } from '../../utils/analyticsUtils';
 
 @Component({
   selector: 'analytics',
@@ -22,7 +21,7 @@ export class AnalyticsComponent {
       {
         title: 'Mowing Frequency Over Time',
         chartData: {
-          labels: getMonthAbbreviationsUpToToday(),
+          labels: getMonthAbbreviationsFromSeasonStartToToday(),
           datasets: [
             {
               type: 'line' as const,

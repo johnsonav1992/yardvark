@@ -66,6 +66,7 @@ export class SoilMoistureWeekGraphComponent {
                 ? 'rgba(255, 255, 255, 0.5)'
                 : 'rgba(0, 0, 0, 0.4)';
             }
+
             return this.isDarkMode()
               ? 'rgba(200, 200, 200, 0.2)'
               : 'rgba(0, 0, 0, 0.07)';

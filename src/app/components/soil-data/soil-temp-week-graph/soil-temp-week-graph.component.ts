@@ -17,6 +17,7 @@ export class SoilTempWeekGraphComponent {
   private _globalUiService = inject(GlobalUiService);
 
   public isDarkMode = this._globalUiService.isDarkMode;
+  public isMobile = this._globalUiService.isMobile;
 
   public dailyAverageShallowTemps = input.required<number[]>();
   public dailyAverageDeepTemps = input.required<number[]>();
@@ -31,7 +32,8 @@ export class SoilTempWeekGraphComponent {
   public tempsChartData = computed<ChartData<'line'>>(() => ({
     labels: getFullWeekOfDayLabelsCenteredAroundCurrentDay({
       includeDates: true,
-      shortDayNames: true
+      tinyDayNames: this.isMobile(),
+      shortDayNames: !this.isMobile()
     }),
     datasets: [
       {
@@ -69,11 +71,24 @@ export class SoilTempWeekGraphComponent {
           : undefined
       },
       x: {
-        grid: this.isDarkMode()
-          ? {
-              color: 'rgba(200, 200, 200, 0.2)'
+        grid: {
+          color: (context) => {
+            const isMiddleOfTheWeek = context.index === 3;
+
+            if (isMiddleOfTheWeek) {
+              return this.isDarkMode()
+                ? 'rgba(255, 255, 255, 0.5)'
+                : 'rgba(0, 0, 0, 0.4)';
             }
-          : undefined
+            return this.isDarkMode()
+              ? 'rgba(200, 200, 200, 0.2)'
+              : 'rgba(0, 0, 0, 0.07)';
+          }
+        },
+        ticks: {
+          maxRotation: this.isMobile() ? 25 : 0,
+          minRotation: this.isMobile() ? 25 : 0
+        }
       }
     },
     plugins: {

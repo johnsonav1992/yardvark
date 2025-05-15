@@ -2,7 +2,7 @@
   <p-multiSelect
     #productSelect
     [options]="products.value()"
-    dataKey="name"
+    dataKey="id"
     optionLabel="name"
     [placeholder]="products.isLoading() ? 'Loading...' : 'Select Products'"
     [loading]="products.isLoading()"

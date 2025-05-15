@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class AddGetUserAnalyticsProc implements MigrationInterface {
+export class Analytics1747306082078 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       CREATE OR REPLACE FUNCTION get_user_analytics(p_user_id VARCHAR)

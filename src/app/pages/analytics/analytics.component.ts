@@ -3,7 +3,7 @@ import { PageContainerComponent } from '../../components/layout/page-container/p
 import { CardModule } from 'primeng/card';
 import { ChartModule } from 'primeng/chart';
 import { GlobalUiService } from '../../services/global-ui.service';
-import { getMonthAbbreviationsFromSeasonStartToToday } from '../../utils/analyticsUtils';
+import { getMonthlyMowingChartConfig } from '../../utils/analyticsUtils';
 import { AnalyticsService } from '../../services/analytics.service';
 
 @Component({
@@ -22,50 +22,8 @@ export class AnalyticsComponent {
   public isMobile = this._globalUiService.isMobile;
 
   public charts = computed(() => {
-    const mowingCounts =
-      this.analyticsData
-        .value()
-        ?.mowingAnalyticsData.map((month) => +month.mowCount) || [];
-
-    const highestMowingCount = Math.max(...mowingCounts);
-
     return [
-      {
-        title: `Monthly Mow Counts (${new Date().getFullYear()})`,
-        chartData: {
-          labels: getMonthAbbreviationsFromSeasonStartToToday(),
-          datasets: [
-            {
-              type: 'bar' as const,
-              label: `Mowing Count`,
-              data: mowingCounts
-            }
-          ]
-        },
-        options: {
-          maintainAspectRatio: false,
-          aspectRatio: 0.75,
-          scales: {
-            y: {
-              beginAtZero: true,
-              min: 0,
-              max: highestMowingCount * 1.25,
-              grid: this.isDarkMode()
-                ? {
-                    color: 'rgba(200, 200, 200, 0.2)'
-                  }
-                : undefined
-            },
-            x: {
-              grid: this.isDarkMode()
-                ? {
-                    color: 'rgba(200, 200, 200, 0.2)'
-                  }
-                : undefined
-            }
-          }
-        }
-      }
+      getMonthlyMowingChartConfig(this.analyticsData.value(), this.isDarkMode())
     ];
   });
 }

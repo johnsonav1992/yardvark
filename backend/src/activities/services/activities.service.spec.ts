@@ -35,6 +35,7 @@ describe('ActivitiesService', () => {
     jest.spyOn(activityRepository, 'find').mockResolvedValue(mockActivities);
 
     const result = await service.getActivities();
+
     expect(result).toBeInstanceOf(Array);
     expect(result).toHaveLength(2);
     expect(result).toEqual(mockActivities);

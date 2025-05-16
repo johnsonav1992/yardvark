@@ -1,4 +1,4 @@
-import { Entry } from 'src/entries/models/entries.model';
+import { Entry } from '../../entries/models/entries.model';
 import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
 
 @Entity('activities')

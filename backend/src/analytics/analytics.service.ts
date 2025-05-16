@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { camelizeKeys } from 'src/entries/utils/generalUtils';
 import { DataSource } from 'typeorm';
 
 @Injectable()
@@ -11,6 +12,6 @@ export class AnalyticsService {
       [userId],
     );
 
-    return result;
+    return camelizeKeys(result);
   }
 }

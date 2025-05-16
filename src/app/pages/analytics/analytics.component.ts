@@ -64,12 +64,6 @@ export class AnalyticsComponent {
                 : undefined
             }
           }
-          // plugins: {
-          //   legend: {
-          //     position: 'chartArea',
-          //     align: 'start'
-          //   }
-          // }
         }
       }
     ];

@@ -19,8 +19,6 @@ export class AnalyticsComponent {
 
   public analyticsData = this._analyticsService.analyticsData;
 
-  _ = effectSignalLogger(this.analyticsData.value);
-
   public isDarkMode = this._globalUiService.isDarkMode;
   public isMobile = this._globalUiService.isMobile;
 
@@ -34,7 +32,7 @@ export class AnalyticsComponent {
 
     return [
       {
-        title: `Mowing Counts Over Time (${new Date().getFullYear()})`,
+        title: `Monthly Mow Counts (${new Date().getFullYear()})`,
         chartData: {
           labels: getMonthAbbreviationsFromSeasonStartToToday(),
           datasets: [

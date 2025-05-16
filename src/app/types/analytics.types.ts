@@ -4,6 +4,6 @@ export type MowingAnalyticsRowRes = {
   mowCount: string;
 };
 
-export type MowingAnalyticsRes = {
+export type AnalyticsRes = {
   mowingAnalyticsData: MowingAnalyticsRowRes[];
 };

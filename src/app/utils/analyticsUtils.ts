@@ -1,5 +1,5 @@
 import { shortMonthNames } from '../constants/time-constants';
-import { MowingAnalyticsRes } from '../types/analytics.types';
+import { AnalyticsRes } from '../types/analytics.types';
 
 /**
  * Returns an array of month abbreviations from the start of the lawn season up to and including the current month.
@@ -23,7 +23,7 @@ export const getMonthAbbreviationsFromSeasonStartToToday = (startMonth = 1) => {
 };
 
 export const getMonthlyMowingChartConfig = (
-  analyticsData: MowingAnalyticsRes | undefined,
+  analyticsData: AnalyticsRes | undefined,
   isDarkMode: boolean
 ) => {
   const mowingCounts =

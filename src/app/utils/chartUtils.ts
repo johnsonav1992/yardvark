@@ -1,4 +1,10 @@
 import { ScriptableScaleContext } from 'chart.js';
+import {
+  DARK_MODE_CHART_GRID_COLOR,
+  DARK_MODE_CHART_GRID_COLOR_HIGHLIGHT,
+  LIGHT_MODE_CHART_GRID_COLOR,
+  LIGHT_MODE_CHART_GRID_COLOR_HIGHLIGHT
+} from '../constants/chart-constants';
 
 /**
  * Returns the appropriate chart grid line color based on context and current theme mode.

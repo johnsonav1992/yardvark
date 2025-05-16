@@ -7,6 +7,7 @@ import { ChartModule } from 'primeng/chart';
 import { PopoverModule } from 'primeng/popover';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { getChartGridLineColors } from '../../../utils/chartUtils';
+import { DARK_MODE_CHART_GRID_COLOR } from '../../../constants/chart-constants';
 
 @Component({
   selector: 'soil-moisture-week-graph',

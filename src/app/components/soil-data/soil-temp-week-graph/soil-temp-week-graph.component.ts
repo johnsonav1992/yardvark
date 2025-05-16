@@ -6,6 +6,7 @@ import { OpenMeteoQueryParams } from '../../../types/openmeteo.types';
 import { getPrimeNgHexColor } from '../../../utils/styleUtils';
 import { ChartLoaderComponent } from '../../miscellanious/chart-loader/chart-loader.component';
 import { GlobalUiService } from '../../../services/global-ui.service';
+import { getChartGridLineColors } from '../../../utils/chartUtils';
 
 @Component({
   selector: 'soil-temp-week-graph',
@@ -66,25 +67,17 @@ export class SoilTempWeekGraphComponent {
         },
         grid: this.isDarkMode()
           ? {
-              color: 'rgba(200, 200, 200, 0.2)'
+              color: DARK_MODE_CHART_GRID_COLOR
             }
           : undefined
       },
       x: {
         grid: {
-          color: (context) => {
-            const isMiddleOfTheWeek = context.index === 3;
-
-            if (isMiddleOfTheWeek) {
-              return this.isDarkMode()
-                ? 'rgba(255, 255, 255, 0.5)'
-                : 'rgba(0, 0, 0, 0.4)';
-            }
-
-            return this.isDarkMode()
-              ? 'rgba(200, 200, 200, 0.2)'
-              : 'rgba(0, 0, 0, 0.07)';
-          }
+          color: (context) =>
+            getChartGridLineColors(
+              context,
+              this.isDarkMode() ? 'dark' : 'light'
+            )
         },
         ticks: {
           maxRotation: this.isMobile() ? 25 : 0,

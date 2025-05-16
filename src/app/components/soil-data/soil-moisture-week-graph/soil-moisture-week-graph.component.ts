@@ -6,6 +6,7 @@ import { ChartLoaderComponent } from '../../miscellanious/chart-loader/chart-loa
 import { ChartModule } from 'primeng/chart';
 import { PopoverModule } from 'primeng/popover';
 import { GlobalUiService } from '../../../services/global-ui.service';
+import { getChartGridLineColors } from '../../../utils/chartUtils';
 
 @Component({
   selector: 'soil-moisture-week-graph',
@@ -52,25 +53,17 @@ export class SoilMoistureWeekGraphComponent {
         },
         grid: this.isDarkMode()
           ? {
-              color: 'rgba(200, 200, 200, 0.2)'
+              color: DARK_MODE_CHART_GRID_COLOR
             }
           : undefined
       },
       x: {
         grid: {
-          color: (context) => {
-            const isMiddleOfTheWeek = context.index === 3;
-
-            if (isMiddleOfTheWeek) {
-              return this.isDarkMode()
-                ? 'rgba(255, 255, 255, 0.5)'
-                : 'rgba(0, 0, 0, 0.4)';
-            }
-
-            return this.isDarkMode()
-              ? 'rgba(200, 200, 200, 0.2)'
-              : 'rgba(0, 0, 0, 0.07)';
-          }
+          color: (context) =>
+            getChartGridLineColors(
+              context,
+              this.isDarkMode() ? 'dark' : 'light'
+            )
         },
         ticks: {
           maxRotation: this.isMobile() ? 25 : 0,

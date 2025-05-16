@@ -1,6 +1,11 @@
-export const camelizeKeys = <T extends Record<string, unknown>>(
+export interface CamelizeKeysFn {
+  <T extends Record<string, unknown>>(input: T): T;
+  <T extends Record<string, unknown>>(input: T[]): T[];
+}
+
+export const camelizeKeys: CamelizeKeysFn = <T extends Record<string, unknown>>(
   input: T | T[],
-): T | T[] => {
+) => {
   const camelize = (obj: T): T => {
     const camelCaseObj = {} as T;
 

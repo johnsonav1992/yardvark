@@ -1,7 +1,7 @@
 <page-container pageTitle="Analytics">
   <div class="main-container">
     @for (chart of charts(); track chart.title) {
-      <p-card [style.width]="'50%'">
+      <p-card [style.width]="isMobile() ? '100%' : '50%'">
         <ng-template #title>
           {{ chart.title }}
         </ng-template>

@@ -4,6 +4,8 @@ import { CardModule } from 'primeng/card';
 import { ChartModule } from 'primeng/chart';
 import { GlobalUiService } from '../../services/global-ui.service';
 import { getMonthAbbreviationsFromSeasonStartToToday } from '../../utils/analyticsUtils';
+import { AnalyticsService } from '../../services/analytics.service';
+import { effectSignalLogger } from '../../utils/generalUtils';
 
 @Component({
   selector: 'analytics',
@@ -13,22 +15,33 @@ import { getMonthAbbreviationsFromSeasonStartToToday } from '../../utils/analyti
 })
 export class AnalyticsComponent {
   private _globalUiService = inject(GlobalUiService);
+  private _analyticsService = inject(AnalyticsService);
+
+  public analyticsData = this._analyticsService.analyticsData;
+
+  _ = effectSignalLogger(this.analyticsData.value);
 
   public isDarkMode = this._globalUiService.isDarkMode;
+  public isMobile = this._globalUiService.isMobile;
 
   public charts = computed(() => {
+    const mowingCounts =
+      this.analyticsData
+        .value()
+        ?.mowingAnalyticsData.map((month) => +month.mowCount) || [];
+
+    const highestMowingCount = Math.max(...mowingCounts);
+
     return [
       {
-        title: 'Mowing Frequency Over Time',
+        title: `Mowing Counts Over Time (${new Date().getFullYear()})`,
         chartData: {
           labels: getMonthAbbreviationsFromSeasonStartToToday(),
           datasets: [
             {
-              type: 'line' as const,
-              label: `Mowing Frequency`,
-              data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-              borderColor: 'red',
-              tension: 0.4
+              type: 'bar' as const,
+              label: `Mowing Count`,
+              data: mowingCounts
             }
           ]
         },
@@ -38,6 +51,8 @@ export class AnalyticsComponent {
           scales: {
             y: {
               beginAtZero: true,
+              min: 0,
+              max: highestMowingCount * 1.25,
               grid: this.isDarkMode()
                 ? {
                     color: 'rgba(200, 200, 200, 0.2)'
@@ -51,13 +66,13 @@ export class AnalyticsComponent {
                   }
                 : undefined
             }
-          },
-          plugins: {
-            legend: {
-              position: 'chartArea',
-              align: 'end'
-            }
           }
+          // plugins: {
+          //   legend: {
+          //     position: 'chartArea',
+          //     align: 'start'
+          //   }
+          // }
         }
       }
     ];

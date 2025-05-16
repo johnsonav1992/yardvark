@@ -5,7 +5,6 @@ import { ChartModule } from 'primeng/chart';
 import { GlobalUiService } from '../../services/global-ui.service';
 import { getMonthAbbreviationsFromSeasonStartToToday } from '../../utils/analyticsUtils';
 import { AnalyticsService } from '../../services/analytics.service';
-import { effectSignalLogger } from '../../utils/generalUtils';
 
 @Component({
   selector: 'analytics',

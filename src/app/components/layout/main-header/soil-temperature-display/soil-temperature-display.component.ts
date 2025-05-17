@@ -26,6 +26,7 @@ export class SoilTemperatureDisplayComponent {
   private _locationService = inject(LocationService);
 
   public isDarkMode = this._globalUiService.isDarkMode;
+  public isMobile = this._globalUiService.isMobile;
 
   public soilTemperatureData =
     this._soilTemperatureService.past24HourSoilTemperatureData;

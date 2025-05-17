@@ -13,13 +13,17 @@
       }
     </div>
   </ng-template>
-  <ng-template #subtitle>
-    {{ recentEntry.value()?.date | date: "M/dd/yyyy" }}
-  </ng-template>
+  @if (recentEntry.value()?.date && recentEntry.value()?.title) {
+    <ng-template #subtitle>
+      {{ recentEntry.value()!.date | date: "M/dd/yyyy" }} -
+      {{ recentEntry.value()!.title }}
+    </ng-template>
+  }
 
   @if (recentEntry.value(); as entry) {
     <div class="content-container">
       @if (entry.activities.length) {
+        z
         <div class="section-container">
           <h3>Activities:</h3>
           @for (activity of entry.activities; track activity) {

@@ -23,7 +23,7 @@
     @if (isMobile()) {
       <p-speeddial
         icon="ti ti-plus"
-        [model]="mobileSpeedDialMenu"
+        [model]="mobileSpeedDialMenu()"
         [style]="{ position: 'fixed', bottom: '10px', right: '10px' }"
       />
     }

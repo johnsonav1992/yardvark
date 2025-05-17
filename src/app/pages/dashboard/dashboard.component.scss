@@ -4,6 +4,11 @@
     width: 70px;
     height: 70px !important;
 
+    @media (max-width: 900px) {
+      width: 4rem;
+      height: 4rem !important;
+    }
+
     > span {
       font-size: 24px;
     }

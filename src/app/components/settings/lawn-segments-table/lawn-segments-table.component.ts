@@ -7,10 +7,19 @@ import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { LawnSegmentsService } from '../../../services/lawn-segments.service';
 import { injectErrorToast } from '../../../utils/toastUtils';
+import { CardModule } from 'primeng/card';
+import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'lawn-segments-table',
-  imports: [TableModule, ButtonModule, FormsModule, InputTextModule],
+  imports: [
+    TableModule,
+    ButtonModule,
+    FormsModule,
+    InputTextModule,
+    CardModule,
+    LoadingSpinnerComponent
+  ],
   templateUrl: './lawn-segments-table.component.html',
   styleUrl: './lawn-segments-table.component.scss'
 })

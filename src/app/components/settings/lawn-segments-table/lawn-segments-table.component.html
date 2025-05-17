@@ -1,125 +1,133 @@
-<p-table
-  [value]="lawnSegments() || []"
-  [loadingIcon]="'ti ti-loader-2 icon-spin'"
-  [dt]="lawnSegsTableDt"
-  editMode="row"
-  dataKey="id"
-  [loading]="lawnSegmentsAreLoading()"
-  #lawnSegmentTable
->
-  <ng-template #header>
-    <tr>
-      @if (lawnSegments()?.length) {
-        <th>Name</th>
-        <th>Size (ft²)</th>
-        <th></th>
-      }
-    </tr>
-  </ng-template>
-  <ng-template #body let-segment let-editing="editing">
-    <tr [pEditableRow]="segment">
-      <td [width]="'35%'">
-        <p-cellEditor>
-          <ng-template #input>
-            <input
-              pInputText
-              [style]="{ width: '75%' }"
-              [(ngModel)]="segment.name"
-            />
-          </ng-template>
-          <ng-template #output>
-            {{ segment.name }}
-          </ng-template>
-        </p-cellEditor>
-      </td>
-      <td [width]="'30%'">
-        <p-cellEditor>
-          <ng-template #input>
-            <input
-              pInputText
-              [style]="{ width: '75%' }"
-              [(ngModel)]="segment.size"
-            />
-          </ng-template>
-          <ng-template #output>
-            {{ segment.size }}
-          </ng-template>
-        </p-cellEditor>
-      </td>
-      <td [width]="'15%'">
-        <div class="buttons-container">
-          @let isRowBeingEdited = editing;
-          @let isInEditingMode =
-            !!currentlyEditingLawnSegmentIds()?.includes(segment.id);
-          @let isNewSegment = segment.id < 1;
+<p-card>
+  <p-table
+    [value]="lawnSegments() || []"
+    [loadingIcon]="'ti ti-loader-2 icon-spin'"
+    [dt]="lawnSegsTableDt"
+    editMode="row"
+    dataKey="id"
+    [loading]="lawnSegmentsAreLoading()"
+    #lawnSegmentTable
+  >
+    <ng-template #header>
+      <tr>
+        @if (lawnSegments()?.length) {
+          <th>Name</th>
+          <th>Size (ft²)</th>
+          <th></th>
+        }
+      </tr>
+    </ng-template>
+    <ng-template #body let-segment let-editing="editing">
+      <tr [pEditableRow]="segment">
+        <td [width]="'35%'">
+          <p-cellEditor>
+            <ng-template #input>
+              <input
+                pInputText
+                [style]="{ width: '75%' }"
+                [(ngModel)]="segment.name"
+              />
+            </ng-template>
+            <ng-template #output>
+              {{ segment.name }}
+            </ng-template>
+          </p-cellEditor>
+        </td>
+        <td [width]="'30%'">
+          <p-cellEditor>
+            <ng-template #input>
+              <input
+                pInputText
+                [style]="{ width: '75%' }"
+                [(ngModel)]="segment.size"
+              />
+            </ng-template>
+            <ng-template #output>
+              {{ segment.size }}
+            </ng-template>
+          </p-cellEditor>
+        </td>
+        <td [width]="'15%'">
+          <div class="buttons-container">
+            @let isRowBeingEdited = editing;
+            @let isInEditingMode =
+              !!currentlyEditingLawnSegmentIds()?.includes(segment.id);
+            @let isNewSegment = segment.id < 1;
 
-          @if (isRowBeingEdited && isInEditingMode) {
-            <p-button
-              [icon]="'ti ti-check'"
-              rounded
-              outlined
-              severity="success"
-              pSaveEditableRow
-              [disabled]="!segment.name || !segment.size || segment.size <= 0"
-              (onClick)="onRowSave(segment)"
-            />
-            <p-button
-              [icon]="'ti ti-x'"
-              rounded
-              outlined
-              severity="info"
-              pCancelEditableRow
-              (onClick)="cancelRowEdit(segment)"
-            />
-          } @else {
-            <p-button
-              [icon]="'ti ti-pencil'"
-              (onClick)="editLawnSegment(segment)"
-              rounded
-              outlined
-              severity="info"
-              pInitEditableRow
-              [disabled]="isInEditingMode && !isRowBeingEdited"
-            />
-          }
-          @if (!isNewSegment) {
-            <p-button
-              icon="ti ti-trash"
-              (onClick)="deleteSegment(segment.id)"
-              rounded
-              outlined
-              severity="danger"
-            />
-          }
+            @if (isRowBeingEdited && isInEditingMode) {
+              <p-button
+                [icon]="'ti ti-check'"
+                rounded
+                outlined
+                severity="success"
+                pSaveEditableRow
+                [disabled]="!segment.name || !segment.size || segment.size <= 0"
+                (onClick)="onRowSave(segment)"
+              />
+              <p-button
+                [icon]="'ti ti-x'"
+                rounded
+                outlined
+                severity="info"
+                pCancelEditableRow
+                (onClick)="cancelRowEdit(segment)"
+              />
+            } @else {
+              <p-button
+                [icon]="'ti ti-pencil'"
+                (onClick)="editLawnSegment(segment)"
+                rounded
+                outlined
+                severity="info"
+                pInitEditableRow
+                [disabled]="isInEditingMode && !isRowBeingEdited"
+              />
+            }
+            @if (!isNewSegment) {
+              <p-button
+                icon="ti ti-trash"
+                (onClick)="deleteSegment(segment.id)"
+                rounded
+                outlined
+                severity="danger"
+              />
+            }
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <td colspan="3">
+        <div class="empty-or-loading">
+          <i class="ti ti-table" [class.icon]="true"></i>
+          <h3 [style]="{ margin: 0 }">No lawn segments found</h3>
+          <p-button
+            icon="ti ti-plus"
+            label="Add Lawn Segment"
+            (onClick)="addLawnSegmentRow()"
+          />
         </div>
       </td>
-    </tr>
-  </ng-template>
-  <ng-template #emptymessage>
-    <td colspan="3">
-      <div class="empty-or-loading">
-        <i class="ti ti-table" [class.icon]="true"></i>
-        <h3 [style]="{ margin: 0 }">No lawn segments found</h3>
-        <p>Click the plus icon to add a new lawn segment.</p>
-      </div>
-    </td>
-  </ng-template>
-  <ng-template #loadingbody>
-    <td colspan="3">
-      <div class="empty-or-loading">
-        <i class="ti ti-loader-2 icon-spin" [class.icon]="true"></i>
-        <h3 [style]="{ margin: 0 }">Loading lawn segments...</h3>
-      </div>
-    </td>
-  </ng-template>
-  <ng-template #footer>
-    <div [style]="{ marginTop: '1rem' }">
-      <p-button
-        [icon]="'ti ti-plus'"
-        rounded
-        pTooltip="Add lawn segment"
-        (onClick)="addLawnSegmentRow()"
-      />
-    </div>
-  </ng-template>
-</p-table>
+    </ng-template>
+    <ng-template #loadingbody>
+      <td colspan="3">
+        <div class="empty-or-loading">
+          <loading-spinner size="s" />
+          <h3 [style]="{ margin: 0 }">Loading lawn segments...</h3>
+        </div>
+      </td>
+    </ng-template>
+    @if (lawnSegments()?.length) {
+      <ng-template #footer>
+        <div [style]="{ marginTop: '1rem' }">
+          <p-button
+            [icon]="'ti ti-plus'"
+            rounded
+            pTooltip="Add lawn segment"
+            (onClick)="addLawnSegmentRow()"
+          />
+        </div>
+      </ng-template>
+    }
+  </p-table>
+</p-card>

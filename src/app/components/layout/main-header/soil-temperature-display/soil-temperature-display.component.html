@@ -1,5 +1,12 @@
-<div class="outer-card" [class.dark-mode]="isDarkMode()">
-  <i class="ti ti-thermometer" [style.font-size]="'30px'"></i>
+<div
+  class="outer-card"
+  [class.dark-mode]="isDarkMode()"
+  [style.padding]="isMobile() ? '4px' : ''"
+>
+  <i
+    class="ti ti-thermometer"
+    [style.font-size]="isMobile() ? '24px' : '30px'"
+  ></i>
   @if (soilTemperatureData.isLoading()) {
     <i class="ti ti-loader-2 icon-spin"></i>
   } @else if (!userHasALocation()) {

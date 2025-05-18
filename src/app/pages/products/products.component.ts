@@ -77,12 +77,14 @@ export class ProductsComponent {
     const shouldHideSystemProducts =
       this._settingsService.currentSettings()?.hideSystemProducts;
 
-    return this.optimisticProducts()?.filter(
-      (product) =>
-        product.category === this.selectedTab() &&
-        !product.isHidden &&
-        !(shouldHideSystemProducts && product.userId === 'system')
-    );
+    return this.optimisticProducts()
+      ?.filter(
+        (product) =>
+          product.category === this.selectedTab() &&
+          !product.isHidden &&
+          !(shouldHideSystemProducts && product.userId === 'system')
+      )
+      .toSorted((a, b) => a.name.localeCompare(b.name));
   });
 
   public filteredProducts = linkedSignal(() => {

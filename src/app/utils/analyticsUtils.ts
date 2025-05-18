@@ -24,7 +24,7 @@ export const getMonthAbbreviationsFromSeasonStartToToday = (startMonth = 1) => {
 
 export const getMonthlyMowingChartConfig = (
   analyticsData: AnalyticsRes | undefined,
-  isDarkMode: boolean
+  uiOptions: { isDarkMode: boolean; isMobile: boolean }
 ) => {
   const mowingCounts =
     analyticsData?.mowingAnalyticsData.map((month) => +month.mowCount) || [];
@@ -45,20 +45,20 @@ export const getMonthlyMowingChartConfig = (
     },
     options: {
       maintainAspectRatio: false,
-      aspectRatio: 0.75,
+      aspectRatio: uiOptions.isMobile ? 1.1 : 0.75,
       scales: {
         y: {
           beginAtZero: true,
           min: 0,
           max: highestMowingCount * 1.25,
-          grid: isDarkMode
+          grid: uiOptions.isDarkMode
             ? {
                 color: 'rgba(200, 200, 200, 0.2)'
               }
             : undefined
         },
         x: {
-          grid: isDarkMode
+          grid: uiOptions.isDarkMode
             ? {
                 color: 'rgba(200, 200, 200, 0.2)'
               }

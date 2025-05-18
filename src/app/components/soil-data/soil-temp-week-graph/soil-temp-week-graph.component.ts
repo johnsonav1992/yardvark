@@ -8,10 +8,12 @@ import { ChartLoaderComponent } from '../../miscellanious/chart-loader/chart-loa
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { getChartGridLineColors } from '../../../utils/chartUtils';
 import { DARK_MODE_CHART_GRID_COLOR } from '../../../constants/chart-constants';
+import { CardModule } from 'primeng/card';
+import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'soil-temp-week-graph',
-  imports: [ChartModule, ChartLoaderComponent],
+  imports: [ChartModule, ChartLoaderComponent, CardModule, NgTemplateOutlet],
   templateUrl: './soil-temp-week-graph.component.html',
   styleUrl: './soil-temp-week-graph.component.scss'
 })
@@ -57,7 +59,7 @@ export class SoilTempWeekGraphComponent {
 
   public options = computed<ChartOptions<'line'>>(() => ({
     maintainAspectRatio: false,
-    aspectRatio: 0.75,
+    aspectRatio: this.isMobile() ? 1.1 : 0.75,
     scales: {
       y: {
         beginAtZero: true,

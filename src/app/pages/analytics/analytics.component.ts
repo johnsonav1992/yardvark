@@ -22,8 +22,11 @@ export class AnalyticsComponent {
   public isMobile = this._globalUiService.isMobile;
 
   public charts = computed(() => {
-    return [
-      getMonthlyMowingChartConfig(this.analyticsData.value(), this.isDarkMode())
-    ];
+    const uiOptions = {
+      isDarkMode: this.isDarkMode(),
+      isMobile: this.isMobile()
+    };
+
+    return [getMonthlyMowingChartConfig(this.analyticsData.value(), uiOptions)];
   });
 }

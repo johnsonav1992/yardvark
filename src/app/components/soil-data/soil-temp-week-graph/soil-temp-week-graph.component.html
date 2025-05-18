@@ -5,10 +5,20 @@
   </div>
 } @else {
   <div class="chart-container">
-    <p-chart
-      [type]="tempsChartData().datasets[0].type"
-      [data]="tempsChartData()"
-      [options]="options()"
-    />
+    @if (isMobile()) {
+      <p-card>
+        <ng-container [ngTemplateOutlet]="chart"></ng-container>
+      </p-card>
+    } @else {
+      <ng-container [ngTemplateOutlet]="chart"></ng-container>
+    }
   </div>
 }
+
+<ng-template #chart>
+  <p-chart
+    [type]="tempsChartData().datasets[0].type"
+    [data]="tempsChartData()"
+    [options]="options()"
+  />
+</ng-template>

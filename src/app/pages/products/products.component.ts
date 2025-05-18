@@ -23,6 +23,7 @@ import { FormsModule } from '@angular/forms';
 import { DividerModule } from 'primeng/divider';
 import { DialogService } from 'primeng/dynamicdialog';
 import { ProductsVisibilityModalComponent } from '../../components/products/products-visibility-modal/products-visibility-modal.component';
+import { SettingsService } from '../../services/settings.service';
 
 @Component({
   selector: 'products',
@@ -50,6 +51,7 @@ export class ProductsComponent {
   private _router = inject(Router);
   private _globalUiService = inject(GlobalUiService);
   private _dialogService = inject(DialogService);
+  private _settingsService = inject(SettingsService);
 
   public isMobile = this._globalUiService.isMobile;
 
@@ -72,8 +74,14 @@ export class ProductsComponent {
   public searchQuery = signal('');
 
   public productsToShow = linkedSignal(() => {
+    const shouldHideSystemProducts =
+      this._settingsService.currentSettings()?.hideSystemProducts;
+
     return this.optimisticProducts()?.filter(
-      (product) => product.category === this.selectedTab() && !product.isHidden
+      (product) =>
+        product.category === this.selectedTab() &&
+        !product.isHidden &&
+        !(shouldHideSystemProducts && product.userId === 'system')
     );
   });
 

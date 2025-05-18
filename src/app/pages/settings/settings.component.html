@@ -64,6 +64,19 @@
     />
   </div>
   <div class="section-wrapper">
+    <h4>Hide system products</h4>
+    <small
+      ><em
+        >*If enabled, only manually added products (added by the user) will be
+        visible in the products page</em
+      ></small
+    >
+    <p-toggleSwitch
+      [ngModel]="currentSettings()?.hideSystemProducts"
+      (onChange)="updateSetting('hideSystemProducts', $event.checked)"
+    />
+  </div>
+  <div class="section-wrapper">
     <h4>Lawn size</h4>
     <p-inputnumber
       [(ngModel)]="lawnSize"

@@ -20,6 +20,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { LawnSegmentsTableComponent } from '../../components/settings/lawn-segments-table/lawn-segments-table.component';
 import { GlobalUiService } from '../../services/global-ui.service';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 
 @Component({
   selector: 'settings',
@@ -32,7 +33,8 @@ import { GlobalUiService } from '../../services/global-ui.service';
     ButtonModule,
     InputTextModule,
     TooltipModule,
-    LawnSegmentsTableComponent
+    LawnSegmentsTableComponent,
+    ToggleSwitchModule
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'

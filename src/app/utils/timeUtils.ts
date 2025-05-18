@@ -30,6 +30,7 @@ export const getRollingWeekStartAndEndDates = () => {
 export const getFullWeekOfDayLabelsCenteredAroundCurrentDay = (opts?: {
   includeDates?: boolean;
   shortDayNames?: boolean;
+  tinyDayNames?: boolean;
 }) => {
   const today = new Date();
   const todayIndex = today.getDay();
@@ -40,9 +41,16 @@ export const getFullWeekOfDayLabelsCenteredAroundCurrentDay = (opts?: {
     currentDate.setDate(today.getDate() + i);
     const dayIndex = (todayIndex + i + 7) % 7;
 
-    let label = opts?.shortDayNames
-      ? daysOfWeek[dayIndex].substring(0, 3)
-      : daysOfWeek[dayIndex];
+    let label;
+
+    if (opts?.tinyDayNames) {
+      const tinyDayNames = ['Su', 'M', 'Tu', 'W', 'Th', 'F', 'Sa'];
+      label = tinyDayNames[dayIndex];
+    } else if (opts?.shortDayNames) {
+      label = daysOfWeek[dayIndex].substring(0, 3);
+    } else {
+      label = daysOfWeek[dayIndex];
+    }
 
     if (opts?.includeDates) {
       const dateStr = `${currentDate.getMonth() + 1}/${currentDate.getDate()}`;

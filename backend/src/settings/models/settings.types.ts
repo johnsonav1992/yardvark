@@ -23,6 +23,10 @@ export type SettingsData = {
    * current settings for the entry log view
    */
   entryView: 'calendar' | 'list';
+  /**
+   * Whether to hide system products in the product list
+   */
+  hideSystemProducts: boolean;
 };
 
 export type SettingsResponse = {

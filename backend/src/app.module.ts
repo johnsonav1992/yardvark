@@ -5,7 +5,6 @@ import { ConfigModule } from '@nestjs/config';
 import { ActivitiesModule } from './activities/activities.module';
 import { LawnSegmentsModule } from './lawn-segments/lawn-segments.module';
 import { EntriesModule } from './entries/entries.module';
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { ProductsModule } from './products/products.module';
 import { JwtStrategy } from './guards/jwt.strategy';
 import { APP_GUARD } from '@nestjs/core';
@@ -15,22 +14,13 @@ import { UsersService } from './users/services/users.service';
 import { UsersModule } from './users/users.module';
 import { HttpModule } from '@nestjs/axios';
 import { EquipmentModule } from './equipment/equipment.module';
+import { AnalyticsModule } from './analytics/analytics.module';
+import { dataSource } from './db.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: '.env' }),
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: process.env.PRODPGHOST,
-      port: 5432,
-      username: process.env.PRODPGUSER,
-      password: process.env.PRODPGPASSWORD,
-      database: process.env.PRODPGDATABASE,
-      ssl: true,
-      synchronize: false,
-      autoLoadEntities: true,
-      namingStrategy: new SnakeNamingStrategy(),
-    }),
+    TypeOrmModule.forRoot(dataSource.options),
     SettingsModule,
     ActivitiesModule,
     LawnSegmentsModule,
@@ -39,6 +29,7 @@ import { EquipmentModule } from './equipment/equipment.module';
     UsersModule,
     HttpModule,
     EquipmentModule,
+    AnalyticsModule,
   ],
   controllers: [UsersController],
   providers: [

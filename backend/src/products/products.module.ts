@@ -5,7 +5,7 @@ import { S3Service } from 'src/s3/s3.service';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from './models/products.model';
-import { UserHiddenProduct } from './models/userHiddenProducts';
+import { UserHiddenProduct } from './models/userHiddenProducts.model';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Product, UserHiddenProduct])],

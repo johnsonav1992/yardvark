@@ -1,13 +1,7 @@
-import {
-  Component,
-  computed,
-  inject,
-  linkedSignal,
-  signal
-} from '@angular/core';
+import { Component, inject, linkedSignal, signal } from '@angular/core';
 import { TabsModule } from 'primeng/tabs';
 import { Tab } from '../../types/components.types';
-import { Product, ProductCategories } from '../../types/products.types';
+import { ProductCategories } from '../../types/products.types';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import {
   ProductCardComponent,
@@ -29,6 +23,7 @@ import { FormsModule } from '@angular/forms';
 import { DividerModule } from 'primeng/divider';
 import { DialogService } from 'primeng/dynamicdialog';
 import { ProductsVisibilityModalComponent } from '../../components/products/products-visibility-modal/products-visibility-modal.component';
+import { SettingsService } from '../../services/settings.service';
 
 @Component({
   selector: 'products',
@@ -56,6 +51,7 @@ export class ProductsComponent {
   private _router = inject(Router);
   private _globalUiService = inject(GlobalUiService);
   private _dialogService = inject(DialogService);
+  private _settingsService = inject(SettingsService);
 
   public isMobile = this._globalUiService.isMobile;
 
@@ -72,15 +68,23 @@ export class ProductsComponent {
   ];
 
   public products = this._productsService.products;
-  public optimisticProducts = linkedSignal(() => this.products.value());
+  public optimisticProducts = this._productsService.optimisticProducts;
 
   public selectedTab = signal<Uncapitalize<ProductCategories>>('fertilizer');
   public searchQuery = signal('');
 
   public productsToShow = linkedSignal(() => {
-    return this.optimisticProducts()?.filter(
-      (product) => product.category === this.selectedTab() && !product.isHidden
-    );
+    const shouldHideSystemProducts =
+      this._settingsService.currentSettings()?.hideSystemProducts;
+
+    return this.optimisticProducts()
+      ?.filter(
+        (product) =>
+          product.category === this.selectedTab() &&
+          !product.isHidden &&
+          !(shouldHideSystemProducts && product.userId === 'system')
+      )
+      .toSorted((a, b) => a.name.localeCompare(b.name));
   });
 
   public filteredProducts = linkedSignal(() => {

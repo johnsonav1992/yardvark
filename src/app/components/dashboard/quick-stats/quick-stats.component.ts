@@ -8,6 +8,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { DividerModule } from 'primeng/divider';
 import { DividerDesignTokens } from '@primeng/themes/types/divider';
 import { GlobalUiService } from '../../../services/global-ui.service';
+import { LocationService } from '../../../services/location.service';
 
 @Component({
   selector: 'quick-stats',
@@ -18,12 +19,14 @@ import { GlobalUiService } from '../../../services/global-ui.service';
 export class QuickStatsComponent {
   private _entriesService = inject(EntriesService);
   private _settingsService = inject(SettingsService);
+  private _locationService = inject(LocationService);
   private _globalUiService = inject(GlobalUiService);
 
   public isMobile = this._globalUiService.isMobile;
 
   public lastMowDate = this._entriesService.lastMow;
   public lastEntry = this._entriesService.recentEntry;
+  public userCoords = this._locationService.userLatLong;
 
   public daysSinceLastMow = computed(() => {
     const lastMowDate = this.lastMowDate.value()?.lastMowDate;
@@ -60,11 +63,11 @@ export class QuickStatsComponent {
   });
 
   public lawnSeasonPercentage = computed(() => {
-    const grassType = this._settingsService.currentSettings()?.grassType;
+    const coords = this.userCoords();
 
-    if (grassType === 'cool') return null;
+    if (!coords) return null;
 
-    const progressPercentage = getLawnSeasonCompletedPercentage();
+    const progressPercentage = getLawnSeasonCompletedPercentage(coords);
 
     if (progressPercentage < 0 || progressPercentage > 100) {
       return null;

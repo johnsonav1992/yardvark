@@ -56,15 +56,18 @@ export class DashboardComponent {
 
   public recentEntry = this._entriesService.recentEntry;
 
-  public mobileSpeedDialMenu: MenuItem[] = [
+  public mobileSpeedDialMenu = computed<MenuItem[]>(() => [
     {
       label: 'Create entry',
       tooltip: 'Create entry',
       icon: 'ti ti-notebook',
-      style: { width: '70px', height: '70px' },
+      style: {
+        width: this.isMobile() ? '4rem' : '70px',
+        height: this.isMobile() ? '4rem' : '70px'
+      },
       command: () => {
         this._router.navigate(['entry-log'], { queryParams: { create: true } });
       }
     }
-  ];
+  ]);
 }

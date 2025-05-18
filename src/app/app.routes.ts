@@ -12,6 +12,7 @@ import { authGuard } from './guards/auth.guard';
 import { ProductViewComponent } from './pages/products/product-view/product-view.component';
 import { EquipmentViewComponent } from './pages/equipment/equipment-view/equipment-view.component';
 import { AddEquipmentComponent } from './pages/equipment/add-equipment/add-equipment.component';
+import { AnalyticsComponent } from './pages/analytics/analytics.component';
 
 export const mainRoutes: Routes = [
   {
@@ -78,6 +79,11 @@ export const mainRoutes: Routes = [
   {
     path: 'settings',
     component: SettingsComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'analytics',
+    component: AnalyticsComponent,
     canActivate: [authGuard]
   }
 ];

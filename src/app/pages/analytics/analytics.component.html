@@ -1,0 +1,16 @@
+<page-container pageTitle="Analytics">
+  <div class="main-container">
+    @for (chart of charts(); track chart.title) {
+      <p-card [style.width]="isMobile() ? '100%' : '50%'">
+        <ng-template #title>
+          {{ chart.title }}
+        </ng-template>
+        <p-chart
+          [type]="chart.chartData.datasets[0].type"
+          [data]="chart.chartData"
+          [options]="chart.options"
+        />
+      </p-card>
+    }
+  </div>
+</page-container>

@@ -12,13 +12,23 @@
   </div>
 } @else {
   <div class="chart-container">
-    <p-chart
-      [type]="moistureChartData().datasets[0].type"
-      [data]="moistureChartData()"
-      [options]="options()"
-    />
+    @if (isMobile()) {
+      <p-card>
+        <ng-container [ngTemplateOutlet]="chart"></ng-container>
+      </p-card>
+    } @else {
+      <ng-container [ngTemplateOutlet]="chart"></ng-container>
+    }
   </div>
 }
+
+<ng-template #chart>
+  <p-chart
+    [type]="moistureChartData().datasets[0].type"
+    [data]="moistureChartData()"
+    [options]="options()"
+  />
+</ng-template>
 
 <p-popover #popover>
   <img

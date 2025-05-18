@@ -6,10 +6,20 @@ import { ChartLoaderComponent } from '../../miscellanious/chart-loader/chart-loa
 import { ChartModule } from 'primeng/chart';
 import { PopoverModule } from 'primeng/popover';
 import { GlobalUiService } from '../../../services/global-ui.service';
+import { getChartGridLineColors } from '../../../utils/chartUtils';
+import { DARK_MODE_CHART_GRID_COLOR } from '../../../constants/chart-constants';
+import { CardModule } from 'primeng/card';
+import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'soil-moisture-week-graph',
-  imports: [ChartLoaderComponent, ChartModule, PopoverModule],
+  imports: [
+    ChartLoaderComponent,
+    ChartModule,
+    PopoverModule,
+    CardModule,
+    NgTemplateOutlet
+  ],
   templateUrl: './soil-moisture-week-graph.component.html',
   styleUrl: './soil-moisture-week-graph.component.scss'
 })
@@ -25,7 +35,8 @@ export class SoilMoistureWeekGraphComponent {
   public moistureChartData = computed<ChartData<'line'>>(() => ({
     labels: getFullWeekOfDayLabelsCenteredAroundCurrentDay({
       includeDates: true,
-      shortDayNames: true
+      tinyDayNames: this.isMobile(),
+      shortDayNames: !this.isMobile()
     }),
     datasets: [
       {
@@ -40,7 +51,7 @@ export class SoilMoistureWeekGraphComponent {
 
   public options = computed<ChartOptions<'line'>>(() => ({
     maintainAspectRatio: false,
-    aspectRatio: 0.75,
+    aspectRatio: this.isMobile() ? 1.1 : 0.75,
     scales: {
       y: {
         beginAtZero: true,
@@ -51,16 +62,22 @@ export class SoilMoistureWeekGraphComponent {
         },
         grid: this.isDarkMode()
           ? {
-              color: 'rgba(200, 200, 200, 0.2)'
+              color: DARK_MODE_CHART_GRID_COLOR
             }
           : undefined
       },
       x: {
-        grid: this.isDarkMode()
-          ? {
-              color: 'rgba(200, 200, 200, 0.2)'
-            }
-          : undefined
+        grid: {
+          color: (context) =>
+            getChartGridLineColors(
+              context,
+              this.isDarkMode() ? 'dark' : 'light'
+            )
+        },
+        ticks: {
+          maxRotation: this.isMobile() ? 25 : 0,
+          minRotation: this.isMobile() ? 25 : 0
+        }
       }
     },
     plugins: {

@@ -10,9 +10,9 @@ import {
   JoinColumn,
   OneToMany,
 } from 'typeorm';
-import { LawnSegment } from 'src/lawn-segments/models/lawn-segments.model';
-import { Activity } from 'src/activities/models/activities.model';
-import { Product } from 'src/products/models/products.model';
+import { LawnSegment } from '../../lawn-segments/models/lawn-segments.model';
+import { Activity } from '../../activities/models/activities.model';
+import { Product } from '../../products/models/products.model';
 
 @Entity('entries')
 export class Entry {

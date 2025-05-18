@@ -19,7 +19,7 @@
   }
 
   .month-title {
-    font-size: 1.25rem;
+    font-size: 32px;
     font-weight: bold;
     width: 100%;
     width: max-content;
@@ -55,12 +55,12 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    border-radius: 0.75rem;
+    border-radius: 0.65rem;
     background-color: var(--p-surface-100);
     color: var(--p-surface-400);
     font-weight: 400;
     width: 100%;
-    height: 10vw;
+    height: 8.5vw;
 
     &.dark-mode {
       background-color: var(--p-surface-800);

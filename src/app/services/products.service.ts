@@ -1,5 +1,5 @@
 import { httpResource } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, linkedSignal } from '@angular/core';
 import { apiUrl, postReq, putReq } from '../utils/httpUtils';
 import { GetProductsResponse, ProductFormData } from '../types/products.types';
 import { Observable } from 'rxjs';
@@ -9,6 +9,7 @@ import { Observable } from 'rxjs';
 })
 export class ProductsService {
   public products = httpResource<GetProductsResponse>(() => apiUrl('products'));
+  public optimisticProducts = linkedSignal(() => this.products.value());
 
   public addProduct(productFormData: ProductFormData): Observable<void> {
     const formData = new FormData();
@@ -19,12 +20,12 @@ export class ProductsService {
           formData.append('product-image', value);
         } else {
           formData.append(key, String(value));
-
-          if (productFormData.systemProduct) {
-            formData.append('systemProduct', 'true');
-          }
         }
       });
+
+      if (productFormData.systemProduct) {
+        formData.append('systemProduct', 'true');
+      }
     }
 
     return postReq(apiUrl('products'), formData);

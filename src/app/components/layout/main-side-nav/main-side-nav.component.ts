@@ -66,6 +66,13 @@ export class MainSideNavComponent {
       command: this.closeSidebar,
       routerLinkActiveOptions: { exact: true }
     }
+    // {
+    //   label: 'Analytics',
+    //   icon: 'ti ti-chart-dots',
+    //   routerLink: '/analytics',
+    //   command: this.closeSidebar,
+    //   routerLinkActiveOptions: { exact: true }
+    // }
   ];
 
   public menuDt = computed<MenuDesignTokens>(() => ({

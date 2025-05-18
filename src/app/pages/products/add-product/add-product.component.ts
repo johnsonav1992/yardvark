@@ -111,7 +111,10 @@ export class AddProductComponent {
 
     this.isLoading.set(true);
     this._productsService
-      .addProduct(this.form.value as ProductFormData)
+      .addProduct({
+        ...this.form.value,
+        coverage: this.form.value.coverageAmount
+      } as ProductFormData)
       .subscribe({
         next: () => {
           this._productsService.products.reload();

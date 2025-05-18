@@ -20,12 +20,12 @@ export class ProductsService {
           formData.append('product-image', value);
         } else {
           formData.append(key, String(value));
-
-          if (productFormData.systemProduct) {
-            formData.append('systemProduct', 'true');
-          }
         }
       });
+
+      if (productFormData.systemProduct) {
+        formData.append('systemProduct', 'true');
+      }
     }
 
     return postReq(apiUrl('products'), formData);

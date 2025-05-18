@@ -30,7 +30,7 @@ export type ProductFormData = {
   name: string;
   brand: string;
   description: string;
-  coverageAmount: number | null;
+  coverage: number | null;
   coverageUnit: string;
   applicationRate: number | null;
   applicationMethod: string;

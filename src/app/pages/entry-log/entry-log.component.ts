@@ -197,7 +197,7 @@ export class EntryLogComponent implements OnInit {
       width: '50%',
       dismissableMask: true,
       closable: true,
-      contentStyle: { overflow: 'visible' },
+      contentStyle: { overflow: 'auto' },
       inputValues: {
         date
       },

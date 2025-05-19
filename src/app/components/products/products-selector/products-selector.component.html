@@ -8,7 +8,7 @@
     [loading]="products.isLoading()"
     [loadingIcon]="'ti ti-loader-2'"
     [showClear]="true"
-    (onChange)="addProductToForm($event)"
+    (onChange)="updateSelectedProducts($event)"
     (onClear)="productsControl().clear()"
     [style]="{ width: inputWidth() }"
     [formControlName]="'productsSelected'"

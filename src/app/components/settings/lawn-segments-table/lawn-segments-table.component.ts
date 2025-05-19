@@ -1,4 +1,11 @@
-import { Component, inject, model, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  inject,
+  model,
+  OnDestroy,
+  signal,
+  viewChild
+} from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { Table, TableModule } from 'primeng/table';
 import { LawnSegment } from '../../../types/lawnSegments.types';
@@ -23,7 +30,7 @@ import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loa
   templateUrl: './lawn-segments-table.component.html',
   styleUrl: './lawn-segments-table.component.scss'
 })
-export class LawnSegmentsTableComponent {
+export class LawnSegmentsTableComponent implements OnDestroy {
   private _lawnSegmentsService = inject(LawnSegmentsService);
   private _throwErrorToast = injectErrorToast();
 
@@ -34,6 +41,10 @@ export class LawnSegmentsTableComponent {
 
   public lawnSegmentsAreLoading =
     this._lawnSegmentsService.lawnSegments.isLoading;
+
+  public ngOnDestroy(): void {
+    this._lawnSegmentsService.lawnSegments.reload();
+  }
 
   public editLawnSegment(segment: LawnSegment): void {
     this.currentlyEditingLawnSegmentIds.update((prev) => {

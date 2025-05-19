@@ -41,28 +41,36 @@ export class ProductsSelectorComponent {
     () => this.form().get('products') as FormArray<EntryProductRow>
   );
 
-  public addProductToForm(e: MultiSelectChangeEvent): void {
+  public updateSelectedProducts(e: MultiSelectChangeEvent): void {
     const product = e.itemValue as Product | undefined;
     const fullList = e.value as Product[];
 
-    if (!product && fullList.length) {
-      const existingProducts = this.productsControl().value;
+    if (fullList.length === 0) return this.productsControl().clear();
 
-      fullList.forEach((prod) => {
-        const existingProductIndex = existingProducts.findIndex(
-          (p) => p.product?.id === prod.id
-        );
+    if (!product && fullList.length) return this._handleBulkSelection(fullList);
 
-        if (existingProductIndex === -1) {
-          this.productsControl().push(createEntryProductRow(prod));
-        }
-      });
+    this._toggleSingleProduct(product);
+  }
 
-      return;
-    }
+  private _handleBulkSelection(productList: Product[]): void {
+    const existingProducts = this.productsControl().value;
+
+    productList.forEach((prod) => {
+      const existingProductIndex = existingProducts.findIndex(
+        (p) => p.product?.id === prod.id
+      );
+
+      if (existingProductIndex === -1) {
+        this.productsControl().push(createEntryProductRow(prod));
+      }
+    });
+  }
+
+  private _toggleSingleProduct(product?: Product): void {
+    if (!product) return;
 
     const productIndex = this.productsControl().value.findIndex(
-      (p) => p.product?.id === product?.id
+      (p) => p.product?.id === product.id
     );
 
     if (productIndex !== -1) {

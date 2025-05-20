@@ -52,7 +52,7 @@
           </p>
           <p>
             <strong>Fuel Type:</strong>
-            {{ equipment()?.fuelType | titlecase }}
+            {{ (equipment()?.fuelType | titlecase) || "N/A" }}
           </p>
         </div>
       </div>

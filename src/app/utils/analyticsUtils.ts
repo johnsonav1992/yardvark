@@ -64,3 +64,40 @@ export const getMonthlyMowingChartConfig = (
     }
   };
 };
+
+export const getFertilizerTimelineChartConfig = (
+  analyticsData: AnalyticsRes | undefined,
+  uiOptions: { isDarkMode: boolean; isMobile: boolean }
+): AnalyticsChartConfig<'line'> => {
+  const grid = uiOptions.isDarkMode
+    ? {
+        color: 'rgba(200, 200, 200, 0.2)'
+      }
+    : undefined;
+
+  return {
+    title: `Monthly Mow Counts (${new Date().getFullYear()})`,
+    chartData: {
+      labels: getMonthAbbreviationsFromSeasonStartToToday(),
+      datasets: [
+        {
+          type: 'line',
+          label: `Fertilizer`,
+          data: [0, 2, 5, 7]
+        }
+      ]
+    },
+    options: {
+      maintainAspectRatio: false,
+      aspectRatio: uiOptions.isMobile ? 1.1 : 0.75,
+      scales: {
+        y: {
+          beginAtZero: true,
+          min: 0,
+          grid
+        },
+        x: { grid }
+      }
+    }
+  };
+};

@@ -4,6 +4,16 @@ export type MowingAnalyticsRowRes = {
   mowCount: string;
 };
 
-export type AnalyticsRes = {
-  mowingAnalyticsData: MowingAnalyticsRowRes[];
+export type FertilizerTimelineRowRes = {
+  applicationDate: string;
+  productName: string;
 };
+
+export type AnalyticsRes = [
+  {
+    get_user_analytics_v2: {
+      mowingAnalyticsData: MowingAnalyticsRowRes[];
+      fertilizerTimelineData: FertilizerTimelineRowRes[];
+    };
+  },
+];

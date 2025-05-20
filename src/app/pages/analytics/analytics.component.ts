@@ -3,7 +3,10 @@ import { PageContainerComponent } from '../../components/layout/page-container/p
 import { CardModule } from 'primeng/card';
 import { ChartModule } from 'primeng/chart';
 import { GlobalUiService } from '../../services/global-ui.service';
-import { getMonthlyMowingChartConfig } from '../../utils/analyticsUtils';
+import {
+  getFertilizerTimelineChartConfig,
+  getMonthlyMowingChartConfig
+} from '../../utils/analyticsUtils';
 import { AnalyticsService } from '../../services/analytics.service';
 
 @Component({
@@ -27,6 +30,9 @@ export class AnalyticsComponent {
       isMobile: this.isMobile()
     };
 
-    return [getMonthlyMowingChartConfig(this.analyticsData.value(), uiOptions)];
+    return [
+      getMonthlyMowingChartConfig(this.analyticsData.value(), uiOptions),
+      getFertilizerTimelineChartConfig(this.analyticsData.value(), uiOptions)
+    ];
   });
 }

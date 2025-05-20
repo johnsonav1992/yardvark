@@ -50,7 +50,7 @@ export const getMonthlyMowingChartConfig = (
         y: {
           beginAtZero: true,
           min: 0,
-          max: highestMowingCount * 1.25,
+          max: Math.ceil(highestMowingCount * 1.25),
           grid: uiOptions.isDarkMode
             ? {
                 color: 'rgba(200, 200, 200, 0.2)'

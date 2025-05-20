@@ -7,6 +7,8 @@ export type MowingAnalyticsRowRes = {
 export type FertilizerTimelineRowRes = {
   applicationDate: string;
   productName: string;
+  productQuantity: number;
+  productQuantityUnit: string;
 };
 
 export type AnalyticsRes = [

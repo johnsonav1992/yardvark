@@ -3,20 +3,20 @@ import { shortMonthNames } from '../constants/time-constants';
 import { AnalyticsChartConfig, AnalyticsRes } from '../types/analytics.types';
 
 /**
- * Returns an array of month abbreviations from the start of the lawn season up to and including the current month.
+ * Returns an array of month abbreviations for a period of time
  *
  * @param startMonth - The starting month index of the lawn season (0 for January, 1 for February, etc.)
- * @returns An array of month abbreviations from the lawn season start to the current month.
+ * @param endMonth - The ending month index (0 for January, 1 for February, etc.). Defaults to the current month.
+ * @returns An array of month abbreviations for the time period.
  */
-export const getMonthAbbreviationsFromSeasonStartToToday = (startMonth = 1) => {
-  const today = new Date();
+export const getMonthAbbreviations = (
+  startMonth = 1,
+  endMonth = new Date().getMonth()
+) => {
   const monthNames = shortMonthNames;
-  const currentMonthIndex = today.getMonth();
   const months: string[] = [];
 
-  if (currentMonthIndex < startMonth) return months;
-
-  for (let i = startMonth; i <= currentMonthIndex; i++) {
+  for (let i = startMonth; i <= endMonth; i++) {
     months.push(monthNames[i]);
   }
 
@@ -29,6 +29,11 @@ export const getMonthlyMowingChartConfig = (
 ): AnalyticsChartConfig<'bar'> => {
   const mowingCounts =
     analyticsData?.mowingAnalyticsData.map((month) => +month.mowCount) || [];
+  const startMonth = analyticsData?.mowingAnalyticsData[0]?.month || 1;
+  const endMonth =
+    analyticsData?.mowingAnalyticsData[
+      analyticsData.mowingAnalyticsData.length - 1
+    ]?.month;
 
   const highestMowingCount = Math.max(...mowingCounts);
   const grid = uiOptions.isDarkMode
@@ -40,7 +45,7 @@ export const getMonthlyMowingChartConfig = (
   return {
     title: `Monthly Mow Counts (${new Date().getFullYear()})`,
     chartData: {
-      labels: getMonthAbbreviationsFromSeasonStartToToday(),
+      labels: getMonthAbbreviations(startMonth, endMonth),
       datasets: [
         {
           type: 'bar',
@@ -78,12 +83,17 @@ export const getFertilizerTimelineChartConfig = (
   return {
     title: `Monthly Mow Counts (${new Date().getFullYear()})`,
     chartData: {
-      labels: getMonthAbbreviationsFromSeasonStartToToday(),
+      labels: analyticsData?.fertilizerTimelineData.map(
+        (item) => item.applicationDate
+      ),
       datasets: [
         {
           type: 'line',
           label: `Fertilizer`,
-          data: [0, 2, 5, 7]
+          data:
+            analyticsData?.fertilizerTimelineData.map(
+              (item) => +item.productQuantity
+            ) || []
         }
       ]
     },

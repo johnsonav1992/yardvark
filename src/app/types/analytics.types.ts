@@ -6,8 +6,16 @@ export type MowingAnalyticsRowRes = {
   mowCount: string;
 };
 
+export type FertilizerTimelineRowRes = {
+  applicationDate: string;
+  productName: string;
+  productQuantity: number;
+  productQuantityUnit: string;
+};
+
 export type AnalyticsRes = {
   mowingAnalyticsData: MowingAnalyticsRowRes[];
+  fertilizerTimelineData: FertilizerTimelineRowRes[];
 };
 
 export type AnalyticsChartConfig<TType extends ChartType = ChartType> = {

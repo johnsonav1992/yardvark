@@ -1,5 +1,6 @@
+import { ChartData, ChartOptions, ChartType } from 'chart.js';
 import { shortMonthNames } from '../constants/time-constants';
-import { AnalyticsRes } from '../types/analytics.types';
+import { AnalyticsChartConfig, AnalyticsRes } from '../types/analytics.types';
 
 /**
  * Returns an array of month abbreviations from the start of the lawn season up to and including the current month.
@@ -25,11 +26,16 @@ export const getMonthAbbreviationsFromSeasonStartToToday = (startMonth = 1) => {
 export const getMonthlyMowingChartConfig = (
   analyticsData: AnalyticsRes | undefined,
   uiOptions: { isDarkMode: boolean; isMobile: boolean }
-) => {
+): AnalyticsChartConfig<'bar'> => {
   const mowingCounts =
     analyticsData?.mowingAnalyticsData.map((month) => +month.mowCount) || [];
 
   const highestMowingCount = Math.max(...mowingCounts);
+  const grid = uiOptions.isDarkMode
+    ? {
+        color: 'rgba(200, 200, 200, 0.2)'
+      }
+    : undefined;
 
   return {
     title: `Monthly Mow Counts (${new Date().getFullYear()})`,
@@ -37,7 +43,7 @@ export const getMonthlyMowingChartConfig = (
       labels: getMonthAbbreviationsFromSeasonStartToToday(),
       datasets: [
         {
-          type: 'bar' as const,
+          type: 'bar',
           label: `Mowing Count`,
           data: mowingCounts
         }
@@ -51,19 +57,9 @@ export const getMonthlyMowingChartConfig = (
           beginAtZero: true,
           min: 0,
           max: Math.ceil(highestMowingCount * 1.25),
-          grid: uiOptions.isDarkMode
-            ? {
-                color: 'rgba(200, 200, 200, 0.2)'
-              }
-            : undefined
+          grid
         },
-        x: {
-          grid: uiOptions.isDarkMode
-            ? {
-                color: 'rgba(200, 200, 200, 0.2)'
-              }
-            : undefined
-        }
+        x: { grid }
       }
     }
   };

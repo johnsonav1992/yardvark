@@ -81,7 +81,7 @@ export const getFertilizerTimelineChartConfig = (
     : undefined;
 
   return {
-    title: `Monthly Mow Counts (${new Date().getFullYear()})`,
+    title: `Fertilizer Timeline (${new Date().getFullYear()})`,
     chartData: {
       labels: analyticsData?.fertilizerTimelineData.map(
         (item) => item.applicationDate

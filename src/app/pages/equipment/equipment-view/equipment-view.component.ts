@@ -25,6 +25,7 @@ import { EquipmentMaintenance } from '../../../types/equipment.types';
 import { injectErrorToast } from '../../../utils/toastUtils';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonDesignTokens } from '@primeng/themes/types/button';
+import { NO_IMAGE_URL } from '../../../constants/style-constants';
 
 @Component({
   selector: 'equipment-view',
@@ -52,6 +53,8 @@ export class EquipmentViewComponent {
   private _router = inject(Router);
   private _confirmationService = inject(ConfirmationService);
   public throwErrorToast = injectErrorToast();
+
+  public noImageUrl = NO_IMAGE_URL;
 
   public isMobile = this._globalUiService.isMobile;
 

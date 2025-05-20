@@ -9,6 +9,7 @@ import { DividerModule } from 'primeng/divider';
 import { DividerDesignTokens } from '@primeng/themes/types/divider';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { LoadingSpinnerComponent } from '../../../components/miscellanious/loading-spinner/loading-spinner.component';
+import { NO_IMAGE_URL } from '../../../constants/style-constants';
 
 @Component({
   selector: 'product-view',
@@ -26,6 +27,8 @@ export class ProductViewComponent {
   private _route = inject(ActivatedRoute);
   private _productsService = inject(ProductsService);
   private _globalUiService = inject(GlobalUiService);
+
+  public noImageUrl = NO_IMAGE_URL;
 
   public isMobile = this._globalUiService.isMobile;
 

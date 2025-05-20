@@ -3,7 +3,7 @@
   [style.border]="showBorder() ? '1px dotted var(--p-surface-400)' : 'none'"
 >
   <div class="product-info-wrapper">
-    <img [src]="product().imageUrl" width="auto" height="30px" />
+    <img [src]="product().imageUrl || noImageUrl" width="auto" height="30px" />
     <div>
       {{ product().name }}
       @if (!hideSubtitle()) {

@@ -18,7 +18,7 @@
   <div class="content-container">
     <div class="img-desc">
       <img
-        [src]="equipment().imageUrl"
+        [src]="equipment().imageUrl || noImageUrl"
         alt="{{ equipment().name }}"
         class="equipment-img"
       />

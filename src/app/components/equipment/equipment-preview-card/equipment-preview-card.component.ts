@@ -10,6 +10,7 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { EquipmentMaintenanceAddEditModalComponent } from '../equipment-maintenance-add-edit-modal/equipment-maintenance-add-edit-modal.component';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { EquipmentService } from '../../../services/equipment.service';
+import { NO_IMAGE_URL } from '../../../constants/style-constants';
 
 @Component({
   selector: 'equipment-preview-card',
@@ -23,6 +24,8 @@ export class EquipmentPreviewCardComponent {
   private _dialogService = inject(DialogService);
   private _equipmentService = inject(EquipmentService);
   public isMobile = inject(GlobalUiService).isMobile;
+
+  public noImageUrl = NO_IMAGE_URL;
 
   public equipment = input.required<Equipment>();
 

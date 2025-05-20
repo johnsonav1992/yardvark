@@ -20,7 +20,7 @@ export class EquipmentService {
       Object.entries(equipmentData).forEach(([key, value]) => {
         if (value instanceof File) {
           formData.append('equipment-image', value);
-        } else {
+        } else if (value) {
           formData.append(key, String(value));
         }
       });

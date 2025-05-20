@@ -10,6 +10,7 @@ import {
 import { Product } from '../../../types/products.types';
 import { NgTemplateOutlet } from '@angular/common';
 import { CapitalizePipe } from '../../../pipes/capitalize.pipe';
+import { NO_IMAGE_URL } from '../../../constants/style-constants';
 
 @Component({
   selector: 'product-small-card',
@@ -19,6 +20,8 @@ import { CapitalizePipe } from '../../../pipes/capitalize.pipe';
 })
 export class ProductSmallCardComponent {
   private _el = inject(ElementRef);
+
+  public noImageUrl = NO_IMAGE_URL;
 
   public product = input.required<Partial<Product>>();
   public width = input<string | number>('100%');

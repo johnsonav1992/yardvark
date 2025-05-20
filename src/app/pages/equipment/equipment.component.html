@@ -31,7 +31,11 @@
         </ng-template>
         <div class="empty-card-content">
           <p>Try adding some equipment to your inventory.</p>
-          <p-button icon="ti ti-plus" label="Add Equipment" (click)="('')" />
+          <p-button
+            icon="ti ti-plus"
+            label="Add Equipment"
+            (click)="navToAddEquipment()"
+          />
         </div>
       </p-card>
     }

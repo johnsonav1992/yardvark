@@ -16,7 +16,7 @@
     } @else {
       @if (isMobile()) {
         <img
-          [src]="equipment()?.imageUrl"
+          [src]="equipment()?.imageUrl || noImageUrl"
           alt="{{ equipment()?.name }}"
           width="60%"
           [style]="{ alignSelf: 'center', marginBottom: '1rem' }"
@@ -25,7 +25,7 @@
       <div class="top-container">
         @if (!isMobile()) {
           <img
-            [src]="equipment()?.imageUrl"
+            [src]="equipment()?.imageUrl || noImageUrl"
             alt="{{ equipment()?.name }}"
             width="40%"
           />

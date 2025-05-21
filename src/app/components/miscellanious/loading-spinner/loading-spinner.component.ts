@@ -24,10 +24,10 @@ export class LoadingSpinnerComponent {
 
   public spinnerDt: ProgressSpinnerDesignTokens = {
     root: {
-      'color.1': '{primary.500}',
-      'color.2': '{primary.500}',
-      'color.3': '{primary.500}',
-      'color.4': '{primary.500}'
+      colorOne: '{primary.500}',
+      colorTwo: '{primary.500}',
+      colorThree: '{primary.500}',
+      colorFour: '{primary.500}'
     }
   };
 }

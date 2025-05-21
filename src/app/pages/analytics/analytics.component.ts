@@ -5,7 +5,8 @@ import { ChartModule } from 'primeng/chart';
 import { GlobalUiService } from '../../services/global-ui.service';
 import {
   getFertilizerTimelineChartConfig,
-  getMonthlyMowingChartConfig
+  getMonthlyMowingChartConfig,
+  getProductTypeDistributionChartConfig
 } from '../../utils/analyticsUtils';
 import { AnalyticsService } from '../../services/analytics.service';
 
@@ -32,7 +33,8 @@ export class AnalyticsComponent {
 
     return [
       getMonthlyMowingChartConfig(this.analyticsData.value(), uiOptions),
-      getFertilizerTimelineChartConfig(this.analyticsData.value(), uiOptions)
+      getFertilizerTimelineChartConfig(this.analyticsData.value(), uiOptions),
+      getProductTypeDistributionChartConfig(this.analyticsData.value())
     ];
   });
 }

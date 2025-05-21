@@ -23,6 +23,7 @@
     "@auth0/auth0-angular": "^2.2.3",
     "@primeng/themes": "^19.0.9",
     "chart.js": "^4.4.8",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "date-fns": "^4.1.0",
     "logrocket": "^9.0.2",
     "primeng": "^19.1.3",

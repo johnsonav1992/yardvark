@@ -11,11 +11,18 @@ export type FertilizerTimelineRowRes = {
   productName: string;
   productQuantity: number;
   productQuantityUnit: string;
+  guaranteedAnalysis: string;
+};
+
+export type ProductTypeDistributionRowRes = {
+  category: string;
+  usageCount: number;
 };
 
 export type AnalyticsRes = {
   mowingAnalyticsData: MowingAnalyticsRowRes[];
   fertilizerTimelineData: FertilizerTimelineRowRes[];
+  productTypeDistributionData: ProductTypeDistributionRowRes[];
 };
 
 export type AnalyticsChartConfig<TType extends ChartType = ChartType> = {

@@ -1,6 +1,12 @@
-import { ChartData, ChartOptions, ChartType } from 'chart.js';
+import { ChartData, ChartOptions, ChartType, TooltipItem } from 'chart.js';
 import { shortMonthNames } from '../constants/time-constants';
 import { AnalyticsChartConfig, AnalyticsRes } from '../types/analytics.types';
+import { getPrimeNgHexColor } from './styleUtils';
+
+import Chart from 'chart.js/auto';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+
+export const LIQUID_OZ_AS_WEIGHT_IN_POUNDS = 0.1;
 
 /**
  * Returns an array of month abbreviations for a period of time
@@ -21,6 +27,25 @@ export const getMonthAbbreviations = (
   }
 
   return months;
+};
+
+/**
+ * Returns the number of pounds of nitrogen in a fertilizer application
+ *
+ * @param poundsOfProduct - The weight of the fertilizer product in pounds
+ * @param guaranteedAnalysisOfProduct - The guaranteed analysis of the fertilizer product (e.g., "10-10-10")
+ * @returns The number of pounds of nitrogen in the fertilizer application
+ */
+export const getPoundsOfNInFertilizerApp = (
+  poundsOfProduct: number,
+  guaranteedAnalysisOfProduct: string
+) => {
+  const nRateOfProduct = +guaranteedAnalysisOfProduct.split('-')[0];
+
+  const nPercent = nRateOfProduct / 100;
+  const poundsOfN = poundsOfProduct * nPercent;
+
+  return Math.round(poundsOfN * 100) / 100;
 };
 
 export const getMonthlyMowingChartConfig = (
@@ -80,6 +105,17 @@ export const getFertilizerTimelineChartConfig = (
       }
     : undefined;
 
+  const data = (analyticsData?.fertilizerTimelineData || []).map((app) => {
+    const isItLiquid =
+      app.productQuantityUnit === 'oz' || app.productQuantityUnit === 'fl oz';
+
+    const productWeight = isItLiquid
+      ? app.productQuantity * LIQUID_OZ_AS_WEIGHT_IN_POUNDS
+      : app.productQuantity;
+
+    return getPoundsOfNInFertilizerApp(productWeight, app.guaranteedAnalysis);
+  });
+
   return {
     title: `Fertilizer Timeline (${new Date().getFullYear()})`,
     chartData: {
@@ -89,11 +125,10 @@ export const getFertilizerTimelineChartConfig = (
       datasets: [
         {
           type: 'line',
-          label: `Fertilizer`,
-          data:
-            analyticsData?.fertilizerTimelineData.map(
-              (item) => +item.productQuantity
-            ) || []
+          data,
+          borderColor: getPrimeNgHexColor('teal.500'),
+          tension: 0.4,
+          label: 'Pounds of N per app'
         }
       ]
     },
@@ -107,6 +142,61 @@ export const getFertilizerTimelineChartConfig = (
           grid
         },
         x: { grid }
+      }
+    }
+  };
+};
+
+export const getProductTypeDistributionChartConfig = (
+  analyticsData: AnalyticsRes | undefined
+): AnalyticsChartConfig<'pie'> => {
+  const data = (analyticsData?.productTypeDistributionData || []).map(
+    (item) => item.usageCount
+  );
+  const labels = (analyticsData?.productTypeDistributionData || []).map(
+    (item) => item.category
+  );
+
+  return {
+    title: 'Product Type Distribution',
+    chartData: {
+      labels,
+      datasets: [
+        {
+          type: 'pie',
+          label: 'Product Type Distribution',
+          data
+        }
+      ]
+    },
+    options: {
+      maintainAspectRatio: false,
+      aspectRatio: 1,
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (context: TooltipItem<'pie'>) => {
+              const value = context.raw as number;
+              const data = context.dataset?.data as number[] | undefined;
+              const total = data?.reduce((acc, val) => acc + val, 0) ?? 0;
+              const percentage =
+                total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+              return `${context.label ?? ''}: ${value} (${percentage}%)`;
+            }
+          }
+        },
+        datalabels: {
+          formatter: (value: number, ctx) => {
+            const data = ctx.dataset?.data as number[] | undefined;
+            const sum = data?.reduce((acc, val) => acc + val, 0) ?? 0;
+            const percentage = sum > 0 ? ((value / sum) * 100).toFixed(1) : '0';
+            return `${value}\n(${percentage}%)`;
+          },
+          color: '#fff',
+          font: {
+            weight: 'bold'
+          }
+        }
       }
     }
   };

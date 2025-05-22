@@ -1,10 +1,7 @@
-import { ChartData, ChartOptions, ChartType, TooltipItem } from 'chart.js';
+import { TooltipItem } from 'chart.js';
 import { shortMonthNames } from '../constants/time-constants';
 import { AnalyticsChartConfig, AnalyticsRes } from '../types/analytics.types';
 import { getPrimeNgHexColor } from './styleUtils';
-
-import Chart from 'chart.js/auto';
-import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 export const LIQUID_OZ_AS_WEIGHT_IN_POUNDS = 0.1;
 
@@ -160,7 +157,7 @@ export const getProductTypeDistributionChartConfig = (
 
   return {
     title: 'Product Type Distribution',
-    desc: 'Count/percentage products types used during the year per category across all apps.',
+    desc: 'Count/percentage of products per type/category used during the year across all apps.',
     chartData: {
       labels,
       datasets: [
@@ -181,22 +178,12 @@ export const getProductTypeDistributionChartConfig = (
               const value = context.raw as number;
               const data = context.dataset?.data as number[] | undefined;
               const total = data?.reduce((acc, val) => acc + val, 0) ?? 0;
+
               const percentage =
                 total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+
               return `${context.label ?? ''}: ${value} (${percentage}%)`;
             }
-          }
-        },
-        datalabels: {
-          formatter: (value: number, ctx) => {
-            const data = ctx.dataset?.data as number[] | undefined;
-            const sum = data?.reduce((acc, val) => acc + val, 0) ?? 0;
-            const percentage = sum > 0 ? ((value / sum) * 100).toFixed(1) : '0';
-            return `${value}\n(${percentage}%)`;
-          },
-          color: '#fff',
-          font: {
-            weight: 'bold'
           }
         }
       }

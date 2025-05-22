@@ -31,8 +31,10 @@ export class ProductsController {
   async addProduct(
     @Req() req: Request,
     @UploadedFile(imageFileValidator) file: Express.Multer.File,
-    @Body() body: Product & { systemProduct?: boolean },
+    @Body() body: Product & { systemProduct?: string | boolean },
   ) {
+    if (body.systemProduct) body.systemProduct = body.systemProduct === 'true';
+
     let imageUrl: string | null = null;
 
     if (file) {

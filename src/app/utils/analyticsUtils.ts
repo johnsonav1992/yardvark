@@ -68,7 +68,7 @@ export const getMonthlyMowingChartConfig = (
     : undefined;
 
   return {
-    title: `Monthly Mow Counts (${new Date().getFullYear()})`,
+    title: 'Monthly Mow Counts',
     chartData: {
       labels: getMonthAbbreviations(startMonth, endMonth),
       datasets: [
@@ -117,7 +117,7 @@ export const getFertilizerTimelineChartConfig = (
   });
 
   return {
-    title: `Fertilizer Timeline (${new Date().getFullYear()})`,
+    title: 'Fertilizer Timeline',
     chartData: {
       labels: analyticsData?.fertilizerTimelineData.map(
         (item) => item.applicationDate

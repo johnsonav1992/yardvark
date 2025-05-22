@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import { CardModule } from 'primeng/card';
 import { ChartModule } from 'primeng/chart';
@@ -9,10 +9,24 @@ import {
   getProductTypeDistributionChartConfig
 } from '../../utils/analyticsUtils';
 import { AnalyticsService } from '../../services/analytics.service';
+import { EmptyMessageComponent } from '../../components/miscellanious/empty-message/empty-message.component';
+import { LoadingSpinnerComponent } from '../../components/miscellanious/loading-spinner/loading-spinner.component';
+import { DatePickerModule } from 'primeng/datepicker';
+import { FormsModule } from '@angular/forms';
+import { FloatLabelModule } from 'primeng/floatlabel';
 
 @Component({
   selector: 'analytics',
-  imports: [PageContainerComponent, CardModule, ChartModule],
+  imports: [
+    PageContainerComponent,
+    CardModule,
+    ChartModule,
+    EmptyMessageComponent,
+    LoadingSpinnerComponent,
+    DatePickerModule,
+    FormsModule,
+    FloatLabelModule
+  ],
   templateUrl: './analytics.component.html',
   styleUrl: './analytics.component.scss'
 })
@@ -24,6 +38,8 @@ export class AnalyticsComponent {
 
   public isDarkMode = this._globalUiService.isDarkMode;
   public isMobile = this._globalUiService.isMobile;
+
+  public year = signal(new Date());
 
   public charts = computed(() => {
     const uiOptions = {

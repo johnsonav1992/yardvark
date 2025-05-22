@@ -1,16 +1,39 @@
 <page-container pageTitle="Analytics">
+  <ng-template #action1>
+    <p-floatlabel variant="on">
+      <p-datePicker
+        [(ngModel)]="year"
+        view="year"
+        dateFormat="yy"
+        id="year"
+        disabled
+      />
+      <label for="year">Year</label>
+    </p-floatlabel>
+  </ng-template>
   <div class="main-container">
-    @for (chart of charts(); track chart.title) {
-      <p-card [style.width]="isMobile() ? '100%' : '48%'">
-        <ng-template #title>
-          {{ chart.title }}
-        </ng-template>
-        <p-chart
-          [type]="chart.chartData.datasets[0].type"
-          [data]="chart.chartData"
-          [options]="chart.options"
-        />
-      </p-card>
+    @if (analyticsData.isLoading()) {
+      <loading-spinner />
+    } @else {
+      @for (chart of charts(); track chart.title) {
+        @let chartData = chart.chartData;
+
+        <p-card [style.width]="isMobile() ? '100%' : '48%'">
+          <ng-template #title>
+            {{ chart.title }}
+          </ng-template>
+
+          @if (chartData.datasets[0].data.length) {
+            <p-chart
+              [type]="chartData.datasets[0].type"
+              [data]="chartData"
+              [options]="chart.options"
+            />
+          } @else {
+            <empty-message message="No data available" />
+          }
+        </p-card>
+      }
     }
   </div>
 </page-container>

@@ -68,7 +68,8 @@ export class EquipmentComponent {
     root: {
       iconOnlyWidth: this.isMobile() ? '4rem' : '5rem',
       lg: {
-        fontSize: '36px'
+        fontSize: '36px',
+        iconOnlyWidth: this.isMobile() ? '4rem' : '5rem'
       }
     }
   };

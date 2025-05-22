@@ -1,4 +1,10 @@
-import { Component, inject, linkedSignal, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  linkedSignal,
+  signal
+} from '@angular/core';
 import { TabsModule } from 'primeng/tabs';
 import { Tab } from '../../types/components.types';
 import { ProductCategories } from '../../types/products.types';
@@ -162,12 +168,13 @@ export class ProductsComponent {
     if (this.isMobile()) this._dialogService.getInstance(dialogRef).maximize();
   }
 
-  public addButtonDt: ButtonDesignTokens = {
+  public addButtonDt = computed<ButtonDesignTokens>(() => ({
     root: {
       iconOnlyWidth: this.isMobile() ? '4rem' : '5rem',
       lg: {
-        fontSize: '36px'
+        fontSize: '36px',
+        iconOnlyWidth: this.isMobile() ? '4rem' : '5rem'
       }
     }
-  };
+  }));
 }

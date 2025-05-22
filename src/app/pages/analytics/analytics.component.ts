@@ -14,6 +14,7 @@ import { LoadingSpinnerComponent } from '../../components/miscellanious/loading-
 import { DatePickerModule } from 'primeng/datepicker';
 import { FormsModule } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
+import { PopoverModule } from 'primeng/popover';
 
 @Component({
   selector: 'analytics',
@@ -25,7 +26,8 @@ import { FloatLabelModule } from 'primeng/floatlabel';
     LoadingSpinnerComponent,
     DatePickerModule,
     FormsModule,
-    FloatLabelModule
+    FloatLabelModule,
+    PopoverModule
   ],
   templateUrl: './analytics.component.html',
   styleUrl: './analytics.component.scss'

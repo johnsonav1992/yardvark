@@ -22,6 +22,16 @@
         <p-card [style.width]="isMobile() ? '100%' : '49%'">
           <ng-template #title>
             {{ chart.title }}
+            @if (chart.desc) {
+              <i
+                class="ti ti-info-circle"
+                [style.cursor]="'pointer'"
+                (click)="infoOverlay.toggle($event)"
+              ></i>
+              <p-popover #infoOverlay styleClass="info-overlay">
+                <p>{{ chart.desc }}</p>
+              </p-popover>
+            }
           </ng-template>
 
           @if (chartData.datasets[0].data.length) {

@@ -118,6 +118,7 @@ export const getFertilizerTimelineChartConfig = (
 
   return {
     title: 'Fertilizer Timeline',
+    desc: 'Pounds of nitrogen per application. Generally a good range is 0.5-1.0 lbs/N (per 1000sqft) per application.',
     chartData: {
       labels: analyticsData?.fertilizerTimelineData.map(
         (item) => item.applicationDate
@@ -159,6 +160,7 @@ export const getProductTypeDistributionChartConfig = (
 
   return {
     title: 'Product Type Distribution',
+    desc: 'Count/percentage products types used during the year per category across all apps.',
     chartData: {
       labels,
       datasets: [

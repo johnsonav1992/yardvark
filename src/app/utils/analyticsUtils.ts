@@ -53,10 +53,10 @@ export const getMonthlyMowingChartConfig = (
   uiOptions: { isDarkMode: boolean; isMobile: boolean }
 ): AnalyticsChartConfig<'bar'> => {
   const mowingCounts =
-    analyticsData?.mowingAnalyticsData.map((month) => +month.mowCount) || [];
-  const startMonth = analyticsData?.mowingAnalyticsData[0]?.month || 1;
+    analyticsData?.mowingAnalyticsData?.map((month) => +month.mowCount) || [];
+  const startMonth = analyticsData?.mowingAnalyticsData?.[0]?.month || 1;
   const endMonth =
-    analyticsData?.mowingAnalyticsData[
+    analyticsData?.mowingAnalyticsData?.[
       analyticsData.mowingAnalyticsData.length - 1
     ]?.month;
 
@@ -120,7 +120,7 @@ export const getFertilizerTimelineChartConfig = (
     title: 'Fertilizer Timeline',
     desc: 'Pounds of nitrogen per application. Generally a good range is 0.5-1.0 lbs/N (per 1000sqft) per application.',
     chartData: {
-      labels: analyticsData?.fertilizerTimelineData.map(
+      labels: analyticsData?.fertilizerTimelineData?.map(
         (item) => item.applicationDate
       ),
       datasets: [

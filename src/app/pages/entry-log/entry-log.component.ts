@@ -258,7 +258,8 @@ export class EntryLogComponent implements OnInit {
     root: {
       iconOnlyWidth: this.isMobile() ? '4rem' : '5rem',
       lg: {
-        fontSize: this.isMobile() ? '28px' : '36px'
+        fontSize: this.isMobile() ? '28px' : '36px',
+        iconOnlyWidth: this.isMobile() ? '4rem' : '5rem'
       }
     }
   }));

@@ -1,16 +1,54 @@
-<page-container pageTitle="Analytics">
+<page-container pageTitle="Analytics" gap=".5rem">
+  <ng-template #action1>
+    <p-floatlabel variant="on">
+      <p-datePicker
+        [(ngModel)]="year"
+        view="year"
+        dateFormat="yy"
+        id="year"
+        disabled
+        [inputStyle]="{ width: '100px' }"
+      />
+      <label for="year">Year</label>
+    </p-floatlabel>
+  </ng-template>
+  <em [style.font-size]="'10px'">
+    {{ `${isMobile() ? 'Click on' : 'Hover over'} segments or points of charts to see more details` }}
+  </em>
   <div class="main-container">
-    @for (chart of charts(); track chart.title) {
-      <p-card [style.width]="isMobile() ? '100%' : '50%'">
-        <ng-template #title>
-          {{ chart.title }}
-        </ng-template>
-        <p-chart
-          [type]="chart.chartData.datasets[0].type"
-          [data]="chart.chartData"
-          [options]="chart.options"
-        />
-      </p-card>
+    @if (analyticsData.isLoading()) {
+      <loading-spinner />
+    } @else {
+      @for (chart of charts(); track chart.title) {
+        @let chartData = chart.chartData;
+        @let hasData = chartData.datasets[0].data.length;
+
+        <p-card [style.width]="isMobile() ? '100%' : '49%'">
+          <ng-template #title>
+            {{ chart.title }}
+            @if (chart.desc && hasData) {
+              <i
+                class="ti ti-info-circle"
+                [style.cursor]="'pointer'"
+                (click)="infoOverlay.toggle($event)"
+              ></i>
+              <p-popover #infoOverlay styleClass="info-overlay">
+                <p>{{ chart.desc }}</p>
+              </p-popover>
+            }
+          </ng-template>
+
+          @if (hasData) {
+            <p-chart
+              [type]="chartData.datasets[0].type"
+              [data]="chartData"
+              [options]="chart.options"
+            />
+          } @else {
+            <empty-message message="No data available" />
+          }
+        </p-card>
+      }
     }
   </div>
 </page-container>

@@ -1,4 +1,10 @@
 .main-container {
   display: flex;
+  gap: 1rem;
+  justify-content: space-between;
   flex-wrap: wrap;
+}
+
+::ng-deep.info-overlay {
+  width: 300px;
 }

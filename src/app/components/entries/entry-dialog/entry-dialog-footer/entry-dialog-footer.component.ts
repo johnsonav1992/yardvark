@@ -8,6 +8,7 @@ import { injectErrorToast } from '../../../../utils/toastUtils';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { format } from 'date-fns';
 import { EntriesService } from '../../../../services/entries.service';
+import { AnalyticsService } from '../../../../services/analytics.service';
 
 @Component({
   selector: 'entry-dialog-footer',
@@ -20,6 +21,7 @@ export class EntryDialogFooterComponent {
   private _dialogRef = inject(DynamicDialogRef<EntryDialogComponent>);
   private _soilTempService = inject(SoilTemperatureService);
   private _entriesService = inject(EntriesService);
+  private _analyticsService = inject(AnalyticsService);
   private throwErrorToast = injectErrorToast();
 
   public user = injectUserData();
@@ -79,6 +81,10 @@ export class EntryDialogFooterComponent {
       next: () => {
         this.isLoading.set(false);
         this._dialogRef.close(this.form?.value.date!);
+
+        this._analyticsService.analyticsData.reload();
+        this._entriesService.lastMow.reload();
+        this._entriesService.recentEntry.reload();
       },
       error: () => {
         this.isLoading.set(false);

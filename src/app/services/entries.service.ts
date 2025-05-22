@@ -1,5 +1,5 @@
 import { httpResource } from '@angular/common/http';
-import { computed, Injectable, Signal } from '@angular/core';
+import { Injectable, Signal } from '@angular/core';
 import {
   EntriesSearchRequest,
   Entry,

@@ -2,7 +2,6 @@ import { Component, computed, inject } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { EntriesService } from '../../../services/entries.service';
 import { differenceInDays } from 'date-fns';
-import { SettingsService } from '../../../services/settings.service';
 import { getLawnSeasonCompletedPercentage } from '../../../utils/lawnSeasonUtils';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { DividerModule } from 'primeng/divider';
@@ -18,7 +17,6 @@ import { LocationService } from '../../../services/location.service';
 })
 export class QuickStatsComponent {
   private _entriesService = inject(EntriesService);
-  private _settingsService = inject(SettingsService);
   private _locationService = inject(LocationService);
   private _globalUiService = inject(GlobalUiService);
 

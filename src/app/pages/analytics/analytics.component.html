@@ -1,4 +1,4 @@
-<page-container pageTitle="Analytics">
+<page-container pageTitle="Analytics" gap=".5rem">
   <ng-template #action1>
     <p-floatlabel variant="on">
       <p-datePicker
@@ -12,6 +12,9 @@
       <label for="year">Year</label>
     </p-floatlabel>
   </ng-template>
+  <em [style.font-size]="'10px'">
+    {{ `${isMobile() ? 'Click on' : 'Hover over'} segments or points of charts to see more details` }}
+  </em>
   <div class="main-container">
     @if (analyticsData.isLoading()) {
       <loading-spinner />

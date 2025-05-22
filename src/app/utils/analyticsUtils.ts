@@ -157,7 +157,7 @@ export const getProductTypeDistributionChartConfig = (
 
   return {
     title: 'Product Type Distribution',
-    desc: 'Count/percentage of products per type/category used during the year across all apps.',
+    desc: 'Count/percentage of apps grouped by product type/category logged during the year',
     chartData: {
       labels,
       datasets: [

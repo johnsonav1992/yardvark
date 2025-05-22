@@ -128,7 +128,7 @@ export const getFertilizerTimelineChartConfig = (
           data,
           borderColor: getPrimeNgHexColor('teal.500'),
           tension: 0.4,
-          label: 'Pounds of N per app'
+          label: 'Lbs/N per app'
         }
       ]
     },

@@ -1,5 +1,5 @@
 import { httpResource } from '@angular/common/http';
-import { computed, Injectable, Signal } from '@angular/core';
+import { Injectable, Signal } from '@angular/core';
 import {
   EntriesSearchRequest,
   Entry,
@@ -9,6 +9,7 @@ import { apiUrl, deleteReq, postReq, putReq } from '../utils/httpUtils';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { formatDate } from '@angular/common';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'

@@ -4,7 +4,7 @@ export const shortMonthNames = [
   'Mar',
   'Apr',
   'May',
-  'Jun',
+  'June',
   'Jul',
   'Aug',
   'Sep',

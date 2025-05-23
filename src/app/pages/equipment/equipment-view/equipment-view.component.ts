@@ -11,7 +11,6 @@ import { map } from 'rxjs';
 import {
   CurrencyPipe,
   DatePipe,
-  Location,
   NgTemplateOutlet,
   TitleCasePipe
 } from '@angular/common';

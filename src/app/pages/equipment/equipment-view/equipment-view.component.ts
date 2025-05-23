@@ -107,6 +107,10 @@ export class EquipmentViewComponent {
     });
   }
 
+  public openEditEquipment(): void {
+    this._router.navigate(['equipment', 'edit', this.equipmentId()]);
+  }
+
   public openConfirmDelete(): void {
     this._confirmationService.confirm({
       message: 'Are you sure you want to delete this equipment?',

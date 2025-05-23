@@ -23,7 +23,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { EquipmentFormData } from '../../../types/equipment.types';
 
 @Component({
-  selector: 'add-equipment',
+  selector: 'add-edit-equipment',
   imports: [
     PageContainerComponent,
     InputTextModule,
@@ -36,10 +36,10 @@ import { EquipmentFormData } from '../../../types/equipment.types';
     CheckboxModule,
     DatePickerModule
   ],
-  templateUrl: './add-equipment.component.html',
-  styleUrl: './add-equipment.component.scss'
+  templateUrl: './add-edit-equipment.component.html',
+  styleUrl: './add-edit-equipment.component.scss'
 })
-export class AddEquipmentComponent {
+export class AddEditEquipmentComponent {
   private _location = inject(Location);
   private _equipmentService = inject(EquipmentService);
   private _globalUiService = inject(GlobalUiService);

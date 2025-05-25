@@ -10,6 +10,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { LoadingSpinnerComponent } from './components/miscellanious/loading-spinner/loading-spinner.component';
 import { environment } from '../environments/environment';
 import { ConfirmDialog } from 'primeng/confirmdialog';
+import { SwUpdate } from '@angular/service-worker';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-root',
@@ -27,11 +29,34 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
 export class AppComponent {
   private _auth = inject(AuthService);
   private _globalUiService = inject(GlobalUiService);
+  private _swUpdate = inject(SwUpdate);
+  private _confirmationService = inject(ConfirmationService);
 
   public isMobile = this._globalUiService.isMobile;
 
   public isLoggedIn = signal(false);
   public isAuthLoading = toSignal(this._auth.isLoading$);
+
+  constructor() {
+    if (this._swUpdate.isEnabled) {
+      this._swUpdate.versionUpdates.subscribe((event) => {
+        if (event.type === 'VERSION_READY') {
+          this._confirmationService.confirm({
+            message:
+              'A new version of the app is available. Would you like to load it?',
+            accept: () => {
+              this._swUpdate
+                .activateUpdate()
+                .then(() => document.location.reload());
+            },
+            reject: () => {
+              console.log('User chose not to update.');
+            }
+          });
+        }
+      });
+    }
+  }
 
   public ngOnInit(): void {
     this._auth.isAuthenticated$.subscribe((isAuthenticated) => {

@@ -20,7 +20,8 @@ export const getMonthAbbreviations = (
   const months: string[] = [];
 
   for (let i = startMonth; i <= endMonth; i++) {
-    months.push(monthNames[i]);
+    const monthIndex = i - 1;
+    months.push(monthNames[monthIndex]);
   }
 
   return months;

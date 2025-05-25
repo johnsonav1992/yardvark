@@ -106,9 +106,7 @@ export class AddEditEquipmentComponent implements OnInit {
 
     this.isLoading.set(true);
 
-    const equipment: EquipmentFormData = {
-      ...(this.form.value as EquipmentFormData)
-    };
+    const equipment = this.form.value as EquipmentFormData;
 
     const action$ = this.equipmentId
       ? this._equipmentService.updateEquipment(+this.equipmentId, equipment)

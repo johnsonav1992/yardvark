@@ -1,4 +1,7 @@
-<page-container pageTitle="Add equipment">
+<page-container
+  [pageTitle]="`${equipmentToEdit ? 'Edit' : 'Add'} Equipment`"
+  [useNormalBack]="!!equipmentToEdit"
+>
   <form [formGroup]="form" class="form-container">
     <div class="inner-form-container">
       <div class="top-section">

@@ -1,4 +1,4 @@
-import { Component, computed, effect, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { PageContainerComponent } from '../../../components/layout/page-container/page-container.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
@@ -22,7 +22,6 @@ import { EquipmentService } from '../../../services/equipment.service';
 import { DatePickerModule } from 'primeng/datepicker';
 import { EquipmentFormData } from '../../../types/equipment.types';
 import { ActivatedRoute } from '@angular/router';
-import { httpResource } from '@angular/common/http';
 
 @Component({
   selector: 'add-edit-equipment',
@@ -41,7 +40,7 @@ import { httpResource } from '@angular/common/http';
   templateUrl: './add-edit-equipment.component.html',
   styleUrl: './add-edit-equipment.component.scss'
 })
-export class AddEditEquipmentComponent {
+export class AddEditEquipmentComponent implements OnInit {
   private _location = inject(Location);
   private _equipmentService = inject(EquipmentService);
   private _globalUiService = inject(GlobalUiService);
@@ -76,6 +75,24 @@ export class AddEditEquipmentComponent {
     : null;
 
   public isLoading = signal(false);
+
+  public ngOnInit(): void {
+    if (this.equipmentToEdit) {
+      this.form.patchValue({
+        name: this.equipmentToEdit.name,
+        brand: this.equipmentToEdit.brand,
+        model: this.equipmentToEdit.model,
+        description: this.equipmentToEdit.description,
+        serialNumber: this.equipmentToEdit.serialNumber,
+        purchaseDate: this.equipmentToEdit.purchaseDate
+          ? new Date(this.equipmentToEdit.purchaseDate)
+          : null,
+        purchasePrice: this.equipmentToEdit.purchasePrice,
+        fuelType: this.equipmentToEdit.fuelType,
+        image: null // TODO
+      });
+    }
+  }
 
   public fileUpload(e: FileSelectEvent): void {
     const file = e.files[0];

@@ -79,16 +79,10 @@ export class AddEditEquipmentComponent implements OnInit {
   public ngOnInit(): void {
     if (this.equipmentToEdit) {
       this.form.patchValue({
-        name: this.equipmentToEdit.name,
-        brand: this.equipmentToEdit.brand,
-        model: this.equipmentToEdit.model,
-        description: this.equipmentToEdit.description,
-        serialNumber: this.equipmentToEdit.serialNumber,
+        ...this.equipmentToEdit,
         purchaseDate: this.equipmentToEdit.purchaseDate
           ? new Date(this.equipmentToEdit.purchaseDate)
           : null,
-        purchasePrice: this.equipmentToEdit.purchasePrice,
-        fuelType: this.equipmentToEdit.fuelType,
         image: null // TODO
       });
     }

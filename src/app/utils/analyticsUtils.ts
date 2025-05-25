@@ -2,14 +2,15 @@ import { TooltipItem } from 'chart.js';
 import { shortMonthNames } from '../constants/time-constants';
 import { AnalyticsChartConfig, AnalyticsRes } from '../types/analytics.types';
 import { getPrimeNgHexColor } from './styleUtils';
+import { format } from 'date-fns';
 
 export const LIQUID_OZ_AS_WEIGHT_IN_POUNDS = 0.1;
 
 /**
  * Returns an array of month abbreviations for a period of time
  *
- * @param startMonth - The starting month index of the lawn season (0 for January, 1 for February, etc.)
- * @param endMonth - The ending month index (0 for January, 1 for February, etc.). Defaults to the current month.
+ * @param startMonth - The starting month index of the lawn season (1 for January, 2 for February, etc.)
+ * @param endMonth - The ending month index (1 for January, 2 for February, etc.). Defaults to the current month.
  * @returns An array of month abbreviations for the time period.
  */
 export const getMonthAbbreviations = (
@@ -118,8 +119,8 @@ export const getFertilizerTimelineChartConfig = (
     title: 'Fertilizer Timeline',
     desc: 'Pounds of nitrogen per application. Generally a good range is 0.5-1.0 lbs/N (per 1000sqft) per application.',
     chartData: {
-      labels: analyticsData?.fertilizerTimelineData?.map(
-        (item) => item.applicationDate
+      labels: analyticsData?.fertilizerTimelineData?.map((item) =>
+        format(new Date(item.applicationDate), 'MMM dd')
       ),
       datasets: [
         {

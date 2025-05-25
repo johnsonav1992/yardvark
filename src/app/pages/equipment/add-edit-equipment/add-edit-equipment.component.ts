@@ -109,15 +109,7 @@ export class AddEditEquipmentComponent implements OnInit {
     this.isLoading.set(true);
 
     const newEquipment: EquipmentFormData = {
-      name: this.form.value.name!,
-      brand: this.form.value.brand!,
-      model: this.form.value.model!,
-      description: this.form.value.description!,
-      serialNumber: this.form.value.serialNumber!,
-      purchaseDate: this.form.value.purchaseDate!,
-      purchasePrice: this.form.value.purchasePrice!,
-      fuelType: this.form.value.fuelType!,
-      image: this.form.value.image!
+      ...(this.form.value as EquipmentFormData)
     };
 
     this._equipmentService.createEquipment(newEquipment).subscribe({

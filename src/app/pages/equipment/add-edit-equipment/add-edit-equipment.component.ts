@@ -106,11 +106,15 @@ export class AddEditEquipmentComponent implements OnInit {
 
     this.isLoading.set(true);
 
-    const newEquipment: EquipmentFormData = {
+    const equipment: EquipmentFormData = {
       ...(this.form.value as EquipmentFormData)
     };
 
-    this._equipmentService.createEquipment(newEquipment).subscribe({
+    const action$ = this.equipmentId
+      ? this._equipmentService.updateEquipment(+this.equipmentId, equipment)
+      : this._equipmentService.createEquipment(equipment);
+
+    action$.subscribe({
       next: () => {
         this.isLoading.set(false);
         this._equipmentService.equipment.reload();

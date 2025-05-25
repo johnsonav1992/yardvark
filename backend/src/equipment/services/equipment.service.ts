@@ -38,6 +38,25 @@ export class EquipmentService {
     return this._equipmentRepo.save(newEquipment);
   }
 
+  async updateEquipment(
+    equipmentId: number,
+    equipmentData: Partial<Equipment>,
+  ): Promise<Equipment> {
+    const equipment = await this.findEquipmentById(equipmentId);
+
+    if (!equipment) {
+      throw new HttpException('Equipment not found', HttpStatus.NOT_FOUND);
+    }
+
+    const updatedEquipment = {
+      ...equipment,
+      ...equipmentData,
+      updatedAt: new Date(),
+    };
+
+    return this._equipmentRepo.save(updatedEquipment);
+  }
+
   async toggleEquipmentArchiveStatus(
     equipmentId: number,
     isActive: boolean,

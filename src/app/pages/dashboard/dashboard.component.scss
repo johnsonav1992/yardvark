@@ -1,11 +1,11 @@
 :host::ng-deep {
   .p-speeddial-button,
   .p-speeddial-action {
-    width: 70px;
+    width: 70px !important;
     height: 70px !important;
 
     @media (max-width: 900px) {
-      width: 4rem;
+      width: 4rem !important;
       height: 4rem !important;
     }
 

@@ -122,7 +122,9 @@ export class AddEditEquipmentComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-        this.throwErrorToast('Error creating equipment. Please try again.');
+        this.throwErrorToast(
+          `Error ${this.equipmentId ? 'updating' : 'creating'} equipment. Please try again.`
+        );
       }
     });
   }

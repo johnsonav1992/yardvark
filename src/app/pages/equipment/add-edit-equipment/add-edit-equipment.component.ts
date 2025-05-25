@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { PageContainerComponent } from '../../../components/layout/page-container/page-container.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
@@ -21,6 +21,8 @@ import { injectUserData } from '../../../utils/authUtils';
 import { EquipmentService } from '../../../services/equipment.service';
 import { DatePickerModule } from 'primeng/datepicker';
 import { EquipmentFormData } from '../../../types/equipment.types';
+import { ActivatedRoute } from '@angular/router';
+import { httpResource } from '@angular/common/http';
 
 @Component({
   selector: 'add-edit-equipment',
@@ -43,11 +45,14 @@ export class AddEditEquipmentComponent {
   private _location = inject(Location);
   private _equipmentService = inject(EquipmentService);
   private _globalUiService = inject(GlobalUiService);
+  private _route = inject(ActivatedRoute);
   public user = injectUserData();
 
   public throwErrorToast = injectErrorToast();
 
   public isMobile = this._globalUiService.isMobile;
+
+  public equipmentId = this._route.snapshot.paramMap.get('equipmentId');
 
   public form = new FormGroup({
     name: new FormControl('', [Validators.required]),
@@ -63,6 +68,12 @@ export class AddEditEquipmentComponent {
     fuelType: new FormControl(''),
     image: new FormControl<File | null>(null)
   });
+
+  public equipmentToEdit = this.equipmentId
+    ? this._equipmentService.equipment
+        .value()
+        ?.find((equipment) => equipment.id === +this.equipmentId!)
+    : null;
 
   public isLoading = signal(false);
 

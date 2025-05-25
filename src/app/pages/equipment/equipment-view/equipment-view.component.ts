@@ -11,7 +11,6 @@ import { map } from 'rxjs';
 import {
   CurrencyPipe,
   DatePipe,
-  Location,
   NgTemplateOutlet,
   TitleCasePipe
 } from '@angular/common';
@@ -106,6 +105,10 @@ export class EquipmentViewComponent {
         this._equipmentService.equipment.reload();
       }
     });
+  }
+
+  public openEditEquipment(): void {
+    this._router.navigate(['equipment', 'edit', this.equipmentId()]);
   }
 
   public openConfirmDelete(): void {

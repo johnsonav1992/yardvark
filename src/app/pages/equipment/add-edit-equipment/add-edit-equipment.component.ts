@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { PageContainerComponent } from '../../../components/layout/page-container/page-container.component';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
@@ -21,9 +21,10 @@ import { injectUserData } from '../../../utils/authUtils';
 import { EquipmentService } from '../../../services/equipment.service';
 import { DatePickerModule } from 'primeng/datepicker';
 import { EquipmentFormData } from '../../../types/equipment.types';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'add-equipment',
+  selector: 'add-edit-equipment',
   imports: [
     PageContainerComponent,
     InputTextModule,
@@ -36,18 +37,21 @@ import { EquipmentFormData } from '../../../types/equipment.types';
     CheckboxModule,
     DatePickerModule
   ],
-  templateUrl: './add-equipment.component.html',
-  styleUrl: './add-equipment.component.scss'
+  templateUrl: './add-edit-equipment.component.html',
+  styleUrl: './add-edit-equipment.component.scss'
 })
-export class AddEquipmentComponent {
+export class AddEditEquipmentComponent implements OnInit {
   private _location = inject(Location);
   private _equipmentService = inject(EquipmentService);
   private _globalUiService = inject(GlobalUiService);
+  private _route = inject(ActivatedRoute);
   public user = injectUserData();
 
   public throwErrorToast = injectErrorToast();
 
   public isMobile = this._globalUiService.isMobile;
+
+  public equipmentId = this._route.snapshot.paramMap.get('equipmentId');
 
   public form = new FormGroup({
     name: new FormControl('', [Validators.required]),
@@ -64,7 +68,25 @@ export class AddEquipmentComponent {
     image: new FormControl<File | null>(null)
   });
 
+  public equipmentToEdit = this.equipmentId
+    ? this._equipmentService.equipment
+        .value()
+        ?.find((equipment) => equipment.id === +this.equipmentId!)
+    : null;
+
   public isLoading = signal(false);
+
+  public ngOnInit(): void {
+    if (this.equipmentToEdit) {
+      this.form.patchValue({
+        ...this.equipmentToEdit,
+        purchaseDate: this.equipmentToEdit.purchaseDate
+          ? new Date(this.equipmentToEdit.purchaseDate)
+          : null,
+        image: null // TODO
+      });
+    }
+  }
 
   public fileUpload(e: FileSelectEvent): void {
     const file = e.files[0];
@@ -80,25 +102,19 @@ export class AddEquipmentComponent {
   }
 
   public submit(): void {
-    if (this.form.invalid) {
-      return showAllFormErrorsOnSubmit(this.form);
-    }
+    if (this.form.invalid) return showAllFormErrorsOnSubmit(this.form);
 
     this.isLoading.set(true);
 
-    const newEquipment: EquipmentFormData = {
-      name: this.form.value.name!,
-      brand: this.form.value.brand!,
-      model: this.form.value.model!,
-      description: this.form.value.description!,
-      serialNumber: this.form.value.serialNumber!,
-      purchaseDate: this.form.value.purchaseDate!,
-      purchasePrice: this.form.value.purchasePrice!,
-      fuelType: this.form.value.fuelType!,
-      image: this.form.value.image!
+    const equipment: EquipmentFormData = {
+      ...(this.form.value as EquipmentFormData)
     };
 
-    this._equipmentService.createEquipment(newEquipment).subscribe({
+    const action$ = this.equipmentId
+      ? this._equipmentService.updateEquipment(+this.equipmentId, equipment)
+      : this._equipmentService.createEquipment(equipment);
+
+    action$.subscribe({
       next: () => {
         this.isLoading.set(false);
         this._equipmentService.equipment.reload();
@@ -106,7 +122,9 @@ export class AddEquipmentComponent {
       },
       error: () => {
         this.isLoading.set(false);
-        this.throwErrorToast('Error creating equipment. Please try again.');
+        this.throwErrorToast(
+          `Error ${this.equipmentId ? 'updating' : 'creating'} equipment. Please try again.`
+        );
       }
     });
   }

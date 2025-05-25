@@ -69,6 +69,37 @@ export class EquipmentController {
   }
 
   @Put(':equipmentId')
+  @UseInterceptors(FileInterceptor('equipment-image'))
+  async updateEquipment(
+    @Req() req: Request,
+    @Param('equipmentId') equipmentId: number,
+    @UploadedFile(imageFileValidator) file: Express.Multer.File,
+    @Body() equipmentData: Partial<Equipment>,
+  ) {
+    let imageUrl: string | undefined = undefined;
+
+    if (file) {
+      const { data, error } = await tryCatch(() =>
+        this._s3Service.uploadFile(file, req.user.userId),
+      );
+
+      imageUrl = data || undefined;
+
+      if (error) {
+        throw new HttpException(
+          `Error uploading file to S3 - ${error.message}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+
+    return this._equipmentService.updateEquipment(equipmentId, {
+      ...equipmentData,
+      imageUrl,
+    });
+  }
+
+  @Put(':equipmentId')
   toggleEquipmentArchiveStatus(
     @Param('equipmentId') equipmentId: number,
     @Query('isActive') isActive: boolean,

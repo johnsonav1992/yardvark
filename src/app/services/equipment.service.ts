@@ -14,19 +14,18 @@ export class EquipmentService {
   public equipment = httpResource<Equipment[]>(apiUrl('equipment'));
 
   public createEquipment(equipmentData: EquipmentFormData) {
-    const formData = new FormData();
-
-    if (equipmentData && typeof equipmentData === 'object') {
-      Object.entries(equipmentData).forEach(([key, value]) => {
-        if (value instanceof File) {
-          formData.append('equipment-image', value);
-        } else if (value) {
-          formData.append(key, String(value));
-        }
-      });
-    }
+    const formData = this.buildEquipmentFormData(equipmentData);
 
     return postReq(apiUrl('equipment'), formData);
+  }
+
+  public updateEquipment(
+    equipmentId: number,
+    equipmentData: EquipmentFormData
+  ) {
+    const formData = this.buildEquipmentFormData(equipmentData!);
+
+    return putReq(apiUrl(`equipment/${equipmentId}`), formData);
   }
 
   public addMaintenanceRecord(
@@ -49,5 +48,21 @@ export class EquipmentService {
 
   public deleteMaintenanceRecord(maintenanceId: number) {
     return deleteReq(apiUrl(`equipment/maintenance/${maintenanceId}`));
+  }
+
+  private buildEquipmentFormData(equipmentData: EquipmentFormData): FormData {
+    const formData = new FormData();
+
+    if (equipmentData && typeof equipmentData === 'object') {
+      Object.entries(equipmentData).forEach(([key, value]) => {
+        if (value instanceof File) {
+          formData.append('equipment-image', value);
+        } else if (value) {
+          formData.append(key, String(value));
+        }
+      });
+    }
+
+    return formData;
   }
 }

@@ -35,14 +35,23 @@ export const getMonthAbbreviations = (
  * @param guaranteedAnalysisOfProduct - The guaranteed analysis of the fertilizer product (e.g., "10-10-10")
  * @returns The number of pounds of nitrogen in the fertilizer application
  */
-export const getPoundsOfNInFertilizerApp = (
-  poundsOfProduct: number,
-  guaranteedAnalysisOfProduct: string
-) => {
+export const getPoundsOfNInFertilizerApp = ({
+  poundsOfProduct,
+  guaranteedAnalysisOfProduct,
+  totalSquareFeet
+}: {
+  poundsOfProduct: number;
+  guaranteedAnalysisOfProduct: string;
+  totalSquareFeet?: number;
+}) => {
   const nRateOfProduct = +guaranteedAnalysisOfProduct.split('-')[0];
-
   const nPercent = nRateOfProduct / 100;
   const poundsOfN = poundsOfProduct * nPercent;
+
+  if (totalSquareFeet && totalSquareFeet > 0) {
+    const poundsOfNPer1000SqFt = poundsOfN * (1000 / totalSquareFeet);
+    return Math.round(poundsOfNPer1000SqFt * 100) / 100;
+  }
 
   return Math.round(poundsOfN * 100) / 100;
 };
@@ -112,12 +121,25 @@ export const getFertilizerTimelineChartConfig = (
       ? app.productQuantity * LIQUID_OZ_AS_WEIGHT_IN_POUNDS
       : app.productQuantity;
 
-    return getPoundsOfNInFertilizerApp(productWeight, app.guaranteedAnalysis);
+    return getPoundsOfNInFertilizerApp({
+      poundsOfProduct: productWeight,
+      guaranteedAnalysisOfProduct: app.guaranteedAnalysis,
+      totalSquareFeet: app.totalSquareFeet
+    });
   });
+
+  const nitrogenValues = data;
+  const averageNitrogen =
+    nitrogenValues.length > 0
+      ? nitrogenValues.reduce((sum, value) => sum + value, 0) /
+        nitrogenValues.length
+      : 0;
 
   return {
     title: 'Fertilizer Timeline',
-    desc: 'Pounds of nitrogen per application. Generally a good range is 0.5-1.0 lbs/N (per 1000sqft) per application.',
+    desc:
+      'Pounds of nitrogen per application. Generally a good range is 0.5-1.0 lbs/N (per 1000sqft) per application' +
+      ' during peak growing season. Slightly less may be used in early spring and fall applications.',
     chartData: {
       labels: analyticsData?.fertilizerTimelineData?.map((item) =>
         format(new Date(item.applicationDate), 'MMM dd')
@@ -128,7 +150,16 @@ export const getFertilizerTimelineChartConfig = (
           data,
           borderColor: getPrimeNgHexColor('teal.500'),
           tension: 0.4,
-          label: 'Lbs/N per app'
+          label: 'Lbs/N per 1000ft²'
+        },
+        {
+          type: 'line',
+          data: Array(data.length).fill(averageNitrogen),
+          borderColor: getPrimeNgHexColor('rose.500'),
+          borderDash: [5, 5],
+          borderWidth: 2,
+          pointRadius: 0,
+          label: 'Avg Lbs/N'
         }
       ]
     },

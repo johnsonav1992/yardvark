@@ -9,6 +9,8 @@ export type FertilizerTimelineRowRes = {
   productName: string;
   productQuantity: number;
   productQuantityUnit: string;
+  guaranteedAnalysis: string;
+  totalSquareFeet: number;
 };
 
 export type ProductTypeDistributionRowRes = {

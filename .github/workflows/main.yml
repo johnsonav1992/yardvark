@@ -6,10 +6,13 @@ on:
       - master
     types:
       - closed
+  workflow_dispatch: # Optional: for manual testing
 
 jobs:
   create-release:
-    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'master' && github.event.pull_request.head.ref == 'dev'
+    if: github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == 'master' &&
+      github.event.pull_request.head.ref == 'dev'
     runs-on: ubuntu-latest
 
     permissions:
@@ -19,17 +22,34 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Extract PR metadata
+        id: pr_info
+        run: |
+          echo "title=${{ github.event.pull_request.title }}" >> $GITHUB_OUTPUT
+          echo "body=${{ github.event.pull_request.body }}" >> $GITHUB_OUTPUT
+
       - name: Get latest beta release version
         id: get_latest
         run: |
-          latest_tag=$(gh release list --limit 100 --json tagName --jq '.[] | select(.tagName | test("^v1\\.\\d+\\.0-beta$")) | .tagName' | sort -V | tail -n 1)
+          latest_tag=$(gh release list --limit 100 --json tagName --jq '.[] | select(.tagName | test("^v[0-9]+\\.[0-9]+\\.[0-9]+-beta$")) | .tagName' | sort -V | tail -n 1)
+
           if [[ -z "$latest_tag" ]]; then
-            next_version="v1.1.0-beta"
+            major=1
+            minor=0
+            patch=0
           else
-            number=$(echo "$latest_tag" | sed -E 's/v1\.([0-9]+)\.0-beta/\1/')
-            next_number=$((number + 1))
-            next_version="v1.${next_number}.0-beta"
+            version=$(echo "$latest_tag" | sed -E 's/^v([0-9]+)\.([0-9]+)\.([0-9]+)-beta$/\1 \2 \3/')
+            read major minor patch <<< "$version"
           fi
+
+          case "${{ steps.pr_info.outputs.title }}" in
+            *"[Major]"*) major=$((major + 1)); minor=0; patch=0 ;;
+            *"[Minor]"*) minor=$((minor + 1)); patch=0 ;;
+            *"[Patch]"*) patch=$((patch + 1)) ;;
+            *) minor=$((minor + 1)); patch=0 ;; # default to Minor
+          esac
+
+          next_version="v${major}.${minor}.${patch}-beta"
           echo "next_version=$next_version" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -37,10 +57,16 @@ jobs:
       - name: Generate release notes
         id: notes
         run: |
-          PR_BODY=$(gh pr view ${{ github.event.pull_request.number }} --json body --jq .body)
-          echo "release_notes=## This Release Includes:%0A- $(echo "$PR_BODY" | sed 's/^/- /' | tr '\n' '%0A')" >> $GITHUB_OUTPUT
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          body="${{ steps.pr_info.outputs.body }}"
+          if [ -z "$body" ]; then
+            body="No detailed release notes provided."
+          fi
+
+          features=$(echo "$body" | awk 'BEGIN{print ""} {print "- " $0}' ORS='\n')
+          features=$(echo "$features" | sed '/^\s*-\s*$/d') # remove empty bullets
+
+          echo "release_notes=## This Release Includes:%0A$features" >> $GITHUB_OUTPUT
+        shell: bash
 
       - name: Create GitHub Release
         run: |

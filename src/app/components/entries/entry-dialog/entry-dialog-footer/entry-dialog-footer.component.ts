@@ -82,9 +82,11 @@ export class EntryDialogFooterComponent {
         this.isLoading.set(false);
         this._dialogRef.close(this.form?.value.date!);
 
+        // TODO: Find a way to refetch these more efficiently
         this._analyticsService.analyticsData.reload();
         this._entriesService.lastMow.reload();
         this._entriesService.recentEntry.reload();
+        this._entriesService.lastProductApp.reload();
       },
       error: () => {
         this.isLoading.set(false);

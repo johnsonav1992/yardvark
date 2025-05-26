@@ -59,8 +59,8 @@ export class AddEditEquipmentComponent implements OnInit {
   public form = new FormGroup({
     name: new FormControl('', [Validators.required]),
     brand: new FormControl('', [Validators.required]),
-    model: new FormControl('', [Validators.required]),
-    description: new FormControl('', [Validators.required]),
+    model: new FormControl(''),
+    description: new FormControl(''),
     serialNumber: new FormControl(''),
     purchaseDate: new FormControl<Date | null>(null),
     purchasePrice: new FormControl<number | null>(null, [

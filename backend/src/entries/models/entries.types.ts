@@ -10,6 +10,7 @@ export type EntryCreationRequest = Omit<
     EntryProduct,
     'productId' | 'productQuantity' | 'productQuantityUnit'
   >[];
+  imageUrls?: string[];
 };
 
 export type EntriesSearchRequest = {

@@ -170,6 +170,10 @@ export class EntriesService {
         productQuantity: product.productQuantity,
         productQuantityUnit: product.productQuantityUnit,
       })),
+      entryImages:
+        entry.imageUrls?.map((url) => ({
+          imageUrl: url,
+        })) || [],
     });
 
     await this._entriesRepo.save(newEntry);

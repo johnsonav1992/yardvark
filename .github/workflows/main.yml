@@ -57,8 +57,17 @@ jobs:
 
       - name: Create GitHub Release
         run: |
+          notes="## This Release Includes:\n"
+          # Add a dash to each line of the input
+          while IFS= read -r line; do
+            notes="$notes- $line\n"
+          done <<< "${{ github.event.inputs.release_notes }}"
+
+          # Escape for GitHub output
+          escaped=$(printf "%s" "$notes" | sed -E 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')
+
           gh release create ${{ steps.get_latest.outputs.tag }} \
-            --title "Version ${{ steps.get_latest.outputs.next_version }}" \
-            --notes "${{ github.event.inputs.release_notes }}"
+            --title "Version ${{ steps.get_latest.outputs.next_version }}-beta" \
+            --notes "$escaped"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

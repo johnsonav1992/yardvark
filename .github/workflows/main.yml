@@ -1,0 +1,51 @@
+name: Create Beta Release
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
+
+jobs:
+  create-release:
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'master' && github.event.pull_request.head.ref == 'dev'
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Get latest beta release version
+        id: get_latest
+        run: |
+          latest_tag=$(gh release list --limit 100 --json tagName --jq '.[] | select(.tagName | test("^v1\\.\\d+\\.0-beta$")) | .tagName' | sort -V | tail -n 1)
+          if [[ -z "$latest_tag" ]]; then
+            next_version="v1.1.0-beta"
+          else
+            number=$(echo "$latest_tag" | sed -E 's/v1\.([0-9]+)\.0-beta/\1/')
+            next_number=$((number + 1))
+            next_version="v1.${next_number}.0-beta"
+          fi
+          echo "next_version=$next_version" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate release notes
+        id: notes
+        run: |
+          PR_BODY=$(gh pr view ${{ github.event.pull_request.number }} --json body --jq .body)
+          echo "release_notes=## This Release Includes:%0A- $(echo "$PR_BODY" | sed 's/^/- /' | tr '\n' '%0A')" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        run: |
+          gh release create ${{ steps.get_latest.outputs.next_version }} \
+            --title "${{ steps.get_latest.outputs.next_version }}" \
+            --notes "${{ steps.notes.outputs.release_notes }}"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

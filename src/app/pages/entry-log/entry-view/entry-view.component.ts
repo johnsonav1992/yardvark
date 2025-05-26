@@ -148,6 +148,14 @@ export class EntryViewComponent {
     });
   }
 
+  public onPanelShow() {
+    setTimeout(() => {
+      const input = document.querySelector('.p-multiselect-filter');
+
+      if (input instanceof HTMLInputElement) input.blur();
+    });
+  }
+
   public toggleEditMode() {
     this.isInEditMode.update((prevMode) => !prevMode);
 

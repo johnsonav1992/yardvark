@@ -1,32 +1,32 @@
 name: Create Beta Release
 
 on:
-  pull_request:
-    branches:
-      - master
-    types:
-      - closed
-  workflow_dispatch: # Optional: for manual testing
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: "Version bump type (major, minor, patch)"
+        required: true
+        default: "minor"
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+      release_notes:
+        description: "Release notes (markdown supported)"
+        required: true
+        default: ""
+        type: string
 
 jobs:
   create-release:
-    if: github.event.pull_request.merged == true &&
-      github.event.pull_request.base.ref == 'master' &&
-      github.event.pull_request.head.ref == 'dev'
     runs-on: ubuntu-latest
-
     permissions:
       contents: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Extract PR metadata
-        id: pr_info
-        run: |
-          echo "title=${{ github.event.pull_request.title }}" >> $GITHUB_OUTPUT
-          echo "body=${{ github.event.pull_request.body }}" >> $GITHUB_OUTPUT
 
       - name: Get latest beta release version
         id: get_latest
@@ -42,46 +42,23 @@ jobs:
             read major minor patch <<< "$version"
           fi
 
-          case "${{ steps.pr_info.outputs.title }}" in
-            *"[Major]"*) major=$((major + 1)); minor=0; patch=0 ;;
-            *"[Minor]"*) minor=$((minor + 1)); patch=0 ;;
-            *"[Patch]"*) patch=$((patch + 1)) ;;
-            *) minor=$((minor + 1)); patch=0 ;; # default to Minor
+          case "${{ github.event.inputs.bump }}" in
+            major) major=$((major + 1)); minor=0; patch=0 ;;
+            minor) minor=$((minor + 1)); patch=0 ;;
+            patch) patch=$((patch + 1)) ;;
           esac
 
-          next_version="v${major}.${minor}.${patch}-beta"
+          next_version="${major}.${minor}.${patch}"
+          tag="v${next_version}-beta"
           echo "next_version=$next_version" >> $GITHUB_OUTPUT
+          echo "tag=$tag" >> $GITHUB_OUTPUT
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Generate release notes
-        id: notes
-        run: |
-          body="${{ steps.pr_info.outputs.body }}"
-          if [ -z "$body" ]; then
-            body="No detailed release notes provided."
-          fi
-
-          # Add dash to each line, safely
-          features=""
-          while IFS= read -r line; do
-            features="$features- $line\n"
-          done <<< "$body"
-
-          # Final release notes
-          release_notes="## This Release Includes:\n$features"
-
-          # Escape for GitHub output
-          escaped=$(printf "%s" "$release_notes" | sed -E 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')
-
-          # Output as a single line to $GITHUB_OUTPUT
-          echo "release_notes=$escaped" >> "$GITHUB_OUTPUT"
-        shell: bash
-
       - name: Create GitHub Release
         run: |
-          gh release create ${{ steps.get_latest.outputs.next_version }} \
-            --title "${{ steps.get_latest.outputs.next_version }}" \
-            --notes "${{ steps.notes.outputs.release_notes }}"
+          gh release create ${{ steps.get_latest.outputs.tag }} \
+            --title "Version ${{ steps.get_latest.outputs.next_version }}" \
+            --notes "${{ github.event.inputs.release_notes }}"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

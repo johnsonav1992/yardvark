@@ -72,7 +72,7 @@ export class EntriesController {
   }
 
   @Post()
-  @UseInterceptors(FilesInterceptor('image', 10)) // Accept up to 10 files under the 'image' field
+  @UseInterceptors(FilesInterceptor('image', 10))
   async createEntry(
     @Req() req: Request,
     @UploadedFiles() files: Express.Multer.File[],

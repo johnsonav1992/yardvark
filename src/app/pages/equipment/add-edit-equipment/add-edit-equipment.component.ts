@@ -22,6 +22,7 @@ import { EquipmentService } from '../../../services/equipment.service';
 import { DatePickerModule } from 'primeng/datepicker';
 import { EquipmentFormData } from '../../../types/equipment.types';
 import { ActivatedRoute } from '@angular/router';
+import { MAX_FILE_UPLOAD_SIZE } from '../../../constants/file-constants';
 
 @Component({
   selector: 'add-edit-equipment',
@@ -48,6 +49,8 @@ export class AddEditEquipmentComponent implements OnInit {
   public user = injectUserData();
 
   public throwErrorToast = injectErrorToast();
+
+  public maxFileUploadSize = MAX_FILE_UPLOAD_SIZE;
 
   public isMobile = this._globalUiService.isMobile;
 
@@ -90,6 +93,7 @@ export class AddEditEquipmentComponent implements OnInit {
 
   public fileUpload(e: FileSelectEvent): void {
     const file = e.files[0];
+
     this.form.patchValue({ image: file });
   }
 

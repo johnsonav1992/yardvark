@@ -17,8 +17,11 @@
       </div>
       <p-fileUpload
         #imageUploader
-        [maxFileSize]="200000000"
+        [maxFileSize]="maxFileUploadSize"
         [multiple]="false"
+        [accept]="'image/jpeg,image/png,image/gif,image/webp,image/svg+xml'"
+        invalidFileSizeMessageSummary="Max 2MB size exceeded"
+        invalidFileSizeMessageDetail=""
         (onSelect)="fileUpload($event)"
         (onRemove)="fileClear()"
       >

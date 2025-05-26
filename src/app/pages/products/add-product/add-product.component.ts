@@ -31,6 +31,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { injectUserData, isMasterUser } from '../../../utils/authUtils';
 import { ProductFormData } from '../../../types/products.types';
 import { YVUser } from '../../../types/user.types';
+import { MAX_FILE_UPLOAD_SIZE } from '../../../constants/file-constants';
 
 @Component({
   selector: 'add-product',
@@ -63,6 +64,7 @@ export class AddProductComponent {
   public productCategories = PRODUCT_CATEGORIES;
   public quantityUnits = QUANTITY_UNITS;
   public coverageUnits = COVERAGE_UNITS;
+  public maxFileUploadSize = MAX_FILE_UPLOAD_SIZE;
 
   public isMobile = this._globalUiService.isMobile;
 
@@ -89,6 +91,7 @@ export class AddProductComponent {
 
   public fileUpload(e: FileSelectEvent): void {
     const file = e.files[0];
+
     this.form.patchValue({ image: file });
   }
 

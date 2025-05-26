@@ -62,16 +62,17 @@ jobs:
             body="No detailed release notes provided."
           fi
 
-          # Format body lines as bullets
-          features=$(echo "$body" | sed 's/^/- /')
+          # Convert lines to bullet points and add heading
+          release="## This Release Includes:"
+          while IFS= read -r line; do
+            release="$release\n- $line"
+          done <<< "$body"
 
-          # Construct the final message
-          release="## This Release Includes:\n$features"
+          # Escape special characters for GitHub Actions output
+          safe_output=$(echo -e "$release" | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')
 
-          # Escape characters for GitHub output
-          safe_notes=$(echo -e "$release" | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')
-
-          echo "release_notes=$safe_notes" >> "$GITHUB_OUTPUT"
+          # Write to output
+          echo "release_notes=$safe_output" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Create GitHub Release

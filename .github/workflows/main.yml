@@ -62,10 +62,16 @@ jobs:
             body="No detailed release notes provided."
           fi
 
-          features=$(echo "$body" | awk 'BEGIN{print ""} {print "- " $0}' ORS='\n')
-          features=$(echo "$features" | sed '/^\s*-\s*$/d') # remove empty bullets
+          # Format body lines as bullets
+          features=$(echo "$body" | sed 's/^/- /')
 
-          echo "release_notes=## This Release Includes:%0A$features" >> $GITHUB_OUTPUT
+          # Construct the final message
+          release="## This Release Includes:\n$features"
+
+          # Escape characters for GitHub output
+          safe_notes=$(echo -e "$release" | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')
+
+          echo "release_notes=$safe_notes" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Create GitHub Release

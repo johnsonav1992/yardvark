@@ -75,30 +75,39 @@ export class EntriesController {
   @UseInterceptors(FilesInterceptor('image', 10))
   async createEntry(
     @Req() req: Request,
-    @UploadedFiles() files: Express.Multer.File[],
     @Body() entry: EntryCreationRequest,
+    @UploadedFiles() files?: Express.Multer.File[],
   ) {
-    const uploadPromises = files.map((file) =>
-      this._s3Service.uploadFile(file, req.user.userId),
-    );
+    let imageUrls: string[] = [];
 
-    const { data: uploadResults, error } = await tryCatch(() =>
-      Promise.all(uploadPromises),
-    );
-
-    if (error) {
-      throw new HttpException(
-        `Error uploading files to S3 - ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
+    if (files?.length) {
+      const uploadPromises = files?.map((file) =>
+        this._s3Service.uploadFile(file, req.user.userId),
       );
+
+      const { data: uploadResults, error } = await tryCatch(() =>
+        Promise.all(uploadPromises),
+      );
+
+      if (error) {
+        throw new HttpException(
+          `Error uploading files to S3 - ${error.message}`,
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+
+      imageUrls = uploadResults || [];
+
+      return this._entriesService.createEntry(req.user.userId, {
+        ...entry,
+        imageUrls,
+      });
+    } else {
+      return this._entriesService.createEntry(req.user.userId, {
+        ...entry,
+        imageUrls: [],
+      });
     }
-
-    const imageUrls = uploadResults || [];
-
-    return this._entriesService.createEntry(req.user.userId, {
-      ...entry,
-      imageUrls,
-    });
   }
 
   @Put(':entryId')

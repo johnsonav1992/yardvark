@@ -70,6 +70,16 @@ export class EntryDialogComponent implements OnInit {
     notes: new FormControl<string | null>(null)
   });
 
+  public constructor() {
+    this.form.controls.notes.valueChanges.subscribe((value) => {
+      if (typeof value === 'string') {
+        this.form.controls.notes.setValue(decodeURIComponent(value), {
+          emitEvent: false
+        });
+      }
+    });
+  }
+
   public ngOnInit(): void {
     this.form.patchValue({
       date: this.date()

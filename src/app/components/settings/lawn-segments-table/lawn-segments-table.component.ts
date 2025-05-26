@@ -16,6 +16,7 @@ import { LawnSegmentsService } from '../../../services/lawn-segments.service';
 import { injectErrorToast } from '../../../utils/toastUtils';
 import { CardModule } from 'primeng/card';
 import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loading-spinner.component';
+import { InputNumber } from 'primeng/inputnumber';
 
 @Component({
   selector: 'lawn-segments-table',
@@ -25,7 +26,8 @@ import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loa
     FormsModule,
     InputTextModule,
     CardModule,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    InputNumber
   ],
   templateUrl: './lawn-segments-table.component.html',
   styleUrl: './lawn-segments-table.component.scss'

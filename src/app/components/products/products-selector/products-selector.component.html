@@ -12,7 +12,6 @@
     (onClear)="productsControl().clear()"
     [style]="{ width: inputWidth() }"
     [formControlName]="'productsSelected'"
-    (onPanelShow)="onPanelShow()"
   >
     <ng-template let-product #item>
       <product-small-card [product]="product" [showBorder]="false" />

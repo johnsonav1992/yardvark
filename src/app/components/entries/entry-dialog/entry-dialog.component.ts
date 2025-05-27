@@ -1,11 +1,4 @@
-import {
-  Component,
-  computed,
-  inject,
-  input,
-  OnInit,
-  viewChild
-} from '@angular/core';
+import { Component, computed, inject, input, OnInit } from '@angular/core';
 import {
   FormArray,
   FormControl,
@@ -15,7 +8,7 @@ import {
   Validators
 } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
-import { MultiSelect, MultiSelectModule } from 'primeng/multiselect';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { TextareaModule } from 'primeng/textarea';
 import { ActivitiesService } from '../../../services/activities.service';
 import { capitalize } from '../../../utils/stringUtils';
@@ -83,14 +76,6 @@ export class EntryDialogComponent implements OnInit {
   public ngOnInit(): void {
     this.form.patchValue({
       date: this.date()
-    });
-  }
-
-  public onPanelShow() {
-    setTimeout(() => {
-      const input = document.querySelector('.p-multiselect-filter');
-
-      if (input instanceof HTMLInputElement) input.blur();
     });
   }
 }

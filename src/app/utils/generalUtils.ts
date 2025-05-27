@@ -21,3 +21,21 @@ export const effectSignalLogger = (
     );
   });
 };
+
+/**
+ * Hides the virtual keyboard if available.
+ * This is useful for mobile devices where the virtual keyboard can be dismissed programmatically.
+ */
+export const hideVirtualKeyboard = () => {
+  if ('virtualKeyboard' in navigator) {
+    const vk = navigator.virtualKeyboard;
+
+    if (vk) {
+      try {
+        vk.hide();
+      } catch (error) {
+        console.error('Error hiding virtual keyboard:', error);
+      }
+    }
+  }
+};

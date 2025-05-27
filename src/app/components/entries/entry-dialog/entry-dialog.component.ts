@@ -1,11 +1,4 @@
-import {
-  Component,
-  computed,
-  inject,
-  input,
-  OnInit,
-  viewChild
-} from '@angular/core';
+import { Component, computed, inject, input, OnInit } from '@angular/core';
 import {
   FormArray,
   FormControl,
@@ -15,7 +8,7 @@ import {
   Validators
 } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
-import { MultiSelect, MultiSelectModule } from 'primeng/multiselect';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { TextareaModule } from 'primeng/textarea';
 import { ActivitiesService } from '../../../services/activities.service';
 import { capitalize } from '../../../utils/stringUtils';
@@ -27,6 +20,7 @@ import { Product } from '../../../types/products.types';
 import { SelectModule } from 'primeng/select';
 import { EntryProductRow } from '../../../utils/entriesUtils';
 import { ProductsSelectorComponent } from '../../products/products-selector/products-selector.component';
+import { hideVirtualKeyboard } from '../../../utils/generalUtils';
 
 @Component({
   selector: 'entry-dialog',
@@ -86,11 +80,7 @@ export class EntryDialogComponent implements OnInit {
     });
   }
 
-  public onPanelShow() {
-    setTimeout(() => {
-      const input = document.querySelector('.p-multiselect-filter');
-
-      if (input instanceof HTMLInputElement) input.blur();
-    });
+  public onPanelShow(): void {
+    hideVirtualKeyboard();
   }
 }

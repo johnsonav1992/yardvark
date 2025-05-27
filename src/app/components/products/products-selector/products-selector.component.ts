@@ -52,14 +52,6 @@ export class ProductsSelectorComponent {
     this._toggleSingleProduct(product);
   }
 
-  public onPanelShow() {
-    setTimeout(() => {
-      const input = document.querySelector('.p-multiselect-filter');
-
-      if (input instanceof HTMLInputElement) input.blur();
-    });
-  }
-
   private _handleBulkSelection(productList: Product[]): void {
     const existingProducts = this.productsControl().value;
 

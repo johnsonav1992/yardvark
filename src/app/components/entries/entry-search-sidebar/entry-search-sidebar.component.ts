@@ -88,14 +88,6 @@ export class EntrySearchSidebarComponent {
     this.results.set(null);
   }
 
-  public onPanelShow() {
-    setTimeout(() => {
-      const input = document.querySelector('.p-multiselect-filter');
-
-      if (input instanceof HTMLInputElement) input.blur();
-    });
-  }
-
   public submit(): void {
     this.isLoading.set(true);
 

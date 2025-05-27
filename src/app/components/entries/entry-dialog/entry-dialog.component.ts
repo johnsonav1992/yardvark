@@ -1,4 +1,11 @@
-import { Component, computed, inject, input, OnInit } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  OnInit,
+  viewChild
+} from '@angular/core';
 import {
   FormArray,
   FormControl,
@@ -8,7 +15,7 @@ import {
   Validators
 } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
-import { MultiSelectModule } from 'primeng/multiselect';
+import { MultiSelect, MultiSelectModule } from 'primeng/multiselect';
 import { TextareaModule } from 'primeng/textarea';
 import { ActivitiesService } from '../../../services/activities.service';
 import { capitalize } from '../../../utils/stringUtils';
@@ -40,6 +47,8 @@ export class EntryDialogComponent implements OnInit {
   public activitiesResource = inject(ActivitiesService).activities;
   public lawnSegmentsResource = inject(LawnSegmentsService).lawnSegments;
 
+  public console = console;
+
   public date = input<Date>();
 
   public activities = computed(() =>
@@ -61,9 +70,27 @@ export class EntryDialogComponent implements OnInit {
     notes: new FormControl<string | null>(null)
   });
 
+  public constructor() {
+    this.form.controls.notes.valueChanges.subscribe((value) => {
+      if (typeof value === 'string') {
+        this.form.controls.notes.setValue(decodeURIComponent(value), {
+          emitEvent: false
+        });
+      }
+    });
+  }
+
   public ngOnInit(): void {
     this.form.patchValue({
       date: this.date()
+    });
+  }
+
+  public onPanelShow() {
+    setTimeout(() => {
+      const input = document.querySelector('.p-multiselect-filter');
+
+      if (input instanceof HTMLInputElement) input.blur();
     });
   }
 }

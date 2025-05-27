@@ -1,6 +1,9 @@
 <page-container pageTitle="Add product">
   <form [formGroup]="form" class="form-container">
-    <div class="inner-form-container">
+    <div
+      class="inner-form-container"
+      [style.flex-direction]="isMobile() ? 'column' : 'row'"
+    >
       <div class="top-section">
         <div class="input-container">
           Product Name
@@ -17,8 +20,11 @@
       </div>
       <p-fileUpload
         #imageUploader
-        [maxFileSize]="200000000"
+        [maxFileSize]="maxFileUploadSize"
         [multiple]="false"
+        [accept]="'image/jpeg,image/png,image/gif,image/webp,image/svg+xml'"
+        invalidFileSizeMessageSummary="Max 2MB size exceeded"
+        invalidFileSizeMessageDetail=""
         (onSelect)="fileUpload($event)"
         (onRemove)="fileClear()"
       >
@@ -39,7 +45,7 @@
         </ng-template>
         <ng-template #empty>
           <div class="empty-file" (click)="imageUploader.choose()">
-            <p>Drag and drop file here or click to upload</p>
+            <p>Drag and drop image here or click to upload</p>
             <i class="ti ti-cloud-upload upload-icon"></i>
           </div>
         </ng-template>

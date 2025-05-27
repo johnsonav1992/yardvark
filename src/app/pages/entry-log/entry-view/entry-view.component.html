@@ -114,6 +114,7 @@
                 formControlName="activities"
                 [style]="{ width: isMobile() ? '100%' : '50%' }"
                 [showClear]="true"
+                (onPanelShow)="onPanelShow()"
               />
             } @else {
               @if (activities()?.length) {

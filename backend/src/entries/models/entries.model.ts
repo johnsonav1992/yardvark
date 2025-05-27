@@ -67,6 +67,11 @@ export class Entry {
   })
   entryProducts: EntryProduct[];
 
+  @OneToMany(() => EntryImage, (entryImage) => entryImage.entry, {
+    cascade: true,
+  })
+  entryImages: EntryImage[];
+
   @DeleteDateColumn()
   deletedAt?: Date;
 }
@@ -103,4 +108,20 @@ export class EntryProduct {
 
   @Column()
   productQuantityUnit: string;
+}
+
+@Entity({ name: 'entry_images' })
+export class EntryImage {
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  imageUrl: string;
+
+  @ManyToOne(() => Entry, (entry) => entry.entryImages, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
+  @JoinColumn({ name: 'entry_id' })
+  entry: Entry;
 }

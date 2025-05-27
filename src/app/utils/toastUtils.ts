@@ -24,3 +24,29 @@ export const injectErrorToast = (): ((message: string) => void) => {
     });
   };
 };
+
+/**
+ * Creates and returns a function for displaying warning toast messages.
+ *
+ * This utility injects the MessageService and returns a function that can be used
+ * to display warning toast notifications. The returned function accepts a message
+ * string and displays it as a sticky warning toast.
+ *
+ * @returns A function that takes a message string and displays it as a warning toast
+ * @example
+ * // In a component
+ * const showWarning = injectWarningToast();
+ * showWarning('This action cannot be undone');
+ */
+export const injectWarningToast = (): ((message: string) => void) => {
+  const toastService = inject(MessageService);
+
+  return (message: string) => {
+    toastService.add({
+      severity: 'warn',
+      summary: 'Warning',
+      detail: message,
+      sticky: true
+    });
+  };
+};

@@ -23,7 +23,9 @@
         class="equipment-img"
       />
       <div class="inner-content">
-        <p>{{ equipment().description }}</p>
+        @if (equipment().description) {
+          <p>{{ equipment().description }}</p>
+        }
         <p>
           <em> Last maintenance: </em>
           @if (equipment().maintenanceRecords.length > 0) {

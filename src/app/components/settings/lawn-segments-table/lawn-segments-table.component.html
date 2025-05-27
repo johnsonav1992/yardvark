@@ -36,10 +36,12 @@
         <td [width]="'30%'">
           <p-cellEditor>
             <ng-template #input>
-              <input
-                pInputText
-                [style]="{ width: '75%' }"
+              <p-inputNumber
+                [inputStyle]="{ width: '75%' }"
                 [(ngModel)]="segment.size"
+                mode="decimal"
+                locale="en-US"
+                [minFractionDigits]="2"
               />
             </ng-template>
             <ng-template #output>

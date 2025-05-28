@@ -43,7 +43,6 @@ import { SettingsData } from '../../../../backend/src/settings/models/settings.t
     RouterOutlet,
     DividerModule,
     CardModule,
-    DatePipe,
     MobileEntryPreviewCardComponent
   ],
   templateUrl: './entry-log.component.html',

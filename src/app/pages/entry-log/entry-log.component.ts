@@ -26,7 +26,6 @@ import { GlobalUiService } from '../../services/global-ui.service';
 import { DividerModule } from 'primeng/divider';
 import { format, isSameDay } from 'date-fns';
 import { CardModule } from 'primeng/card';
-import { DatePipe } from '@angular/common';
 import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { convertTimeStringToDate } from '../../utils/timeUtils';

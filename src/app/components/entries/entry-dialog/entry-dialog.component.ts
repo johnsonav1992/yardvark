@@ -79,8 +79,4 @@ export class EntryDialogComponent implements OnInit {
       date: this.date()
     });
   }
-
-  public onPanelShow(): void {
-    hideVirtualKeyboard();
-  }
 }

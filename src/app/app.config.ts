@@ -1,7 +1,8 @@
 import {
   ApplicationConfig,
   provideAppInitializer,
-  provideExperimentalZonelessChangeDetection, isDevMode
+  provideZonelessChangeDetection,
+  isDevMode
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
@@ -20,7 +21,7 @@ import { provideServiceWorker } from '@angular/service-worker';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideExperimentalZonelessChangeDetection(),
+    provideZonelessChangeDetection(),
     provideRouter(mainRoutes),
     provideHttpClient(withInterceptors([authInterceptor])),
     provideAnimationsAsync(),
@@ -42,12 +43,14 @@ export const appConfig: ApplicationConfig = {
     }),
     provideAppInitializer(() => initHttpUtils()),
     MessageService,
-    ConfirmationService, provideServiceWorker('ngsw-worker.js', {
-            enabled: !isDevMode(),
-            registrationStrategy: 'registerWhenStable:30000'
-          }), provideServiceWorker('ngsw-worker.js', {
-            enabled: !isDevMode(),
-            registrationStrategy: 'registerWhenStable:30000'
-          })
+    ConfirmationService,
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000'
+    }),
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000'
+    })
   ]
 };

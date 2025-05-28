@@ -7,5 +7,5 @@ import { Activity } from '../types/activities.types';
   providedIn: 'root'
 })
 export class ActivitiesService {
-  public activities = httpResource<Activity[]>(apiUrl('activities'));
+  public activities = httpResource<Activity[]>(() => apiUrl('activities'));
 }

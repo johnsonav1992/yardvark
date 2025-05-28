@@ -129,7 +129,7 @@ export class SoilTemperatureService {
   };
 
   private _currentPositionLatLong = rxResource({
-    loader: () =>
+    stream: () =>
       this.useCurrentPositionLatLong()
         ? this._locationService.getLatLongFromCurrentPosition()
         : of(undefined)

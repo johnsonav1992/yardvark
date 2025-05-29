@@ -15,3 +15,9 @@ export type Auth0TokenPayload = {
   sid: string;
   nonce: string;
 };
+
+export type ExtractedUserRequestData = {
+  userId: string;
+  email: string;
+  name: string;
+};

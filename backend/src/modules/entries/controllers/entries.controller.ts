@@ -20,7 +20,7 @@ import {
 } from '../models/entries.types';
 import { Request } from 'express';
 import { tryCatch } from 'src/utils/tryCatch';
-import { S3Service } from 'src/s3/s3.service';
+import { S3Service } from 'src/modules/s3/s3.service';
 import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('entries')

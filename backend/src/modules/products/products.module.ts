@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ProductsController } from './controllers/products.controller';
 import { ProductsService } from './services/products.service';
-import { S3Service } from 'src/s3/s3.service';
+import { S3Service } from 'src/modules/s3/s3.service';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from './models/products.model';

@@ -31,7 +31,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { convertTimeStringToDate } from '../../utils/timeUtils';
 import { MobileEntryPreviewCardComponent } from '../../components/entries/mobile-entry-preview-card/mobile-entry-preview-card.component';
 import { SettingsService } from '../../services/settings.service';
-import { SettingsData } from '../../../../backend/src/settings/models/settings.types';
+import { SettingsData } from '../../../../backend/src/modules/settings/models/settings.types';
 
 @Component({
   selector: 'entry-log',

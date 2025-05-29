@@ -17,7 +17,7 @@ import { Request } from 'express';
 import { EquipmentService } from '../services/equipment.service';
 import { Equipment } from '../models/equipment.model';
 import { imageFileValidator } from 'src/utils/fileUtils';
-import { S3Service } from 'src/s3/s3.service';
+import { S3Service } from 'src/modules/s3/s3.service';
 import { tryCatch } from 'src/utils/tryCatch';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { EquipmentMaintenance } from '../models/equipmentMaintenance.model';

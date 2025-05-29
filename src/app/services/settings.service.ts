@@ -4,7 +4,7 @@ import { httpResource } from '@angular/common/http';
 import {
   SettingsData,
   SettingsResponse
-} from '../../../backend/src/settings/models/settings.types';
+} from '../../../backend/src/modules/settings/models/settings.types';
 
 @Injectable({
   providedIn: 'root'

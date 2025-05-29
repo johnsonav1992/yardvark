@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Entry, EntryImage, EntryProduct } from './models/entries.model';
 import { EntriesController } from './controllers/entries.controller';
 import { EntriesService } from './services/entries.service';
-import { S3Service } from 'src/s3/s3.service';
+import { S3Service } from 'src/modules/s3/s3.service';
 import { ConfigService } from '@nestjs/config';
 
 @Module({

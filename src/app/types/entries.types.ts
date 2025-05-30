@@ -41,6 +41,14 @@ export type EntryCreationRequest = {
     productQuantityUnit: string;
   }>;
   soilTemperatureUnit: string;
+  imageUrls?: string[];
+};
+
+export type EntryCreationRequestFormInput = Omit<
+  EntryCreationRequest,
+  'imageUrls'
+> & {
+  images: File[];
 };
 
 export type EntriesSearchRequest = {

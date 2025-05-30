@@ -60,7 +60,8 @@ export class EntryDialogComponent implements OnInit {
     lawnSegments: new FormControl<LawnSegment[]>([]),
     products: new FormArray<EntryProductRow>([]),
     productsSelected: new FormControl<Product[]>([]), // Noop for this view to make Angular forms + primeng happy
-    notes: new FormControl<string | null>(null)
+    notes: new FormControl<string | null>(null),
+    images: new FormControl<File[]>([])
   });
 
   public constructor() {

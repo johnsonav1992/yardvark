@@ -16,6 +16,9 @@ import { HttpModule } from '@nestjs/axios';
 import { EquipmentModule } from './modules/equipment/equipment.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { dataSource } from './db.config';
+import { FilesModule } from './modules/files/files.module';
+import { FilesController } from './modules/files/controllers/files.controller';
+import { S3Service } from './modules/s3/s3.service';
 
 @Module({
   imports: [
@@ -30,8 +33,9 @@ import { dataSource } from './db.config';
     HttpModule,
     EquipmentModule,
     AnalyticsModule,
+    FilesModule,
   ],
-  controllers: [UsersController],
+  controllers: [UsersController, FilesController],
   providers: [
     JwtStrategy,
     {
@@ -39,6 +43,7 @@ import { dataSource } from './db.config';
       useClass: JwtAuthGuard,
     },
     UsersService,
+    S3Service,
   ],
 })
 export class AppModule {}

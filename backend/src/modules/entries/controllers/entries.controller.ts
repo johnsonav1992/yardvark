@@ -3,15 +3,11 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   Post,
   Put,
   Query,
   Req,
-  UploadedFiles,
-  UseInterceptors,
 } from '@nestjs/common';
 import { EntriesService } from '../services/entries.service';
 import {
@@ -19,16 +15,10 @@ import {
   EntryCreationRequest,
 } from '../models/entries.types';
 import { Request } from 'express';
-import { tryCatch } from 'src/utils/tryCatch';
-import { S3Service } from 'src/modules/s3/s3.service';
-import { FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('entries')
 export class EntriesController {
-  constructor(
-    private _entriesService: EntriesService,
-    private _s3Service: S3Service,
-  ) {}
+  constructor(private _entriesService: EntriesService) {}
 
   @Get()
   getEntries(
@@ -72,42 +62,8 @@ export class EntriesController {
   }
 
   @Post()
-  @UseInterceptors(FilesInterceptor('image', 10))
-  async createEntry(
-    @Req() req: Request,
-    @Body() entry: EntryCreationRequest,
-    @UploadedFiles() files?: Express.Multer.File[],
-  ) {
-    let imageUrls: string[] = [];
-
-    if (files?.length) {
-      const uploadPromises = files?.map((file) =>
-        this._s3Service.uploadFile(file, req.user.userId),
-      );
-
-      const { data: uploadResults, error } = await tryCatch(() =>
-        Promise.all(uploadPromises),
-      );
-
-      if (error) {
-        throw new HttpException(
-          `Error uploading files to S3 - ${error.message}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-
-      imageUrls = uploadResults || [];
-
-      return this._entriesService.createEntry(req.user.userId, {
-        ...entry,
-        imageUrls,
-      });
-    } else {
-      return this._entriesService.createEntry(req.user.userId, {
-        ...entry,
-        imageUrls: [],
-      });
-    }
+  async createEntry(@Req() req: Request, @Body() entry: EntryCreationRequest) {
+    return this._entriesService.createEntry(req.user.userId, entry);
   }
 
   @Put(':entryId')

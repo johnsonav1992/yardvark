@@ -43,6 +43,26 @@ export class S3Service {
     return `https://${this.bucketName}.s3.${process.env.AWS_REGION_YARDVARK}.amazonaws.com/${key}`;
   }
 
+  public async uploadFiles(
+    files: Express.Multer.File[],
+    userId: string,
+    concurrency = 5,
+  ): Promise<string[]> {
+    const results: string[] = [];
+
+    for (let i = 0; i < files.length; i += concurrency) {
+      const batch = files.slice(i, i + concurrency);
+
+      const batchResults = await Promise.all(
+        batch.map((file) => this.uploadFile(file, userId)),
+      );
+
+      results.push(...batchResults);
+    }
+
+    return results;
+  }
+
   private createFileKey(userId: string, fileName: string): string {
     return `${userId}/${randomUUID().substring(0, 4)}-${fileName}`;
   }

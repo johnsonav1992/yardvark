@@ -1,19 +1,23 @@
 import { httpResource } from '@angular/common/http';
-import { Injectable, Signal } from '@angular/core';
+import { inject, Injectable, Signal } from '@angular/core';
 import {
   EntriesSearchRequest,
   Entry,
-  EntryCreationRequest
+  EntryCreationRequest,
+  EntryCreationRequestFormInput
 } from '../types/entries.types';
 import { apiUrl, deleteReq, postReq, putReq } from '../utils/httpUtils';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { formatDate } from '@angular/common';
-import { Observable } from 'rxjs';
+import { Observable, ObservableInput, of, switchMap } from 'rxjs';
+import { FilesService } from './files.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EntriesService {
+  private _filesService = inject(FilesService);
+
   public getEntryResource = (
     shouldFetchEntry: Signal<boolean>,
     entryId: Signal<number | undefined>
@@ -55,8 +59,24 @@ export class EntriesService {
       })
     );
 
-  public addEntry(req: EntryCreationRequest): Observable<void> {
-    return postReq<void, EntryCreationRequest>(apiUrl('entries'), req);
+  public addEntry(req: EntryCreationRequestFormInput): Observable<void> {
+    return (
+      req.images?.length
+        ? this._filesService.uploadFiles(req.images).pipe(
+            switchMap<string[], ObservableInput<EntryCreationRequest>>(
+              (fileIds) =>
+                of({
+                  ...req,
+                  imageUrls: fileIds
+                })
+            )
+          )
+        : of({ ...req, imageUrls: [] })
+    ).pipe(
+      switchMap((entry) =>
+        postReq<void, EntryCreationRequest>(apiUrl('entries'), entry)
+      )
+    );
   }
 
   public editEntry(

@@ -47,9 +47,8 @@ export class LoggingInterceptor implements NestInterceptor {
     const statusEmoji = this.getStatusEmoji(params.statusCode);
     let logMessage = `${statusEmoji} [${params.request.method}] ${params.request.url} ${params.statusCode} - ${params.duration}ms - 👤 ${params.request.user.name}`;
 
-    if (this.hasBody(params.request.body)) {
+    if (this.hasBody(params.request.body))
       logMessage += `\n📦 Body: ${JSON.stringify(params.request.body, null, 2)}`;
-    }
 
     this.logger.log(logMessage);
   }

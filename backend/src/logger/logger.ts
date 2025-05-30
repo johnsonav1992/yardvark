@@ -6,9 +6,9 @@ import {
   Logger,
   NestInterceptor,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
-import { ExtractedUserRequestData } from 'src/types/auth.types';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -16,17 +16,10 @@ export class LoggingInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const httpContext = context.switchToHttp();
-    const request = httpContext.getRequest<{
-      method: string;
-      url: string;
-      body: unknown;
-      headers: Record<string, any>;
-      user: ExtractedUserRequestData;
-    }>();
+    const request = httpContext.getRequest<Request>();
 
     const response = httpContext.getResponse<{ statusCode: number }>();
 
-    const { method, url, body, user } = request;
     const start = Date.now();
 
     return next.handle().pipe(
@@ -34,13 +27,13 @@ export class LoggingInterceptor implements NestInterceptor {
         const duration = Date.now() - start;
         const statusCode = response.statusCode;
 
-        this.logSuccess({ method, url, statusCode, duration, body, user });
+        this.logSuccess({ statusCode, duration, request });
       }),
       catchError((error: unknown) => {
         const duration = Date.now() - start;
         const statusCode = this.getErrorStatusCode(response, error);
 
-        this.logError({ method, url, statusCode, duration, body, error, user });
+        this.logError({ statusCode, duration, request, error });
 
         return throwError(() => error);
       }),
@@ -48,38 +41,32 @@ export class LoggingInterceptor implements NestInterceptor {
   }
 
   private logSuccess(params: {
-    method: string;
-    url: string;
+    request: Request;
     statusCode: number;
     duration: number;
-    body: unknown;
-    user: ExtractedUserRequestData;
   }): void {
     const statusEmoji = this.getStatusEmoji(params.statusCode);
-    let logMessage = `${statusEmoji} [${params.method}] ${params.url} ${params.statusCode} - ${params.duration}ms - 👤 ${params.user.name}`;
+    let logMessage = `${statusEmoji} [${params.request.method}] ${params.request.url} ${params.statusCode} - ${params.duration}ms - 👤 ${params.request.user.name}`;
 
-    if (this.hasBody(params.body)) {
-      logMessage += `\n📦 Body: ${JSON.stringify(params.body, null, 2)}`;
+    if (this.hasBody(params.request.body)) {
+      logMessage += `\n📦 Body: ${JSON.stringify(params.request.body, null, 2)}`;
     }
 
     this.logger.log(logMessage);
   }
 
   private logError(params: {
-    method: string;
-    url: string;
+    request: Request;
     statusCode: number;
     duration: number;
-    body: unknown;
     error: unknown;
-    user: ExtractedUserRequestData;
   }): void {
     const { errorMessage, stack } = this.extractErrorDetails(params.error);
 
-    let errorLog = `❌ [${params.method}] ${params.url} ${params.statusCode} - ${params.duration}ms - 👤 ${params.user.name}\n`;
+    let errorLog = `❌ [${params.request.method}] ${params.request.url} ${params.statusCode} - ${params.duration}ms - 👤 ${params.request.user.name}\n`;
 
-    if (this.hasBody(params.body)) {
-      errorLog += `📦 Body: ${JSON.stringify(params.body, null, 2)}\n`;
+    if (this.hasBody(params.request.body)) {
+      errorLog += `📦 Body: ${JSON.stringify(params.request.body, null, 2)}\n`;
     }
 
     errorLog += `🚫 Error Message: ${errorMessage}\n`;

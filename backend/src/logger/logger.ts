@@ -6,7 +6,7 @@ import {
   Logger,
   NestInterceptor,
 } from '@nestjs/common';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 
@@ -17,8 +17,7 @@ export class LoggingInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const httpContext = context.switchToHttp();
     const request = httpContext.getRequest<Request>();
-
-    const response = httpContext.getResponse<{ statusCode: number }>();
+    const response = httpContext.getResponse<Response>();
 
     const start = Date.now();
 
@@ -62,18 +61,21 @@ export class LoggingInterceptor implements NestInterceptor {
     error: unknown;
   }): void {
     const { errorMessage, stack } = this.extractErrorDetails(params.error);
+    const statusEmoji = this.getStatusEmoji(params.statusCode);
 
-    let errorLog = `❌ [${params.request.method}] ${params.request.url} ${params.statusCode} - ${params.duration}ms - 👤 ${params.request.user.name}\n`;
+    let errorLog =
+      `${statusEmoji} ` +
+      `[${params.request.method}] ` +
+      `${params.request.url} ` +
+      `${params.statusCode} - ${params.duration}ms ` +
+      `- 👤 ${params.request.user.name}\n`;
 
-    if (this.hasBody(params.request.body)) {
+    if (this.hasBody(params.request.body))
       errorLog += `📦 Body: ${JSON.stringify(params.request.body, null, 2)}\n`;
-    }
 
     errorLog += `🚫 Error Message: ${errorMessage}\n`;
 
-    if (stack) {
-      errorLog += `🔍 Stack Trace:\n${stack}`;
-    }
+    if (stack) errorLog += `🔍 Stack Trace:\n${stack}`;
 
     this.logger.error(errorLog);
   }

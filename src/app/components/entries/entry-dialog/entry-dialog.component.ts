@@ -20,6 +20,9 @@ import { Product } from '../../../types/products.types';
 import { SelectModule } from 'primeng/select';
 import { EntryProductRow } from '../../../utils/entriesUtils';
 import { ProductsSelectorComponent } from '../../products/products-selector/products-selector.component';
+import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
+import { MAX_FILE_UPLOAD_SIZE } from '../../../constants/file-constants';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'entry-dialog',
@@ -31,7 +34,9 @@ import { ProductsSelectorComponent } from '../../products/products-selector/prod
     InputTextModule,
     FormsModule,
     SelectModule,
-    ProductsSelectorComponent
+    ProductsSelectorComponent,
+    FileUploadModule,
+    ButtonModule
   ],
   templateUrl: './entry-dialog.component.html',
   styleUrl: './entry-dialog.component.scss'
@@ -40,7 +45,7 @@ export class EntryDialogComponent implements OnInit {
   public activitiesResource = inject(ActivitiesService).activities;
   public lawnSegmentsResource = inject(LawnSegmentsService).lawnSegments;
 
-  public console = console;
+  public maxFileUploadSize = MAX_FILE_UPLOAD_SIZE;
 
   public date = input<Date>();
 
@@ -78,5 +83,26 @@ export class EntryDialogComponent implements OnInit {
     this.form.patchValue({
       date: this.date()
     });
+  }
+
+  public onFilesSelect(e: FileSelectEvent): void {
+    if (!e.files || e.files.length === 0) return;
+
+    const currentFiles = this.form.controls.images.value || [];
+    const existingFileNames = new Set(currentFiles.map((file) => file.name));
+
+    const newUniqueFiles = Array.from(e.files).filter(
+      (file) => !existingFileNames.has(file.name)
+    );
+
+    this.form.controls.images.setValue([...currentFiles, ...newUniqueFiles]);
+  }
+
+  public onRemoveFile(
+    file: File,
+    removeFileCallback: (file: File, index: number) => void,
+    index: number
+  ) {
+    removeFileCallback(file, index);
   }
 }

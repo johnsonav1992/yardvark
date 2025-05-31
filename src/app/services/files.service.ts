@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { postReq } from '../utils/httpUtils';
+import { apiUrl, postReq } from '../utils/httpUtils';
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +9,6 @@ export class FilesService {
     const formData = new FormData();
     files.forEach((file) => formData.append('file', file));
 
-    return postReq<string[]>(`files/upload`, formData);
+    return postReq<string[]>(apiUrl('files/upload'), formData);
   }
 }

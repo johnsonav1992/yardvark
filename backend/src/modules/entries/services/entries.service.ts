@@ -111,6 +111,7 @@ export class EntriesService {
         activities: true,
         lawnSegments: true,
         entryProducts: { product: true },
+        entryImages: true,
       },
     });
 

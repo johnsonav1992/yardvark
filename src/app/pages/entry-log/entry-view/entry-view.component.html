@@ -186,9 +186,26 @@
               }
             }
           </div>
+          <div class="section-container">
+            <h3>Images:</h3>
+            <p-galleria
+              [value]="entryData()?.imageUrls"
+              [showIndicators]="true"
+              [showThumbnails]="false"
+              [containerStyle]="{
+                marginTop: '.5rem',
+                width: !isMobile() ? '65%' : '100%'
+              }"
+            >
+              <ng-template #item let-item>
+                <div class="galleria-image-container">
+                  <img [src]="item" class="image" />
+                </div>
+              </ng-template>
+            </p-galleria>
+          </div>
         }
       </div>
-      <p-galleria [value]="entryData()?.imageUrls" />
     </p-card>
   </div>
 </page-container>

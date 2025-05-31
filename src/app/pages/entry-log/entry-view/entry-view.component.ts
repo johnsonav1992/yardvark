@@ -48,6 +48,7 @@ import { GlobalUiService } from '../../../services/global-ui.service';
 import { convertTimeStringToDate } from '../../../utils/timeUtils';
 import { DatePickerModule } from 'primeng/datepicker';
 import { format } from 'date-fns';
+import { GalleriaModule } from 'primeng/galleria';
 
 @Component({
   selector: 'entry-view',
@@ -65,7 +66,8 @@ import { format } from 'date-fns';
     ProductsSelectorComponent,
     ReactiveFormsModule,
     TextareaModule,
-    DatePickerModule
+    DatePickerModule,
+    GalleriaModule
   ],
   templateUrl: './entry-view.component.html',
   styleUrl: './entry-view.component.scss'

@@ -13,7 +13,7 @@ import {
 } from 'typeorm';
 import { Entry, EntryProduct } from '../models/entries.model';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getEntryProductMapping } from '../utils/entryUtils';
+import { getEntryResponseMapping } from '../utils/entryUtils';
 import { ACTIVITY_IDS } from 'src/constants/activities.constants';
 
 @Injectable()
@@ -40,17 +40,15 @@ export class EntriesService {
         entryProducts: {
           product: true,
         },
+        entryImages: true,
       },
     });
 
-    return entries.map((entry) => {
-      const { entryProducts, ...rest } = entry;
+    if (!entries) {
+      throw new HttpException('Entries not found', HttpStatus.NOT_FOUND);
+    }
 
-      return {
-        ...rest,
-        products: getEntryProductMapping(entryProducts),
-      };
-    });
+    return entries.map((entry) => getEntryResponseMapping(entry));
   }
 
   async getEntry(entryId: number) {
@@ -62,13 +60,15 @@ export class EntriesService {
         entryProducts: {
           product: true,
         },
+        entryImages: true,
       },
     });
 
-    return {
-      ...entry,
-      products: getEntryProductMapping(entry?.entryProducts || []),
-    };
+    if (!entry) {
+      throw new HttpException('Entry not found', HttpStatus.NOT_FOUND);
+    }
+
+    return getEntryResponseMapping(entry);
   }
 
   async getEntryByDate(userId: string, date: string) {
@@ -80,13 +80,15 @@ export class EntriesService {
         entryProducts: {
           product: true,
         },
+        entryImages: true,
       },
     });
 
-    return {
-      ...entry,
-      products: getEntryProductMapping(entry?.entryProducts || []),
-    };
+    if (!entry) {
+      throw new HttpException('Entry not found', HttpStatus.NOT_FOUND);
+    }
+
+    return getEntryResponseMapping(entry);
   }
 
   async getMostRecentEntry(userId: string) {
@@ -114,12 +116,7 @@ export class EntriesService {
 
     if (!entry) return null;
 
-    const { entryProducts, ...rest } = entry;
-
-    return {
-      ...rest,
-      products: getEntryProductMapping(entryProducts),
-    };
+    return getEntryResponseMapping(entry);
   }
 
   async getLastMowDate(userId: string) {
@@ -288,13 +285,6 @@ export class EntriesService {
       },
     });
 
-    return entries.map((entry) => {
-      const { entryProducts, ...rest } = entry;
-
-      return {
-        ...rest,
-        products: getEntryProductMapping(entryProducts),
-      };
-    });
+    return entries.map((entry) => getEntryResponseMapping(entry));
   }
 }

@@ -187,13 +187,15 @@
             }
           </div>
           <div class="section-container">
+            @let imgs = entryData()?.imageUrls;
+
             @if (isInEditMode()) {
             } @else {
-              @if (entryData()?.imageUrls?.length) {
+              @if (imgs?.length) {
                 <h3>Images:</h3>
                 <p-galleria
-                  [value]="entryData()?.imageUrls"
-                  [showIndicators]="true"
+                  [value]="imgs"
+                  [showIndicators]="(imgs?.length || 0) > 1"
                   [showThumbnails]="false"
                   [containerStyle]="{
                     marginTop: '.5rem',

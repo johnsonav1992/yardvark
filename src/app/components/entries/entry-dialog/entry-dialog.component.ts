@@ -21,7 +21,7 @@ import { SelectModule } from 'primeng/select';
 import { EntryProductRow } from '../../../utils/entriesUtils';
 import { ProductsSelectorComponent } from '../../products/products-selector/products-selector.component';
 import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
-import { MAX_FILE_UPLOAD_SIZE } from '../../../constants/file-constants';
+import { MAX_FILE_LARGE_UPLOAD_SIZE } from '../../../constants/file-constants';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
@@ -45,7 +45,7 @@ export class EntryDialogComponent implements OnInit {
   public activitiesResource = inject(ActivitiesService).activities;
   public lawnSegmentsResource = inject(LawnSegmentsService).lawnSegments;
 
-  public maxFileUploadSize = MAX_FILE_UPLOAD_SIZE;
+  public maxFileUploadSize = MAX_FILE_LARGE_UPLOAD_SIZE;
 
   public date = input<Date>();
 

@@ -198,7 +198,7 @@
               chooseLabel="Choose Images"
               cancelLabel="Clear"
               [showUploadButton]="false"
-              [files]="editForm.get('images')?.value || []"
+              [files]="filesResource.value() || []"
             >
               <ng-template
                 #content

@@ -139,11 +139,17 @@ export class EntryViewComponent {
     this.entryId
   );
 
+  public entryImageUrls = computed(
+    () => this.entryData()?.images.map((img) => img.imageUrl) || []
+  );
+
   public filesResource = rxResource<File[] | undefined, boolean>({
     params: this.isInEditMode,
     stream: ({ params: isInEditMode }) =>
       isInEditMode
-        ? this._filesService.downloadFiles(this.entryData()?.imageUrls || [])
+        ? this._filesService.downloadFiles(
+            this.entryData()?.images.map((img) => img.imageUrl) || []
+          )
         : of(undefined)
   });
 
@@ -197,7 +203,13 @@ export class EntryViewComponent {
     index: number
   ) {
     if (this.isCurrentEntryImage(file)) {
-      this._entryService.deleteEntryImage(0).subscribe();
+      this._entryService
+        .deleteEntryImage(
+          this.entryData()?.images.find((img) =>
+            img.imageUrl.endsWith(file.name)
+          )?.id || 0
+        )
+        .subscribe();
     }
 
     this.filesResource.value.update((files) => {
@@ -273,7 +285,7 @@ export class EntryViewComponent {
     const fileName = file.name;
 
     return (
-      this.entryData()?.imageUrls.some((imgUrl) => imgUrl.endsWith(fileName)) ||
+      this.entryData()?.images.some((img) => img.imageUrl.endsWith(fileName)) ||
       false
     );
   }

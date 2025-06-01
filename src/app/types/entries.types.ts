@@ -13,7 +13,7 @@ export type Entry = {
   activities: Activity[];
   lawnSegments: LawnSegment[];
   products: EntryProduct[];
-  imageUrls: string[];
+  images: { id: number; imageUrl: string }[];
 };
 
 export type EntryProduct = {

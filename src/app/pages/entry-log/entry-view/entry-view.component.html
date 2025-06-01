@@ -229,7 +229,7 @@
         }
       </div>
     </p-card>
-    @let imgs = entryData()?.imageUrls;
+    @let imgs = entryImageUrls();
 
     @if (!isInEditMode()) {
       @if (imgs?.length) {

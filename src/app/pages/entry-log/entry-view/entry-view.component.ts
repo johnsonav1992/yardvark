@@ -196,6 +196,10 @@ export class EntryViewComponent {
     removeFileCallback: (file: File, index: number) => void,
     index: number
   ) {
+    if (this.isCurrentEntryImage(file)) {
+      this._entryService.deleteEntryImage(0).subscribe();
+    }
+
     this.filesResource.value.update((files) => {
       if (!files) return [];
 
@@ -263,6 +267,15 @@ export class EntryViewComponent {
       },
       error: () => this._throwErrorToast('Failed to update entry')
     });
+  }
+
+  private isCurrentEntryImage(file: File): boolean {
+    const fileName = file.name;
+
+    return (
+      this.entryData()?.imageUrls.some((imgUrl) => imgUrl.endsWith(fileName)) ||
+      false
+    );
   }
 
   public soilTempChipDt: ChipDesignTokens = {

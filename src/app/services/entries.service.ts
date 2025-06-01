@@ -101,4 +101,8 @@ export class EntriesService {
       searchCriteria
     );
   }
+
+  public deleteEntryImage(entryImageId: number): Observable<void> {
+    return deleteReq(apiUrl('entries/entry-image', { params: [entryImageId] }));
+  }
 }

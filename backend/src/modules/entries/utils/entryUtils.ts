@@ -21,6 +21,8 @@ export const getEntryResponseMapping = (entry: Entry) => {
   return {
     ...rest,
     products: getEntryProductMapping(entryProducts),
-    imageUrls: entryImages.map((img) => img.imageUrl),
+    imageUrls: entryImages
+      .filter((img) => !img.deletedAt)
+      .map((img) => img.imageUrl),
   };
 };

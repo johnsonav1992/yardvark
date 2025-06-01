@@ -11,7 +11,7 @@ import {
   FindOptionsWhere,
   Brackets,
 } from 'typeorm';
-import { Entry, EntryProduct } from '../models/entries.model';
+import { Entry, EntryImage, EntryProduct } from '../models/entries.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getEntryResponseMapping } from '../utils/entryUtils';
 import { ACTIVITY_IDS } from 'src/constants/activities.constants';
@@ -23,6 +23,8 @@ export class EntriesService {
     private _entriesRepo: Repository<Entry>,
     @InjectRepository(EntryProduct)
     private _entryProductsRepo: Repository<EntryProduct>,
+    @InjectRepository(EntryImage)
+    private _entryImagesRepo: Repository<EntryImage>,
   ) {}
 
   async getEntries(userId: string, startDate?: string, endDate?: string) {
@@ -287,5 +289,13 @@ export class EntriesService {
     });
 
     return entries.map((entry) => getEntryResponseMapping(entry));
+  }
+
+  async softDeleteEntryImage(entryImageId: number) {
+    await this._entryImagesRepo.softDelete(entryImageId);
+  }
+
+  async recoverEntryImage(entryImageId: number) {
+    await this._entryImagesRepo.restore(entryImageId);
   }
 }

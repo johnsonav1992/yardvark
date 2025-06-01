@@ -19,7 +19,8 @@ type EntriesRoutes =
   | 'entries/recover'
   | 'entries/search'
   | 'entries/last-mow'
-  | 'entries/last-product-app';
+  | 'entries/last-product-app'
+  | 'entries/entry-image';
 
 type ActivitiesRoutes = 'activities';
 

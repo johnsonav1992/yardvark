@@ -185,10 +185,10 @@ export class EntryViewComponent {
       (file) => !existingFileNames.has(file.name)
     );
 
-    this.editForm.controls.images.setValue([
-      ...currentFiles,
-      ...newUniqueFiles
-    ]);
+    const updatedFiles = [...currentFiles, ...newUniqueFiles];
+
+    this.editForm.controls.images.setValue(updatedFiles);
+    this.filesResource.value.set(updatedFiles);
   }
 
   public onRemoveFile(
@@ -196,6 +196,19 @@ export class EntryViewComponent {
     removeFileCallback: (file: File, index: number) => void,
     index: number
   ) {
+    this.filesResource.value.update((files) => {
+      if (!files) return [];
+
+      const updatedFiles = [...files];
+
+      updatedFiles.splice(index, 1);
+
+      return updatedFiles;
+    });
+
+    this.editForm.controls.images.setValue(this.filesResource.value() || []);
+    this.editForm.controls.images.updateValueAndValidity();
+
     removeFileCallback(file, index);
   }
 
@@ -223,6 +236,9 @@ export class EntryViewComponent {
   }
 
   public submitEdits() {
+    console.log(this.editForm.controls.images.value);
+
+    return;
     const updatedEntry: Partial<EntryCreationRequest> = {
       time: this.editForm.value.time
         ? format(this.editForm.value.time!, 'HH:mm:ss')

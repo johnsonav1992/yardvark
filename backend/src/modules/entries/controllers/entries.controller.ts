@@ -91,4 +91,9 @@ export class EntriesController {
   ) {
     return this._entriesService.searchEntries(req.user.userId, searchCriteria);
   }
+
+  @Delete('entry-image/:entryImageId')
+  deleteEntryImage(@Param('entryImageId') entryImageId: number) {
+    return this._entriesService.softDeleteEntryImage(entryImageId);
+  }
 }

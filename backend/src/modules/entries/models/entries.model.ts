@@ -124,4 +124,7 @@ export class EntryImage {
   })
   @JoinColumn({ name: 'entry_id' })
   entry: Entry;
+
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

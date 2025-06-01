@@ -61,10 +61,7 @@ export class FilesController {
       );
     }
 
-    res.set({
-      'Content-Type': fileRes.contentType,
-      'Content-Disposition': 'attachment; filename="external-file.js"',
-    });
+    res.set({ 'Content-Type': fileRes.contentType });
 
     return fileRes.data.pipe(res);
   }

@@ -27,12 +27,7 @@ export class FilesService {
           } as never
         ).pipe(
           map((response) => {
-            const contentDisposition = response.headers.get(
-              'Content-Disposition'
-            );
-
-            const match = contentDisposition?.match(/filename="(.+)"/);
-            const filename = match?.[1] || 'downloaded.js';
+            const filename = url.split('-').pop() || 'downloaded-file';
 
             return new File([response.body!], filename, {
               type: response.body!.type

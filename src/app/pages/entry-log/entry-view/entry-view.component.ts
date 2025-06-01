@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  effect,
   inject,
   linkedSignal,
   signal
@@ -13,8 +14,8 @@ import {
   EntryProduct
 } from '../../../types/entries.types';
 import { PageContainerComponent } from '../../../components/layout/page-container/page-container.component';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
+import { rxResource, toSignal } from '@angular/core/rxjs-interop';
+import { map, of } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ChipModule } from 'primeng/chip';
@@ -138,6 +139,23 @@ export class EntryViewComponent {
     this.entryId
   );
 
+  public filesResource = rxResource<File[] | undefined, boolean>({
+    params: this.isInEditMode,
+    stream: ({ params: isInEditMode }) =>
+      isInEditMode
+        ? this._filesService.downloadFiles(this.entryData()?.imageUrls || [])
+        : of(undefined)
+  });
+
+  _formFileUpdater = effect(() => {
+    const downloadedFiles = this.filesResource.value();
+
+    if (downloadedFiles) {
+      this.editForm.controls.images.setValue(downloadedFiles);
+      this.editForm.updateValueAndValidity();
+    }
+  });
+
   public constructor() {
     const entryData =
       this._router.getCurrentNavigation()?.extras.state?.['entry'];
@@ -183,10 +201,6 @@ export class EntryViewComponent {
 
   public toggleEditMode() {
     this.isInEditMode.update((prevMode) => !prevMode);
-
-    this._filesService
-      .downloadFiles(this.entryData()?.imageUrls || [])
-      .subscribe((res) => console.log(res));
 
     if (this.isInEditMode()) {
       this.editForm.patchValue({

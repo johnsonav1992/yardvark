@@ -14,7 +14,6 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { Request, Response } from 'express';
 import { firstValueFrom, map } from 'rxjs';
-import { Public } from 'src/decorators/public.decorator';
 import { S3Service } from 'src/modules/s3/s3.service';
 import { tryCatch } from 'src/utils/tryCatch';
 import { Readable } from 'stream';
@@ -35,7 +34,6 @@ export class FilesController {
     return this._s3Service.uploadFiles(files, req.user.userId);
   }
 
-  @Public()
   @Get('download')
   async downloadFile(@Query('url') fileUrl: string, @Res() res: Response) {
     const { data: fileRes, error } = await tryCatch(() =>
@@ -58,7 +56,7 @@ export class FilesController {
 
     if (error || !fileRes) {
       throw new HttpException(
-        'Failed to download file',
+        `Failed to download file - ${error?.message || 'Unknown error'}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

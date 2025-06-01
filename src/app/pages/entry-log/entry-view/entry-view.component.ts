@@ -51,6 +51,7 @@ import { format } from 'date-fns';
 import { GalleriaModule } from 'primeng/galleria';
 import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
 import { MAX_FILE_LARGE_UPLOAD_SIZE } from '../../../constants/file-constants';
+import { FilesService } from '../../../services/files.service';
 
 @Component({
   selector: 'entry-view',
@@ -83,6 +84,7 @@ export class EntryViewComponent {
   private _lawnSegmentsService = inject(LawnSegmentsService);
   private _throwErrorToast = injectErrorToast();
   private _globalUiService = inject(GlobalUiService);
+  private _filesService = inject(FilesService);
 
   public isMobile = this._globalUiService.isMobile;
   public maxFileUploadSize = MAX_FILE_LARGE_UPLOAD_SIZE;
@@ -182,15 +184,9 @@ export class EntryViewComponent {
   public toggleEditMode() {
     this.isInEditMode.update((prevMode) => !prevMode);
 
-    if (this.entryData()?.imageUrls.length) {
-      this.urlToFile(
-        this.entryData()?.imageUrls[0]!,
-        `entry-${this.entryId()}-image.jpg`,
-        'image/jpeg'
-      ).then((file) => {
-        console.log(file);
-      });
-    }
+    this._filesService
+      .downloadFiles(this.entryData()?.imageUrls || [])
+      .subscribe((res) => console.log(res));
 
     if (this.isInEditMode()) {
       this.editForm.patchValue({
@@ -210,12 +206,6 @@ export class EntryViewComponent {
 
       this.editForm.updateValueAndValidity();
     }
-  }
-
-  async urlToFile(url: string, filename: string, mimeType: string) {
-    const res = await fetch(url);
-    const blob = await res.blob();
-    return new File([blob], filename, { type: mimeType || blob.type });
   }
 
   public submitEdits() {

@@ -38,4 +38,4 @@ type EquipmentRoutes =
 
 type AnalyticsRoutes = 'analytics';
 
-type FileRoutes = 'files/upload';
+type FileRoutes = 'files/upload' | 'files/download';

@@ -45,7 +45,7 @@ export class LoggingInterceptor implements NestInterceptor {
     duration: number;
   }): void {
     const statusEmoji = this.getStatusEmoji(params.statusCode);
-    let logMessage = `${statusEmoji} [${params.request.method}] ${params.request.url} ${params.statusCode} - ${params.duration}ms - 👤 ${params.request.user.name}`;
+    let logMessage = `${statusEmoji} [${params.request.method}] ${params.request.url} ${params.statusCode} - ${params.duration}ms - 👤 ${params.request.user?.name}`;
 
     if (this.hasBody(params.request.body))
       logMessage += `\n📦 Body: ${JSON.stringify(params.request.body, null, 2)}`;
@@ -67,7 +67,7 @@ export class LoggingInterceptor implements NestInterceptor {
       `[${params.request.method}] ` +
       `${params.request.url} ` +
       `${params.statusCode} - ${params.duration}ms ` +
-      `- 👤 ${params.request.user.name}\n`;
+      `- 👤 ${params.request.user?.name}\n`;
 
     if (this.hasBody(params.request.body))
       errorLog += `📦 Body: ${JSON.stringify(params.request.body, null, 2)}\n`;

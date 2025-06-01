@@ -49,6 +49,8 @@ import { convertTimeStringToDate } from '../../../utils/timeUtils';
 import { DatePickerModule } from 'primeng/datepicker';
 import { format } from 'date-fns';
 import { GalleriaModule } from 'primeng/galleria';
+import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
+import { MAX_FILE_LARGE_UPLOAD_SIZE } from '../../../constants/file-constants';
 
 @Component({
   selector: 'entry-view',
@@ -67,7 +69,8 @@ import { GalleriaModule } from 'primeng/galleria';
     ReactiveFormsModule,
     TextareaModule,
     DatePickerModule,
-    GalleriaModule
+    GalleriaModule,
+    FileUploadModule
   ],
   templateUrl: './entry-view.component.html',
   styleUrl: './entry-view.component.scss'
@@ -82,6 +85,7 @@ export class EntryViewComponent {
   private _globalUiService = inject(GlobalUiService);
 
   public isMobile = this._globalUiService.isMobile;
+  public maxFileUploadSize = MAX_FILE_LARGE_UPLOAD_SIZE;
 
   public editForm = new FormGroup({
     time: new FormControl<Date | null>(null),
@@ -90,7 +94,8 @@ export class EntryViewComponent {
     lawnSegments: new FormControl<LawnSegment[]>([]),
     products: new FormArray<EntryProductRow>([]),
     productsSelected: new FormControl<EntryProduct[]>([]),
-    notes: new FormControl<string | null>(null)
+    notes: new FormControl<string | null>(null),
+    images: new FormControl<File[]>([])
   });
 
   public entryId = toSignal<number>(
@@ -150,8 +155,42 @@ export class EntryViewComponent {
     });
   }
 
+  public onFilesSelect(e: FileSelectEvent): void {
+    if (!e.files || e.files.length === 0) return;
+
+    const currentFiles = this.editForm.controls.images.value || [];
+    const existingFileNames = new Set(currentFiles.map((file) => file.name));
+
+    const newUniqueFiles = Array.from(e.files).filter(
+      (file) => !existingFileNames.has(file.name)
+    );
+
+    this.editForm.controls.images.setValue([
+      ...currentFiles,
+      ...newUniqueFiles
+    ]);
+  }
+
+  public onRemoveFile(
+    file: File,
+    removeFileCallback: (file: File, index: number) => void,
+    index: number
+  ) {
+    removeFileCallback(file, index);
+  }
+
   public toggleEditMode() {
     this.isInEditMode.update((prevMode) => !prevMode);
+
+    if (this.entryData()?.imageUrls.length) {
+      this.urlToFile(
+        this.entryData()?.imageUrls[0]!,
+        `entry-${this.entryId()}-image.jpg`,
+        'image/jpeg'
+      ).then((file) => {
+        console.log(file);
+      });
+    }
 
     if (this.isInEditMode()) {
       this.editForm.patchValue({
@@ -171,6 +210,12 @@ export class EntryViewComponent {
 
       this.editForm.updateValueAndValidity();
     }
+  }
+
+  async urlToFile(url: string, filename: string, mimeType: string) {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    return new File([blob], filename, { type: mimeType || blob.type });
   }
 
   public submitEdits() {

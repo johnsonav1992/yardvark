@@ -34,6 +34,7 @@ import { S3Service } from './modules/s3/s3.service';
     EquipmentModule,
     AnalyticsModule,
     FilesModule,
+    HttpModule,
   ],
   controllers: [UsersController, FilesController],
   providers: [

@@ -6,9 +6,10 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from './models/products.model';
 import { UserHiddenProduct } from './models/userHiddenProducts.model';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product, UserHiddenProduct])],
+  imports: [TypeOrmModule.forFeature([Product, UserHiddenProduct]), HttpModule],
   controllers: [ProductsController],
   providers: [ProductsService, S3Service, ConfigService],
 })

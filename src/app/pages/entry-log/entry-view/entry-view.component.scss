@@ -57,3 +57,27 @@
     height: auto;
   }
 }
+
+.file {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+
+  .name-image {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
+:host::ng-deep {
+  .p-fileupload-content {
+    gap: 0.4rem;
+  }
+
+  p-progressbar {
+    display: none;
+  }
+}

@@ -186,33 +186,72 @@
               }
             }
           </div>
+        }
+        @if (isInEditMode()) {
           <div class="section-container">
-            @let imgs = entryData()?.imageUrls;
-
-            @if (isInEditMode()) {
-            } @else {
-              @if (imgs?.length) {
-                <h3>Images:</h3>
-                <p-galleria
-                  [value]="imgs"
-                  [showIndicators]="(imgs?.length || 0) > 1"
-                  [showThumbnails]="false"
-                  [containerStyle]="{
-                    marginTop: '.5rem',
-                    width: !isMobile() ? '65%' : '100%'
-                  }"
-                >
-                  <ng-template #item let-item>
-                    <div class="galleria-image-container">
-                      <img [src]="item" class="image" />
+            <p-fileUpload
+              [multiple]="true"
+              [fileLimit]="5"
+              [maxFileSize]="maxFileUploadSize"
+              accept="image/*"
+              (onSelect)="onFilesSelect($event)"
+              chooseLabel="Choose Images"
+              cancelLabel="Clear"
+              [showUploadButton]="false"
+            >
+              <ng-template
+                #content
+                let-files
+                let-removeFileCallback="removeFileCallback"
+              >
+                @for (file of files; track file.name) {
+                  <div class="file">
+                    <div class="name-image">
+                      <img [src]="file.objectURL" width="auto" height="40" />
+                      {{ file.name }}
                     </div>
-                  </ng-template>
-                </p-galleria>
-              }
-            }
+                    <p-button
+                      type="button"
+                      icon="ti ti-x"
+                      severity="danger"
+                      rounded
+                      outlined
+                      (click)="onRemoveFile(file, removeFileCallback, $index)"
+                    />
+                  </div>
+                }
+              </ng-template>
+              <!-- Noop because primeng is dumb  -->
+              <ng-template #file></ng-template>
+            </p-fileUpload>
           </div>
         }
       </div>
     </p-card>
+    @let imgs = entryData()?.imageUrls;
+
+    @if (!isInEditMode()) {
+      @if (imgs?.length) {
+        <p-card [style]="{ marginTop: '1rem' }">
+          <h3>Images:</h3>
+          <p-galleria
+            [value]="imgs"
+            [showIndicators]="(imgs?.length || 0) > 1"
+            [showThumbnails]="false"
+            showIndicators
+            [containerStyle]="{
+              marginTop: '.5rem',
+              width: !isMobile() ? '65%' : '100%'
+            }"
+          >
+            <ng-template #item let-item>
+              <div class="galleria-image-container">
+                <img [src]="item" class="image" />
+              </div>
+            </ng-template>
+          </p-galleria>
+        </p-card>
+      }
+    }
   </div>
 </page-container>

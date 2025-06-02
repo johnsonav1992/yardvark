@@ -188,6 +188,7 @@ export class EntriesService {
         lawnSegments: true,
         activities: true,
         entryProducts: true,
+        entryImages: true,
       },
     });
 
@@ -214,6 +215,12 @@ export class EntriesService {
           productQuantity: product.productQuantity,
           productQuantityUnit: product.productQuantityUnit,
         })) || [],
+      entryImages: [
+        ...entryToUpdate.entryImages,
+        ...(entry.imageUrls?.map((url) => ({
+          imageUrl: url,
+        })) || []),
+      ],
     });
 
     await this._entriesRepo.save(updatedEntry);

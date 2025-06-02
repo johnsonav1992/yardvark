@@ -43,6 +43,7 @@ export type EntryCreationRequest = {
   }>;
   soilTemperatureUnit: string;
   imageUrls?: string[];
+  images?: File[];
 };
 
 export type EntryCreationRequestFormInput = Omit<

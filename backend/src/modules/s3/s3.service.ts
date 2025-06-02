@@ -6,7 +6,9 @@ import {
 } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
-import { HttpService } from '@nestjs/axios';
+import * as convert from 'heic-convert';
+import * as path from 'path';
+import { tryCatch } from 'src/utils/tryCatch';
 
 @Injectable()
 export class S3Service {
@@ -29,13 +31,16 @@ export class S3Service {
     file: Express.Multer.File,
     userId: string,
   ): Promise<string> {
-    const key = this.createFileKey(userId, file.originalname);
+    const { buffer, originalname, mimetype } =
+      await this.checkForHeicAndConvert(file);
+
+    const key = this.createFileKey(userId, originalname);
 
     const uploadParams: PutObjectCommandInput = {
       Bucket: this.bucketName,
       Key: key,
-      Body: file.buffer,
-      ContentType: file.mimetype,
+      Body: buffer || file.buffer,
+      ContentType: mimetype || file.mimetype,
       ACL: 'public-read',
     };
 
@@ -66,5 +71,47 @@ export class S3Service {
 
   private createFileKey(userId: string, fileName: string): string {
     return `${userId}/${randomUUID().substring(0, 4)}-${fileName}`;
+  }
+
+  private async checkForHeicAndConvert(file: Express.Multer.File): Promise<{
+    buffer: Buffer;
+    originalname: string;
+    mimetype: string;
+  }> {
+    let bufferToUpload = file.buffer;
+    let filename = file.originalname;
+    let mimetype = file.mimetype;
+
+    const isHeic =
+      file.mimetype === 'image/heic' ||
+      file.mimetype === 'image/heif' ||
+      path.extname(file.originalname).toLowerCase() === '.heic';
+
+    if (isHeic) {
+      const { data: jpegBuffer, error } = await tryCatch(
+        () =>
+          convert({
+            buffer: file.buffer,
+            format: 'JPEG',
+            quality: 0.9,
+          }) as Promise<Buffer>,
+      );
+
+      if (error || !jpegBuffer) {
+        throw new Error(
+          `Failed to convert HEIC file: ${error?.message || 'Unknown error'}`,
+        );
+      }
+
+      bufferToUpload = jpegBuffer;
+      filename = filename.replace(/\.heic$/i, '.jpg');
+      mimetype = 'image/jpeg';
+    }
+
+    return {
+      buffer: bufferToUpload,
+      originalname: filename,
+      mimetype: mimetype,
+    };
   }
 }

@@ -198,7 +198,7 @@
               chooseLabel="Choose Images"
               cancelLabel="Clear"
               [showUploadButton]="false"
-              [files]="filesResource.value() || []"
+              [files]="downloadedFiles()"
             >
               <ng-template
                 #content

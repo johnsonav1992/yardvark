@@ -14,8 +14,8 @@ import {
   EntryProduct
 } from '../../../types/entries.types';
 import { PageContainerComponent } from '../../../components/layout/page-container/page-container.component';
-import { rxResource, toSignal } from '@angular/core/rxjs-interop';
-import { map, of } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ChipModule } from 'primeng/chip';
@@ -145,22 +145,21 @@ export class EntryViewComponent {
     () => this.entryData()?.images.map((img) => img.imageUrl) || []
   );
 
-  public filesResource = rxResource<File[] | undefined, boolean>({
-    params: () => !!this.entryResource.value(),
-    stream: ({ params: hasData }) =>
-      hasData
-        ? this._filesService.downloadFiles(
-            this.entryData()?.images.map((img) => img.imageUrl) || []
-          )
-        : of(undefined)
-  });
+  public downloadedFiles = signal<File[]>([]);
 
   _formFileUpdater = effect(() => {
-    const downloadedFiles = this.filesResource.value();
+    const entryData = this.entryData();
 
-    if (downloadedFiles) {
-      this.editForm.controls.images.setValue(downloadedFiles);
-      this.editForm.updateValueAndValidity();
+    if (entryData && entryData.images.length) {
+      this._filesService
+        .downloadFiles(this.entryImageUrls())
+        .subscribe((downloadedFiles) => {
+          if (!downloadedFiles) return;
+
+          this.downloadedFiles.set(downloadedFiles);
+          this.editForm.controls.images.setValue(downloadedFiles);
+          this.editForm.updateValueAndValidity();
+        });
     }
   });
 
@@ -196,7 +195,7 @@ export class EntryViewComponent {
     const updatedFiles = [...currentFiles, ...newUniqueFiles];
 
     this.editForm.controls.images.setValue(updatedFiles);
-    this.filesResource.value.set(updatedFiles);
+    this.downloadedFiles.set(updatedFiles);
   }
 
   public onRemoveFile(
@@ -207,13 +206,13 @@ export class EntryViewComponent {
     const currentEntryImage = this.getCurrentEntryImage(file);
 
     const remove = () => {
-      this.filesResource.value.update((files) => {
+      this.downloadedFiles.update((files) => {
         if (!files) return [];
 
         return files.toSpliced(index, 1);
       });
 
-      this.editForm.controls.images.setValue(this.filesResource.value() || []);
+      this.editForm.controls.images.setValue(this.downloadedFiles() || []);
       this.editForm.controls.images.updateValueAndValidity();
 
       removeFileCallback(file, index);
@@ -258,9 +257,6 @@ export class EntryViewComponent {
   }
 
   public submitEdits() {
-    console.log(this.editForm.controls.images.value);
-
-    return;
     const updatedEntry: Partial<EntryCreationRequest> = {
       time: this.editForm.value.time
         ? format(this.editForm.value.time!, 'HH:mm:ss')
@@ -275,7 +271,10 @@ export class EntryViewComponent {
           productQuantity: row.quantity!,
           productQuantityUnit: row.quantityUnit!
         })) || [],
-      notes: this.editForm.value.notes || ''
+      notes: this.editForm.value.notes || '',
+      images: this.editForm.value.images?.filter(
+        (img) => !this.getCurrentEntryImage(img)
+      )
     };
 
     this._entryService.editEntry(this.entryId(), updatedEntry).subscribe({

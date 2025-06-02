@@ -83,9 +83,27 @@ export class EntriesService {
     entryId: number | undefined,
     updatedEntry: Partial<EntryCreationRequest>
   ): Observable<void> {
-    return putReq<void, Partial<EntryCreationRequest>>(
-      apiUrl('entries', { params: [entryId!] }),
-      updatedEntry
+    if (!entryId) return of();
+
+    return (
+      updatedEntry.images?.length
+        ? this._filesService.uploadFiles(updatedEntry.images).pipe(
+            switchMap<string[], ObservableInput<Partial<EntryCreationRequest>>>(
+              (fileIds) =>
+                of({
+                  ...updatedEntry,
+                  imageUrls: [...(updatedEntry.imageUrls || []), ...fileIds]
+                })
+            )
+          )
+        : of({ ...updatedEntry })
+    ).pipe(
+      switchMap((entry) =>
+        putReq<void, Partial<EntryCreationRequest>>(
+          apiUrl('entries', { params: [entryId] }),
+          entry
+        )
+      )
     );
   }
 

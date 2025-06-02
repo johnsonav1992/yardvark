@@ -42,6 +42,7 @@ export class AppComponent {
       this._swUpdate.versionUpdates.subscribe((event) => {
         if (event.type === 'VERSION_READY') {
           this._confirmationService.confirm({
+            header: 'Update Available',
             message:
               'A new version of the app is available. Would you like to load it?',
             accept: () => {

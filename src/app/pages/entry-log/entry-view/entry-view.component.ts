@@ -53,6 +53,7 @@ import { GalleriaModule } from 'primeng/galleria';
 import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
 import { MAX_FILE_LARGE_UPLOAD_SIZE } from '../../../constants/file-constants';
 import { FilesService } from '../../../services/files.service';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'entry-view',
@@ -86,6 +87,7 @@ export class EntryViewComponent {
   private _throwErrorToast = injectErrorToast();
   private _globalUiService = inject(GlobalUiService);
   private _filesService = inject(FilesService);
+  private _confirmationService = inject(ConfirmationService);
 
   public isMobile = this._globalUiService.isMobile;
   public maxFileUploadSize = MAX_FILE_LARGE_UPLOAD_SIZE;
@@ -144,9 +146,9 @@ export class EntryViewComponent {
   );
 
   public filesResource = rxResource<File[] | undefined, boolean>({
-    params: this.isInEditMode,
-    stream: ({ params: isInEditMode }) =>
-      isInEditMode
+    params: () => !!this.entryResource.value(),
+    stream: ({ params: hasData }) =>
+      hasData
         ? this._filesService.downloadFiles(
             this.entryData()?.images.map((img) => img.imageUrl) || []
           )
@@ -202,30 +204,34 @@ export class EntryViewComponent {
     removeFileCallback: (file: File, index: number) => void,
     index: number
   ) {
-    if (this.isCurrentEntryImage(file)) {
-      this._entryService
-        .deleteEntryImage(
-          this.entryData()?.images.find((img) =>
-            img.imageUrl.endsWith(file.name)
-          )?.id || 0
-        )
-        .subscribe();
+    const currentEntryImage = this.getCurrentEntryImage(file);
+
+    const remove = () => {
+      this.filesResource.value.update((files) => {
+        if (!files) return [];
+
+        return files.toSpliced(index, 1);
+      });
+
+      this.editForm.controls.images.setValue(this.filesResource.value() || []);
+      this.editForm.controls.images.updateValueAndValidity();
+
+      removeFileCallback(file, index);
+    };
+
+    if (currentEntryImage) {
+      return this._confirmationService.confirm({
+        header: 'Delete Existing Image',
+        message:
+          'Are you sure you want to delete this image? Since it already exists on this entry, you will need to upload it again if you want to keep it.',
+        accept: () => {
+          this._entryService.deleteEntryImage(currentEntryImage.id).subscribe();
+          remove();
+        }
+      });
     }
 
-    this.filesResource.value.update((files) => {
-      if (!files) return [];
-
-      const updatedFiles = [...files];
-
-      updatedFiles.splice(index, 1);
-
-      return updatedFiles;
-    });
-
-    this.editForm.controls.images.setValue(this.filesResource.value() || []);
-    this.editForm.controls.images.updateValueAndValidity();
-
-    removeFileCallback(file, index);
+    return remove();
   }
 
   public toggleEditMode() {
@@ -281,12 +287,12 @@ export class EntryViewComponent {
     });
   }
 
-  private isCurrentEntryImage(file: File): boolean {
+  private getCurrentEntryImage(file: File) {
     const fileName = file.name;
 
     return (
-      this.entryData()?.images.some((img) => img.imageUrl.endsWith(fileName)) ||
-      false
+      this.entryData()?.images.find((img) => img.imageUrl.endsWith(fileName)) ||
+      null
     );
   }
 

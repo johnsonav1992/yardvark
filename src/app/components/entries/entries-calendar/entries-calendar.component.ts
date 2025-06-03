@@ -76,6 +76,7 @@ export class EntriesCalendarComponent {
   protected currentDate = linkedSignal(() =>
     this._dateQuery() ? new Date(this._dateQuery()!) : startOfToday()
   );
+
   protected currentMonth = computed(() =>
     format(this.currentDate(), this.isMobile() ? 'MMM yyyy' : 'MMMM yyyy')
   );
@@ -99,14 +100,26 @@ export class EntriesCalendarComponent {
   }));
 
   public nextMonth() {
-    this.currentDate.set(addMonths(this.currentDate(), 1));
+    const nextMonth = addMonths(this.currentDate(), 1);
+    const secondDayOfMonth = new Date(
+      nextMonth.getFullYear(),
+      nextMonth.getMonth(),
+      2
+    );
+    this.currentDate.set(secondDayOfMonth);
     this.monthChange.emit(this.currentDate());
 
     this.navToMonth();
   }
 
   public prevMonth() {
-    this.currentDate.set(subMonths(this.currentDate(), 1));
+    const prevMonth = subMonths(this.currentDate(), 1);
+    const secondDayOfMonth = new Date(
+      prevMonth.getFullYear(),
+      prevMonth.getMonth(),
+      2
+    );
+    this.currentDate.set(secondDayOfMonth);
     this.monthChange.emit(this.currentDate());
 
     this.navToMonth();

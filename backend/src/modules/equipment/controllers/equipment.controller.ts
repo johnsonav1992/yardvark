@@ -40,7 +40,7 @@ export class EquipmentController {
   @UseInterceptors(FileInterceptor('equipment-image'))
   async createEquipment(
     @Req() req: Request,
-    @UploadedFile(imageFileValidator) file: Express.Multer.File,
+    @UploadedFile(imageFileValidator()) file: Express.Multer.File,
     @Body() equipmentData: Partial<Equipment>,
   ) {
     const userId = req.user.userId;
@@ -73,7 +73,7 @@ export class EquipmentController {
   async updateEquipment(
     @Req() req: Request,
     @Param('equipmentId') equipmentId: number,
-    @UploadedFile(imageFileValidator) file: Express.Multer.File,
+    @UploadedFile(imageFileValidator()) file: Express.Multer.File,
     @Body() equipmentData: Partial<Equipment>,
   ) {
     let imageUrl: string | undefined = undefined;

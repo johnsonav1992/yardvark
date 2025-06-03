@@ -15,6 +15,8 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { Request, Response } from 'express';
 import { firstValueFrom, map } from 'rxjs';
 import { S3Service } from 'src/modules/s3/s3.service';
+import { MAX_FILE_LARGE_UPLOAD_SIZE } from 'src/utils/constants';
+import { imageFileValidator } from 'src/utils/fileUtils';
 import { tryCatch } from 'src/utils/tryCatch';
 import { Readable } from 'stream';
 
@@ -28,7 +30,8 @@ export class FilesController {
   @Post('upload')
   @UseInterceptors(FilesInterceptor('file', 10))
   uploadFiles(
-    @UploadedFiles() files: Express.Multer.File[],
+    @UploadedFiles(imageFileValidator(MAX_FILE_LARGE_UPLOAD_SIZE))
+    files: Express.Multer.File[],
     @Req() req: Request,
   ) {
     return this._s3Service.uploadFiles(files, req.user.userId);

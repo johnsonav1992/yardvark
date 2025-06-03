@@ -30,7 +30,7 @@ export class ProductsController {
   @UseInterceptors(FileInterceptor('product-image'))
   async addProduct(
     @Req() req: Request,
-    @UploadedFile(imageFileValidator) file: Express.Multer.File,
+    @UploadedFile(imageFileValidator()) file: Express.Multer.File,
     @Body() body: Product & { systemProduct?: string | boolean },
   ) {
     if (body.systemProduct) body.systemProduct = body.systemProduct === 'true';

@@ -1,4 +1,4 @@
-import { productTypesArray } from '../../../backend/src/products/models/products.types';
+import { productTypesArray } from '../../../backend/src/modules/products/models/products.types';
 
 export const QUANTITY_UNITS = [
   'oz',

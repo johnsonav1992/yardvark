@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  effect,
   inject,
   linkedSignal,
   signal
@@ -48,6 +49,11 @@ import { GlobalUiService } from '../../../services/global-ui.service';
 import { convertTimeStringToDate } from '../../../utils/timeUtils';
 import { DatePickerModule } from 'primeng/datepicker';
 import { format } from 'date-fns';
+import { GalleriaModule } from 'primeng/galleria';
+import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
+import { MAX_FILE_LARGE_UPLOAD_SIZE } from '../../../constants/file-constants';
+import { FilesService } from '../../../services/files.service';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'entry-view',
@@ -65,7 +71,9 @@ import { format } from 'date-fns';
     ProductsSelectorComponent,
     ReactiveFormsModule,
     TextareaModule,
-    DatePickerModule
+    DatePickerModule,
+    GalleriaModule,
+    FileUploadModule
   ],
   templateUrl: './entry-view.component.html',
   styleUrl: './entry-view.component.scss'
@@ -78,8 +86,11 @@ export class EntryViewComponent {
   private _lawnSegmentsService = inject(LawnSegmentsService);
   private _throwErrorToast = injectErrorToast();
   private _globalUiService = inject(GlobalUiService);
+  private _filesService = inject(FilesService);
+  private _confirmationService = inject(ConfirmationService);
 
   public isMobile = this._globalUiService.isMobile;
+  public maxFileUploadSize = MAX_FILE_LARGE_UPLOAD_SIZE;
 
   public editForm = new FormGroup({
     time: new FormControl<Date | null>(null),
@@ -88,7 +99,8 @@ export class EntryViewComponent {
     lawnSegments: new FormControl<LawnSegment[]>([]),
     products: new FormArray<EntryProductRow>([]),
     productsSelected: new FormControl<EntryProduct[]>([]),
-    notes: new FormControl<string | null>(null)
+    notes: new FormControl<string | null>(null),
+    images: new FormControl<File[]>([])
   });
 
   public entryId = toSignal<number>(
@@ -106,6 +118,7 @@ export class EntryViewComponent {
     this.entryResource.value()
   );
   public isInEditMode = signal(false);
+  public isLoading = signal<boolean>(false);
 
   public entryTime = computed(() =>
     convertTimeStringToDate(this.entryData()?.time!)
@@ -129,6 +142,28 @@ export class EntryViewComponent {
     this.entryId
   );
 
+  public entryImageUrls = computed(
+    () => this.entryData()?.images.map((img) => img.imageUrl) || []
+  );
+
+  public downloadedFiles = signal<File[]>([]);
+
+  _formFileUpdater = effect(() => {
+    const entryData = this.entryData();
+
+    if (entryData && entryData.images.length) {
+      this._filesService
+        .downloadFiles(this.entryImageUrls())
+        .subscribe((downloadedFiles) => {
+          if (!downloadedFiles) return;
+
+          this.downloadedFiles.set(downloadedFiles);
+          this.editForm.controls.images.setValue(downloadedFiles);
+          this.editForm.updateValueAndValidity();
+        });
+    }
+  });
+
   public constructor() {
     const entryData =
       this._router.getCurrentNavigation()?.extras.state?.['entry'];
@@ -145,7 +180,60 @@ export class EntryViewComponent {
           date: new Date(dateOfDeletedEntry!)
         }
       });
+
+      this._entryService.recentEntry.reload();
     });
+  }
+
+  public onFilesSelect(e: FileSelectEvent): void {
+    if (!e.files || e.files.length === 0) return;
+
+    const currentFiles = this.editForm.controls.images.value || [];
+    const existingFileNames = new Set(currentFiles.map((file) => file.name));
+
+    const newUniqueFiles = Array.from(e.files).filter(
+      (file) => !existingFileNames.has(file.name)
+    );
+
+    const updatedFiles = [...currentFiles, ...newUniqueFiles];
+
+    this.editForm.controls.images.setValue(updatedFiles);
+    this.downloadedFiles.set(updatedFiles);
+  }
+
+  public onRemoveFile(
+    file: File,
+    removeFileCallback: (file: File, index: number) => void,
+    index: number
+  ) {
+    const currentEntryImage = this.getCurrentEntryImage(file);
+
+    const remove = () => {
+      this.downloadedFiles.update((files) => {
+        if (!files) return [];
+
+        return files.toSpliced(index, 1);
+      });
+
+      this.editForm.controls.images.setValue(this.downloadedFiles() || []);
+      this.editForm.controls.images.updateValueAndValidity();
+
+      removeFileCallback(file, index);
+    };
+
+    if (currentEntryImage) {
+      return this._confirmationService.confirm({
+        header: 'Delete Existing Image',
+        message:
+          'Are you sure you want to delete this image? Since it already exists on this entry, you will need to upload it again if you want to keep it.',
+        accept: () => {
+          this._entryService.deleteEntryImage(currentEntryImage.id).subscribe();
+          remove();
+        }
+      });
+    }
+
+    return remove();
   }
 
   public toggleEditMode() {
@@ -186,16 +274,35 @@ export class EntryViewComponent {
           productQuantity: row.quantity!,
           productQuantityUnit: row.quantityUnit!
         })) || [],
-      notes: this.editForm.value.notes || ''
+      notes: this.editForm.value.notes || '',
+      images: this.editForm.value.images?.filter(
+        (img) => !this.getCurrentEntryImage(img)
+      )
     };
+
+    this.isLoading.set(true);
 
     this._entryService.editEntry(this.entryId(), updatedEntry).subscribe({
       next: () => {
         this.isInEditMode.set(false);
+        this.isLoading.set(false);
         this.entryResource.reload();
+        this._entryService.recentEntry.reload();
       },
-      error: () => this._throwErrorToast('Failed to update entry')
+      error: () => {
+        this._throwErrorToast('Failed to update entry');
+        this.isLoading.set(false);
+      }
     });
+  }
+
+  private getCurrentEntryImage(file: File) {
+    const fileName = file.name;
+
+    return (
+      this.entryData()?.images.find((img) => img.imageUrl.endsWith(fileName)) ||
+      null
+    );
   }
 
   public soilTempChipDt: ChipDesignTokens = {

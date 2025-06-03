@@ -11,7 +11,7 @@ import {
   providedIn: 'root'
 })
 export class EquipmentService {
-  public equipment = httpResource<Equipment[]>(apiUrl('equipment'));
+  public equipment = httpResource<Equipment[]>(() => apiUrl('equipment'));
 
   public createEquipment(equipmentData: EquipmentFormData) {
     const formData = this.buildEquipmentFormData(equipmentData);

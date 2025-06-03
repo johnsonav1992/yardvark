@@ -7,5 +7,5 @@ import { AnalyticsRes } from '../types/analytics.types';
   providedIn: 'root'
 })
 export class AnalyticsService {
-  public analyticsData = httpResource<AnalyticsRes>(apiUrl('analytics'));
+  public analyticsData = httpResource<AnalyticsRes>(() => apiUrl('analytics'));
 }

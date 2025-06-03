@@ -26,13 +26,12 @@ import { GlobalUiService } from '../../services/global-ui.service';
 import { DividerModule } from 'primeng/divider';
 import { format, isSameDay } from 'date-fns';
 import { CardModule } from 'primeng/card';
-import { DatePipe } from '@angular/common';
 import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { convertTimeStringToDate } from '../../utils/timeUtils';
 import { MobileEntryPreviewCardComponent } from '../../components/entries/mobile-entry-preview-card/mobile-entry-preview-card.component';
 import { SettingsService } from '../../services/settings.service';
-import { SettingsData } from '../../../../backend/src/settings/models/settings.types';
+import { SettingsData } from '../../../../backend/src/modules/settings/models/settings.types';
 
 @Component({
   selector: 'entry-log',
@@ -43,7 +42,6 @@ import { SettingsData } from '../../../../backend/src/settings/models/settings.t
     RouterOutlet,
     DividerModule,
     CardModule,
-    DatePipe,
     MobileEntryPreviewCardComponent
   ],
   templateUrl: './entry-log.component.html',

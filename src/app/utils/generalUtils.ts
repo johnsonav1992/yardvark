@@ -31,6 +31,8 @@ export const hideVirtualKeyboard = () => {
     const vk = navigator.virtualKeyboard;
 
     if (vk) {
+      vk.overlaysContent = true;
+
       try {
         vk.hide();
       } catch (error) {

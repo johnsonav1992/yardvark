@@ -4,6 +4,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { passportJwtSecret } from 'jwks-rsa';
 import { Auth0TokenPayload } from 'src/types/auth.types';
+import { ExtractedUserRequestData } from 'src/types/request';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -30,6 +31,8 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   validate(payload: Auth0TokenPayload) {
     return {
       userId: payload.sub,
-    };
+      email: payload.email,
+      name: `${payload.given_name} ${payload.family_name}`,
+    } satisfies ExtractedUserRequestData;
   }
 }

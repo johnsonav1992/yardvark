@@ -44,10 +44,10 @@ export class SoilTemperatureService {
         this._locationService.userLatLong() ||
         this._currentPositionLatLong?.value();
       const now = new Date();
-      const endHour = formatDate(now, 'YYYY-MM-ddTHH:00', 'en-US')!;
+      const endHour = formatDate(now, 'y-MM-ddTHH:00', 'en-US')!;
       const startHour = formatDate(
         new Date(now.getTime() - 24 * 60 * 60 * 1000),
-        'YYYY-MM-ddTHH:00',
+        'y-MM-ddTHH:00',
         'en-US'
       )!;
 
@@ -83,8 +83,8 @@ export class SoilTemperatureService {
               ],
               latitude: coords.lat,
               longitude: coords.long,
-              start_date: formatDate(startDate, 'YYYY-MM-dd', 'en-US'),
-              end_date: formatDate(endDate, 'YYYY-MM-dd', 'en-US')
+              start_date: formatDate(startDate, 'y-MM-dd', 'en-US'),
+              end_date: formatDate(endDate, 'y-MM-dd', 'en-US')
             } satisfies OpenMeteoQueryParams
           }
         : undefined;
@@ -114,12 +114,12 @@ export class SoilTemperatureService {
               longitude: coords.long,
               start_hour: formatDate(
                 date() || new Date(),
-                'YYYY-MM-ddTHH:mm',
+                'y-MM-ddTHH:mm',
                 'en-US'
               ),
               end_hour: formatDate(
                 date() || new Date(),
-                'YYYY-MM-ddTHH:mm',
+                'y-MM-ddTHH:mm',
                 'en-US'
               )
             } satisfies OpenMeteoQueryParams
@@ -129,7 +129,7 @@ export class SoilTemperatureService {
   };
 
   private _currentPositionLatLong = rxResource({
-    loader: () =>
+    stream: () =>
       this.useCurrentPositionLatLong()
         ? this._locationService.getLatLongFromCurrentPosition()
         : of(undefined)

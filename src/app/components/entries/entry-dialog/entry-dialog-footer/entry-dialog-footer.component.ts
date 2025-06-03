@@ -74,7 +74,8 @@ export class EntryDialogFooterComponent {
           productQuantity: row.quantity!,
           productQuantityUnit: row.quantityUnit!
         })) || [],
-      soilTemperatureUnit: this._soilTempService.temperatureUnit()
+      soilTemperatureUnit: this._soilTempService.temperatureUnit(),
+      images: this.form?.value.images || []
     };
 
     this._entriesService.addEntry(req).subscribe({

@@ -45,7 +45,6 @@
       formControlName="lawnSegments"
       optionLabel="name"
       appendTo="body"
-      (onPanelShow)="onPanelShow()"
     />
   </div>
   <div class="col-input-wrapper">
@@ -56,4 +55,35 @@
     Notes:
     <textarea pTextarea [rows]="3" formControlName="notes"></textarea>
   </div>
+  <p-fileUpload
+    [multiple]="true"
+    [fileLimit]="5"
+    [maxFileSize]="maxFileUploadSize"
+    accept="image/*"
+    (onSelect)="onFilesSelect($event)"
+    chooseLabel="Choose Images"
+    cancelLabel="Clear"
+    [showUploadButton]="false"
+  >
+    <ng-template #content let-files let-removeFileCallback="removeFileCallback">
+      @for (file of files; track file.name) {
+        <div class="file">
+          <div class="name-image">
+            <img [src]="file.objectURL" width="auto" height="40" />
+            {{ file.name }}
+          </div>
+          <p-button
+            type="button"
+            icon="ti ti-x"
+            severity="danger"
+            rounded
+            outlined
+            (click)="onRemoveFile(file, removeFileCallback, $index)"
+          />
+        </div>
+      }
+    </ng-template>
+    <!-- Noop because primeng is dumb  -->
+    <ng-template #file></ng-template>
+  </p-fileUpload>
 </form>

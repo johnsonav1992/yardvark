@@ -5,14 +5,14 @@
   "° " +
   (entryData()?.soilTemperatureUnit === "fahrenheit" ? "F" : "C");
 
-@let isLoading = entryResource.isLoading();
+@let isEntryLoading = entryResource.isLoading();
 
 <page-container pageTitle="Journal Entry">
   <div [formGroup]="editForm">
     <p-card>
       <ng-template #title>
         <div class="title-container">
-          @if (isLoading) {
+          @if (isEntryLoading) {
             <p-skeleton [width]="'100px'" />
             <p-skeleton [width]="'50px'" [height]="'40px'" />
           } @else {
@@ -34,7 +34,13 @@
             <div class="button-container">
               <p-button
                 [label]="isInEditMode() ? 'Save' : 'Edit'"
-                [icon]="isInEditMode() ? 'ti ti-check' : 'ti ti-pencil'"
+                [icon]="
+                  isLoading()
+                    ? 'ti ti-loader-2 icon-spin'
+                    : isInEditMode()
+                      ? 'ti ti-check'
+                      : 'ti ti-pencil'
+                "
                 outlined
                 (click)="isInEditMode() ? submitEdits() : toggleEditMode()"
                 [severity]="isInEditMode() ? 'success' : 'secondary'"
@@ -74,7 +80,7 @@
         }
       </ng-template>
       <ng-template #subtitle>
-        @if (isLoading) {
+        @if (isEntryLoading) {
           <div
             [style]="{
               display: 'flex',
@@ -99,7 +105,7 @@
       </ng-template>
       <p-divider />
       <div class="content-container">
-        @if (isLoading) {
+        @if (isEntryLoading) {
           @for (num of [1, 2, 3]; track num) {
             <p-skeleton [width]="'175px'" height="20px" />
             <p-skeleton [width]="'90px'" />
@@ -187,7 +193,72 @@
             }
           </div>
         }
+        @if (isInEditMode()) {
+          <div class="section-container">
+            <p-fileUpload
+              [multiple]="true"
+              [fileLimit]="5"
+              [maxFileSize]="maxFileUploadSize"
+              accept="image/*"
+              (onSelect)="onFilesSelect($event)"
+              chooseLabel="Choose Images"
+              [showUploadButton]="false"
+              [showCancelButton]="false"
+              [files]="downloadedFiles()"
+            >
+              <ng-template
+                #content
+                let-files
+                let-removeFileCallback="removeFileCallback"
+              >
+                @for (file of files; track file.name) {
+                  <div class="file">
+                    <div class="name-image">
+                      <img [src]="file.objectURL" width="auto" height="40" />
+                      {{ file.name }}
+                    </div>
+                    <p-button
+                      type="button"
+                      icon="ti ti-x"
+                      severity="danger"
+                      rounded
+                      outlined
+                      (click)="onRemoveFile(file, removeFileCallback, $index)"
+                    />
+                  </div>
+                }
+              </ng-template>
+              <!-- Noop because primeng is dumb  -->
+              <ng-template #file></ng-template>
+            </p-fileUpload>
+          </div>
+        }
       </div>
     </p-card>
+    @let imgs = entryImageUrls();
+
+    @if (!isInEditMode()) {
+      @if (imgs?.length) {
+        <p-card [style]="{ marginTop: '1rem' }">
+          <h3>Images:</h3>
+          <p-galleria
+            [value]="imgs"
+            [showIndicators]="(imgs?.length || 0) > 1"
+            [showThumbnails]="false"
+            showIndicators
+            [containerStyle]="{
+              marginTop: '.5rem',
+              width: !isMobile() ? '65%' : '100%'
+            }"
+          >
+            <ng-template #item let-item>
+              <div class="galleria-image-container">
+                <img [src]="item" class="image" />
+              </div>
+            </ng-template>
+          </p-galleria>
+        </p-card>
+      }
+    }
   </div>
 </page-container>

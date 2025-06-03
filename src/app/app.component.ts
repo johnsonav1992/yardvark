@@ -37,11 +37,12 @@ export class AppComponent {
   public isLoggedIn = signal(false);
   public isAuthLoading = toSignal(this._auth.isLoading$);
 
-  constructor() {
+  public constructor() {
     if (this._swUpdate.isEnabled) {
       this._swUpdate.versionUpdates.subscribe((event) => {
         if (event.type === 'VERSION_READY') {
           this._confirmationService.confirm({
+            header: 'Update Available',
             message:
               'A new version of the app is available. Would you like to load it?',
             accept: () => {

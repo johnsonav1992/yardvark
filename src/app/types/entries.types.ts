@@ -13,6 +13,7 @@ export type Entry = {
   activities: Activity[];
   lawnSegments: LawnSegment[];
   products: EntryProduct[];
+  images: { id: number; imageUrl: string }[];
 };
 
 export type EntryProduct = {
@@ -41,6 +42,15 @@ export type EntryCreationRequest = {
     productQuantityUnit: string;
   }>;
   soilTemperatureUnit: string;
+  imageUrls?: string[];
+  images?: File[];
+};
+
+export type EntryCreationRequestFormInput = Omit<
+  EntryCreationRequest,
+  'imageUrls'
+> & {
+  images: File[];
 };
 
 export type EntriesSearchRequest = {

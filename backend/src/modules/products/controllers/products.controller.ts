@@ -12,7 +12,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { S3Service } from 'src/s3/s3.service';
+import { S3Service } from 'src/modules/s3/s3.service';
 import { imageFileValidator } from 'src/utils/fileUtils';
 import { ProductsService } from '../services/products.service';
 import { Request } from 'express';
@@ -30,7 +30,7 @@ export class ProductsController {
   @UseInterceptors(FileInterceptor('product-image'))
   async addProduct(
     @Req() req: Request,
-    @UploadedFile(imageFileValidator) file: Express.Multer.File,
+    @UploadedFile(imageFileValidator()) file: Express.Multer.File,
     @Body() body: Product & { systemProduct?: string | boolean },
   ) {
     if (body.systemProduct) body.systemProduct = body.systemProduct === 'true';

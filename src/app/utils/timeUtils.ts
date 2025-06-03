@@ -123,3 +123,12 @@ export const isTimeString = (value: string): boolean => {
   const timeRegex = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
   return timeRegex.test(value);
 };
+
+/**
+ * Gets a specific day of the month for a given month date.
+ * @param monthDate The date representing the month.
+ * @param day The day of the month to get.
+ * @returns A Date object for the specified day in the given month.
+ */
+export const getSpecificDayOfMonth = (monthDate: Date, day: number): Date =>
+  new Date(monthDate.getFullYear(), monthDate.getMonth(), day);

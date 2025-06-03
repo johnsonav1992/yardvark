@@ -1,21 +1,24 @@
 import { Module } from '@nestjs/common';
-import { SettingsModule } from './settings/settings.module';
+import { SettingsModule } from './modules/settings/settings.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { ActivitiesModule } from './activities/activities.module';
-import { LawnSegmentsModule } from './lawn-segments/lawn-segments.module';
-import { EntriesModule } from './entries/entries.module';
-import { ProductsModule } from './products/products.module';
+import { ActivitiesModule } from './modules/activities/activities.module';
+import { LawnSegmentsModule } from './modules/lawn-segments/lawn-segments.module';
+import { EntriesModule } from './modules/entries/entries.module';
+import { ProductsModule } from './modules/products/products.module';
 import { JwtStrategy } from './guards/jwt.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/auth.guard';
-import { UsersController } from './users/controllers/users.controller';
-import { UsersService } from './users/services/users.service';
-import { UsersModule } from './users/users.module';
+import { UsersController } from './modules/users/controllers/users.controller';
+import { UsersService } from './modules/users/services/users.service';
+import { UsersModule } from './modules/users/users.module';
 import { HttpModule } from '@nestjs/axios';
-import { EquipmentModule } from './equipment/equipment.module';
-import { AnalyticsModule } from './analytics/analytics.module';
+import { EquipmentModule } from './modules/equipment/equipment.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { dataSource } from './db.config';
+import { FilesModule } from './modules/files/files.module';
+import { FilesController } from './modules/files/controllers/files.controller';
+import { S3Service } from './modules/s3/s3.service';
 
 @Module({
   imports: [
@@ -30,8 +33,10 @@ import { dataSource } from './db.config';
     HttpModule,
     EquipmentModule,
     AnalyticsModule,
+    FilesModule,
+    HttpModule,
   ],
-  controllers: [UsersController],
+  controllers: [UsersController, FilesController],
   providers: [
     JwtStrategy,
     {
@@ -39,6 +44,7 @@ import { dataSource } from './db.config';
       useClass: JwtAuthGuard,
     },
     UsersService,
+    S3Service,
   ],
 })
 export class AppModule {}

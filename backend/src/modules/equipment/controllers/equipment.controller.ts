@@ -17,7 +17,7 @@ import { Request } from 'express';
 import { EquipmentService } from '../services/equipment.service';
 import { Equipment } from '../models/equipment.model';
 import { imageFileValidator } from 'src/utils/fileUtils';
-import { S3Service } from 'src/s3/s3.service';
+import { S3Service } from 'src/modules/s3/s3.service';
 import { tryCatch } from 'src/utils/tryCatch';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { EquipmentMaintenance } from '../models/equipmentMaintenance.model';
@@ -40,7 +40,7 @@ export class EquipmentController {
   @UseInterceptors(FileInterceptor('equipment-image'))
   async createEquipment(
     @Req() req: Request,
-    @UploadedFile(imageFileValidator) file: Express.Multer.File,
+    @UploadedFile(imageFileValidator()) file: Express.Multer.File,
     @Body() equipmentData: Partial<Equipment>,
   ) {
     const userId = req.user.userId;
@@ -73,7 +73,7 @@ export class EquipmentController {
   async updateEquipment(
     @Req() req: Request,
     @Param('equipmentId') equipmentId: number,
-    @UploadedFile(imageFileValidator) file: Express.Multer.File,
+    @UploadedFile(imageFileValidator()) file: Express.Multer.File,
     @Body() equipmentData: Partial<Equipment>,
   ) {
     let imageUrl: string | undefined = undefined;

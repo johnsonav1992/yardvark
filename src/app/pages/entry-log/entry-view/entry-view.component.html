@@ -5,14 +5,14 @@
   "° " +
   (entryData()?.soilTemperatureUnit === "fahrenheit" ? "F" : "C");
 
-@let isLoading = entryResource.isLoading();
+@let isEntryLoading = entryResource.isLoading();
 
 <page-container pageTitle="Journal Entry">
   <div [formGroup]="editForm">
     <p-card>
       <ng-template #title>
         <div class="title-container">
-          @if (isLoading) {
+          @if (isEntryLoading) {
             <p-skeleton [width]="'100px'" />
             <p-skeleton [width]="'50px'" [height]="'40px'" />
           } @else {
@@ -34,7 +34,13 @@
             <div class="button-container">
               <p-button
                 [label]="isInEditMode() ? 'Save' : 'Edit'"
-                [icon]="isInEditMode() ? 'ti ti-check' : 'ti ti-pencil'"
+                [icon]="
+                  isLoading()
+                    ? 'ti ti-loader-2 icon-spin'
+                    : isInEditMode()
+                      ? 'ti ti-check'
+                      : 'ti ti-pencil'
+                "
                 outlined
                 (click)="isInEditMode() ? submitEdits() : toggleEditMode()"
                 [severity]="isInEditMode() ? 'success' : 'secondary'"
@@ -74,7 +80,7 @@
         }
       </ng-template>
       <ng-template #subtitle>
-        @if (isLoading) {
+        @if (isEntryLoading) {
           <div
             [style]="{
               display: 'flex',
@@ -99,7 +105,7 @@
       </ng-template>
       <p-divider />
       <div class="content-container">
-        @if (isLoading) {
+        @if (isEntryLoading) {
           @for (num of [1, 2, 3]; track num) {
             <p-skeleton [width]="'175px'" height="20px" />
             <p-skeleton [width]="'90px'" />
@@ -196,8 +202,8 @@
               accept="image/*"
               (onSelect)="onFilesSelect($event)"
               chooseLabel="Choose Images"
-              cancelLabel="Clear"
               [showUploadButton]="false"
+              [showCancelButton]="false"
               [files]="downloadedFiles()"
             >
               <ng-template

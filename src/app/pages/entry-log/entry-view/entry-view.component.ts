@@ -118,6 +118,7 @@ export class EntryViewComponent {
     this.entryResource.value()
   );
   public isInEditMode = signal(false);
+  public isLoading = signal<boolean>(false);
 
   public entryTime = computed(() =>
     convertTimeStringToDate(this.entryData()?.time!)
@@ -179,6 +180,8 @@ export class EntryViewComponent {
           date: new Date(dateOfDeletedEntry!)
         }
       });
+
+      this._entryService.recentEntry.reload();
     });
   }
 
@@ -277,12 +280,19 @@ export class EntryViewComponent {
       )
     };
 
+    this.isLoading.set(true);
+
     this._entryService.editEntry(this.entryId(), updatedEntry).subscribe({
       next: () => {
         this.isInEditMode.set(false);
+        this.isLoading.set(false);
         this.entryResource.reload();
+        this._entryService.recentEntry.reload();
       },
-      error: () => this._throwErrorToast('Failed to update entry')
+      error: () => {
+        this._throwErrorToast('Failed to update entry');
+        this.isLoading.set(false);
+      }
     });
   }
 

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { apiUrl, getReq, postReq } from '../utils/httpUtils';
-import { from, map, mergeMap, Observable, scan, tap } from 'rxjs';
+import { from, map, mergeMap, Observable, scan } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 
 @Injectable({

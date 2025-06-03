@@ -1,4 +1,4 @@
-import { DatePipe, Location, NgTemplateOutlet } from '@angular/common';
+import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   computed,
@@ -14,7 +14,7 @@ import {
 import { addMonths, format, startOfToday, subMonths } from 'date-fns';
 import { getCalendarDaysData } from './utils';
 import { ButtonModule } from 'primeng/button';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { GlobalUiService } from '../../../services/global-ui.service';
@@ -27,6 +27,7 @@ import { PopoverModule } from 'primeng/popover';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { FormsModule } from '@angular/forms';
 import { SettingsService } from '../../../services/settings.service';
+import { getSpecificDayOfMonth } from '../../../utils/timeUtils';
 
 @Component({
   selector: 'entries-calendar',
@@ -48,7 +49,7 @@ import { SettingsService } from '../../../services/settings.service';
 })
 export class EntriesCalendarComponent {
   private _router = inject(Router);
-  private _location = inject(Location);
+  private _route = inject(ActivatedRoute);
   private _globalUiService = inject(GlobalUiService);
   private _settingsService = inject(SettingsService);
 
@@ -101,12 +102,7 @@ export class EntriesCalendarComponent {
 
   public nextMonth() {
     const nextMonth = addMonths(this.currentDate(), 1);
-    const secondDayOfMonth = new Date(
-      nextMonth.getFullYear(),
-      nextMonth.getMonth(),
-      2
-    );
-    this.currentDate.set(secondDayOfMonth);
+    this.currentDate.set(getSpecificDayOfMonth(nextMonth, 2));
     this.monthChange.emit(this.currentDate());
 
     this.navToMonth();
@@ -114,12 +110,7 @@ export class EntriesCalendarComponent {
 
   public prevMonth() {
     const prevMonth = subMonths(this.currentDate(), 1);
-    const secondDayOfMonth = new Date(
-      prevMonth.getFullYear(),
-      prevMonth.getMonth(),
-      2
-    );
-    this.currentDate.set(secondDayOfMonth);
+    this.currentDate.set(getSpecificDayOfMonth(prevMonth, 2));
     this.monthChange.emit(this.currentDate());
 
     this.navToMonth();
@@ -151,7 +142,11 @@ export class EntriesCalendarComponent {
   }
 
   public back(): void {
-    this._location.back();
+    this._router.navigate(['../'], {
+      relativeTo: this._route,
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
   }
 
   private navToMonth() {

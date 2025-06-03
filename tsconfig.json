@@ -22,7 +22,7 @@
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
-    "noUnusedLocals": false,
+    "noUnusedLocals": true,
     "noUnusedParameters": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,

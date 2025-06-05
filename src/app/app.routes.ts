@@ -13,6 +13,7 @@ import { ProductViewComponent } from './pages/products/product-view/product-view
 import { EquipmentViewComponent } from './pages/equipment/equipment-view/equipment-view.component';
 import { AddEditEquipmentComponent } from './pages/equipment/add-edit-equipment/add-edit-equipment.component';
 import { AnalyticsComponent } from './pages/analytics/analytics.component';
+import { unsavedChangesGuard } from './guards/unsaved-changes-guard';
 
 export const mainRoutes: Routes = [
   {
@@ -84,7 +85,8 @@ export const mainRoutes: Routes = [
   {
     path: 'settings',
     component: SettingsComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuard],
+    canDeactivate: [unsavedChangesGuard]
   },
   {
     path: 'analytics',

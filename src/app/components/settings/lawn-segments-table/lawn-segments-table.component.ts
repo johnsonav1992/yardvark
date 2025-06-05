@@ -1,5 +1,6 @@
 import {
   Component,
+  effect,
   inject,
   model,
   OnDestroy,
@@ -37,12 +38,17 @@ export class LawnSegmentsTableComponent implements OnDestroy {
   private _throwErrorToast = injectErrorToast();
 
   public lawnSegments = model.required<LawnSegment[] | undefined>();
+  public hasUnsavedChanges = model.required<boolean>();
   public currentlyEditingLawnSegmentIds = signal<number[] | null>(null);
 
   public lawnSegmentTable = viewChild(Table);
 
   public lawnSegmentsAreLoading =
     this._lawnSegmentsService.lawnSegments.isLoading;
+
+  _unsavedChangesListener = effect(() => {
+    this.hasUnsavedChanges.set(!!this.currentlyEditingLawnSegmentIds()?.length);
+  });
 
   public ngOnDestroy(): void {
     this._lawnSegmentsService.lawnSegments.reload();
@@ -65,6 +71,7 @@ export class LawnSegmentsTableComponent implements OnDestroy {
     this.currentlyEditingLawnSegmentIds.update((prev) => {
       return prev ? [...prev, newId] : [newId];
     });
+
     this.lawnSegmentTable()?.initRowEdit(newRow);
   }
 

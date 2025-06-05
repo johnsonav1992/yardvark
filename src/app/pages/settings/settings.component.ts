@@ -21,6 +21,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { LawnSegmentsTableComponent } from '../../components/settings/lawn-segments-table/lawn-segments-table.component';
 import { GlobalUiService } from '../../services/global-ui.service';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { UnsavedChanges } from '../../guards/unsaved-changes-guard';
 
 @Component({
   selector: 'settings',
@@ -39,7 +40,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'
 })
-export class SettingsComponent {
+export class SettingsComponent implements UnsavedChanges {
   private _settingsService = injectSettingsService();
   private _locationService = inject(LocationService);
   private _lawnSegmentsService = inject(LawnSegmentsService);
@@ -52,6 +53,7 @@ export class SettingsComponent {
 
   public lawnSize = linkedSignal(() => this.currentSettings()?.lawnSize);
 
+  public hasUnsavedChanges = signal(false);
   public locationSearchText = signal<string>('');
   public debouncedSearchText = debouncedSignal(this.locationSearchText, 700);
 

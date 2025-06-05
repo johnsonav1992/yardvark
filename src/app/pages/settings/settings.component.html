@@ -88,6 +88,9 @@
   </div>
   <div class="section-wrapper">
     <h4>Lawn Segments</h4>
-    <lawn-segments-table [lawnSegments]="lawnSegments.value()" />
+    <lawn-segments-table
+      [lawnSegments]="lawnSegments.value()"
+      [(hasUnsavedChanges)]="hasUnsavedChanges"
+    />
   </div>
 </page-container>

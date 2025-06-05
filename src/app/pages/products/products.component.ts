@@ -30,7 +30,6 @@ import { DividerModule } from 'primeng/divider';
 import { DialogService } from 'primeng/dynamicdialog';
 import { ProductsVisibilityModalComponent } from '../../components/products/products-visibility-modal/products-visibility-modal.component';
 import { SettingsService } from '../../services/settings.service';
-import { injectScreenWidthObserver } from '../../utils/styleUtils';
 
 @Component({
   selector: 'products',
@@ -60,7 +59,7 @@ export class ProductsComponent {
   private _dialogService = inject(DialogService);
   private _settingsService = inject(SettingsService);
 
-  public screenWidth = injectScreenWidthObserver();
+  public screenWidth = this._globalUiService.screenWidth;
 
   public isMobile = this._globalUiService.isMobile;
 

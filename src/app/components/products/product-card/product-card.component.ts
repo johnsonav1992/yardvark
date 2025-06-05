@@ -7,7 +7,6 @@ import { Router } from '@angular/router';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { injectUserData, isMasterUser } from '../../../utils/authUtils';
 import { YVUser } from '../../../types/user.types';
-import { injectScreenWidthObserver } from '../../../utils/styleUtils';
 
 @Component({
   selector: 'product-card',
@@ -20,7 +19,7 @@ export class ProductCardComponent {
   private _globalUiService = inject(GlobalUiService);
   public user = injectUserData();
 
-  public screenWidth = injectScreenWidthObserver();
+  public screenWidth = this._globalUiService.screenWidth;
 
   public product = input.required<ProductWithVisibility>();
 

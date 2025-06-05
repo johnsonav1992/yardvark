@@ -39,6 +39,7 @@ export class EquipmentComponent {
   private _globalUiService = inject(GlobalUiService);
   private _router = inject(Router);
 
+  public screenWidth = this._globalUiService.screenWidth;
   public isMobile = this._globalUiService.isMobile;
 
   public equipment = this._equipmentService.equipment;

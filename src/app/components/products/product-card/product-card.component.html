@@ -1,9 +1,15 @@
-<p-card [style]="{ width: '25rem', overflow: 'hidden', minHeight: '608px' }">
+<p-card
+  [style]="{
+    overflow: 'hidden',
+    minHeight: screenWidth() > 400 ? '608px' : 'auto',
+    width: screenWidth() > 400 ? '25rem' : '100%'
+  }"
+>
   <ng-template #header>
     <div class="header">
       <img
         alt="Card"
-        [style.max-height]="'400px'"
+        [style.max-height]="screenWidth() > 400 ? '400px' : '250px'"
         [src]="product()?.imageUrl || noImageUrl"
       />
     </div>

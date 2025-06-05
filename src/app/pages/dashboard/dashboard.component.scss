@@ -23,6 +23,11 @@
   > * {
     flex: 0 0 400px;
     min-width: 400px;
+
+    @media (max-width: 430px) {
+      min-width: 300px;
+    }
+
     max-width: 100%;
     box-sizing: border-box;
   }

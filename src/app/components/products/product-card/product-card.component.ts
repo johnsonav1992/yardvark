@@ -19,6 +19,8 @@ export class ProductCardComponent {
   private _globalUiService = inject(GlobalUiService);
   public user = injectUserData();
 
+  public screenWidth = this._globalUiService.screenWidth;
+
   public product = input.required<ProductWithVisibility>();
 
   public onToggleProductVisibility = output<ProductVisibilityToggleEvent>();

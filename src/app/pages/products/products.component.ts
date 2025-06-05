@@ -59,6 +59,8 @@ export class ProductsComponent {
   private _dialogService = inject(DialogService);
   private _settingsService = inject(SettingsService);
 
+  public screenWidth = this._globalUiService.screenWidth;
+
   public isMobile = this._globalUiService.isMobile;
 
   public tabs: Tab<ProductCategories>[] = [

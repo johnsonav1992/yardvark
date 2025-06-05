@@ -1,6 +1,11 @@
 .calendar-header {
   margin-bottom: 1rem;
   display: flex;
+
+  @media (max-width: 400px) {
+    flex-wrap: wrap;
+  }
+
   width: 100%;
   align-items: center;
   justify-content: space-between;
@@ -10,6 +15,10 @@
     gap: 0.5rem;
     align-items: center;
     width: 100%;
+
+    @media (max-width: 400px) {
+      justify-content: space-between;
+    }
 
     .title-and-loader {
       display: flex;
@@ -31,6 +40,10 @@
     gap: 0.25rem;
     width: 100%;
     justify-content: flex-end;
+
+    // @media (max-width: 400px) {
+    //   justify-content: flex-start;
+    // }
   }
 }
 

@@ -13,6 +13,10 @@
     align-items: center;
     justify-content: space-between;
 
+    @media (max-width: 400px) {
+      flex-wrap: wrap;
+    }
+
     .inner-title,
     .actions {
       display: flex;

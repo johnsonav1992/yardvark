@@ -2,8 +2,8 @@ import { $dt } from '@primeng/themes';
 import { PrimeNGColorToken } from '../types/style.types';
 import { inject } from '@angular/core';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { map } from 'rxjs';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { fromEvent, map, startWith } from 'rxjs';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
 /**
  * Returns the hex color value of a PrimeNG color token.
@@ -33,5 +33,22 @@ export const injectBreakpointObserver = (query: string) => {
   return toSignal(
     breakpointObserver.observe(query).pipe(map((res) => res.matches)),
     { initialValue: breakpointObserver.isMatched(query) }
+  );
+};
+
+/**
+ * Injects a screen width observer that emits the current window inner width
+ * whenever the window is resized.
+ *
+ * @returns A signal of the current window inner width.
+ */
+export const injectScreenWidthObserver = () => {
+  return toSignal(
+    fromEvent(window, 'resize').pipe(
+      takeUntilDestroyed(),
+      map(() => window.innerWidth),
+      startWith(window.innerWidth)
+    ),
+    { initialValue: window.innerWidth }
   );
 };

@@ -1,5 +1,8 @@
 import { Injectable, signal } from '@angular/core';
-import { injectBreakpointObserver } from '../utils/styleUtils';
+import {
+  injectBreakpointObserver,
+  injectScreenWidthObserver
+} from '../utils/styleUtils';
 import {
   MD_BREAKPOINT,
   YV_DARK_MODE_SELECTOR
@@ -13,6 +16,7 @@ export class GlobalUiService {
   public isDarkMode = signal(false);
 
   public isMobile = injectBreakpointObserver(`(max-width: ${MD_BREAKPOINT})`);
+  public screenWidth = injectScreenWidthObserver();
 
   constructor() {
     this.initializeDarkMode();

@@ -88,18 +88,20 @@
       />
     </div>
     <p-divider [styleClass]="'divider'" />
-    @if (!results()) {
-      Search for entries to view them here.
-    } @else {
-      @if (isLoading()) {
-        <loading-spinner size="m" />
+    <div class="search-container-results">
+      @if (!results()) {
+        Search for entries to view them here.
       } @else {
-        @for (entry of displayedEntries(); track entry.id) {
-          <mobile-entry-preview-card [entry]="entry" />
-        } @empty {
-          No entries found
+        @if (isLoading()) {
+          <loading-spinner size="m" />
+        } @else {
+          @for (entry of displayedEntries(); track entry.id) {
+            <mobile-entry-preview-card [entry]="entry" />
+          } @empty {
+            No entries found
+          }
         }
       }
-    }
+    </div>
   </form>
 </p-drawer>

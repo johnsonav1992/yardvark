@@ -1,15 +1,41 @@
 ::ng-deep.sidebar {
   z-index: 100000 !important;
+  min-width: 400px;
+
+  .p-drawer-content {
+    overflow: hidden;
+  }
+
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .search-container {
   display: flex;
   flex-direction: column;
   gap: 0.65rem;
+  height: 100%;
 
   .divider {
     margin: 0;
     margin-bottom: 0.5rem;
+  }
+
+  .search-container-results {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    overflow-y: auto;
+    padding: 0.25rem;
+    flex: 1;
+    min-height: 0; /* This is important for proper scrolling in flex containers */
+
+    scrollbar-width: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   .button-container {

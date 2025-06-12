@@ -30,7 +30,7 @@
     overflow-y: auto;
     padding: 0.25rem;
     flex: 1;
-    min-height: 0; /* This is important for proper scrolling in flex containers */
+    min-height: 0;
 
     scrollbar-width: none;
     &::-webkit-scrollbar {

@@ -293,6 +293,10 @@ export class EntriesService {
         lawnSegments: true,
         entryProducts: { product: true },
       },
+      order: {
+        date: 'DESC',
+        time: 'DESC',
+      },
     });
 
     return entries.map((entry) => getEntryResponseMapping(entry));

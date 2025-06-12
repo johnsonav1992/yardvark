@@ -5,12 +5,13 @@ import {
   Injectable,
   Logger,
   NestInterceptor,
+  Scope,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 
-@Injectable()
+@Injectable({ scope: Scope.REQUEST })
 export class LoggingInterceptor implements NestInterceptor {
   private logger = new Logger('HTTP');
 
@@ -45,7 +46,14 @@ export class LoggingInterceptor implements NestInterceptor {
     duration: number;
   }): void {
     const statusEmoji = this.getStatusEmoji(params.statusCode);
-    let logMessage = `${statusEmoji} [${params.request.method}] ${params.request.url} ${params.statusCode} - ${params.duration}ms - 👤 ${params.request.user?.name}`;
+    const userName = params.request.user?.name || 'Unknown';
+
+    let logMessage =
+      `${statusEmoji} ` +
+      `[${params.request.method}] ` +
+      `${params.request.url} ` +
+      `${params.statusCode} - ${params.duration}ms ` +
+      `- 👤 ${userName}`;
 
     if (this.hasBody(params.request.body))
       logMessage += `\n📦 Body: ${JSON.stringify(params.request.body, null, 2)}`;
@@ -61,13 +69,14 @@ export class LoggingInterceptor implements NestInterceptor {
   }): void {
     const { errorMessage, stack } = this.extractErrorDetails(params.error);
     const statusEmoji = this.getStatusEmoji(params.statusCode);
+    const userName = params.request.user?.name || 'Unknown';
 
     let errorLog =
       `${statusEmoji} ` +
       `[${params.request.method}] ` +
       `${params.request.url} ` +
       `${params.statusCode} - ${params.duration}ms ` +
-      `- 👤 ${params.request.user?.name}\n`;
+      `- 👤 ${userName}\n`;
 
     if (this.hasBody(params.request.body))
       errorLog += `📦 Body: ${JSON.stringify(params.request.body, null, 2)}\n`;

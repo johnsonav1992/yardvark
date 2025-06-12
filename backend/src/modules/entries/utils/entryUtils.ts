@@ -22,7 +22,9 @@ export const getEntryResponseMapping = (entry: Entry) => {
     ...rest,
     products: getEntryProductMapping(entryProducts),
     images: entryImages
-      .filter((img) => !img.deletedAt)
-      .map((img) => ({ imageUrl: img.imageUrl, id: img.id })),
+      ? entryImages
+          .filter((img) => !img.deletedAt)
+          .map((img) => ({ imageUrl: img.imageUrl, id: img.id }))
+      : [],
   };
 };

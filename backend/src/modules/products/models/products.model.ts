@@ -58,6 +58,9 @@ export class Product {
   @Column({ nullable: true })
   imageUrl?: string;
 
+  @Column({ nullable: true })
+  labelUrl?: string;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 

@@ -32,7 +32,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     return {
       userId: payload.sub,
       email: payload.email,
-      name: `${payload.given_name} ${payload.family_name}`,
+      name:
+        payload.given_name && payload.family_name
+          ? `${payload.given_name} ${payload.family_name}`
+          : payload.name || payload.nickname || payload.email || 'Unknown User',
     } satisfies ExtractedUserRequestData;
   }
 }

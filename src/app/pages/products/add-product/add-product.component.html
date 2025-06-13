@@ -137,6 +137,18 @@
         formControlName="containerType"
       />
     </div>
+    <div class="input-container">
+      Product Label Link
+      <input
+        pInputText
+        [placeholder]="'Optionally add a link to the product label'"
+        [style]="{ width: '100%' }"
+        formControlName="labelUrl"
+      />
+      @if (form.controls.labelUrl.hasError("invalidUrl")) {
+        <small class="error">Invalid URL format.</small>
+      }
+    </div>
     <div class="button-container">
       @if (isMasterUser()) {
         <div class="master-user-controls">

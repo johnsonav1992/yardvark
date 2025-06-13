@@ -7,7 +7,8 @@ export type ApiEndpointRoutes =
   | UsersRoutes
   | EquipmentRoutes
   | AnalyticsRoutes
-  | FileRoutes;
+  | FileRoutes
+  | WeatherRoutes;
 
 type SettingsRoutes = 'settings';
 
@@ -40,3 +41,5 @@ type EquipmentRoutes =
 type AnalyticsRoutes = 'analytics';
 
 type FileRoutes = 'files/upload' | 'files/download';
+
+type WeatherRoutes = 'weather/forecast';

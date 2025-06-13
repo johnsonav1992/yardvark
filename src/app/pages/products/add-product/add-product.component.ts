@@ -13,7 +13,8 @@ import {
 } from '@angular/forms';
 import {
   applicationRateFieldValidator,
-  guaranteedAnalysisFieldValidator
+  guaranteedAnalysisFieldValidator,
+  websiteUrlValidator
 } from '../../../utils/formUtils';
 import {
   APPLICATION_METHODS,
@@ -83,6 +84,7 @@ export class AddProductComponent {
     category: new FormControl('', [Validators.required]),
     quantityUnit: new FormControl('', [Validators.required]),
     containerType: new FormControl('', [Validators.required]),
+    labelUrl: new FormControl('', [websiteUrlValidator]),
     image: new FormControl<File | null>(null),
     systemProduct: new FormControl(false)
   });

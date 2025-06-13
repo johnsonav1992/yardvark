@@ -45,6 +45,13 @@
             <strong>Container Type:</strong>
             {{ product()?.containerType | titlecase }}
           </p>
+          @if (product()?.labelUrl) {
+            <p-button
+              label="View Label"
+              icon="ti ti-sticker"
+              (onClick)="viewLabel()"
+            />
+          }
         </div>
       </div>
     }

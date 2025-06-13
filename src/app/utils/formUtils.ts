@@ -35,3 +35,17 @@ export const showAllFormErrorsOnSubmit = (form: FormGroup) => {
 
   return form.markAllAsTouched();
 };
+
+export const websiteUrlValidator: ValidatorFn = (control) => {
+  const val = control.value;
+
+  if (val && val.length > 0) {
+    const isValid = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- ./?%&=]*)?$/.test(
+      val
+    );
+
+    return isValid ? null : { invalidUrl: true };
+  }
+
+  return null;
+};

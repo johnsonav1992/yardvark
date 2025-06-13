@@ -17,6 +17,7 @@ export type Product = {
   guaranteedAnalysis?: string;
   containerType?: string;
   imageUrl?: string;
+  labelUrl?: string;
   createdAt: string;
   updatedAt?: string;
   deletedAt?: string;
@@ -38,6 +39,7 @@ export type ProductFormData = {
   category: string;
   quantityUnit: string;
   containerType: string;
+  labelUrl?: string;
   image: File | null;
   systemProduct: boolean;
 };

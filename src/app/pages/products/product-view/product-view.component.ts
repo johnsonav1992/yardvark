@@ -10,6 +10,7 @@ import { DividerDesignTokens } from '@primeng/themes/types/divider';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { LoadingSpinnerComponent } from '../../../components/miscellanious/loading-spinner/loading-spinner.component';
 import { NO_IMAGE_URL } from '../../../constants/style-constants';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'product-view',
@@ -18,7 +19,8 @@ import { NO_IMAGE_URL } from '../../../constants/style-constants';
     TitleCasePipe,
     DividerModule,
     LoadingSpinnerComponent,
-    TitleCasePipe
+    TitleCasePipe,
+    ButtonModule
   ],
   templateUrl: './product-view.component.html',
   styleUrl: './product-view.component.scss'
@@ -43,6 +45,10 @@ export class ProductViewComponent {
       .value()
       ?.find((product) => product.id === this.productId())
   );
+
+  public viewLabel(): void {
+    window.open(this.product()?.labelUrl, '_blank');
+  }
 
   public dividerDt: DividerDesignTokens = {
     horizontal: {

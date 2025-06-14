@@ -32,6 +32,8 @@ import { convertTimeStringToDate } from '../../utils/timeUtils';
 import { MobileEntryPreviewCardComponent } from '../../components/entries/mobile-entry-preview-card/mobile-entry-preview-card.component';
 import { SettingsService } from '../../services/settings.service';
 import { SettingsData } from '../../../../backend/src/modules/settings/models/settings.types';
+import { WeatherService } from '../../services/weather-service';
+import { effectSignalLogger } from '../../utils/generalUtils';
 
 @Component({
   selector: 'entry-log',
@@ -55,6 +57,9 @@ export class EntryLogComponent implements OnInit {
   private _entriesService = inject(EntriesService);
   private _globalUiService = inject(GlobalUiService);
   private _settingsService = inject(SettingsService);
+  private _weatherService = inject(WeatherService);
+
+  _ = effectSignalLogger(this._weatherService.weatherForecastData);
 
   public isCreateOnOpen = toSignal(
     this._activatedRoute.queryParams.pipe(

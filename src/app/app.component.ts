@@ -12,8 +12,6 @@ import { environment } from '../environments/environment';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { SwUpdate } from '@angular/service-worker';
 import { ConfirmationService } from 'primeng/api';
-import { WeatherService } from './services/weather-service';
-import { effectSignalLogger } from './utils/generalUtils';
 
 @Component({
   selector: 'app-root',
@@ -33,16 +31,11 @@ export class AppComponent {
   private _globalUiService = inject(GlobalUiService);
   private _swUpdate = inject(SwUpdate);
   private _confirmationService = inject(ConfirmationService);
-  private _weatherService = inject(WeatherService);
 
   public isMobile = this._globalUiService.isMobile;
 
   public isLoggedIn = signal(false);
   public isAuthLoading = toSignal(this._auth.isLoading$);
-
-  public weatherData = this._weatherService.weatherData;
-
-  _ = effectSignalLogger(this.weatherData.value);
 
   public constructor() {
     if (this._swUpdate.isEnabled) {

@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 import { LocationService } from '../../services/location.service';
 import { SettingsService } from '../../services/settings.service';
 import { QuickStatsComponent } from '../../components/dashboard/quick-stats/quick-stats.component';
+import { WeatherService } from '../../services/weather-service';
 
 @Component({
   selector: 'dashboard',
@@ -37,6 +38,10 @@ export class DashboardComponent {
 
   public user = injectUserData();
   public isMobile = this._globalUiService.isMobile;
+
+  public constructor() {
+    inject(WeatherService);
+  }
 
   public isLocationLoading = computed(() =>
     this._settingsService.settings.isLoading()

@@ -59,8 +59,6 @@ export class EntryLogComponent implements OnInit {
   private _settingsService = inject(SettingsService);
   private _weatherService = inject(WeatherService);
 
-  _ = effectSignalLogger(this._weatherService.weatherForecastData);
-
   public isCreateOnOpen = toSignal(
     this._activatedRoute.queryParams.pipe(
       map((params) => params['create'] === 'true')

@@ -29,4 +29,14 @@ export class WeatherService {
   public weatherForecastData = computed(
     () => this.weatherDataResource.value()?.properties.periods || []
   );
+
+  public dailyWeatherForecasts = computed(() => {
+    return this.weatherForecastData().map((period) => {
+      return {
+        date: period.startTime,
+        temperature: period.temperature,
+        shortForecast: period.shortForecast
+      };
+    });
+  });
 }

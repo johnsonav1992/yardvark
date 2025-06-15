@@ -29,7 +29,7 @@ export const getForecastMarkerIcon = (
     if (temperature < FREEZING_TEMPERATURE_F) return WEATHER_ICONS.snowflake;
     if (temperature < MEDIUM_TEMPERATURE_F) return WEATHER_ICONS.cloud;
     if (temperature < HIGH_TEMPERATURE_F) return WEATHER_ICONS.sun;
-    if (temperature >= HIGH_TEMPERATURE_F) return WEATHER_ICONS.sunnier;
+    if (temperature < HOT_TEMPERATURE_F) return WEATHER_ICONS.sunnier;
     if (temperature >= HOT_TEMPERATURE_F) return WEATHER_ICONS.hot;
 
     return WEATHER_ICONS.sun;

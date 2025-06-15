@@ -12,4 +12,4 @@ export const WEATHER_ICONS = {
   sun: 'ti ti-sun',
   sunnier: 'ti ti-sun-high',
   hot: 'ti ti-temperature-sun'
-};
+} as const;

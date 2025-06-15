@@ -2,7 +2,10 @@ import { httpResource } from '@angular/common/http';
 import { computed, inject, Injectable } from '@angular/core';
 import { LocationService } from './location.service';
 import { apiUrl } from '../utils/httpUtils';
-import { WeatherDotGovForecastResponse } from '../types/weather.types';
+import {
+  DailyWeatherCalendarForecast,
+  WeatherDotGovForecastResponse
+} from '../types/weather.types';
 
 @Injectable({
   providedIn: 'root'
@@ -30,13 +33,19 @@ export class WeatherService {
     () => this.weatherDataResource.value()?.properties.periods || []
   );
 
-  public dailyWeatherForecasts = computed(() => {
-    return this.weatherForecastData().map((period) => {
-      return {
-        date: period.startTime,
-        temperature: period.temperature,
-        shortForecast: period.shortForecast
-      };
-    });
-  });
+  public dailyWeatherForecasts = computed<DailyWeatherCalendarForecast[]>(
+    () => {
+      return this.weatherForecastData()
+        .filter((per) => per.isDaytime)
+        .map((period) => {
+          return {
+            date: new Date(period.startTime),
+            temperature: period.temperature,
+            temperatureUnit: period.temperatureUnit,
+            shortForecast: period.shortForecast,
+            probabilityOfPrecipitation: period.probabilityOfPrecipitation
+          };
+        });
+    }
+  );
 }

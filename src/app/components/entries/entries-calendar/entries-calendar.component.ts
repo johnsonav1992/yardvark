@@ -164,6 +164,7 @@ export class EntriesCalendarComponent {
 }
 
 export type CalendarMarkerData<TData = unknown> = {
+  id: string;
   date: Date;
   data: TData;
   icon?: string;

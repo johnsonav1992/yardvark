@@ -1,6 +1,6 @@
 <div class="main-container">
   <entries-calendar
-    [markers]="dayMarkers()"
+    [markers]="allMarkers()"
     [isLoadingData]="entries.isLoading()"
     [mobileDateSelected]="selectedMobileDateToView()"
     [(mode)]="viewMode"
@@ -8,17 +8,30 @@
     (daySelected)="selectDay($event)"
   >
     <ng-template #marker let-dayMarkers>
-      @for (marker of dayMarkers; track marker.data.id) {
+      @for (marker of dayMarkers; track marker.id) {
         <div [style.margin-left]="$index !== 0 ? '-.25rem' : ''">
-          <p-button
-            (click)="navigateToEntry(marker.data)"
-            [icon]="marker.icon"
-            rounded
-            size="small"
-            severity="secondary"
-            raised
-            [dt]="markerButtonDt"
-          />
+          @if (marker.data.entry) {
+            <p-button
+              (click)="navigateToEntry(marker.data.entry)"
+              [icon]="marker.icon"
+              rounded
+              size="small"
+              severity="secondary"
+              raised
+              [dt]="markerButtonDt"
+            />
+          } @else if (marker.data.forecast) {
+            <p-button
+              [icon]="marker.icon"
+              rounded
+              size="small"
+              severity="info"
+              raised
+              [dt]="markerButtonDt"
+              [pTooltip]="marker.data.forecast.shortForecast"
+              tooltipPosition="top"
+            />
+          }
         </div>
       }
     </ng-template>

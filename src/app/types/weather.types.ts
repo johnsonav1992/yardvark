@@ -55,3 +55,11 @@ export interface ProbabilityOfPrecipitation {
   unitCode: string;
   value: number;
 }
+
+export type DailyWeatherCalendarForecast = {
+  date: Date;
+  temperature: number;
+  temperatureUnit: string;
+  shortForecast: string;
+  probabilityOfPrecipitation: ProbabilityOfPrecipitation;
+};

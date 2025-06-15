@@ -33,6 +33,8 @@ import { MobileEntryPreviewCardComponent } from '../../components/entries/mobile
 import { SettingsService } from '../../services/settings.service';
 import { SettingsData } from '../../../../backend/src/modules/settings/models/settings.types';
 import { WeatherService } from '../../services/weather-service';
+import { DailyWeatherCalendarForecast } from '../../types/weather.types';
+import { getForecastMarkerIcon } from '../../utils/weatherUtils';
 import { effectSignalLogger } from '../../utils/generalUtils';
 
 @Component({
@@ -125,19 +127,46 @@ export class EntryLogComponent implements OnInit {
     }
   });
 
-  public dayMarkers = computed<CalendarMarkerData<Entry>[]>(() => {
-    const currentMonthEntries = this.entries.value();
+  public dayMarkers = computed<
+    CalendarMarkerData<{
+      entry: Entry;
+    }>[]
+  >(() => {
+    const currentMonthEntries = this.entries.value() || [];
 
-    return (currentMonthEntries || []).map((entry) => {
+    return currentMonthEntries.map((entry) => {
       const icon = getEntryIcon(entry);
 
       return {
+        id: crypto.randomUUID(),
         date: new Date(entry.date),
         icon,
-        data: entry
+        data: { entry }
       };
     });
   });
+
+  public weatherMarkers = computed<
+    CalendarMarkerData<{
+      forecast: DailyWeatherCalendarForecast;
+    }>[]
+  >(() => {
+    const weatherForecasts = this._weatherService.dailyWeatherForecasts();
+
+    return weatherForecasts.map((forecast) => ({
+      id: crypto.randomUUID(),
+      date: forecast.date,
+      icon: getForecastMarkerIcon(forecast),
+      data: { forecast }
+    }));
+  });
+
+  public allMarkers = computed<CalendarMarkerData[]>(() => [
+    ...this.dayMarkers(),
+    ...this.weatherMarkers()
+  ]);
+
+  _ = effectSignalLogger(this.allMarkers);
 
   public entries = this._entriesService.getMonthEntriesResource(
     this.currentDate

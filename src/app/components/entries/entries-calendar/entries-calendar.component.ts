@@ -62,10 +62,15 @@ export class EntriesCalendarComponent {
     )
   );
 
-  public markers = input<CalendarMarkerData[]>([]);
   public isLoadingData = input<boolean>(false);
+  public markers = input<CalendarMarkerData[]>([]);
+  public weatherMarkers = input<CalendarMarkerData[]>([]);
   public markerTpl =
     contentChild<TemplateRef<{ $implicit: CalendarMarkerData[] }>>('marker');
+  public weatherMarkerTpl =
+    contentChild<TemplateRef<{ $implicit: CalendarMarkerData[] }>>(
+      'weatherMarker'
+    );
   public mobileDateSelected = input<Date | null>(null);
   public mode = model<'calendar' | 'list'>('calendar');
 
@@ -83,7 +88,11 @@ export class EntriesCalendarComponent {
   );
 
   public days = computed(() =>
-    getCalendarDaysData(this.currentDate(), this.markers())
+    getCalendarDaysData(
+      this.currentDate(),
+      this.markers(),
+      this.weatherMarkers()
+    )
   );
 
   private readonly _dayNames = [

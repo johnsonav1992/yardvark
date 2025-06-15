@@ -1,6 +1,7 @@
 <div class="main-container">
   <entries-calendar
-    [markers]="allMarkers()"
+    [markers]="entryMarkers()"
+    [weatherMarkers]="weatherMarkers()"
     [isLoadingData]="entries.isLoading()"
     [mobileDateSelected]="selectedMobileDateToView()"
     [(mode)]="viewMode"
@@ -10,29 +11,38 @@
     <ng-template #marker let-dayMarkers>
       @for (marker of dayMarkers; track marker.id) {
         <div [style.margin-left]="$index !== 0 ? '-.25rem' : ''">
-          @if (marker.data.entry) {
-            <p-button
-              (click)="navigateToEntry(marker.data.entry)"
-              [icon]="marker.icon"
-              rounded
-              size="small"
-              severity="secondary"
-              raised
-              [dt]="markerButtonDt"
-            />
-          } @else if (marker.data.forecast) {
-            <p-button
-              [icon]="marker.icon"
-              rounded
-              size="small"
-              severity="info"
-              raised
-              [dt]="markerButtonDt"
-              [pTooltip]="marker.data.forecast.shortForecast"
-              tooltipPosition="top"
-            />
-          }
+          <p-button
+            (click)="navigateToEntry(marker.data.entry)"
+            [icon]="marker.icon"
+            rounded
+            size="small"
+            severity="secondary"
+            raised
+            [dt]="markerButtonDt"
+          />
         </div>
+      }
+    </ng-template>
+
+    <ng-template #weatherMarker let-weatherMarkers>
+      @for (marker of weatherMarkers; track marker.id) {
+        <i
+          [class]="marker.icon"
+          [style.font-size]="isMobile() ? '0.8rem' : '1rem'"
+          [pTooltip]="
+            marker.data.forecast.temperature +
+            '°' +
+            marker.data.forecast.temperatureUnit +
+            ' • ' +
+            marker.data.forecast.shortForecast +
+            (marker.data.forecast.probabilityOfPrecipitation?.value
+              ? ' • ' +
+                marker.data.forecast.probabilityOfPrecipitation.value +
+                '% chance of rain'
+              : '')
+          "
+          tooltipPosition="top"
+        ></i>
       }
     </ng-template>
   </entries-calendar>

@@ -35,7 +35,6 @@ import { SettingsData } from '../../../../backend/src/modules/settings/models/se
 import { WeatherService } from '../../services/weather-service';
 import { DailyWeatherCalendarForecast } from '../../types/weather.types';
 import { getForecastMarkerIcon } from '../../utils/weatherUtils';
-import { effectSignalLogger } from '../../utils/generalUtils';
 
 @Component({
   selector: 'entry-log',
@@ -127,7 +126,7 @@ export class EntryLogComponent implements OnInit {
     }
   });
 
-  public dayMarkers = computed<
+  public entryMarkers = computed<
     CalendarMarkerData<{
       entry: Entry;
     }>[]
@@ -160,13 +159,6 @@ export class EntryLogComponent implements OnInit {
       data: { forecast }
     }));
   });
-
-  public allMarkers = computed<CalendarMarkerData[]>(() => [
-    ...this.dayMarkers(),
-    ...this.weatherMarkers()
-  ]);
-
-  _ = effectSignalLogger(this.allMarkers);
 
   public entries = this._entriesService.getMonthEntriesResource(
     this.currentDate

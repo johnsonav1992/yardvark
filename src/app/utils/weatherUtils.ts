@@ -3,6 +3,7 @@ import {
   HIGH_TEMPERATURE_F,
   HOT_TEMPERATURE_F,
   MEDIUM_TEMPERATURE_F,
+  RAIN_CHANCE_HEAVY_THRESHOLD,
   RAIN_CHANCE_LOW_THRESHOLD,
   RAIN_CHANCE_MEDIUM_THRESHOLD,
   WEATHER_ICONS
@@ -17,6 +18,12 @@ export const getForecastMarkerIcon = (
   const precipitationChance = probabilityOfPrecipitation?.value || 0;
 
   if (temperatureUnit === 'F') {
+    if (precipitationChance > RAIN_CHANCE_HEAVY_THRESHOLD) {
+      if (temperature < FREEZING_TEMPERATURE_F) return WEATHER_ICONS.snowflake;
+
+      return WEATHER_ICONS.heavyRain;
+    }
+
     if (precipitationChance > RAIN_CHANCE_MEDIUM_THRESHOLD) {
       if (temperature < FREEZING_TEMPERATURE_F) return WEATHER_ICONS.snowflake;
 

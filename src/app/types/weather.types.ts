@@ -62,4 +62,5 @@ export type DailyWeatherCalendarForecast = {
   temperatureUnit: string;
   shortForecast: string;
   probabilityOfPrecipitation: ProbabilityOfPrecipitation;
+  icon: string;
 };

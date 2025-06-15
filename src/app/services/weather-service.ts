@@ -43,7 +43,8 @@ export class WeatherService {
             temperature: period.temperature,
             temperatureUnit: period.temperatureUnit,
             shortForecast: period.shortForecast,
-            probabilityOfPrecipitation: period.probabilityOfPrecipitation
+            probabilityOfPrecipitation: period.probabilityOfPrecipitation,
+            icon: period.icon
           };
         });
     }

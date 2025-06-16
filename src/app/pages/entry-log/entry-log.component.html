@@ -28,7 +28,7 @@
       @for (marker of weatherMarkers; track marker.id) {
         <i
           [class]="marker.icon"
-          [style.font-size]="isMobile() ? '0.8rem' : '1rem'"
+          [style.font-size]="isMobile() ? '0.8rem' : '1.3rem'"
           [pTooltip]="
             marker.data.forecast.temperature +
             '°' +

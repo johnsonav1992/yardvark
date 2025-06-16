@@ -96,6 +96,7 @@
       display: flex;
       gap: 0.25rem;
       z-index: 1;
+      color: var(--p-surface-500);
     }
 
     .mobile-markers-indicator {
@@ -116,6 +117,7 @@
       gap: 0.15rem;
       font-size: 0.8rem;
       z-index: 1;
+      color: var(--p-surface-500);
     }
 
     .additional-count {

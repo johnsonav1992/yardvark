@@ -39,15 +39,16 @@ export const appConfig: ApplicationConfig = {
       clientId: environment.auth0ClientId,
       authorizationParams: {
         redirect_uri: window.location.origin
+      },
+      cacheLocation: 'localstorage',
+      useRefreshTokens: true,
+      httpInterceptor: {
+        allowedList: []
       }
     }),
     provideAppInitializer(() => initHttpUtils()),
     MessageService,
     ConfirmationService,
-    provideServiceWorker('ngsw-worker.js', {
-      enabled: !isDevMode(),
-      registrationStrategy: 'registerWhenStable:30000'
-    }),
     provideServiceWorker('ngsw-worker.js', {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000'

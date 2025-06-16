@@ -58,3 +58,28 @@ html {
 .p-dialog-maximize-button {
   display: none !important;
 }
+
+// PWA-specific styles to hide browser chrome during navigation
+@media (display-mode: standalone) {
+  html {
+    overscroll-behavior: none;
+  }
+
+  body {
+    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .auth-loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--p-surface-0);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

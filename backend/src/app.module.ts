@@ -19,6 +19,7 @@ import { dataSource } from './db.config';
 import { FilesModule } from './modules/files/files.module';
 import { FilesController } from './modules/files/controllers/files.controller';
 import { S3Service } from './modules/s3/s3.service';
+import { WeatherModule } from './modules/weather/weather.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { S3Service } from './modules/s3/s3.service';
     EquipmentModule,
     AnalyticsModule,
     FilesModule,
+    WeatherModule,
     HttpModule,
   ],
   controllers: [UsersController, FilesController],

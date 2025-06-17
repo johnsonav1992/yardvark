@@ -40,10 +40,6 @@
     gap: 0.25rem;
     width: 100%;
     justify-content: flex-end;
-
-    // @media (max-width: 400px) {
-    //   justify-content: flex-start;
-    // }
   }
 }
 
@@ -93,6 +89,16 @@
       color: black;
     }
 
+    .weather-marker-container {
+      position: absolute;
+      bottom: 0.5rem;
+      left: 0.5rem;
+      display: flex;
+      gap: 0.25rem;
+      z-index: 1;
+      color: var(--p-surface-500);
+    }
+
     .mobile-markers-indicator {
       height: 0.75rem;
       width: 0.75rem;
@@ -101,6 +107,17 @@
       position: absolute;
       top: 0.25rem;
       left: 0.25rem;
+    }
+
+    .mobile-weather-marker-container {
+      position: absolute;
+      bottom: 0.25rem;
+      left: 0.25rem;
+      display: flex;
+      gap: 0.15rem;
+      font-size: 0.8rem;
+      z-index: 1;
+      color: var(--p-surface-500);
     }
 
     .additional-count {

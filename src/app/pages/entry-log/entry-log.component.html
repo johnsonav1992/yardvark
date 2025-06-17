@@ -1,6 +1,7 @@
 <div class="main-container">
   <entries-calendar
-    [markers]="dayMarkers()"
+    [markers]="entryMarkers()"
+    [weatherMarkers]="weatherMarkers()"
     [isLoadingData]="entries.isLoading()"
     [mobileDateSelected]="selectedMobileDateToView()"
     [(mode)]="viewMode"
@@ -8,10 +9,10 @@
     (daySelected)="selectDay($event)"
   >
     <ng-template #marker let-dayMarkers>
-      @for (marker of dayMarkers; track marker.data.id) {
+      @for (marker of dayMarkers; track marker.id) {
         <div [style.margin-left]="$index !== 0 ? '-.25rem' : ''">
           <p-button
-            (click)="navigateToEntry(marker.data)"
+            (click)="navigateToEntry(marker.data.entry)"
             [icon]="marker.icon"
             rounded
             size="small"
@@ -20,6 +21,12 @@
             [dt]="markerButtonDt"
           />
         </div>
+      }
+    </ng-template>
+
+    <ng-template #weatherMarker let-weatherMarkers>
+      @for (marker of weatherMarkers; track marker.id) {
+        <weather-day-marker [marker]="marker" />
       }
     </ng-template>
   </entries-calendar>

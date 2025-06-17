@@ -114,6 +114,16 @@
               ></ng-container>
             }
           </div>
+          <div class="weather-marker-container">
+            @if (weatherMarkerTpl(); as weatherMarkerTpl) {
+              <ng-container
+                *ngTemplateOutlet="
+                  weatherMarkerTpl;
+                  context: { $implicit: day.weatherMarkers }
+                "
+              ></ng-container>
+            }
+          </div>
         } @else {
           @if (day.markers.length > 0) {
             <div
@@ -125,6 +135,18 @@
             @if (day.markers.length > 1) {
               <p class="additional-count">+{{ day.markers.length - 1 }}</p>
             }
+          }
+          @if (day.weatherMarkers.length > 0) {
+            <div class="mobile-weather-marker-container">
+              @if (weatherMarkerTpl(); as weatherMarkerTpl) {
+                <ng-container
+                  *ngTemplateOutlet="
+                    weatherMarkerTpl;
+                    context: { $implicit: day.weatherMarkers }
+                  "
+                ></ng-container>
+              }
+            </div>
           }
         }
         <footer

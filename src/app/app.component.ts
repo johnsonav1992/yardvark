@@ -60,11 +60,24 @@ export class AppComponent {
   }
 
   public ngOnInit(): void {
-    this._auth.isAuthenticated$.subscribe((isAuthenticated) => {
-      this.isLoggedIn.set(isAuthenticated);
+    this._auth.getAccessTokenSilently().subscribe({
+      next: () => {
+        this.isLoggedIn.set(true);
+      },
+      error: () => {
+        this._auth.isAuthenticated$.subscribe((isAuthenticated) => {
+          this.isLoggedIn.set(isAuthenticated);
 
-      if (!isAuthenticated) {
-        this._auth.loginWithRedirect();
+          if (!isAuthenticated) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const hasAuthCallback =
+              urlParams.has('code') || urlParams.has('state');
+
+            if (!hasAuthCallback) {
+              this._auth.loginWithRedirect();
+            }
+          }
+        });
       }
     });
 

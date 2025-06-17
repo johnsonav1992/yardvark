@@ -10,7 +10,8 @@ import { CalendarMarkerData } from './entries-calendar.component';
 
 export const getCalendarDaysData = (
   currentDate: Date,
-  markers: CalendarMarkerData<any>[]
+  markers: CalendarMarkerData<unknown>[],
+  weatherMarkers: CalendarMarkerData<unknown>[] = []
 ) => {
   const start = startOfMonth(currentDate);
   const end = endOfMonth(currentDate);
@@ -20,13 +21,14 @@ export const getCalendarDaysData = (
     date,
     gridColumnStart: index === 0 ? firstDayOfWeek + 1 : undefined,
     markers: getMarkersForDate(date, markers),
+    weatherMarkers: getMarkersForDate(date, weatherMarkers),
     isToday: isToday(date)
   }));
 };
 
 export const getMarkersForDate = (
   date: Date,
-  markers: CalendarMarkerData<any>[]
-): CalendarMarkerData[] => {
+  markers: CalendarMarkerData<unknown>[]
+): CalendarMarkerData<unknown>[] => {
   return markers.filter((marker) => isSameDay(marker.date, date));
 };

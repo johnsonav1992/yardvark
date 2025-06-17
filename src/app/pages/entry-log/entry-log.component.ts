@@ -32,6 +32,10 @@ import { convertTimeStringToDate } from '../../utils/timeUtils';
 import { MobileEntryPreviewCardComponent } from '../../components/entries/mobile-entry-preview-card/mobile-entry-preview-card.component';
 import { SettingsService } from '../../services/settings.service';
 import { SettingsData } from '../../../../backend/src/modules/settings/models/settings.types';
+import { WeatherService } from '../../services/weather-service';
+import { DailyWeatherCalendarForecast } from '../../types/weather.types';
+import { getForecastMarkerIcon } from '../../utils/weatherUtils';
+import { WeatherDayMarker } from '../../components/weather/weather-day-marker/weather-day-marker';
 
 @Component({
   selector: 'entry-log',
@@ -42,7 +46,8 @@ import { SettingsData } from '../../../../backend/src/modules/settings/models/se
     RouterOutlet,
     DividerModule,
     CardModule,
-    MobileEntryPreviewCardComponent
+    MobileEntryPreviewCardComponent,
+    WeatherDayMarker
   ],
   templateUrl: './entry-log.component.html',
   styleUrl: './entry-log.component.scss',
@@ -55,6 +60,7 @@ export class EntryLogComponent implements OnInit {
   private _entriesService = inject(EntriesService);
   private _globalUiService = inject(GlobalUiService);
   private _settingsService = inject(SettingsService);
+  private _weatherService = inject(WeatherService);
 
   public isCreateOnOpen = toSignal(
     this._activatedRoute.queryParams.pipe(
@@ -122,18 +128,38 @@ export class EntryLogComponent implements OnInit {
     }
   });
 
-  public dayMarkers = computed<CalendarMarkerData<Entry>[]>(() => {
-    const currentMonthEntries = this.entries.value();
+  public entryMarkers = computed<
+    CalendarMarkerData<{
+      entry: Entry;
+    }>[]
+  >(() => {
+    const currentMonthEntries = this.entries.value() || [];
 
-    return (currentMonthEntries || []).map((entry) => {
+    return currentMonthEntries.map((entry) => {
       const icon = getEntryIcon(entry);
 
       return {
+        id: crypto.randomUUID(),
         date: new Date(entry.date),
         icon,
-        data: entry
+        data: { entry }
       };
     });
+  });
+
+  public weatherMarkers = computed<
+    CalendarMarkerData<{
+      forecast: DailyWeatherCalendarForecast;
+    }>[]
+  >(() => {
+    const weatherForecasts = this._weatherService.dailyWeatherForecasts();
+
+    return weatherForecasts.map((forecast) => ({
+      id: crypto.randomUUID(),
+      date: forecast.date,
+      icon: getForecastMarkerIcon(forecast),
+      data: { forecast }
+    }));
   });
 
   public entries = this._entriesService.getMonthEntriesResource(

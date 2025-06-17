@@ -1,1 +1,43 @@
-<i class="{{ icon() }}"></i>
+<i
+  class="{{ marker().icon }}"
+  (click)="onIconClick($event, weatherPopover)"
+  (mouseenter)="onMouseEnter($event, weatherPopover)"
+  (mouseleave)="onMouseLeave(weatherPopover)"
+  [style.font-size]="isMobile() ? '0.8rem' : '1.3rem'"
+  [style.cursor]="'pointer'"
+></i>
+<p-popover
+  #weatherPopover
+  [dismissable]="isMobile()"
+  [appendTo]="'body'"
+  styleClass="no-arrow-popover"
+>
+  <div class="weather-popover-content" [class.dark-mode]="isDarkMode()">
+    <div class="weather-service-icon">
+      <img
+        [src]="marker().data.forecast.icon"
+        [alt]="marker().data.forecast.shortForecast"
+      />
+    </div>
+    <div class="weather-main-content">
+      <div class="weather-icon-large">
+        <i class="{{ marker().icon }}" [style.font-size]="'2rem'"></i>
+      </div>
+      <div class="weather-details">
+        <h4 class="weather-temperature">
+          {{ marker().data.forecast.temperature }}°{{
+          marker().data.forecast.temperatureUnit }}
+        </h4>
+        <p class="weather-description">
+          {{ marker().data.forecast.shortForecast }}
+        </p>
+        @if (marker().data.forecast.probabilityOfPrecipitation.value) {
+        <p class="weather-precipitation">
+          {{ marker().data.forecast.probabilityOfPrecipitation.value }}% chance
+          of rain
+        </p>
+        }
+      </div>
+    </div>
+  </div>
+</p-popover>

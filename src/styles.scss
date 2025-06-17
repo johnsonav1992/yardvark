@@ -83,3 +83,28 @@ html {
     justify-content: center;
   }
 }
+
+.no-arrow-popover {
+  .p-popover-arrow,
+  .p-overlay-arrow,
+  [data-pc-section="arrow"],
+  ::before,
+  ::after {
+    display: none !important;
+    visibility: hidden !important;
+  }
+}
+
+.p-popover.no-arrow-popover {
+  .p-popover-arrow,
+  .p-overlay-arrow,
+  [data-pc-section="arrow"] {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  &::before,
+  &::after {
+    display: none !important;
+  }
+}

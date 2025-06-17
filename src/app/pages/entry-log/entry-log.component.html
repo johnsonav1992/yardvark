@@ -26,23 +26,7 @@
 
     <ng-template #weatherMarker let-weatherMarkers>
       @for (marker of weatherMarkers; track marker.id) {
-        <i
-          [class]="marker.icon"
-          [style.font-size]="isMobile() ? '0.8rem' : '1.3rem'"
-          [pTooltip]="
-            marker.data.forecast.temperature +
-            '°' +
-            marker.data.forecast.temperatureUnit +
-            ' • ' +
-            marker.data.forecast.shortForecast +
-            (marker.data.forecast.probabilityOfPrecipitation?.value
-              ? ' • ' +
-                marker.data.forecast.probabilityOfPrecipitation.value +
-                '% chance of rain'
-              : '')
-          "
-          tooltipPosition="top"
-        ></i>
+        <weather-day-marker [marker]="marker" />
       }
     </ng-template>
   </entries-calendar>

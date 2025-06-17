@@ -35,6 +35,7 @@ import { SettingsData } from '../../../../backend/src/modules/settings/models/se
 import { WeatherService } from '../../services/weather-service';
 import { DailyWeatherCalendarForecast } from '../../types/weather.types';
 import { getForecastMarkerIcon } from '../../utils/weatherUtils';
+import { WeatherDayMarker } from '../../components/weather/weather-day-marker/weather-day-marker';
 
 @Component({
   selector: 'entry-log',
@@ -45,7 +46,8 @@ import { getForecastMarkerIcon } from '../../utils/weatherUtils';
     RouterOutlet,
     DividerModule,
     CardModule,
-    MobileEntryPreviewCardComponent
+    MobileEntryPreviewCardComponent,
+    WeatherDayMarker
   ],
   templateUrl: './entry-log.component.html',
   styleUrl: './entry-log.component.scss',

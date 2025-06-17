@@ -42,8 +42,7 @@ export class MainSideNavComponent {
       label: 'Entry Log',
       icon: 'ti ti-calendar',
       routerLink: '/entry-log',
-      command: this.closeSidebar,
-      routerLinkActiveOptions: { exact: true }
+      command: this.closeSidebar
     },
     {
       label: 'Soil data',

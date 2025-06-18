@@ -141,9 +141,11 @@ export const getFertilizerTimelineChartConfig = (
   );
 
   const data = sortedEntries.map(([, nitrogenValue]) => nitrogenValue);
-  const labels = sortedEntries.map(([date]) =>
-    format(new Date(date), 'MMM dd')
-  );
+  const labels = sortedEntries.map(([date]) => {
+    const [year, month, day] = date.split('-').map(Number);
+    const localDate = new Date(year, month - 1, day);
+    return format(localDate, 'MMM dd');
+  });
 
   const nitrogenValues = data;
   const averageNitrogen =

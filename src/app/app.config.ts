@@ -41,6 +41,7 @@ export const appConfig: ApplicationConfig = {
         audience: `https://${environment.auth0Domain}/api/v2/`
       },
       useRefreshTokens: true,
+      cacheLocation: 'memory',
       httpInterceptor: {
         allowedList: [
           {

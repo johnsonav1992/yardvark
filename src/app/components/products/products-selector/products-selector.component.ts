@@ -9,7 +9,7 @@ import { QUANTITY_UNITS } from '../../../constants/product-constants';
 import { Product } from '../../../types/products.types';
 import {
 	createEntryProductRow,
-	EntryProductRow
+	EntryProductRow,
 } from '../../../utils/entriesUtils';
 import { GlobalUiService } from '../../../services/global-ui.service';
 
@@ -20,10 +20,10 @@ import { GlobalUiService } from '../../../services/global-ui.service';
 		ProductSmallCardComponent,
 		ReactiveFormsModule,
 		InputNumberModule,
-		SelectModule
+		SelectModule,
 	],
 	templateUrl: './products-selector.component.html',
-	styleUrl: './products-selector.component.scss'
+	styleUrl: './products-selector.component.scss',
 })
 export class ProductsSelectorComponent {
 	private _productsService = inject(ProductsService);
@@ -38,7 +38,7 @@ export class ProductsSelectorComponent {
 	public products = this._productsService.products;
 
 	public productsControl = computed(
-		() => this.form().get('products') as FormArray<EntryProductRow>
+		() => this.form().get('products') as FormArray<EntryProductRow>,
 	);
 
 	public updateSelectedProducts(e: MultiSelectChangeEvent): void {
@@ -57,7 +57,7 @@ export class ProductsSelectorComponent {
 
 		productList.forEach((prod) => {
 			const existingProductIndex = existingProducts.findIndex(
-				(p) => p.product?.id === prod.id
+				(p) => p.product?.id === prod.id,
 			);
 
 			if (existingProductIndex === -1) {
@@ -70,7 +70,7 @@ export class ProductsSelectorComponent {
 		if (!product) return;
 
 		const productIndex = this.productsControl().value.findIndex(
-			(p) => p.product?.id === product.id
+			(p) => p.product?.id === product.id,
 		);
 
 		if (productIndex !== -1) {

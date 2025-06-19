@@ -20,7 +20,7 @@ export const injectErrorToast = (): ((message: string) => void) => {
 			severity: 'error',
 			summary: 'Error',
 			detail: message,
-			sticky: true
+			sticky: true,
 		});
 	};
 };
@@ -46,7 +46,7 @@ export const injectWarningToast = (): ((message: string) => void) => {
 			severity: 'warn',
 			summary: 'Warning',
 			detail: message,
-			sticky: true
+			sticky: true,
 		});
 	};
 };

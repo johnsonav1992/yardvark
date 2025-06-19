@@ -6,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { SoilTemperatureService } from '../../../../services/soil-temperature.service';
 import {
 	calculate24HourNumericAverage,
-	getSoilTemperatureDisplayColor
+	getSoilTemperatureDisplayColor,
 } from '../../../../utils/soilTemperatureUtils';
 import { injectSettingsService } from '../../../../services/settings.service';
 import { DegreesDisplay } from '../../../../types/temperature.styles';
@@ -17,7 +17,7 @@ import { LocationService } from '../../../../services/location.service';
 	selector: 'soil-temperature-display',
 	imports: [TooltipModule, ToggleSwitchModule, FormsModule, PopoverModule],
 	templateUrl: './soil-temperature-display.component.html',
-	styleUrl: './soil-temperature-display.component.scss'
+	styleUrl: './soil-temperature-display.component.scss',
 })
 export class SoilTemperatureDisplayComponent {
 	private _soilTemperatureService = inject(SoilTemperatureService);
@@ -34,7 +34,7 @@ export class SoilTemperatureDisplayComponent {
 	public showDeepTemp = signal<boolean>(false);
 
 	public userHasALocation = computed(
-		() => !!this._locationService.userLatLong()
+		() => !!this._locationService.userLatLong(),
 	);
 
 	public average24HourTemp = computed(() => {
@@ -64,6 +64,6 @@ export class SoilTemperatureDisplayComponent {
 
 	public tempUnit = computed(
 		() =>
-			this._settingsService.currentSettings()?.temperatureUnit || 'fahrenheit'
+			this._settingsService.currentSettings()?.temperatureUnit || 'fahrenheit',
 	);
 }

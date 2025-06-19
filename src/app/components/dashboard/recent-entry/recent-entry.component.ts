@@ -14,10 +14,10 @@ import { GlobalUiService } from '../../../services/global-ui.service';
 		ProductSmallCardComponent,
 		DatePipe,
 		NgTemplateOutlet,
-		ButtonModule
+		ButtonModule,
 	],
 	templateUrl: './recent-entry.component.html',
-	styleUrl: './recent-entry.component.scss'
+	styleUrl: './recent-entry.component.scss',
 })
 export class RecentEntryComponent {
 	private _router = inject(Router);

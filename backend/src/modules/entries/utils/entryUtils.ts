@@ -1,4 +1,4 @@
-import type { Entry, EntryProduct } from '../models/entries.model';
+import { Entry, EntryProduct } from '../models/entries.model';
 
 export const getEntryProductMapping = (entryProducts: EntryProduct[]) => {
 	return entryProducts.map(
@@ -10,8 +10,8 @@ export const getEntryProductMapping = (entryProducts: EntryProduct[]) => {
 			quantity: productQuantity,
 			quantityUnit: productQuantityUnit,
 			guaranteedAnalysis: product.guaranteedAnalysis,
-			containerType: product.containerType
-		})
+			containerType: product.containerType,
+		}),
 	);
 };
 
@@ -25,6 +25,6 @@ export const getEntryResponseMapping = (entry: Entry) => {
 			? entryImages
 					.filter((img) => !img.deletedAt)
 					.map((img) => ({ imageUrl: img.imageUrl, id: img.id }))
-			: []
+			: [],
 	};
 };

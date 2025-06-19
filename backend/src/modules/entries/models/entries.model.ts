@@ -8,7 +8,7 @@ import {
 	PrimaryColumn,
 	ManyToOne,
 	JoinColumn,
-	OneToMany
+	OneToMany,
 } from 'typeorm';
 import { LawnSegment } from '../../lawn-segments/models/lawn-segments.model';
 import { Activity } from '../../activities/models/activities.model';
@@ -37,9 +37,9 @@ export class Entry {
 	@Column('decimal', {
 		transformer: {
 			to: (value: number) => value,
-			from: (value: string) => parseFloat(value)
+			from: (value: string) => parseFloat(value),
 		},
-		nullable: true
+		nullable: true,
 	})
 	soilTemperature: number;
 
@@ -48,23 +48,23 @@ export class Entry {
 
 	@ManyToMany(
 		() => Activity,
-		(activity) => activity.entries
+		(activity) => activity.entries,
 	)
 	@JoinTable({
 		name: 'entry_activities',
 		joinColumn: { name: 'entry_id', referencedColumnName: 'id' },
-		inverseJoinColumn: { name: 'activity_id', referencedColumnName: 'id' }
+		inverseJoinColumn: { name: 'activity_id', referencedColumnName: 'id' },
 	})
 	activities: Activity[];
 
 	@ManyToMany(
 		() => LawnSegment,
-		(lawnSegment) => lawnSegment.entries
+		(lawnSegment) => lawnSegment.entries,
 	)
 	@JoinTable({
 		name: 'entry_lawn_segments',
 		joinColumn: { name: 'entry_id', referencedColumnName: 'id' },
-		inverseJoinColumn: { name: 'lawn_segment_id', referencedColumnName: 'id' }
+		inverseJoinColumn: { name: 'lawn_segment_id', referencedColumnName: 'id' },
 	})
 	lawnSegments: LawnSegment[];
 
@@ -72,8 +72,8 @@ export class Entry {
 		() => EntryProduct,
 		(entryProduct) => entryProduct.entry,
 		{
-			cascade: true
-		}
+			cascade: true,
+		},
 	)
 	entryProducts: EntryProduct[];
 
@@ -81,8 +81,8 @@ export class Entry {
 		() => EntryImage,
 		(entryImage) => entryImage.entry,
 		{
-			cascade: true
-		}
+			cascade: true,
+		},
 	)
 	entryImages: EntryImage[];
 
@@ -103,8 +103,8 @@ export class EntryProduct {
 		(entry) => entry,
 		{
 			onDelete: 'CASCADE',
-			onUpdate: 'CASCADE'
-		}
+			onUpdate: 'CASCADE',
+		},
 	)
 	@JoinColumn({ name: 'entry_id' })
 	entry: Entry;
@@ -114,8 +114,8 @@ export class EntryProduct {
 		(product) => product,
 		{
 			onDelete: 'CASCADE',
-			onUpdate: 'CASCADE'
-		}
+			onUpdate: 'CASCADE',
+		},
 	)
 	@JoinColumn({ name: 'product_id' })
 	product: Product;
@@ -123,8 +123,8 @@ export class EntryProduct {
 	@Column('decimal', {
 		transformer: {
 			to: (value: number) => value,
-			from: (value: string) => parseFloat(value)
-		}
+			from: (value: string) => parseFloat(value),
+		},
 	})
 	productQuantity: number;
 
@@ -145,8 +145,8 @@ export class EntryImage {
 		(entry) => entry.entryImages,
 		{
 			onDelete: 'CASCADE',
-			onUpdate: 'CASCADE'
-		}
+			onUpdate: 'CASCADE',
+		},
 	)
 	@JoinColumn({ name: 'entry_id' })
 	entry: Entry;

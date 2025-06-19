@@ -16,5 +16,5 @@ export const dataSource = new DataSource({
 	migrationsRun: false,
 	migrations: [__dirname + '/migrations/*.{ts,js}'],
 	entities: [__dirname + '/**/models/*.model.{ts,js}'],
-	namingStrategy: new SnakeNamingStrategy()
+	namingStrategy: new SnakeNamingStrategy(),
 });

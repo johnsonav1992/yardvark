@@ -3,7 +3,7 @@ import {
 	DeleteDateColumn,
 	Entity,
 	PrimaryGeneratedColumn,
-	OneToMany
+	OneToMany,
 } from 'typeorm';
 import { EquipmentMaintenance } from './equipmentMaintenance.model';
 
@@ -56,7 +56,7 @@ export class Equipment {
 
 	@OneToMany(
 		() => EquipmentMaintenance,
-		(maintenance) => maintenance.equipment
+		(maintenance) => maintenance.equipment,
 	)
 	maintenanceRecords: EquipmentMaintenance[];
 }

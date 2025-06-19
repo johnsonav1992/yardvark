@@ -3,7 +3,7 @@ import {
 	FormControl,
 	FormGroup,
 	ReactiveFormsModule,
-	Validators
+	Validators,
 } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DatePickerModule } from 'primeng/datepicker';
@@ -29,10 +29,10 @@ import { injectErrorToast } from '../../../utils/toastUtils';
 		InputNumberModule,
 		TextareaModule,
 		ButtonModule,
-		ReactiveFormsModule
+		ReactiveFormsModule,
 	],
 	templateUrl: './equipment-maintenance-add-edit-modal.component.html',
-	styleUrl: './equipment-maintenance-add-edit-modal.component.scss'
+	styleUrl: './equipment-maintenance-add-edit-modal.component.scss',
 })
 export class EquipmentMaintenanceAddEditModalComponent implements OnInit {
 	private _equipmentService = inject(EquipmentService);
@@ -48,14 +48,14 @@ export class EquipmentMaintenanceAddEditModalComponent implements OnInit {
 	public form = new FormGroup({
 		date: new FormControl<Date | null>(null, [Validators.required]),
 		cost: new FormControl<number | null>(null),
-		notes: new FormControl('', [Validators.required])
+		notes: new FormControl('', [Validators.required]),
 	});
 
 	public ngOnInit(): void {
 		this.form.patchValue({
 			date: this.date(),
 			notes: this.notes(),
-			cost: this.cost()
+			cost: this.cost(),
 		});
 	}
 
@@ -75,7 +75,7 @@ export class EquipmentMaintenanceAddEditModalComponent implements OnInit {
 				.updateMaintenanceRecord(maintenanceId, {
 					maintenanceDate: this.form.value.date!,
 					notes: this.form.value.notes!,
-					cost: this.form.value.cost!
+					cost: this.form.value.cost!,
 				})
 				.subscribe({
 					next: () => {
@@ -83,16 +83,16 @@ export class EquipmentMaintenanceAddEditModalComponent implements OnInit {
 					},
 					error: () => {
 						this.throwErrorToast(
-							'Error updating maintenance record. Please try again.'
+							'Error updating maintenance record. Please try again.',
 						);
-					}
+					},
 				});
 		} else {
 			this._equipmentService
 				.addMaintenanceRecord(this.equipmentId()!, {
 					maintenanceDate: this.form.value.date!,
 					notes: this.form.value.notes!,
-					cost: this.form.value.cost!
+					cost: this.form.value.cost!,
 				})
 				.subscribe({
 					next: () => {
@@ -100,9 +100,9 @@ export class EquipmentMaintenanceAddEditModalComponent implements OnInit {
 					},
 					error: () => {
 						this.throwErrorToast(
-							'Error adding maintenance record. Please try again.'
+							'Error adding maintenance record. Please try again.',
 						);
-					}
+					},
 				});
 		}
 	}

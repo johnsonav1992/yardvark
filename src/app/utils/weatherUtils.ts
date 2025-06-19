@@ -6,12 +6,12 @@ import {
 	RAIN_CHANCE_HEAVY_THRESHOLD,
 	RAIN_CHANCE_LOW_THRESHOLD,
 	RAIN_CHANCE_MEDIUM_THRESHOLD,
-	WEATHER_ICONS
+	WEATHER_ICONS,
 } from '../constants/weather-constant';
 import { DailyWeatherCalendarForecast } from '../types/weather.types';
 
 export const getForecastMarkerIcon = (
-	forecast: DailyWeatherCalendarForecast
+	forecast: DailyWeatherCalendarForecast,
 ): string => {
 	const { temperature, temperatureUnit, probabilityOfPrecipitation } = forecast;
 

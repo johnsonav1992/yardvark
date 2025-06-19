@@ -24,10 +24,10 @@ import { WeatherService } from '../../services/weather-service';
 		LoadingSpinnerComponent,
 		MessageModule,
 		SpeedDialModule,
-		QuickStatsComponent
+		QuickStatsComponent,
 	],
 	templateUrl: './dashboard.component.html',
-	styleUrl: './dashboard.component.scss'
+	styleUrl: './dashboard.component.scss',
 })
 export class DashboardComponent {
 	private _entriesService = inject(EntriesService);
@@ -44,10 +44,10 @@ export class DashboardComponent {
 	}
 
 	public isLocationLoading = computed(() =>
-		this._settingsService.settings.isLoading()
+		this._settingsService.settings.isLoading(),
 	);
 	public userHasALocation = computed(
-		() => !!this._locationService.userLatLong()
+		() => !!this._locationService.userLatLong(),
 	);
 
 	public userIsNewWithNoEntries = computed(() => {
@@ -68,11 +68,11 @@ export class DashboardComponent {
 			icon: 'ti ti-notebook',
 			style: {
 				width: this.isMobile() ? '4rem' : '70px',
-				height: this.isMobile() ? '4rem' : '70px'
+				height: this.isMobile() ? '4rem' : '70px',
 			},
 			command: () => {
 				this._router.navigate(['entry-log'], { queryParams: { create: true } });
-			}
-		}
+			},
+		},
 	]);
 }

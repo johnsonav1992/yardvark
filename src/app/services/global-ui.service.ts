@@ -1,15 +1,15 @@
 import { Injectable, signal } from '@angular/core';
 import {
 	injectBreakpointObserver,
-	injectScreenWidthObserver
+	injectScreenWidthObserver,
 } from '../utils/styleUtils';
 import {
 	MD_BREAKPOINT,
-	YV_DARK_MODE_SELECTOR
+	YV_DARK_MODE_SELECTOR,
 } from '../constants/style-constants';
 
 @Injectable({
-	providedIn: 'root'
+	providedIn: 'root',
 })
 export class GlobalUiService {
 	public isMobileSidebarOpen = signal(false);

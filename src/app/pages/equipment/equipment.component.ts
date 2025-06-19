@@ -29,10 +29,10 @@ import { FormsModule } from '@angular/forms';
 		IconFieldModule,
 		InputTextModule,
 		InputIconModule,
-		FormsModule
+		FormsModule,
 	],
 	templateUrl: './equipment.component.html',
-	styleUrl: './equipment.component.scss'
+	styleUrl: './equipment.component.scss',
 })
 export class EquipmentComponent {
 	private _equipmentService = inject(EquipmentService);
@@ -57,8 +57,8 @@ export class EquipmentComponent {
 					item.brand
 						?.toLowerCase()
 						.includes(this.searchQuery().toLowerCase()) ||
-					item.model?.toLowerCase().includes(this.searchQuery().toLowerCase())
-			)
+					item.model?.toLowerCase().includes(this.searchQuery().toLowerCase()),
+			),
 	);
 
 	public navToAddEquipment(): void {
@@ -70,8 +70,8 @@ export class EquipmentComponent {
 			iconOnlyWidth: this.isMobile() ? '4rem' : '5rem',
 			lg: {
 				fontSize: '36px',
-				iconOnlyWidth: this.isMobile() ? '4rem' : '5rem'
-			}
-		}
+				iconOnlyWidth: this.isMobile() ? '4rem' : '5rem',
+			},
+		},
 	};
 }

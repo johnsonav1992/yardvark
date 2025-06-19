@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import {
 	S3Client,
 	PutObjectCommand,
-	type PutObjectCommandInput
+	PutObjectCommandInput,
 } from '@aws-sdk/client-s3';
-import type { ConfigService } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import * as convert from 'heic-convert';
 import * as path from 'path';
@@ -20,8 +20,8 @@ export class S3Service {
 			region: process.env.AWS_REGION_YARDVARK,
 			credentials: {
 				accessKeyId: process.env.AWS_ACCESS_KEY_ID_YARDVARK!,
-				secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY_YARDVARK!
-			}
+				secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY_YARDVARK!,
+			},
 		});
 
 		this.bucketName = process.env.AWS_S3_BUCKET_YARDVARK!;
@@ -29,7 +29,7 @@ export class S3Service {
 
 	public async uploadFile(
 		file: Express.Multer.File,
-		userId: string
+		userId: string,
 	): Promise<string> {
 		const { buffer, originalname, mimetype } =
 			await this.checkForHeicAndConvert(file);
@@ -41,7 +41,7 @@ export class S3Service {
 			Key: key,
 			Body: buffer || file.buffer,
 			ContentType: mimetype || file.mimetype,
-			ACL: 'public-read'
+			ACL: 'public-read',
 		};
 
 		await this.s3.send(new PutObjectCommand(uploadParams));
@@ -52,7 +52,7 @@ export class S3Service {
 	public async uploadFiles(
 		files: Express.Multer.File[],
 		userId: string,
-		concurrency = 5
+		concurrency = 5,
 	): Promise<string[]> {
 		const results: string[] = [];
 
@@ -60,7 +60,7 @@ export class S3Service {
 			const batch = files.slice(i, i + concurrency);
 
 			const batchResults = await Promise.all(
-				batch.map((file) => this.uploadFile(file, userId))
+				batch.map((file) => this.uploadFile(file, userId)),
 			);
 
 			results.push(...batchResults);
@@ -93,13 +93,13 @@ export class S3Service {
 					convert({
 						buffer: file.buffer,
 						format: 'JPEG',
-						quality: 0.9
-					}) as Promise<Buffer>
+						quality: 0.9,
+					}) as Promise<Buffer>,
 			);
 
 			if (error || !jpegBuffer) {
 				throw new Error(
-					`Failed to convert HEIC file: ${error?.message || 'Unknown error'}`
+					`Failed to convert HEIC file: ${error?.message || 'Unknown error'}`,
 				);
 			}
 
@@ -111,7 +111,7 @@ export class S3Service {
 		return {
 			buffer: bufferToUpload,
 			originalname: filename,
-			mimetype: mimetype
+			mimetype: mimetype,
 		};
 	}
 }

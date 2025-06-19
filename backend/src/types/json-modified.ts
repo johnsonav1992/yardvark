@@ -5,7 +5,7 @@ declare global {
 		stringify<T>(
 			value: T,
 			replacer?: null,
-			space?: string | number
+			space?: string | number,
 		): Stringified<T>;
 
 		parse<T>(text: Stringified<T>, replacer?: null): T;

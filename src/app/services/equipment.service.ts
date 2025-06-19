@@ -4,11 +4,11 @@ import { apiUrl, deleteReq, postReq, putReq } from '../utils/httpUtils';
 import {
 	Equipment,
 	EquipmentFormData,
-	EquipmentMaintenance
+	EquipmentMaintenance,
 } from '../types/equipment.types';
 
 @Injectable({
-	providedIn: 'root'
+	providedIn: 'root',
 })
 export class EquipmentService {
 	public equipment = httpResource<Equipment[]>(() => apiUrl('equipment'));
@@ -21,7 +21,7 @@ export class EquipmentService {
 
 	public updateEquipment(
 		equipmentId: number,
-		equipmentData: EquipmentFormData
+		equipmentData: EquipmentFormData,
 	) {
 		const formData = this.buildEquipmentFormData(equipmentData!);
 
@@ -30,14 +30,14 @@ export class EquipmentService {
 
 	public addMaintenanceRecord(
 		equipmentId: number,
-		recordData: Partial<EquipmentMaintenance>
+		recordData: Partial<EquipmentMaintenance>,
 	) {
 		return postReq(apiUrl(`equipment/${equipmentId}/maintenance`), recordData);
 	}
 
 	public updateMaintenanceRecord(
 		maintenanceId: number,
-		newData: Partial<EquipmentMaintenance>
+		newData: Partial<EquipmentMaintenance>,
 	) {
 		return putReq(apiUrl(`equipment/maintenance/${maintenanceId}`), newData);
 	}

@@ -18,10 +18,10 @@ import { NgTemplateOutlet } from '@angular/common';
 		ChartModule,
 		PopoverModule,
 		CardModule,
-		NgTemplateOutlet
+		NgTemplateOutlet,
 	],
 	templateUrl: './soil-moisture-week-graph.component.html',
-	styleUrl: './soil-moisture-week-graph.component.scss'
+	styleUrl: './soil-moisture-week-graph.component.scss',
 })
 export class SoilMoistureWeekGraphComponent {
 	private _globalUiService = inject(GlobalUiService);
@@ -36,7 +36,7 @@ export class SoilMoistureWeekGraphComponent {
 		labels: getFullWeekOfDayLabelsCenteredAroundCurrentDay({
 			includeDates: true,
 			tinyDayNames: this.isMobile(),
-			shortDayNames: !this.isMobile()
+			shortDayNames: !this.isMobile(),
 		}),
 		datasets: [
 			{
@@ -44,9 +44,9 @@ export class SoilMoistureWeekGraphComponent {
 				label: 'Soil moisture',
 				data: this.dailyMoistureData(),
 				borderColor: getPrimeNgHexColor('rose.400'),
-				tension: 0.4
-			}
-		]
+				tension: 0.4,
+			},
+		],
 	}));
 
 	public options = computed<ChartOptions<'line'>>(() => ({
@@ -58,33 +58,33 @@ export class SoilMoistureWeekGraphComponent {
 				max: 50,
 				ticks: {
 					stepSize: 10,
-					callback: (val) => `${val}%`
+					callback: (val) => `${val}%`,
 				},
 				grid: this.isDarkMode()
 					? {
-							color: DARK_MODE_CHART_GRID_COLOR
+							color: DARK_MODE_CHART_GRID_COLOR,
 						}
-					: undefined
+					: undefined,
 			},
 			x: {
 				grid: {
 					color: (context) =>
 						getChartGridLineColors(
 							context,
-							this.isDarkMode() ? 'dark' : 'light'
-						)
+							this.isDarkMode() ? 'dark' : 'light',
+						),
 				},
 				ticks: {
 					maxRotation: this.isMobile() ? 25 : 0,
-					minRotation: this.isMobile() ? 25 : 0
-				}
-			}
+					minRotation: this.isMobile() ? 25 : 0,
+				},
+			},
 		},
 		plugins: {
 			legend: {
 				position: 'chartArea',
-				align: 'end'
-			}
-		}
+				align: 'end',
+			},
+		},
 	}));
 }

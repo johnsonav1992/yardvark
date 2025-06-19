@@ -14,7 +14,7 @@ import { AnalyticsService } from '../../../../services/analytics.service';
 	selector: 'entry-dialog-footer',
 	imports: [ButtonModule],
 	templateUrl: './entry-dialog-footer.component.html',
-	styleUrl: './entry-dialog-footer.component.scss'
+	styleUrl: './entry-dialog-footer.component.scss',
 })
 export class EntryDialogFooterComponent {
 	private _destroyRef = inject(DestroyRef);
@@ -34,7 +34,7 @@ export class EntryDialogFooterComponent {
 	public pointInTimeSoilTemperature =
 		this._soilTempService.getPointInTimeSoilTemperature(
 			this.shouldFetchSoilData,
-			this.soilTempDate
+			this.soilTempDate,
 		);
 
 	constructor() {
@@ -72,10 +72,10 @@ export class EntryDialogFooterComponent {
 				this.form?.value.products?.map((row) => ({
 					productId: row.product?.id!,
 					productQuantity: row.quantity!,
-					productQuantityUnit: row.quantityUnit!
+					productQuantityUnit: row.quantityUnit!,
 				})) || [],
 			soilTemperatureUnit: this._soilTempService.temperatureUnit(),
-			images: this.form?.value.images || []
+			images: this.form?.value.images || [],
 		};
 
 		this._entriesService.addEntry(req).subscribe({
@@ -92,7 +92,7 @@ export class EntryDialogFooterComponent {
 			error: () => {
 				this.isLoading.set(false);
 				this.throwErrorToast('Failed to create entry');
-			}
+			},
 		});
 	}
 }

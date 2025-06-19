@@ -36,17 +36,17 @@ import { WeatherModule } from './modules/weather/weather.module';
 		AnalyticsModule,
 		FilesModule,
 		WeatherModule,
-		HttpModule
+		HttpModule,
 	],
 	controllers: [UsersController, FilesController],
 	providers: [
 		JwtStrategy,
 		{
 			provide: APP_GUARD,
-			useClass: JwtAuthGuard
+			useClass: JwtAuthGuard,
 		},
 		UsersService,
-		S3Service
-	]
+		S3Service,
+	],
 })
 export class AppModule {}

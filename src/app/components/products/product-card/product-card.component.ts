@@ -12,7 +12,7 @@ import { YVUser } from '../../../types/user.types';
 	selector: 'product-card',
 	imports: [CardModule, ButtonModule],
 	templateUrl: './product-card.component.html',
-	styleUrl: './product-card.component.scss'
+	styleUrl: './product-card.component.scss',
 })
 export class ProductCardComponent {
 	private _router = inject(Router);
@@ -36,7 +36,7 @@ export class ProductCardComponent {
 	public toggleProductVisibility(): void {
 		this.onToggleProductVisibility.emit({
 			id: this.product().id,
-			visible: !this.product().isHidden
+			visible: !this.product().isHidden,
 		});
 	}
 }

@@ -8,6 +8,6 @@ import { Settings } from './models/settings.model';
 	imports: [TypeOrmModule.forFeature([Settings])],
 	exports: [TypeOrmModule],
 	controllers: [SettingsController],
-	providers: [SettingsService]
+	providers: [SettingsService],
 })
 export class SettingsModule {}

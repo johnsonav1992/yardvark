@@ -3,7 +3,7 @@ import {
 	computed,
 	inject,
 	linkedSignal,
-	signal
+	signal,
 } from '@angular/core';
 import { TabsModule } from 'primeng/tabs';
 import { Tab } from '../../types/components.types';
@@ -11,7 +11,7 @@ import { ProductCategories } from '../../types/products.types';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import {
 	ProductCardComponent,
-	ProductVisibilityToggleEvent
+	ProductVisibilityToggleEvent,
 } from '../../components/products/product-card/product-card.component';
 import { EmptyMessageComponent } from '../../components/miscellanious/empty-message/empty-message.component';
 import { ProductsService } from '../../services/products.service';
@@ -46,11 +46,11 @@ import { SettingsService } from '../../services/settings.service';
 		InputIconModule,
 		InputTextModule,
 		FormsModule,
-		DividerModule
+		DividerModule,
 	],
 	templateUrl: './products.component.html',
 	styleUrl: './products.component.scss',
-	providers: [DialogService]
+	providers: [DialogService],
 })
 export class ProductsComponent {
 	private _productsService = inject(ProductsService);
@@ -72,7 +72,7 @@ export class ProductsComponent {
 		{ title: 'Fungus-control', value: 'fungus-control' },
 		{ title: 'Insect-control', value: 'insect-control' },
 		{ title: 'Seed', value: 'seed' },
-		{ title: 'Other', value: 'other' }
+		{ title: 'Other', value: 'other' },
 	];
 
 	public products = this._productsService.products;
@@ -90,7 +90,7 @@ export class ProductsComponent {
 				(product) =>
 					product.category === this.selectedTab() &&
 					!product.isHidden &&
-					!(shouldHideSystemProducts && product.userId === 'system')
+					!(shouldHideSystemProducts && product.userId === 'system'),
 			)
 			.toSorted((a, b) => a.name.localeCompare(b.name));
 	});
@@ -104,7 +104,7 @@ export class ProductsComponent {
 					.includes(this.searchQuery().toLowerCase()) ||
 				product.guaranteedAnalysis
 					?.toLowerCase()
-					.includes(this.searchQuery().toLowerCase())
+					.includes(this.searchQuery().toLowerCase()),
 		);
 	});
 
@@ -121,7 +121,7 @@ export class ProductsComponent {
 			error: () => {
 				this.products.set(currentProductsState);
 				this.optimisticProducts.set(currentProductsState);
-			}
+			},
 		});
 
 		this.products.update((products) => {
@@ -129,7 +129,7 @@ export class ProductsComponent {
 
 			return products.map((product) => ({
 				...product,
-				isHidden: product.id === e.id || product.isHidden
+				isHidden: product.id === e.id || product.isHidden,
 			}));
 		});
 
@@ -139,7 +139,7 @@ export class ProductsComponent {
 			return products
 				.map((product) => ({
 					...product,
-					isHidden: product.id === e.id || product.isHidden
+					isHidden: product.id === e.id || product.isHidden,
 				}))
 				.filter((product) => !product.isHidden);
 		});
@@ -161,10 +161,10 @@ export class ProductsComponent {
 				closable: true,
 				contentStyle: { overflow: 'visible' },
 				breakpoints: {
-					'800px': '95%'
+					'800px': '95%',
 				},
-				maximizable: true
-			}
+				maximizable: true,
+			},
 		);
 
 		if (this.isMobile()) this._dialogService.getInstance(dialogRef).maximize();
@@ -175,8 +175,8 @@ export class ProductsComponent {
 			iconOnlyWidth: this.isMobile() ? '4rem' : '5rem',
 			lg: {
 				fontSize: '36px',
-				iconOnlyWidth: this.isMobile() ? '4rem' : '5rem'
-			}
-		}
+				iconOnlyWidth: this.isMobile() ? '4rem' : '5rem',
+			},
+		},
 	}));
 }

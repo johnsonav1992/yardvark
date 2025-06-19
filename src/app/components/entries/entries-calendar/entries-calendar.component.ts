@@ -9,7 +9,7 @@ import {
 	model,
 	output,
 	signal,
-	TemplateRef
+	TemplateRef,
 } from '@angular/core';
 import { addMonths, format, startOfToday, subMonths } from 'date-fns';
 import { getCalendarDaysData } from './utils';
@@ -44,8 +44,8 @@ import { getSpecificDayOfMonth } from '../../../utils/timeUtils';
 		EntrySearchSidebarComponent,
 		PopoverModule,
 		ToggleSwitchModule,
-		FormsModule
-	]
+		FormsModule,
+	],
 })
 export class EntriesCalendarComponent {
 	private _router = inject(Router);
@@ -58,8 +58,8 @@ export class EntriesCalendarComponent {
 
 	private _dateQuery = toSignal(
 		this._router.routerState.root.queryParams.pipe(
-			map((params) => params['date'] as string)
-		)
+			map((params) => params['date'] as string),
+		),
 	);
 
 	public isLoadingData = input<boolean>(false);
@@ -69,7 +69,7 @@ export class EntriesCalendarComponent {
 		contentChild<TemplateRef<{ $implicit: CalendarMarkerData[] }>>('marker');
 	public weatherMarkerTpl =
 		contentChild<TemplateRef<{ $implicit: CalendarMarkerData[] }>>(
-			'weatherMarker'
+			'weatherMarker',
 		);
 	public mobileDateSelected = input<Date | null>(null);
 	public mode = model<'calendar' | 'list'>('calendar');
@@ -80,19 +80,19 @@ export class EntriesCalendarComponent {
 	public isEntrySearchSidebarOpen = signal(false);
 
 	protected currentDate = linkedSignal(() =>
-		this._dateQuery() ? new Date(this._dateQuery()!) : startOfToday()
+		this._dateQuery() ? new Date(this._dateQuery()!) : startOfToday(),
 	);
 
 	protected currentMonth = computed(() =>
-		format(this.currentDate(), this.isMobile() ? 'MMM yyyy' : 'MMMM yyyy')
+		format(this.currentDate(), this.isMobile() ? 'MMM yyyy' : 'MMMM yyyy'),
 	);
 
 	public days = computed(() =>
 		getCalendarDaysData(
 			this.currentDate(),
 			this.markers(),
-			this.weatherMarkers()
-		)
+			this.weatherMarkers(),
+		),
 	);
 
 	private readonly _dayNames = [
@@ -102,11 +102,11 @@ export class EntriesCalendarComponent {
 		'Wed',
 		'Thu',
 		'Fri',
-		'Sat'
+		'Sat',
 	];
 	public readonly dayNamesFormatted = this._dayNames.map((dayName) => ({
 		dayName: dayName,
-		isToday: dayName === format(startOfToday(), 'eee')
+		isToday: dayName === format(startOfToday(), 'eee'),
 	}));
 
 	public nextMonth() {
@@ -154,21 +154,21 @@ export class EntriesCalendarComponent {
 		this._router.navigate(['../'], {
 			relativeTo: this._route,
 			queryParamsHandling: 'merge',
-			replaceUrl: true
+			replaceUrl: true,
 		});
 	}
 
 	private navToMonth() {
 		this._router.navigate([], {
 			queryParams: { date: format(this.currentDate(), 'yyyy-MM-dd') },
-			queryParamsHandling: 'merge'
+			queryParamsHandling: 'merge',
 		});
 	}
 
 	public textButtonDt = computed<ButtonDesignTokens>(() => ({
 		root: {
-			iconOnlyWidth: this.isMobile() ? '1.75rem' : '3rem'
-		}
+			iconOnlyWidth: this.isMobile() ? '1.75rem' : '3rem',
+		},
 	}));
 }
 

@@ -4,7 +4,7 @@ export interface CamelizeKeysFn {
 }
 
 export const camelizeKeys: CamelizeKeysFn = <T extends Record<string, unknown>>(
-	input: T | T[]
+	input: T | T[],
 ) => {
 	const camelize = (obj: T): T => {
 		const camelCaseObj = {} as T;
@@ -12,7 +12,7 @@ export const camelizeKeys: CamelizeKeysFn = <T extends Record<string, unknown>>(
 		Object.entries(obj).forEach(([key, value]) => {
 			const camelCaseKey = key.replace(
 				/_([a-z])/g,
-				(_: string, letter: string) => letter.toUpperCase()
+				(_: string, letter: string) => letter.toUpperCase(),
 			);
 			(camelCaseObj as Record<string, any>)[camelCaseKey] = value;
 		});

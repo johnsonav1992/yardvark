@@ -8,7 +8,7 @@ import { DatePipe } from '@angular/common';
 	selector: 'mobile-entry-preview-card',
 	imports: [CardModule, DatePipe],
 	templateUrl: './mobile-entry-preview-card.component.html',
-	styleUrl: './mobile-entry-preview-card.component.scss'
+	styleUrl: './mobile-entry-preview-card.component.scss',
 })
 export class MobileEntryPreviewCardComponent {
 	private _router = inject(Router);
@@ -17,7 +17,7 @@ export class MobileEntryPreviewCardComponent {
 
 	public navigateToEntry(entry: Entry): void {
 		this._router.navigate(['entry-log', entry.id], {
-			queryParams: { date: new Date(entry.date).toISOString() }
+			queryParams: { date: new Date(entry.date).toISOString() },
 		});
 	}
 }

@@ -4,7 +4,7 @@ import {
 	EntriesSearchRequest,
 	Entry,
 	EntryCreationRequest,
-	EntryCreationRequestFormInput
+	EntryCreationRequestFormInput,
 } from '../types/entries.types';
 import { apiUrl, deleteReq, postReq, putReq } from '../utils/httpUtils';
 import { endOfMonth, startOfMonth } from 'date-fns';
@@ -13,40 +13,40 @@ import { Observable, ObservableInput, of, switchMap } from 'rxjs';
 import { FilesService } from './files.service';
 
 @Injectable({
-	providedIn: 'root'
+	providedIn: 'root',
 })
 export class EntriesService {
 	private _filesService = inject(FilesService);
 
 	public getEntryResource = (
 		shouldFetchEntry: Signal<boolean>,
-		entryId: Signal<number | undefined>
+		entryId: Signal<number | undefined>,
 	) =>
 		httpResource<Entry>(() =>
 			shouldFetchEntry() && entryId()
 				? apiUrl('entries/single', { params: [entryId()!] })
-				: undefined
+				: undefined,
 		);
 
 	public getEntryByDateResource = (date: Signal<Date | null>) =>
 		httpResource<Entry>(() =>
 			date()
 				? apiUrl('entries/single/by-date', {
-						params: [formatDate(date()!, 'MM-dd-yyyy', 'en-US')]
+						params: [formatDate(date()!, 'MM-dd-yyyy', 'en-US')],
 					})
-				: undefined
+				: undefined,
 		);
 
 	public recentEntry = httpResource<Entry | null>(() =>
-		apiUrl('entries/single/most-recent')
+		apiUrl('entries/single/most-recent'),
 	);
 
 	public lastMow = httpResource<{ lastMowDate: Date | null }>(() =>
-		apiUrl('entries/last-mow')
+		apiUrl('entries/last-mow'),
 	);
 
 	public lastProductApp = httpResource<{ lastProductAppDate: Date | null }>(
-		() => apiUrl('entries/last-product-app')
+		() => apiUrl('entries/last-product-app'),
 	);
 
 	public getMonthEntriesResource = (currentDate: Signal<Date>) =>
@@ -54,9 +54,9 @@ export class EntriesService {
 			apiUrl('entries', {
 				queryParams: {
 					startDate: startOfMonth(currentDate()),
-					endDate: endOfMonth(currentDate())
-				}
-			})
+					endDate: endOfMonth(currentDate()),
+				},
+			}),
 		);
 
 	public addEntry(req: EntryCreationRequestFormInput): Observable<void> {
@@ -67,21 +67,21 @@ export class EntriesService {
 							(fileIds) =>
 								of({
 									...req,
-									imageUrls: fileIds
-								})
-						)
+									imageUrls: fileIds,
+								}),
+						),
 					)
 				: of({ ...req, imageUrls: [] })
 		).pipe(
 			switchMap((entry) =>
-				postReq<void, EntryCreationRequest>(apiUrl('entries'), entry)
-			)
+				postReq<void, EntryCreationRequest>(apiUrl('entries'), entry),
+			),
 		);
 	}
 
 	public editEntry(
 		entryId: number | undefined,
-		updatedEntry: Partial<EntryCreationRequest>
+		updatedEntry: Partial<EntryCreationRequest>,
 	): Observable<void> {
 		if (!entryId) return of();
 
@@ -92,18 +92,18 @@ export class EntriesService {
 							(fileIds) =>
 								of({
 									...updatedEntry,
-									imageUrls: [...(updatedEntry.imageUrls || []), ...fileIds]
-								})
-						)
+									imageUrls: [...(updatedEntry.imageUrls || []), ...fileIds],
+								}),
+						),
 					)
 				: of({ ...updatedEntry })
 		).pipe(
 			switchMap((entry) =>
 				putReq<void, Partial<EntryCreationRequest>>(
 					apiUrl('entries', { params: [entryId] }),
-					entry
-				)
-			)
+					entry,
+				),
+			),
 		);
 	}
 
@@ -112,11 +112,11 @@ export class EntriesService {
 	}
 
 	public searchEntries(
-		searchCriteria: EntriesSearchRequest
+		searchCriteria: EntriesSearchRequest,
 	): Observable<Entry[]> {
 		return postReq<Entry[], EntriesSearchRequest>(
 			apiUrl('entries/search'),
-			searchCriteria
+			searchCriteria,
 		);
 	}
 

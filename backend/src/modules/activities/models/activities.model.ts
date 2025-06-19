@@ -11,7 +11,7 @@ export class Activity {
 
 	@ManyToMany(
 		() => Entry,
-		(entry) => entry.activities
+		(entry) => entry.activities,
 	)
 	entries: Entry[];
 }

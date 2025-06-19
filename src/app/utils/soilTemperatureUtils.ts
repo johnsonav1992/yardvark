@@ -14,7 +14,7 @@ export const getSoilTemperatureDisplayColor = (soilTemp: number) => {
 		40: 'blue.500',
 		45: 'green.600',
 		50: 'amber.200',
-		70: 'amber.400'
+		70: 'amber.400',
 	};
 
 	for (const [temp, color] of Object.entries(temperatureColorMap)) {
@@ -33,7 +33,7 @@ export const getSoilTemperatureDisplayColor = (soilTemp: number) => {
  */
 export const calculate24HourNumericAverage = (
 	numericData: number[],
-	options?: { precision?: number }
+	options?: { precision?: number },
 ) => {
 	const total = numericData.reduce((sum, temp) => sum + temp, 0);
 	const precision = options?.precision ?? 1;
@@ -55,7 +55,7 @@ export const calculate24HourNumericAverage = (
  */
 export const getAllDailyNumericDataAverages = (
 	hourlyNumericData: number[],
-	options?: { precision?: number; multiplicationFactor?: number }
+	options?: { precision?: number; multiplicationFactor?: number },
 ): number[] => {
 	let dailyAverages: number[] = [];
 

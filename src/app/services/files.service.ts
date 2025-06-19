@@ -4,7 +4,7 @@ import { from, map, mergeMap, Observable, scan } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 
 @Injectable({
-	providedIn: 'root'
+	providedIn: 'root',
 })
 export class FilesService {
 	public uploadFiles(files: File[]) {
@@ -19,23 +19,23 @@ export class FilesService {
 			mergeMap((url) =>
 				getReq<HttpResponse<Blob>>(
 					apiUrl('files/download', {
-						queryParams: { url }
+						queryParams: { url },
 					}),
 					{
 						responseType: 'blob',
-						observe: 'response'
-					} as never
+						observe: 'response',
+					} as never,
 				).pipe(
 					map((response) => {
 						const filename = url.split('-').pop() || 'downloaded-file';
 
 						return new File([response.body!], filename, {
-							type: response.body!.type
+							type: response.body!.type,
 						});
-					})
-				)
+					}),
+				),
 			),
-			scan<File, File[]>((files, file) => [...files, file], [])
+			scan<File, File[]>((files, file) => [...files, file], []),
 		);
 	}
 }

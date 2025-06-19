@@ -4,12 +4,12 @@ import {
 	inject,
 	linkedSignal,
 	OnInit,
-	signal
+	signal,
 } from '@angular/core';
 import {
 	CalendarMarkerData,
 	DaySelectedEvent,
-	EntriesCalendarComponent
+	EntriesCalendarComponent,
 } from '../../components/entries/entries-calendar/entries-calendar.component';
 import { ButtonModule } from 'primeng/button';
 import { ButtonDesignTokens } from '@primeng/themes/types/button';
@@ -47,11 +47,11 @@ import { WeatherDayMarker } from '../../components/weather/weather-day-marker/we
 		DividerModule,
 		CardModule,
 		MobileEntryPreviewCardComponent,
-		WeatherDayMarker
+		WeatherDayMarker,
 	],
 	templateUrl: './entry-log.component.html',
 	styleUrl: './entry-log.component.scss',
-	providers: [DialogService]
+	providers: [DialogService],
 })
 export class EntryLogComponent implements OnInit {
 	private _router = inject(Router);
@@ -64,8 +64,8 @@ export class EntryLogComponent implements OnInit {
 
 	public isCreateOnOpen = toSignal(
 		this._activatedRoute.queryParams.pipe(
-			map((params) => params['create'] === 'true')
-		)
+			map((params) => params['create'] === 'true'),
+		),
 	);
 
 	public directDateNavigation = toSignal(
@@ -82,11 +82,11 @@ export class EntryLogComponent implements OnInit {
 				}
 
 				return null;
-			})
+			}),
 		),
 		{
-			initialValue: null
-		}
+			initialValue: null,
+		},
 	);
 
 	public isMobile = this._globalUiService.isMobile;
@@ -99,8 +99,8 @@ export class EntryLogComponent implements OnInit {
 	public viewMode = linkedSignal<SettingsData | undefined, 'calendar' | 'list'>(
 		{
 			source: this._settingsService.currentSettings,
-			computation: (settings) => settings?.entryView || 'calendar'
-		}
+			computation: (settings) => settings?.entryView || 'calendar',
+		},
 	);
 
 	public selectedMobileDateEntries = linkedSignal({
@@ -110,7 +110,7 @@ export class EntryLogComponent implements OnInit {
 				return this.entries
 					.value()
 					?.filter((entry) =>
-						isSameDay(new Date(entry.date), newMobileDateToView)
+						isSameDay(new Date(entry.date), newMobileDateToView),
 					)
 					.map((entry) => {
 						const time = entry.time
@@ -119,13 +119,13 @@ export class EntryLogComponent implements OnInit {
 
 						return {
 							...entry,
-							time: time ? format(time, 'hh:mm a') : ''
+							time: time ? format(time, 'hh:mm a') : '',
 						};
 					});
 			}
 
 			return null;
-		}
+		},
 	});
 
 	public entryMarkers = computed<
@@ -142,7 +142,7 @@ export class EntryLogComponent implements OnInit {
 				id: crypto.randomUUID(),
 				date: new Date(entry.date),
 				icon,
-				data: { entry }
+				data: { entry },
 			};
 		});
 	});
@@ -158,12 +158,12 @@ export class EntryLogComponent implements OnInit {
 			id: crypto.randomUUID(),
 			date: forecast.date,
 			icon: getForecastMarkerIcon(forecast),
-			data: { forecast }
+			data: { forecast },
 		}));
 	});
 
 	public entries = this._entriesService.getMonthEntriesResource(
-		this.currentDate
+		this.currentDate,
 	);
 
 	public listViewEntries = linkedSignal({
@@ -176,12 +176,12 @@ export class EntryLogComponent implements OnInit {
 						: '';
 					return {
 						...entry,
-						time: time ? format(time, 'hh:mm a') : ''
+						time: time ? format(time, 'hh:mm a') : '',
 					};
 				});
 			}
 			return null;
-		}
+		},
 	});
 
 	public ngOnInit(): void {
@@ -202,9 +202,9 @@ export class EntryLogComponent implements OnInit {
 		this._router.navigate(['entry-log', entry.id], {
 			state: {
 				...entry,
-				time: this.entries.value()?.find((e) => e.id === entry.id)?.time
+				time: this.entries.value()?.find((e) => e.id === entry.id)?.time,
 			},
-			queryParams: { date: new Date(entry.date).toISOString() }
+			queryParams: { date: new Date(entry.date).toISOString() },
 		});
 	}
 
@@ -223,15 +223,15 @@ export class EntryLogComponent implements OnInit {
 			closable: true,
 			contentStyle: { overflow: 'auto' },
 			inputValues: {
-				date
+				date,
 			},
 			templates: {
-				footer: EntryDialogFooterComponent
+				footer: EntryDialogFooterComponent,
 			},
 			breakpoints: {
-				'800px': '95%'
+				'800px': '95%',
 			},
-			maximizable: true
+			maximizable: true,
 		});
 
 		if (this.isMobile()) this._dialogService.getInstance(dialogRef).maximize();
@@ -260,7 +260,7 @@ export class EntryLogComponent implements OnInit {
 
 	public markerButtonDt: ButtonDesignTokens = {
 		root: {
-			iconOnlyWidth: '2rem'
+			iconOnlyWidth: '2rem',
 		},
 		colorScheme: {
 			light: {
@@ -271,11 +271,11 @@ export class EntryLogComponent implements OnInit {
 						hoverBackground: '{primary.200}',
 						hoverBorderColor: '{primary.200}',
 						color: this.darkMode() ? '{surface.600}' : '',
-						hoverColor: '{surface.600}'
-					}
-				}
-			}
-		}
+						hoverColor: '{surface.600}',
+					},
+				},
+			},
+		},
 	};
 
 	public addButtonDt = computed<ButtonDesignTokens>(() => ({
@@ -283,8 +283,8 @@ export class EntryLogComponent implements OnInit {
 			iconOnlyWidth: this.isMobile() ? '4rem' : '5rem',
 			lg: {
 				fontSize: this.isMobile() ? '28px' : '36px',
-				iconOnlyWidth: this.isMobile() ? '4rem' : '5rem'
-			}
-		}
+				iconOnlyWidth: this.isMobile() ? '4rem' : '5rem',
+			},
+		},
 	}));
 }

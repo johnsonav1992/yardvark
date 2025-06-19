@@ -5,7 +5,7 @@ import {
 	model,
 	OnDestroy,
 	signal,
-	viewChild
+	viewChild,
 } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { Table, TableModule } from 'primeng/table';
@@ -28,10 +28,10 @@ import { InputNumber } from 'primeng/inputnumber';
 		InputTextModule,
 		CardModule,
 		LoadingSpinnerComponent,
-		InputNumber
+		InputNumber,
 	],
 	templateUrl: './lawn-segments-table.component.html',
-	styleUrl: './lawn-segments-table.component.scss'
+	styleUrl: './lawn-segments-table.component.scss',
 })
 export class LawnSegmentsTableComponent implements OnDestroy {
 	private _lawnSegmentsService = inject(LawnSegmentsService);
@@ -86,7 +86,7 @@ export class LawnSegmentsTableComponent implements OnDestroy {
 
 				this.lawnSegments.update((prev) => {
 					return prev?.map((seg) =>
-						seg.name.toLowerCase() === newSeg.name.toLowerCase() ? newSeg : seg
+						seg.name.toLowerCase() === newSeg.name.toLowerCase() ? newSeg : seg,
 					);
 				});
 			},
@@ -100,7 +100,7 @@ export class LawnSegmentsTableComponent implements OnDestroy {
 				}
 
 				this.currentlyEditingLawnSegmentIds.set(null);
-			}
+			},
 		});
 	}
 
@@ -111,7 +111,7 @@ export class LawnSegmentsTableComponent implements OnDestroy {
 			},
 			error: () => {
 				this._throwErrorToast('Error deleting lawn segment');
-			}
+			},
 		});
 	}
 
@@ -137,6 +137,6 @@ export class LawnSegmentsTableComponent implements OnDestroy {
 
 	public lawnSegsTableDt: DataTableDesignTokens = {
 		bodyCell: { padding: '.25rem' },
-		headerCell: { padding: '.25rem' }
+		headerCell: { padding: '.25rem' },
 	};
 }

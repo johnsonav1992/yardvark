@@ -8,7 +8,7 @@ import { debounce } from '../../utils/timeUtils';
 import {
 	AutoCompleteCompleteEvent,
 	AutoCompleteModule,
-	AutoCompleteSelectEvent
+	AutoCompleteSelectEvent,
 } from 'primeng/autocomplete';
 import { Feature } from '../../types/location.types';
 import { LocationService } from '../../services/location.service';
@@ -35,10 +35,10 @@ import { UnsavedChanges } from '../../guards/unsaved-changes-guard';
 		InputTextModule,
 		TooltipModule,
 		LawnSegmentsTableComponent,
-		ToggleSwitchModule
+		ToggleSwitchModule,
 	],
 	templateUrl: './settings.component.html',
-	styleUrl: './settings.component.scss'
+	styleUrl: './settings.component.scss',
 })
 export class SettingsComponent implements UnsavedChanges {
 	private _settingsService = injectSettingsService();
@@ -63,7 +63,7 @@ export class SettingsComponent implements UnsavedChanges {
 				? { query: this.debouncedSearchText() }
 				: undefined,
 		stream: ({ params }) =>
-			this._locationService.searchForLocation(params?.query || '')
+			this._locationService.searchForLocation(params?.query || ''),
 	});
 
 	public updateSetting = this._settingsService.updateSetting;
@@ -84,12 +84,12 @@ export class SettingsComponent implements UnsavedChanges {
 		this.updateSetting('location', {
 			lat,
 			long,
-			address: locationFeature.properties.full_address
+			address: locationFeature.properties.full_address,
 		});
 	}
 
 	private debouncedLawnSizeSetter = debounce(
 		(newVal: number) => this.updateSetting('lawnSize', newVal),
-		1500
+		1500,
 	);
 }

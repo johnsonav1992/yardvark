@@ -1,7 +1,7 @@
 import { bootstrapApplication } from '@angular/platform-browser';
-import LogRocket from 'logrocket';
-import { AppComponent } from './app/app.component';
 import { appConfig } from './app/app.config';
+import { AppComponent } from './app/app.component';
+import LogRocket from 'logrocket';
 import { environment } from './environments/environment';
 
 if (environment.production) {
@@ -9,5 +9,5 @@ if (environment.production) {
 }
 
 bootstrapApplication(AppComponent, appConfig).catch((err) =>
-	console.error(err)
+	console.error(err),
 );

@@ -1,4 +1,4 @@
-import { Test, type TestingModule } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { ActivitiesService } from './activities.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Activity } from '../models/activities.model';
@@ -15,21 +15,21 @@ describe('ActivitiesService', () => {
 				ActivitiesService,
 				{
 					provide: getRepositoryToken(Activity),
-					useClass: Repository
-				}
-			]
+					useClass: Repository,
+				},
+			],
 		}).compile();
 
 		service = module.get<ActivitiesService>(ActivitiesService);
 		activityRepository = module.get<Repository<Activity>>(
-			getRepositoryToken(Activity)
+			getRepositoryToken(Activity),
 		);
 	});
 
 	it('should return an array of activities', async () => {
 		const mockActivities: Activity[] = [
 			{ entries: [], id: 1, name: 'Activity 1' },
-			{ entries: [], id: 2, name: 'Activity 2' }
+			{ entries: [], id: 2, name: 'Activity 2' },
 		];
 
 		jest.spyOn(activityRepository, 'find').mockResolvedValue(mockActivities);

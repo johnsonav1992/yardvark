@@ -32,7 +32,7 @@ export const injectBreakpointObserver = (query: string) => {
 
 	return toSignal(
 		breakpointObserver.observe(query).pipe(map((res) => res.matches)),
-		{ initialValue: breakpointObserver.isMatched(query) }
+		{ initialValue: breakpointObserver.isMatched(query) },
 	);
 };
 
@@ -47,8 +47,8 @@ export const injectScreenWidthObserver = () => {
 		fromEvent(window, 'resize').pipe(
 			takeUntilDestroyed(),
 			map(() => window.innerWidth),
-			startWith(window.innerWidth)
+			startWith(window.innerWidth),
 		),
-		{ initialValue: window.innerWidth }
+		{ initialValue: window.innerWidth },
 	);
 };

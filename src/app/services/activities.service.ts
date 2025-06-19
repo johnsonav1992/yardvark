@@ -4,7 +4,7 @@ import { apiUrl } from '../utils/httpUtils';
 import { Activity } from '../types/activities.types';
 
 @Injectable({
-	providedIn: 'root'
+	providedIn: 'root',
 })
 export class ActivitiesService {
 	public activities = httpResource<Activity[]>(() => apiUrl('activities'));

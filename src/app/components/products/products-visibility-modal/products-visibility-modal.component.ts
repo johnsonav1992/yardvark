@@ -2,7 +2,7 @@ import { Component, computed, inject } from '@angular/core';
 import { ProductsService } from '../../../services/products.service';
 import {
 	ProductCardComponent,
-	ProductVisibilityToggleEvent
+	ProductVisibilityToggleEvent,
 } from '../product-card/product-card.component';
 import { EmptyMessageComponent } from '../../miscellanious/empty-message/empty-message.component';
 import { GlobalUiService } from '../../../services/global-ui.service';
@@ -11,7 +11,7 @@ import { GlobalUiService } from '../../../services/global-ui.service';
 	selector: 'products-visibility-modal',
 	imports: [ProductCardComponent, EmptyMessageComponent],
 	templateUrl: './products-visibility-modal.component.html',
-	styleUrl: './products-visibility-modal.component.scss'
+	styleUrl: './products-visibility-modal.component.scss',
 })
 export class ProductsVisibilityModalComponent {
 	private _productsService = inject(ProductsService);
@@ -22,7 +22,7 @@ export class ProductsVisibilityModalComponent {
 	public isMobile = this._globalUiService.isMobile;
 
 	public hiddenProducts = computed(() =>
-		this.products.value()?.filter((product) => product.isHidden)
+		this.products.value()?.filter((product) => product.isHidden),
 	);
 
 	public toggleProductVisibility(e: ProductVisibilityToggleEvent): void {
@@ -33,7 +33,7 @@ export class ProductsVisibilityModalComponent {
 
 			return products.map((product) => ({
 				...product,
-				isHidden: product.id === e.id ? false : product.isHidden
+				isHidden: product.id === e.id ? false : product.isHidden,
 			}));
 		});
 
@@ -43,7 +43,7 @@ export class ProductsVisibilityModalComponent {
 			return products
 				.map((product) => ({
 					...product,
-					isHidden: product.id === e.id ? false : product.isHidden
+					isHidden: product.id === e.id ? false : product.isHidden,
 				}))
 				.filter((product) => !product.isHidden);
 		});

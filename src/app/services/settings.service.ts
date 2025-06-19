@@ -3,11 +3,11 @@ import { apiUrl, putReq } from '../utils/httpUtils';
 import { httpResource } from '@angular/common/http';
 import {
 	SettingsData,
-	SettingsResponse
+	SettingsResponse,
 } from '../../../backend/src/modules/settings/models/settings.types';
 
 @Injectable({
-	providedIn: 'root'
+	providedIn: 'root',
 })
 export class SettingsService {
 	public settings = httpResource<SettingsResponse>(() => apiUrl('settings'));
@@ -16,22 +16,22 @@ export class SettingsService {
 
 	public updateSetting = <
 		TKey extends keyof SettingsData,
-		TValue extends SettingsData[TKey]
+		TValue extends SettingsData[TKey],
 	>(
 		settingName: TKey,
-		newValue: TValue
+		newValue: TValue,
 	): void => {
 		const updatedSettings: SettingsData = {
 			...this.currentSettings()!,
-			[settingName]: newValue
+			[settingName]: newValue,
 		};
 
 		putReq<SettingsData>(apiUrl('settings'), updatedSettings).subscribe({
 			next: (updatedSettingsRes) =>
 				this.currentSettings.update((currSettings) => ({
 					...currSettings,
-					...updatedSettingsRes
-				}))
+					...updatedSettingsRes,
+				})),
 		});
 	};
 }

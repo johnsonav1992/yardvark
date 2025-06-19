@@ -11,6 +11,6 @@ import { HttpModule } from '@nestjs/axios';
 @Module({
 	imports: [TypeOrmModule.forFeature([Product, UserHiddenProduct]), HttpModule],
 	controllers: [ProductsController],
-	providers: [ProductsService, S3Service, ConfigService]
+	providers: [ProductsService, S3Service, ConfigService],
 })
 export class ProductsModule {}

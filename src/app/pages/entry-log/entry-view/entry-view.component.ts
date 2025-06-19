@@ -4,14 +4,14 @@ import {
 	effect,
 	inject,
 	linkedSignal,
-	signal
+	signal,
 } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
 	Entry,
 	EntryCreationRequest,
-	EntryProduct
+	EntryProduct,
 } from '../../../types/entries.types';
 import { PageContainerComponent } from '../../../components/layout/page-container/page-container.component';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -32,13 +32,13 @@ import {
 	FormControl,
 	FormGroup,
 	ReactiveFormsModule,
-	Validators
+	Validators,
 } from '@angular/forms';
 import { Activity } from '../../../types/activities.types';
 import { LawnSegment } from '../../../types/lawnSegments.types';
 import {
 	createEntryProductRow,
-	EntryProductRow
+	EntryProductRow,
 } from '../../../utils/entriesUtils';
 import { InputTextModule } from 'primeng/inputtext';
 import { LawnSegmentsService } from '../../../services/lawn-segments.service';
@@ -73,10 +73,10 @@ import { ConfirmationService } from 'primeng/api';
 		TextareaModule,
 		DatePickerModule,
 		GalleriaModule,
-		FileUploadModule
+		FileUploadModule,
 	],
 	templateUrl: './entry-view.component.html',
-	styleUrl: './entry-view.component.scss'
+	styleUrl: './entry-view.component.scss',
 })
 export class EntryViewComponent {
 	private _router = inject(Router);
@@ -100,32 +100,32 @@ export class EntryViewComponent {
 		products: new FormArray<EntryProductRow>([]),
 		productsSelected: new FormControl<EntryProduct[]>([]),
 		notes: new FormControl<string | null>(null),
-		images: new FormControl<File[]>([])
+		images: new FormControl<File[]>([]),
 	});
 
 	public entryId = toSignal<number>(
-		this._activatedRoute.params.pipe(map((params) => params['entryId']))
+		this._activatedRoute.params.pipe(map((params) => params['entryId'])),
 	);
 
 	public entryDate = toSignal(
 		this._activatedRoute.queryParams.pipe(
-			map((params) => params['date'] as string)
-		)
+			map((params) => params['date'] as string),
+		),
 	);
 
 	public shouldFetchEntry = signal<boolean>(false);
 	public entryData = linkedSignal<Entry | undefined>(() =>
-		this.entryResource.value()
+		this.entryResource.value(),
 	);
 	public isInEditMode = signal(false);
 	public isLoading = signal<boolean>(false);
 
 	public entryTime = computed(() =>
-		convertTimeStringToDate(this.entryData()?.time!)
+		convertTimeStringToDate(this.entryData()?.time!),
 	);
 
 	public currentDate = computed<Date | null>(() =>
-		this.entryDate() ? new Date(this.entryDate()!) : null
+		this.entryDate() ? new Date(this.entryDate()!) : null,
 	);
 
 	public allActivities = this._activitiesService.activities;
@@ -133,17 +133,17 @@ export class EntryViewComponent {
 	public activities = computed(() =>
 		this.entryData()?.activities.map((act) => ({
 			...act,
-			name: capitalize(act.name)
-		}))
+			name: capitalize(act.name),
+		})),
 	);
 
 	public entryResource = this._entryService.getEntryResource(
 		this.shouldFetchEntry,
-		this.entryId
+		this.entryId,
 	);
 
 	public entryImageUrls = computed(
-		() => this.entryData()?.images.map((img) => img.imageUrl) || []
+		() => this.entryData()?.images.map((img) => img.imageUrl) || [],
 	);
 
 	public downloadedFiles = signal<File[]>([]);
@@ -177,8 +177,8 @@ export class EntryViewComponent {
 		this._entryService.deleteEntry(this.entryId()!).subscribe(() => {
 			this._router.navigate(['entry-log'], {
 				queryParams: {
-					date: new Date(dateOfDeletedEntry!)
-				}
+					date: new Date(dateOfDeletedEntry!),
+				},
 			});
 
 			this._entryService.recentEntry.reload();
@@ -192,7 +192,7 @@ export class EntryViewComponent {
 		const existingFileNames = new Set(currentFiles.map((file) => file.name));
 
 		const newUniqueFiles = Array.from(e.files).filter(
-			(file) => !existingFileNames.has(file.name)
+			(file) => !existingFileNames.has(file.name),
 		);
 
 		const updatedFiles = [...currentFiles, ...newUniqueFiles];
@@ -204,7 +204,7 @@ export class EntryViewComponent {
 	public onRemoveFile(
 		file: File,
 		removeFileCallback: (file: File, index: number) => void,
-		index: number
+		index: number,
 	) {
 		const currentEntryImage = this.getCurrentEntryImage(file);
 
@@ -229,7 +229,7 @@ export class EntryViewComponent {
 				accept: () => {
 					this._entryService.deleteEntryImage(currentEntryImage.id).subscribe();
 					remove();
-				}
+				},
 			});
 		}
 
@@ -246,7 +246,7 @@ export class EntryViewComponent {
 				activities: this.entryData()?.activities,
 				lawnSegments: this.entryData()?.lawnSegments,
 				productsSelected: this.entryData()?.products,
-				notes: this.entryData()?.notes
+				notes: this.entryData()?.notes,
 			});
 
 			if (!this.editForm.controls.products.length) {
@@ -272,12 +272,12 @@ export class EntryViewComponent {
 				this.editForm?.value.products?.map((row) => ({
 					productId: row.product?.id!,
 					productQuantity: row.quantity!,
-					productQuantityUnit: row.quantityUnit!
+					productQuantityUnit: row.quantityUnit!,
 				})) || [],
 			notes: this.editForm.value.notes || '',
 			images: this.editForm.value.images?.filter(
-				(img) => !this.getCurrentEntryImage(img)
-			)
+				(img) => !this.getCurrentEntryImage(img),
+			),
 		};
 
 		this.isLoading.set(true);
@@ -292,7 +292,7 @@ export class EntryViewComponent {
 			error: () => {
 				this._throwErrorToast('Failed to update entry');
 				this.isLoading.set(false);
-			}
+			},
 		});
 	}
 
@@ -308,10 +308,10 @@ export class EntryViewComponent {
 	public soilTempChipDt: ChipDesignTokens = {
 		root: {
 			background: '{primary.200}',
-			color: '{primary.800}'
+			color: '{primary.800}',
 		},
 		icon: {
-			color: '{primary.800}'
-		}
+			color: '{primary.800}',
+		},
 	};
 }

@@ -16,26 +16,26 @@ export const lawnSeasonDatesAndTemperaturesReference = [
 	{
 		lat: 30,
 		spring: { month: 1, day: 28 },
-		fall: { month: 9, day: 25 }
+		fall: { month: 9, day: 25 },
 	},
 	{
 		lat: 35,
 		spring: { month: 1, day: 15 },
-		fall: { month: 9, day: 10 }
+		fall: { month: 9, day: 10 },
 	},
 	{
 		lat: 40,
 		spring: { month: 2, day: 10 },
-		fall: { month: 8, day: 15 }
+		fall: { month: 8, day: 15 },
 	},
 	{
 		lat: 45,
 		spring: { month: 2, day: 25 },
-		fall: { month: 7, day: 30 }
+		fall: { month: 7, day: 30 },
 	},
 	{
 		lat: 50,
 		spring: { month: 3, day: 10 },
-		fall: { month: 7, day: 15 }
-	}
+		fall: { month: 7, day: 15 },
+	},
 ];

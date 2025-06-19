@@ -9,7 +9,7 @@ import {
 	FormControl,
 	FormGroup,
 	ReactiveFormsModule,
-	Validators
+	Validators,
 } from '@angular/forms';
 import { showAllFormErrorsOnSubmit } from '../../../utils/formUtils';
 import { SelectModule } from 'primeng/select';
@@ -36,10 +36,10 @@ import { MAX_FILE_UPLOAD_SIZE } from '../../../constants/file-constants';
 		SelectModule,
 		ReactiveFormsModule,
 		CheckboxModule,
-		DatePickerModule
+		DatePickerModule,
 	],
 	templateUrl: './add-edit-equipment.component.html',
-	styleUrl: './add-edit-equipment.component.scss'
+	styleUrl: './add-edit-equipment.component.scss',
 })
 export class AddEditEquipmentComponent implements OnInit {
 	private _location = inject(Location);
@@ -65,10 +65,10 @@ export class AddEditEquipmentComponent implements OnInit {
 		purchaseDate: new FormControl<Date | null>(null),
 		purchasePrice: new FormControl<number | null>(null, [
 			Validators.min(0),
-			Validators.max(99999999)
+			Validators.max(99999999),
 		]),
 		fuelType: new FormControl(''),
-		image: new FormControl<File | null>(null)
+		image: new FormControl<File | null>(null),
 	});
 
 	public equipmentToEdit = this.equipmentId
@@ -86,7 +86,7 @@ export class AddEditEquipmentComponent implements OnInit {
 				purchaseDate: this.equipmentToEdit.purchaseDate
 					? new Date(this.equipmentToEdit.purchaseDate)
 					: null,
-				image: null // TODO
+				image: null, // TODO
 			});
 		}
 	}
@@ -125,9 +125,9 @@ export class AddEditEquipmentComponent implements OnInit {
 			error: () => {
 				this.isLoading.set(false);
 				this.throwErrorToast(
-					`Error ${this.equipmentId ? 'updating' : 'creating'} equipment. Please try again.`
+					`Error ${this.equipmentId ? 'updating' : 'creating'} equipment. Please try again.`,
 				);
-			}
+			},
 		});
 	}
 }

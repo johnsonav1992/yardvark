@@ -8,6 +8,6 @@ import { LawnSegmentsService } from './services/lawn-segments.service';
 	imports: [TypeOrmModule.forFeature([LawnSegment])],
 	exports: [TypeOrmModule],
 	controllers: [LawnSegmentsController],
-	providers: [LawnSegmentsService]
+	providers: [LawnSegmentsService],
 })
 export class LawnSegmentsModule {}

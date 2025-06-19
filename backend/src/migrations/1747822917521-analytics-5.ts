@@ -1,4 +1,4 @@
-import type { MigrationInterface, QueryRunner } from 'typeorm';
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class Analytics51747822917521 implements MigrationInterface {
 	public async up(queryRunner: QueryRunner): Promise<void> {
@@ -62,7 +62,7 @@ export class Analytics51747822917521 implements MigrationInterface {
 
 	public async down(queryRunner: QueryRunner): Promise<void> {
 		await queryRunner.query(
-			`DROP FUNCTION IF EXISTS get_user_analytics_v2(VARCHAR)`
+			`DROP FUNCTION IF EXISTS get_user_analytics_v2(VARCHAR)`,
 		);
 	}
 }

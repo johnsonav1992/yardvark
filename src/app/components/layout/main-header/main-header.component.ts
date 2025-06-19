@@ -19,10 +19,10 @@ import { YVUser } from '../../../types/user.types';
 		MenuModule,
 		SoilTemperatureDisplayComponent,
 		RouterLink,
-		ButtonModule
+		ButtonModule,
 	],
 	templateUrl: './main-header.component.html',
-	styleUrl: './main-header.component.scss'
+	styleUrl: './main-header.component.scss',
 })
 export class MainHeaderComponent {
 	private _authService = inject(AuthService);
@@ -34,7 +34,7 @@ export class MainHeaderComponent {
 	public user = injectUserData();
 
 	public isDefaultPicture = computed(() =>
-		this.user()?.picture?.includes('gravatar')
+		this.user()?.picture?.includes('gravatar'),
 	);
 
 	public userInitials = computed(() => getUserInitials(this.user() as YVUser));
@@ -43,12 +43,12 @@ export class MainHeaderComponent {
 		{
 			label: 'Profile',
 			icon: 'ti ti-user',
-			routerLink: '/profile'
+			routerLink: '/profile',
 		},
 		{
 			label: 'Settings',
 			icon: 'ti ti-settings',
-			routerLink: '/settings'
+			routerLink: '/settings',
 		},
 		{
 			label: 'Logout',
@@ -56,10 +56,10 @@ export class MainHeaderComponent {
 			command: () =>
 				this._authService.logout({
 					logoutParams: {
-						returnTo: environment.feAppUrl
-					}
-				})
-		}
+						returnTo: environment.feAppUrl,
+					},
+				}),
+		},
 	];
 
 	public toggleSideNav(): void {
@@ -69,7 +69,7 @@ export class MainHeaderComponent {
 	public avatarDt: AvatarDesignTokens = {
 		root: {
 			background: '{primary.400}',
-			fontSize: '.9rem'
-		}
+			fontSize: '.9rem',
+		},
 	};
 }

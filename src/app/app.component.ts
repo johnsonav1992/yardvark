@@ -21,10 +21,10 @@ import { ConfirmationService } from 'primeng/api';
 		MainSideNavComponent,
 		ToastModule,
 		LoadingSpinnerComponent,
-		ConfirmDialog
+		ConfirmDialog,
 	],
 	templateUrl: './app.component.html',
-	styleUrl: './app.component.scss'
+	styleUrl: './app.component.scss',
 })
 export class AppComponent {
 	private _auth = inject(AuthService);
@@ -52,7 +52,7 @@ export class AppComponent {
 						},
 						reject: () => {
 							console.log('User chose not to update.');
-						}
+						},
 					});
 				}
 			});
@@ -78,7 +78,7 @@ export class AppComponent {
 						}
 					}
 				});
-			}
+			},
 		});
 
 		environment.production &&
@@ -86,7 +86,7 @@ export class AppComponent {
 				if (user) {
 					LogRocket.identify(user.sub!, {
 						name: user.name!,
-						email: user.email!
+						email: user.email!,
 					});
 				}
 			});

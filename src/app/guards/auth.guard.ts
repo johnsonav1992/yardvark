@@ -13,7 +13,7 @@ export const authGuard: CanActivateFn = () => {
 				resolve(true);
 			} else {
 				authService.logout({
-					logoutParams: { returnTo: environment.feAppUrl }
+					logoutParams: { returnTo: environment.feAppUrl },
 				});
 				resolve(false);
 			}

@@ -7,7 +7,7 @@
 
 @let isEntryLoading = entryResource.isLoading();
 
-<page-container pageTitle="Journal Entry">
+<page-container pageTitle="Journal Entry" [useNormalBack]="true">
   <div [formGroup]="editForm">
     <p-card>
       <ng-template #title>

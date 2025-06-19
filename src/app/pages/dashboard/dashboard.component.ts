@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import { RecentEntryComponent } from '../../components/dashboard/recent-entry/recent-entry.component';
 import { EntriesService } from '../../services/entries.service';
@@ -15,6 +15,8 @@ import { LocationService } from '../../services/location.service';
 import { SettingsService } from '../../services/settings.service';
 import { QuickStatsComponent } from '../../components/dashboard/quick-stats/quick-stats.component';
 import { WeatherService } from '../../services/weather-service';
+import { ButtonModule } from 'primeng/button';
+import { EntrySearchSidebarComponent } from '../../components/entries/entry-search-sidebar/entry-search-sidebar.component';
 
 @Component({
   selector: 'dashboard',
@@ -24,7 +26,9 @@ import { WeatherService } from '../../services/weather-service';
     LoadingSpinnerComponent,
     MessageModule,
     SpeedDialModule,
-    QuickStatsComponent
+    QuickStatsComponent,
+    ButtonModule,
+    EntrySearchSidebarComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
@@ -38,6 +42,8 @@ export class DashboardComponent {
 
   public user = injectUserData();
   public isMobile = this._globalUiService.isMobile;
+
+  public isEntrySearchSidebarOpen = signal(false);
 
   public constructor() {
     inject(WeatherService);
@@ -75,4 +81,8 @@ export class DashboardComponent {
       }
     }
   ]);
+
+  public openEntrySearchSidebar(): void {
+    this.isEntrySearchSidebarOpen.set(true);
+  }
 }

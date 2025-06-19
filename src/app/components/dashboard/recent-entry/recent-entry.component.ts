@@ -8,31 +8,31 @@ import { Router } from '@angular/router';
 import { GlobalUiService } from '../../../services/global-ui.service';
 
 @Component({
-  selector: 'recent-entry',
-  imports: [
-    CardModule,
-    ProductSmallCardComponent,
-    DatePipe,
-    NgTemplateOutlet,
-    ButtonModule
-  ],
-  templateUrl: './recent-entry.component.html',
-  styleUrl: './recent-entry.component.scss'
+	selector: 'recent-entry',
+	imports: [
+		CardModule,
+		ProductSmallCardComponent,
+		DatePipe,
+		NgTemplateOutlet,
+		ButtonModule,
+	],
+	templateUrl: './recent-entry.component.html',
+	styleUrl: './recent-entry.component.scss',
 })
 export class RecentEntryComponent {
-  private _router = inject(Router);
-  private _entriesService = inject(EntriesService);
-  private _globalUiService = inject(GlobalUiService);
+	private _router = inject(Router);
+	private _entriesService = inject(EntriesService);
+	private _globalUiService = inject(GlobalUiService);
 
-  public isMobile = this._globalUiService.isMobile;
+	public isMobile = this._globalUiService.isMobile;
 
-  public recentEntry = this._entriesService.recentEntry;
+	public recentEntry = this._entriesService.recentEntry;
 
-  public goToEntry(): void {
-    this._router.navigate(['entry-log', this.recentEntry.value()?.id]);
-  }
+	public goToEntry(): void {
+		this._router.navigate(['entry-log', this.recentEntry.value()?.id]);
+	}
 
-  public navToEntryCreation(): void {
-    this._router.navigate(['entry-log'], { queryParams: { create: true } });
-  }
+	public navToEntryCreation(): void {
+		this._router.navigate(['entry-log'], { queryParams: { create: true } });
+	}
 }

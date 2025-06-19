@@ -17,32 +17,32 @@ import { debounceTime, filter, map } from 'rxjs/operators';
  * ```
  */
 @Directive({
-  selector: '[doubleTap]'
+	selector: '[doubleTap]',
 })
 export class DoubleTapDirective {
-  private _el = inject<ElementRef<HTMLElement>>(ElementRef<HTMLElement>);
+	private _el = inject<ElementRef<HTMLElement>>(ElementRef<HTMLElement>);
 
-  public tap$ = fromEvent(this._el.nativeElement, 'touchstart');
+	public tap$ = fromEvent(this._el.nativeElement, 'touchstart');
 
-  /**
-   * The interval in milliseconds to consider a double tap.
-   * Default is 250ms.
-   */
-  public interval = input(250);
+	/**
+	 * The interval in milliseconds to consider a double tap.
+	 * Default is 250ms.
+	 */
+	public interval = input(250);
 
-  /**
-   * A custom event that is emitted when a double tap is detected.
-   */
-  public onDoubleTap = output();
+	/**
+	 * A custom event that is emitted when a double tap is detected.
+	 */
+	public onDoubleTap = output();
 
-  constructor() {
-    this.tap$
-      .pipe(
-        takeUntilDestroyed(),
-        buffer(this.tap$.pipe(debounceTime(this.interval()))),
-        map((taps) => taps.length),
-        filter((numberOfTaps) => numberOfTaps === 2)
-      )
-      .subscribe({ next: () => this.onDoubleTap.emit() });
-  }
+	constructor() {
+		this.tap$
+			.pipe(
+				takeUntilDestroyed(),
+				buffer(this.tap$.pipe(debounceTime(this.interval()))),
+				map((taps) => taps.length),
+				filter((numberOfTaps) => numberOfTaps === 2),
+			)
+			.subscribe({ next: () => this.onDoubleTap.emit() });
+	}
 }

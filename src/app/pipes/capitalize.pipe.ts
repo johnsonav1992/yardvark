@@ -10,10 +10,10 @@ import { capitalize } from '../utils/stringUtils';
  * @implements {PipeTransform}
  */
 @Pipe({
-  name: 'capitalize'
+	name: 'capitalize',
 })
 export class CapitalizePipe implements PipeTransform {
-  transform(value: string | null | undefined): unknown {
-    return value && capitalize(value);
-  }
+	transform(value: string | null | undefined): unknown {
+		return value && capitalize(value);
+	}
 }

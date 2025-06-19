@@ -3,12 +3,15 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
 
 @Entity('activities')
 export class Activity {
-  @PrimaryGeneratedColumn()
-  id: number;
+	@PrimaryGeneratedColumn()
+	id: number;
 
-  @Column()
-  name: string;
+	@Column()
+	name: string;
 
-  @ManyToMany(() => Entry, (entry) => entry.activities)
-  entries: Entry[];
+	@ManyToMany(
+		() => Entry,
+		(entry) => entry.activities,
+	)
+	entries: Entry[];
 }

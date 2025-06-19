@@ -9,19 +9,19 @@ import { HOURS_IN_A_DAY } from './timeUtils';
  * @returns The color to display for the given soil temperature.
  */
 export const getSoilTemperatureDisplayColor = (soilTemp: number) => {
-  const temperatureColorMap: { [key: number]: PrimeNGColorToken } = {
-    25: 'indigo.400',
-    40: 'blue.500',
-    45: 'green.600',
-    50: 'amber.200',
-    70: 'amber.400'
-  };
+	const temperatureColorMap: { [key: number]: PrimeNGColorToken } = {
+		25: 'indigo.400',
+		40: 'blue.500',
+		45: 'green.600',
+		50: 'amber.200',
+		70: 'amber.400',
+	};
 
-  for (const [temp, color] of Object.entries(temperatureColorMap)) {
-    if (soilTemp < Number(temp)) return getPrimeNgHexColor(color);
-  }
+	for (const [temp, color] of Object.entries(temperatureColorMap)) {
+		if (soilTemp < Number(temp)) return getPrimeNgHexColor(color);
+	}
 
-  return getPrimeNgHexColor('red.400');
+	return getPrimeNgHexColor('red.400');
 };
 
 /**
@@ -32,16 +32,16 @@ export const getSoilTemperatureDisplayColor = (soilTemp: number) => {
  * @returns The average value, rounded to the specified decimal places.
  */
 export const calculate24HourNumericAverage = (
-  numericData: number[],
-  options?: { precision?: number }
+	numericData: number[],
+	options?: { precision?: number },
 ) => {
-  const total = numericData.reduce((sum, temp) => sum + temp, 0);
-  const precision = options?.precision ?? 1;
+	const total = numericData.reduce((sum, temp) => sum + temp, 0);
+	const precision = options?.precision ?? 1;
 
-  return (
-    Math.round((total / numericData.length) * Math.pow(10, precision)) /
-    Math.pow(10, precision)
-  );
+	return (
+		Math.round((total / numericData.length) * Math.pow(10, precision)) /
+		Math.pow(10, precision)
+	);
 };
 
 /**
@@ -54,17 +54,17 @@ export const calculate24HourNumericAverage = (
  * @returns An array of daily average values, rounded to the specified decimal places.
  */
 export const getAllDailyNumericDataAverages = (
-  hourlyNumericData: number[],
-  options?: { precision?: number; multiplicationFactor?: number }
+	hourlyNumericData: number[],
+	options?: { precision?: number; multiplicationFactor?: number },
 ): number[] => {
-  let dailyAverages: number[] = [];
+	let dailyAverages: number[] = [];
 
-  for (let i = 0; i < hourlyNumericData.length; i += HOURS_IN_A_DAY) {
-    const dailyData = hourlyNumericData.slice(i, i + HOURS_IN_A_DAY);
-    const dailyAverage = calculate24HourNumericAverage(dailyData, options);
+	for (let i = 0; i < hourlyNumericData.length; i += HOURS_IN_A_DAY) {
+		const dailyData = hourlyNumericData.slice(i, i + HOURS_IN_A_DAY);
+		const dailyAverage = calculate24HourNumericAverage(dailyData, options);
 
-    dailyAverages.push(dailyAverage * (options?.multiplicationFactor || 1));
-  }
+		dailyAverages.push(dailyAverage * (options?.multiplicationFactor || 1));
+	}
 
-  return dailyAverages;
+	return dailyAverages;
 };

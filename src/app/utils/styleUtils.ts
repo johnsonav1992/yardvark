@@ -12,9 +12,9 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
  * @returns The hex color value of the PrimeNG color token.
  */
 export const getPrimeNgHexColor = (tokenName: PrimeNGColorToken): string => {
-  const token = $dt(tokenName);
+	const token = $dt(tokenName);
 
-  return token.value;
+	return token.value;
 };
 
 /**
@@ -28,12 +28,12 @@ export const getPrimeNgHexColor = (tokenName: PrimeNGColorToken): string => {
  * const isSmallScreen = injectBreakpointObserver('(max-width: 600px)');
  */
 export const injectBreakpointObserver = (query: string) => {
-  const breakpointObserver = inject(BreakpointObserver);
+	const breakpointObserver = inject(BreakpointObserver);
 
-  return toSignal(
-    breakpointObserver.observe(query).pipe(map((res) => res.matches)),
-    { initialValue: breakpointObserver.isMatched(query) }
-  );
+	return toSignal(
+		breakpointObserver.observe(query).pipe(map((res) => res.matches)),
+		{ initialValue: breakpointObserver.isMatched(query) },
+	);
 };
 
 /**
@@ -43,12 +43,12 @@ export const injectBreakpointObserver = (query: string) => {
  * @returns A signal of the current window inner width.
  */
 export const injectScreenWidthObserver = () => {
-  return toSignal(
-    fromEvent(window, 'resize').pipe(
-      takeUntilDestroyed(),
-      map(() => window.innerWidth),
-      startWith(window.innerWidth)
-    ),
-    { initialValue: window.innerWidth }
-  );
+	return toSignal(
+		fromEvent(window, 'resize').pipe(
+			takeUntilDestroyed(),
+			map(() => window.innerWidth),
+			startWith(window.innerWidth),
+		),
+		{ initialValue: window.innerWidth },
+	);
 };

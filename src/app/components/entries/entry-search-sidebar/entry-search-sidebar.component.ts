@@ -25,89 +25,89 @@ import { format } from 'date-fns';
 import { Entry } from '../../../types/entries.types';
 
 @Component({
-  selector: 'entry-search-sidebar',
-  imports: [
-    IconFieldModule,
-    InputIconModule,
-    InputTextModule,
-    DrawerModule,
-    DividerModule,
-    MultiSelectModule,
-    FloatLabelModule,
-    DatePickerModule,
-    ButtonModule,
-    ReactiveFormsModule,
-    TooltipModule,
-    LoadingSpinnerComponent,
-    MobileEntryPreviewCardComponent
-  ],
-  templateUrl: './entry-search-sidebar.component.html',
-  styleUrl: './entry-search-sidebar.component.scss'
+	selector: 'entry-search-sidebar',
+	imports: [
+		IconFieldModule,
+		InputIconModule,
+		InputTextModule,
+		DrawerModule,
+		DividerModule,
+		MultiSelectModule,
+		FloatLabelModule,
+		DatePickerModule,
+		ButtonModule,
+		ReactiveFormsModule,
+		TooltipModule,
+		LoadingSpinnerComponent,
+		MobileEntryPreviewCardComponent,
+	],
+	templateUrl: './entry-search-sidebar.component.html',
+	styleUrl: './entry-search-sidebar.component.scss',
 })
 export class EntrySearchSidebarComponent {
-  private _activitiesService = inject(ActivitiesService);
-  private _lawnSegmentsService = inject(LawnSegmentsService);
-  private _productsService = inject(ProductsService);
-  private _globalUiService = inject(GlobalUiService);
-  private _entriesService = inject(EntriesService);
+	private _activitiesService = inject(ActivitiesService);
+	private _lawnSegmentsService = inject(LawnSegmentsService);
+	private _productsService = inject(ProductsService);
+	private _globalUiService = inject(GlobalUiService);
+	private _entriesService = inject(EntriesService);
 
-  public activities = this._activitiesService.activities;
-  public lawnSegments = this._lawnSegmentsService.lawnSegments;
-  public products = this._productsService.products;
+	public activities = this._activitiesService.activities;
+	public lawnSegments = this._lawnSegmentsService.lawnSegments;
+	public products = this._productsService.products;
 
-  public isMobile = this._globalUiService.isMobile;
+	public isMobile = this._globalUiService.isMobile;
 
-  public isOpen = model(false);
+	public isOpen = model(false);
 
-  public isLoading = signal(false);
-  public results = signal<Entry[] | null>(null);
+	public isLoading = signal(false);
+	public results = signal<Entry[] | null>(null);
 
-  public displayedEntries = computed(() => {
-    return this.results()?.map((entry) => {
-      const time = entry.time
-        ? (convertTimeStringToDate(entry.time) as Date)
-        : '';
+	public displayedEntries = computed(() => {
+		return this.results()?.map((entry) => {
+			const time = entry.time
+				? (convertTimeStringToDate(entry.time) as Date)
+				: '';
 
-      return {
-        ...entry,
-        time: time ? format(time, 'hh:mm a') : ''
-      };
-    });
-  });
+			return {
+				...entry,
+				time: time ? format(time, 'hh:mm a') : '',
+			};
+		});
+	});
 
-  public form = new FormGroup({
-    titleOrNotes: new FormControl(''),
-    dates: new FormControl<Date[]>([]),
-    activities: new FormControl<Activity['id'][]>([]),
-    lawnSegments: new FormControl<LawnSegment['id'][]>([]),
-    products: new FormControl<Product['id'][]>([])
-  });
+	public form = new FormGroup({
+		titleOrNotes: new FormControl(''),
+		dates: new FormControl<Date[]>([]),
+		activities: new FormControl<Activity['id'][]>([]),
+		lawnSegments: new FormControl<LawnSegment['id'][]>([]),
+		products: new FormControl<Product['id'][]>([]),
+	});
 
-  public onCloseSidebar(): void {
-    this.form.reset();
-    this.results.set(null);
-  }
+	public onCloseSidebar(): void {
+		this.form.reset();
+		this.results.set(null);
+	}
 
-  public submit(): void {
-    this.isLoading.set(true);
+	public submit(): void {
+		this.isLoading.set(true);
 
-    this._entriesService
-      .searchEntries({
-        titleOrNotes: this.form.value.titleOrNotes!,
-        dateRange: this.form.value.dates?.map((date) => date.toISOString())!,
-        activities: this.form.value.activities!,
-        lawnSegments: this.form.value.lawnSegments!,
-        products: this.form.value.products!
-      })
-      .subscribe({
-        next: (entries) => {
-          this.isLoading.set(false);
-          this.results.set(entries);
-        },
-        error: () => {
-          console.error('Error searching entries');
-          this.isLoading.set(false);
-        }
-      });
-  }
+		this._entriesService
+			.searchEntries({
+				titleOrNotes: this.form.value.titleOrNotes!,
+				dateRange: this.form.value.dates?.map((date) => date.toISOString())!,
+				activities: this.form.value.activities!,
+				lawnSegments: this.form.value.lawnSegments!,
+				products: this.form.value.products!,
+			})
+			.subscribe({
+				next: (entries) => {
+					this.isLoading.set(false);
+					this.results.set(entries);
+				},
+				error: () => {
+					console.error('Error searching entries');
+					this.isLoading.set(false);
+				},
+			});
+	}
 }

@@ -13,46 +13,46 @@ import { NO_IMAGE_URL } from '../../../constants/style-constants';
 import { ButtonModule } from 'primeng/button';
 
 @Component({
-  selector: 'product-view',
-  imports: [
-    PageContainerComponent,
-    TitleCasePipe,
-    DividerModule,
-    LoadingSpinnerComponent,
-    TitleCasePipe,
-    ButtonModule
-  ],
-  templateUrl: './product-view.component.html',
-  styleUrl: './product-view.component.scss'
+	selector: 'product-view',
+	imports: [
+		PageContainerComponent,
+		TitleCasePipe,
+		DividerModule,
+		LoadingSpinnerComponent,
+		TitleCasePipe,
+		ButtonModule,
+	],
+	templateUrl: './product-view.component.html',
+	styleUrl: './product-view.component.scss',
 })
 export class ProductViewComponent {
-  private _route = inject(ActivatedRoute);
-  private _productsService = inject(ProductsService);
-  private _globalUiService = inject(GlobalUiService);
+	private _route = inject(ActivatedRoute);
+	private _productsService = inject(ProductsService);
+	private _globalUiService = inject(GlobalUiService);
 
-  public noImageUrl = NO_IMAGE_URL;
+	public noImageUrl = NO_IMAGE_URL;
 
-  public isMobile = this._globalUiService.isMobile;
+	public isMobile = this._globalUiService.isMobile;
 
-  public productId = toSignal(
-    this._route.params.pipe(map((params) => parseInt(params['productId'])))
-  );
+	public productId = toSignal(
+		this._route.params.pipe(map((params) => parseInt(params['productId']))),
+	);
 
-  public isLoading = computed(() => this._productsService.products.isLoading());
+	public isLoading = computed(() => this._productsService.products.isLoading());
 
-  public product = computed(() =>
-    this._productsService.products
-      .value()
-      ?.find((product) => product.id === this.productId())
-  );
+	public product = computed(() =>
+		this._productsService.products
+			.value()
+			?.find((product) => product.id === this.productId()),
+	);
 
-  public viewLabel(): void {
-    window.open(this.product()?.labelUrl, '_blank');
-  }
+	public viewLabel(): void {
+		window.open(this.product()?.labelUrl, '_blank');
+	}
 
-  public dividerDt: DividerDesignTokens = {
-    horizontal: {
-      margin: '0'
-    }
-  };
+	public dividerDt: DividerDesignTokens = {
+		horizontal: {
+			margin: '0',
+		},
+	};
 }

@@ -9,8 +9,8 @@ import { UserHiddenProduct } from './models/userHiddenProducts.model';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product, UserHiddenProduct]), HttpModule],
-  controllers: [ProductsController],
-  providers: [ProductsService, S3Service, ConfigService],
+	imports: [TypeOrmModule.forFeature([Product, UserHiddenProduct]), HttpModule],
+	controllers: [ProductsController],
+	providers: [ProductsService, S3Service, ConfigService],
 })
 export class ProductsModule {}

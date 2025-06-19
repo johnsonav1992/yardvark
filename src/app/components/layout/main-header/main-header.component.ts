@@ -13,63 +13,63 @@ import { environment } from '../../../../environments/environment';
 import { YVUser } from '../../../types/user.types';
 
 @Component({
-  selector: 'main-header',
-  imports: [
-    AvatarModule,
-    MenuModule,
-    SoilTemperatureDisplayComponent,
-    RouterLink,
-    ButtonModule
-  ],
-  templateUrl: './main-header.component.html',
-  styleUrl: './main-header.component.scss'
+	selector: 'main-header',
+	imports: [
+		AvatarModule,
+		MenuModule,
+		SoilTemperatureDisplayComponent,
+		RouterLink,
+		ButtonModule,
+	],
+	templateUrl: './main-header.component.html',
+	styleUrl: './main-header.component.scss',
 })
 export class MainHeaderComponent {
-  private _authService = inject(AuthService);
-  private _globalUiService = inject(GlobalUiService);
+	private _authService = inject(AuthService);
+	private _globalUiService = inject(GlobalUiService);
 
-  public isMobile = this._globalUiService.isMobile;
-  public isDarkMode = this._globalUiService.isDarkMode;
+	public isMobile = this._globalUiService.isMobile;
+	public isDarkMode = this._globalUiService.isDarkMode;
 
-  public user = injectUserData();
+	public user = injectUserData();
 
-  public isDefaultPicture = computed(() =>
-    this.user()?.picture?.includes('gravatar')
-  );
+	public isDefaultPicture = computed(() =>
+		this.user()?.picture?.includes('gravatar'),
+	);
 
-  public userInitials = computed(() => getUserInitials(this.user() as YVUser));
+	public userInitials = computed(() => getUserInitials(this.user() as YVUser));
 
-  public menuItems: MenuItem[] = [
-    {
-      label: 'Profile',
-      icon: 'ti ti-user',
-      routerLink: '/profile'
-    },
-    {
-      label: 'Settings',
-      icon: 'ti ti-settings',
-      routerLink: '/settings'
-    },
-    {
-      label: 'Logout',
-      icon: 'ti ti-logout',
-      command: () =>
-        this._authService.logout({
-          logoutParams: {
-            returnTo: environment.feAppUrl
-          }
-        })
-    }
-  ];
+	public menuItems: MenuItem[] = [
+		{
+			label: 'Profile',
+			icon: 'ti ti-user',
+			routerLink: '/profile',
+		},
+		{
+			label: 'Settings',
+			icon: 'ti ti-settings',
+			routerLink: '/settings',
+		},
+		{
+			label: 'Logout',
+			icon: 'ti ti-logout',
+			command: () =>
+				this._authService.logout({
+					logoutParams: {
+						returnTo: environment.feAppUrl,
+					},
+				}),
+		},
+	];
 
-  public toggleSideNav(): void {
-    this._globalUiService.isMobileSidebarOpen.update((isOpen) => !isOpen);
-  }
+	public toggleSideNav(): void {
+		this._globalUiService.isMobileSidebarOpen.update((isOpen) => !isOpen);
+	}
 
-  public avatarDt: AvatarDesignTokens = {
-    root: {
-      background: '{primary.400}',
-      fontSize: '.9rem'
-    }
-  };
+	public avatarDt: AvatarDesignTokens = {
+		root: {
+			background: '{primary.400}',
+			fontSize: '.9rem',
+		},
+	};
 }

@@ -1,8 +1,8 @@
 import {
-  ApplicationConfig,
-  provideAppInitializer,
-  provideZonelessChangeDetection,
-  isDevMode
+	ApplicationConfig,
+	provideAppInitializer,
+	provideZonelessChangeDetection,
+	isDevMode,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
 
@@ -19,48 +19,48 @@ import { environment } from '../environments/environment';
 import { provideServiceWorker } from '@angular/service-worker';
 
 export const appConfig: ApplicationConfig = {
-  providers: [
-    provideZonelessChangeDetection(),
-    provideRouter(mainRoutes),
-    provideHttpClient(withInterceptors([authHttpInterceptorFn])),
-    provideAnimationsAsync(),
-    providePrimeNG({
-      theme: {
-        preset: theme,
-        options: {
-          darkModeSelector: `.${YV_DARK_MODE_SELECTOR}`
-        }
-      },
-      ripple: true
-    }),
-    provideAuth0({
-      domain: environment.auth0Domain,
-      clientId: environment.auth0ClientId,
-      authorizationParams: {
-        redirect_uri: window.location.origin,
-        audience: `https://${environment.auth0Domain}/api/v2/`
-      },
-      cacheLocation: 'localstorage',
-      useRefreshTokens: true,
-      httpInterceptor: {
-        allowedList: [
-          {
-            uri: environment.apiUrl + '/*',
-            tokenOptions: {
-              authorizationParams: {
-                audience: `https://${environment.auth0Domain}/api/v2/`
-              }
-            }
-          }
-        ]
-      }
-    }),
-    provideAppInitializer(() => initHttpUtils()),
-    MessageService,
-    ConfirmationService,
-    provideServiceWorker('ngsw-worker.js', {
-      enabled: !isDevMode(),
-      registrationStrategy: 'registerWhenStable:30000'
-    })
-  ]
+	providers: [
+		provideZonelessChangeDetection(),
+		provideRouter(mainRoutes),
+		provideHttpClient(withInterceptors([authHttpInterceptorFn])),
+		provideAnimationsAsync(),
+		providePrimeNG({
+			theme: {
+				preset: theme,
+				options: {
+					darkModeSelector: `.${YV_DARK_MODE_SELECTOR}`,
+				},
+			},
+			ripple: true,
+		}),
+		provideAuth0({
+			domain: environment.auth0Domain,
+			clientId: environment.auth0ClientId,
+			authorizationParams: {
+				redirect_uri: window.location.origin,
+				audience: `https://${environment.auth0Domain}/api/v2/`,
+			},
+			cacheLocation: 'localstorage',
+			useRefreshTokens: true,
+			httpInterceptor: {
+				allowedList: [
+					{
+						uri: environment.apiUrl + '/*',
+						tokenOptions: {
+							authorizationParams: {
+								audience: `https://${environment.auth0Domain}/api/v2/`,
+							},
+						},
+					},
+				],
+			},
+		}),
+		provideAppInitializer(() => initHttpUtils()),
+		MessageService,
+		ConfirmationService,
+		provideServiceWorker('ngsw-worker.js', {
+			enabled: !isDevMode(),
+			registrationStrategy: 'registerWhenStable:30000',
+		}),
+	],
 };

@@ -1,11 +1,11 @@
 import {
-  Component,
-  contentChild,
-  effect,
-  ElementRef,
-  inject,
-  input,
-  TemplateRef
+	Component,
+	contentChild,
+	effect,
+	ElementRef,
+	inject,
+	input,
+	TemplateRef,
 } from '@angular/core';
 import { Product } from '../../../types/products.types';
 import { NgTemplateOutlet } from '@angular/common';
@@ -13,27 +13,27 @@ import { CapitalizePipe } from '../../../pipes/capitalize.pipe';
 import { NO_IMAGE_URL } from '../../../constants/style-constants';
 
 @Component({
-  selector: 'product-small-card',
-  imports: [NgTemplateOutlet, CapitalizePipe],
-  templateUrl: './product-small-card.component.html',
-  styleUrl: './product-small-card.component.scss'
+	selector: 'product-small-card',
+	imports: [NgTemplateOutlet, CapitalizePipe],
+	templateUrl: './product-small-card.component.html',
+	styleUrl: './product-small-card.component.scss',
 })
 export class ProductSmallCardComponent {
-  private _el = inject(ElementRef);
+	private _el = inject(ElementRef);
 
-  public noImageUrl = NO_IMAGE_URL;
+	public noImageUrl = NO_IMAGE_URL;
 
-  public product = input.required<Partial<Product>>();
-  public width = input<string | number>('100%');
-  public showBorder = input<boolean>(true);
-  public hideSubtitle = input<boolean>(false);
-  public asAppliedAmount = input<boolean>(false);
+	public product = input.required<Partial<Product>>();
+	public width = input<string | number>('100%');
+	public showBorder = input<boolean>(true);
+	public hideSubtitle = input<boolean>(false);
+	public asAppliedAmount = input<boolean>(false);
 
-  public actions = contentChild<TemplateRef<unknown>>('actions');
+	public actions = contentChild<TemplateRef<unknown>>('actions');
 
-  public widthSetter = effect(() => {
-    if (this.width()) {
-      this._el.nativeElement.style.width = this.width();
-    }
-  });
+	public widthSetter = effect(() => {
+		if (this.width()) {
+			this._el.nativeElement.style.width = this.width();
+		}
+	});
 }

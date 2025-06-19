@@ -1,27 +1,27 @@
 export type ApiEndpointRoutes =
-  | SettingsRoutes
-  | EntriesRoutes
-  | ActivitiesRoutes
-  | LawnSegmentsRoutes
-  | ProductsRoutes
-  | UsersRoutes
-  | EquipmentRoutes
-  | AnalyticsRoutes
-  | FileRoutes
-  | WeatherRoutes;
+	| SettingsRoutes
+	| EntriesRoutes
+	| ActivitiesRoutes
+	| LawnSegmentsRoutes
+	| ProductsRoutes
+	| UsersRoutes
+	| EquipmentRoutes
+	| AnalyticsRoutes
+	| FileRoutes
+	| WeatherRoutes;
 
 type SettingsRoutes = 'settings';
 
 type EntriesRoutes =
-  | 'entries'
-  | 'entries/single'
-  | 'entries/single/by-date'
-  | 'entries/single/most-recent'
-  | 'entries/recover'
-  | 'entries/search'
-  | 'entries/last-mow'
-  | 'entries/last-product-app'
-  | 'entries/entry-image';
+	| 'entries'
+	| 'entries/single'
+	| 'entries/single/by-date'
+	| 'entries/single/most-recent'
+	| 'entries/recover'
+	| 'entries/search'
+	| 'entries/last-mow'
+	| 'entries/last-product-app'
+	| 'entries/entry-image';
 
 type ActivitiesRoutes = 'activities';
 
@@ -32,11 +32,11 @@ type ProductsRoutes = 'products' | 'products/hide' | 'products/unhide';
 type UsersRoutes = 'users';
 
 type EquipmentRoutes =
-  | 'equipment'
-  | `equipment/${number}`
-  | `equipment/${number}/maintenance`
-  | 'equipment/maintenance'
-  | `equipment/maintenance/${number}`;
+	| 'equipment'
+	| `equipment/${number}`
+	| `equipment/${number}/maintenance`
+	| 'equipment/maintenance'
+	| `equipment/maintenance/${number}`;
 
 type AnalyticsRoutes = 'analytics';
 

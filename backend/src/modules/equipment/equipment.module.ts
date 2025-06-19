@@ -9,11 +9,11 @@ import { ConfigService } from '@nestjs/config';
 import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Equipment, EquipmentMaintenance]),
-    HttpModule,
-  ],
-  controllers: [EquipmentController],
-  providers: [EquipmentService, S3Service, ConfigService],
+	imports: [
+		TypeOrmModule.forFeature([Equipment, EquipmentMaintenance]),
+		HttpModule,
+	],
+	controllers: [EquipmentController],
+	providers: [EquipmentService, S3Service, ConfigService],
 })
 export class EquipmentModule {}

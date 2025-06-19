@@ -7,11 +7,11 @@ export const HIGH_TEMPERATURE_F = 80;
 export const HOT_TEMPERATURE_F = 90;
 
 export const WEATHER_ICONS = {
-  snowflake: 'ti ti-snowflake',
-  rain: 'ti ti-cloud-rain',
-  heavyRain: 'ti ti-cloud-storm',
-  cloud: 'ti ti-cloud',
-  sun: 'ti ti-sun',
-  sunnier: 'ti ti-sun-high',
-  hot: 'ti ti-temperature-sun'
+	snowflake: 'ti ti-snowflake',
+	rain: 'ti ti-cloud-rain',
+	heavyRain: 'ti ti-cloud-storm',
+	cloud: 'ti ti-cloud',
+	sun: 'ti ti-sun',
+	sunnier: 'ti ti-sun-high',
+	hot: 'ti ti-temperature-sun',
 } as const;

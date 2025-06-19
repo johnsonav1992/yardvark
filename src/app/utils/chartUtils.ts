@@ -1,9 +1,9 @@
 import { ScriptableScaleContext } from 'chart.js';
 import {
-  DARK_MODE_CHART_GRID_COLOR,
-  DARK_MODE_CHART_GRID_COLOR_HIGHLIGHT,
-  LIGHT_MODE_CHART_GRID_COLOR,
-  LIGHT_MODE_CHART_GRID_COLOR_HIGHLIGHT
+	DARK_MODE_CHART_GRID_COLOR,
+	DARK_MODE_CHART_GRID_COLOR_HIGHLIGHT,
+	LIGHT_MODE_CHART_GRID_COLOR,
+	LIGHT_MODE_CHART_GRID_COLOR_HIGHLIGHT,
 } from '../constants/chart-constants';
 
 /**
@@ -15,18 +15,18 @@ import {
  * @returns The color value for the chart grid line
  */
 export const getChartGridLineColors = (
-  context: ScriptableScaleContext,
-  currentMode: 'light' | 'dark'
+	context: ScriptableScaleContext,
+	currentMode: 'light' | 'dark',
 ) => {
-  const isMiddleOfTheWeek = context.index === 3;
+	const isMiddleOfTheWeek = context.index === 3;
 
-  if (isMiddleOfTheWeek) {
-    return currentMode === 'dark'
-      ? DARK_MODE_CHART_GRID_COLOR_HIGHLIGHT
-      : LIGHT_MODE_CHART_GRID_COLOR_HIGHLIGHT;
-  }
+	if (isMiddleOfTheWeek) {
+		return currentMode === 'dark'
+			? DARK_MODE_CHART_GRID_COLOR_HIGHLIGHT
+			: LIGHT_MODE_CHART_GRID_COLOR_HIGHLIGHT;
+	}
 
-  return currentMode === 'dark'
-    ? DARK_MODE_CHART_GRID_COLOR
-    : LIGHT_MODE_CHART_GRID_COLOR;
+	return currentMode === 'dark'
+		? DARK_MODE_CHART_GRID_COLOR
+		: LIGHT_MODE_CHART_GRID_COLOR;
 };

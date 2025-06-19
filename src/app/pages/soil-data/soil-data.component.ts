@@ -10,62 +10,62 @@ import { Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 
 @Component({
-  selector: 'soil-data',
-  imports: [
-    SoilTempWeekGraphComponent,
-    SoilMoistureWeekGraphComponent,
-    PageContainerComponent,
-    ButtonModule,
-    CardModule
-  ],
-  templateUrl: './soil-data.component.html',
-  styleUrl: './soil-data.component.scss'
+	selector: 'soil-data',
+	imports: [
+		SoilTempWeekGraphComponent,
+		SoilMoistureWeekGraphComponent,
+		PageContainerComponent,
+		ButtonModule,
+		CardModule,
+	],
+	templateUrl: './soil-data.component.html',
+	styleUrl: './soil-data.component.scss',
 })
 export class SoilDataComponent {
-  private _soilTemperatureService = inject(SoilTemperatureService);
-  private _locationService = inject(LocationService);
-  private _router = inject(Router);
+	private _soilTemperatureService = inject(SoilTemperatureService);
+	private _locationService = inject(LocationService);
+	private _router = inject(Router);
 
-  public userHasALocation = computed(
-    () => !!this._locationService.userLatLong()
-  );
+	public userHasALocation = computed(
+		() => !!this._locationService.userLatLong(),
+	);
 
-  public dailyAverageShallowTemps = computed(() => {
-    const rawTempData =
-      this._soilTemperatureService.rollingWeekDailyAverageSoilData.value()
-        ?.hourly.soil_temperature_6cm;
+	public dailyAverageShallowTemps = computed(() => {
+		const rawTempData =
+			this._soilTemperatureService.rollingWeekDailyAverageSoilData.value()
+				?.hourly.soil_temperature_6cm;
 
-    return getAllDailyNumericDataAverages(rawTempData || []);
-  });
+		return getAllDailyNumericDataAverages(rawTempData || []);
+	});
 
-  public dailyAverageDeepTemps = computed(() => {
-    const rawTempData =
-      this._soilTemperatureService.rollingWeekDailyAverageSoilData.value()
-        ?.hourly.soil_temperature_18cm;
+	public dailyAverageDeepTemps = computed(() => {
+		const rawTempData =
+			this._soilTemperatureService.rollingWeekDailyAverageSoilData.value()
+				?.hourly.soil_temperature_18cm;
 
-    return getAllDailyNumericDataAverages(rawTempData || []);
-  });
+		return getAllDailyNumericDataAverages(rawTempData || []);
+	});
 
-  public dailyMoistureData = computed(() => {
-    const rawMoistureData =
-      this._soilTemperatureService.rollingWeekDailyAverageSoilData.value()
-        ?.hourly.soil_moisture_3_to_9cm;
+	public dailyMoistureData = computed(() => {
+		const rawMoistureData =
+			this._soilTemperatureService.rollingWeekDailyAverageSoilData.value()
+				?.hourly.soil_moisture_3_to_9cm;
 
-    return getAllDailyNumericDataAverages(rawMoistureData || [], {
-      precision: 2,
-      multiplicationFactor: 100
-    });
-  });
+		return getAllDailyNumericDataAverages(rawMoistureData || [], {
+			precision: 2,
+			multiplicationFactor: 100,
+		});
+	});
 
-  public isLoadingAveragesChartData = computed(() =>
-    this._soilTemperatureService.rollingWeekDailyAverageSoilData.isLoading()
-  );
+	public isLoadingAveragesChartData = computed(() =>
+		this._soilTemperatureService.rollingWeekDailyAverageSoilData.isLoading(),
+	);
 
-  public tempUnit = computed(
-    () => this._soilTemperatureService.temperatureUnit()!
-  );
+	public tempUnit = computed(
+		() => this._soilTemperatureService.temperatureUnit()!,
+	);
 
-  public goToSettings(): void {
-    this._router.navigate(['settings']);
-  }
+	public goToSettings(): void {
+		this._router.navigate(['settings']);
+	}
 }

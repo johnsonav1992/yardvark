@@ -1,17 +1,15 @@
 export type Auth0TokenPayload = {
-  given_name: string;
-  family_name: string;
-  nickname: string;
-  name: string;
-  picture: string;
-  updated_at: string;
-  email: string;
-  email_verified: boolean;
+  'https://yardvark.netlify.app/roles': string[];
+  'https://yardvark.netlify.app/signup-date': string;
+  'https://yardvark.netlify.app/email': string;
+  'https://yardvark.netlify.app/first-name': string;
+  'https://yardvark.netlify.app/last-name': string;
+  'https://yardvark.netlify.app/name': string;
   iss: string;
-  aud: string;
   sub: string;
+  aud: string[];
   iat: number;
   exp: number;
-  sid: string;
-  nonce: string;
+  scope: string;
+  azp: string;
 };

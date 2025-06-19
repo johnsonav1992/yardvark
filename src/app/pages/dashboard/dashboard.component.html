@@ -1,4 +1,14 @@
 <page-container pageTitle="Dashboard" [hideBackButton]="true">
+  <ng-template #action1>
+    <p-button
+      icon="ti ti-search"
+      [text]="isMobile()"
+      size="large"
+      severity="secondary"
+      (onClick)="openEntrySearchSidebar()"
+      [label]="isMobile() ? '' : 'Search for entries'"
+    />
+  </ng-template>
   @if (recentEntry.isLoading()) {
     <loading-spinner />
   } @else {
@@ -19,6 +29,7 @@
     <div class="cards-container">
       <recent-entry />
       <quick-stats />
+      <weather-card />
     </div>
     @if (isMobile()) {
       <p-speeddial
@@ -29,3 +40,5 @@
     }
   }
 </page-container>
+
+<entry-search-sidebar [(isOpen)]="isEntrySearchSidebarOpen" />

@@ -113,19 +113,38 @@ export const getFertilizerTimelineChartConfig = (
       }
     : undefined;
 
-  const data = (analyticsData?.fertilizerTimelineData || []).map((app) => {
-    const isItLiquid =
-      app.productQuantityUnit === 'oz' || app.productQuantityUnit === 'fl oz';
+  const groupedByDate = (analyticsData?.fertilizerTimelineData || []).reduce(
+    (finalData, app) => {
+      const isItLiquid =
+        app.productQuantityUnit === 'oz' || app.productQuantityUnit === 'fl oz';
 
-    const productWeight = isItLiquid
-      ? app.productQuantity * LIQUID_OZ_AS_WEIGHT_IN_POUNDS
-      : app.productQuantity;
+      const productWeight = isItLiquid
+        ? app.productQuantity * LIQUID_OZ_AS_WEIGHT_IN_POUNDS
+        : app.productQuantity;
 
-    return getPoundsOfNInFertilizerApp({
-      poundsOfProduct: productWeight,
-      guaranteedAnalysisOfProduct: app.guaranteedAnalysis,
-      totalSquareFeet: app.totalSquareFeet
-    });
+      const nitrogenValue = getPoundsOfNInFertilizerApp({
+        poundsOfProduct: productWeight,
+        guaranteedAnalysisOfProduct: app.guaranteedAnalysis,
+        totalSquareFeet: app.totalSquareFeet
+      });
+
+      const dateKey = app.applicationDate;
+      finalData[dateKey] = (finalData[dateKey] || 0) + nitrogenValue;
+
+      return finalData;
+    },
+    {} as Record<string, number>
+  );
+
+  const sortedEntries = Object.entries(groupedByDate).sort(
+    ([dateA], [dateB]) => new Date(dateA).getTime() - new Date(dateB).getTime()
+  );
+
+  const data = sortedEntries.map(([, nitrogenValue]) => nitrogenValue);
+  const labels = sortedEntries.map(([date]) => {
+    const [year, month, day] = date.split('-').map(Number);
+    const localDate = new Date(year, month - 1, day);
+    return format(localDate, 'MMM dd');
   });
 
   const nitrogenValues = data;
@@ -141,9 +160,7 @@ export const getFertilizerTimelineChartConfig = (
       'Pounds of nitrogen per application. Generally a good range is 0.5-1.0 lbs/N (per 1000sqft) per application' +
       ' during peak growing season. Slightly less may be used in early spring and fall applications.',
     chartData: {
-      labels: analyticsData?.fertilizerTimelineData?.map((item) =>
-        format(new Date(item.applicationDate), 'MMM dd')
-      ),
+      labels,
       datasets: [
         {
           type: 'line',

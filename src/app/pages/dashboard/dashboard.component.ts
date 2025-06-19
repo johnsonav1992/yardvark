@@ -17,6 +17,7 @@ import { QuickStatsComponent } from '../../components/dashboard/quick-stats/quic
 import { WeatherService } from '../../services/weather-service';
 import { ButtonModule } from 'primeng/button';
 import { EntrySearchSidebarComponent } from '../../components/entries/entry-search-sidebar/entry-search-sidebar.component';
+import { WeatherCardComponent } from '../../components/dashboard/weather-card/weather-card.component';
 
 @Component({
   selector: 'dashboard',
@@ -28,7 +29,8 @@ import { EntrySearchSidebarComponent } from '../../components/entries/entry-sear
     SpeedDialModule,
     QuickStatsComponent,
     ButtonModule,
-    EntrySearchSidebarComponent
+    EntrySearchSidebarComponent,
+    WeatherCardComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'

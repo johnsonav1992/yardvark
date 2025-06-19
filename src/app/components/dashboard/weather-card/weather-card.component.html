@@ -1,0 +1,73 @@
+<p-card>
+  <ng-template #title>
+    <div class="title-container">
+      <i class="ti ti-cloud-fog icon"></i>
+      @if (todaysWeather() && !todaysWeather()!.isDaytime) {
+        Tonight's Weather
+      } @else {
+        Today's Weather
+      }
+    </div>
+  </ng-template>
+
+  @if (!hasLocation()) {
+    <div class="no-location">
+      <i class="ti ti-map-pin"></i>
+      <p>Set your location in settings to see weather data</p>
+    </div>
+  } @else if (isLoading()) {
+    <loading-spinner />
+  } @else if (todaysWeather()) {
+    <div class="weather-content">
+      <div class="current-weather">
+        <div class="weather-main">
+          <i [class]="todaysWeatherIcon()" class="weather-icon"></i>
+          <div class="temperature">
+            {{ todaysWeather()!.temperature }}°{{
+              todaysWeather()!.temperatureUnit
+            }}
+          </div>
+        </div>
+        <div class="weather-details">
+          <p class="forecast">{{ todaysWeather()!.shortForecast }}</p>
+          @if (todaysWeather()!.probabilityOfPrecipitation.value) {
+            <p class="precipitation">
+              <i class="ti ti-droplet"></i>
+              {{ todaysWeather()!.probabilityOfPrecipitation.value }}% chance of
+              rain
+            </p>
+          }
+          @if (todaysWeather()!.windSpeed) {
+            <p class="wind">
+              <i class="ti ti-wind"></i>
+              {{ todaysWeather()!.windSpeed }}
+              {{ todaysWeather()!.windDirection }}
+            </p>
+          }
+        </div>
+      </div>
+
+      @if (tonightsWeather()) {
+        <div class="tonight-weather">
+          <h4>Tonight</h4>
+          <div class="tonight-summary">
+            <i [class]="tonightsWeatherIcon()" class="tonight-icon"></i>
+            <span class="tonight-temp"
+              >{{ tonightsWeather()!.temperature }}°{{
+                tonightsWeather()!.temperatureUnit
+              }}</span
+            >
+            <span class="tonight-forecast">{{
+              tonightsWeather()!.shortForecast
+            }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="no-data">
+      <i class="ti ti-alert-circle"></i>
+      <p>Weather data unavailable</p>
+    </div>
+  }
+</p-card>

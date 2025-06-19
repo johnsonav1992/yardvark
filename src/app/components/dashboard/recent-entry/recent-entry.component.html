@@ -1,7 +1,10 @@
 <p-card [style]="!isMobile() ? { minHeight: '300px' } : {}">
   <ng-template #title>
     <div class="title-link-container">
-      Last Journal Entry
+      <div class="title-with-icon">
+        <i class="ti ti-book icon"></i>
+        Last Journal Entry
+      </div>
       @if (recentEntry.value()) {
         <p-button
           icon="ti ti-external-link"

@@ -10,10 +10,10 @@ import { HttpModule } from '@nestjs/axios';
 @Module({
 	imports: [
 		TypeOrmModule.forFeature([Entry, EntryProduct, EntryImage]),
-		HttpModule,
+		HttpModule
 	],
 	exports: [TypeOrmModule],
 	controllers: [EntriesController],
-	providers: [EntriesService, S3Service, ConfigService],
+	providers: [EntriesService, S3Service, ConfigService]
 })
 export class EntriesModule {}

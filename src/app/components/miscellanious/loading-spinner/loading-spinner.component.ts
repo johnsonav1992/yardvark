@@ -6,7 +6,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 	selector: 'loading-spinner',
 	imports: [ProgressSpinnerModule],
 	templateUrl: './loading-spinner.component.html',
-	styleUrl: './loading-spinner.component.scss',
+	styleUrl: './loading-spinner.component.scss'
 })
 export class LoadingSpinnerComponent {
 	public size = input<'xs' | 's' | 'm' | 'l'>('l');
@@ -16,7 +16,7 @@ export class LoadingSpinnerComponent {
 			xs: '20px',
 			s: '50px',
 			m: '80px',
-			l: '100px',
+			l: '100px'
 		};
 
 		return sizeMap[this.size()] || sizeMap['l'];
@@ -27,7 +27,7 @@ export class LoadingSpinnerComponent {
 			colorOne: '{primary.500}',
 			colorTwo: '{primary.500}',
 			colorThree: '{primary.500}',
-			colorFour: '{primary.500}',
-		},
+			colorFour: '{primary.500}'
+		}
 	};
 }

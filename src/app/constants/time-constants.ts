@@ -10,5 +10,5 @@ export const shortMonthNames = [
 	'Sep',
 	'Oct',
 	'Nov',
-	'Dec',
+	'Dec'
 ];

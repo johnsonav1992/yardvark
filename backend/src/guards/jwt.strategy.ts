@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import type { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { ConfigService } from '@nestjs/config';
 import { passportJwtSecret } from 'jwks-rsa';
-import { Auth0TokenPayload } from 'src/types/auth.types';
-import { ExtractedUserRequestData } from 'src/types/request';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import type { Auth0TokenPayload } from 'src/types/auth.types';
+import type { ExtractedUserRequestData } from 'src/types/request';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -19,11 +19,11 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 				rateLimit: true,
 				jwksRequestsPerMinute: 5,
 				jwksUri: `https://${domain}/.well-known/jwks.json`,
-				handleSigningKeyError: (err) => console.error(err),
+				handleSigningKeyError: (err) => console.error(err)
 			}),
 			algorithms: ['RS256'],
 			audience: `https://${domain}/api/v2/`,
-			issuer: `https://${domain}/`,
+			issuer: `https://${domain}/`
 		});
 	}
 
@@ -42,7 +42,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
 		return {
 			userId: payload.sub,
 			email,
-			name,
+			name
 		};
 	}
 }

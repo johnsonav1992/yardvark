@@ -17,7 +17,7 @@ import { debounceTime, filter, map } from 'rxjs/operators';
  * ```
  */
 @Directive({
-	selector: '[doubleTap]',
+	selector: '[doubleTap]'
 })
 export class DoubleTapDirective {
 	private _el = inject<ElementRef<HTMLElement>>(ElementRef<HTMLElement>);
@@ -41,7 +41,7 @@ export class DoubleTapDirective {
 				takeUntilDestroyed(),
 				buffer(this.tap$.pipe(debounceTime(this.interval()))),
 				map((taps) => taps.length),
-				filter((numberOfTaps) => numberOfTaps === 2),
+				filter((numberOfTaps) => numberOfTaps === 2)
 			)
 			.subscribe({ next: () => this.onDoubleTap.emit() });
 	}

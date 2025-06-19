@@ -15,7 +15,7 @@ export const LIQUID_OZ_AS_WEIGHT_IN_POUNDS = 0.1;
  */
 export const getMonthAbbreviations = (
 	startMonth = 1,
-	endMonth = new Date().getMonth(),
+	endMonth = new Date().getMonth()
 ) => {
 	const monthNames = shortMonthNames;
 	const months: string[] = [];
@@ -38,7 +38,7 @@ export const getMonthAbbreviations = (
 export const getPoundsOfNInFertilizerApp = ({
 	poundsOfProduct,
 	guaranteedAnalysisOfProduct,
-	totalSquareFeet,
+	totalSquareFeet
 }: {
 	poundsOfProduct: number;
 	guaranteedAnalysisOfProduct: string;
@@ -58,7 +58,7 @@ export const getPoundsOfNInFertilizerApp = ({
 
 export const getMonthlyMowingChartConfig = (
 	analyticsData: AnalyticsRes | undefined,
-	uiOptions: { isDarkMode: boolean; isMobile: boolean },
+	uiOptions: { isDarkMode: boolean; isMobile: boolean }
 ): AnalyticsChartConfig<'bar'> => {
 	const mowingCounts =
 		analyticsData?.mowingAnalyticsData?.map((month) => +month.mowCount) || [];
@@ -71,7 +71,7 @@ export const getMonthlyMowingChartConfig = (
 	const highestMowingCount = Math.max(...mowingCounts);
 	const grid = uiOptions.isDarkMode
 		? {
-				color: 'rgba(200, 200, 200, 0.2)',
+				color: 'rgba(200, 200, 200, 0.2)'
 			}
 		: undefined;
 
@@ -83,9 +83,9 @@ export const getMonthlyMowingChartConfig = (
 				{
 					type: 'bar',
 					label: `Mowing Count`,
-					data: mowingCounts,
-				},
-			],
+					data: mowingCounts
+				}
+			]
 		},
 		options: {
 			maintainAspectRatio: false,
@@ -95,21 +95,21 @@ export const getMonthlyMowingChartConfig = (
 					beginAtZero: true,
 					min: 0,
 					max: Math.ceil(highestMowingCount * 1.25),
-					grid,
+					grid
 				},
-				x: { grid },
-			},
-		},
+				x: { grid }
+			}
+		}
 	};
 };
 
 export const getFertilizerTimelineChartConfig = (
 	analyticsData: AnalyticsRes | undefined,
-	uiOptions: { isDarkMode: boolean; isMobile: boolean },
+	uiOptions: { isDarkMode: boolean; isMobile: boolean }
 ): AnalyticsChartConfig<'line'> => {
 	const grid = uiOptions.isDarkMode
 		? {
-				color: 'rgba(200, 200, 200, 0.2)',
+				color: 'rgba(200, 200, 200, 0.2)'
 			}
 		: undefined;
 
@@ -125,7 +125,7 @@ export const getFertilizerTimelineChartConfig = (
 			const nitrogenValue = getPoundsOfNInFertilizerApp({
 				poundsOfProduct: productWeight,
 				guaranteedAnalysisOfProduct: app.guaranteedAnalysis,
-				totalSquareFeet: app.totalSquareFeet,
+				totalSquareFeet: app.totalSquareFeet
 			});
 
 			const dateKey = app.applicationDate;
@@ -133,11 +133,11 @@ export const getFertilizerTimelineChartConfig = (
 
 			return finalData;
 		},
-		{} as Record<string, number>,
+		{} as Record<string, number>
 	);
 
 	const sortedEntries = Object.entries(groupedByDate).sort(
-		([dateA], [dateB]) => new Date(dateA).getTime() - new Date(dateB).getTime(),
+		([dateA], [dateB]) => new Date(dateA).getTime() - new Date(dateB).getTime()
 	);
 
 	const data = sortedEntries.map(([, nitrogenValue]) => nitrogenValue);
@@ -167,7 +167,7 @@ export const getFertilizerTimelineChartConfig = (
 					data,
 					borderColor: getPrimeNgHexColor('teal.500'),
 					tension: 0.4,
-					label: 'Lbs/N per 1000ft²',
+					label: 'Lbs/N per 1000ft²'
 				},
 				{
 					type: 'line',
@@ -176,9 +176,9 @@ export const getFertilizerTimelineChartConfig = (
 					borderDash: [5, 5],
 					borderWidth: 2,
 					pointRadius: 0,
-					label: 'Avg Lbs/N',
-				},
-			],
+					label: 'Avg Lbs/N'
+				}
+			]
 		},
 		options: {
 			maintainAspectRatio: false,
@@ -187,22 +187,22 @@ export const getFertilizerTimelineChartConfig = (
 				y: {
 					beginAtZero: true,
 					min: 0,
-					grid,
+					grid
 				},
-				x: { grid },
-			},
-		},
+				x: { grid }
+			}
+		}
 	};
 };
 
 export const getProductTypeDistributionChartConfig = (
-	analyticsData: AnalyticsRes | undefined,
+	analyticsData: AnalyticsRes | undefined
 ): AnalyticsChartConfig<'pie'> => {
 	const data = (analyticsData?.productTypeDistributionData || []).map(
-		(item) => item.usageCount,
+		(item) => item.usageCount
 	);
 	const labels = (analyticsData?.productTypeDistributionData || []).map(
-		(item) => item.category,
+		(item) => item.category
 	);
 
 	return {
@@ -214,9 +214,9 @@ export const getProductTypeDistributionChartConfig = (
 				{
 					type: 'pie',
 					label: 'Product Type Distribution',
-					data,
-				},
-			],
+					data
+				}
+			]
 		},
 		options: {
 			maintainAspectRatio: false,
@@ -233,10 +233,10 @@ export const getProductTypeDistributionChartConfig = (
 								total > 0 ? ((value / total) * 100).toFixed(1) : '0';
 
 							return `${context.label ?? ''}: ${value} (${percentage}%)`;
-						},
-					},
-				},
-			},
-		},
+						}
+					}
+				}
+			}
+		}
 	};
 };

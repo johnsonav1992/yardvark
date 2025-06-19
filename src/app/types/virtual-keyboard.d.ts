@@ -15,13 +15,13 @@ interface VirtualKeyboard {
 	addEventListener(
 		type: 'geometrychange',
 		listener: (this: VirtualKeyboard, ev: Event) => any,
-		options?: boolean | AddEventListenerOptions,
+		options?: boolean | AddEventListenerOptions
 	): void;
 
 	removeEventListener(
 		type: 'geometrychange',
 		listener: (this: VirtualKeyboard, ev: Event) => any,
-		options?: boolean | EventListenerOptions,
+		options?: boolean | EventListenerOptions
 	): void;
 }
 

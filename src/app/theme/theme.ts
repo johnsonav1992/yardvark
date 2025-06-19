@@ -14,14 +14,14 @@ export const theme = definePreset(Aura, {
 			700: '{lime.700}',
 			800: '{lime.800}',
 			900: '{lime.900}',
-			950: '{lime.950}',
-		},
+			950: '{lime.950}'
+		}
 	},
 	components: {
 		card: {
 			root: {
-				shadow: '2px 2px 6px 0 rgba(0, 0, 0, 0.2)',
-			},
-		},
-	},
+				shadow: '2px 2px 6px 0 rgba(0, 0, 0, 0.2)'
+			}
+		}
+	}
 });

@@ -7,7 +7,7 @@ export type UnsavedChanges = {
 };
 
 export const unsavedChangesGuard: CanDeactivateFn<UnsavedChanges> = (
-	component,
+	component
 ) => {
 	const confirmationService = inject(ConfirmationService);
 	const hasUnsavedChanges = component.hasUnsavedChanges();
@@ -18,7 +18,7 @@ export const unsavedChangesGuard: CanDeactivateFn<UnsavedChanges> = (
 				header: 'Unsaved Changes',
 				message: 'You have unsaved changes. Do you really want to leave?',
 				accept: () => resolve(true),
-				reject: () => resolve(false),
+				reject: () => resolve(false)
 			});
 		});
 	}

@@ -16,10 +16,10 @@ import { CardModule } from 'primeng/card';
 		SoilMoistureWeekGraphComponent,
 		PageContainerComponent,
 		ButtonModule,
-		CardModule,
+		CardModule
 	],
 	templateUrl: './soil-data.component.html',
-	styleUrl: './soil-data.component.scss',
+	styleUrl: './soil-data.component.scss'
 })
 export class SoilDataComponent {
 	private _soilTemperatureService = inject(SoilTemperatureService);
@@ -27,7 +27,7 @@ export class SoilDataComponent {
 	private _router = inject(Router);
 
 	public userHasALocation = computed(
-		() => !!this._locationService.userLatLong(),
+		() => !!this._locationService.userLatLong()
 	);
 
 	public dailyAverageShallowTemps = computed(() => {
@@ -53,16 +53,16 @@ export class SoilDataComponent {
 
 		return getAllDailyNumericDataAverages(rawMoistureData || [], {
 			precision: 2,
-			multiplicationFactor: 100,
+			multiplicationFactor: 100
 		});
 	});
 
 	public isLoadingAveragesChartData = computed(() =>
-		this._soilTemperatureService.rollingWeekDailyAverageSoilData.isLoading(),
+		this._soilTemperatureService.rollingWeekDailyAverageSoilData.isLoading()
 	);
 
 	public tempUnit = computed(
-		() => this._soilTemperatureService.temperatureUnit()!,
+		() => this._soilTemperatureService.temperatureUnit()!
 	);
 
 	public goToSettings(): void {

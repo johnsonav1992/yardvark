@@ -4,7 +4,7 @@ import {
 	Column,
 	PrimaryGeneratedColumn,
 	Unique,
-	ManyToMany,
+	ManyToMany
 } from 'typeorm';
 
 @Entity('lawn_segments')
@@ -24,7 +24,7 @@ export class LawnSegment {
 
 	@ManyToMany(
 		() => Entry,
-		(entry) => entry.lawnSegments,
+		(entry) => entry.lawnSegments
 	)
 	entries: Entry[];
 }

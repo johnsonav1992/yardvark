@@ -4,7 +4,7 @@ import { Component, input } from '@angular/core';
 	selector: 'empty-message',
 	imports: [],
 	templateUrl: './empty-message.component.html',
-	styleUrl: './empty-message.component.scss',
+	styleUrl: './empty-message.component.scss'
 })
 export class EmptyMessageComponent {
 	public message = input.required<string>();

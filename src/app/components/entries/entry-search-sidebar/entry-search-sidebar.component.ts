@@ -39,10 +39,10 @@ import { Entry } from '../../../types/entries.types';
 		ReactiveFormsModule,
 		TooltipModule,
 		LoadingSpinnerComponent,
-		MobileEntryPreviewCardComponent,
+		MobileEntryPreviewCardComponent
 	],
 	templateUrl: './entry-search-sidebar.component.html',
-	styleUrl: './entry-search-sidebar.component.scss',
+	styleUrl: './entry-search-sidebar.component.scss'
 })
 export class EntrySearchSidebarComponent {
 	private _activitiesService = inject(ActivitiesService);
@@ -70,7 +70,7 @@ export class EntrySearchSidebarComponent {
 
 			return {
 				...entry,
-				time: time ? format(time, 'hh:mm a') : '',
+				time: time ? format(time, 'hh:mm a') : ''
 			};
 		});
 	});
@@ -80,7 +80,7 @@ export class EntrySearchSidebarComponent {
 		dates: new FormControl<Date[]>([]),
 		activities: new FormControl<Activity['id'][]>([]),
 		lawnSegments: new FormControl<LawnSegment['id'][]>([]),
-		products: new FormControl<Product['id'][]>([]),
+		products: new FormControl<Product['id'][]>([])
 	});
 
 	public onCloseSidebar(): void {
@@ -97,7 +97,7 @@ export class EntrySearchSidebarComponent {
 				dateRange: this.form.value.dates?.map((date) => date.toISOString())!,
 				activities: this.form.value.activities!,
 				lawnSegments: this.form.value.lawnSegments!,
-				products: this.form.value.products!,
+				products: this.form.value.products!
 			})
 			.subscribe({
 				next: (entries) => {
@@ -107,7 +107,7 @@ export class EntrySearchSidebarComponent {
 				error: () => {
 					console.error('Error searching entries');
 					this.isLoading.set(false);
-				},
+				}
 			});
 	}
 }

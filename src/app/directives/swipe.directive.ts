@@ -9,7 +9,7 @@ import { Directive, HostListener, output, signal } from '@angular/core';
  * ```
  */
 @Directive({
-	selector: '[swipeDetection]',
+	selector: '[swipeDetection]'
 })
 export class SwipeDirective {
 	public onSwipeLeft = output();

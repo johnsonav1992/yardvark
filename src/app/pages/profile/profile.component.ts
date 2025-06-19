@@ -4,7 +4,7 @@ import {
 	inject,
 	linkedSignal,
 	signal,
-	WritableSignal,
+	WritableSignal
 } from '@angular/core';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import { getUserInitials, injectUserData } from '../../utils/authUtils';
@@ -31,10 +31,10 @@ import { TooltipModule } from 'primeng/tooltip';
 		ButtonModule,
 		FormsModule,
 		MessageModule,
-		TooltipModule,
+		TooltipModule
 	],
 	templateUrl: './profile.component.html',
-	styleUrl: './profile.component.scss',
+	styleUrl: './profile.component.scss'
 })
 export class ProfileComponent {
 	private throwErrorToast = injectErrorToast();
@@ -43,7 +43,7 @@ export class ProfileComponent {
 	public user = injectUserData();
 	public userInitials = computed(() => getUserInitials(this.user() as YVUser));
 	public isGoogleUser = computed(() =>
-		this.user()?.sub?.includes('google-oauth2'),
+		this.user()?.sub?.includes('google-oauth2')
 	);
 
 	public isEditingField = signal<'name' | 'email' | null>(null);
@@ -56,12 +56,12 @@ export class ProfileComponent {
 		WritableSignal<unknown | undefined>
 	> = {
 		name: this.name,
-		email: this.email,
+		email: this.email
 	};
 
 	public updateField(fieldName: keyof User, oldFieldValue: unknown): void {
 		const userData: Partial<User> = {
-			[fieldName]: this.fieldNamesMap[fieldName](),
+			[fieldName]: this.fieldNamesMap[fieldName]()
 		};
 
 		const updatedField = this.fieldNamesMap[fieldName];
@@ -75,13 +75,13 @@ export class ProfileComponent {
 				}),
 				finalize(() => {
 					this.isEditingField.set(null);
-				}),
+				})
 			)
 			.subscribe({
 				error: () => {
 					this.throwErrorToast('There was an error updating your profile');
 					updatedField.set(oldFieldValue);
-				},
+				}
 			});
 	}
 
@@ -94,7 +94,7 @@ export class ProfileComponent {
 			fontSize: '5rem',
 			background: '{primary.400}',
 			width: '150px',
-			height: '150px',
-		},
+			height: '150px'
+		}
 	};
 }

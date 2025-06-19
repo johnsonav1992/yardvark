@@ -11,13 +11,13 @@ export const effectSignalLogger = (
 	loggedSignalContent: Signal<unknown> | Signal<unknown>[],
 	opts?: {
 		logType?: 'log' | 'warn' | 'error';
-	},
+	}
 ) => {
 	return effect(() => {
 		console[opts?.logType || 'log'](
 			Array.isArray(loggedSignalContent)
 				? loggedSignalContent.map((signal) => signal())
-				: loggedSignalContent(),
+				: loggedSignalContent()
 		);
 	});
 };

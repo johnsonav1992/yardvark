@@ -8,7 +8,7 @@ import { DailyWeatherCalendarForecast } from '../../../types/weather.types';
 	selector: 'weather-day-marker',
 	imports: [PopoverModule],
 	templateUrl: './weather-day-marker.html',
-	styleUrl: './weather-day-marker.scss',
+	styleUrl: './weather-day-marker.scss'
 })
 export class WeatherDayMarker {
 	private _globalUiService = inject(GlobalUiService);

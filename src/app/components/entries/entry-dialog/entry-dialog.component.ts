@@ -5,7 +5,7 @@ import {
 	FormGroup,
 	FormsModule,
 	ReactiveFormsModule,
-	Validators,
+	Validators
 } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -36,10 +36,10 @@ import { ButtonModule } from 'primeng/button';
 		SelectModule,
 		ProductsSelectorComponent,
 		FileUploadModule,
-		ButtonModule,
+		ButtonModule
 	],
 	templateUrl: './entry-dialog.component.html',
-	styleUrl: './entry-dialog.component.scss',
+	styleUrl: './entry-dialog.component.scss'
 })
 export class EntryDialogComponent implements OnInit {
 	public activitiesResource = inject(ActivitiesService).activities;
@@ -52,7 +52,7 @@ export class EntryDialogComponent implements OnInit {
 	public activities = computed(() =>
 		this.activitiesResource
 			.value()
-			?.map((act) => ({ ...act, name: capitalize(act.name) })),
+			?.map((act) => ({ ...act, name: capitalize(act.name) }))
 	);
 
 	public lawnSegments = computed(() => this.lawnSegmentsResource.value());
@@ -66,14 +66,14 @@ export class EntryDialogComponent implements OnInit {
 		products: new FormArray<EntryProductRow>([]),
 		productsSelected: new FormControl<Product[]>([]), // Noop for this view to make Angular forms + primeng happy
 		notes: new FormControl<string | null>(null),
-		images: new FormControl<File[]>([]),
+		images: new FormControl<File[]>([])
 	});
 
 	public constructor() {
 		this.form.controls.notes.valueChanges.subscribe((value) => {
 			if (typeof value === 'string') {
 				this.form.controls.notes.setValue(decodeURIComponent(value), {
-					emitEvent: false,
+					emitEvent: false
 				});
 			}
 		});
@@ -81,7 +81,7 @@ export class EntryDialogComponent implements OnInit {
 
 	public ngOnInit(): void {
 		this.form.patchValue({
-			date: this.date(),
+			date: this.date()
 		});
 	}
 
@@ -92,7 +92,7 @@ export class EntryDialogComponent implements OnInit {
 		const existingFileNames = new Set(currentFiles.map((file) => file.name));
 
 		const newUniqueFiles = Array.from(e.files).filter(
-			(file) => !existingFileNames.has(file.name),
+			(file) => !existingFileNames.has(file.name)
 		);
 
 		this.form.controls.images.setValue([...currentFiles, ...newUniqueFiles]);
@@ -101,7 +101,7 @@ export class EntryDialogComponent implements OnInit {
 	public onRemoveFile(
 		file: File,
 		removeFileCallback: (file: File, index: number) => void,
-		index: number,
+		index: number
 	) {
 		removeFileCallback(file, index);
 	}

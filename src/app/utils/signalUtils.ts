@@ -24,10 +24,10 @@ import { debounceTime } from 'rxjs';
 export const debouncedSignal = <TSignalValue>(
 	signal: Signal<TSignalValue>,
 	debounceMs: number,
-	opts?: { injector?: Injector },
+	opts?: { injector?: Injector }
 ) => {
 	const debouncedObservable$ = toObservable(signal, {
-		injector: opts?.injector,
+		injector: opts?.injector
 	}).pipe(debounceTime(debounceMs));
 
 	return toSignal(debouncedObservable$);

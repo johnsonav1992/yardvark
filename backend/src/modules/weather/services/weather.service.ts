@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
+import type { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
-import {
+import type {
 	WeatherDotGovForecastResponse,
-	WeatherDotGovPointsResponse,
+	WeatherDotGovPointsResponse
 } from '../models/weather.types';
 import { tryCatch } from 'src/utils/tryCatch';
 
@@ -16,13 +16,13 @@ export class WeatherService {
 
 	async getWeatherData(
 		lat: string,
-		long: string,
+		long: string
 	): Promise<WeatherDotGovForecastResponse> {
 		const { data: forecast, error } = await tryCatch(() =>
 			firstValueFrom(
 				this.httpService
 					.get<WeatherDotGovPointsResponse>(
-						`${this.weatherDotGovBaseUrl}/points/${lat},${long}`,
+						`${this.weatherDotGovBaseUrl}/points/${lat},${long}`
 					)
 					.pipe(
 						map((response) => response.data),
@@ -34,12 +34,12 @@ export class WeatherService {
 							}
 
 							return this.httpService.get<WeatherDotGovForecastResponse>(
-								forecastUrl,
+								forecastUrl
 							);
 						}),
-						map((forecastResponse) => forecastResponse.data),
-					),
-			),
+						map((forecastResponse) => forecastResponse.data)
+					)
+			)
 		);
 
 		if (error || !forecast) {

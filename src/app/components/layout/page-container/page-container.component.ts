@@ -4,7 +4,7 @@ import {
 	contentChild,
 	inject,
 	input,
-	TemplateRef,
+	TemplateRef
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -13,7 +13,7 @@ import { ButtonModule } from 'primeng/button';
 	selector: 'page-container',
 	imports: [ButtonModule, NgTemplateOutlet],
 	templateUrl: './page-container.component.html',
-	styleUrl: './page-container.component.scss',
+	styleUrl: './page-container.component.scss'
 })
 export class PageContainerComponent {
 	private _router = inject(Router);
@@ -35,7 +35,7 @@ export class PageContainerComponent {
 			this._router.navigate(['../'], {
 				relativeTo: this._route,
 				queryParamsHandling: 'merge',
-				replaceUrl: true,
+				replaceUrl: true
 			});
 		}
 	}

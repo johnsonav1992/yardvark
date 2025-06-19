@@ -7,7 +7,7 @@ import { injectSettingsService } from './settings.service';
 import { environment } from '../../environments/environment';
 
 @Injectable({
-	providedIn: 'root',
+	providedIn: 'root'
 })
 export class LocationService {
 	private _settingsService = injectSettingsService();
@@ -20,8 +20,8 @@ export class LocationService {
 			params: {
 				proximity: 'ip',
 				q: query,
-				access_token: environment.mapBoxPublicKey,
-			},
+				access_token: environment.mapBoxPublicKey
+			}
 		}).pipe(map((response) => response.features));
 	}
 
@@ -31,7 +31,7 @@ export class LocationService {
 
 			return location ? { lat: location.lat, long: location.long } : null;
 		},
-		{ equal: (a, b) => a?.lat === b?.lat && a?.long === b?.long },
+		{ equal: (a, b) => a?.lat === b?.lat && a?.long === b?.long }
 	);
 
 	public getLatLongFromCurrentPosition(): Observable<LatLong | null> {
@@ -40,14 +40,14 @@ export class LocationService {
 				(position) => {
 					observer.next({
 						lat: position.coords.latitude,
-						long: position.coords.longitude,
+						long: position.coords.longitude
 					});
 
 					observer.complete();
 				},
 				(error) => {
 					observer.error(`Error fetching user location: ${error}`);
-				},
+				}
 			);
 		});
 	}

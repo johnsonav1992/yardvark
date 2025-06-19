@@ -6,7 +6,7 @@
  * @returns Promise<{ data: T | null; error: Error | null }>
  */
 export const tryCatch = async <T>(
-	fn: () => Promise<T>,
+	fn: () => Promise<T>
 ): Promise<{ data: T | null; error: Error | null }> => {
 	try {
 		const data = await fn();

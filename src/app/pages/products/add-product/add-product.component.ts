@@ -9,19 +9,19 @@ import {
 	FormControl,
 	FormGroup,
 	ReactiveFormsModule,
-	Validators,
+	Validators
 } from '@angular/forms';
 import {
 	applicationRateFieldValidator,
 	guaranteedAnalysisFieldValidator,
-	websiteUrlValidator,
+	websiteUrlValidator
 } from '../../../utils/formUtils';
 import {
 	APPLICATION_METHODS,
 	CONTAINER_TYPES,
 	COVERAGE_UNITS,
 	PRODUCT_CATEGORIES,
-	QUANTITY_UNITS,
+	QUANTITY_UNITS
 } from '../../../constants/product-constants';
 import { SelectModule } from 'primeng/select';
 import { Location } from '@angular/common';
@@ -45,10 +45,10 @@ import { MAX_FILE_UPLOAD_SIZE } from '../../../constants/file-constants';
 		ButtonModule,
 		SelectModule,
 		ReactiveFormsModule,
-		CheckboxModule,
+		CheckboxModule
 	],
 	templateUrl: './add-product.component.html',
-	styleUrl: './add-product.component.scss',
+	styleUrl: './add-product.component.scss'
 })
 export class AddProductComponent {
 	private _location = inject(Location);
@@ -77,7 +77,7 @@ export class AddProductComponent {
 		coverageUnit: new FormControl('sqft', [Validators.required]),
 		applicationRate: new FormControl<number | null>(null, [
 			Validators.required,
-			applicationRateFieldValidator,
+			applicationRateFieldValidator
 		]),
 		applicationMethod: new FormControl('', [Validators.required]),
 		guaranteedAnalysis: new FormControl('', [guaranteedAnalysisFieldValidator]),
@@ -86,7 +86,7 @@ export class AddProductComponent {
 		containerType: new FormControl('', [Validators.required]),
 		labelUrl: new FormControl('', [websiteUrlValidator]),
 		image: new FormControl<File | null>(null),
-		systemProduct: new FormControl(false),
+		systemProduct: new FormControl(false)
 	});
 
 	public isLoading = signal(false);
@@ -108,7 +108,7 @@ export class AddProductComponent {
 	public submit(): void {
 		if (this.form.invalid) {
 			Object.entries(this.form.controls).forEach(([_, ctrl]) =>
-				ctrl.markAsDirty(),
+				ctrl.markAsDirty()
 			);
 
 			return this.form.markAllAsTouched();
@@ -118,7 +118,7 @@ export class AddProductComponent {
 		this._productsService
 			.addProduct({
 				...this.form.value,
-				coverage: this.form.value.coverageAmount,
+				coverage: this.form.value.coverageAmount
 			} as ProductFormData)
 			.subscribe({
 				next: () => {
@@ -129,7 +129,7 @@ export class AddProductComponent {
 				error: () => {
 					this.isLoading.set(false);
 					this.throwErrorToast('Error adding product');
-				},
+				}
 			});
 	}
 }

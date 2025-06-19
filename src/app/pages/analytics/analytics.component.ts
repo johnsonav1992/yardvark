@@ -6,7 +6,7 @@ import { GlobalUiService } from '../../services/global-ui.service';
 import {
 	getFertilizerTimelineChartConfig,
 	getMonthlyMowingChartConfig,
-	getProductTypeDistributionChartConfig,
+	getProductTypeDistributionChartConfig
 } from '../../utils/analyticsUtils';
 import { AnalyticsService } from '../../services/analytics.service';
 import { EmptyMessageComponent } from '../../components/miscellanious/empty-message/empty-message.component';
@@ -27,10 +27,10 @@ import { PopoverModule } from 'primeng/popover';
 		DatePickerModule,
 		FormsModule,
 		FloatLabelModule,
-		PopoverModule,
+		PopoverModule
 	],
 	templateUrl: './analytics.component.html',
-	styleUrl: './analytics.component.scss',
+	styleUrl: './analytics.component.scss'
 })
 export class AnalyticsComponent {
 	private _globalUiService = inject(GlobalUiService);
@@ -46,13 +46,13 @@ export class AnalyticsComponent {
 	public charts = computed(() => {
 		const uiOptions = {
 			isDarkMode: this.isDarkMode(),
-			isMobile: this.isMobile(),
+			isMobile: this.isMobile()
 		};
 
 		return [
 			getMonthlyMowingChartConfig(this.analyticsData.value(), uiOptions),
 			getFertilizerTimelineChartConfig(this.analyticsData.value(), uiOptions),
-			getProductTypeDistributionChartConfig(this.analyticsData.value()),
+			getProductTypeDistributionChartConfig(this.analyticsData.value())
 		];
 	});
 }

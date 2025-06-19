@@ -13,7 +13,7 @@ import { LocationService } from '../../../services/location.service';
 	selector: 'quick-stats',
 	imports: [CardModule, ProgressBarModule, DividerModule],
 	templateUrl: './quick-stats.component.html',
-	styleUrl: './quick-stats.component.scss',
+	styleUrl: './quick-stats.component.scss'
 })
 export class QuickStatsComponent {
 	private _entriesService = inject(EntriesService);
@@ -54,7 +54,7 @@ export class QuickStatsComponent {
 
 		const daysSince = differenceInDays(
 			new Date(),
-			new Date(lastProductAppDate),
+			new Date(lastProductAppDate)
 		);
 
 		return daysSince ?? 'N/A';
@@ -76,7 +76,7 @@ export class QuickStatsComponent {
 
 	public dividerDt: DividerDesignTokens = {
 		horizontal: {
-			margin: 'none',
-		},
+			margin: 'none'
+		}
 	};
 }

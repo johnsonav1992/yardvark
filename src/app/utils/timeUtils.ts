@@ -15,7 +15,7 @@ export const getRollingWeekStartAndEndDates = () => {
 
 	return {
 		startDate,
-		endDate,
+		endDate
 	};
 };
 
@@ -73,7 +73,7 @@ export const daysOfWeek = [
 	'Wednesday',
 	'Thursday',
 	'Friday',
-	'Saturday',
+	'Saturday'
 ];
 
 /**
@@ -89,7 +89,7 @@ export const HOURS_IN_A_DAY = 24;
  */
 export const debounce = <T extends (...args: any[]) => void>(
 	func: T,
-	delay: number,
+	delay: number
 ) => {
 	let timer: ReturnType<typeof setTimeout>;
 
@@ -105,7 +105,7 @@ export const debounce = <T extends (...args: any[]) => void>(
  * @returns A Date object with the time set, or null if the input is null.
  */
 export const convertTimeStringToDate = (
-	timeString: string | null,
+	timeString: string | null
 ): Date | null => {
 	if (!timeString) return null;
 

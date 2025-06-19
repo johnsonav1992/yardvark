@@ -5,7 +5,7 @@ import { GetProductsResponse, ProductFormData } from '../types/products.types';
 import { Observable } from 'rxjs';
 
 @Injectable({
-	providedIn: 'root',
+	providedIn: 'root'
 })
 export class ProductsService {
 	public products = httpResource<GetProductsResponse>(() => apiUrl('products'));

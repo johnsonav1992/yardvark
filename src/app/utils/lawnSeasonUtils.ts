@@ -53,8 +53,8 @@ export const getLawnSeasonStartAndEndDates = (coords: LatLong) => {
 		start: new Date(
 			year,
 			closestReference.spring.month,
-			closestReference.spring.day,
+			closestReference.spring.day
 		),
-		end: new Date(year, closestReference.fall.month, closestReference.fall.day),
+		end: new Date(year, closestReference.fall.month, closestReference.fall.day)
 	};
 };

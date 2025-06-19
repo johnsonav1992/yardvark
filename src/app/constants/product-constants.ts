@@ -10,7 +10,7 @@ export const QUANTITY_UNITS = [
 	'fl oz',
 	'mL',
 	'L',
-	'g',
+	'g'
 ];
 
 export const CONTAINER_TYPES = ['Bag', 'Jug', 'Bottle'];

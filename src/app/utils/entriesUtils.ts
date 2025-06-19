@@ -7,7 +7,7 @@ import { getDefaultProductAmount } from './productUtils';
 export const getEntryIcon = (entry: Entry) => {
 	const entriesIconMap = {
 		mow: 'li li-lawnmower',
-		water: 'li li-sprinkler',
+		water: 'li li-sprinkler'
 	};
 
 	return (
@@ -22,12 +22,12 @@ export const createEntryProductRow = (product?: Product | EntryProduct) => {
 		quantity: new FormControl<number | null>(
 			product?.quantity ||
 				(!!product ? getDefaultProductAmount(product as Product) : 1),
-			[Validators.min(0.1)],
+			[Validators.min(0.1)]
 		),
 		quantityUnit: new FormControl<string>(
 			product?.quantityUnit || QUANTITY_UNITS[0],
-			[Validators.required],
-		),
+			[Validators.required]
+		)
 	});
 };
 

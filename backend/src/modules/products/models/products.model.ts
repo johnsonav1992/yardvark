@@ -3,7 +3,7 @@ import {
 	DeleteDateColumn,
 	Entity,
 	OneToMany,
-	PrimaryGeneratedColumn,
+	PrimaryGeneratedColumn
 } from 'typeorm';
 import { productTypesArray } from './products.types';
 import { EntryProduct } from '../../entries/models/entries.model';
@@ -27,7 +27,7 @@ export class Product {
 
 	@Column({
 		type: 'enum',
-		enum: productTypesArray,
+		enum: productTypesArray
 	})
 	category: string;
 
@@ -69,7 +69,7 @@ export class Product {
 
 	@OneToMany(
 		() => EntryProduct,
-		(entryProduct) => entryProduct.product,
+		(entryProduct) => entryProduct.product
 	)
 	entryProducts: EntryProduct[];
 

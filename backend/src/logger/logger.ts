@@ -1,14 +1,14 @@
 import {
-	CallHandler,
-	ExecutionContext,
+	type CallHandler,
+	type ExecutionContext,
 	HttpException,
 	Injectable,
 	Logger,
-	NestInterceptor,
-	Scope,
+	type NestInterceptor,
+	Scope
 } from '@nestjs/common';
-import { Request, Response } from 'express';
-import { Observable, throwError } from 'rxjs';
+import type { Request, Response } from 'express';
+import { type Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 
 @Injectable({ scope: Scope.REQUEST })
@@ -36,7 +36,7 @@ export class LoggingInterceptor implements NestInterceptor {
 				this.logError({ statusCode, duration, request, error });
 
 				return throwError(() => error);
-			}),
+			})
 		);
 	}
 
@@ -101,7 +101,7 @@ export class LoggingInterceptor implements NestInterceptor {
 
 	private getErrorStatusCode(
 		response: { statusCode: number },
-		err: unknown,
+		err: unknown
 	): number {
 		return (
 			response.statusCode ??

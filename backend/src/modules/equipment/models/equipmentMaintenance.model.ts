@@ -4,7 +4,7 @@ import {
 	Column,
 	ManyToOne,
 	JoinColumn,
-	DeleteDateColumn,
+	DeleteDateColumn
 } from 'typeorm';
 import { Equipment } from './equipment.model';
 
@@ -36,8 +36,8 @@ export class EquipmentMaintenance {
 		() => Equipment,
 		(equipment) => equipment.maintenanceRecords,
 		{
-			onDelete: 'CASCADE',
-		},
+			onDelete: 'CASCADE'
+		}
 	)
 	@JoinColumn({ name: 'equipment_id' })
 	equipment: Equipment;

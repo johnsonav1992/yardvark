@@ -1,4 +1,4 @@
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test, type TestingModule } from '@nestjs/testing';
 import { ActivitiesController } from './activities.controller';
 import { ActivitiesService } from '../services/activities.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
@@ -15,9 +15,9 @@ describe('ActivitiesController', () => {
 				ActivitiesService,
 				{
 					provide: getRepositoryToken(Activity),
-					useClass: Repository,
-				},
-			],
+					useClass: Repository
+				}
+			]
 		}).compile();
 
 		controller = module.get<ActivitiesController>(ActivitiesController);
@@ -30,15 +30,15 @@ describe('ActivitiesController', () => {
 	it('should return an array of activities', async () => {
 		const mockActivities: Activity[] = [
 			{ entries: [], id: 1, name: 'Activity 1' },
-			{ entries: [], id: 2, name: 'Activity 2' },
+			{ entries: [], id: 2, name: 'Activity 2' }
 		];
 
 		const activitiesService = {
-			getActivities: jest.fn().mockResolvedValue(mockActivities),
+			getActivities: jest.fn().mockResolvedValue(mockActivities)
 		};
 
 		controller = new ActivitiesController(
-			activitiesService as unknown as ActivitiesService,
+			activitiesService as unknown as ActivitiesService
 		);
 
 		const result = await controller.getActivities();

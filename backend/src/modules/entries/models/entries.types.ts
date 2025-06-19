@@ -1,4 +1,4 @@
-import { Entry, EntryProduct } from './entries.model';
+import type { Entry, EntryProduct } from './entries.model';
 
 export type EntryCreationRequest = Omit<
 	InstanceType<typeof Entry>,

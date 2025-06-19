@@ -17,7 +17,7 @@ import { NO_IMAGE_URL } from '../../../constants/style-constants';
 	imports: [CardModule, DatePipe, ButtonModule, TooltipModule],
 	templateUrl: './equipment-preview-card.component.html',
 	styleUrl: './equipment-preview-card.component.scss',
-	providers: [DialogService],
+	providers: [DialogService]
 })
 export class EquipmentPreviewCardComponent {
 	private _router = inject(Router);
@@ -31,7 +31,7 @@ export class EquipmentPreviewCardComponent {
 
 	public tooltipOptions: TooltipOptions = {
 		appendTo: 'body',
-		positionStyle: 'absolute',
+		positionStyle: 'absolute'
 	};
 
 	public goToEquipment(): void {
@@ -52,11 +52,11 @@ export class EquipmentPreviewCardComponent {
 				closable: true,
 				contentStyle: { overflow: 'visible' },
 				breakpoints: {
-					'800px': '95%',
+					'800px': '95%'
 				},
 				maximizable: true,
-				inputValues: { equipmentId },
-			},
+				inputValues: { equipmentId }
+			}
 		);
 
 		if (this.isMobile()) this._dialogService.getInstance(dialogRef).maximize();

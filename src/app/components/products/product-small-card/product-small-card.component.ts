@@ -5,7 +5,7 @@ import {
 	ElementRef,
 	inject,
 	input,
-	TemplateRef,
+	TemplateRef
 } from '@angular/core';
 import { Product } from '../../../types/products.types';
 import { NgTemplateOutlet } from '@angular/common';
@@ -16,7 +16,7 @@ import { NO_IMAGE_URL } from '../../../constants/style-constants';
 	selector: 'product-small-card',
 	imports: [NgTemplateOutlet, CapitalizePipe],
 	templateUrl: './product-small-card.component.html',
-	styleUrl: './product-small-card.component.scss',
+	styleUrl: './product-small-card.component.scss'
 })
 export class ProductSmallCardComponent {
 	private _el = inject(ElementRef);

@@ -4,11 +4,11 @@ import { LocationService } from './location.service';
 import { apiUrl } from '../utils/httpUtils';
 import {
 	DailyWeatherCalendarForecast,
-	WeatherDotGovForecastResponse,
+	WeatherDotGovForecastResponse
 } from '../types/weather.types';
 
 @Injectable({
-	providedIn: 'root',
+	providedIn: 'root'
 })
 export class WeatherService {
 	private _locationService = inject(LocationService);
@@ -21,16 +21,16 @@ export class WeatherService {
 						url: apiUrl('weather/forecast', {
 							queryParams: {
 								lat: coords.lat,
-								long: coords.long,
-							},
-						}),
+								long: coords.long
+							}
+						})
 					}
 				: undefined;
-		},
+		}
 	);
 
 	public weatherForecastData = computed(
-		() => this.weatherDataResource.value()?.properties.periods || [],
+		() => this.weatherDataResource.value()?.properties.periods || []
 	);
 
 	public dailyWeatherForecasts = computed<DailyWeatherCalendarForecast[]>(
@@ -44,9 +44,9 @@ export class WeatherService {
 						temperatureUnit: period.temperatureUnit,
 						shortForecast: period.shortForecast,
 						probabilityOfPrecipitation: period.probabilityOfPrecipitation,
-						icon: period.icon,
+						icon: period.icon
 					};
 				});
-		},
+		}
 	);
 }

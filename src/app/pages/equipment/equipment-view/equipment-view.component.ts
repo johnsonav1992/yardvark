@@ -12,7 +12,7 @@ import {
 	CurrencyPipe,
 	DatePipe,
 	NgTemplateOutlet,
-	TitleCasePipe,
+	TitleCasePipe
 } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
@@ -38,11 +38,11 @@ import { NO_IMAGE_URL } from '../../../constants/style-constants';
 		TableModule,
 		CardModule,
 		ButtonModule,
-		NgTemplateOutlet,
+		NgTemplateOutlet
 	],
 	templateUrl: './equipment-view.component.html',
 	styleUrl: './equipment-view.component.scss',
-	providers: [DialogService],
+	providers: [DialogService]
 })
 export class EquipmentViewComponent {
 	private _globalUiService = inject(GlobalUiService);
@@ -58,17 +58,17 @@ export class EquipmentViewComponent {
 	public isMobile = this._globalUiService.isMobile;
 
 	public equipmentId = toSignal(
-		this._route.params.pipe(map((params) => parseInt(params['equipmentId']))),
+		this._route.params.pipe(map((params) => parseInt(params['equipmentId'])))
 	);
 
 	public isLoading = computed(() =>
-		this._equipmentService.equipment.isLoading(),
+		this._equipmentService.equipment.isLoading()
 	);
 
 	public equipment = computed(() =>
 		this._equipmentService.equipment
 			.value()
-			?.find((equipment) => equipment.id === this.equipmentId()),
+			?.find((equipment) => equipment.id === this.equipmentId())
 	);
 
 	public openEquipmentModal(maintenanceRecord?: EquipmentMaintenance): void {
@@ -89,13 +89,13 @@ export class EquipmentViewComponent {
 					notes: maintenanceRecord?.notes,
 					cost: maintenanceRecord?.cost,
 					equipmentId: this.equipmentId(),
-					maintenanceId: maintenanceRecord?.id,
+					maintenanceId: maintenanceRecord?.id
 				},
 				breakpoints: {
-					'800px': '95%',
+					'800px': '95%'
 				},
-				maximizable: true,
-			},
+				maximizable: true
+			}
 		);
 
 		if (this.isMobile()) this._dialogService.getInstance(dialogRef).maximize();
@@ -119,7 +119,7 @@ export class EquipmentViewComponent {
 			accept: () => {
 				this.deleteEquipment();
 			},
-			reject: () => {},
+			reject: () => {}
 		});
 	}
 
@@ -131,7 +131,7 @@ export class EquipmentViewComponent {
 			},
 			error: () => {
 				this.throwErrorToast('Error deleting equipment. Please try again.');
-			},
+			}
 		});
 	}
 
@@ -142,32 +142,32 @@ export class EquipmentViewComponent {
 			},
 			error: () => {
 				this.throwErrorToast(
-					'Error deleting maintenance record. Please try again.',
+					'Error deleting maintenance record. Please try again.'
 				);
-			},
+			}
 		});
 	}
 
 	public dividerDt: DividerDesignTokens = {
 		horizontal: {
-			margin: '0',
-		},
+			margin: '0'
+		}
 	};
 
 	public mobileBottomDividerDt: DividerDesignTokens = {
 		horizontal: {
-			margin: '0 0 .75rem 0',
-		},
+			margin: '0 0 .75rem 0'
+		}
 	};
 
 	public cardDt: CardDesignTokens = {
 		root: { shadow: '0 0 2px rgba(0, 0, 0, 0.3)' },
-		body: { padding: '1rem .75rem 1.5rem .75rem' },
+		body: { padding: '1rem .75rem 1.5rem .75rem' }
 	};
 
 	public mobileAddMaintenanceButtonDt: ButtonDesignTokens = {
 		root: {
-			iconOnlyWidth: '1.75rem',
-		},
+			iconOnlyWidth: '1.75rem'
+		}
 	};
 }

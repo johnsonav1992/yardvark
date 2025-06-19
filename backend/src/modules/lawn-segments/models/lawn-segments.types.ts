@@ -1,4 +1,4 @@
-import { LawnSegment } from './lawn-segments.model';
+import type { LawnSegment } from './lawn-segments.model';
 
 export type LawnSegmentCreationRequest = Omit<
 	InstanceType<typeof LawnSegment>,

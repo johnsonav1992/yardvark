@@ -7,7 +7,7 @@ export const PRODUCT_TYPES = {
 	PLANT_FERTILIZER: 'plant-fertilizer',
 	SEED: 'seed',
 	FUNGUS_CONTROL: 'fungus-control',
-	OTHER: 'other',
+	OTHER: 'other'
 } as const;
 
 export const productTypesArray = Object.values(PRODUCT_TYPES) as ProductType[];

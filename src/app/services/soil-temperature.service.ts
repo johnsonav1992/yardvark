@@ -4,7 +4,7 @@ import { rxResource } from '@angular/core/rxjs-interop';
 import { formatDate } from '@angular/common';
 import {
 	DailySoilTemperatureResponse,
-	OpenMeteoQueryParams,
+	OpenMeteoQueryParams
 } from '../types/openmeteo.types';
 import { getRollingWeekStartAndEndDates } from '../utils/timeUtils';
 import { injectSettingsService } from './settings.service';
@@ -13,7 +13,7 @@ import { LocationService } from './location.service';
 import { of } from 'rxjs';
 
 @Injectable({
-	providedIn: 'root',
+	providedIn: 'root'
 })
 export class SoilTemperatureService {
 	private _settingsService = injectSettingsService();
@@ -26,13 +26,13 @@ export class SoilTemperatureService {
 		() => ({
 			hourly: ['soil_temperature_6cm', 'soil_temperature_18cm'],
 			temperature_unit: this.temperatureUnit()!,
-			timezone: 'auto',
-		}),
+			timezone: 'auto'
+		})
 	);
 
 	public temperatureUnit = computed(
 		() =>
-			this._settingsService.currentSettings()?.temperatureUnit || 'fahrenheit',
+			this._settingsService.currentSettings()?.temperatureUnit || 'fahrenheit'
 	);
 
 	// Shutting this off for now - will find a way to toggle it later
@@ -48,7 +48,7 @@ export class SoilTemperatureService {
 			const startHour = formatDate(
 				new Date(now.getTime() - 24 * 60 * 60 * 1000),
 				'y-MM-ddTHH:00',
-				'en-US',
+				'en-US'
 			)!;
 
 			return coords
@@ -59,8 +59,8 @@ export class SoilTemperatureService {
 							latitude: coords.lat,
 							longitude: coords.long,
 							start_hour: startHour,
-							end_hour: endHour,
-						} satisfies OpenMeteoQueryParams,
+							end_hour: endHour
+						} satisfies OpenMeteoQueryParams
 					}
 				: undefined;
 		});
@@ -79,20 +79,20 @@ export class SoilTemperatureService {
 							...this._sharedQueryParams(),
 							hourly: [
 								...this._sharedQueryParams().hourly!,
-								'soil_moisture_3_to_9cm',
+								'soil_moisture_3_to_9cm'
 							],
 							latitude: coords.lat,
 							longitude: coords.long,
 							start_date: formatDate(startDate, 'y-MM-dd', 'en-US'),
-							end_date: formatDate(endDate, 'y-MM-dd', 'en-US'),
-						} satisfies OpenMeteoQueryParams,
+							end_date: formatDate(endDate, 'y-MM-dd', 'en-US')
+						} satisfies OpenMeteoQueryParams
 					}
 				: undefined;
 		});
 
 	public getPointInTimeSoilTemperature = (
 		shouldFetch: Signal<boolean>,
-		date: Signal<Date | null>,
+		date: Signal<Date | null>
 	) => {
 		return httpResource<DailySoilTemperatureResponse>(() => {
 			const coords =
@@ -115,14 +115,14 @@ export class SoilTemperatureService {
 							start_hour: formatDate(
 								date() || new Date(),
 								'y-MM-ddTHH:mm',
-								'en-US',
+								'en-US'
 							),
 							end_hour: formatDate(
 								date() || new Date(),
 								'y-MM-ddTHH:mm',
-								'en-US',
-							),
-						} satisfies OpenMeteoQueryParams,
+								'en-US'
+							)
+						} satisfies OpenMeteoQueryParams
 					}
 				: undefined;
 		});
@@ -132,6 +132,6 @@ export class SoilTemperatureService {
 		stream: () =>
 			this.useCurrentPositionLatLong()
 				? this._locationService.getLatLongFromCurrentPosition()
-				: of(undefined),
+				: of(undefined)
 	});
 }

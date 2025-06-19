@@ -25,5 +25,5 @@ export type AnalyticsRes = [
 			fertilizerTimelineData: FertilizerTimelineRowRes[];
 			productTypeDistributionData: ProductTypeDistributionRowRes[];
 		};
-	},
+	}
 ];

@@ -11,9 +11,9 @@ import { HttpModule } from '@nestjs/axios';
 @Module({
 	imports: [
 		TypeOrmModule.forFeature([Equipment, EquipmentMaintenance]),
-		HttpModule,
+		HttpModule
 	],
 	controllers: [EquipmentController],
-	providers: [EquipmentService, S3Service, ConfigService],
+	providers: [EquipmentService, S3Service, ConfigService]
 })
 export class EquipmentModule {}

@@ -20,10 +20,10 @@ import { ButtonModule } from 'primeng/button';
 		DividerModule,
 		LoadingSpinnerComponent,
 		TitleCasePipe,
-		ButtonModule,
+		ButtonModule
 	],
 	templateUrl: './product-view.component.html',
-	styleUrl: './product-view.component.scss',
+	styleUrl: './product-view.component.scss'
 })
 export class ProductViewComponent {
 	private _route = inject(ActivatedRoute);
@@ -35,7 +35,7 @@ export class ProductViewComponent {
 	public isMobile = this._globalUiService.isMobile;
 
 	public productId = toSignal(
-		this._route.params.pipe(map((params) => parseInt(params['productId']))),
+		this._route.params.pipe(map((params) => parseInt(params['productId'])))
 	);
 
 	public isLoading = computed(() => this._productsService.products.isLoading());
@@ -43,7 +43,7 @@ export class ProductViewComponent {
 	public product = computed(() =>
 		this._productsService.products
 			.value()
-			?.find((product) => product.id === this.productId()),
+			?.find((product) => product.id === this.productId())
 	);
 
 	public viewLabel(): void {
@@ -52,7 +52,7 @@ export class ProductViewComponent {
 
 	public dividerDt: DividerDesignTokens = {
 		horizontal: {
-			margin: '0',
-		},
+			margin: '0'
+		}
 	};
 }

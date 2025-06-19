@@ -29,7 +29,14 @@
           </div>
         </div>
         <div class="weather-details">
-          <p class="forecast">{{ todaysWeather()!.shortForecast }}</p>
+          <p
+            class="forecast"
+            [style.color]="
+              isDarkMode() ? 'var(--p-surface-400)' : 'var(--p-surface-900)'
+            "
+          >
+            {{ todaysWeather()!.shortForecast }}
+          </p>
           @if (todaysWeather()!.probabilityOfPrecipitation.value) {
             <p class="precipitation">
               <i class="ti ti-droplet"></i>
@@ -49,7 +56,13 @@
 
       @if (tonightsWeather()) {
         <div class="tonight-weather">
-          <h4>Tonight</h4>
+          <h4
+            [style.color]="
+              isDarkMode() ? 'var(--p-surface-200)' : 'var(--p-surface-900)'
+            "
+          >
+            Tonight
+          </h4>
           <div class="tonight-summary">
             <i [class]="tonightsWeatherIcon()" class="tonight-icon"></i>
             <span class="tonight-temp"

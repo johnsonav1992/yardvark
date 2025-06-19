@@ -22,6 +22,7 @@ export class WeatherCardComponent {
   private _locationService = inject(LocationService);
 
   public isMobile = this._globalUiService.isMobile;
+  public isDarkMode = this._globalUiService.isDarkMode;
   public userCoords = this._locationService.userLatLong;
   public weatherData = this._weatherService.weatherForecastData;
 

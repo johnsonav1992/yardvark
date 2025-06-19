@@ -251,7 +251,7 @@ describe('SettingsService', () => {
       mockRepository.findBy.mockResolvedValue([mockSettings]);
 
       await expect(
-        service.updateSettings('user-123', 'invalid-json' as any),
+        service.updateSettings('user-123', 'invalid-json' as never),
       ).rejects.toThrow();
     });
   });

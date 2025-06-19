@@ -6,9 +6,9 @@ import { injectSettingsService } from '../../services/settings.service';
 import { InputNumber } from 'primeng/inputnumber';
 import { debounce } from '../../utils/timeUtils';
 import {
-	AutoCompleteCompleteEvent,
-	AutoCompleteModule,
-	AutoCompleteSelectEvent,
+  AutoCompleteCompleteEvent,
+  AutoCompleteModule,
+  AutoCompleteSelectEvent
 } from 'primeng/autocomplete';
 import { Feature } from '../../types/location.types';
 import { LocationService } from '../../services/location.service';
@@ -24,72 +24,72 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { UnsavedChanges } from '../../guards/unsaved-changes-guard';
 
 @Component({
-	selector: 'settings',
-	imports: [
-		PageContainerComponent,
-		SelectModule,
-		FormsModule,
-		InputNumber,
-		AutoCompleteModule,
-		ButtonModule,
-		InputTextModule,
-		TooltipModule,
-		LawnSegmentsTableComponent,
-		ToggleSwitchModule,
-	],
-	templateUrl: './settings.component.html',
-	styleUrl: './settings.component.scss',
+  selector: 'settings',
+  imports: [
+    PageContainerComponent,
+    SelectModule,
+    FormsModule,
+    InputNumber,
+    AutoCompleteModule,
+    ButtonModule,
+    InputTextModule,
+    TooltipModule,
+    LawnSegmentsTableComponent,
+    ToggleSwitchModule
+  ],
+  templateUrl: './settings.component.html',
+  styleUrl: './settings.component.scss'
 })
 export class SettingsComponent implements UnsavedChanges {
-	private _settingsService = injectSettingsService();
-	private _locationService = inject(LocationService);
-	private _lawnSegmentsService = inject(LawnSegmentsService);
-	private _globalUiService = inject(GlobalUiService);
+  private _settingsService = injectSettingsService();
+  private _locationService = inject(LocationService);
+  private _lawnSegmentsService = inject(LawnSegmentsService);
+  private _globalUiService = inject(GlobalUiService);
 
-	public isMobile = this._globalUiService.isMobile;
-	public currentSettings = this._settingsService.currentSettings;
-	public settingsAreLoading = this._settingsService.settings.isLoading;
-	public lawnSegments = this._lawnSegmentsService.lawnSegments;
+  public isMobile = this._globalUiService.isMobile;
+  public currentSettings = this._settingsService.currentSettings;
+  public settingsAreLoading = this._settingsService.settings.isLoading;
+  public lawnSegments = this._lawnSegmentsService.lawnSegments;
 
-	public lawnSize = linkedSignal(() => this.currentSettings()?.lawnSize);
+  public lawnSize = linkedSignal(() => this.currentSettings()?.lawnSize);
 
-	public hasUnsavedChanges = signal(false);
-	public locationSearchText = signal<string>('');
-	public debouncedSearchText = debouncedSignal(this.locationSearchText, 700);
+  public hasUnsavedChanges = signal(false);
+  public locationSearchText = signal<string>('');
+  public debouncedSearchText = debouncedSignal(this.locationSearchText, 700);
 
-	public foundLocations = rxResource({
-		params: () =>
-			this.debouncedSearchText()
-				? { query: this.debouncedSearchText() }
-				: undefined,
-		stream: ({ params }) =>
-			this._locationService.searchForLocation(params?.query || ''),
-	});
+  public foundLocations = rxResource({
+    params: () =>
+      this.debouncedSearchText()
+        ? { query: this.debouncedSearchText() }
+        : undefined,
+    stream: ({ params }) =>
+      this._locationService.searchForLocation(params?.query || '')
+  });
 
-	public updateSetting = this._settingsService.updateSetting;
+  public updateSetting = this._settingsService.updateSetting;
 
-	public setLawnSize(newVal: number): void {
-		this.debouncedLawnSizeSetter(newVal);
-	}
+  public setLawnSize(newVal: number): void {
+    this.debouncedLawnSizeSetter(newVal);
+  }
 
-	public searchLocations(e: AutoCompleteCompleteEvent): void {
-		this.locationSearchText.set(e.query);
-	}
+  public searchLocations(e: AutoCompleteCompleteEvent): void {
+    this.locationSearchText.set(e.query);
+  }
 
-	public updateLocationSetting(e: AutoCompleteSelectEvent): void {
-		const locationFeature = e.value as Feature;
-		const lat = locationFeature.geometry.coordinates[1];
-		const long = locationFeature.geometry.coordinates[0];
+  public updateLocationSetting(e: AutoCompleteSelectEvent): void {
+    const locationFeature = e.value as Feature;
+    const lat = locationFeature.geometry.coordinates[1];
+    const long = locationFeature.geometry.coordinates[0];
 
-		this.updateSetting('location', {
-			lat,
-			long,
-			address: locationFeature.properties.full_address,
-		});
-	}
+    this.updateSetting('location', {
+      lat,
+      long,
+      address: locationFeature.properties.full_address
+    });
+  }
 
-	private debouncedLawnSizeSetter = debounce(
-		(newVal: number) => this.updateSetting('lawnSize', newVal),
-		1500,
-	);
+  private debouncedLawnSizeSetter = debounce(
+    (newVal: number) => this.updateSetting('lawnSize', newVal),
+    1500
+  );
 }

@@ -1,8 +1,8 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class Analytics41747738508320 implements MigrationInterface {
-	public async up(queryRunner: QueryRunner): Promise<void> {
-		await queryRunner.query(`
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`
       CREATE OR REPLACE FUNCTION get_user_analytics_v2(p_user_id VARCHAR)
       RETURNS JSON AS $$
       DECLARE
@@ -57,11 +57,11 @@ export class Analytics41747738508320 implements MigrationInterface {
       END;
       $$ LANGUAGE plpgsql;
     `);
-	}
+  }
 
-	public async down(queryRunner: QueryRunner): Promise<void> {
-		await queryRunner.query(
-			`DROP FUNCTION IF EXISTS get_user_analytics_v2(VARCHAR)`,
-		);
-	}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `DROP FUNCTION IF EXISTS get_user_analytics_v2(VARCHAR)`,
+    );
+  }
 }

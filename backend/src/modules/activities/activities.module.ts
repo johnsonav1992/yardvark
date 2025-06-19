@@ -5,9 +5,9 @@ import { ActivitiesController } from './controllers/activities.controller';
 import { ActivitiesService } from './services/activities.service';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([Activity])],
-	exports: [TypeOrmModule],
-	controllers: [ActivitiesController],
-	providers: [ActivitiesService],
+  imports: [TypeOrmModule.forFeature([Activity])],
+  exports: [TypeOrmModule],
+  controllers: [ActivitiesController],
+  providers: [ActivitiesService],
 })
 export class ActivitiesModule {}

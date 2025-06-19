@@ -6,17 +6,17 @@
  * @property {Date} endDate - The end date of the week (3 days after today).
  */
 export const getRollingWeekStartAndEndDates = () => {
-	const today = new Date();
-	const startDate = new Date(today);
-	const endDate = new Date(today);
+  const today = new Date();
+  const startDate = new Date(today);
+  const endDate = new Date(today);
 
-	startDate.setDate(today.getDate() - 3);
-	endDate.setDate(today.getDate() + 3);
+  startDate.setDate(today.getDate() - 3);
+  endDate.setDate(today.getDate() + 3);
 
-	return {
-		startDate,
-		endDate,
-	};
+  return {
+    startDate,
+    endDate
+  };
 };
 
 /**
@@ -28,52 +28,52 @@ export const getRollingWeekStartAndEndDates = () => {
  * @returns {string[]} An array of strings representing the days of the week.
  */
 export const getFullWeekOfDayLabelsCenteredAroundCurrentDay = (opts?: {
-	includeDates?: boolean;
-	shortDayNames?: boolean;
-	tinyDayNames?: boolean;
+  includeDates?: boolean;
+  shortDayNames?: boolean;
+  tinyDayNames?: boolean;
 }) => {
-	const today = new Date();
-	const todayIndex = today.getDay();
-	const labels = [];
+  const today = new Date();
+  const todayIndex = today.getDay();
+  const labels = [];
 
-	for (let i = -3; i <= 3; i++) {
-		const currentDate = new Date(today);
-		currentDate.setDate(today.getDate() + i);
-		const dayIndex = (todayIndex + i + 7) % 7;
+  for (let i = -3; i <= 3; i++) {
+    const currentDate = new Date(today);
+    currentDate.setDate(today.getDate() + i);
+    const dayIndex = (todayIndex + i + 7) % 7;
 
-		let label;
+    let label;
 
-		if (opts?.tinyDayNames) {
-			const tinyDayNames = ['Su', 'M', 'Tu', 'W', 'Th', 'F', 'Sa'];
-			label = tinyDayNames[dayIndex];
-		} else if (opts?.shortDayNames) {
-			label = daysOfWeek[dayIndex].substring(0, 3);
-		} else {
-			label = daysOfWeek[dayIndex];
-		}
+    if (opts?.tinyDayNames) {
+      const tinyDayNames = ['Su', 'M', 'Tu', 'W', 'Th', 'F', 'Sa'];
+      label = tinyDayNames[dayIndex];
+    } else if (opts?.shortDayNames) {
+      label = daysOfWeek[dayIndex].substring(0, 3);
+    } else {
+      label = daysOfWeek[dayIndex];
+    }
 
-		if (opts?.includeDates) {
-			const dateStr = `${currentDate.getMonth() + 1}/${currentDate.getDate()}`;
-			label += ` ${dateStr}`;
-		}
+    if (opts?.includeDates) {
+      const dateStr = `${currentDate.getMonth() + 1}/${currentDate.getDate()}`;
+      label += ` ${dateStr}`;
+    }
 
-		labels.push(label);
-	}
+    labels.push(label);
+  }
 
-	return labels;
+  return labels;
 };
 
 /**
  * An array of strings representing the days of the week.
  */
 export const daysOfWeek = [
-	'Sunday',
-	'Monday',
-	'Tuesday',
-	'Wednesday',
-	'Thursday',
-	'Friday',
-	'Saturday',
+  'Sunday',
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday'
 ];
 
 /**
@@ -88,15 +88,15 @@ export const HOURS_IN_A_DAY = 24;
  * @returns The debounced function.
  */
 export const debounce = <T extends (...args: any[]) => void>(
-	func: T,
-	delay: number,
+  func: T,
+  delay: number
 ) => {
-	let timer: ReturnType<typeof setTimeout>;
+  let timer: ReturnType<typeof setTimeout>;
 
-	return ((...args: Parameters<T>) => {
-		clearTimeout(timer);
-		timer = setTimeout(() => func(...args), delay);
-	}) as T;
+  return ((...args: Parameters<T>) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => func(...args), delay);
+  }) as T;
 };
 
 /**
@@ -105,23 +105,23 @@ export const debounce = <T extends (...args: any[]) => void>(
  * @returns A Date object with the time set, or null if the input is null.
  */
 export const convertTimeStringToDate = (
-	timeString: string | null,
+  timeString: string | null
 ): Date | null => {
-	if (!timeString) return null;
+  if (!timeString) return null;
 
-	const today = new Date();
-	const [hours, minutes, seconds] = timeString.split(':').map(Number);
+  const today = new Date();
+  const [hours, minutes, seconds] = timeString.split(':').map(Number);
 
-	today.setHours(hours || 0, minutes || 0, seconds || 0, 0);
-	return today;
+  today.setHours(hours || 0, minutes || 0, seconds || 0, 0);
+  return today;
 };
 
 /**
  * Checks to see if a string is a valid time string in the format HH:mm:ss.
  */
 export const isTimeString = (value: string): boolean => {
-	const timeRegex = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
-	return timeRegex.test(value);
+  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
+  return timeRegex.test(value);
 };
 
 /**
@@ -131,4 +131,4 @@ export const isTimeString = (value: string): boolean => {
  * @returns A Date object for the specified day in the given month.
  */
 export const getSpecificDayOfMonth = (monthDate: Date, day: number): Date =>
-	new Date(monthDate.getFullYear(), monthDate.getMonth(), day);
+  new Date(monthDate.getFullYear(), monthDate.getMonth(), day);

@@ -12,79 +12,79 @@ import { CardModule } from 'primeng/card';
 import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
-	selector: 'soil-moisture-week-graph',
-	imports: [
-		ChartLoaderComponent,
-		ChartModule,
-		PopoverModule,
-		CardModule,
-		NgTemplateOutlet,
-	],
-	templateUrl: './soil-moisture-week-graph.component.html',
-	styleUrl: './soil-moisture-week-graph.component.scss',
+  selector: 'soil-moisture-week-graph',
+  imports: [
+    ChartLoaderComponent,
+    ChartModule,
+    PopoverModule,
+    CardModule,
+    NgTemplateOutlet
+  ],
+  templateUrl: './soil-moisture-week-graph.component.html',
+  styleUrl: './soil-moisture-week-graph.component.scss'
 })
 export class SoilMoistureWeekGraphComponent {
-	private _globalUiService = inject(GlobalUiService);
+  private _globalUiService = inject(GlobalUiService);
 
-	public isMobile = this._globalUiService.isMobile;
-	public isDarkMode = this._globalUiService.isDarkMode;
+  public isMobile = this._globalUiService.isMobile;
+  public isDarkMode = this._globalUiService.isDarkMode;
 
-	public dailyMoistureData = input.required<number[]>();
-	public isLoadingChartData = input<boolean>(false);
+  public dailyMoistureData = input.required<number[]>();
+  public isLoadingChartData = input<boolean>(false);
 
-	public moistureChartData = computed<ChartData<'line'>>(() => ({
-		labels: getFullWeekOfDayLabelsCenteredAroundCurrentDay({
-			includeDates: true,
-			tinyDayNames: this.isMobile(),
-			shortDayNames: !this.isMobile(),
-		}),
-		datasets: [
-			{
-				type: 'line',
-				label: 'Soil moisture',
-				data: this.dailyMoistureData(),
-				borderColor: getPrimeNgHexColor('rose.400'),
-				tension: 0.4,
-			},
-		],
-	}));
+  public moistureChartData = computed<ChartData<'line'>>(() => ({
+    labels: getFullWeekOfDayLabelsCenteredAroundCurrentDay({
+      includeDates: true,
+      tinyDayNames: this.isMobile(),
+      shortDayNames: !this.isMobile()
+    }),
+    datasets: [
+      {
+        type: 'line',
+        label: 'Soil moisture',
+        data: this.dailyMoistureData(),
+        borderColor: getPrimeNgHexColor('rose.400'),
+        tension: 0.4
+      }
+    ]
+  }));
 
-	public options = computed<ChartOptions<'line'>>(() => ({
-		maintainAspectRatio: false,
-		aspectRatio: this.isMobile() ? 1.1 : 0.75,
-		scales: {
-			y: {
-				beginAtZero: true,
-				max: 50,
-				ticks: {
-					stepSize: 10,
-					callback: (val) => `${val}%`,
-				},
-				grid: this.isDarkMode()
-					? {
-							color: DARK_MODE_CHART_GRID_COLOR,
-						}
-					: undefined,
-			},
-			x: {
-				grid: {
-					color: (context) =>
-						getChartGridLineColors(
-							context,
-							this.isDarkMode() ? 'dark' : 'light',
-						),
-				},
-				ticks: {
-					maxRotation: this.isMobile() ? 25 : 0,
-					minRotation: this.isMobile() ? 25 : 0,
-				},
-			},
-		},
-		plugins: {
-			legend: {
-				position: 'chartArea',
-				align: 'end',
-			},
-		},
-	}));
+  public options = computed<ChartOptions<'line'>>(() => ({
+    maintainAspectRatio: false,
+    aspectRatio: this.isMobile() ? 1.1 : 0.75,
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 50,
+        ticks: {
+          stepSize: 10,
+          callback: (val) => `${val}%`
+        },
+        grid: this.isDarkMode()
+          ? {
+              color: DARK_MODE_CHART_GRID_COLOR
+            }
+          : undefined
+      },
+      x: {
+        grid: {
+          color: (context) =>
+            getChartGridLineColors(
+              context,
+              this.isDarkMode() ? 'dark' : 'light'
+            )
+        },
+        ticks: {
+          maxRotation: this.isMobile() ? 25 : 0,
+          minRotation: this.isMobile() ? 25 : 0
+        }
+      }
+    },
+    plugins: {
+      legend: {
+        position: 'chartArea',
+        align: 'end'
+      }
+    }
+  }));
 }

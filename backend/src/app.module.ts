@@ -22,31 +22,31 @@ import { S3Service } from './modules/s3/s3.service';
 import { WeatherModule } from './modules/weather/weather.module';
 
 @Module({
-	imports: [
-		ConfigModule.forRoot({ envFilePath: '.env' }),
-		TypeOrmModule.forRoot(dataSource.options),
-		SettingsModule,
-		ActivitiesModule,
-		LawnSegmentsModule,
-		EntriesModule,
-		ProductsModule,
-		UsersModule,
-		HttpModule,
-		EquipmentModule,
-		AnalyticsModule,
-		FilesModule,
-		WeatherModule,
-		HttpModule,
-	],
-	controllers: [UsersController, FilesController],
-	providers: [
-		JwtStrategy,
-		{
-			provide: APP_GUARD,
-			useClass: JwtAuthGuard,
-		},
-		UsersService,
-		S3Service,
-	],
+  imports: [
+    ConfigModule.forRoot({ envFilePath: '.env' }),
+    TypeOrmModule.forRoot(dataSource.options),
+    SettingsModule,
+    ActivitiesModule,
+    LawnSegmentsModule,
+    EntriesModule,
+    ProductsModule,
+    UsersModule,
+    HttpModule,
+    EquipmentModule,
+    AnalyticsModule,
+    FilesModule,
+    WeatherModule,
+    HttpModule,
+  ],
+  controllers: [UsersController, FilesController],
+  providers: [
+    JwtStrategy,
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
+    },
+    UsersService,
+    S3Service,
+  ],
 })
 export class AppModule {}

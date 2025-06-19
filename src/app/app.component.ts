@@ -14,81 +14,81 @@ import { SwUpdate } from '@angular/service-worker';
 import { ConfirmationService } from 'primeng/api';
 
 @Component({
-	selector: 'app-root',
-	imports: [
-		RouterOutlet,
-		MainHeaderComponent,
-		MainSideNavComponent,
-		ToastModule,
-		LoadingSpinnerComponent,
-		ConfirmDialog,
-	],
-	templateUrl: './app.component.html',
-	styleUrl: './app.component.scss',
+  selector: 'app-root',
+  imports: [
+    RouterOutlet,
+    MainHeaderComponent,
+    MainSideNavComponent,
+    ToastModule,
+    LoadingSpinnerComponent,
+    ConfirmDialog
+  ],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss'
 })
 export class AppComponent {
-	private _auth = inject(AuthService);
-	private _globalUiService = inject(GlobalUiService);
-	private _swUpdate = inject(SwUpdate);
-	private _confirmationService = inject(ConfirmationService);
+  private _auth = inject(AuthService);
+  private _globalUiService = inject(GlobalUiService);
+  private _swUpdate = inject(SwUpdate);
+  private _confirmationService = inject(ConfirmationService);
 
-	public isMobile = this._globalUiService.isMobile;
+  public isMobile = this._globalUiService.isMobile;
 
-	public isLoggedIn = signal(false);
-	public isAuthLoading = toSignal(this._auth.isLoading$);
+  public isLoggedIn = signal(false);
+  public isAuthLoading = toSignal(this._auth.isLoading$);
 
-	public constructor() {
-		if (this._swUpdate.isEnabled) {
-			this._swUpdate.versionUpdates.subscribe((event) => {
-				if (event.type === 'VERSION_READY') {
-					this._confirmationService.confirm({
-						header: 'Update Available',
-						message:
-							'A new version of the app is available. Would you like to load it?',
-						accept: () => {
-							this._swUpdate
-								.activateUpdate()
-								.then(() => document.location.reload());
-						},
-						reject: () => {
-							console.log('User chose not to update.');
-						},
-					});
-				}
-			});
-		}
-	}
+  public constructor() {
+    if (this._swUpdate.isEnabled) {
+      this._swUpdate.versionUpdates.subscribe((event) => {
+        if (event.type === 'VERSION_READY') {
+          this._confirmationService.confirm({
+            header: 'Update Available',
+            message:
+              'A new version of the app is available. Would you like to load it?',
+            accept: () => {
+              this._swUpdate
+                .activateUpdate()
+                .then(() => document.location.reload());
+            },
+            reject: () => {
+              console.log('User chose not to update.');
+            }
+          });
+        }
+      });
+    }
+  }
 
-	public ngOnInit(): void {
-		this._auth.getAccessTokenSilently().subscribe({
-			next: () => {
-				this.isLoggedIn.set(true);
-			},
-			error: () => {
-				this._auth.isAuthenticated$.subscribe((isAuthenticated) => {
-					this.isLoggedIn.set(isAuthenticated);
+  public ngOnInit(): void {
+    this._auth.getAccessTokenSilently().subscribe({
+      next: () => {
+        this.isLoggedIn.set(true);
+      },
+      error: () => {
+        this._auth.isAuthenticated$.subscribe((isAuthenticated) => {
+          this.isLoggedIn.set(isAuthenticated);
 
-					if (!isAuthenticated) {
-						const urlParams = new URLSearchParams(window.location.search);
-						const hasAuthCallback =
-							urlParams.has('code') || urlParams.has('state');
+          if (!isAuthenticated) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const hasAuthCallback =
+              urlParams.has('code') || urlParams.has('state');
 
-						if (!hasAuthCallback) {
-							this._auth.loginWithRedirect();
-						}
-					}
-				});
-			},
-		});
+            if (!hasAuthCallback) {
+              this._auth.loginWithRedirect();
+            }
+          }
+        });
+      }
+    });
 
-		environment.production &&
-			this._auth.user$.subscribe((user) => {
-				if (user) {
-					LogRocket.identify(user.sub!, {
-						name: user.name!,
-						email: user.email!,
-					});
-				}
-			});
-	}
+    environment.production &&
+      this._auth.user$.subscribe((user) => {
+        if (user) {
+          LogRocket.identify(user.sub!, {
+            name: user.name!,
+            email: user.email!
+          });
+        }
+      });
+  }
 }

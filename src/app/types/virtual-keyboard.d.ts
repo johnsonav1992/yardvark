@@ -1,30 +1,30 @@
 interface VirtualKeyboardBoundingRect {
-	x: number;
-	y: number;
-	width: number;
-	height: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 interface VirtualKeyboard {
-	overlaysContent: boolean;
-	boundingRect: VirtualKeyboardBoundingRect;
+  overlaysContent: boolean;
+  boundingRect: VirtualKeyboardBoundingRect;
 
-	show(): void;
-	hide(): void;
+  show(): void;
+  hide(): void;
 
-	addEventListener(
-		type: 'geometrychange',
-		listener: (this: VirtualKeyboard, ev: Event) => any,
-		options?: boolean | AddEventListenerOptions,
-	): void;
+  addEventListener(
+    type: 'geometrychange',
+    listener: (this: VirtualKeyboard, ev: Event) => any,
+    options?: boolean | AddEventListenerOptions
+  ): void;
 
-	removeEventListener(
-		type: 'geometrychange',
-		listener: (this: VirtualKeyboard, ev: Event) => any,
-		options?: boolean | EventListenerOptions,
-	): void;
+  removeEventListener(
+    type: 'geometrychange',
+    listener: (this: VirtualKeyboard, ev: Event) => any,
+    options?: boolean | EventListenerOptions
+  ): void;
 }
 
 interface Navigator {
-	virtualKeyboard?: VirtualKeyboard;
+  virtualKeyboard?: VirtualKeyboard;
 }

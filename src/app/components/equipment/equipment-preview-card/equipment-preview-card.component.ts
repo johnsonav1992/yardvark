@@ -13,58 +13,58 @@ import { EquipmentService } from '../../../services/equipment.service';
 import { NO_IMAGE_URL } from '../../../constants/style-constants';
 
 @Component({
-	selector: 'equipment-preview-card',
-	imports: [CardModule, DatePipe, ButtonModule, TooltipModule],
-	templateUrl: './equipment-preview-card.component.html',
-	styleUrl: './equipment-preview-card.component.scss',
-	providers: [DialogService],
+  selector: 'equipment-preview-card',
+  imports: [CardModule, DatePipe, ButtonModule, TooltipModule],
+  templateUrl: './equipment-preview-card.component.html',
+  styleUrl: './equipment-preview-card.component.scss',
+  providers: [DialogService]
 })
 export class EquipmentPreviewCardComponent {
-	private _router = inject(Router);
-	private _dialogService = inject(DialogService);
-	private _equipmentService = inject(EquipmentService);
-	public isMobile = inject(GlobalUiService).isMobile;
+  private _router = inject(Router);
+  private _dialogService = inject(DialogService);
+  private _equipmentService = inject(EquipmentService);
+  public isMobile = inject(GlobalUiService).isMobile;
 
-	public noImageUrl = NO_IMAGE_URL;
+  public noImageUrl = NO_IMAGE_URL;
 
-	public equipment = input.required<Equipment>();
+  public equipment = input.required<Equipment>();
 
-	public tooltipOptions: TooltipOptions = {
-		appendTo: 'body',
-		positionStyle: 'absolute',
-	};
+  public tooltipOptions: TooltipOptions = {
+    appendTo: 'body',
+    positionStyle: 'absolute'
+  };
 
-	public goToEquipment(): void {
-		this._router.navigate(['equipment', this.equipment().id]);
-	}
+  public goToEquipment(): void {
+    this._router.navigate(['equipment', this.equipment().id]);
+  }
 
-	public openMaintenanceRecordModal(e: Event, equipmentId: number): void {
-		e.stopPropagation();
+  public openMaintenanceRecordModal(e: Event, equipmentId: number): void {
+    e.stopPropagation();
 
-		const dialogRef = this._dialogService.open(
-			EquipmentMaintenanceAddEditModalComponent,
-			{
-				header: 'Add Maintenance Record',
-				modal: true,
-				focusOnShow: false,
-				width: '50%',
-				dismissableMask: true,
-				closable: true,
-				contentStyle: { overflow: 'visible' },
-				breakpoints: {
-					'800px': '95%',
-				},
-				maximizable: true,
-				inputValues: { equipmentId },
-			},
-		);
+    const dialogRef = this._dialogService.open(
+      EquipmentMaintenanceAddEditModalComponent,
+      {
+        header: 'Add Maintenance Record',
+        modal: true,
+        focusOnShow: false,
+        width: '50%',
+        dismissableMask: true,
+        closable: true,
+        contentStyle: { overflow: 'visible' },
+        breakpoints: {
+          '800px': '95%'
+        },
+        maximizable: true,
+        inputValues: { equipmentId }
+      }
+    );
 
-		if (this.isMobile()) this._dialogService.getInstance(dialogRef).maximize();
+    if (this.isMobile()) this._dialogService.getInstance(dialogRef).maximize();
 
-		dialogRef.onClose.subscribe((result) => {
-			if (result === 'success') {
-				this._equipmentService.equipment.reload();
-			}
-		});
-	}
+    dialogRef.onClose.subscribe((result) => {
+      if (result === 'success') {
+        this._equipmentService.equipment.reload();
+      }
+    });
+  }
 }

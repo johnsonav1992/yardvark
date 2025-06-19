@@ -16,81 +16,81 @@ import { AnalyticsComponent } from './pages/analytics/analytics.component';
 import { unsavedChangesGuard } from './guards/unsaved-changes-guard';
 
 export const mainRoutes: Routes = [
-	{
-		path: '',
-		redirectTo: 'dashboard',
-		pathMatch: 'full',
-	},
-	{
-		path: 'dashboard',
-		component: DashboardComponent,
-		canActivate: [authGuard],
-	},
-	{
-		path: 'profile',
-		component: ProfileComponent,
-		canActivate: [authGuard],
-	},
-	{
-		path: 'entry-log',
-		component: EntryLogComponent,
-		canActivate: [authGuard],
-	},
-	{
-		path: 'entry-log/:entryId',
-		component: EntryViewComponent,
-		canActivate: [authGuard],
-	},
-	{
-		path: 'soil-data',
-		component: SoilDataComponent,
-		canActivate: [authGuard],
-	},
-	{
-		path: 'products/add',
-		component: AddProductComponent,
-		canActivate: [authGuard],
-	},
-	{
-		path: 'products/:productId',
-		component: ProductViewComponent,
-		canActivate: [authGuard],
-	},
-	{
-		path: 'products',
-		component: ProductsComponent,
-		canActivate: [authGuard],
-	},
-	{
-		path: 'equipment',
-		component: EquipmentComponent,
-		canActivate: [authGuard],
-		pathMatch: 'full',
-	},
-	{
-		path: 'equipment/add',
-		component: AddEditEquipmentComponent,
-		canActivate: [authGuard],
-	},
-	{
-		path: 'equipment/edit/:equipmentId',
-		component: AddEditEquipmentComponent,
-		canActivate: [authGuard],
-	},
-	{
-		path: 'equipment/:equipmentId',
-		component: EquipmentViewComponent,
-		canActivate: [authGuard],
-	},
-	{
-		path: 'settings',
-		component: SettingsComponent,
-		canActivate: [authGuard],
-		canDeactivate: [unsavedChangesGuard],
-	},
-	{
-		path: 'analytics',
-		component: AnalyticsComponent,
-		canActivate: [authGuard],
-	},
+  {
+    path: '',
+    redirectTo: 'dashboard',
+    pathMatch: 'full'
+  },
+  {
+    path: 'dashboard',
+    component: DashboardComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'profile',
+    component: ProfileComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'entry-log',
+    component: EntryLogComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'entry-log/:entryId',
+    component: EntryViewComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'soil-data',
+    component: SoilDataComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'products/add',
+    component: AddProductComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'products/:productId',
+    component: ProductViewComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'products',
+    component: ProductsComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'equipment',
+    component: EquipmentComponent,
+    canActivate: [authGuard],
+    pathMatch: 'full'
+  },
+  {
+    path: 'equipment/add',
+    component: AddEditEquipmentComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'equipment/edit/:equipmentId',
+    component: AddEditEquipmentComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'equipment/:equipmentId',
+    component: EquipmentViewComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'settings',
+    component: SettingsComponent,
+    canActivate: [authGuard],
+    canDeactivate: [unsavedChangesGuard]
+  },
+  {
+    path: 'analytics',
+    component: AnalyticsComponent,
+    canActivate: [authGuard]
+  }
 ];

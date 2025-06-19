@@ -8,18 +8,18 @@ import { effect, Signal } from '@angular/core';
  * @param opts.logType - The type of log to use. Defaults to 'log'.
  */
 export const effectSignalLogger = (
-	loggedSignalContent: Signal<unknown> | Signal<unknown>[],
-	opts?: {
-		logType?: 'log' | 'warn' | 'error';
-	},
+  loggedSignalContent: Signal<unknown> | Signal<unknown>[],
+  opts?: {
+    logType?: 'log' | 'warn' | 'error';
+  }
 ) => {
-	return effect(() => {
-		console[opts?.logType || 'log'](
-			Array.isArray(loggedSignalContent)
-				? loggedSignalContent.map((signal) => signal())
-				: loggedSignalContent(),
-		);
-	});
+  return effect(() => {
+    console[opts?.logType || 'log'](
+      Array.isArray(loggedSignalContent)
+        ? loggedSignalContent.map((signal) => signal())
+        : loggedSignalContent()
+    );
+  });
 };
 
 /**
@@ -27,17 +27,17 @@ export const effectSignalLogger = (
  * This is useful for mobile devices where the virtual keyboard can be dismissed programmatically.
  */
 export const hideVirtualKeyboard = () => {
-	if ('virtualKeyboard' in navigator) {
-		const vk = navigator.virtualKeyboard;
+  if ('virtualKeyboard' in navigator) {
+    const vk = navigator.virtualKeyboard;
 
-		if (vk) {
-			vk.overlaysContent = true;
+    if (vk) {
+      vk.overlaysContent = true;
 
-			try {
-				vk.hide();
-			} catch (error) {
-				console.error('Error hiding virtual keyboard:', error);
-			}
-		}
-	}
+      try {
+        vk.hide();
+      } catch (error) {
+        console.error('Error hiding virtual keyboard:', error);
+      }
+    }
+  }
 };

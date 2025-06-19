@@ -5,9 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Settings } from './models/settings.model';
 
 @Module({
-	imports: [TypeOrmModule.forFeature([Settings])],
-	exports: [TypeOrmModule],
-	controllers: [SettingsController],
-	providers: [SettingsService],
+  imports: [TypeOrmModule.forFeature([Settings])],
+  exports: [TypeOrmModule],
+  controllers: [SettingsController],
+  providers: [SettingsService],
 })
 export class SettingsModule {}

@@ -11,26 +11,26 @@ import { YVUser } from '../types/user.types';
  * @returns A signal representing the user data.
  */
 export const injectUserData = () => {
-	const authService = inject(AuthService);
+  const authService = inject(AuthService);
 
-	return toSignal(authService.user$);
+  return toSignal(authService.user$);
 };
 
 export const isMasterUser = (user: Maybe<YVUser>): boolean => {
-	return user?.[ROLES_CLAIM].includes(MASTER_USER) || false;
+  return user?.[ROLES_CLAIM].includes(MASTER_USER) || false;
 };
 
 export const getUserInitials = (user: Maybe<YVUser>): string => {
-	if (!user?.name) return '';
+  if (!user?.name) return '';
 
-	const nameParts = user.name.split(' ');
+  const nameParts = user.name.split(' ');
 
-	if (nameParts.length === 1) {
-		return nameParts[0].charAt(0).toUpperCase();
-	} else {
-		return (
-			nameParts[0].charAt(0).toUpperCase() +
-			nameParts[nameParts.length - 1].charAt(0).toUpperCase()
-		);
-	}
+  if (nameParts.length === 1) {
+    return nameParts[0].charAt(0).toUpperCase();
+  } else {
+    return (
+      nameParts[0].charAt(0).toUpperCase() +
+      nameParts[nameParts.length - 1].charAt(0).toUpperCase()
+    );
+  }
 };

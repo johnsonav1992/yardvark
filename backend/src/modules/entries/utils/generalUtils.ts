@@ -1,28 +1,28 @@
 export interface CamelizeKeysFn {
-	<T extends Record<string, unknown>>(input: T): T;
-	<T extends Record<string, unknown>>(input: T[]): T[];
+  <T extends Record<string, unknown>>(input: T): T;
+  <T extends Record<string, unknown>>(input: T[]): T[];
 }
 
 export const camelizeKeys: CamelizeKeysFn = <T extends Record<string, unknown>>(
-	input: T | T[],
+  input: T | T[],
 ) => {
-	const camelize = (obj: T): T => {
-		const camelCaseObj = {} as T;
+  const camelize = (obj: T): T => {
+    const camelCaseObj = {} as T;
 
-		Object.entries(obj).forEach(([key, value]) => {
-			const camelCaseKey = key.replace(
-				/_([a-z])/g,
-				(_: string, letter: string) => letter.toUpperCase(),
-			);
-			(camelCaseObj as Record<string, any>)[camelCaseKey] = value;
-		});
+    Object.entries(obj).forEach(([key, value]) => {
+      const camelCaseKey = key.replace(
+        /_([a-z])/g,
+        (_: string, letter: string) => letter.toUpperCase(),
+      );
+      (camelCaseObj as Record<string, any>)[camelCaseKey] = value;
+    });
 
-		return camelCaseObj;
-	};
+    return camelCaseObj;
+  };
 
-	if (Array.isArray(input)) {
-		return input.map(camelize);
-	}
+  if (Array.isArray(input)) {
+    return input.map(camelize);
+  }
 
-	return camelize(input);
+  return camelize(input);
 };

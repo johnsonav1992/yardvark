@@ -40,6 +40,9 @@ export const appConfig: ApplicationConfig = {
         redirect_uri: window.location.origin,
         audience: `https://${environment.auth0Domain}/api/v2/`
       },
+      useRefreshTokens: true,
+      cacheLocation: 'memory',
+      useRefreshTokensFallback: true,
       httpInterceptor: {
         allowedList: [
           {

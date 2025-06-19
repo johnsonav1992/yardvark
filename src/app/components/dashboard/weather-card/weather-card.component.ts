@@ -50,6 +50,7 @@ export class WeatherCardComponent {
       dateString: todayDateString,
       isDaytime: false
     });
+
     if (todayNighttimeForecast) return todayNighttimeForecast;
 
     return forecasts.find((period) => period.isDaytime) || forecasts[0];
@@ -109,6 +110,7 @@ export class WeatherCardComponent {
       const matchesDate = periodDate.toDateString() === dateString;
       const matchesDayTime =
         isDaytime === undefined || period.isDaytime === isDaytime;
+
       return matchesDate && matchesDayTime;
     });
   }

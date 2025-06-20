@@ -1,7 +1,7 @@
 <div [formGroup]="form()" class="form-container">
   <p-multiSelect
     #productSelect
-    [options]="products.value()"
+    [options]="productsSorted()"
     dataKey="id"
     optionLabel="name"
     [placeholder]="products.isLoading() ? 'Loading...' : 'Select Products'"

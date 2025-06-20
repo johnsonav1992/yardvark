@@ -37,6 +37,14 @@ export class ProductsSelectorComponent {
   public productCardsWidth = input<string | number>('100%');
   public products = this._productsService.products;
 
+  public productsSorted = computed(() =>
+    this.products
+      .value()
+      ?.toSorted((a, b) =>
+        a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+      )
+  );
+
   public productsControl = computed(
     () => this.form().get('products') as FormArray<EntryProductRow>
   );

@@ -9,6 +9,7 @@ describe('ProductsService', () => {
   let service: ProductsService;
   let productRepository: Repository<Product>;
   let userHiddenProductRepository: Repository<UserHiddenProduct>;
+  let module: TestingModule;
 
   const mockProductRepository = {
     find: jest.fn(),
@@ -23,7 +24,9 @@ describe('ProductsService', () => {
   };
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    jest.clearAllMocks();
+
+    module = await Test.createTestingModule({
       providers: [
         ProductsService,
         {
@@ -44,7 +47,12 @@ describe('ProductsService', () => {
     userHiddenProductRepository = module.get<Repository<UserHiddenProduct>>(
       getRepositoryToken(UserHiddenProduct),
     );
-    jest.clearAllMocks();
+  });
+
+  afterEach(async () => {
+    if (module) {
+      await module.close();
+    }
   });
 
   it('should be defined', () => {
@@ -86,7 +94,9 @@ describe('ProductsService', () => {
       },
     ] as Product[];
 
-    const mockHiddenProducts = [{ userId: 'user123', productId: 2 }];
+    const mockHiddenProducts = [
+      { userId: 'user123', productId: 2 },
+    ] as UserHiddenProduct[];
 
     beforeEach(() => {
       mockProductRepository.find.mockResolvedValue(mockProducts);
@@ -225,7 +235,7 @@ describe('ProductsService', () => {
       mockUserHiddenProductRepository.save.mockResolvedValue({
         userId: mockUserId,
         productId: mockProductId,
-      });
+      } as UserHiddenProduct);
     });
 
     it('should save a hidden product record', async () => {
@@ -274,7 +284,10 @@ describe('ProductsService', () => {
     const mockProductId = 1;
 
     beforeEach(() => {
-      mockUserHiddenProductRepository.delete.mockResolvedValue({ affected: 1 });
+      mockUserHiddenProductRepository.delete.mockResolvedValue({
+        affected: 1,
+        raw: {},
+      });
     });
 
     it('should delete a hidden product record', async () => {
@@ -318,7 +331,10 @@ describe('ProductsService', () => {
     });
 
     it('should handle case where no record is found to delete', async () => {
-      mockUserHiddenProductRepository.delete.mockResolvedValue({ affected: 0 });
+      mockUserHiddenProductRepository.delete.mockResolvedValue({
+        affected: 0,
+        raw: {},
+      });
 
       await service.unhideProduct(mockUserId, mockProductId);
 

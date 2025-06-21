@@ -26,7 +26,7 @@ export interface ForecastProperties {
   updateTime: string;
   validTimes: string;
   elevation: Elevation;
-  periods: Period[];
+  periods: WeatherPeriod[];
 }
 
 export interface Elevation {
@@ -34,7 +34,7 @@ export interface Elevation {
   value: number;
 }
 
-export interface Period {
+export interface WeatherPeriod {
   number: number;
   name: string;
   startTime: string;
@@ -63,4 +63,5 @@ export type DailyWeatherCalendarForecast = {
   shortForecast: string;
   probabilityOfPrecipitation: ProbabilityOfPrecipitation;
   icon: string;
+  isDaytime?: boolean;
 };

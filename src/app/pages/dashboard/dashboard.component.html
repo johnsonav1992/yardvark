@@ -2,11 +2,11 @@
   <ng-template #action1>
     <p-button
       icon="ti ti-search"
-      [text]="isMobile()"
-      size="large"
+      outlined
+      [size]="isMobile() ? 'small' : 'large'"
       severity="secondary"
       (onClick)="openEntrySearchSidebar()"
-      [label]="isMobile() ? '' : 'Search for entries'"
+      [label]="isMobile() ? 'Search' : 'Search for entries'"
     />
   </ng-template>
   @if (recentEntry.isLoading()) {

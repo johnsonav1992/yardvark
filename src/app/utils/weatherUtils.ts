@@ -8,7 +8,34 @@ import {
   RAIN_CHANCE_MEDIUM_THRESHOLD,
   WEATHER_ICONS
 } from '../constants/weather-constant';
-import { DailyWeatherCalendarForecast } from '../types/weather.types';
+import {
+  DailyWeatherCalendarForecast,
+  WeatherPeriod
+} from '../types/weather.types';
+
+/**
+ * Determines if the forecast is for night-time based on isDaytime property or time-based fallback logic
+ */
+const isNightTime = (forecast: DailyWeatherCalendarForecast): boolean => {
+  if (forecast.isDaytime != null) return !forecast.isDaytime;
+
+  const hour = forecast.date.getHours();
+  return hour < 6 || hour >= 20; // Consider 8PM to 6AM as night-time
+};
+
+export const convertPeriodToForecast = (
+  period: WeatherPeriod
+): DailyWeatherCalendarForecast => {
+  return {
+    date: new Date(period.startTime),
+    temperature: period.temperature,
+    temperatureUnit: period.temperatureUnit,
+    shortForecast: period.shortForecast,
+    probabilityOfPrecipitation: period.probabilityOfPrecipitation,
+    icon: period.icon,
+    isDaytime: period.isDaytime
+  };
+};
 
 export const getForecastMarkerIcon = (
   forecast: DailyWeatherCalendarForecast
@@ -16,6 +43,7 @@ export const getForecastMarkerIcon = (
   const { temperature, temperatureUnit, probabilityOfPrecipitation } = forecast;
 
   const precipitationChance = probabilityOfPrecipitation?.value || 0;
+  const isNight = isNightTime(forecast);
 
   if (temperatureUnit === 'F') {
     if (
@@ -31,16 +59,29 @@ export const getForecastMarkerIcon = (
     if (precipitationChance > RAIN_CHANCE_MEDIUM_THRESHOLD)
       return WEATHER_ICONS.rain;
 
-    if (precipitationChance > RAIN_CHANCE_LOW_THRESHOLD)
-      return WEATHER_ICONS.cloud;
+    if (precipitationChance > RAIN_CHANCE_LOW_THRESHOLD) {
+      return isNight ? WEATHER_ICONS.cloudNight : WEATHER_ICONS.cloud;
+    }
 
     if (temperature < FREEZING_TEMPERATURE_F) return WEATHER_ICONS.snowflake;
-    if (temperature < MEDIUM_TEMPERATURE_F) return WEATHER_ICONS.cloud;
-    if (temperature < HIGH_TEMPERATURE_F) return WEATHER_ICONS.sun;
-    if (temperature < HOT_TEMPERATURE_F) return WEATHER_ICONS.sunnier;
-    if (temperature >= HOT_TEMPERATURE_F) return WEATHER_ICONS.hot;
 
-    return WEATHER_ICONS.sun;
+    if (temperature < MEDIUM_TEMPERATURE_F) {
+      return isNight ? WEATHER_ICONS.cloudNight : WEATHER_ICONS.cloud;
+    }
+
+    if (temperature < HIGH_TEMPERATURE_F) {
+      return isNight ? WEATHER_ICONS.moon : WEATHER_ICONS.sun;
+    }
+
+    if (temperature < HOT_TEMPERATURE_F) {
+      return isNight ? WEATHER_ICONS.moonStars : WEATHER_ICONS.sunnier;
+    }
+
+    if (temperature >= HOT_TEMPERATURE_F) {
+      return isNight ? WEATHER_ICONS.moonStars : WEATHER_ICONS.hot;
+    }
+
+    return isNight ? WEATHER_ICONS.moon : WEATHER_ICONS.sun;
   }
 
   return '';

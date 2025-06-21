@@ -22,10 +22,6 @@ export class ProductsService {
           formData.append(key, String(value));
         }
       });
-
-      if (productFormData.systemProduct) {
-        formData.append('systemProduct', 'true');
-      }
     }
 
     return postReq(apiUrl('products'), formData);

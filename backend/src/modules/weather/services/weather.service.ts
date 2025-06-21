@@ -6,7 +6,7 @@ import {
   WeatherDotGovForecastResponse,
   WeatherDotGovPointsResponse,
 } from '../models/weather.types';
-import { tryCatch } from 'src/utils/tryCatch';
+import { tryCatch } from '../../../utils/tryCatch';
 
 @Injectable()
 export class WeatherService {

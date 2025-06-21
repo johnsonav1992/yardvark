@@ -3,12 +3,12 @@ import { CardModule } from 'primeng/card';
 import { WeatherService } from '../../../services/weather-service';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { LocationService } from '../../../services/location.service';
-import { getForecastMarkerIcon } from '../../../utils/weatherUtils';
+import {
+  convertPeriodToForecast,
+  getForecastMarkerIcon
+} from '../../../utils/weatherUtils';
 import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loading-spinner.component';
-import type {
-  DailyWeatherCalendarForecast,
-  Period
-} from '../../../types/weather.types';
+import type { WeatherPeriod } from '../../../types/weather.types';
 
 @Component({
   selector: 'weather-card',
@@ -89,12 +89,10 @@ export class WeatherCardComponent {
     this.getWeatherIconForPeriod(this.tonightsWeather())
   );
 
-  private getWeatherIconForPeriod(period: Period | null): string {
+  private getWeatherIconForPeriod(period: WeatherPeriod | null): string {
     if (!period) return 'ti ti-cloud';
-    if (!period.isDaytime) return 'ti ti-moon';
 
-    const forecast = this.convertPeriodToForecast(period);
-    return getForecastMarkerIcon(forecast);
+    return getForecastMarkerIcon(convertPeriodToForecast(period));
   }
 
   private findPeriodByDate({
@@ -102,10 +100,10 @@ export class WeatherCardComponent {
     dateString,
     isDaytime
   }: {
-    forecasts: Period[];
+    forecasts: WeatherPeriod[];
     dateString: string;
     isDaytime?: boolean;
-  }): Period | undefined {
+  }): WeatherPeriod | undefined {
     return forecasts.find((period) => {
       const periodDate = new Date(period.startTime);
       const matchesDate = periodDate.toDateString() === dateString;
@@ -118,18 +116,5 @@ export class WeatherCardComponent {
 
   private getTodayDateString(): string {
     return new Date().toDateString();
-  }
-
-  private convertPeriodToForecast(
-    period: Period
-  ): DailyWeatherCalendarForecast {
-    return {
-      date: new Date(period.startTime),
-      temperature: period.temperature,
-      temperatureUnit: period.temperatureUnit,
-      shortForecast: period.shortForecast,
-      probabilityOfPrecipitation: period.probabilityOfPrecipitation,
-      icon: period.icon
-    };
   }
 }

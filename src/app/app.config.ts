@@ -42,6 +42,7 @@ export const appConfig: ApplicationConfig = {
       },
       useRefreshTokens: true,
       cacheLocation: 'memory',
+      useRefreshTokensFallback: true,
       httpInterceptor: {
         allowedList: [
           {

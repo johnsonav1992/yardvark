@@ -13,5 +13,8 @@ export const WEATHER_ICONS = {
   cloud: 'ti ti-cloud',
   sun: 'ti ti-sun',
   sunnier: 'ti ti-sun-high',
-  hot: 'ti ti-temperature-sun'
+  hot: 'ti ti-temperature-sun',
+  moon: 'ti ti-moon',
+  moonStars: 'ti ti-moon-stars',
+  cloudNight: 'ti ti-cloud-moon'
 } as const;

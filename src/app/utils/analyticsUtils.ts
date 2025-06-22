@@ -3,6 +3,7 @@ import { shortMonthNames } from '../constants/time-constants';
 import { AnalyticsChartConfig, AnalyticsRes } from '../types/analytics.types';
 import { getPrimeNgHexColor } from './styleUtils';
 import { format } from 'date-fns';
+import { getPoundsOfNInFertilizerApp } from './lawnCalculatorUtils';
 
 export const LIQUID_OZ_AS_WEIGHT_IN_POUNDS = 0.1;
 
@@ -26,34 +27,6 @@ export const getMonthAbbreviations = (
   }
 
   return months;
-};
-
-/**
- * Returns the number of pounds of nitrogen in a fertilizer application
- *
- * @param poundsOfProduct - The weight of the fertilizer product in pounds
- * @param guaranteedAnalysisOfProduct - The guaranteed analysis of the fertilizer product (e.g., "10-10-10")
- * @returns The number of pounds of nitrogen in the fertilizer application
- */
-export const getPoundsOfNInFertilizerApp = ({
-  poundsOfProduct,
-  guaranteedAnalysisOfProduct,
-  totalSquareFeet
-}: {
-  poundsOfProduct: number;
-  guaranteedAnalysisOfProduct: string;
-  totalSquareFeet?: number;
-}) => {
-  const nRateOfProduct = +guaranteedAnalysisOfProduct.split('-')[0];
-  const nPercent = nRateOfProduct / 100;
-  const poundsOfN = poundsOfProduct * nPercent;
-
-  if (totalSquareFeet && totalSquareFeet > 0) {
-    const poundsOfNPer1000SqFt = poundsOfN * (1000 / totalSquareFeet);
-    return Math.round(poundsOfNPer1000SqFt * 100) / 100;
-  }
-
-  return Math.round(poundsOfN * 100) / 100;
 };
 
 export const getMonthlyMowingChartConfig = (

@@ -30,6 +30,29 @@ export const applicationRateFieldValidator: ValidatorFn = (control) => {
   return null;
 };
 
+/**
+ * Marks all form controls as dirty and touched to display validation errors.
+ *
+ * This utility function is useful when handling form submissions to ensure that
+ * all validation errors are visible to the user, even if they haven't interacted
+ * with every form field.
+ *
+ * @param form - The Angular FormGroup to process
+ * @returns The same FormGroup instance after marking it as touched
+ *
+ * @example
+ * ```typescript
+ * const myForm = new FormGroup({...});
+ *
+ * onSubmit() {
+ *   if (myForm.invalid) {
+ *     showAllFormErrorsOnSubmit(myForm);
+ *     return;
+ *   }
+ *   // process valid form submission
+ * }
+ * ```
+ */
 export const showAllFormErrorsOnSubmit = (form: FormGroup) => {
   Object.entries(form.controls).forEach(([_, ctrl]) => ctrl.markAsDirty());
 

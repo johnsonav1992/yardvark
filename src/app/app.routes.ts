@@ -14,6 +14,7 @@ import { EquipmentViewComponent } from './pages/equipment/equipment-view/equipme
 import { AddEditEquipmentComponent } from './pages/equipment/add-edit-equipment/add-edit-equipment.component';
 import { AnalyticsComponent } from './pages/analytics/analytics.component';
 import { unsavedChangesGuard } from './guards/unsaved-changes-guard';
+import { CalculatorsPage } from './pages/calculators/calculators-page';
 
 export const mainRoutes: Routes = [
   {
@@ -91,6 +92,11 @@ export const mainRoutes: Routes = [
   {
     path: 'analytics',
     component: AnalyticsComponent,
+    canActivate: [authGuard]
+  },
+  {
+    path: 'calculators',
+    component: CalculatorsPage,
     canActivate: [authGuard]
   }
 ];

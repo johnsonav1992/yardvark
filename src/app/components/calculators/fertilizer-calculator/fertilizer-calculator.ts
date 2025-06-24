@@ -14,9 +14,9 @@ export class FertilizerCalculator {
 
   public formValid = computed(
     () =>
-      this.totalLawnSizeSignal() !== null &&
-      this.poundsOfNSignal() !== null &&
-      this.nitrogenRateSignal() !== null
+      this.totalLawnSizeSignal() != null &&
+      this.poundsOfNSignal() != null &&
+      this.nitrogenRateSignal() != null
   );
 
   public fertilizerAmount = computed(() => {

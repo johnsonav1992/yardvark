@@ -1,7 +1,5 @@
-import { Component } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, computed, signal } from '@angular/core';
 import { getPoundsOfProductForDesiredN } from '../../../utils/lawnCalculatorUtils';
-import { showAllFormErrorsOnSubmit } from '../../../utils/formUtils';
 
 @Component({
   selector: 'fertilizer-calculator',
@@ -10,28 +8,30 @@ import { showAllFormErrorsOnSubmit } from '../../../utils/formUtils';
   styleUrl: './fertilizer-calculator.scss'
 })
 export class FertilizerCalculator {
-  public form = new FormGroup({
-    totalLawnSize: new FormControl<number | null>(null, [Validators.required]),
-    poundsOfN: new FormControl<number | null>(null, [Validators.required]),
-    nitrogenRate: new FormControl<number | null>(null, [Validators.required]),
-    phosphorusRate: new FormControl<number | null>(null),
-    potassiumRate: new FormControl<number | null>(null)
-  });
+  private totalLawnSizeSignal = signal<number | null>(null);
+  private poundsOfNSignal = signal<number | null>(null);
+  private nitrogenRateSignal = signal<number | null>(null);
 
-  public calculate(): void {
-    if (this.form.invalid) return showAllFormErrorsOnSubmit(this.form);
+  public formValid = computed(
+    () =>
+      this.totalLawnSizeSignal() !== null &&
+      this.poundsOfNSignal() !== null &&
+      this.nitrogenRateSignal() !== null
+  );
 
-    const { totalLawnSize, poundsOfN, nitrogenRate } = this.form.value;
+  public fertilizerAmount = computed(() => {
+    const totalLawnSize = this.totalLawnSizeSignal();
+    const poundsOfN = this.poundsOfNSignal();
+    const nitrogenRate = this.nitrogenRateSignal();
 
-    if (!totalLawnSize || !poundsOfN || !nitrogenRate)
-      return showAllFormErrorsOnSubmit(this.form);
+    if (!this.formValid() || !totalLawnSize || !poundsOfN || !nitrogenRate) {
+      return null;
+    }
 
-    const fertilizerAmount = getPoundsOfProductForDesiredN({
+    return getPoundsOfProductForDesiredN({
       desiredLbsOfNPer1000SqFt: poundsOfN,
       guaranteedAnalysisOfProduct: `${nitrogenRate}-0-0`,
       totalSquareFeet: totalLawnSize
     });
-
-    console.log(`Fertilizer amount needed: ${fertilizerAmount} lbs`);
-  }
+  });
 }

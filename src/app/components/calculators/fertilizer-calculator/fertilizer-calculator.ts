@@ -24,14 +24,12 @@ export class FertilizerCalculator {
     const poundsOfN = this.poundsOfNSignal();
     const nitrogenRate = this.nitrogenRateSignal();
 
-    if (!this.formValid() || !totalLawnSize || !poundsOfN || !nitrogenRate) {
-      return null;
-    }
+    if (!this.formValid()) return null;
 
     return getPoundsOfProductForDesiredN({
-      desiredLbsOfNPer1000SqFt: poundsOfN,
-      guaranteedAnalysisOfProduct: `${nitrogenRate}-0-0`,
-      totalSquareFeet: totalLawnSize
+      desiredLbsOfNPer1000SqFt: poundsOfN!,
+      guaranteedAnalysisOfProduct: `${nitrogenRate!}-0-0`,
+      totalSquareFeet: totalLawnSize!
     });
   });
 }

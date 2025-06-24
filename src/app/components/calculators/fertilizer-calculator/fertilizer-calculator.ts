@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { getPoundsOfProductForDesiredN } from '../../../utils/lawnCalculatorUtils';
 import { showAllFormErrorsOnSubmit } from '../../../utils/formUtils';
 
@@ -11,9 +11,9 @@ import { showAllFormErrorsOnSubmit } from '../../../utils/formUtils';
 })
 export class FertilizerCalculator {
   public form = new FormGroup({
-    totalLawnSize: new FormControl<number | null>(null),
-    poundsOfN: new FormControl<number | null>(null),
-    nitrogenRate: new FormControl<number | null>(null),
+    totalLawnSize: new FormControl<number | null>(null, [Validators.required]),
+    poundsOfN: new FormControl<number | null>(null, [Validators.required]),
+    nitrogenRate: new FormControl<number | null>(null, [Validators.required]),
     phosphorusRate: new FormControl<number | null>(null),
     potassiumRate: new FormControl<number | null>(null)
   });

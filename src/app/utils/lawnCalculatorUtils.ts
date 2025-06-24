@@ -64,3 +64,34 @@ export const getPoundsOfProductForDesiredN = ({
 
   return null;
 };
+
+/**
+ * Calculates the Growing Degree Days (GDD) for a single day.
+ *
+ * @param options - The input parameters
+ * @param options.baseTemperature - The minimum temperature threshold for growth (e.g., 50°F for cool season grasses)
+ * @param options.maxTemperature - The maximum temperature for the day
+ * @param options.minTemperature - The minimum temperature for the day
+ * @returns The GDD value for the day (minimum of 0)
+ *
+ * @example
+ * // Calculate GDD for a day with max 75°F, min 55°F, and base temp of 50°F
+ * const gdd = getDailyGDDCalculation({
+ *   baseTemperature: 50,
+ *   maxTemperature: 75,
+ *   minTemperature: 55
+ * });
+ * // result: 15
+ */
+export const getDailyGDDCalculation = ({
+  baseTemperature,
+  maxTemperature,
+  minTemperature
+}: {
+  baseTemperature: number;
+  maxTemperature: number;
+  minTemperature: number;
+}): number => {
+  const averageTemp = (maxTemperature + minTemperature) / 2;
+  return Math.max(0, averageTemp - baseTemperature);
+};

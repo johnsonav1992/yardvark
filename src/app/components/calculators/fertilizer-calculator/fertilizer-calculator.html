@@ -1,1 +1,37 @@
-<p>fertilizer-calculator works!</p>
+<div>
+  <input
+    [(ngModel)]="totalLawnSize"
+    placeholder="Total Lawn Size (sq ft)"
+    type="number"
+    pInputText
+  />
+</div>
+
+<div>
+  <input
+    [(ngModel)]="nitrogenRate"
+    placeholder="Nitrogen Rate (%)"
+    type="number"
+    pInputText
+  />
+</div>
+
+<div>
+  <input
+    [ngModel]="poundsOfN()"
+    (ngModelChange)="onPoundsOfNChange($event)"
+    placeholder="Pounds of Nitrogen (lbs)"
+    type="number"
+    pInputText
+  />
+</div>
+
+<div>
+  <input
+    [ngModel]="fertilizerAmount()"
+    (ngModelChange)="onFertilizerAmountChange($event)"
+    placeholder="Fertilizer Amount (lbs)"
+    type="number"
+    pInputText
+  />
+</div>

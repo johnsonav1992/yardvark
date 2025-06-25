@@ -1,4 +1,4 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, linkedSignal, signal } from '@angular/core';
 import { getPoundsOfProductForDesiredN } from '../../../utils/lawnCalculatorUtils';
 
 @Component({
@@ -12,24 +12,15 @@ export class FertilizerCalculator {
   private poundsOfNSignal = signal<number | null>(null);
   private nitrogenRateSignal = signal<number | null>(null);
 
-  public formValid = computed(
-    () =>
-      this.totalLawnSizeSignal() != null &&
-      this.poundsOfNSignal() != null &&
-      this.nitrogenRateSignal() != null
-  );
-
-  public fertilizerAmount = computed(() => {
+  public fertilizerAmount = linkedSignal(() => {
     const totalLawnSize = this.totalLawnSizeSignal();
     const poundsOfN = this.poundsOfNSignal();
     const nitrogenRate = this.nitrogenRateSignal();
 
-    if (!this.formValid()) return null;
-
     return getPoundsOfProductForDesiredN({
-      desiredLbsOfNPer1000SqFt: poundsOfN!,
-      guaranteedAnalysisOfProduct: `${nitrogenRate!}-0-0`,
-      totalSquareFeet: totalLawnSize!
+      desiredLbsOfNPer1000SqFt: poundsOfN || 0,
+      guaranteedAnalysisOfProduct: `${nitrogenRate || 0}-0-0`,
+      totalSquareFeet: totalLawnSize || 0
     });
   });
 }

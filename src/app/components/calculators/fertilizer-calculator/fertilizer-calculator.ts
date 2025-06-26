@@ -1,63 +1,67 @@
-import { Component, signal } from '@angular/core';
-import {
-  getPoundsOfNInFertilizerApp,
-  getPoundsOfProductForDesiredN
-} from '../../../utils/lawnCalculatorUtils';
-import { FormsModule } from '@angular/forms';
+import { Component } from '@angular/core';
+import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+// import {
+//   getPoundsOfNInFertilizerApp,
+//   getPoundsOfProductForDesiredN
+// } from '../../../utils/lawnCalculatorUtils';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 @Component({
   selector: 'fertilizer-calculator',
-  imports: [FormsModule, InputTextModule],
+  imports: [ReactiveFormsModule, InputTextModule, InputNumberModule],
   templateUrl: './fertilizer-calculator.html',
   styleUrl: './fertilizer-calculator.scss'
 })
 export class FertilizerCalculator {
-  public totalLawnSize = signal<number | null>(null);
-  public nitrogenRate = signal<number | null>(null);
+  public fertilizerForm = new FormGroup({
+    totalLawnSize: new FormControl<number | null>(null),
+    nitrogenRate: new FormControl<number | null>(null),
+    poundsOfN: new FormControl<number | null>(null),
+    fertilizerAmount: new FormControl<number | null>(null)
+  });
 
-  public poundsOfN = signal<number | null>(null);
-  public fertilizerAmount = signal<number | null>(null);
-
-  public onPoundsOfNChange(newPoundsOfN: number | null): void {
-    this.poundsOfN.set(newPoundsOfN);
-
-    if (newPoundsOfN === null) {
-      return this.fertilizerAmount.set(null);
-    }
-
-    const totalLawnSize = this.totalLawnSize();
-    const nitrogenRate = this.nitrogenRate();
-
-    if (totalLawnSize && nitrogenRate) {
-      const calculatedFertilizerAmount = getPoundsOfProductForDesiredN({
-        desiredLbsOfNPer1000SqFt: newPoundsOfN,
-        guaranteedAnalysisOfProduct: `${nitrogenRate}-0-0`,
-        totalSquareFeet: totalLawnSize
-      });
-
-      this.fertilizerAmount.set(calculatedFertilizerAmount);
-    }
+  public constructor() {
+    this.fertilizerForm.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe((v) => this.calculate(v));
   }
 
-  public onFertilizerAmountChange(newFertilizerAmount: number | null): void {
-    this.fertilizerAmount.set(newFertilizerAmount);
+  public calculate(formVal: typeof this.fertilizerForm.value): void {
+    // const { totalLawnSize, nitrogenRate, poundsOfN, fertilizerAmount } =
+    //   formVal;
 
-    if (newFertilizerAmount === null) {
-      return this.poundsOfN.set(null);
-    }
+    // determine which field changed
+    const [changedField] = Object.entries(formVal)
+      .filter(([key, value]) => {
+        console.log(key, value);
+        console.log(this.fertilizerForm.value);
+        return (
+          value !==
+          this.fertilizerForm.value[
+            key as keyof typeof this.fertilizerForm.value
+          ]
+        );
+      })
+      .map(([key]) => key);
 
-    const totalLawnSize = this.totalLawnSize();
-    const nitrogenRate = this.nitrogenRate();
+    console.log({ changedField });
 
-    if (totalLawnSize && nitrogenRate) {
-      const calculatedPoundsOfN = getPoundsOfNInFertilizerApp({
-        poundsOfProduct: newFertilizerAmount,
-        guaranteedAnalysisOfProduct: `${nitrogenRate}-0-0`,
-        totalSquareFeet: totalLawnSize
-      });
-
-      this.poundsOfN.set(calculatedPoundsOfN);
-    }
+    // this.fertilizerForm.patchValue(
+    //   {
+    //     poundsOfN: getPoundsOfNInFertilizerApp({
+    //       guaranteedAnalysisOfProduct: `${nitrogenRate}-0-0`,
+    //       poundsOfProduct: fertilizerAmount || 0,
+    //       totalSquareFeet: totalLawnSize || 0
+    //     }),
+    //     fertilizerAmount: getPoundsOfProductForDesiredN({
+    //       totalSquareFeet: totalLawnSize || 0,
+    //       desiredLbsOfNPer1000SqFt: poundsOfN || 0,
+    //       guaranteedAnalysisOfProduct: `${nitrogenRate}-0-0`
+    //     })
+    //   },
+    //   { emitEvent: false }
+    // );
   }
 }

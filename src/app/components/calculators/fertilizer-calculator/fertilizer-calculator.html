@@ -1,37 +1,34 @@
-<div>
-  <input
-    [(ngModel)]="totalLawnSize"
+<div [formGroup]="fertilizerForm">
+  <p-inputNumber
     placeholder="Total Lawn Size (sq ft)"
-    type="number"
-    pInputText
+    [allowEmpty]="true"
+    [mode]="'decimal'"
+    [minFractionDigits]="1"
+    [maxFractionDigits]="5"
+    formControlName="totalLawnSize"
   />
-</div>
-
-<div>
-  <input
-    [(ngModel)]="nitrogenRate"
+  <p-inputNumber
     placeholder="Nitrogen Rate (%)"
-    type="number"
-    pInputText
+    [allowEmpty]="true"
+    [mode]="'decimal'"
+    [minFractionDigits]="1"
+    [maxFractionDigits]="5"
+    formControlName="nitrogenRate"
   />
-</div>
-
-<div>
-  <input
-    [ngModel]="poundsOfN()"
-    (ngModelChange)="onPoundsOfNChange($event)"
+  <p-inputNumber
     placeholder="Pounds of Nitrogen (lbs)"
-    type="number"
-    pInputText
+    [allowEmpty]="true"
+    [mode]="'decimal'"
+    [minFractionDigits]="1"
+    [maxFractionDigits]="5"
+    formControlName="poundsOfN"
   />
-</div>
-
-<div>
-  <input
-    [ngModel]="fertilizerAmount()"
-    (ngModelChange)="onFertilizerAmountChange($event)"
+  <p-inputNumber
     placeholder="Fertilizer Amount (lbs)"
-    type="number"
-    pInputText
+    [allowEmpty]="true"
+    [mode]="'decimal'"
+    [minFractionDigits]="1"
+    [maxFractionDigits]="5"
+    formControlName="fertilizerAmount"
   />
 </div>

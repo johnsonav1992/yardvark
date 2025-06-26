@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-// import {
-//   getPoundsOfNInFertilizerApp,
-//   getPoundsOfProductForDesiredN
-// } from '../../../utils/lawnCalculatorUtils';
+import {
+  getPoundsOfNInFertilizerApp,
+  getPoundsOfProductForDesiredN
+} from '../../../utils/lawnCalculatorUtils';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { pairwise, startWith } from 'rxjs';
 
 @Component({
   selector: 'fertilizer-calculator',
@@ -24,44 +25,48 @@ export class FertilizerCalculator {
 
   public constructor() {
     this.fertilizerForm.valueChanges
-      .pipe(takeUntilDestroyed())
-      .subscribe((v) => this.calculate(v));
+      .pipe(
+        takeUntilDestroyed(),
+        startWith(this.fertilizerForm.value),
+        pairwise()
+      )
+      .subscribe(([prev, curr]) => this.calculate(prev, curr));
   }
 
-  public calculate(formVal: typeof this.fertilizerForm.value): void {
-    // const { totalLawnSize, nitrogenRate, poundsOfN, fertilizerAmount } =
-    //   formVal;
+  public calculate(
+    prevFormVal: typeof this.fertilizerForm.value,
+    currFormVal: typeof this.fertilizerForm.value
+  ): void {
+    const { totalLawnSize, nitrogenRate, poundsOfN, fertilizerAmount } =
+      currFormVal;
 
-    // determine which field changed
-    const [changedField] = Object.entries(formVal)
-      .filter(([key, value]) => {
-        console.log(key, value);
-        console.log(this.fertilizerForm.value);
-        return (
-          value !==
-          this.fertilizerForm.value[
-            key as keyof typeof this.fertilizerForm.value
-          ]
-        );
-      })
+    const [changedField] = Object.entries(currFormVal)
+      .filter(
+        ([key, value]) =>
+          value !== prevFormVal[key as keyof typeof this.fertilizerForm.value]
+      )
       .map(([key]) => key);
 
-    console.log({ changedField });
-
-    // this.fertilizerForm.patchValue(
-    //   {
-    //     poundsOfN: getPoundsOfNInFertilizerApp({
-    //       guaranteedAnalysisOfProduct: `${nitrogenRate}-0-0`,
-    //       poundsOfProduct: fertilizerAmount || 0,
-    //       totalSquareFeet: totalLawnSize || 0
-    //     }),
-    //     fertilizerAmount: getPoundsOfProductForDesiredN({
-    //       totalSquareFeet: totalLawnSize || 0,
-    //       desiredLbsOfNPer1000SqFt: poundsOfN || 0,
-    //       guaranteedAnalysisOfProduct: `${nitrogenRate}-0-0`
-    //     })
-    //   },
-    //   { emitEvent: false }
-    // );
+    this.fertilizerForm.patchValue(
+      {
+        poundsOfN:
+          changedField !== 'poundsOfN'
+            ? getPoundsOfNInFertilizerApp({
+                guaranteedAnalysisOfProduct: `${nitrogenRate}-0-0`,
+                poundsOfProduct: fertilizerAmount || 0,
+                totalSquareFeet: totalLawnSize || 0
+              })
+            : poundsOfN,
+        fertilizerAmount:
+          changedField !== 'fertilizerAmount'
+            ? getPoundsOfProductForDesiredN({
+                totalSquareFeet: totalLawnSize || 0,
+                desiredLbsOfNPer1000SqFt: poundsOfN || 0,
+                guaranteedAnalysisOfProduct: `${nitrogenRate}-0-0`
+              })
+            : fertilizerAmount
+      },
+      { emitEvent: false }
+    );
   }
 }

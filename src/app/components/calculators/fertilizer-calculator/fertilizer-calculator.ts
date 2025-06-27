@@ -1,13 +1,12 @@
 import { Component } from '@angular/core';
 import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
+  getNitrogenRateFromFields,
   getPoundsOfNInFertilizerApp,
   getPoundsOfProductForDesiredN
 } from '../../../utils/lawnCalculatorUtils';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { pairwise, startWith } from 'rxjs';
 
 @Component({
   selector: 'fertilizer-calculator',
@@ -24,47 +23,49 @@ export class FertilizerCalculator {
   });
 
   public constructor() {
-    this.fertilizerForm.valueChanges
-      .pipe(
-        takeUntilDestroyed(),
-        startWith(this.fertilizerForm.value),
-        pairwise()
-      )
-      .subscribe(([prev, curr]) => this.calculate(prev, curr));
+    for (const controlName in this.fertilizerForm.controls) {
+      const control = this.fertilizerForm.get(controlName);
+      control?.valueChanges.subscribe((value) => {
+        this.calculate(controlName, value);
+      });
+    }
   }
 
-  public calculate(
-    prevFormVal: typeof this.fertilizerForm.value,
-    currFormVal: typeof this.fertilizerForm.value
-  ): void {
+  public calculate(formControlName: string, value: number | null): void {
     const { totalLawnSize, nitrogenRate, poundsOfN, fertilizerAmount } =
-      currFormVal;
+      this.fertilizerForm.value;
 
-    const [changedField] = Object.entries(currFormVal)
-      .filter(
-        ([key, value]) =>
-          value !== prevFormVal[key as keyof typeof this.fertilizerForm.value]
-      )
-      .map(([key]) => key);
-
+    console.log(formControlName);
     this.fertilizerForm.patchValue(
       {
         poundsOfN:
-          changedField !== 'poundsOfN'
+          formControlName !== 'poundsOfN'
             ? getPoundsOfNInFertilizerApp({
                 guaranteedAnalysisOfProduct: `${nitrogenRate}-0-0`,
                 poundsOfProduct: fertilizerAmount || 0,
                 totalSquareFeet: totalLawnSize || 0
               })
-            : poundsOfN,
+            : value || undefined,
         fertilizerAmount:
-          changedField !== 'fertilizerAmount'
+          formControlName !== 'fertilizerAmount'
             ? getPoundsOfProductForDesiredN({
                 totalSquareFeet: totalLawnSize || 0,
                 desiredLbsOfNPer1000SqFt: poundsOfN || 0,
                 guaranteedAnalysisOfProduct: `${nitrogenRate}-0-0`
               })
-            : fertilizerAmount
+            : value || undefined,
+        nitrogenRate:
+          formControlName !== 'nitrogenRate'
+            ? getNitrogenRateFromFields({
+                totalLawnSize: totalLawnSize || 0,
+                poundsOfN: poundsOfN || 0,
+                fertilizerAmount: fertilizerAmount || 0
+              })
+            : value || undefined,
+        totalLawnSize:
+          formControlName !== 'totalLawnSize'
+            ? totalLawnSize
+            : totalLawnSize || undefined
       },
       { emitEvent: false }
     );

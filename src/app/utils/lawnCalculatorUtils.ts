@@ -64,3 +64,62 @@ export const getPoundsOfProductForDesiredN = ({
 
   return null;
 };
+
+/**
+ * Calculates the Growing Degree Days (GDD) for a single day.
+ *
+ * @param options - The input parameters
+ * @param options.baseTemperature - The minimum temperature threshold for growth (e.g., 50°F for cool season grasses)
+ * @param options.maxTemperature - The maximum temperature for the day
+ * @param options.minTemperature - The minimum temperature for the day
+ * @returns The GDD value for the day (minimum of 0)
+ *
+ * @example
+ * // Calculate GDD for a day with max 75°F, min 55°F, and base temp of 50°F
+ * const gdd = getDailyGDDCalculation({
+ *   baseTemperature: 50,
+ *   maxTemperature: 75,
+ *   minTemperature: 55
+ * });
+ * // result: 15
+ */
+export const getDailyGDDCalculation = ({
+  baseTemperature,
+  maxTemperature,
+  minTemperature
+}: {
+  baseTemperature: number;
+  maxTemperature: number;
+  minTemperature: number;
+}): number => {
+  const averageTemp = (maxTemperature + minTemperature) / 2;
+  return Math.max(0, averageTemp - baseTemperature);
+};
+
+/**
+ * Calculates the nitrogen rate from the provided fields.
+ *
+ * @param totalLawnSize - The total lawn size in square feet
+ * @param poundsOfN - The pounds of nitrogen applied
+ * @param fertilizerAmount - The amount of fertilizer applied in pounds
+ * @param nitrogenRate - The nitrogen rate to return if other values are not provided
+ * @returns The calculated nitrogen rate or the provided nitrogen rate if applicable
+ */
+export const getNitrogenRateFromFields = ({
+  totalLawnSize,
+  poundsOfN,
+  fertilizerAmount
+}: {
+  totalLawnSize: number | null;
+  poundsOfN: number | null;
+  fertilizerAmount: number | null;
+}): number | undefined => {
+  if (totalLawnSize && poundsOfN && fertilizerAmount) {
+    const poundsOfNPer1000SqFt = (poundsOfN * 1000) / (totalLawnSize || 1);
+    const nRate = (poundsOfNPer1000SqFt / fertilizerAmount) * 100;
+
+    return Math.round(nRate * 100) / 100;
+  }
+
+  return undefined;
+};

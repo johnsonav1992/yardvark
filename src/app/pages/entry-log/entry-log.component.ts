@@ -260,7 +260,10 @@ export class EntryLogComponent implements OnInit {
 
   public markerButtonDt: ButtonDesignTokens = {
     root: {
-      iconOnlyWidth: '2rem'
+      sm: {
+        iconOnlyWidth: '2.1rem',
+        fontSize: '18px'
+      }
     },
     colorScheme: {
       light: {
@@ -270,8 +273,15 @@ export class EntryLogComponent implements OnInit {
             borderColor: '{primary.300}',
             hoverBackground: '{primary.200}',
             hoverBorderColor: '{primary.200}',
-            color: this.darkMode() ? '{surface.600}' : '',
+            color: '{surface.600}',
             hoverColor: '{surface.600}'
+          }
+        }
+      },
+      dark: {
+        root: {
+          secondary: {
+            color: '{surface.700}'
           }
         }
       }

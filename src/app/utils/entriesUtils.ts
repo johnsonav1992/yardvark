@@ -7,7 +7,8 @@ import { getDefaultProductAmount } from './productUtils';
 export const getEntryIcon = (entry: Entry) => {
   const entriesIconMap = {
     mow: 'li li-lawnmower',
-    water: 'li li-sprinkler'
+    water: 'ti ti-droplets',
+    'product application': 'ti ti-box'
   };
 
   return (

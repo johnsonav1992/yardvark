@@ -1,1 +1,30 @@
-<p>fertilizer-calculator works!</p>
+<div [formGroup]="fertilizerForm">
+  <p-inputNumber
+    placeholder="Total Lawn Size (sq ft)"
+    [allowEmpty]="true"
+    [mode]="'decimal'"
+    [maxFractionDigits]="5"
+    formControlName="totalLawnSize"
+  />
+  <p-inputNumber
+    placeholder="Nitrogen Rate (%)"
+    [allowEmpty]="true"
+    [mode]="'decimal'"
+    [maxFractionDigits]="5"
+    formControlName="nitrogenRate"
+  />
+  <p-inputNumber
+    placeholder="Pounds of Nitrogen (lbs)"
+    [allowEmpty]="true"
+    [mode]="'decimal'"
+    [maxFractionDigits]="5"
+    formControlName="poundsOfN"
+  />
+  <p-inputNumber
+    placeholder="Fertilizer Amount (lbs)"
+    [allowEmpty]="true"
+    [mode]="'decimal'"
+    [maxFractionDigits]="5"
+    formControlName="fertilizerAmount"
+  />
+</div>

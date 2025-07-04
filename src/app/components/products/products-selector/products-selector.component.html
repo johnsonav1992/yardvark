@@ -12,6 +12,7 @@
     (onClear)="productsControl().clear()"
     [style]="{ width: inputWidth() }"
     [formControlName]="'productsSelected'"
+    appendTo="body"
   >
     <ng-template let-product #item>
       <product-small-card [product]="product" [showBorder]="false" />

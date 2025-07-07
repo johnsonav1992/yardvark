@@ -20,6 +20,7 @@ import { FilesModule } from './modules/files/files.module';
 import { FilesController } from './modules/files/controllers/files.controller';
 import { S3Service } from './modules/s3/s3.service';
 import { WeatherModule } from './modules/weather/weather.module';
+import { RemindersModule } from './modules/reminders/reminders.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { WeatherModule } from './modules/weather/weather.module';
     FilesModule,
     WeatherModule,
     HttpModule,
+    RemindersModule,
   ],
   controllers: [UsersController, FilesController],
   providers: [

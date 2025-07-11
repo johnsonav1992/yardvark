@@ -12,6 +12,7 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { providePrimeNG } from 'primeng/config';
 import { authHttpInterceptorFn, provideAuth0 } from '@auth0/auth0-angular';
 import { theme } from './theme/theme';
+import { Capacitor } from '@capacitor/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { initHttpUtils } from './utils/httpUtils';
 import { YV_DARK_MODE_SELECTOR } from './constants/style-constants';
@@ -37,7 +38,9 @@ export const appConfig: ApplicationConfig = {
       domain: environment.auth0Domain,
       clientId: environment.auth0ClientId,
       authorizationParams: {
-        redirect_uri: window.location.origin,
+        redirect_uri: Capacitor.isNativePlatform() 
+          ? 'capacitor://localhost'
+          : window.location.origin,
         audience: `https://${environment.auth0Domain}/api/v2/`
       },
       httpInterceptor: {

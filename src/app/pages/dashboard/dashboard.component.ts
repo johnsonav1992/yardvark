@@ -81,17 +81,17 @@ export class DashboardComponent {
       command: () => {
         this._router.navigate(['entry-log'], { queryParams: { create: true } });
       }
-    },
-    {
-      label: 'Create reminder',
-      tooltip: 'Create reminder',
-      icon: 'ti ti-alarm',
-      style: {
-        width: this.isMobile() ? '4rem' : '70px',
-        height: this.isMobile() ? '4rem' : '70px'
-      },
-      command: () => {}
     }
+    // {
+    //   label: 'Create reminder',
+    //   tooltip: 'Create reminder',
+    //   icon: 'ti ti-alarm',
+    //   style: {
+    //     width: this.isMobile() ? '4rem' : '70px',
+    //     height: this.isMobile() ? '4rem' : '70px'
+    //   },
+    //   command: () => {}
+    // }
   ]);
 
   public openEntrySearchSidebar(): void {

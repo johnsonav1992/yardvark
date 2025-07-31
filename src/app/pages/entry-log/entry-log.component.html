@@ -33,7 +33,31 @@
   @if (isMobile() || viewMode() === "list") {
     <p-divider />
     @if (viewMode() === "list") {
-      <div class="list-entries-container" [style.paddingBottom]="'3rem'">
+      <div 
+        class="list-sort-controls"
+        [style]="{
+          padding: isMobile() ? '0.5rem 0.75rem 0.25rem 0.75rem' : '0.75rem 1rem 0.5rem 1rem',
+          gap: '0.5rem'
+        }"
+      >
+        <span class="sort-label">Sort</span>
+        <p-button
+          [icon]="entrySortOrder() === 'asc' ? 'ti ti-sort-ascending-2' : 'ti ti-sort-descending-2'"
+          severity="secondary"
+          outlined
+          rounded
+          size="large"
+          [dt]="sortButtonDt"
+          (click)="toggleSortOrder()"
+          [pTooltip]="entrySortOrder() === 'asc' ? 'Sort by date: Oldest First' : 'Sort by date: Newest First'"
+          tooltipPosition="left"
+          [showDelay]="1500"
+        />
+      </div>
+      <div 
+        class="list-entries-container" 
+[style.paddingBottom]="isMobile() ? '6rem' : '7rem'"
+      >
         @for (entry of listViewEntries(); track entry.id) {
           <mobile-entry-preview-card [entry]="entry" />
         } @empty {

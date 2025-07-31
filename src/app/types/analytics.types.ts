@@ -20,10 +20,19 @@ export type ProductTypeDistributionRowRes = {
   usageCount: number;
 };
 
+export type AverageDaysBetweenRowRes = {
+  month: string;
+  year: number;
+  monthNumber: number;
+  avgMowingDays: number;
+  avgFertilizingDays: number;
+};
+
 export type AnalyticsRes = {
   mowingAnalyticsData: MowingAnalyticsRowRes[];
   fertilizerTimelineData: FertilizerTimelineRowRes[];
   productTypeDistributionData: ProductTypeDistributionRowRes[];
+  averageDaysBetweenData: AverageDaysBetweenRowRes[];
 };
 
 export type AnalyticsChartConfig<TType extends ChartType = ChartType> = {

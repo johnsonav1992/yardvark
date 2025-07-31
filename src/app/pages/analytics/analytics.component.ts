@@ -4,6 +4,7 @@ import { CardModule } from 'primeng/card';
 import { ChartModule } from 'primeng/chart';
 import { GlobalUiService } from '../../services/global-ui.service';
 import {
+  getAverageDaysBetweenChartConfig,
   getFertilizerTimelineChartConfig,
   getMonthlyMowingChartConfig,
   getProductTypeDistributionChartConfig
@@ -51,6 +52,7 @@ export class AnalyticsComponent {
 
     return [
       getMonthlyMowingChartConfig(this.analyticsData.value(), uiOptions),
+      getAverageDaysBetweenChartConfig(this.analyticsData.value(), uiOptions),
       getFertilizerTimelineChartConfig(this.analyticsData.value(), uiOptions),
       getProductTypeDistributionChartConfig(this.analyticsData.value())
     ];

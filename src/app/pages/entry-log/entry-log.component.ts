@@ -94,6 +94,7 @@ export class EntryLogComponent implements OnInit {
 
   public user = injectUserData();
 
+  public entrySortOrder = signal<'asc' | 'desc'>('desc');
   public currentDate = signal(new Date());
   public selectedMobileDateToView = signal<Date | null>(null);
   public viewMode = linkedSignal<SettingsData | undefined, 'calendar' | 'list'>(
@@ -167,10 +168,13 @@ export class EntryLogComponent implements OnInit {
   );
 
   public listViewEntries = linkedSignal({
-    source: this.entries.value,
-    computation: (entries) => {
+    source: () => ({
+      entries: this.entries.value(),
+      sortOrder: this.entrySortOrder()
+    }),
+    computation: ({ entries, sortOrder }) => {
       if (entries) {
-        return entries.map((entry) => {
+        const mappedEntries = entries.map((entry) => {
           const time = entry.time
             ? (convertTimeStringToDate(entry.time) as Date)
             : '';
@@ -178,6 +182,12 @@ export class EntryLogComponent implements OnInit {
             ...entry,
             time: time ? format(time, 'hh:mm a') : ''
           };
+        });
+
+        return mappedEntries.sort((a, b) => {
+          const dateA = new Date(a.date).getTime();
+          const dateB = new Date(b.date).getTime();
+          return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
         });
       }
       return null;
@@ -258,6 +268,10 @@ export class EntryLogComponent implements OnInit {
     }
   }
 
+  public toggleSortOrder(): void {
+    this.entrySortOrder.set(this.entrySortOrder() === 'asc' ? 'desc' : 'asc');
+  }
+
   public markerButtonDt: ButtonDesignTokens = {
     root: {
       sm: {
@@ -284,6 +298,16 @@ export class EntryLogComponent implements OnInit {
             color: '{surface.700}'
           }
         }
+      }
+    }
+  };
+
+  public sortButtonDt: ButtonDesignTokens = {
+    root: {
+      iconOnlyWidth: '2.5rem',
+      lg: {
+        fontSize: '20px',
+        iconOnlyWidth: '2.5rem'
       }
     }
   };

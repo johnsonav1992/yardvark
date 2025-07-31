@@ -94,7 +94,7 @@ export class EntrySearchSidebarComponent {
     this._entriesService
       .searchEntries({
         titleOrNotes: this.form.value.titleOrNotes!,
-        dateRange: this.form.value.dates?.map((date) => date.toISOString())!,
+        dateRange: this.form.value.dates?.filter(date => date != null).map((date) => date.toISOString()) || [],
         activities: this.form.value.activities!,
         lawnSegments: this.form.value.lawnSegments!,
         products: this.form.value.products!

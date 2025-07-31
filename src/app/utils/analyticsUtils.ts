@@ -213,3 +213,93 @@ export const getProductTypeDistributionChartConfig = (
     }
   };
 };
+
+export const getAverageDaysBetweenChartConfig = (
+  analyticsData: AnalyticsRes | undefined,
+  uiOptions: { isDarkMode: boolean; isMobile: boolean }
+): AnalyticsChartConfig<'bar'> => {
+  const averageDaysData = analyticsData?.averageDaysBetweenData || [];
+
+  if (averageDaysData.length === 0) {
+    return {
+      title: 'Average Days Between Activities',
+      desc: 'Average days between mowing and fertilizing activities by month',
+      chartData: {
+        labels: [],
+        datasets: []
+      },
+      options: {
+        maintainAspectRatio: false,
+        aspectRatio: uiOptions.isMobile ? 1.1 : 0.75
+      }
+    };
+  }
+
+  const labels = averageDaysData.map((item) => {
+    const date = new Date(item.month);
+    return format(date, 'MMM');
+  });
+
+  const mowingData = averageDaysData.map((item) =>
+    item.avgMowingDays > 0 ? item.avgMowingDays : null
+  );
+
+  const fertilizingData = averageDaysData.map((item) =>
+    item.avgFertilizingDays > 0 ? item.avgFertilizingDays : null
+  );
+
+  const grid = uiOptions.isDarkMode
+    ? { color: 'rgba(200, 200, 200, 0.2)' }
+    : undefined;
+
+  return {
+    title: 'Average Days Between Activities',
+    desc: 'Average days between mowing and fertilizing activities by month. Lower values indicate more frequent applications.',
+    chartData: {
+      labels,
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Avg Days Between Mowing',
+          data: mowingData,
+          backgroundColor: getPrimeNgHexColor('primary.300'),
+          borderColor: getPrimeNgHexColor('primary.500')
+        },
+        {
+          type: 'bar',
+          label: 'Avg Days Between Fertilizing',
+          data: fertilizingData,
+          backgroundColor: getPrimeNgHexColor('green.300'),
+          borderColor: getPrimeNgHexColor('green.500')
+        }
+      ]
+    },
+    options: {
+      maintainAspectRatio: false,
+      aspectRatio: uiOptions.isMobile ? 1.1 : 0.75,
+      scales: {
+        y: {
+          beginAtZero: true,
+          min: 0,
+          grid,
+          title: {
+            display: true,
+            text: 'Days'
+          }
+        },
+        x: { grid }
+      },
+      plugins: {
+        tooltip: {
+          callbacks: {
+            label: (context: TooltipItem<'bar'>) => {
+              const value = context.raw as number | null;
+              if (value === null) return `${context.dataset.label}: No data`;
+              return `${context.dataset.label}: ${value} days`;
+            }
+          }
+        }
+      }
+    }
+  };
+};

@@ -13,6 +13,18 @@
     color: var(--p-surface-400);
   }
 
+  .list-sort-controls {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 0.75rem;
+
+    .sort-label {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+  }
+
   .list-entries-container {
     display: flex;
     flex-direction: column;

@@ -21,6 +21,7 @@ import {
 } from '../../../utils/entriesUtils';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { LawnSegment } from '../../../types/lawnSegments.types';
+import { EntryProduct } from '../../../types/entries.types';
 import { calculateNitrogenForProducts } from '../../../utils/lawnCalculatorUtils';
 
 @Component({
@@ -61,7 +62,7 @@ export class ProductsSelectorComponent {
     () => this.form().get('products') as FormArray<EntryProductRow>
   );
 
-  public productsFormValues = signal<any[]>([]);
+  public productsFormValues = signal<ProductFormValue[]>([]);
 
   // @ts-expect-error -> using this until signal forms are ready
   private _formSubscriptionEffect = effect((onCleanup) => {
@@ -83,7 +84,13 @@ export class ProductsSelectorComponent {
     if (!selectedProducts?.length || !selectedLawnSegments?.length) return null;
 
     const validProducts = selectedProducts.filter(
-      (p) => p.product && p.quantity !== null && p.quantityUnit
+      (p): p is ValidatedProductFormValue =>
+        !!(
+          p.product &&
+          p.quantity !== null &&
+          p.quantityUnit &&
+          'category' in p.product
+        )
     );
 
     if (!validProducts.length) return null;
@@ -130,3 +137,15 @@ export class ProductsSelectorComponent {
     }
   }
 }
+
+type ProductFormValue = Partial<{
+  product: Product | EntryProduct | null;
+  quantity: number | null;
+  quantityUnit: string | null;
+}>;
+
+type ValidatedProductFormValue = {
+  product: Product;
+  quantity: number;
+  quantityUnit: string;
+};

@@ -52,94 +52,122 @@
 
 ---
 
-## 🔄 PENDING: Implementation #2 - Dynamic Nitrogen Display in Entry Creation
+## ✅ COMPLETED: Implementation #2 - Dynamic Nitrogen Display in Entry Creation
 
 **Goal:** Show real-time nitrogen calculations when selecting fertilizer products during entry creation.
 
-### Frontend Implementation Plan
+**What was implemented:**
+- Real-time nitrogen calculation display in product selector
+- Reactive updates when products, quantities, units, or lawn segments change
+- Clean utility function organization and separation of concerns
+- Proper TypeScript typing throughout
 
-**1. Enhanced Product Selector Component**
-File: `/src/app/components/products/products-selector/products-selector.component.ts`
+**Key Files Modified:**
+- Utilities:
+  - `/src/app/utils/generalUtils.ts` (added `convertToPounds`)
+  - `/src/app/utils/lawnCalculatorUtils.ts` (added `getTotalSquareFeetForSegments`, `calculateNitrogenForProducts`)
+- Frontend:
+  - `/src/app/components/products/products-selector/products-selector.component.ts`
+  - `/src/app/components/products/products-selector/products-selector.component.html`
+  - `/src/app/components/entries/entry-dialog/entry-dialog.component.html`
+- Services:
+  - `/src/app/services/analytics.service.ts` (cleaned up, removed business logic)
 
-Add computed property:
+**Implementation Details:**
+
+**1. Utility Functions Added:**
 ```typescript
+// generalUtils.ts
+export const convertToPounds = (quantity: number, unit: string): number => {
+  // Converts various units (lbs, oz, kg, g, etc.) to pounds
+}
+
+// lawnCalculatorUtils.ts  
+export const getTotalSquareFeetForSegments = (lawnSegments: Array<{ size: number }>): number => {
+  // Calculates total square footage from lawn segments
+}
+
+export const calculateNitrogenForProducts = (
+  selectedProducts: Array<{ product: Product; quantity: number; quantityUnit: string; }>,
+  lawnSegments: LawnSegment[]
+): number => {
+  // Calculates total nitrogen using existing getPoundsOfNInFertilizerApp utility
+}
+```
+
+**2. Enhanced Product Selector Component:**
+```typescript
+// Reactive form tracking using effect + signal pattern
+public productsFormValues = signal<any[]>([]);
+
+private _formSubscriptionEffect = effect((onCleanup) => {
+  const formArray = this.productsControl();
+  const subscription = formArray.valueChanges.subscribe((values) => {
+    this.productsFormValues.set(values || []);
+  });
+  this.productsFormValues.set(formArray.value || []);
+  onCleanup(() => subscription.unsubscribe());
+});
+
+// Computed nitrogen calculation
 public selectedProductNitrogen = computed(() => {
-  const selectedProducts = this.selectedProducts();
-  const selectedLawnSegmentIds = this.selectedLawnSegmentIds(); // from parent
+  const selectedProducts = this.productsFormValues();
+  const selectedLawnSegments = this.selectedLawnSegments();
   
-  if (!selectedProducts.length || !selectedLawnSegmentIds.length) return null;
+  if (!selectedProducts?.length || !selectedLawnSegments?.length) return null;
   
-  return this._analyticsService.calculateNitrogenForProducts(
-    selectedProducts,
-    selectedLawnSegmentIds
+  const validProducts = selectedProducts.filter(
+    (p) => p.product && p.quantity !== null && p.quantityUnit
   );
+  
+  if (!validProducts.length) return null;
+  
+  return calculateNitrogenForProducts(validProducts, selectedLawnSegments);
 });
 ```
 
-**2. Template Enhancement**
-Add to product selector template:
+**3. Template Enhancement:**
 ```html
 @if (selectedProductNitrogen()) {
   <div class="nitrogen-display">
     <p-message 
       severity="info" 
-      [text]="'Estimated N: ' + selectedProductNitrogen() + ' lbs per 1000 sq ft'"
+      [text]="'Est. N: ' + selectedProductNitrogen()!.toFixed(2) + ' lbs/1000 sqft'"
     />
   </div>
 }
 ```
 
-**3. Analytics Service Extension**
-File: `/src/app/services/analytics.service.ts`
-
-Add methods:
-```typescript
-public calculateNitrogenForProducts(
-  products: SelectedProduct[],
-  lawnSegmentIds: number[]
-): number {
-  const totalSquareFeet = this.getTotalSquareFeetForSegments(lawnSegmentIds);
-  
-  return products.reduce((total, product) => {
-    const nitrogenPercentage = this.extractNitrogenFromAnalysis(product.guaranteedAnalysis);
-    const productNitrogen = this.calculateProductNitrogen(
-      product.quantity,
-      product.quantityUnit,
-      nitrogenPercentage,
-      totalSquareFeet
-    );
-    return total + productNitrogen;
-  }, 0);
-}
-
-private getTotalSquareFeetForSegments(lawnSegmentIds: number[]): number {
-  // Implementation to calculate total square footage from selected lawn segments
-}
-
-private extractNitrogenFromAnalysis(guaranteedAnalysis: string): number {
-  // Parse "24-0-6" format to get nitrogen percentage (first number)
-  const parts = guaranteedAnalysis.split('-');
-  return parseFloat(parts[0]) || 0;
-}
-
-private calculateProductNitrogen(
-  quantity: number,
-  unit: string,
-  nitrogenPercentage: number,
-  totalSquareFeet: number
-): number {
-  // Convert quantity to pounds, calculate nitrogen content, normalize per 1000 sq ft
-  const isLiquid = unit === 'oz' || unit === 'fl oz';
-  const quantityInPounds = isLiquid ? quantity * 0.1 : quantity;
-  const nitrogenInPounds = (quantityInPounds * nitrogenPercentage) / 100;
-  return (nitrogenInPounds / totalSquareFeet) * 1000; // per 1000 sq ft
-}
+**4. Entry Dialog Integration:**
+```html
+<products-selector 
+  [form]="form" 
+  [selectedLawnSegments]="form.controls.lawnSegments.value || []" 
+/>
 ```
+
+**Technical Approach:**
+- **Reactive Updates**: Uses Angular effect + signal pattern to track form value changes
+- **Clean Architecture**: Business logic moved to utility functions, service only handles data fetching
+- **Type Safety**: Strong TypeScript typing throughout the implementation
+- **Existing Utilities**: Leverages existing `getPoundsOfNInFertilizerApp` calculation logic
+- **Performance**: Computed values only recalculate when dependencies change
+
+**User Experience:**
+- Nitrogen display appears automatically when fertilizer products are selected
+- Updates in real-time when:
+  - Adding/removing fertilizer products
+  - Changing product quantities
+  - Changing quantity units
+  - Selecting/deselecting lawn segments
+- Shows "Est. N: X.XX lbs/1000 sqft" with proper 2-decimal formatting
+- Only displays for fertilizer category products
 
 **Integration Points:**
 - Entry creation flow: `/src/app/components/entries/entry-dialog/`
-- Lawn segment selection logic
+- Lawn segment selection from form controls
 - Existing product selection workflow
+- Existing nitrogen calculation utilities
 
 ---
 

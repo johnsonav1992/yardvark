@@ -41,3 +41,25 @@ export const hideVirtualKeyboard = () => {
     }
   }
 };
+
+/**
+ * Converts a quantity from various units to pounds.
+ *
+ * @param quantity - The quantity to convert
+ * @param unit - The unit to convert from
+ * @returns The quantity converted to pounds
+ */
+export const convertToPounds = (
+  quantity: number,
+  unit: 'lbs' | 'oz' | 'fl oz' | 'kg' | 'g' | (string & {})
+): number => {
+  const conversionRates: Record<string, number> = {
+    lbs: 1,
+    oz: 0.0625, // 1 oz = 0.0625 lbs
+    'fl oz': 0.0625, // Treating fluid oz similar to oz for fertilizer products
+    kg: 2.20462, // 1 kg = 2.20462 lbs
+    g: 0.00220462 // 1 g = 0.00220462 lbs
+  };
+
+  return quantity * (conversionRates[unit] || 1);
+};

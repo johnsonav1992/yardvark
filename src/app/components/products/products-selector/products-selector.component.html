@@ -26,6 +26,15 @@
 
   @let selectedProducts = productsControl().value;
 
+  @if (selectedProductNitrogen()) {
+    <div class="nitrogen-display">
+      <p-message
+        severity="info"
+        [text]="'Est. N: ' + selectedProductNitrogen()!.toFixed(2) + ' lbs/1000 sqft'"
+      />
+    </div>
+  }
+
   @if (selectedProducts?.length) {
     <div
       class="products-wrapper"

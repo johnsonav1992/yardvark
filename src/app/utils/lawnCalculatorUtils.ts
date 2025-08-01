@@ -1,3 +1,7 @@
+import { LawnSegment } from '../types/lawnSegments.types';
+import { Product } from '../types/products.types';
+import { convertToPounds } from './generalUtils';
+
 /**
  * Returns the number of pounds of nitrogen in a fertilizer application
  *
@@ -122,4 +126,57 @@ export const getNitrogenRateFromFields = ({
   }
 
   return undefined;
+};
+
+/**
+ * Calculates the total square footage for a given array of lawn segments.
+ *
+ * @param lawnSegments - Array of lawn segments with size property
+ * @returns The total square footage across all segments
+ */
+export const getTotalSquareFeetForSegments = (
+  lawnSegments: Array<{ size: number }>
+): number => {
+  return lawnSegments.reduce((total, segment) => total + segment.size, 0);
+};
+
+/**
+ * Calculates the total nitrogen content for selected fertilizer products across lawn segments.
+ *
+ * @param selectedProducts - Array of form values with product, quantity, and quantityUnit
+ * @param lawnSegments - Array of lawn segments to calculate total area
+ * @returns Total nitrogen in pounds per 1000 square feet
+ */
+export const calculateNitrogenForProducts = (
+  selectedProducts: Array<{
+    product: Product;
+    quantity: number;
+    quantityUnit: string;
+  }>,
+  lawnSegments: LawnSegment[]
+): number => {
+  const totalSquareFeet = getTotalSquareFeetForSegments(lawnSegments);
+
+  if (!totalSquareFeet) return 0;
+
+  return selectedProducts.reduce((total, productRow) => {
+    const product = productRow.product;
+    const quantity = productRow.quantity;
+    const quantityUnit = productRow.quantityUnit;
+
+    if (!product || !quantity || !product.guaranteedAnalysis) return total;
+
+    if ('category' in product && product.category !== 'fertilizer')
+      return total;
+
+    const quantityInPounds = convertToPounds(quantity, quantityUnit);
+
+    const nitrogenPounds = getPoundsOfNInFertilizerApp({
+      poundsOfProduct: quantityInPounds,
+      guaranteedAnalysisOfProduct: product.guaranteedAnalysis,
+      totalSquareFeet
+    });
+
+    return total + nitrogenPounds;
+  }, 0);
 };

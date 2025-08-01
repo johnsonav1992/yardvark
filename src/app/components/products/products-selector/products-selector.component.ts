@@ -1,6 +1,14 @@
-import { Component, computed, inject, input } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  signal,
+  effect
+} from '@angular/core';
 import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MultiSelectChangeEvent, MultiSelectModule } from 'primeng/multiselect';
+import { MessageModule } from 'primeng/message';
 import { ProductsService } from '../../../services/products.service';
 import { ProductSmallCardComponent } from '../product-small-card/product-small-card.component';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -12,6 +20,9 @@ import {
   EntryProductRow
 } from '../../../utils/entriesUtils';
 import { GlobalUiService } from '../../../services/global-ui.service';
+import { LawnSegment } from '../../../types/lawnSegments.types';
+import { EntryProduct } from '../../../types/entries.types';
+import { calculateNitrogenForProducts } from '../../../utils/lawnCalculatorUtils';
 
 @Component({
   selector: 'products-selector',
@@ -20,7 +31,8 @@ import { GlobalUiService } from '../../../services/global-ui.service';
     ProductSmallCardComponent,
     ReactiveFormsModule,
     InputNumberModule,
-    SelectModule
+    SelectModule,
+    MessageModule
   ],
   templateUrl: './products-selector.component.html',
   styleUrl: './products-selector.component.scss'
@@ -35,6 +47,7 @@ export class ProductsSelectorComponent {
   public form = input.required<FormGroup>();
   public inputWidth = input<string | number>('100%');
   public productCardsWidth = input<string | number>('100%');
+  public selectedLawnSegments = input<LawnSegment[]>([]);
   public products = this._productsService.products;
 
   public productsSorted = computed(() =>
@@ -48,6 +61,42 @@ export class ProductsSelectorComponent {
   public productsControl = computed(
     () => this.form().get('products') as FormArray<EntryProductRow>
   );
+
+  public productsFormValues = signal<ProductFormValue[]>([]);
+
+  // @ts-expect-error -> using this until signal forms are ready
+  private _formSubscriptionEffect = effect((onCleanup) => {
+    const formArray = this.productsControl();
+
+    const subscription = formArray.valueChanges.subscribe((values) => {
+      this.productsFormValues.set(values || []);
+    });
+
+    this.productsFormValues.set(formArray.value || []);
+
+    onCleanup(() => subscription.unsubscribe());
+  });
+
+  public selectedProductNitrogen = computed(() => {
+    const selectedProducts = this.productsFormValues();
+    const selectedLawnSegments = this.selectedLawnSegments();
+
+    if (!selectedProducts?.length || !selectedLawnSegments?.length) return null;
+
+    const validProducts = selectedProducts.filter(
+      (p): p is ValidatedProductFormValue =>
+        !!(
+          p.product &&
+          p.quantity !== null &&
+          p.quantityUnit &&
+          'category' in p.product
+        )
+    );
+
+    if (!validProducts.length) return null;
+
+    return calculateNitrogenForProducts(validProducts, selectedLawnSegments);
+  });
 
   public updateSelectedProducts(e: MultiSelectChangeEvent): void {
     const product = e.itemValue as Product | undefined;
@@ -88,3 +137,15 @@ export class ProductsSelectorComponent {
     }
   }
 }
+
+type ProductFormValue = Partial<{
+  product: Product | EntryProduct | null;
+  quantity: number | null;
+  quantityUnit: string | null;
+}>;
+
+type ValidatedProductFormValue = {
+  product: Product;
+  quantity: number;
+  quantityUnit: string;
+};

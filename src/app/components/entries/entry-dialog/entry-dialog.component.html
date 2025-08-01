@@ -49,7 +49,10 @@
   </div>
   <div class="col-input-wrapper">
     Products:
-    <products-selector [form]="form" />
+    <products-selector
+      [form]="form"
+      [selectedLawnSegments]="form.controls.lawnSegments.value || []"
+    />
   </div>
   <div class="col-input-wrapper">
     Notes:

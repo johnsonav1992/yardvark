@@ -16,15 +16,38 @@
       </div>
     </p-card>
   } @else {
-    <soil-temp-week-graph
-      [dailyAverageShallowTemps]="dailyAverageShallowTemps()"
-      [dailyAverageDeepTemps]="dailyAverageDeepTemps()"
-      [isLoadingChartData]="isLoadingAveragesChartData()"
-      [tempUnit]="tempUnit()"
-    />
-    <soil-moisture-week-graph
-      [dailyMoistureData]="dailyMoistureData()"
-      [isLoadingChartData]="isLoadingAveragesChartData()"
-    />
+    <div class="main-container">
+      <p-card [style.width]="isMobile() ? '100%' : '49%'">
+        <ng-template #title>Average soil temperatures</ng-template>
+        <soil-temp-week-graph
+          [dailyAverageShallowTemps]="dailyAverageShallowTemps()"
+          [dailyAverageDeepTemps]="dailyAverageDeepTemps()"
+          [isLoadingChartData]="isLoadingAveragesChartData()"
+          [tempUnit]="tempUnit()"
+        />
+      </p-card>
+      <p-card [style.width]="isMobile() ? '100%' : '49%'">
+        <ng-template #title>
+          Average soil moisture
+          <i
+            class="ti ti-info-circle"
+            style="margin-left: 0.5rem; cursor: pointer;"
+            (mouseover)="popover.show($event)"
+            (mouseleave)="popover.hide()"
+          ></i>
+        </ng-template>
+        <soil-moisture-week-graph
+          [dailyMoistureData]="dailyMoistureData()"
+          [isLoadingChartData]="isLoadingAveragesChartData()"
+        />
+      </p-card>
+    </div>
   }
 </page-container>
+
+<p-popover #popover>
+  <img
+    src="https://support.spruceirrigation.com/wp-content/uploads/2015/09/FieldCapacity.png"
+    [style.width]="isMobile() ? '350px' : '500px'"
+  />
+</p-popover>

@@ -4,7 +4,6 @@ import { getFullWeekOfDayLabelsCenteredAroundCurrentDay } from '../../../utils/t
 import { getPrimeNgHexColor } from '../../../utils/styleUtils';
 import { ChartLoaderComponent } from '../../miscellanious/chart-loader/chart-loader.component';
 import { ChartModule } from 'primeng/chart';
-import { PopoverModule } from 'primeng/popover';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { getChartGridLineColors } from '../../../utils/chartUtils';
 import { DARK_MODE_CHART_GRID_COLOR } from '../../../constants/chart-constants';
@@ -16,7 +15,6 @@ import { NgTemplateOutlet } from '@angular/common';
   imports: [
     ChartLoaderComponent,
     ChartModule,
-    PopoverModule,
     CardModule,
     NgTemplateOutlet
   ],

@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 import { LocationService } from '../../services/location.service';
 import { SettingsService } from '../../services/settings.service';
 import { QuickStatsComponent } from '../../components/dashboard/quick-stats/quick-stats.component';
+import { LawnHealthScoreComponent } from '../../components/dashboard/lawn-health-score/lawn-health-score.component';
 import { WeatherService } from '../../services/weather-service';
 import { ButtonModule } from 'primeng/button';
 import { EntrySearchSidebarComponent } from '../../components/entries/entry-search-sidebar/entry-search-sidebar.component';
@@ -28,6 +29,7 @@ import { WeatherCardComponent } from '../../components/dashboard/weather-card/we
     MessageModule,
     SpeedDialModule,
     QuickStatsComponent,
+    LawnHealthScoreComponent,
     ButtonModule,
     EntrySearchSidebarComponent,
     WeatherCardComponent

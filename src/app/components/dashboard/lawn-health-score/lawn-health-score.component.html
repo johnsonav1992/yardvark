@@ -1,0 +1,54 @@
+<p-card>
+  <ng-template #title>
+    <div class="title-container">
+      <i class="ti ti-heart-handshake icon"></i>
+      Lawn Health Score
+    </div>
+  </ng-template>
+  
+  <div class="health-score-container">
+    <div class="score-display">
+      <div class="score-circle" [style.border-color]="scoreColor()">
+        <span class="score-number">{{ lawnHealthScore().totalScore }}</span>
+        <span class="score-grade">{{ lawnHealthScore().grade }}</span>
+      </div>
+      <p class="score-description">{{ lawnHealthScore().description }}</p>
+    </div>
+    
+    <p-divider [dt]="dividerDt" />
+    
+    <div class="breakdown-container">
+      <div class="breakdown-item">
+        <span class="breakdown-label">
+          <i class="li li-lawnmower breakdown-icon"></i>
+          Mowing
+        </span>
+        <span class="breakdown-score">{{ lawnHealthScore().mowingScore }}/30</span>
+      </div>
+      
+      <div class="breakdown-item">
+        <span class="breakdown-label">
+          <i class="ti ti-package breakdown-icon"></i>
+          Fertilization
+        </span>
+        <span class="breakdown-score">{{ lawnHealthScore().fertilizationScore }}/25</span>
+      </div>
+      
+      <div class="breakdown-item">
+        <span class="breakdown-label">
+          <i class="ti ti-calendar-check breakdown-icon"></i>
+          Consistency
+        </span>
+        <span class="breakdown-score">{{ lawnHealthScore().consistencyScore }}/20</span>
+      </div>
+      
+      <div class="breakdown-item">
+        <span class="breakdown-label">
+          <i class="ti ti-clock breakdown-icon"></i>
+          Recency
+        </span>
+        <span class="breakdown-score">{{ lawnHealthScore().recencyScore }}/25</span>
+      </div>
+    </div>
+  </div>
+</p-card>

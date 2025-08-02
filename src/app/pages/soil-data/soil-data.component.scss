@@ -5,3 +5,10 @@
   justify-content: center;
   height: 100%;
 }
+
+.main-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}

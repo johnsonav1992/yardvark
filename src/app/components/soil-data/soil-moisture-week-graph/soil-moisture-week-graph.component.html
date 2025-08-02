@@ -1,24 +1,10 @@
-<h3>
-  Average soil moisture
-  <i
-    class="ti ti-info-circle"
-    (mouseover)="popover.show($event)"
-    (mouseleave)="popover.hide()"
-  ></i>
-</h3>
 @if (isLoadingChartData()) {
-  <div [style]="{ margin: '.5rem' }">
+  <div class="chart-container">
     <chart-loader />
   </div>
 } @else {
   <div class="chart-container">
-    @if (isMobile()) {
-      <p-card>
-        <ng-container [ngTemplateOutlet]="chart"></ng-container>
-      </p-card>
-    } @else {
-      <ng-container [ngTemplateOutlet]="chart"></ng-container>
-    }
+    <ng-container [ngTemplateOutlet]="chart"></ng-container>
   </div>
 }
 
@@ -29,10 +15,3 @@
     [options]="options()"
   />
 </ng-template>
-
-<p-popover #popover>
-  <img
-    src="https://support.spruceirrigation.com/wp-content/uploads/2015/09/FieldCapacity.png"
-    [style.width]="isMobile() ? '350px' : '500px'"
-  />
-</p-popover>

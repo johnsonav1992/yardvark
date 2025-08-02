@@ -2,9 +2,12 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  max-width: 100%;
+  overflow: hidden;
 
   .inner-container {
     display: flex;
     gap: 0.25rem;
+    max-width: 100%;
   }
 }

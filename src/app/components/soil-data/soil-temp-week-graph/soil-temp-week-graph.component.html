@@ -1,17 +1,10 @@
-<h3>Average soil temperatures</h3>
 @if (isLoadingChartData()) {
-  <div [style]="{ margin: '.5rem' }">
+  <div class="chart-container">
     <chart-loader />
   </div>
 } @else {
   <div class="chart-container">
-    @if (isMobile()) {
-      <p-card>
-        <ng-container [ngTemplateOutlet]="chart"></ng-container>
-      </p-card>
-    } @else {
-      <ng-container [ngTemplateOutlet]="chart"></ng-container>
-    }
+    <ng-container [ngTemplateOutlet]="chart"></ng-container>
   </div>
 }
 

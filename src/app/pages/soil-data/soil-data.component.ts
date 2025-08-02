@@ -8,6 +8,8 @@ import { LocationService } from '../../services/location.service';
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
+import { PopoverModule } from 'primeng/popover';
+import { GlobalUiService } from '../../services/global-ui.service';
 
 @Component({
   selector: 'soil-data',
@@ -16,7 +18,8 @@ import { CardModule } from 'primeng/card';
     SoilMoistureWeekGraphComponent,
     PageContainerComponent,
     ButtonModule,
-    CardModule
+    CardModule,
+    PopoverModule
   ],
   templateUrl: './soil-data.component.html',
   styleUrl: './soil-data.component.scss'
@@ -25,6 +28,9 @@ export class SoilDataComponent {
   private _soilTemperatureService = inject(SoilTemperatureService);
   private _locationService = inject(LocationService);
   private _router = inject(Router);
+  private _globalUiService = inject(GlobalUiService);
+
+  public isMobile = this._globalUiService.isMobile;
 
   public userHasALocation = computed(
     () => !!this._locationService.userLatLong()

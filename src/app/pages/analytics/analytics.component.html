@@ -21,7 +21,7 @@
     } @else {
       @for (chart of charts(); track chart.title) {
         @let chartData = chart.chartData;
-        @let hasData = chartData.datasets[0].data.length;
+        @let hasData = chartData.datasets?.[0]?.data?.length || 0;
 
         <p-card [style.width]="isMobile() ? '100%' : '49%'">
           <ng-template #title>

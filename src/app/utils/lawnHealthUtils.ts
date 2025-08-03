@@ -10,7 +10,13 @@ export const calculateLawnHealthScore = (
   analyticsData: AnalyticsRes | undefined,
   factors: LawnHealthScoreFactors
 ): LawnHealthScoreBreakdown => {
-  if (!analyticsData) {
+  if (
+    !analyticsData ||
+    (!analyticsData.mowingAnalyticsData?.length &&
+      !analyticsData.fertilizerTimelineData?.length &&
+      !analyticsData.productTypeDistributionData?.length &&
+      !analyticsData.averageDaysBetweenData?.length)
+  ) {
     return {
       mowingScore: 0,
       fertilizationScore: 0,
@@ -22,15 +28,38 @@ export const calculateLawnHealthScore = (
     };
   }
 
+  const totalMowingEntries =
+    analyticsData.mowingAnalyticsData?.reduce(
+      (sum, month) => sum + parseInt(month.mowCount),
+      0
+    ) || 0;
+  const totalFertilizerEntries =
+    analyticsData.fertilizerTimelineData?.length || 0;
+  const totalEntries = totalMowingEntries + totalFertilizerEntries;
+
+  if (totalEntries < 3) {
+    return {
+      mowingScore: 0,
+      fertilizationScore: 0,
+      consistencyScore: 0,
+      recencyScore: 0,
+      totalScore: 0,
+      grade: 'F',
+      description: 'Add more entries for accurate scoring'
+    };
+  }
+
   const mowingScore = calculateMowingScore(factors);
   const fertilizationScore = calculateFertilizationScore(factors);
   const consistencyScore = calculateConsistencyScore(factors);
   const recencyScore = calculateRecencyScore(factors);
 
-  const totalScore = Math.round(Math.min(
-    100,
-    mowingScore + fertilizationScore + consistencyScore + recencyScore
-  ));
+  const totalScore = Math.round(
+    Math.min(
+      100,
+      mowingScore + fertilizationScore + consistencyScore + recencyScore
+    )
+  );
 
   return {
     mowingScore,
@@ -124,10 +153,13 @@ const calculateMonthlyFertilizationScore = (monthData: MonthlyData): number => {
 
   const isGrowingSeason = month >= 3 && month <= 11;
   const isDormantSeason = month === 12 || month === 1 || month === 2;
-  
+
   if (isDormantSeason) {
     score += nitrogenAmount === 0 ? 15 : Math.max(0, 15 - nitrogenAmount * 15);
-    score += fertilizerApplications === 0 ? 10 : Math.max(0, 10 - fertilizerApplications * 3);
+    score +=
+      fertilizerApplications === 0
+        ? 10
+        : Math.max(0, 10 - fertilizerApplications * 3);
   } else if (isGrowingSeason) {
     if (nitrogenAmount > 0 && nitrogenAmount <= 1.0) {
       score += 15;
@@ -138,7 +170,7 @@ const calculateMonthlyFertilizationScore = (monthData: MonthlyData): number => {
     } else {
       score += 5;
     }
-    
+
     if (fertilizerApplications >= 1) {
       score += 10;
     } else {
@@ -234,4 +266,3 @@ export const isCurrentlyGrowingSeason = (): boolean => {
 
   return currentMonth >= 4 && currentMonth <= 10;
 };
-

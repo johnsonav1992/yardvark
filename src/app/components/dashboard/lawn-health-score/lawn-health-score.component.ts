@@ -1,4 +1,5 @@
 import { Component, inject, computed } from '@angular/core';
+import { Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
 import { PopoverModule } from 'primeng/popover';
@@ -14,6 +15,7 @@ import { LawnHealthScoreService } from '../../../services/lawn-health-score.serv
 })
 export class LawnHealthScoreComponent {
   private _lawnHealthScoreService = inject(LawnHealthScoreService);
+  private _router = inject(Router);
 
   public lawnHealthScore = this._lawnHealthScoreService.lawnHealthScore;
   public finalDescription = this._lawnHealthScoreService.finalDescription;
@@ -32,4 +34,8 @@ export class LawnHealthScoreComponent {
       margin: 'none'
     }
   };
+
+  public navigateToCreateEntry(): void {
+    this._router.navigate(['/entry-log'], { queryParams: { create: true } });
+  }
 }

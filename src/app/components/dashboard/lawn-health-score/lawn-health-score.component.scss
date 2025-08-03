@@ -130,3 +130,34 @@
     }
   }
 }
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 1rem;
+  gap: 1rem;
+
+  .empty-icon {
+    font-size: 3rem;
+    color: var(--p-surface-400);
+    margin-bottom: 0.5rem;
+  }
+
+  h3 {
+    margin: 0;
+    color: var(--p-text-color);
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .empty-description {
+    margin: 0;
+    color: var(--p-text-muted-color);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    max-width: 280px;
+  }
+}

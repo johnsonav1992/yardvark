@@ -154,7 +154,7 @@ export class LawnHealthScoreService {
         day: 'numeric'
       });
 
-      const prompt = `Today is ${currentDate}. Generate a brief, encouraging lawn care description (max 30 words) for someone with a lawn health score of ${params.totalScore}/100 (Grade: ${params.grade}). Focus on positive reinforcement and seasonal next steps.`;
+      const prompt = `Today is ${currentDate}. Generate a brief, encouraging lawn care description (max 30 words) for someone with a lawn health score of ${params.totalScore}/100 (Grade: ${params.grade}). Individual scores: Mowing ${params.mowingScore}/30, Fertilization ${params.fertilizationScore}/25, Consistency ${params.consistencyScore}/20, Recency ${params.recencyScore}/25. Focus on positive reinforcement and specific improvement areas based on the lowest scores or potentially seasonal factors.`;
 
       return this._aiService.sendChatMessageContent(prompt).pipe(
         map((response) => {

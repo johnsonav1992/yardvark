@@ -1,9 +1,11 @@
 import { Component, computed, inject } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
 import { DividerDesignTokens } from '@primeng/themes/types/divider';
 import { AnalyticsService } from '../../../services/analytics.service';
 import { EntriesService } from '../../../services/entries.service';
+import { AiService } from '../../../services/ai.service';
 import {
   calculateLawnHealthScore,
   isCurrentlyGrowingSeason
@@ -13,7 +15,14 @@ import {
   LawnHealthScoreFactors,
   MonthlyData
 } from '../../../types/lawnHealthScore.types';
-import { subMonths, getMonth, getYear, isSameMonth, isSameYear, differenceInDays } from 'date-fns';
+import {
+  subMonths,
+  getMonth,
+  getYear,
+  isSameMonth,
+  isSameYear,
+  differenceInDays
+} from 'date-fns';
 
 @Component({
   selector: 'lawn-health-score',
@@ -24,6 +33,7 @@ import { subMonths, getMonth, getYear, isSameMonth, isSameYear, differenceInDays
 export class LawnHealthScoreComponent {
   private _analyticsService = inject(AnalyticsService);
   private _entriesService = inject(EntriesService);
+  private _aiService = inject(AiService);
 
   public analyticsData = this._analyticsService.analyticsData;
   public lastMowDate = this._entriesService.lastMow;
@@ -41,7 +51,10 @@ export class LawnHealthScoreComponent {
       : 999;
 
     const daysSinceLastFertilizer = lastProductAppData?.lastProductAppDate
-      ? differenceInDays(new Date(), lastProductAppData.lastProductAppDate.toString())
+      ? differenceInDays(
+          new Date(),
+          lastProductAppData.lastProductAppDate.toString()
+        )
       : 999;
 
     const monthlyData = this.getLast3MonthsData();
@@ -60,6 +73,39 @@ export class LawnHealthScoreComponent {
     const factors = this.healthScoreFactors();
 
     return calculateLawnHealthScore(analyticsData, factors);
+  });
+
+  public aiDescriptionResource = rxResource({
+    params: () => {
+      const scoreData = this.lawnHealthScore();
+      return scoreData.totalScore > 0
+        ? {
+            score: scoreData.totalScore,
+            grade: scoreData.grade
+          }
+        : undefined;
+    },
+    stream: ({ params }: { params: { score: number; grade: string } }) => {
+      const currentDate = new Date().toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+
+      const prompt = `Today is ${currentDate}. Generate a brief, encouraging lawn care description (max 30 words) for someone with a lawn health score of ${params.score}/100 (Grade: ${params.grade}). Focus on positive reinforcement and seasonal next steps.`;
+      return this._aiService.sendChatMessage(prompt);
+    }
+  });
+
+  public finalDescription = computed(() => {
+    const aiResource = this.aiDescriptionResource;
+    const fallbackDesc = this.lawnHealthScore().description;
+
+    if (aiResource.hasValue() && aiResource.value()) {
+      return aiResource.value();
+    }
+
+    return fallbackDesc;
   });
 
   public scoreColor = computed(() => {
@@ -122,7 +168,9 @@ export class LawnHealthScoreComponent {
       .filter((app) => {
         const appDate = new Date(app.applicationDate);
         const targetDate = new Date(year, month - 1, 1);
-        return isSameMonth(appDate, targetDate) && isSameYear(appDate, targetDate);
+        return (
+          isSameMonth(appDate, targetDate) && isSameYear(appDate, targetDate)
+        );
       })
       .reduce((total, app) => {
         const isLiquid =
@@ -152,7 +200,9 @@ export class LawnHealthScoreComponent {
     return analyticsData.fertilizerTimelineData.filter((app) => {
       const appDate = new Date(app.applicationDate);
       const targetDate = new Date(year, month - 1, 1);
-      return isSameMonth(appDate, targetDate) && isSameYear(appDate, targetDate);
+      return (
+        isSameMonth(appDate, targetDate) && isSameYear(appDate, targetDate)
+      );
     }).length;
   }
 
@@ -173,7 +223,9 @@ export class LawnHealthScoreComponent {
       analyticsData?.fertilizerTimelineData?.filter((app) => {
         const appDate = new Date(app.applicationDate);
         const targetDate = new Date(year, month - 1, 1);
-        return isSameMonth(appDate, targetDate) && isSameYear(appDate, targetDate);
+        return (
+          isSameMonth(appDate, targetDate) && isSameYear(appDate, targetDate)
+        );
       }).length || 0;
 
     return +mowingEntries + fertilizerEntries;

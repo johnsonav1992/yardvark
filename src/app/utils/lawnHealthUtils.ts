@@ -1,25 +1,10 @@
 import { AnalyticsRes } from '../types/analytics.types';
-
-export type LawnHealthScoreBreakdown = {
-  mowingScore: number;
-  fertilizationScore: number;
-  consistencyScore: number;
-  recencyScore: number;
-  totalScore: number;
-  grade: 'A' | 'B' | 'C' | 'D' | 'F';
-  description: string;
-};
-
-export type LawnHealthScoreFactors = {
-  daysSinceLastMow: number;
-  daysSinceLastFertilizer: number;
-  totalNitrogenThisYear: number;
-  entriesLast30Days: number;
-  mowingConsistency: number;
-  fertilizerApplicationsThisYear: number;
-  currentMonth: number;
-  isGrowingSeason: boolean;
-};
+import {
+  LawnHealthScoreBreakdown,
+  LawnHealthScoreFactors,
+  MonthlyData
+} from '../types/lawnHealthScore.types';
+import { getMonth, getYear, getDate } from 'date-fns';
 
 export const calculateLawnHealthScore = (
   analyticsData: AnalyticsRes | undefined,
@@ -42,8 +27,11 @@ export const calculateLawnHealthScore = (
   const consistencyScore = calculateConsistencyScore(factors);
   const recencyScore = calculateRecencyScore(factors);
 
-  const totalScore = Math.min(100, mowingScore + fertilizationScore + consistencyScore + recencyScore);
-  
+  const totalScore = Math.round(Math.min(
+    100,
+    mowingScore + fertilizationScore + consistencyScore + recencyScore
+  ));
+
   return {
     mowingScore,
     fertilizationScore,
@@ -55,83 +43,171 @@ export const calculateLawnHealthScore = (
   };
 };
 
-const calculateMowingScore = (factors: LawnHealthScoreFactors): number => {
-  const { mowingConsistency, isGrowingSeason } = factors;
-  
-  if (mowingConsistency === 0) return 0;
-  
-  const idealRange = isGrowingSeason ? { min: 3, max: 7 } : { min: 14, max: 21 };
-  
-  if (mowingConsistency >= idealRange.min && mowingConsistency <= idealRange.max) {
-    return 30;
+const getAdaptiveWeights = (
+  currentMonthData: MonthlyData
+): [number, number, number] => {
+  const now = new Date();
+  const currentMonth = getMonth(now) + 1;
+  const currentYear = getYear(now);
+  const dayOfMonth = getDate(now);
+
+  if (
+    currentMonthData.month === currentMonth &&
+    currentMonthData.year === currentYear
+  ) {
+    if (dayOfMonth <= 7) {
+      return [0.05, 0.45, 0.5];
+    } else if (dayOfMonth <= 14) {
+      return [0.15, 0.4, 0.45];
+    } else if (dayOfMonth <= 21) {
+      return [0.3, 0.35, 0.35];
+    }
   }
-  
-  const deviation = Math.min(
-    Math.abs(mowingConsistency - idealRange.max), 
-    Math.abs(mowingConsistency - idealRange.min)
-  );
-  
-  return Math.max(0, 30 - (deviation * 3));
+
+  return [0.5, 0.3, 0.2];
 };
 
-const calculateFertilizationScore = (factors: LawnHealthScoreFactors): number => {
-  const { totalNitrogenThisYear, fertilizerApplicationsThisYear, currentMonth } = factors;
-  
+const calculateMowingScore = (factors: LawnHealthScoreFactors): number => {
+  const { monthlyData } = factors;
+  const weights = getAdaptiveWeights(monthlyData[0]);
+
+  let weightedScore = 0;
+
+  monthlyData.forEach((monthData, index) => {
+    const monthScore = calculateMonthlyMowingScore(monthData);
+
+    weightedScore += monthScore * weights[index];
+  });
+
+  return Math.round(weightedScore);
+};
+
+const calculateMonthlyMowingScore = (monthData: MonthlyData): number => {
+  const { mowingFrequency, isGrowingSeason } = monthData;
+
+  if (mowingFrequency === 0) return 0;
+
+  const expectedMows = isGrowingSeason ? 6 : 2;
+
+  if (mowingFrequency >= expectedMows) return 30;
+
+  const shortage = expectedMows - mowingFrequency;
+
+  if (shortage <= 1) return 25;
+  if (shortage <= 2) return 18;
+  if (shortage <= 3) return 10;
+
+  return Math.max(0, 30 - shortage * 5);
+};
+
+const calculateFertilizationScore = (
+  factors: LawnHealthScoreFactors
+): number => {
+  const { monthlyData } = factors;
+  const weights = getAdaptiveWeights(monthlyData[0]);
+
+  let weightedScore = 0;
+
+  monthlyData.forEach((monthData, index) => {
+    const monthScore = calculateMonthlyFertilizationScore(monthData);
+
+    weightedScore += monthScore * weights[index];
+  });
+
+  return Math.round(weightedScore);
+};
+
+const calculateMonthlyFertilizationScore = (monthData: MonthlyData): number => {
+  const { nitrogenAmount, fertilizerApplications, month } = monthData;
+
   let score = 0;
+
+  const isGrowingSeason = month >= 3 && month <= 11;
+  const isDormantSeason = month === 12 || month === 1 || month === 2;
   
-  const idealAnnualNitrogen = 3;
-  const expectedNitrogenByMonth = (idealAnnualNitrogen * currentMonth) / 12;
-  
-  if (totalNitrogenThisYear >= expectedNitrogenByMonth * 0.7 && 
-      totalNitrogenThisYear <= expectedNitrogenByMonth * 1.3) {
-    score += 15;
-  } else {
-    const nitrogenDeviation = Math.abs(totalNitrogenThisYear - expectedNitrogenByMonth);
-    score += Math.max(0, 15 - (nitrogenDeviation * 8));
+  if (isDormantSeason) {
+    score += nitrogenAmount === 0 ? 15 : Math.max(0, 15 - nitrogenAmount * 15);
+    score += fertilizerApplications === 0 ? 10 : Math.max(0, 10 - fertilizerApplications * 3);
+  } else if (isGrowingSeason) {
+    if (nitrogenAmount > 0 && nitrogenAmount <= 1.0) {
+      score += 15;
+    } else if (nitrogenAmount <= 0.2) {
+      score += 10;
+    } else if (nitrogenAmount > 1.0) {
+      score += Math.max(5, 15 - (nitrogenAmount - 1.0) * 8);
+    } else {
+      score += 5;
+    }
+    
+    if (fertilizerApplications >= 1) {
+      score += 10;
+    } else {
+      score += 5;
+    }
   }
-  
-  const expectedApplicationsByMonth = Math.ceil(currentMonth / 3);
-  if (fertilizerApplicationsThisYear >= expectedApplicationsByMonth * 0.8) {
-    score += 10;
-  } else if (fertilizerApplicationsThisYear > 0) {
-    score += 5;
-  }
-  
+
   return Math.min(25, score);
 };
 
 const calculateConsistencyScore = (factors: LawnHealthScoreFactors): number => {
-  const { entriesLast30Days } = factors;
-  
-  if (entriesLast30Days >= 4) {
+  const { monthlyData } = factors;
+  const weights = getAdaptiveWeights(monthlyData[0]);
+
+  let weightedScore = 0;
+
+  monthlyData.forEach((monthData, index) => {
+    const monthScore = calculateMonthlyConsistencyScore(monthData);
+
+    weightedScore += monthScore * weights[index];
+  });
+
+  return Math.round(weightedScore);
+};
+
+const calculateMonthlyConsistencyScore = (monthData: MonthlyData): number => {
+  const { entriesCount, isGrowingSeason } = monthData;
+
+  const expectedEntries = isGrowingSeason ? 6 : 3;
+
+  if (entriesCount >= expectedEntries) {
     return 20;
-  } else if (entriesLast30Days >= 2) {
-    return 12;
-  } else if (entriesLast30Days >= 1) {
-    return 6;
+  } else if (entriesCount >= expectedEntries * 0.7) {
+    return 15;
+  } else if (entriesCount >= expectedEntries * 0.5) {
+    return 10;
+  } else if (entriesCount >= 1) {
+    return 5;
   }
-  
+
   return 0;
 };
 
 const calculateRecencyScore = (factors: LawnHealthScoreFactors): number => {
-  const { daysSinceLastMow, daysSinceLastFertilizer, isGrowingSeason, currentMonth } = factors;
-  
+  const {
+    daysSinceLastMow,
+    daysSinceLastFertilizer,
+    isGrowingSeason,
+    currentMonth
+  } = factors;
+
   let score = 25;
-  
+
   if (isGrowingSeason && daysSinceLastMow > 10) {
     score -= 8;
   } else if (isGrowingSeason && daysSinceLastMow > 7) {
     score -= 4;
   }
-  
+
   const isSpringFertilizerSeason = currentMonth >= 3 && currentMonth <= 5;
   const isFallFertilizerSeason = currentMonth >= 9 && currentMonth <= 11;
-  
-  if ((isSpringFertilizerSeason || isFallFertilizerSeason) && daysSinceLastFertilizer > 90) {
+
+  if (
+    (isSpringFertilizerSeason || isFallFertilizerSeason) &&
+    daysSinceLastFertilizer > 90
+  ) {
     score -= 8;
   }
-  
+
   return Math.max(0, score);
 };
 
@@ -140,6 +216,7 @@ const getHealthGrade = (score: number): 'A' | 'B' | 'C' | 'D' | 'F' => {
   if (score >= 80) return 'B';
   if (score >= 70) return 'C';
   if (score >= 60) return 'D';
+
   return 'F';
 };
 
@@ -148,19 +225,13 @@ const getHealthDescription = (score: number): string => {
   if (score >= 80) return 'Good routine, minor improvements possible';
   if (score >= 70) return 'Fair program, some areas need attention';
   if (score >= 60) return 'Below average, consider more consistent care';
+
   return 'Needs significant improvement';
 };
 
 export const isCurrentlyGrowingSeason = (): boolean => {
-  const currentMonth = new Date().getMonth() + 1;
+  const currentMonth = getMonth(new Date()) + 1;
+
   return currentMonth >= 4 && currentMonth <= 10;
 };
 
-export const getDaysSince = (dateString: string | null): number => {
-  if (!dateString) return 999;
-  
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffTime = Math.abs(now.getTime() - date.getTime());
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-};

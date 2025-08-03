@@ -4,13 +4,16 @@ import { DividerModule } from 'primeng/divider';
 import { DividerDesignTokens } from '@primeng/themes/types/divider';
 import { AnalyticsService } from '../../../services/analytics.service';
 import { EntriesService } from '../../../services/entries.service';
-import { 
-  calculateLawnHealthScore, 
-  isCurrentlyGrowingSeason, 
-  getDaysSince,
-  LawnHealthScoreFactors 
+import {
+  calculateLawnHealthScore,
+  isCurrentlyGrowingSeason
 } from '../../../utils/lawnHealthUtils';
 import { getPoundsOfNInFertilizerApp } from '../../../utils/lawnCalculatorUtils';
+import {
+  LawnHealthScoreFactors,
+  MonthlyData
+} from '../../../types/lawnHealthScore.types';
+import { subMonths, getMonth, getYear, isSameMonth, isSameYear, differenceInDays } from 'date-fns';
 
 @Component({
   selector: 'lawn-health-score',
@@ -30,28 +33,23 @@ export class LawnHealthScoreComponent {
     const lastMow = this.lastMowDate.value();
     const lastProductAppData = this.lastProductApp.value();
 
-    const currentMonth = new Date().getMonth() + 1;
+    const currentMonth = getMonth(new Date()) + 1;
     const isGrowingSeason = isCurrentlyGrowingSeason();
 
-    const daysSinceLastMow = lastMow?.lastMowDate 
-      ? getDaysSince(lastMow.lastMowDate.toString()) 
+    const daysSinceLastMow = lastMow?.lastMowDate
+      ? differenceInDays(new Date(), lastMow.lastMowDate.toString())
       : 999;
 
-    const daysSinceLastFertilizer = lastProductAppData?.lastProductAppDate 
-      ? getDaysSince(lastProductAppData.lastProductAppDate.toString()) 
+    const daysSinceLastFertilizer = lastProductAppData?.lastProductAppDate
+      ? differenceInDays(new Date(), lastProductAppData.lastProductAppDate.toString())
       : 999;
 
-    const avgMowingDays = this.calculateAverageMowingDays();
-    const totalNitrogenThisYear = this.calculateTotalNitrogenThisYear();
-    const fertilizerApplicationsThisYear = this.countFertilizerApplicationsThisYear();
+    const monthlyData = this.getLast3MonthsData();
 
     return {
       daysSinceLastMow,
       daysSinceLastFertilizer,
-      totalNitrogenThisYear,
-      entriesLast30Days: 2,
-      mowingConsistency: avgMowingDays,
-      fertilizerApplicationsThisYear,
+      monthlyData,
       currentMonth,
       isGrowingSeason
     };
@@ -60,7 +58,7 @@ export class LawnHealthScoreComponent {
   public lawnHealthScore = computed(() => {
     const analyticsData = this.analyticsData.value();
     const factors = this.healthScoreFactors();
-    
+
     return calculateLawnHealthScore(analyticsData, factors);
   });
 
@@ -79,32 +77,59 @@ export class LawnHealthScoreComponent {
     }
   };
 
-  private calculateAverageMowingDays(): number {
-    const analyticsData = this.analyticsData.value();
-    if (!analyticsData?.averageDaysBetweenData) return 0;
+  private getLast3MonthsData(): [MonthlyData, MonthlyData, MonthlyData] {
+    const now = new Date();
 
-    const recentMowingData = analyticsData.averageDaysBetweenData
-      .filter(item => item.avgMowingDays > 0)
-      .slice(-3);
+    const months = [];
+    for (let i = 0; i < 3; i++) {
+      const targetDate = subMonths(now, i);
+      const month = getMonth(targetDate) + 1;
+      const year = getYear(targetDate);
 
-    if (recentMowingData.length === 0) return 0;
+      months.push({
+        mowingFrequency: this.getMowingFrequencyForMonth(month, year),
+        nitrogenAmount: this.getNitrogenForMonth(month, year),
+        fertilizerApplications: this.getFertilizerApplicationsForMonth(
+          month,
+          year
+        ),
+        entriesCount: this.getEntriesForMonth(month, year),
+        month,
+        year,
+        isGrowingSeason: month >= 4 && month <= 10
+      });
+    }
 
-    const totalDays = recentMowingData.reduce((sum, item) => sum + item.avgMowingDays, 0);
-    return totalDays / recentMowingData.length;
+    return months as [MonthlyData, MonthlyData, MonthlyData];
   }
 
-  private calculateTotalNitrogenThisYear(): number {
+  private getMowingFrequencyForMonth(month: number, year: number): number {
+    const analyticsData = this.analyticsData.value();
+    if (!analyticsData?.mowingAnalyticsData) return 0;
+
+    const monthData = analyticsData.mowingAnalyticsData.find(
+      (item) => item.month === month && item.year === year
+    );
+
+    return monthData ? +monthData.mowCount : 0;
+  }
+
+  private getNitrogenForMonth(month: number, year: number): number {
     const analyticsData = this.analyticsData.value();
     if (!analyticsData?.fertilizerTimelineData) return 0;
 
-    const currentYear = new Date().getFullYear();
-    
     return analyticsData.fertilizerTimelineData
-      .filter(app => new Date(app.applicationDate).getFullYear() === currentYear)
+      .filter((app) => {
+        const appDate = new Date(app.applicationDate);
+        const targetDate = new Date(year, month - 1, 1);
+        return isSameMonth(appDate, targetDate) && isSameYear(appDate, targetDate);
+      })
       .reduce((total, app) => {
-        const isLiquid = app.productQuantityUnit === 'oz' || app.productQuantityUnit === 'fl oz';
-        const productWeight = isLiquid 
-          ? app.productQuantity * 0.1 
+        const isLiquid =
+          app.productQuantityUnit === 'oz' ||
+          app.productQuantityUnit === 'fl oz';
+        const productWeight = isLiquid
+          ? app.productQuantity * 0.1
           : app.productQuantity;
 
         const nitrogenValue = getPoundsOfNInFertilizerApp({
@@ -117,14 +142,40 @@ export class LawnHealthScoreComponent {
       }, 0);
   }
 
-  private countFertilizerApplicationsThisYear(): number {
+  private getFertilizerApplicationsForMonth(
+    month: number,
+    year: number
+  ): number {
     const analyticsData = this.analyticsData.value();
     if (!analyticsData?.fertilizerTimelineData) return 0;
 
-    const currentYear = new Date().getFullYear();
-    
-    return analyticsData.fertilizerTimelineData
-      .filter(app => new Date(app.applicationDate).getFullYear() === currentYear)
-      .length;
+    return analyticsData.fertilizerTimelineData.filter((app) => {
+      const appDate = new Date(app.applicationDate);
+      const targetDate = new Date(year, month - 1, 1);
+      return isSameMonth(appDate, targetDate) && isSameYear(appDate, targetDate);
+    }).length;
+  }
+
+  private getEntriesForMonth(month: number, year: number): number {
+    const analyticsData = this.analyticsData.value();
+    if (
+      !analyticsData?.mowingAnalyticsData &&
+      !analyticsData?.fertilizerTimelineData
+    )
+      return 2;
+
+    const mowingEntries =
+      analyticsData?.mowingAnalyticsData?.find(
+        (item) => item.month === month && item.year === year
+      )?.mowCount || '0';
+
+    const fertilizerEntries =
+      analyticsData?.fertilizerTimelineData?.filter((app) => {
+        const appDate = new Date(app.applicationDate);
+        const targetDate = new Date(year, month - 1, 1);
+        return isSameMonth(appDate, targetDate) && isSameYear(appDate, targetDate);
+      }).length || 0;
+
+    return +mowingEntries + fertilizerEntries;
   }
 }

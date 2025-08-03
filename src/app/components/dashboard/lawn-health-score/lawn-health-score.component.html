@@ -32,7 +32,6 @@
       }
     </div>
   </ng-template>
-
   <div class="health-score-container">
     <div class="score-display">
       <div class="score-circle" [style.border-color]="scoreColor()">
@@ -41,9 +40,7 @@
       </div>
       <p class="score-description">{{ finalDescription() }}</p>
     </div>
-
     <p-divider [dt]="dividerDt" />
-
     <div class="breakdown-container">
       <div class="breakdown-item">
         <span class="breakdown-label">
@@ -54,7 +51,6 @@
           >{{ lawnHealthScore().mowingScore }}/30</span
         >
       </div>
-
       <div class="breakdown-item">
         <span class="breakdown-label">
           <i class="ti ti-package breakdown-icon"></i>
@@ -64,7 +60,6 @@
           >{{ lawnHealthScore().fertilizationScore }}/25</span
         >
       </div>
-
       <div class="breakdown-item">
         <span class="breakdown-label">
           <i class="ti ti-calendar-check breakdown-icon"></i>
@@ -74,7 +69,6 @@
           >{{ lawnHealthScore().consistencyScore }}/20</span
         >
       </div>
-
       <div class="breakdown-item">
         <span class="breakdown-label">
           <i class="ti ti-clock breakdown-icon"></i>

@@ -7,23 +7,14 @@ import {
 } from '@nestjs/common';
 import { AiService } from '../services/ai.service';
 import { tryCatch } from '../../../utils/tryCatch';
-
-export interface ChatRequest {
-  prompt: string;
-}
-
-export interface ChatResponse {
-  response: string;
-  success: boolean;
-  error?: string;
-}
+import { AiChatResponse, AiChatRequest } from '../../../types/ai.types';
 
 @Controller('ai')
 export class AiController {
   constructor(private readonly aiService: AiService) {}
 
   @Post('chat')
-  async chat(@Body() chatRequest: ChatRequest): Promise<ChatResponse> {
+  async chat(@Body() chatRequest: AiChatRequest): Promise<AiChatResponse> {
     if (!chatRequest.prompt || chatRequest.prompt.trim().length === 0) {
       throw new HttpException('Prompt is required', HttpStatus.BAD_REQUEST);
     }
@@ -33,16 +24,12 @@ export class AiController {
     );
 
     if (error) {
-      return {
-        response: '',
-        success: false,
-        error: error.message || 'Failed to generate AI response',
-      };
+      throw new HttpException(
+        error.message || 'Failed to generate AI response',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
 
-    return {
-      response: data || '',
-      success: true,
-    };
+    return data!;
   }
 }

@@ -153,7 +153,7 @@ export class LawnHealthScoreService {
 
       const prompt = `Today is ${currentDate}. Generate a brief, encouraging lawn care description (max 30 words) for someone with a lawn health score of ${params.totalScore}/100 (Grade: ${params.grade}). Focus on positive reinforcement and seasonal next steps.`;
 
-      return this._aiService.sendChatMessage(prompt).pipe(
+      return this._aiService.sendChatMessageContent(prompt).pipe(
         map((response) => {
           if (response) {
             this.setCachedDescription(params, response);

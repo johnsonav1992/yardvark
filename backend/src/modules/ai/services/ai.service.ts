@@ -15,6 +15,7 @@ interface GroqResponse {
 @Injectable()
 export class AiService {
   private readonly groqApiKey: string;
+  private readonly aiModel: string;
   private readonly groqApiUrl =
     'https://api.groq.com/openai/v1/chat/completions';
 
@@ -23,6 +24,7 @@ export class AiService {
     private httpService: HttpService,
   ) {
     this.groqApiKey = this.configService.get<string>('GROQ_API_KEY') || '';
+    this.aiModel = this.configService.get<string>('AI_MODEL') || '';
   }
 
   async chat(prompt: string): Promise<string> {
@@ -32,7 +34,7 @@ export class AiService {
 
     try {
       const requestData = {
-        model: 'llama3-8b-8192', // Try a different model that might be more stable
+        model: this.aiModel,
         messages: [
           {
             role: 'user',

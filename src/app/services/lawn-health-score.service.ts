@@ -11,7 +11,7 @@ import {
 import { getPoundsOfNInFertilizerApp } from '../utils/lawnCalculatorUtils';
 import {
   LawnHealthScoreFactors,
-  MonthlyData,
+  LawnHealthScoreMonthlyData,
   LawnHealthScoreBreakdown
 } from '../types/lawnHealthScore.types';
 import {
@@ -111,7 +111,10 @@ export class LawnHealthScoreService {
     return null;
   }
 
-  private setCachedDescription(scoreBreakdown: ScoreBreakdown, description: string): void {
+  private setCachedDescription(
+    scoreBreakdown: ScoreBreakdown,
+    description: string
+  ): void {
     try {
       const cacheData = {
         ...scoreBreakdown,
@@ -175,7 +178,11 @@ export class LawnHealthScoreService {
     return fallbackDesc;
   });
 
-  private getLast3MonthsData(): [MonthlyData, MonthlyData, MonthlyData] {
+  private getLast3MonthsData(): [
+    LawnHealthScoreMonthlyData,
+    LawnHealthScoreMonthlyData,
+    LawnHealthScoreMonthlyData
+  ] {
     const now = new Date();
 
     const months = [];
@@ -198,7 +205,11 @@ export class LawnHealthScoreService {
       });
     }
 
-    return months as [MonthlyData, MonthlyData, MonthlyData];
+    return months as [
+      LawnHealthScoreMonthlyData,
+      LawnHealthScoreMonthlyData,
+      LawnHealthScoreMonthlyData
+    ];
   }
 
   private getMowingFrequencyForMonth(month: number, year: number): number {

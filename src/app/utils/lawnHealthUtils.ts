@@ -2,7 +2,7 @@ import { AnalyticsRes } from '../types/analytics.types';
 import {
   LawnHealthScoreBreakdown,
   LawnHealthScoreFactors,
-  MonthlyData
+  LawnHealthScoreMonthlyData
 } from '../types/lawnHealthScore.types';
 import { getMonth, getYear, getDate } from 'date-fns';
 
@@ -73,7 +73,7 @@ export const calculateLawnHealthScore = (
 };
 
 const getAdaptiveWeights = (
-  currentMonthData: MonthlyData
+  currentMonthData: LawnHealthScoreMonthlyData
 ): [number, number, number] => {
   const now = new Date();
   const currentMonth = getMonth(now) + 1;
@@ -111,7 +111,9 @@ const calculateMowingScore = (factors: LawnHealthScoreFactors): number => {
   return Math.round(weightedScore);
 };
 
-const calculateMonthlyMowingScore = (monthData: MonthlyData): number => {
+const calculateMonthlyMowingScore = (
+  monthData: LawnHealthScoreMonthlyData
+): number => {
   const { mowingFrequency, isGrowingSeason } = monthData;
 
   if (mowingFrequency === 0) return 0;
@@ -146,7 +148,9 @@ const calculateFertilizationScore = (
   return Math.round(weightedScore);
 };
 
-const calculateMonthlyFertilizationScore = (monthData: MonthlyData): number => {
+const calculateMonthlyFertilizationScore = (
+  monthData: LawnHealthScoreMonthlyData
+): number => {
   const { nitrogenAmount, fertilizerApplications, month } = monthData;
 
   let score = 0;
@@ -196,7 +200,9 @@ const calculateConsistencyScore = (factors: LawnHealthScoreFactors): number => {
   return Math.round(weightedScore);
 };
 
-const calculateMonthlyConsistencyScore = (monthData: MonthlyData): number => {
+const calculateMonthlyConsistencyScore = (
+  monthData: LawnHealthScoreMonthlyData
+): number => {
   const { entriesCount, isGrowingSeason } = monthData;
 
   const expectedEntries = isGrowingSeason ? 6 : 3;

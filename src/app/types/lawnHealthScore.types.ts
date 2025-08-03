@@ -8,7 +8,7 @@ export type LawnHealthScoreBreakdown = {
   description: string;
 };
 
-export type MonthlyData = {
+export type LawnHealthScoreMonthlyData = {
   mowingFrequency: number;
   nitrogenAmount: number;
   fertilizerApplications: number;
@@ -21,7 +21,11 @@ export type MonthlyData = {
 export type LawnHealthScoreFactors = {
   daysSinceLastMow: number;
   daysSinceLastFertilizer: number;
-  monthlyData: [MonthlyData, MonthlyData, MonthlyData];
+  monthlyData: [
+    LawnHealthScoreMonthlyData,
+    LawnHealthScoreMonthlyData,
+    LawnHealthScoreMonthlyData
+  ];
   currentMonth: number;
   isGrowingSeason: boolean;
 };

@@ -12,7 +12,8 @@ import { getPoundsOfNInFertilizerApp } from '../utils/lawnCalculatorUtils';
 import {
   LawnHealthScoreFactors,
   LawnHealthScoreMonthlyData,
-  LawnHealthScoreBreakdown
+  LawnHealthScoreBreakdown,
+  ScoreBreakdown
 } from '../types/lawnHealthScore.types';
 import {
   subMonths,
@@ -22,15 +23,6 @@ import {
   isSameYear,
   differenceInDays
 } from 'date-fns';
-
-interface ScoreBreakdown {
-  totalScore: number;
-  grade: string;
-  mowingScore: number;
-  fertilizationScore: number;
-  consistencyScore: number;
-  recencyScore: number;
-}
 
 @Injectable({
   providedIn: 'root'
@@ -82,50 +74,14 @@ export class LawnHealthScoreService {
 
   public scoreColor = computed(() => {
     const score = this.lawnHealthScore().totalScore;
+
     if (score >= 90) return 'var(--p-green-500)';
     if (score >= 80) return 'var(--p-blue-500)';
     if (score >= 70) return 'var(--p-yellow-500)';
     if (score >= 60) return 'var(--p-orange-500)';
+
     return 'var(--p-red-500)';
   });
-
-  private getCachedDescription(scoreBreakdown: ScoreBreakdown): string | null {
-    try {
-      const cached = localStorage.getItem('lawnHealthAiCache');
-      if (cached) {
-        const cacheData = JSON.parse(cached);
-        if (
-          cacheData.totalScore === scoreBreakdown.totalScore &&
-          cacheData.grade === scoreBreakdown.grade &&
-          cacheData.mowingScore === scoreBreakdown.mowingScore &&
-          cacheData.fertilizationScore === scoreBreakdown.fertilizationScore &&
-          cacheData.consistencyScore === scoreBreakdown.consistencyScore &&
-          cacheData.recencyScore === scoreBreakdown.recencyScore
-        ) {
-          return cacheData.description;
-        }
-      }
-    } catch (error) {
-      console.warn('Failed to read AI cache:', error);
-    }
-    return null;
-  }
-
-  private setCachedDescription(
-    scoreBreakdown: ScoreBreakdown,
-    description: string
-  ): void {
-    try {
-      const cacheData = {
-        ...scoreBreakdown,
-        description,
-        timestamp: Date.now()
-      };
-      localStorage.setItem('lawnHealthAiCache', JSON.stringify(cacheData));
-    } catch (error) {
-      console.warn('Failed to cache AI description:', error);
-    }
-  }
 
   public aiDescriptionResource = rxResource({
     params: () => {
@@ -170,12 +126,52 @@ export class LawnHealthScoreService {
     const aiResource = this.aiDescriptionResource;
     const fallbackDesc = this.lawnHealthScore().description;
 
-    if (aiResource.hasValue() && aiResource.value()) {
-      return aiResource.value();
-    }
+    if (aiResource.hasValue()) return aiResource.value();
 
     return fallbackDesc;
   });
+
+  private getCachedDescription(scoreBreakdown: ScoreBreakdown): string | null {
+    try {
+      const cached = localStorage.getItem('lawnHealthAiCache');
+
+      if (cached) {
+        const cacheData = JSON.parse(cached);
+
+        if (
+          cacheData.totalScore === scoreBreakdown.totalScore &&
+          cacheData.grade === scoreBreakdown.grade &&
+          cacheData.mowingScore === scoreBreakdown.mowingScore &&
+          cacheData.fertilizationScore === scoreBreakdown.fertilizationScore &&
+          cacheData.consistencyScore === scoreBreakdown.consistencyScore &&
+          cacheData.recencyScore === scoreBreakdown.recencyScore
+        ) {
+          return cacheData.description;
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to read AI cache:', error);
+    }
+
+    return null;
+  }
+
+  private setCachedDescription(
+    scoreBreakdown: ScoreBreakdown,
+    description: string
+  ): void {
+    try {
+      const cacheData = {
+        ...scoreBreakdown,
+        description,
+        timestamp: Date.now()
+      };
+
+      localStorage.setItem('lawnHealthAiCache', JSON.stringify(cacheData));
+    } catch (error) {
+      console.warn('Failed to cache AI description:', error);
+    }
+  }
 
   private getLast3MonthsData(): [
     LawnHealthScoreMonthlyData,
@@ -214,6 +210,7 @@ export class LawnHealthScoreService {
 
   private getMowingFrequencyForMonth(month: number, year: number): number {
     const analyticsData = this.analyticsData.value();
+
     if (!analyticsData?.mowingAnalyticsData) return 0;
 
     const monthData = analyticsData.mowingAnalyticsData.find(
@@ -225,12 +222,14 @@ export class LawnHealthScoreService {
 
   private getNitrogenForMonth(month: number, year: number): number {
     const analyticsData = this.analyticsData.value();
+
     if (!analyticsData?.fertilizerTimelineData) return 0;
 
     return analyticsData.fertilizerTimelineData
       .filter((app) => {
         const appDate = new Date(app.applicationDate);
         const targetDate = new Date(year, month - 1, 1);
+
         return (
           isSameMonth(appDate, targetDate) && isSameYear(appDate, targetDate)
         );
@@ -263,6 +262,7 @@ export class LawnHealthScoreService {
     return analyticsData.fertilizerTimelineData.filter((app) => {
       const appDate = new Date(app.applicationDate);
       const targetDate = new Date(year, month - 1, 1);
+
       return (
         isSameMonth(appDate, targetDate) && isSameYear(appDate, targetDate)
       );
@@ -271,6 +271,7 @@ export class LawnHealthScoreService {
 
   private getEntriesForMonth(month: number, year: number): number {
     const analyticsData = this.analyticsData.value();
+
     if (
       !analyticsData?.mowingAnalyticsData &&
       !analyticsData?.fertilizerTimelineData
@@ -286,6 +287,7 @@ export class LawnHealthScoreService {
       analyticsData?.fertilizerTimelineData?.filter((app) => {
         const appDate = new Date(app.applicationDate);
         const targetDate = new Date(year, month - 1, 1);
+
         return (
           isSameMonth(appDate, targetDate) && isSameYear(appDate, targetDate)
         );

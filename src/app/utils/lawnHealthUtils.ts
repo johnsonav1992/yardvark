@@ -33,6 +33,7 @@ export const calculateLawnHealthScore = (
       (sum, month) => sum + parseInt(month.mowCount),
       0
     ) || 0;
+
   const totalFertilizerEntries =
     analyticsData.fertilizerTimelineData?.length || 0;
   const totalEntries = totalMowingEntries + totalFertilizerEntries;

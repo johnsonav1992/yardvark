@@ -29,3 +29,12 @@ export type LawnHealthScoreFactors = {
   currentMonth: number;
   isGrowingSeason: boolean;
 };
+
+export interface ScoreBreakdown {
+  totalScore: number;
+  grade: string;
+  mowingScore: number;
+  fertilizationScore: number;
+  consistencyScore: number;
+  recencyScore: number;
+}

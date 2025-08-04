@@ -144,9 +144,7 @@ export class LawnHealthScoreService {
     stream: ({ params }: { params: ScoreBreakdown }) => {
       const cached = this.getCachedDescription(params);
 
-      if (cached) {
-        return of(cached);
-      }
+      if (cached) return of(cached);
 
       const currentDate = new Date().toLocaleDateString('en-US', {
         year: 'numeric',
@@ -161,6 +159,7 @@ export class LawnHealthScoreService {
           if (response) {
             this.setCachedDescription(params, response);
           }
+
           return response;
         })
       );
@@ -186,6 +185,7 @@ export class LawnHealthScoreService {
     const now = new Date();
 
     const months = [];
+
     for (let i = 0; i < 3; i++) {
       const targetDate = subMonths(now, i);
       const month = getMonth(targetDate) + 1;
@@ -201,7 +201,7 @@ export class LawnHealthScoreService {
         entriesCount: this.getEntriesForMonth(month, year),
         month,
         year,
-        isGrowingSeason: month >= 4 && month <= 10
+        isGrowingSeason: month >= 3 && month <= 11
       });
     }
 

@@ -18,7 +18,7 @@ export class WeatherService {
     lat: string,
     long: string,
   ): Promise<WeatherDotGovForecastResponse> {
-    const { data: forecast, error } = await tryCatch(() =>
+    const result = await tryCatch(() =>
       firstValueFrom(
         this.httpService
           .get<WeatherDotGovPointsResponse>(
@@ -42,12 +42,10 @@ export class WeatherService {
       ),
     );
 
-    if (error || !forecast) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'Unknown error';
-      throw new Error(`Failed to fetch weather data: ${errorMessage}`);
+    if (!result.success) {
+      throw new Error(`Failed to fetch weather data: ${result.error.message}`);
     }
 
-    return forecast;
+    return result.data;
   }
 }

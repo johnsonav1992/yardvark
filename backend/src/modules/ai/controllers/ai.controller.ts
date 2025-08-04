@@ -19,17 +19,17 @@ export class AiController {
       throw new HttpException('Prompt is required', HttpStatus.BAD_REQUEST);
     }
 
-    const { data, error } = await tryCatch(() =>
+    const result = await tryCatch(() =>
       this.aiService.chat(chatRequest.prompt),
     );
 
-    if (error) {
+    if (!result.success) {
       throw new HttpException(
-        error.message || 'Failed to generate AI response',
+        result.error.message || 'Failed to generate AI response',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
 
-    return data!;
+    return result.data;
   }
 }

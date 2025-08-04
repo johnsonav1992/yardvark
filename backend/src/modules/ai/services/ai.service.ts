@@ -13,31 +13,33 @@ export class AiService {
       prompt.substring(0, 100) + '...',
     );
 
-    const { data, error } = await tryCatch(() =>
-      this.groqService.simpleChat(prompt),
-    );
+    const result = await tryCatch(() => this.groqService.simpleChat(prompt));
 
-    if (error) {
-      console.error('AI service error:', error);
-      throw new Error(`Failed to generate AI response: ${error.message}`);
+    if (!result.success) {
+      console.error('AI service error:', result.error);
+      throw new Error(
+        `Failed to generate AI response: ${result.error.message}`,
+      );
     }
 
-    return data!;
+    return result.data;
   }
 
   async chatWithSystem(
     systemPrompt: string,
     userPrompt: string,
   ): Promise<AiChatResponse> {
-    const { data, error } = await tryCatch(() =>
+    const result = await tryCatch(() =>
       this.groqService.chatWithSystem(systemPrompt, userPrompt),
     );
 
-    if (error) {
-      console.error('AI service error:', error);
-      throw new Error(`Failed to generate AI response: ${error.message}`);
+    if (!result.success) {
+      console.error('AI service error:', result.error);
+      throw new Error(
+        `Failed to generate AI response: ${result.error.message}`,
+      );
     }
 
-    return data!;
+    return result.data;
   }
 }

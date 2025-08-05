@@ -1,0 +1,53 @@
+name: Deploy to Railway Staging
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths: ['backend/**']
+
+env:
+  RAILWAY_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Install Railway CLI
+        run: |
+          curl -fsSL https://railway.app/install.sh | sh
+          echo "$HOME/.railway/bin" >> $GITHUB_PATH
+      
+      - name: Create railway.json for project linking
+        run: |
+          echo '{"projectId": "${{ secrets.RAILWAY_PROJECT_ID }}"}' > railway.json
+      
+      - name: Deploy to staging environment
+        working-directory: ./backend
+        run: |
+          # Select staging environment and deploy
+          railway environment staging
+          railway up --detach
+      
+      - name: Comment on PR with staging info
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 **Backend deployed to Railway staging!**
+              
+              Your backend changes are now live on staging:
+              **Staging URL:** \`https://yardvark-backend-staging.up.railway.app\`
+              
+              Netlify deploy previews will automatically connect to this staging backend.
+              
+              Test your changes on the staging environment before merging to production.`
+            })

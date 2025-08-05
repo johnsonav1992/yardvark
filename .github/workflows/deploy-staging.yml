@@ -30,9 +30,8 @@ jobs:
       - name: Deploy to staging environment
         working-directory: ./backend
         run: |
-          # Select staging environment and deploy
-          railway environment staging
-          railway up --detach
+          # Try to deploy directly to staging environment
+          railway up --detach --environment staging
       
       - name: Comment on PR with staging info
         uses: actions/github-script@v7

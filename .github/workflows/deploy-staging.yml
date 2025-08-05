@@ -35,9 +35,11 @@ jobs:
             CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
             echo "PR opened/reopened - checking all changes in PR"
           else
-            # For synchronize (new commits), only check changes in the latest push
-            CHANGED_FILES=$(git diff --name-only HEAD~1..HEAD)
+            # For synchronize (new commits), use the GitHub event data
             echo "New commit pushed - checking only latest commit changes"
+            echo "Before commit: ${{ github.event.before }}"
+            echo "After commit: ${{ github.event.after }}"
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }}..${{ github.event.after }})
           fi
           
           echo "Changed files: $CHANGED_FILES"

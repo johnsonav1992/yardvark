@@ -4,10 +4,12 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
     paths: 
-      - 'backend/**'
-      - '!backend/node_modules/**'
-      - '!backend/.env*'
-      - '!backend/dist/**'
+      - 'backend/src/**'
+      - 'backend/package.json'
+      - 'backend/package-lock.json'
+      - 'backend/tsconfig.json'
+      - 'backend/nest-cli.json'
+      - 'backend/railway.toml'
 
 env:
   RAILWAY_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}

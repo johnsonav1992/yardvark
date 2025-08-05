@@ -1,6 +1,13 @@
-<div class="main-container" [style.max-height]="isMobile() ? '90vh' : '80vh'">
+<div
+  class="main-container"
+  [style.max-height]="isMobile() ? '90vh' : '80vh'"
+  [style.min-height]="isMobile() ? '40vh' : '50vh'"
+>
+  @if (hiddenProducts()?.length) {
+    <p class="helper-text">Click on the eye icon to unhide a product</p>
+  }
   @for (product of hiddenProducts(); track product.id) {
-    <product-card
+    <hidden-product-row
       [product]="product"
       (onToggleProductVisibility)="toggleProductVisibility($event)"
     />

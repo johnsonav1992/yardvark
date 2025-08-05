@@ -1,0 +1,17 @@
+<div class="hidden-product-row">
+  <div class="product-info">
+    <img [src]="product().imageUrl || noImageUrl" width="auto" height="30px" />
+    <div class="product-details">
+      <span class="product-name">{{ product().name }}</span>
+      <span class="product-subtitle">{{ product().brand }}</span>
+    </div>
+  </div>
+  <button 
+    type="button" 
+    class="unhide-button"
+    (click)="unhideProduct()"
+    title="Show product"
+  >
+    <i class="ti ti-eye-off"></i>
+  </button>
+</div>

@@ -29,8 +29,17 @@ jobs:
       - name: Check for backend changes
         id: backend_changes
         run: |
-          # Get changed files in this PR
-          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          # For 'opened' events, check all changes in the PR
+          # For 'synchronize' events (new commits), only check the latest push
+          if [ "${{ github.event.action }}" = "opened" ] || [ "${{ github.event.action }}" = "reopened" ]; then
+            CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+            echo "PR opened/reopened - checking all changes in PR"
+          else
+            # For synchronize (new commits), only check changes in the latest push
+            CHANGED_FILES=$(git diff --name-only HEAD~1..HEAD)
+            echo "New commit pushed - checking only latest commit changes"
+          fi
+          
           echo "Changed files: $CHANGED_FILES"
           
           # Check if any backend files were actually changed

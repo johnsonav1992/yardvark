@@ -3,7 +3,11 @@ name: Deploy to Railway Staging
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-    paths: ['backend/**']
+    paths: 
+      - 'backend/**'
+      - '!backend/node_modules/**'
+      - '!backend/.env*'
+      - '!backend/dist/**'
 
 env:
   RAILWAY_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}

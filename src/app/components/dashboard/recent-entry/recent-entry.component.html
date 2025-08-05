@@ -5,15 +5,27 @@
         <i class="ti ti-book icon"></i>
         Last Journal Entry
       </div>
-      @if (recentEntry.value()) {
+      <div class="title-buttons">
+        @if (recentEntry.value()) {
+          <p-button
+            icon="ti ti-external-link"
+            size="small"
+            outlined
+            severity="secondary"
+            (click)="goToEntry()"
+          />
+        }
         <p-button
-          icon="ti ti-external-link"
+          icon="ti ti-eye-off"
+          [text]="true"
+          [rounded]="true"
           size="small"
-          outlined
           severity="secondary"
-          (click)="goToEntry()"
+          (onClick)="hideWidget()"
+          [pTooltip]="'Hide this widget'"
+          tooltipPosition="left"
         />
-      }
+      </div>
     </div>
   </ng-template>
   @if (recentEntry.value()?.date && recentEntry.value()?.title) {

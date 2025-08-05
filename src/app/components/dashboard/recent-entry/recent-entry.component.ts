@@ -1,9 +1,10 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { ProductSmallCardComponent } from '../../products/product-small-card/product-small-card.component';
 import { EntriesService } from '../../../services/entries.service';
 import { DatePipe, NgTemplateOutlet } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 import { Router } from '@angular/router';
 import { GlobalUiService } from '../../../services/global-ui.service';
 
@@ -14,7 +15,8 @@ import { GlobalUiService } from '../../../services/global-ui.service';
     ProductSmallCardComponent,
     DatePipe,
     NgTemplateOutlet,
-    ButtonModule
+    ButtonModule,
+    TooltipModule
   ],
   templateUrl: './recent-entry.component.html',
   styleUrl: './recent-entry.component.scss'
@@ -28,11 +30,17 @@ export class RecentEntryComponent {
 
   public recentEntry = this._entriesService.recentEntry;
 
+  public onHideWidget = output<void>();
+
   public goToEntry(): void {
     this._router.navigate(['entry-log', this.recentEntry.value()?.id]);
   }
 
   public navToEntryCreation(): void {
     this._router.navigate(['entry-log'], { queryParams: { create: true } });
+  }
+
+  public hideWidget(): void {
+    this.onHideWidget.emit();
   }
 }

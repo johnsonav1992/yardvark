@@ -1,13 +1,25 @@
 <page-container pageTitle="Dashboard" [hideBackButton]="true">
   <ng-template #action1>
-    <p-button
-      icon="ti ti-search"
-      outlined
-      [size]="isMobile() ? 'small' : 'large'"
-      severity="secondary"
-      (onClick)="openEntrySearchSidebar()"
-      [label]="isMobile() ? 'Search' : 'Search for entries'"
-    />
+    <div class="header-actions">
+      @if (hasHiddenWidgets()) {
+        <p-button
+          icon="ti ti-eye-off"
+          [text]="true"
+          size="small"
+          severity="secondary"
+          (onClick)="openHiddenWidgetsSidebar()"
+          [label]="hiddenWidgetNames().length + ' hidden'"
+        />
+      }
+      <p-button
+        icon="ti ti-search"
+        outlined
+        [size]="isMobile() ? 'small' : 'large'"
+        severity="secondary"
+        (onClick)="openEntrySearchSidebar()"
+        [label]="isMobile() ? 'Search' : 'Search for entries'"
+      />
+    </div>
   </ng-template>
   @if (recentEntry.isLoading()) {
     <loading-spinner />
@@ -26,12 +38,28 @@
         severity="warn"
       />
     }
-    <div class="cards-container">
-      <recent-entry />
-      <quick-stats />
-      <lawn-health-score />
-      <weather-card />
-    </div>
+    @if (allWidgetsHidden()) {
+      <div class="all-widgets-hidden">
+        <i class="ti ti-eye-off"></i>
+        <h3>All dashboard widgets are hidden</h3>
+        <p>Click the button above to restore widgets to your dashboard.</p>
+      </div>
+    } @else {
+      <div class="cards-container">
+        @if (visibleWidgets().recentEntry) {
+          <recent-entry (onHideWidget)="hideWidget('recent-entry')" />
+        }
+        @if (visibleWidgets().quickStats) {
+          <quick-stats (onHideWidget)="hideWidget('quick-stats')" />
+        }
+        @if (visibleWidgets().lawnHealthScore) {
+          <lawn-health-score (onHideWidget)="hideWidget('lawn-health-score')" />
+        }
+        @if (visibleWidgets().weatherCard) {
+          <weather-card (onHideWidget)="hideWidget('weather-card')" />
+        }
+      </div>
+    }
     @if (isMobile()) {
       <p-speeddial
         icon="ti ti-plus"
@@ -43,3 +71,10 @@
 </page-container>
 
 <entry-search-sidebar [(isOpen)]="isEntrySearchSidebarOpen" />
+
+<hidden-widgets-sidebar
+  [isOpen]="isHiddenWidgetsSidebarOpen()"
+  [hiddenWidgets]="hiddenWidgetNames()"
+  (onToggleSidebar)="toggleHiddenWidgetsSidebar($event)"
+  (onShowWidget)="showWidget($event)"
+/>

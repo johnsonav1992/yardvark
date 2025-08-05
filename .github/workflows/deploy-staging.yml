@@ -30,8 +30,8 @@ jobs:
       - name: Deploy to staging environment
         working-directory: ./backend
         run: |
-          # Try to deploy directly to staging environment
-          railway up --detach --environment staging
+          # Deploy to the yardvark-backend service in staging environment
+          railway up --detach --environment staging --service yardvark-backend
       
       - name: Comment on PR with staging info
         uses: actions/github-script@v7

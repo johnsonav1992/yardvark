@@ -23,23 +23,47 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Check for backend changes
+        id: backend_changes
+        run: |
+          # Get changed files in this PR
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          echo "Changed files: $CHANGED_FILES"
+          
+          # Check if any backend files were actually changed
+          BACKEND_CHANGED=$(echo "$CHANGED_FILES" | grep -E '^backend/(src/|package\.json|package-lock\.json|tsconfig\.json|nest-cli\.json|railway\.toml)' || true)
+          
+          if [ -n "$BACKEND_CHANGED" ]; then
+            echo "backend_changed=true" >> $GITHUB_OUTPUT
+            echo "Backend files changed: $BACKEND_CHANGED"
+          else
+            echo "backend_changed=false" >> $GITHUB_OUTPUT
+            echo "No backend files changed, skipping deployment"
+          fi
       
       - name: Install Railway CLI
+        if: steps.backend_changes.outputs.backend_changed == 'true'
         run: |
           curl -fsSL https://railway.app/install.sh | sh
           echo "$HOME/.railway/bin" >> $GITHUB_PATH
       
       - name: Create railway.json for project linking
+        if: steps.backend_changes.outputs.backend_changed == 'true'
         run: |
           echo '{"projectId": "${{ secrets.RAILWAY_PROJECT_ID }}"}' > railway.json
       
       - name: Deploy to staging environment
+        if: steps.backend_changes.outputs.backend_changed == 'true'
         working-directory: ./backend
         run: |
           # Deploy to the yardvark-backend service in staging environment
           railway up --detach --environment staging --service yardvark-backend
       
       - name: Comment on PR with staging info
+        if: steps.backend_changes.outputs.backend_changed == 'true'
         uses: actions/github-script@v7
         with:
           script: |
@@ -55,4 +79,20 @@ jobs:
               Netlify deploy previews will automatically connect to this staging backend.
               
               Test your changes on the staging environment before merging to production.`
+            })
+      
+      - name: Comment on PR - No backend changes
+        if: steps.backend_changes.outputs.backend_changed == 'false'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            console.log('No backend changes detected, skipping Railway deployment');
+            // Optionally comment that no backend deployment was needed
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `ℹ️ **No backend changes detected** - Railway staging deployment skipped.
+              
+              Only frontend changes were made in this update.`
             })

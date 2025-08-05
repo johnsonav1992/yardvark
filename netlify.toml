@@ -1,0 +1,22 @@
+[build]
+  publish = "dist/yardvark/browser"
+  command = "npm run build"
+
+# Production builds
+[context.production]
+  command = "ng build --configuration production"
+
+# Deploy preview builds (for PRs) - uses staging backend
+[context.deploy-preview]
+  command = "ng build --configuration preview"
+
+# Branch deploy builds - uses staging backend  
+[context.branch-deploy]
+  command = "ng build --configuration preview"
+
+# Environment variables for previews
+[context.deploy-preview.environment]
+  NODE_ENV = "preview"
+
+[context.branch-deploy.environment]
+  NODE_ENV = "preview"

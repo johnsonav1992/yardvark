@@ -1,5 +1,7 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, output } from '@angular/core';
 import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 import { EntriesService } from '../../../services/entries.service';
 import { differenceInDays } from 'date-fns';
 import { getLawnSeasonCompletedPercentage } from '../../../utils/lawnSeasonUtils';
@@ -11,7 +13,7 @@ import { LocationService } from '../../../services/location.service';
 
 @Component({
   selector: 'quick-stats',
-  imports: [CardModule, ProgressBarModule, DividerModule],
+  imports: [CardModule, ButtonModule, TooltipModule, ProgressBarModule, DividerModule],
   templateUrl: './quick-stats.component.html',
   styleUrl: './quick-stats.component.scss'
 })
@@ -21,6 +23,8 @@ export class QuickStatsComponent {
   private _globalUiService = inject(GlobalUiService);
 
   public isMobile = this._globalUiService.isMobile;
+
+  public onHideWidget = output<void>();
 
   public lastMowDate = this._entriesService.lastMow;
   public lastEntry = this._entriesService.recentEntry;
@@ -79,4 +83,8 @@ export class QuickStatsComponent {
       margin: 'none'
     }
   };
+
+  public hideWidget(): void {
+    this.onHideWidget.emit();
+  }
 }

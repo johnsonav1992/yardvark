@@ -1,17 +1,19 @@
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+type TryCatchResult<T> =
+  | { success: true; data: T; error: null }
+  | { success: false; data: null; error: Error };
 
 /**
- * Wraps an async function in a try/catch block
+ * Wraps an async function in a try/catch block for easier error handling.
  * @param fn - async function to wrap
- * @returns Promise<{ data: T | null; error: Error | null }>
+ * @returns Promise with result object containing success status, data, and error
  */
 export const tryCatch = async <T>(
   fn: () => Promise<T>,
-): Promise<{ data: T | null; error: Error | null }> => {
+): Promise<TryCatchResult<T>> => {
   try {
     const data = await fn();
-    return { data, error: null };
+    return { success: true, data, error: null };
   } catch (error) {
-    return { data: null, error };
+    return { success: false, data: null, error: error as Error };
   }
 };

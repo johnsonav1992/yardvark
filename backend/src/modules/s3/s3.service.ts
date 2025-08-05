@@ -97,9 +97,9 @@ export class S3Service {
           }) as Promise<Buffer>,
       );
 
-      if (error || !jpegBuffer) {
+      if (error) {
         throw new Error(
-          `Failed to convert HEIC file: ${error?.message || 'Unknown error'}`,
+          `Failed to convert HEIC file: ${error.message}`,
         );
       }
 

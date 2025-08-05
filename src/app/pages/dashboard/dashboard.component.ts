@@ -14,10 +14,12 @@ import { Router } from '@angular/router';
 import { LocationService } from '../../services/location.service';
 import { SettingsService } from '../../services/settings.service';
 import { QuickStatsComponent } from '../../components/dashboard/quick-stats/quick-stats.component';
+import { LawnHealthScoreComponent } from '../../components/dashboard/lawn-health-score/lawn-health-score.component';
 import { WeatherService } from '../../services/weather-service';
 import { ButtonModule } from 'primeng/button';
 import { EntrySearchSidebarComponent } from '../../components/entries/entry-search-sidebar/entry-search-sidebar.component';
 import { WeatherCardComponent } from '../../components/dashboard/weather-card/weather-card.component';
+import { HiddenWidgetsSidebarComponent } from '../../components/dashboard/hidden-widgets-sidebar/hidden-widgets-sidebar.component';
 
 @Component({
   selector: 'dashboard',
@@ -28,9 +30,11 @@ import { WeatherCardComponent } from '../../components/dashboard/weather-card/we
     MessageModule,
     SpeedDialModule,
     QuickStatsComponent,
+    LawnHealthScoreComponent,
     ButtonModule,
     EntrySearchSidebarComponent,
-    WeatherCardComponent
+    WeatherCardComponent,
+    HiddenWidgetsSidebarComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
@@ -46,6 +50,7 @@ export class DashboardComponent {
   public isMobile = this._globalUiService.isMobile;
 
   public isEntrySearchSidebarOpen = signal(false);
+  public isHiddenWidgetsSidebarOpen = signal(false);
 
   public constructor() {
     inject(WeatherService);
@@ -57,6 +62,39 @@ export class DashboardComponent {
   public userHasALocation = computed(
     () => !!this._locationService.userLatLong()
   );
+
+  public hiddenWidgets = computed(() => {
+    const settings = this._settingsService.currentSettings();
+    return settings?.hiddenWidgets || [];
+  });
+
+  public visibleWidgets = computed(() => {
+    const hidden = this.hiddenWidgets();
+    return {
+      recentEntry: !hidden.includes('recent-entry'),
+      quickStats: !hidden.includes('quick-stats'),
+      lawnHealthScore: !hidden.includes('lawn-health-score'),
+      weatherCard: !hidden.includes('weather-card')
+    };
+  });
+
+  public hasHiddenWidgets = computed(() => this.hiddenWidgets().length > 0);
+
+  public allWidgetsHidden = computed(() => {
+    const visible = this.visibleWidgets();
+    return !visible.recentEntry && !visible.quickStats && !visible.lawnHealthScore && !visible.weatherCard;
+  });
+
+  public hiddenWidgetNames = computed(() => {
+    const hidden = this.hiddenWidgets();
+    const nameMap: Record<string, string> = {
+      'recent-entry': 'Recent Entry',
+      'quick-stats': 'Quick Stats', 
+      'lawn-health-score': 'Lawn Health Score',
+      'weather-card': 'Weather'
+    };
+    return hidden.map(name => ({ id: name, label: nameMap[name] || name }));
+  });
 
   public userIsNewWithNoEntries = computed(() => {
     const user = this.user() as YVUser;
@@ -96,5 +134,29 @@ export class DashboardComponent {
 
   public openEntrySearchSidebar(): void {
     this.isEntrySearchSidebarOpen.set(true);
+  }
+
+  public openHiddenWidgetsSidebar(): void {
+    this.isHiddenWidgetsSidebarOpen.set(true);
+  }
+
+  public toggleHiddenWidgetsSidebar(isOpen: boolean): void {
+    this.isHiddenWidgetsSidebarOpen.set(isOpen);
+  }
+
+  public hideWidget(widgetName: string): void {
+    const currentHidden = this.hiddenWidgets();
+    const updatedHidden = [...currentHidden, widgetName];
+    this._settingsService.updateSetting('hiddenWidgets', updatedHidden);
+  }
+
+  public showWidget(widgetName: string): void {
+    const currentHidden = this.hiddenWidgets();
+    const updatedHidden = currentHidden.filter(name => name !== widgetName);
+    this._settingsService.updateSetting('hiddenWidgets', updatedHidden);
+    
+    if (updatedHidden.length === 0) {
+      this.isHiddenWidgetsSidebarOpen.set(false);
+    }
   }
 }

@@ -1,12 +1,24 @@
 <p-card>
   <ng-template #title>
     <div class="title-container">
-      <i class="ti ti-cloud-fog icon"></i>
-      @if (todaysWeather() && !todaysWeather()!.isDaytime) {
-        Tonight's Weather
-      } @else {
-        Today's Weather
-      }
+      <div class="title-with-icon">
+        <i class="ti ti-cloud-fog icon"></i>
+        @if (todaysWeather() && !todaysWeather()!.isDaytime) {
+          Tonight's Weather
+        } @else {
+          Today's Weather
+        }
+      </div>
+      <p-button
+        icon="ti ti-eye-off"
+        [text]="true"
+        [rounded]="true"
+        size="small"
+        severity="secondary"
+        (onClick)="hideWidget()"
+        [pTooltip]="'Hide this widget'"
+        tooltipPosition="left"
+      />
     </div>
   </ng-template>
 

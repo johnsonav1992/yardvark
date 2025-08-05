@@ -1,0 +1,98 @@
+name: Deploy to Railway Staging
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths: 
+      - 'backend/src/**'
+      - 'backend/package.json'
+      - 'backend/package-lock.json'
+      - 'backend/tsconfig.json'
+      - 'backend/nest-cli.json'
+      - 'backend/railway.toml'
+
+env:
+  RAILWAY_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Check for backend changes
+        id: backend_changes
+        run: |
+          # For 'opened' events, check all changes in the PR
+          # For 'synchronize' events (new commits), only check the latest push
+          if [ "${{ github.event.action }}" = "opened" ] || [ "${{ github.event.action }}" = "reopened" ]; then
+            CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+            echo "PR opened/reopened - checking all changes in PR"
+          else
+            # For synchronize (new commits), use the GitHub event data
+            echo "New commit pushed - checking only latest commit changes"
+            echo "Before commit: ${{ github.event.before }}"
+            echo "After commit: ${{ github.event.after }}"
+            CHANGED_FILES=$(git diff --name-only ${{ github.event.before }}..${{ github.event.after }})
+          fi
+          
+          echo "Changed files: $CHANGED_FILES"
+          
+          # Check if any backend files were actually changed
+          BACKEND_CHANGED=$(echo "$CHANGED_FILES" | grep -E '^backend/(src/|package\.json|package-lock\.json|tsconfig\.json|nest-cli\.json|railway\.toml)' || true)
+          
+          if [ -n "$BACKEND_CHANGED" ]; then
+            echo "backend_changed=true" >> $GITHUB_OUTPUT
+            echo "Backend files changed: $BACKEND_CHANGED"
+          else
+            echo "backend_changed=false" >> $GITHUB_OUTPUT
+            echo "No backend files changed, skipping deployment"
+          fi
+      
+      - name: Install Railway CLI
+        if: steps.backend_changes.outputs.backend_changed == 'true'
+        run: |
+          curl -fsSL https://railway.app/install.sh | sh
+          echo "$HOME/.railway/bin" >> $GITHUB_PATH
+      
+      - name: Create railway.json for project linking
+        if: steps.backend_changes.outputs.backend_changed == 'true'
+        run: |
+          echo '{"projectId": "${{ secrets.RAILWAY_PROJECT_ID }}"}' > railway.json
+      
+      - name: Deploy to staging environment
+        if: steps.backend_changes.outputs.backend_changed == 'true'
+        working-directory: ./backend
+        run: |
+          # Deploy to the yardvark-backend service in staging environment
+          railway up --detach --environment staging --service yardvark-backend
+      
+      - name: Comment on PR with staging info
+        if: steps.backend_changes.outputs.backend_changed == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `🚀 **Backend deployed to Railway staging!**
+              
+              Your backend changes are now live on staging:
+              **Staging URL:** \`https://yardvark-backend-staging.up.railway.app\`
+              
+              Netlify deploy previews will automatically connect to this staging backend.
+              
+              Test your changes on the staging environment before merging to production.`
+            })
+      
+      - name: Log - No backend changes
+        if: steps.backend_changes.outputs.backend_changed == 'false'
+        run: |
+          echo "No backend changes detected, skipping Railway deployment"

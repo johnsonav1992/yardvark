@@ -57,9 +57,9 @@ export class FilesController {
       ),
     );
 
-    if (error || !fileRes) {
+    if (error) {
       throw new HttpException(
-        `Failed to download file - ${error?.message || 'Unknown error'}`,
+        `Failed to download file - ${error.message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

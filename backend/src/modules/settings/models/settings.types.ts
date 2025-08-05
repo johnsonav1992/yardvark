@@ -27,6 +27,10 @@ export type SettingsData = {
    * Whether to hide system products in the product list
    */
   hideSystemProducts: boolean;
+  /**
+   * Array of hidden dashboard widget names
+   */
+  hiddenWidgets: string[];
 };
 
 export type SettingsResponse = {

@@ -1,15 +1,15 @@
 import { Component, computed, inject } from '@angular/core';
 import { ProductsService } from '../../../services/products.service';
-import {
-  ProductCardComponent,
-  ProductVisibilityToggleEvent
-} from '../product-card/product-card.component';
 import { EmptyMessageComponent } from '../../miscellanious/empty-message/empty-message.component';
 import { GlobalUiService } from '../../../services/global-ui.service';
+import {
+  HiddenProductRowComponent,
+  HiddenProductToggleEvent
+} from '../hidden-product-row/hidden-product-row.component';
 
 @Component({
   selector: 'products-visibility-modal',
-  imports: [ProductCardComponent, EmptyMessageComponent],
+  imports: [HiddenProductRowComponent, EmptyMessageComponent],
   templateUrl: './products-visibility-modal.component.html',
   styleUrl: './products-visibility-modal.component.scss'
 })
@@ -25,7 +25,7 @@ export class ProductsVisibilityModalComponent {
     this.products.value()?.filter((product) => product.isHidden)
   );
 
-  public toggleProductVisibility(e: ProductVisibilityToggleEvent): void {
+  public toggleProductVisibility(e: HiddenProductToggleEvent): void {
     this._productsService.unHideProduct(e.id).subscribe();
 
     this.products.update((products) => {

@@ -1,0 +1,29 @@
+<p-drawer
+  [visible]="isOpen()"
+  [modal]="true"
+  [position]="'right'"
+  styleClass="sidebar"
+  header="Hidden Widgets"
+  [fullScreen]="isMobile()"
+  (onHide)="closeSidebar()"
+>
+  <div class="hidden-widgets-container">
+    <div class="widgets-list">
+      <p class="helper-text">Click to restore widgets to your dashboard</p>
+      @for (widget of hiddenWidgets(); track widget.id) {
+        <div class="widget-item">
+          <span class="widget-name">{{ widget.label }}</span>
+          <p-button
+            icon="ti ti-eye"
+            [text]="true"
+            [rounded]="true"
+            size="small"
+            severity="success"
+            (onClick)="showWidget(widget.id)"
+            label="Show"
+          />
+        </div>
+      }
+    </div>
+  </div>
+</p-drawer>

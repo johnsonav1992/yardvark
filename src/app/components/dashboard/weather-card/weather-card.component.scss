@@ -1,11 +1,18 @@
 .title-container {
   display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
 
-  .icon {
-    font-size: 1.2rem;
-    color: var(--p-primary-500);
+  .title-with-icon {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .icon {
+      font-size: 1.2rem;
+      color: var(--p-primary-500);
+    }
   }
 }
 

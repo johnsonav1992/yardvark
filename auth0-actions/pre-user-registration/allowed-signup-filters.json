@@ -1,0 +1,19 @@
+{
+  "name": "allowed-signup-filters",
+  "code": "./allowed-signup-filters.js",
+  "dependencies": [],
+  "runtime": "node18",
+  "status": "built",
+  "supported_triggers": [
+    {
+      "id": "pre-user-registration",
+      "version": "v3"
+    }
+  ],
+  "secrets": [
+    {
+      "name": "allowedEmails",
+      "value": "[]"
+    }
+  ]
+}

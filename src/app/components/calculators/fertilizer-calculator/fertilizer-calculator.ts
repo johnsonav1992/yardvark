@@ -12,7 +12,13 @@ import {
 
 @Component({
   selector: 'fertilizer-calculator',
-  imports: [InputTextModule, CardModule, ButtonModule, PopoverModule, FormsModule],
+  imports: [
+    InputTextModule,
+    CardModule,
+    ButtonModule,
+    PopoverModule,
+    FormsModule
+  ],
   templateUrl: './fertilizer-calculator.html',
   styleUrl: './fertilizer-calculator.scss'
 })
@@ -32,7 +38,6 @@ export class FertilizerCalculator {
     const poundsOfN = this.poundsOfN();
     const fertilizerAmount = this.fertilizerAmount();
 
-    // Calculate nitrogen rate if we have the other 3 values
     if (totalLawnSize && poundsOfN && fertilizerAmount) {
       const result = getNitrogenRateFromFields({
         totalLawnSize,
@@ -52,7 +57,6 @@ export class FertilizerCalculator {
     const nitrogenRate = this.nitrogenRate();
     const fertilizerAmount = this.fertilizerAmount();
 
-    // Calculate pounds of N if we have the other 3 values (including fertilizer amount)
     if (totalLawnSize && nitrogenRate && fertilizerAmount) {
       const result = getPoundsOfNInFertilizerApp({
         guaranteedAnalysisOfProduct: `${nitrogenRate}-0-0`,
@@ -72,7 +76,6 @@ export class FertilizerCalculator {
     const poundsOfN = this.poundsOfN();
     const nitrogenRate = this.nitrogenRate();
 
-    // Calculate fertilizer amount if we have the other 3 values (including pounds of N)
     if (totalLawnSize && poundsOfN && nitrogenRate) {
       const result = getPoundsOfProductForDesiredN({
         totalSquareFeet: totalLawnSize,
@@ -86,15 +89,16 @@ export class FertilizerCalculator {
 
   private parseNumber(value: string | number | null): number | null {
     if (value === null || value === undefined || value === '') return null;
-    
+
     if (typeof value === 'number') return value;
-    
+
     const strValue = value.toString().trim();
     if (strValue === '') return null;
-    
-    // Handle cases like ".5" -> "0.5"
-    const normalizedValue = strValue.startsWith('.') ? '0' + strValue : strValue;
-    
+
+    const normalizedValue = strValue.startsWith('.')
+      ? '0' + strValue
+      : strValue;
+
     const parsed = parseFloat(normalizedValue);
     return isNaN(parsed) ? null : parsed;
   }

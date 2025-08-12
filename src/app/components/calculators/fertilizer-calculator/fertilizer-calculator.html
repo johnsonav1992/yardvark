@@ -1,30 +1,100 @@
-<div [formGroup]="fertilizerForm">
-  <p-inputNumber
-    placeholder="Total Lawn Size (sq ft)"
-    [allowEmpty]="true"
-    [mode]="'decimal'"
-    [maxFractionDigits]="5"
-    formControlName="totalLawnSize"
-  />
-  <p-inputNumber
-    placeholder="Nitrogen Rate (%)"
-    [allowEmpty]="true"
-    [mode]="'decimal'"
-    [maxFractionDigits]="5"
-    formControlName="nitrogenRate"
-  />
-  <p-inputNumber
-    placeholder="Pounds of Nitrogen (lbs)"
-    [allowEmpty]="true"
-    [mode]="'decimal'"
-    [maxFractionDigits]="5"
-    formControlName="poundsOfN"
-  />
-  <p-inputNumber
-    placeholder="Fertilizer Amount (lbs)"
-    [allowEmpty]="true"
-    [mode]="'decimal'"
-    [maxFractionDigits]="5"
-    formControlName="fertilizerAmount"
-  />
-</div>
+<p-card class="fertilizer-calculator-card">
+  <ng-template #title>
+    <div class="title-container">
+      <div class="title-with-icon">
+        <span>Fertilizer Calculator</span>
+        <p-button
+          #infoButton
+          [text]="true"
+          [rounded]="true"
+          size="small"
+          class="info-icon"
+          (click)="helpPopover.toggle($event)"
+          icon="ti ti-info-circle"
+          severity="secondary"
+        />
+        <p-popover #helpPopover>
+          <div class="help-popover-content">
+            <div class="help-popover-header">
+              <i class="ti ti-info-circle help-icon"></i>
+              <span class="help-title">How to Use</span>
+            </div>
+            <p class="help-description">
+              Fill in <strong>Total Lawn Size</strong> + <strong>Nitrogen Rate</strong> + one other field to calculate the remaining value:
+            </p>
+            <ul class="help-list">
+              <li><strong>Total Lawn Size:</strong> Your lawn area in square feet (always required)</li>
+              <li><strong>Nitrogen Rate:</strong> The first number in N-P-K (e.g., 24 from 24-4-12) (always required)</li>
+              <li><strong>Pounds of N:</strong> Desired nitrogen application rate per 1000 sq ft</li>
+              <li><strong>Fertilizer Amount:</strong> How much product to apply per 1000 sq ft</li>
+            </ul>
+          </div>
+        </p-popover>
+      </div>
+    </div>
+  </ng-template>
+  <div class="input-grid">
+    <div class="input-group">
+      <label class="input-label">Total Lawn Size</label>
+      <div class="input-with-suffix">
+        <input
+          pInputText
+          type="text"
+          placeholder="Enter lawn size"
+          [value]="effectiveTotalLawnSize() || ''"
+          (input)="onTotalLawnSizeChange($event)"
+          class="number-input"
+        />
+        <span class="input-suffix">sq ft</span>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">Nitrogen Rate (<u>N</u>-P-K)</label>
+      <div class="input-with-suffix">
+        <input
+          pInputText
+          type="text"
+          placeholder="Enter N rate"
+          [value]="effectiveNitrogenRate() || ''"
+          (input)="onNitrogenRateChange($event)"
+          class="number-input"
+          [class.calculated-value]="nitrogenRate() === null && effectiveNitrogenRate() !== null"
+        />
+        <span class="input-suffix">%</span>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">Pounds of Nitrogen</label>
+      <div class="input-with-suffix">
+        <input
+          pInputText
+          type="text"
+          placeholder="Enter lbs of N"
+          [value]="effectivePoundsOfN() || ''"
+          (input)="onPoundsOfNChange($event)"
+          class="number-input"
+          [class.calculated-value]="poundsOfN() === null && effectivePoundsOfN() !== null"
+        />
+        <span class="input-suffix">lbs/1000 sq ft</span>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">Fertilizer Amount</label>
+      <div class="input-with-suffix">
+        <input
+          pInputText
+          type="text"
+          placeholder="Enter fertilizer amount"
+          [value]="effectiveFertilizerAmount() || ''"
+          (input)="onFertilizerAmountChange($event)"
+          class="number-input"
+          [class.calculated-value]="fertilizerAmount() === null && effectiveFertilizerAmount() !== null"
+        />
+        <span class="input-suffix">lbs</span>
+      </div>
+    </div>
+  </div>
+</p-card>

@@ -111,3 +111,57 @@
     }
   }
 }
+
+.label-with-info {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  margin-bottom: 0.5rem;
+}
+
+.field-info-icon {
+  color: var(--p-surface-500);
+  padding: 0 !important;
+  min-width: auto !important;
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  margin-top: -0.125rem;
+}
+
+:host::ng-deep .field-info-icon .p-button-icon {
+  font-size: 0.875rem;
+}
+
+.field-popover-content {
+  padding: 0.75rem;
+  max-width: 280px;
+}
+
+.field-popover-header {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-bottom: 0.5rem;
+}
+
+.field-icon {
+  color: var(--p-primary-color);
+  font-size: 1rem;
+}
+
+.field-title {
+  font-weight: 600;
+  color: var(--p-text-color);
+  font-size: 0.875rem;
+}
+
+.field-description {
+  margin: 0;
+  color: var(--p-text-color);
+  line-height: 1.4;
+  font-size: 0.875rem;
+
+  strong {
+    color: var(--p-primary-color);
+  }
+}

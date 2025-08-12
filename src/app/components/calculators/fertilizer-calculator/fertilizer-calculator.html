@@ -66,7 +66,30 @@
     </div>
 
     <div class="input-group">
-      <label class="input-label">Pounds of Nitrogen</label>
+      <div class="label-with-info">
+        <label class="input-label">Pounds of Nitrogen</label>
+        <p-button
+          #poundsNInfo
+          [text]="true"
+          [rounded]="true"
+          size="small"
+          class="field-info-icon"
+          (click)="poundsNPopover.toggle($event)"
+          icon="ti ti-info-circle"
+          severity="secondary"
+        />
+        <p-popover #poundsNPopover>
+          <div class="field-popover-content">
+            <div class="field-popover-header">
+              <i class="ti ti-info-circle field-icon"></i>
+              <span class="field-title">Recommended Range</span>
+            </div>
+            <p class="field-description">
+              For most lawn applications, <strong>0.5 - 1.0 lbs of nitrogen per 1000 sq ft</strong> is the ideal range for healthy growth without over-fertilizing.
+            </p>
+          </div>
+        </p-popover>
+      </div>
       <div class="input-with-suffix">
         <input
           pInputText

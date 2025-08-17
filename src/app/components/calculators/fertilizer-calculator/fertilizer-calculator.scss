@@ -65,32 +65,68 @@
   color: var(--p-surface-500);
 }
 
-.help-popover-content {
+.help-popover-content,
+.field-popover-content {
   padding: 1rem;
   max-width: 350px;
 }
 
-.help-popover-header {
+.field-popover-content {
+  padding: 0.75rem;
+  max-width: 280px;
+}
+
+.help-popover-header,
+.field-popover-header {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
 }
 
-.help-icon {
+.field-popover-header {
+  gap: 0.375rem;
+  margin-bottom: 0.5rem;
+}
+
+.help-icon,
+.field-icon {
   color: var(--p-primary-color);
   font-size: 1.25rem;
 }
 
-.help-title {
+.field-icon {
+  font-size: 1rem;
+}
+
+.help-title,
+.field-title {
   font-weight: 600;
   color: var(--p-text-color);
 }
 
-.help-description {
-  margin: 0 0 1rem 0;
+.field-title {
+  font-size: 0.875rem;
+}
+
+.help-description,
+.field-description {
+  margin: 0;
   color: var(--p-text-color);
   line-height: 1.5;
+
+  strong {
+    color: var(--p-primary-color);
+  }
+}
+
+.help-description {
+  margin-bottom: 1rem;
+}
+
+.field-description {
+  line-height: 1.4;
+  font-size: 0.875rem;
 }
 
 .help-list {
@@ -132,36 +168,3 @@
   font-size: 0.875rem;
 }
 
-.field-popover-content {
-  padding: 0.75rem;
-  max-width: 280px;
-}
-
-.field-popover-header {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  margin-bottom: 0.5rem;
-}
-
-.field-icon {
-  color: var(--p-primary-color);
-  font-size: 1rem;
-}
-
-.field-title {
-  font-weight: 600;
-  color: var(--p-text-color);
-  font-size: 0.875rem;
-}
-
-.field-description {
-  margin: 0;
-  color: var(--p-text-color);
-  line-height: 1.4;
-  font-size: 0.875rem;
-
-  strong {
-    color: var(--p-primary-color);
-  }
-}

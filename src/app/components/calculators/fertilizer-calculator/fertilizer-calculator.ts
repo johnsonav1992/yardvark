@@ -3,7 +3,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { PopoverModule } from 'primeng/popover';
-import { FormsModule } from '@angular/forms';
 import {
   getNitrogenRateFromFields,
   getPoundsOfNInFertilizerApp,
@@ -12,13 +11,7 @@ import {
 
 @Component({
   selector: 'fertilizer-calculator',
-  imports: [
-    InputTextModule,
-    CardModule,
-    ButtonModule,
-    PopoverModule,
-    FormsModule
-  ],
+  imports: [InputTextModule, CardModule, ButtonModule, PopoverModule],
   templateUrl: './fertilizer-calculator.html',
   styleUrl: './fertilizer-calculator.scss'
 })
@@ -103,23 +96,24 @@ export class FertilizerCalculator {
     return isNaN(parsed) ? null : parsed;
   }
 
-  public onTotalLawnSizeChange(event: Event): void {
+  private updateFieldFromEvent(signal: any, event: Event): void {
     const value = (event.target as HTMLInputElement).value;
-    this.totalLawnSize.set(this.parseNumber(value));
+    signal.set(this.parseNumber(value));
+  }
+
+  public onTotalLawnSizeChange(event: Event): void {
+    this.updateFieldFromEvent(this.totalLawnSize, event);
   }
 
   public onNitrogenRateChange(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.nitrogenRate.set(this.parseNumber(value));
+    this.updateFieldFromEvent(this.nitrogenRate, event);
   }
 
   public onPoundsOfNChange(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.poundsOfN.set(this.parseNumber(value));
+    this.updateFieldFromEvent(this.poundsOfN, event);
   }
 
   public onFertilizerAmountChange(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.fertilizerAmount.set(this.parseNumber(value));
+    this.updateFieldFromEvent(this.fertilizerAmount, event);
   }
 }

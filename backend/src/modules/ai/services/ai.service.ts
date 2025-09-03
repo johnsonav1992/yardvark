@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { GroqService } from './groq.service';
+import { GeminiService } from './gemini.service';
 import { tryCatch } from '../../../utils/tryCatch';
 import { AiChatResponse } from '../../../types/ai.types';
 
 @Injectable()
 export class AiService {
-  constructor(private groqService: GroqService) {}
+  constructor(private geminiService: GeminiService) {}
 
   async chat(prompt: string): Promise<AiChatResponse> {
     console.log(
@@ -13,7 +13,7 @@ export class AiService {
       prompt.substring(0, 100) + '...',
     );
 
-    const result = await tryCatch(() => this.groqService.simpleChat(prompt));
+    const result = await tryCatch(() => this.geminiService.simpleChat(prompt));
 
     if (!result.success) {
       console.error('AI service error:', result.error);
@@ -30,7 +30,7 @@ export class AiService {
     userPrompt: string,
   ): Promise<AiChatResponse> {
     const result = await tryCatch(() =>
-      this.groqService.chatWithSystem(systemPrompt, userPrompt),
+      this.geminiService.chatWithSystem(systemPrompt, userPrompt),
     );
 
     if (!result.success) {

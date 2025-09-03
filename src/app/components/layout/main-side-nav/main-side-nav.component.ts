@@ -71,14 +71,14 @@ export class MainSideNavComponent {
       routerLink: '/analytics',
       command: this.closeSidebar,
       routerLinkActiveOptions: { exact: true }
+    },
+    {
+      label: 'Calculators',
+      icon: 'ti ti-calculator',
+      routerLink: '/calculators',
+      command: this.closeSidebar,
+      routerLinkActiveOptions: { exact: true }
     }
-    // {
-    //   label: 'Calculators',
-    //   icon: 'ti ti-calculator',
-    //   routerLink: '/calculators',
-    //   command: this.closeSidebar,
-    //   routerLinkActiveOptions: { exact: true }
-    // }
   ];
 
   public menuDt = computed<MenuDesignTokens>(() => ({

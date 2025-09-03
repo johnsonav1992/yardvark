@@ -1,0 +1,170 @@
+.fertilizer-calculator-card {
+  width: 100%;
+}
+
+.input-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-label {
+  font-weight: 600;
+  color: var(--p-text-color);
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.input-with-suffix {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.number-input {
+  width: 100%;
+  padding-right: 4rem;
+}
+
+.input-suffix {
+  position: absolute;
+  right: 0.75rem;
+  color: var(--p-surface-500);
+  font-size: 0.875rem;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.calculated-value {
+  background-color: var(--p-surface-100);
+  font-style: italic;
+  border-color: var(--p-primary-color);
+}
+
+.title-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.title-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.info-icon {
+  color: var(--p-surface-500);
+}
+
+.help-popover-content,
+.field-popover-content {
+  padding: 1rem;
+  max-width: 350px;
+}
+
+.field-popover-content {
+  padding: 0.75rem;
+  max-width: 280px;
+}
+
+.help-popover-header,
+.field-popover-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.field-popover-header {
+  gap: 0.375rem;
+  margin-bottom: 0.5rem;
+}
+
+.help-icon,
+.field-icon {
+  color: var(--p-primary-color);
+  font-size: 1.25rem;
+}
+
+.field-icon {
+  font-size: 1rem;
+}
+
+.help-title,
+.field-title {
+  font-weight: 600;
+  color: var(--p-text-color);
+}
+
+.field-title {
+  font-size: 0.875rem;
+}
+
+.help-description,
+.field-description {
+  margin: 0;
+  color: var(--p-text-color);
+  line-height: 1.5;
+
+  strong {
+    color: var(--p-primary-color);
+  }
+}
+
+.help-description {
+  margin-bottom: 1rem;
+}
+
+.field-description {
+  line-height: 1.4;
+  font-size: 0.875rem;
+}
+
+.help-list {
+  margin: 0;
+  padding-left: 1.25rem;
+  color: var(--p-text-color);
+
+  li {
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    strong {
+      color: var(--p-primary-color);
+    }
+  }
+}
+
+.label-with-info {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.field-info-icon {
+  color: var(--p-surface-500);
+  padding: 0 !important;
+  min-width: auto !important;
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  margin-top: -0.125rem;
+}
+
+:host::ng-deep .field-info-icon .p-button-icon {
+  font-size: 0.875rem;
+}
+

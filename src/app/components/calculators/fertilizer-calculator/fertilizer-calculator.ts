@@ -1,73 +1,119 @@
-import { Component } from '@angular/core';
-import { ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
+import { Component, signal, computed } from '@angular/core';
 import { InputTextModule } from 'primeng/inputtext';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { PopoverModule } from 'primeng/popover';
 import {
   getNitrogenRateFromFields,
   getPoundsOfNInFertilizerApp,
   getPoundsOfProductForDesiredN
 } from '../../../utils/lawnCalculatorUtils';
-import { InputNumberModule } from 'primeng/inputnumber';
 
 @Component({
   selector: 'fertilizer-calculator',
-  imports: [ReactiveFormsModule, InputTextModule, InputNumberModule],
+  imports: [InputTextModule, CardModule, ButtonModule, PopoverModule],
   templateUrl: './fertilizer-calculator.html',
   styleUrl: './fertilizer-calculator.scss'
 })
 export class FertilizerCalculator {
-  public fertilizerForm = new FormGroup({
-    totalLawnSize: new FormControl<number | null>(null),
-    nitrogenRate: new FormControl<number | null>(null),
-    poundsOfN: new FormControl<number | null>(null),
-    fertilizerAmount: new FormControl<number | null>(null)
+  public totalLawnSize = signal<number | null>(null);
+  public nitrogenRate = signal<number | null>(null);
+  public poundsOfN = signal<number | null>(null);
+  public fertilizerAmount = signal<number | null>(null);
+
+  public effectiveTotalLawnSize = computed(() => this.totalLawnSize());
+
+  public effectiveNitrogenRate = computed(() => {
+    const nitrogenRate = this.nitrogenRate();
+    if (nitrogenRate !== null) return nitrogenRate;
+
+    const totalLawnSize = this.totalLawnSize();
+    const poundsOfN = this.poundsOfN();
+    const fertilizerAmount = this.fertilizerAmount();
+
+    if (totalLawnSize && poundsOfN && fertilizerAmount) {
+      const result = getNitrogenRateFromFields({
+        totalLawnSize,
+        poundsOfN,
+        fertilizerAmount
+      });
+      return result;
+    }
+    return null;
   });
 
-  public constructor() {
-    for (const controlName in this.fertilizerForm.controls) {
-      const control = this.fertilizerForm.get(controlName);
-      control?.valueChanges.subscribe((value) => {
-        this.calculate(controlName, value);
+  public effectivePoundsOfN = computed(() => {
+    const poundsOfN = this.poundsOfN();
+    if (poundsOfN !== null) return poundsOfN;
+
+    const totalLawnSize = this.totalLawnSize();
+    const nitrogenRate = this.nitrogenRate();
+    const fertilizerAmount = this.fertilizerAmount();
+
+    if (totalLawnSize && nitrogenRate && fertilizerAmount) {
+      const result = getPoundsOfNInFertilizerApp({
+        guaranteedAnalysisOfProduct: `${nitrogenRate}-0-0`,
+        poundsOfProduct: fertilizerAmount,
+        totalSquareFeet: totalLawnSize
       });
+      return result;
     }
+    return null;
+  });
+
+  public effectiveFertilizerAmount = computed(() => {
+    const fertilizerAmount = this.fertilizerAmount();
+    if (fertilizerAmount !== null) return fertilizerAmount;
+
+    const totalLawnSize = this.totalLawnSize();
+    const poundsOfN = this.poundsOfN();
+    const nitrogenRate = this.nitrogenRate();
+
+    if (totalLawnSize && poundsOfN && nitrogenRate) {
+      const result = getPoundsOfProductForDesiredN({
+        totalSquareFeet: totalLawnSize,
+        desiredLbsOfNPer1000SqFt: poundsOfN,
+        guaranteedAnalysisOfProduct: `${nitrogenRate}-0-0`
+      });
+      return result;
+    }
+    return null;
+  });
+
+  private parseNumber(value: string | number | null): number | null {
+    if (value === null || value === undefined || value === '') return null;
+
+    if (typeof value === 'number') return value;
+
+    const strValue = value.toString().trim();
+    if (strValue === '') return null;
+
+    const normalizedValue = strValue.startsWith('.')
+      ? '0' + strValue
+      : strValue;
+
+    const parsed = parseFloat(normalizedValue);
+    return isNaN(parsed) ? null : parsed;
   }
 
-  public calculate(formControlName: string, value: number | null): void {
-    const { totalLawnSize, nitrogenRate, poundsOfN, fertilizerAmount } =
-      this.fertilizerForm.value;
+  private updateFieldFromEvent(signal: any, event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    signal.set(this.parseNumber(value));
+  }
 
-    console.log(formControlName);
-    this.fertilizerForm.patchValue(
-      {
-        poundsOfN:
-          formControlName !== 'poundsOfN'
-            ? getPoundsOfNInFertilizerApp({
-                guaranteedAnalysisOfProduct: `${nitrogenRate}-0-0`,
-                poundsOfProduct: fertilizerAmount || 0,
-                totalSquareFeet: totalLawnSize || 0
-              })
-            : value || undefined,
-        fertilizerAmount:
-          formControlName !== 'fertilizerAmount'
-            ? getPoundsOfProductForDesiredN({
-                totalSquareFeet: totalLawnSize || 0,
-                desiredLbsOfNPer1000SqFt: poundsOfN || 0,
-                guaranteedAnalysisOfProduct: `${nitrogenRate}-0-0`
-              })
-            : value || undefined,
-        nitrogenRate:
-          formControlName !== 'nitrogenRate'
-            ? getNitrogenRateFromFields({
-                totalLawnSize: totalLawnSize || 0,
-                poundsOfN: poundsOfN || 0,
-                fertilizerAmount: fertilizerAmount || 0
-              })
-            : value || undefined,
-        totalLawnSize:
-          formControlName !== 'totalLawnSize'
-            ? totalLawnSize
-            : totalLawnSize || undefined
-      },
-      { emitEvent: false }
-    );
+  public onTotalLawnSizeChange(event: Event): void {
+    this.updateFieldFromEvent(this.totalLawnSize, event);
+  }
+
+  public onNitrogenRateChange(event: Event): void {
+    this.updateFieldFromEvent(this.nitrogenRate, event);
+  }
+
+  public onPoundsOfNChange(event: Event): void {
+    this.updateFieldFromEvent(this.poundsOfN, event);
+  }
+
+  public onFertilizerAmountChange(event: Event): void {
+    this.updateFieldFromEvent(this.fertilizerAmount, event);
   }
 }

@@ -1,7 +1,7 @@
 export interface AiChatResponse {
   content: string;
   model?: string;
-  provider: 'groq' | 'openai' | 'anthropic' | 'other';
+  provider: 'groq' | 'gemini' | 'openai' | 'anthropic' | 'other';
   usage?: {
     promptTokens?: number;
     completionTokens?: number;

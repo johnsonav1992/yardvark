@@ -137,7 +137,10 @@ export const getNitrogenRateFromFields = ({
 export const getTotalSquareFeetForSegments = (
   lawnSegments: Array<{ size: number }>
 ): number => {
-  return lawnSegments.reduce((total, segment) => total + segment.size, 0);
+  return lawnSegments.reduce(
+    (total, segment) => total + Number(segment.size),
+    0
+  );
 };
 
 /**

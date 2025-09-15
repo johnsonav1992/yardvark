@@ -8,6 +8,7 @@ on:
     types: [closed]
     branches: [main, master]
     paths: ["backend/**"]
+  workflow_dispatch:
 
 env:
   RAILWAY_TOKEN: ${{ secrets.RAILWAY_PROD_TOKEN }}

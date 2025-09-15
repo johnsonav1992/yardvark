@@ -1,9 +1,6 @@
 name: Deploy to Railway Production
 
 on:
-  push:
-    branches: [main, master]
-    paths: ["backend/**"]
   pull_request:
     types: [closed]
     branches: [main, master]
@@ -15,8 +12,8 @@ env:
 
 jobs:
   deploy-production:
-    # Only run if PR was merged (not just closed) OR if direct push to main
-    if: github.event_name == 'push' || (github.event.pull_request.merged == true)
+    # Only run if PR was merged (not just closed) OR if manually triggered
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.merged == true)
     runs-on: ubuntu-latest
     permissions:
       contents: read

@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MailerSend, EmailParams, Sender, Recipient } from 'mailersend';
+import { tryCatch } from '../../../utils/tryCatch';
 
 export interface FeedbackEmailData {
   name: string;
@@ -42,13 +43,14 @@ export class EmailService {
   async sendFeedbackEmail(feedbackData: FeedbackEmailData): Promise<boolean> {
     if (!this.isInitialized) {
       this.logger.error('MailerSend not initialized. Check API key.');
+
       return false;
     }
 
     const adminEmail = 'johnsonav1992@gmail.com';
     const fromEmail = 'feedback@test-q3enl6kv55742vwr.mlsender.net';
 
-    try {
+    const result = await tryCatch(async () => {
       const sentFrom = new Sender(fromEmail, 'Yardvark Feedback');
       const recipients = [new Recipient(adminEmail, 'Admin')];
 
@@ -61,17 +63,14 @@ export class EmailService {
         .setHtml(html)
         .setReplyTo(new Sender(feedbackData.email, feedbackData.name));
 
-      const response = await this.mailerSend.email.send(emailParams);
+      return await this.mailerSend.email.send(emailParams);
+    });
 
-      if (response.statusCode === 202) {
-        this.logger.log('Feedback email sent successfully');
-        return true;
-      } else {
-        this.logger.error('Failed to send email:', response);
-        return false;
-      }
-    } catch (error) {
-      this.logger.error('Error sending feedback email:', error);
+    if (result.success) {
+      this.logger.log('Feedback email sent successfully');
+      return true;
+    } else {
+      this.logger.error('Error sending feedback email:', result.error);
       return false;
     }
   }

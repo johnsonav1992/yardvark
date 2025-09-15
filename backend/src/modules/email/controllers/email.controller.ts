@@ -14,9 +14,7 @@ export class EmailController {
 
   @Post('feedback')
   async sendFeedback(@Body() feedbackData: FeedbackRequest) {
-    const emailData: FeedbackEmailData = {
-      ...feedbackData,
-    };
+    const emailData: FeedbackEmailData = feedbackData;
 
     const success = await this.emailService.sendFeedbackEmail(emailData);
 

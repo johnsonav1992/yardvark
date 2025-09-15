@@ -6,7 +6,7 @@ import { LoggingInterceptor } from './logger/logger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalInterceptors(new LoggingInterceptor());
-  
+
   // Configure CORS to allow production, local dev, and Netlify preview domains
   app.enableCors({
     origin: [

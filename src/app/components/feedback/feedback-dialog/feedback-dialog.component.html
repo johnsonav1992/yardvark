@@ -1,0 +1,112 @@
+<form [formGroup]="form" class="main-form" (ngSubmit)="onSubmit()">
+  @if (submitSuccess()) {
+    <p-message
+      severity="success"
+      [text]="successMessage()"
+      [closable]="false"
+      styleClass="w-full mb-3"
+    />
+  } @else {
+    @if (submitError()) {
+      <p-message
+        severity="error"
+        [text]="submitError()!"
+        [closable]="false"
+        styleClass="w-full mb-3"
+      />
+    }
+
+    <span class="input-wrapper">
+      <div style="display: flex">
+        <p>Name:</p>
+        <small class="error">*</small>
+      </div>
+      <input
+        pInputText
+        formControlName="name"
+        style="width: 100%"
+        placeholder="Your name"
+        [disabled]="isSubmitting()"
+      />
+    </span>
+
+    <span class="input-wrapper">
+      <div style="display: flex">
+        <p>Email:</p>
+        <small class="error">*</small>
+      </div>
+      <input
+        pInputText
+        formControlName="email"
+        style="width: 100%"
+        placeholder="your.email@example.com"
+        type="email"
+        [disabled]="isSubmitting()"
+      />
+    </span>
+
+    <span class="input-wrapper">
+      <div style="display: flex">
+        <p>Feedback Type:</p>
+        <small class="error">*</small>
+      </div>
+      <p-select
+        formControlName="feedbackType"
+        [options]="feedbackOptions"
+        [disabled]="isSubmitting()"
+        placeholder="Select feedback type"
+        optionLabel="label"
+        optionValue="value"
+        [style.width]="'100%'"
+      >
+        <ng-template pTemplate="item" let-option>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <i [class]="option.icon"></i>
+            <span>{{ option.label }}</span>
+          </div>
+        </ng-template>
+        <ng-template pTemplate="selectedItem" let-option>
+          @if (option) {
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <i [class]="option.icon"></i>
+              <span>{{ option.label }}</span>
+            </div>
+          }
+        </ng-template>
+      </p-select>
+    </span>
+
+    <div class="col-input-wrapper">
+      <div style="display: flex">
+        <p>Message:</p>
+        <small class="error">*</small>
+      </div>
+      <textarea
+        pTextarea
+        [rows]="5"
+        formControlName="message"
+        [placeholder]="messagePlaceholder()"
+        [disabled]="isSubmitting()"
+        [style.width]="'100%'"
+      ></textarea>
+    </div>
+
+    <div class="dialog-footer">
+      <p-button
+        label="Cancel"
+        severity="secondary"
+        [outlined]="true"
+        type="button"
+        (click)="onCancel()"
+        [disabled]="isSubmitting()"
+      />
+      <p-button
+        label="Send Feedback"
+        icon="ti ti-send"
+        type="submit"
+        [loading]="isSubmitting()"
+        [disabled]="form.invalid"
+      />
+    </div>
+  }
+</form>

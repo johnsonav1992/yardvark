@@ -6,11 +6,17 @@
   margin-bottom: 1rem;
 }
 
-@mixin dark-mode-container {
+@mixin bottom-control-container {
   display: flex;
   gap: 0.5rem;
   align-items: center;
   margin-left: 1rem;
+}
+
+@mixin bottom-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .sidenav {
@@ -23,8 +29,16 @@
     @include sidenav-container();
   }
 
+  .bottom-controls {
+    @include bottom-controls();
+  }
+
+  .feedback-container {
+    @include bottom-control-container();
+  }
+
   .dark-mode-container {
-    @include dark-mode-container();
+    @include bottom-control-container();
   }
 }
 
@@ -36,8 +50,16 @@
     @include sidenav-container();
   }
 
+  .bottom-controls {
+    @include bottom-controls();
+  }
+
+  .feedback-container {
+    @include bottom-control-container();
+  }
+
   .dark-mode-container {
-    @include dark-mode-container();
+    @include bottom-control-container();
   }
 }
 

@@ -45,12 +45,12 @@ jobs:
             // Create a commit status or deployment notification
             const deploymentMessage = github.event_name === 'push'
               ? `🚀 **Backend deployed to production!** (Direct push to ${github.ref_name})`
-              : `🚀 **Backend deployed to production!** (PR #${{ github.event.pull_request.number }} merged)`;
+              : `🚀 **Backend deployed to production!** (PR #${context.payload.pull_request.number} merged)`;
 
             // If this was a PR merge, comment on the PR
-            if (github.event.pull_request) {
+            if (context.payload.pull_request) {
               await github.rest.issues.createComment({
-                issue_number: github.event.pull_request.number,
+                issue_number: context.payload.pull_request.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 body: `${deploymentMessage}

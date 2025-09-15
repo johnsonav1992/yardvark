@@ -12,9 +12,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
 import { MessageModule } from 'primeng/message';
-import { HttpClient } from '@angular/common/http';
 import { showAllFormErrorsOnSubmit } from '../../../utils/formUtils';
-import { DEV_BE_API_URL } from '../../../constants/api-constants';
+import { postReq, apiUrl } from '../../../utils/httpUtils';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'feedback-dialog',
@@ -32,7 +32,6 @@ import { DEV_BE_API_URL } from '../../../constants/api-constants';
 })
 export class FeedbackDialogComponent {
   private _dialogRef = inject(DynamicDialogRef);
-  private _http = inject(HttpClient);
 
   public isSubmitting = signal(false);
   public submitError = signal<string | null>(null);
@@ -50,7 +49,7 @@ export class FeedbackDialogComponent {
   });
 
   constructor() {
-    this.form.get('feedbackType')?.valueChanges.subscribe(value => {
+    this.form.get('feedbackType')?.valueChanges.subscribe((value) => {
       if (value) {
         this.feedbackType.set(value);
       }
@@ -95,8 +94,7 @@ export class FeedbackDialogComponent {
 
   public onSubmit(): void {
     if (this.form.invalid) {
-      showAllFormErrorsOnSubmit(this.form);
-      return;
+      return showAllFormErrorsOnSubmit(this.form);
     }
 
     this.isSubmitting.set(true);
@@ -104,15 +102,17 @@ export class FeedbackDialogComponent {
 
     const formData = this.form.value;
 
-    this._http.post(`${DEV_BE_API_URL}/email/feedback`, formData).subscribe({
+    postReq(apiUrl('email/feedback'), formData).subscribe({
       next: () => {
         this.submitSuccess.set(true);
+
         setTimeout(() => {
           this._dialogRef.close(true);
         }, 1500);
       },
-      error: (error) => {
+      error: (error: HttpErrorResponse) => {
         console.error('Error sending feedback:', error);
+
         this.submitError.set('Failed to send feedback. Please try again.');
         this.isSubmitting.set(false);
       }

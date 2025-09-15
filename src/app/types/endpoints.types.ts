@@ -9,7 +9,8 @@ export type ApiEndpointRoutes =
   | AnalyticsRoutes
   | FileRoutes
   | WeatherRoutes
-  | AiRoutes;
+  | AiRoutes
+  | EmailRoutes;
 
 type SettingsRoutes = 'settings';
 
@@ -46,3 +47,5 @@ type FileRoutes = 'files/upload' | 'files/download';
 type WeatherRoutes = 'weather/forecast';
 
 type AiRoutes = 'ai/chat';
+
+type EmailRoutes = 'email/feedback';

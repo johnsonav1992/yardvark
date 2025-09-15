@@ -1,12 +1,6 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { EmailService, FeedbackEmailData } from '../services/email.service';
-
-export interface FeedbackRequest {
-  name: string;
-  email: string;
-  message: string;
-  feedbackType: 'general' | 'bug' | 'enhancement';
-}
+import { FeedbackRequest } from '../models/email.types';
 
 @Controller('email')
 export class EmailController {

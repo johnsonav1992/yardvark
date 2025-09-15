@@ -98,9 +98,7 @@ export class S3Service {
       );
 
       if (error) {
-        throw new Error(
-          `Failed to convert HEIC file: ${error.message}`,
-        );
+        throw new Error(`Failed to convert HEIC file: ${error.message}`);
       }
 
       bufferToUpload = jpegBuffer;

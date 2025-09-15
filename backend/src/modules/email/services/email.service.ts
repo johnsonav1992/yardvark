@@ -37,20 +37,15 @@ export class EmailService {
     this.mailerSend = new MailerSend({ apiKey });
 
     this.isInitialized = true;
-    this.logger.log('MailerSend initialized successfully');
   }
 
-  /**
-   * Send feedback email to admin
-   */
   async sendFeedbackEmail(feedbackData: FeedbackEmailData): Promise<boolean> {
     if (!this.isInitialized) {
       this.logger.error('MailerSend not initialized. Check API key.');
       return false;
     }
 
-    const adminEmail = 'yardvarkapp@gmail.com';
-    const bccEmail = 'johnsonav1992@gmail.com';
+    const adminEmail = 'johnsonav1992@gmail.com';
     const fromEmail = 'feedback@test-q3enl6kv55742vwr.mlsender.net';
 
     try {
@@ -62,7 +57,6 @@ export class EmailService {
       const emailParams = new EmailParams()
         .setFrom(sentFrom)
         .setTo(recipients)
-        .setBcc([new Recipient(bccEmail, 'Alex Johnson')])
         .setSubject(`Yardvark Feedback from ${feedbackData.name}`)
         .setHtml(html)
         .setReplyTo(new Sender(feedbackData.email, feedbackData.name));
@@ -99,142 +93,92 @@ export class EmailService {
           <title>Yardvark Feedback from ${data.name}</title>
           <style>
             body {
-              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-              line-height: 1.6;
-              color: #1f2937;
+              font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+              line-height: 1.5;
+              color: #1a1a1a;
               margin: 0;
-              padding: 0;
-              background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+              padding: 24px;
+              background-color: #f8fafc;
             }
             .container {
-              max-width: 650px;
-              margin: 40px auto;
+              max-width: 600px;
+              margin: 0 auto;
               background: white;
-              border-radius: 16px;
+              border-radius: 8px;
+              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
               overflow: hidden;
-              box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
             }
             .header {
-              background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+              background: #22c55e;
               color: white;
-              padding: 32px 24px;
+              padding: 24px;
               text-align: center;
-              position: relative;
-            }
-            .header::after {
-              content: '';
-              position: absolute;
-              bottom: -10px;
-              left: 50%;
-              transform: translateX(-50%);
-              width: 0;
-              height: 0;
-              border-left: 10px solid transparent;
-              border-right: 10px solid transparent;
-              border-top: 10px solid #16a34a;
             }
             .header h1 {
-              margin: 0 0 8px 0;
-              font-size: 24px;
-              font-weight: 700;
-              letter-spacing: -0.025em;
-            }
-            .header p {
               margin: 0;
-              font-size: 14px;
-              opacity: 0.9;
-              font-weight: 500;
+              font-size: 20px;
+              font-weight: 600;
             }
             .content {
-              padding: 32px 24px;
+              padding: 24px;
             }
             .feedback-type {
               display: inline-flex;
               align-items: center;
-              background: ${typeInfo.color}15;
+              background: ${typeInfo.color}10;
               color: ${typeInfo.color};
-              padding: 8px 16px;
-              border-radius: 20px;
-              font-weight: 600;
+              padding: 6px 12px;
+              border-radius: 6px;
+              font-weight: 500;
               font-size: 14px;
               margin-bottom: 24px;
-              border: 2px solid ${typeInfo.color}25;
+              border: 1px solid ${typeInfo.color}30;
             }
             .feedback-type-icon {
               margin-right: 6px;
-              font-size: 16px;
             }
             .field {
-              margin-bottom: 24px;
-              border-radius: 12px;
-              border: 1px solid #e5e7eb;
-              overflow: hidden;
-              transition: all 0.2s ease;
-            }
-            .field:hover {
-              border-color: #d1d5db;
-              box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            }
-            .field-header {
-              background: #f9fafb;
-              padding: 12px 20px;
-              border-bottom: 1px solid #e5e7eb;
-              display: flex;
-              align-items: center;
-            }
-            .field-icon {
-              font-size: 18px;
-              margin-right: 10px;
+              margin-bottom: 20px;
             }
             .field-label {
               font-weight: 600;
               color: #374151;
-              font-size: 15px;
+              margin-bottom: 4px;
+              font-size: 14px;
             }
             .field-value {
-              padding: 16px 20px;
-              color: #4b5563;
+              color: #6b7280;
               font-size: 15px;
               line-height: 1.6;
             }
             .message-content {
               white-space: pre-wrap;
-              word-wrap: break-word;
               background: #f8fafc;
               padding: 16px;
-              border-radius: 8px;
-              font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
-              font-size: 14px;
-              border-left: 4px solid #22c55e;
-            }
-            .metadata {
-              background: #f1f5f9;
-              border-radius: 8px;
-              padding: 12px;
-              font-size: 13px;
-              color: #6b7280;
-              font-family: 'SF Mono', 'Monaco', monospace;
+              border-radius: 6px;
+              border-left: 3px solid ${typeInfo.color};
+              font-size: 15px;
+              line-height: 1.6;
             }
             .url-link {
               color: #3b82f6;
               text-decoration: none;
-              padding: 4px 8px;
-              background: #dbeafe;
-              border-radius: 6px;
-              font-weight: 500;
-              transition: all 0.2s ease;
             }
-            .url-link:hover {
-              background: #bfdbfe;
-              transform: translateY(-1px);
+            .metadata {
+              background: #f1f5f9;
+              padding: 12px;
+              border-radius: 6px;
+              font-size: 13px;
+              color: #6b7280;
+              font-family: monospace;
+              word-break: break-all;
             }
           </style>
         </head>
         <body>
           <div class="container">
             <div class="header">
-              <h1>🌱 Yardvark Feedback</h1>
-              <p>New user feedback received</p>
+              <h1>Yardvark Feedback</h1>
             </div>
             <div class="content">
               <div class="feedback-type">
@@ -243,26 +187,12 @@ export class EmailService {
               </div>
 
               <div class="field">
-                <div class="field-header">
-                  <span class="field-icon">👤</span>
-                  <span class="field-label">Name</span>
-                </div>
-                <div class="field-value">${data.name}</div>
+                <div class="field-label">From</div>
+                <div class="field-value">${data.name} (${data.email})</div>
               </div>
 
               <div class="field">
-                <div class="field-header">
-                  <span class="field-icon">📧</span>
-                  <span class="field-label">Email</span>
-                </div>
-                <div class="field-value">${data.email}</div>
-              </div>
-
-              <div class="field">
-                <div class="field-header">
-                  <span class="field-icon">${typeInfo.icon}</span>
-                  <span class="field-label">${typeInfo.label}</span>
-                </div>
+                <div class="field-label">Message</div>
                 <div class="field-value">
                   <div class="message-content">${data.message}</div>
                 </div>
@@ -272,10 +202,7 @@ export class EmailService {
                 data.url
                   ? `
                 <div class="field">
-                  <div class="field-header">
-                    <span class="field-icon">🔗</span>
-                    <span class="field-label">Page URL</span>
-                  </div>
+                  <div class="field-label">Page URL</div>
                   <div class="field-value">
                     <a href="${data.url}" class="url-link">${data.url}</a>
                   </div>
@@ -288,10 +215,7 @@ export class EmailService {
                 data.userAgent
                   ? `
                 <div class="field">
-                  <div class="field-header">
-                    <span class="field-icon">🔧</span>
-                    <span class="field-label">Browser Info</span>
-                  </div>
+                  <div class="field-label">Browser Info</div>
                   <div class="field-value">
                     <div class="metadata">${data.userAgent}</div>
                   </div>

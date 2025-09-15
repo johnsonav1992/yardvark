@@ -5,7 +5,7 @@ export interface FeedbackRequest {
   name: string;
   email: string;
   message: string;
-  rating?: number;
+  feedbackType: 'general' | 'bug' | 'enhancement';
 }
 
 @Controller('email')
@@ -14,12 +14,8 @@ export class EmailController {
 
   @Post('feedback')
   async sendFeedback(@Body() feedbackData: FeedbackRequest) {
-    // Add additional context data
     const emailData: FeedbackEmailData = {
       ...feedbackData,
-      // Could add request context here if needed
-      // userAgent: req.headers['user-agent'],
-      // url: req.headers.referer,
     };
 
     const success = await this.emailService.sendFeedbackEmail(emailData);

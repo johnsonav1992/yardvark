@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormControl,
@@ -37,6 +37,7 @@ export class FeedbackDialogComponent {
   public isSubmitting = signal(false);
   public submitError = signal<string | null>(null);
   public submitSuccess = signal(false);
+  public feedbackType = signal<'general' | 'bug' | 'enhancement'>('general');
 
   public form = new FormGroup({
     name: new FormControl('', [Validators.required]),
@@ -48,6 +49,14 @@ export class FeedbackDialogComponent {
     )
   });
 
+  constructor() {
+    this.form.get('feedbackType')?.valueChanges.subscribe(value => {
+      if (value) {
+        this.feedbackType.set(value);
+      }
+    });
+  }
+
   public feedbackOptions = [
     {
       label: 'General Feedback',
@@ -58,8 +67,8 @@ export class FeedbackDialogComponent {
     { label: 'Feature Request', value: 'enhancement', icon: 'ti ti-bulb' }
   ];
 
-  public getMessagePlaceholder(): string {
-    const feedbackType = this.form.get('feedbackType')?.value;
+  public messagePlaceholder = computed(() => {
+    const feedbackType = this.feedbackType();
 
     switch (feedbackType) {
       case 'bug':
@@ -69,7 +78,20 @@ export class FeedbackDialogComponent {
       default:
         return "Tell us what you think about Yardvark. What's working well? What could be improved?";
     }
-  }
+  });
+
+  public successMessage = computed(() => {
+    const feedbackType = this.feedbackType();
+
+    switch (feedbackType) {
+      case 'bug':
+        return 'Thank you for the bug report! We will work on fixing this issue soon.';
+      case 'enhancement':
+        return 'Thank you for the feature request! We will consider it for future updates.';
+      default:
+        return 'Thank you for your feedback! We appreciate your input.';
+    }
+  });
 
   public onSubmit(): void {
     if (this.form.invalid) {

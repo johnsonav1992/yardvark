@@ -2,7 +2,7 @@
   @if (submitSuccess()) {
     <p-message
       severity="success"
-      text="Thank you for your feedback! We appreciate it."
+      [text]="successMessage()"
       [closable]="false"
       styleClass="w-full mb-3"
     />
@@ -85,7 +85,7 @@
         pTextarea
         [rows]="5"
         formControlName="message"
-        [placeholder]="getMessagePlaceholder()"
+        [placeholder]="messagePlaceholder()"
         [disabled]="isSubmitting()"
         [style.width]="'100%'"
       ></textarea>

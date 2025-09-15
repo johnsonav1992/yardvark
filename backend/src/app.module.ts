@@ -22,6 +22,7 @@ import { S3Service } from './modules/s3/s3.service';
 import { WeatherModule } from './modules/weather/weather.module';
 import { RemindersModule } from './modules/reminders/reminders.module';
 import { AiModule } from './modules/ai/ai.module';
+import { EmailModule } from './modules/email/email.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { AiModule } from './modules/ai/ai.module';
     HttpModule,
     RemindersModule,
     AiModule,
+    EmailModule,
   ],
   controllers: [UsersController, FilesController],
   providers: [

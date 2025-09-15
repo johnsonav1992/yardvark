@@ -6,16 +6,21 @@ import { MenuModule } from 'primeng/menu';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { DialogService } from 'primeng/dynamicdialog';
+import { FeedbackDialogComponent } from '../../feedback/feedback-dialog/feedback-dialog.component';
 
 @Component({
   selector: 'main-side-nav',
-  imports: [DrawerModule, MenuModule, ToggleSwitchModule, FormsModule],
+  imports: [DrawerModule, MenuModule, ToggleSwitchModule, FormsModule, ButtonModule],
+  providers: [DialogService],
   templateUrl: './main-side-nav.component.html',
   styleUrl: './main-side-nav.component.scss',
   encapsulation: ViewEncapsulation.None
 })
 export class MainSideNavComponent {
   private _globalUiService = inject(GlobalUiService);
+  private _dialogService = inject(DialogService);
 
   public isMobile = this._globalUiService.isMobile;
   public isDarkMode = this._globalUiService.isDarkMode;
@@ -28,6 +33,24 @@ export class MainSideNavComponent {
 
   public toggleDarkMode = () => {
     this._globalUiService.toggleDarkMode();
+  };
+
+  public openFeedbackDialog = () => {
+    this.closeSidebar();
+
+    const dialogRef = this._dialogService.open(FeedbackDialogComponent, {
+      header: 'Send Feedback',
+      modal: true,
+      focusOnShow: false,
+      width: this.isMobile() ? '90%' : '500px',
+      height: 'auto'
+    });
+
+    dialogRef.onClose.subscribe((result) => {
+      if (result) {
+        console.log('Feedback sent successfully');
+      }
+    });
   };
 
   public menuItems: MenuItem[] = [

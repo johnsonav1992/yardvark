@@ -14,12 +14,25 @@
         [dt]="menuDt()"
         [style]="{ fontSize: '24px' }"
       />
-      <div class="dark-mode-container">
-        <p-toggleSwitch
-          [ngModel]="isDarkMode()"
-          (onChange)="toggleDarkMode()"
-        />
-        <p>Dark Mode</p>
+      <div class="bottom-controls">
+        <div class="feedback-container">
+          <p-button
+            icon="ti ti-bug"
+            severity="secondary"
+            [outlined]="true"
+            (click)="openFeedbackDialog()"
+            pTooltip="Send Feedback"
+            tooltipPosition="right"
+          />
+          <p>Send Feedback</p>
+        </div>
+        <div class="dark-mode-container">
+          <p-toggleSwitch
+            [ngModel]="isDarkMode()"
+            (onChange)="toggleDarkMode()"
+          />
+          <p>Dark Mode</p>
+        </div>
       </div>
     </div>
   </ng-template>

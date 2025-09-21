@@ -26,6 +26,7 @@ import { ButtonDesignTokens } from '@primeng/themes/types/button';
 import { PopoverModule } from 'primeng/popover';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { FormsModule } from '@angular/forms';
+import { DividerModule } from 'primeng/divider';
 import { SettingsService } from '../../../services/settings.service';
 import { getSpecificDayOfMonth } from '../../../utils/timeUtils';
 
@@ -44,7 +45,8 @@ import { getSpecificDayOfMonth } from '../../../utils/timeUtils';
     EntrySearchSidebarComponent,
     PopoverModule,
     ToggleSwitchModule,
-    FormsModule
+    FormsModule,
+    DividerModule
   ]
 })
 export class EntriesCalendarComponent {
@@ -76,6 +78,7 @@ export class EntriesCalendarComponent {
 
   public monthChange = output<Date>();
   public daySelected = output<DaySelectedEvent>();
+  public exportCsv = output<void>();
 
   public isEntrySearchSidebarOpen = signal(false);
 
@@ -148,6 +151,10 @@ export class EntriesCalendarComponent {
     this.mode.set(newMode);
 
     this._settingsService.updateSetting('entryView', newMode);
+  }
+
+  public onExportCsv(): void {
+    this.exportCsv.emit();
   }
 
   public back(): void {

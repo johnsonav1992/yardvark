@@ -274,75 +274,17 @@ export class EntryLogComponent implements OnInit {
     this.entrySortOrder.set(this.entrySortOrder() === 'asc' ? 'desc' : 'asc');
   }
 
-  public testCsvExport(): void {
-    const dummyEntries: Entry[] = [
-      {
-        id: 1,
-        userId: 'test-user',
-        date: '2024-09-15',
-        time: '09:30',
-        title: 'Morning Lawn Mowing',
-        notes: 'Mowed the front and back yard, grass was getting quite tall after the rain.',
-        soilTemperature: 68,
-        soilTemperatureUnit: '°F',
-        activities: [{ id: 1, name: 'Mowing' }, { id: 2, name: 'Edging' }],
-        lawnSegments: [{ id: 1, userId: 'test-user', name: 'Front Yard', size: 1200 }, { id: 2, userId: 'test-user', name: 'Back Yard', size: 2400 }],
-        products: [
-          {
-            id: 1,
-            name: 'Premium Fertilizer',
-            brand: 'Scotts',
-            imageUrl: '',
-            quantity: 5,
-            quantityUnit: 'lbs',
-            guaranteedAnalysis: '24-0-6',
-            containerType: 'bag'
-          }
-        ],
-        images: [{ id: 1, imageUrl: 'lawn-before.jpg' }, { id: 2, imageUrl: 'lawn-after.jpg' }]
-      },
-      {
-        id: 2,
-        userId: 'test-user',
-        date: '2024-09-10',
-        time: '16:45',
-        title: 'Weed Treatment Application',
-        notes: 'Applied herbicide to treat dandelions and crabgrass in the side yard.',
-        soilTemperature: 72,
-        soilTemperatureUnit: '°F',
-        activities: [{ id: 3, name: 'Weed Control' }],
-        lawnSegments: [{ id: 3, userId: 'test-user', name: 'Side Yard', size: 800 }],
-        products: [
-          {
-            id: 2,
-            name: 'Weed & Feed',
-            brand: 'Ortho',
-            imageUrl: '',
-            quantity: 2.5,
-            quantityUnit: 'gallons',
-            guaranteedAnalysis: '28-0-3',
-            containerType: 'bottle'
-          }
-        ],
-        images: []
-      },
-      {
-        id: 3,
-        userId: 'test-user',
-        date: '2024-09-05',
-        time: '08:15',
-        title: 'Sprinkler System Check',
-        notes: 'Inspected all sprinkler heads, replaced two broken ones in zone 3.',
-        soilTemperature: 65,
-        soilTemperatureUnit: '°F',
-        activities: [{ id: 4, name: 'Irrigation' }, { id: 5, name: 'Equipment Maintenance' }],
-        lawnSegments: [{ id: 1, name: 'Front Yard' }, { id: 2, name: 'Back Yard' }, { id: 3, name: 'Side Yard' }],
-        products: [],
-        images: [{ id: 3, imageUrl: 'sprinkler-repair.jpg' }]
-      }
-    ];
+  public exportCsv(): void {
+    const currentEntries = this.entries.value();
 
-    this._csvExportService.exportEntriesToCsv(dummyEntries, 'test-entry-export.csv');
+    if (currentEntries && currentEntries.length > 0) {
+      const currentMonth = format(this.currentDate(), 'MMMM-yyyy');
+
+      this._csvExportService.exportEntriesToCsv(
+        currentEntries,
+        `yard-entries-${currentMonth}.csv`
+      );
+    }
   }
 
   public markerButtonDt: ButtonDesignTokens = {

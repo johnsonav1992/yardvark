@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Entry } from '../types/entries.types';
+import { format, parse } from 'date-fns';
 
 @Injectable({
   providedIn: 'root'
@@ -37,8 +38,8 @@ export class CsvExportService {
     entries.forEach(entry => {
       const row = [
         entry.id.toString(),
-        this.escapeCsvField(entry.date),
-        this.escapeCsvField(entry.time),
+        this.escapeCsvField(this.formatDate(entry.date)),
+        this.escapeCsvField(this.formatTime(entry.time)),
         this.escapeCsvField(entry.title),
         this.escapeCsvField(entry.notes),
         entry.soilTemperature?.toString() || '',
@@ -53,6 +54,31 @@ export class CsvExportService {
     });
 
     return csvRows.join('\n');
+  }
+
+  private formatDate(dateString: string): string {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      return format(date, 'MM-dd-yyyy');
+    } catch {
+      return dateString;
+    }
+  }
+
+  private formatTime(timeString: string | undefined): string {
+    if (!timeString) return '';
+    try {
+      const parsedTime = parse(timeString, 'HH:mm:ss', new Date());
+      return format(parsedTime, 'h:mm a');
+    } catch {
+      try {
+        const parsedTime = parse(timeString, 'HH:mm', new Date());
+        return format(parsedTime, 'h:mm a');
+      } catch {
+        return timeString;
+      }
+    }
   }
 
   private formatActivities(activities: any[]): string {

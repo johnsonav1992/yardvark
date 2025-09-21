@@ -7,6 +7,7 @@
     [(mode)]="viewMode"
     (monthChange)="changeMonths($event)"
     (daySelected)="selectDay($event)"
+    (exportCsv)="exportCsv()"
   >
     <ng-template #marker let-dayMarkers>
       @for (marker of dayMarkers; track marker.id) {

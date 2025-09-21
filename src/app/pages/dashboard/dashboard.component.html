@@ -48,11 +48,6 @@
       <div class="cards-container" cdkDropList (cdkDropListDropped)="onWidgetDrop($event)" cdkDropListOrientation="mixed">
         @for (widgetId of orderedVisibleWidgets(); track widgetId) {
           <div cdkDrag class="widget-wrapper">
-            <div class="drop-placeholder">
-              <i class="ti ti-arrow-down"></i>
-              <span>Drop widget here</span>
-              <i class="ti ti-arrow-down"></i>
-            </div>
             @switch (widgetId) {
               @case ('recent-entry') {
                 <recent-entry (onHideWidget)="hideWidget('recent-entry')" />

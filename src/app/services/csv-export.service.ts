@@ -1,117 +1,43 @@
 import { Injectable } from '@angular/core';
-import { Entry } from '../types/entries.types';
-import { format, parse } from 'date-fns';
+import { CsvExportConfig } from '../types/csv.types';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CsvExportService {
-
-  public exportEntriesToCsv(entries: Entry[], filename: string = 'entry-log-export.csv'): void {
-    if (!entries || entries.length === 0) {
-      console.warn('No entries to export');
+  public exportToCsv<T>(data: T[], config: CsvExportConfig<T>): void {
+    if (!data || data.length === 0) {
+      console.warn('No data to export');
       return;
     }
 
-    const csvContent = this.generateCsvContent(entries);
-    this.downloadCsv(csvContent, filename);
+    const csvContent = this.generateCsvContent(data, config);
+    this.downloadCsv(csvContent, config.filename || 'export.csv');
   }
 
-  private generateCsvContent(entries: Entry[]): string {
-    const headers = [
-      'ID',
-      'Date',
-      'Time',
-      'Title',
-      'Notes',
-      'Soil Temperature',
-      'Soil Temperature Unit',
-      'Activities',
-      'Lawn Segments',
-      'Products',
-      'Product Quantities',
-      'Images Count'
-    ];
+  private generateCsvContent<T>(data: T[], config: CsvExportConfig<T>): string {
+    const csvRows = [config.headers.join(',')];
 
-    const csvRows = [headers.join(',')];
-
-    entries.forEach(entry => {
-      const row = [
-        entry.id.toString(),
-        this.escapeCsvField(this.formatDate(entry.date)),
-        this.escapeCsvField(this.formatTime(entry.time)),
-        this.escapeCsvField(entry.title),
-        this.escapeCsvField(entry.notes),
-        entry.soilTemperature?.toString() || '',
-        this.escapeCsvField(entry.soilTemperatureUnit),
-        this.escapeCsvField(this.formatActivities(entry.activities)),
-        this.escapeCsvField(this.formatLawnSegments(entry.lawnSegments)),
-        this.escapeCsvField(this.formatProducts(entry.products)),
-        this.escapeCsvField(this.formatProductQuantities(entry.products)),
-        entry.images?.length?.toString() || '0'
-      ];
+    data.forEach((item) => {
+      const row = config
+        .rowMapper(item)
+        .map((field) => this.escapeCsvField(field));
       csvRows.push(row.join(','));
     });
 
     return csvRows.join('\n');
   }
 
-  private formatDate(dateString: string): string {
-    if (!dateString) return '';
-    try {
-      const date = new Date(dateString);
-      return format(date, 'MM-dd-yyyy');
-    } catch {
-      return dateString;
-    }
-  }
-
-  private formatTime(timeString: string | undefined): string {
-    if (!timeString) return '';
-    try {
-      const parsedTime = parse(timeString, 'HH:mm:ss', new Date());
-      return format(parsedTime, 'h:mm a');
-    } catch {
-      try {
-        const parsedTime = parse(timeString, 'HH:mm', new Date());
-        return format(parsedTime, 'h:mm a');
-      } catch {
-        return timeString;
-      }
-    }
-  }
-
-  private formatActivities(activities: any[]): string {
-    if (!activities || activities.length === 0) return '';
-    return activities.map(activity => activity.name || activity.title || activity.id).join('; ');
-  }
-
-  private formatLawnSegments(segments: any[]): string {
-    if (!segments || segments.length === 0) return '';
-    return segments.map(segment => segment.name || segment.title || segment.id).join('; ');
-  }
-
-  private formatProducts(products: any[]): string {
-    if (!products || products.length === 0) return '';
-    return products.map(product => {
-      const brand = product.brand ? `${product.brand} ` : '';
-      return `${brand}${product.name}`;
-    }).join('; ');
-  }
-
-  private formatProductQuantities(products: any[]): string {
-    if (!products || products.length === 0) return '';
-    return products.map(product =>
-      `${product.quantity} ${product.quantityUnit}`
-    ).join('; ');
-  }
-
-  private escapeCsvField(field: string | undefined | null): string {
-    if (!field) return '';
+  private escapeCsvField(field: string | number | undefined | null): string {
+    if (field === null || field === undefined) return '';
 
     const stringField = field.toString();
 
-    if (stringField.includes(',') || stringField.includes('"') || stringField.includes('\n')) {
+    if (
+      stringField.includes(',') ||
+      stringField.includes('"') ||
+      stringField.includes('\n')
+    ) {
       return `"${stringField.replace(/"/g, '""')}"`;
     }
 
@@ -124,30 +50,17 @@ export class CsvExportService {
 
     if (link.download !== undefined) {
       const url = URL.createObjectURL(blob);
+
       link.setAttribute('href', url);
       link.setAttribute('download', filename);
       link.style.visibility = 'hidden';
+
       document.body.appendChild(link);
+
       link.click();
+
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
     }
-  }
-
-  public exportEntriesInDateRange(
-    entries: Entry[],
-    startDate: Date,
-    endDate: Date,
-    filename?: string
-  ): void {
-    const filteredEntries = entries.filter(entry => {
-      const entryDate = new Date(entry.date);
-      return entryDate >= startDate && entryDate <= endDate;
-    });
-
-    const dateRangeFilename = filename ||
-      `entry-log-${startDate.toISOString().split('T')[0]}-to-${endDate.toISOString().split('T')[0]}.csv`;
-
-    this.exportEntriesToCsv(filteredEntries, dateRangeFilename);
   }
 }

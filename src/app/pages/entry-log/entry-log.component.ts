@@ -37,6 +37,7 @@ import { DailyWeatherCalendarForecast } from '../../types/weather.types';
 import { getForecastMarkerIcon } from '../../utils/weatherUtils';
 import { WeatherDayMarker } from '../../components/weather/weather-day-marker/weather-day-marker';
 import { CsvExportService } from '../../services/csv-export.service';
+import { getEntryCsvConfig } from '../../utils/csvUtils';
 
 @Component({
   selector: 'entry-log',
@@ -279,11 +280,9 @@ export class EntryLogComponent implements OnInit {
 
     if (currentEntries && currentEntries.length > 0) {
       const currentMonth = format(this.currentDate(), 'MMMM-yyyy');
+      const config = getEntryCsvConfig(`yard-entries-${currentMonth}.csv`);
 
-      this._csvExportService.exportEntriesToCsv(
-        currentEntries,
-        `yard-entries-${currentMonth}.csv`
-      );
+      this._csvExportService.exportToCsv(currentEntries, config);
     }
   }
 

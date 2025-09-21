@@ -52,7 +52,7 @@
   flex-wrap: wrap;
   gap: 1rem;
 
-  > * {
+  .widget-wrapper {
     flex: 0 0 400px;
     min-width: 400px;
 
@@ -62,11 +62,27 @@
 
     max-width: 100%;
     box-sizing: border-box;
+
+    &.cdk-drag-animating {
+      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+    }
+
+    &.cdk-drag-disabled {
+      cursor: default;
+    }
+
+    &:not(.cdk-drag-disabled) {
+      cursor: move;
+    }
   }
 
   @media (max-width: 900px) {
-    > * {
+    .widget-wrapper {
       flex: 0 0 100%;
     }
+  }
+
+  &.cdk-drop-list-dragging .widget-wrapper:not(.cdk-drag-placeholder) {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
   }
 }

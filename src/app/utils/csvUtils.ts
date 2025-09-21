@@ -16,6 +16,7 @@ export const formatDateForCsv = (dateString: string): string => {
 
 export const formatTimeForCsv = (timeString: string): string => {
   if (!timeString) return '';
+
   try {
     const parsedTime = parse(timeString, 'HH:mm:ss', new Date());
     return format(parsedTime, 'h:mm a');

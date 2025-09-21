@@ -7,6 +7,7 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { Router } from '@angular/router';
 import { GlobalUiService } from '../../../services/global-ui.service';
+import { CdkDragHandle } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'recent-entry',
@@ -16,7 +17,8 @@ import { GlobalUiService } from '../../../services/global-ui.service';
     DatePipe,
     NgTemplateOutlet,
     ButtonModule,
-    TooltipModule
+    TooltipModule,
+    CdkDragHandle
   ],
   templateUrl: './recent-entry.component.html',
   styleUrl: './recent-entry.component.scss'

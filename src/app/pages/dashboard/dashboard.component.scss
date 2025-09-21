@@ -83,6 +83,20 @@
       border: 2px solid var(--p-primary-400);
     }
 
+    .drop-placeholder {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      color: var(--p-primary-600);
+      font-weight: 500;
+      font-size: 1.1rem;
+
+      i {
+        font-size: 1.2rem;
+      }
+    }
+
     &.cdk-drag-placeholder {
       opacity: 0.4;
       background: var(--p-surface-200);
@@ -93,16 +107,12 @@
       justify-content: center;
       min-height: 300px;
 
-      * {
-        display: none !important;
+      .drop-placeholder {
+        display: flex;
       }
 
-      &::before {
-        content: 'Drop here';
-        color: var(--p-primary-600);
-        font-weight: 500;
-        font-size: 1.1rem;
-        display: block !important;
+      > *:not(.drop-placeholder) {
+        display: none;
       }
     }
   }
@@ -131,18 +141,16 @@
       border-color: var(--p-primary-500);
       animation: pulse 1.5s ease-in-out infinite;
 
-      * {
-        display: none !important;
-      }
-
-      &::before {
-        content: '⬇ Drop widget here ⬇';
+      .drop-placeholder {
+        display: flex;
         color: var(--p-primary-700);
         font-weight: 600;
         font-size: 1rem;
-        text-align: center;
         animation: bounce 1s ease-in-out infinite;
-        display: block !important;
+      }
+
+      > *:not(.drop-placeholder) {
+        display: none;
       }
     }
   }

@@ -51,10 +51,12 @@
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
+  transition: background-color 200ms ease;
 
   .widget-wrapper {
     flex: 0 0 400px;
     min-width: 400px;
+    position: relative;
 
     @media (max-width: 430px) {
       min-width: 300px;
@@ -71,8 +73,37 @@
       cursor: default;
     }
 
-    &:not(.cdk-drag-disabled) {
-      cursor: move;
+    &.cdk-drag-preview {
+      box-shadow: 0 12px 48px rgba(0, 0, 0, 0.2);
+      transform: rotate(2deg) scale(1.05);
+      opacity: 0.95;
+      border-radius: 12px;
+      overflow: hidden;
+      z-index: 1000;
+      border: 2px solid var(--p-primary-400);
+    }
+
+    &.cdk-drag-placeholder {
+      opacity: 0.4;
+      background: var(--p-surface-200);
+      border: 2px dashed var(--p-primary-400);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 300px;
+
+      * {
+        display: none !important;
+      }
+
+      &::before {
+        content: 'Drop here';
+        color: var(--p-primary-600);
+        font-weight: 500;
+        font-size: 1.1rem;
+        display: block !important;
+      }
     }
   }
 
@@ -82,7 +113,57 @@
     }
   }
 
-  &.cdk-drop-list-dragging .widget-wrapper:not(.cdk-drag-placeholder) {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  &.cdk-drop-list-dragging {
+    background-color: var(--p-surface-50);
+    border-radius: 12px;
+    padding: 0.5rem;
+    margin: -0.5rem;
+
+    .widget-wrapper:not(.cdk-drag-placeholder) {
+      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+      opacity: 0.6;
+      transform: scale(0.98);
+    }
+
+    .widget-wrapper.cdk-drag-placeholder {
+      opacity: 1;
+      background: var(--p-primary-50);
+      border-color: var(--p-primary-500);
+      animation: pulse 1.5s ease-in-out infinite;
+
+      * {
+        display: none !important;
+      }
+
+      &::before {
+        content: '⬇ Drop widget here ⬇';
+        color: var(--p-primary-700);
+        font-weight: 600;
+        font-size: 1rem;
+        text-align: center;
+        animation: bounce 1s ease-in-out infinite;
+        display: block !important;
+      }
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    border-color: var(--p-primary-500);
+    background: var(--p-primary-50);
+  }
+  50% {
+    border-color: var(--p-primary-600);
+    background: var(--p-primary-100);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
   }
 }

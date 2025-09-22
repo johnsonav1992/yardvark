@@ -31,6 +31,10 @@ export type SettingsData = {
    * Array of hidden dashboard widget names
    */
   hiddenWidgets: string[];
+  /**
+   * Ordered array of dashboard widget names for custom ordering
+   */
+  widgetOrder: string[];
 };
 
 export type SettingsResponse = {

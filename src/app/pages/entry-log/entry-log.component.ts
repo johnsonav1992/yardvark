@@ -36,6 +36,8 @@ import { WeatherService } from '../../services/weather-service';
 import { DailyWeatherCalendarForecast } from '../../types/weather.types';
 import { getForecastMarkerIcon } from '../../utils/weatherUtils';
 import { WeatherDayMarker } from '../../components/weather/weather-day-marker/weather-day-marker';
+import { CsvExportService } from '../../services/csv-export.service';
+import { getEntryCsvConfig } from '../../utils/csvUtils';
 
 @Component({
   selector: 'entry-log',
@@ -61,6 +63,7 @@ export class EntryLogComponent implements OnInit {
   private _globalUiService = inject(GlobalUiService);
   private _settingsService = inject(SettingsService);
   private _weatherService = inject(WeatherService);
+  private _csvExportService = inject(CsvExportService);
 
   public isCreateOnOpen = toSignal(
     this._activatedRoute.queryParams.pipe(
@@ -270,6 +273,17 @@ export class EntryLogComponent implements OnInit {
 
   public toggleSortOrder(): void {
     this.entrySortOrder.set(this.entrySortOrder() === 'asc' ? 'desc' : 'asc');
+  }
+
+  public exportCsv(): void {
+    const currentEntries = this.entries.value();
+
+    if (currentEntries && currentEntries.length > 0) {
+      const currentMonth = format(this.currentDate(), 'MMMM-yyyy');
+      const config = getEntryCsvConfig(`yard-entries-${currentMonth}.csv`);
+
+      this._csvExportService.exportToCsv(currentEntries, config);
+    }
   }
 
   public markerButtonDt: ButtonDesignTokens = {

@@ -45,18 +45,24 @@
         <p>Click the button above to restore widgets to your dashboard.</p>
       </div>
     } @else {
-      <div class="cards-container">
-        @if (visibleWidgets().recentEntry) {
-          <recent-entry (onHideWidget)="hideWidget('recent-entry')" />
-        }
-        @if (visibleWidgets().quickStats) {
-          <quick-stats (onHideWidget)="hideWidget('quick-stats')" />
-        }
-        @if (visibleWidgets().lawnHealthScore) {
-          <lawn-health-score (onHideWidget)="hideWidget('lawn-health-score')" />
-        }
-        @if (visibleWidgets().weatherCard) {
-          <weather-card (onHideWidget)="hideWidget('weather-card')" />
+      <div class="cards-container" cdkDropList (cdkDropListDropped)="onWidgetDrop($event)" cdkDropListOrientation="mixed">
+        @for (widgetId of orderedVisibleWidgets(); track widgetId) {
+          <div cdkDrag class="widget-wrapper">
+            @switch (widgetId) {
+              @case ('recent-entry') {
+                <recent-entry (onHideWidget)="hideWidget('recent-entry')" />
+              }
+              @case ('quick-stats') {
+                <quick-stats (onHideWidget)="hideWidget('quick-stats')" />
+              }
+              @case ('lawn-health-score') {
+                <lawn-health-score (onHideWidget)="hideWidget('lawn-health-score')" />
+              }
+              @case ('weather-card') {
+                <weather-card (onHideWidget)="hideWidget('weather-card')" />
+              }
+            }
+          </div>
         }
       </div>
     }

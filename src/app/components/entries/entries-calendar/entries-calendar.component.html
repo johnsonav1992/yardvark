@@ -20,21 +20,23 @@
           (onClick)="openEntrySearchSidebar()"
         />
         <p-button
-          icon="ti ti-settings"
+          icon="ti ti-dots-vertical"
           rounded
           text
           [dt]="textButtonDt()"
-          (click)="settingsPopover.show($event)"
+          (click)="menu.toggle($event)"
         />
-        <p-popover #settingsPopover [dismissable]="true">
-          <div class="depth-overlay-inner">
-            <p>List Mode</p>
-            <p-toggleSwitch
-              [ngModel]="mode() === 'list'"
-              (ngModelChange)="updateViewMode($event)"
-            />
-          </div>
-        </p-popover>
+        <p-menu #menu [model]="menuItems()" [popup]="true">
+          <ng-template pTemplate="start">
+            <div class="menu-list-mode-option">
+              <span>List Mode</span>
+              <p-toggleSwitch
+                [ngModel]="mode() === 'list'"
+                (ngModelChange)="updateViewMode($event)"
+              />
+            </div>
+          </ng-template>
+        </p-menu>
       </div>
       @if (isLoadingData()) {
         <loading-spinner [size]="'xs'" />
@@ -170,3 +172,5 @@
 }
 
 <entry-search-sidebar [(isOpen)]="isEntrySearchSidebarOpen" />
+
+<csv-export-sidebar [(isOpen)]="isCsvExportSidebarOpen" />

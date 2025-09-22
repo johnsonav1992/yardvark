@@ -22,10 +22,12 @@ import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loa
 import { DoubleTapDirective } from '../../../directives/double-tap.directive';
 import { SwipeDirective } from '../../../directives/swipe.directive';
 import { EntrySearchSidebarComponent } from '../entry-search-sidebar/entry-search-sidebar.component';
+import { CsvExportSidebarComponent } from '../csv-export-sidebar/csv-export-sidebar.component';
 import { ButtonDesignTokens } from '@primeng/themes/types/button';
-import { PopoverModule } from 'primeng/popover';
-import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { MenuModule } from 'primeng/menu';
 import { FormsModule } from '@angular/forms';
+import { MenuItem } from 'primeng/api';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { SettingsService } from '../../../services/settings.service';
 import { getSpecificDayOfMonth } from '../../../utils/timeUtils';
 
@@ -42,9 +44,10 @@ import { getSpecificDayOfMonth } from '../../../utils/timeUtils';
     DoubleTapDirective,
     SwipeDirective,
     EntrySearchSidebarComponent,
-    PopoverModule,
-    ToggleSwitchModule,
-    FormsModule
+    CsvExportSidebarComponent,
+    MenuModule,
+    FormsModule,
+    ToggleSwitchModule
   ]
 })
 export class EntriesCalendarComponent {
@@ -76,8 +79,18 @@ export class EntriesCalendarComponent {
 
   public monthChange = output<Date>();
   public daySelected = output<DaySelectedEvent>();
+  public exportCsv = output<void>();
+
+  public menuItems = computed<MenuItem[]>(() => [
+    {
+      label: 'Export CSV',
+      icon: 'ti ti-download',
+      command: () => this.openCsvExportSidebar()
+    }
+  ]);
 
   public isEntrySearchSidebarOpen = signal(false);
+  public isCsvExportSidebarOpen = signal(false);
 
   protected currentDate = linkedSignal(() =>
     this._dateQuery() ? new Date(this._dateQuery()!) : startOfToday()
@@ -142,12 +155,26 @@ export class EntriesCalendarComponent {
     this.isEntrySearchSidebarOpen.set(true);
   }
 
+  public openCsvExportSidebar(): void {
+    this.isCsvExportSidebarOpen.set(true);
+  }
+
   public updateViewMode(e: boolean): void {
     const newMode = e ? 'list' : 'calendar';
 
     this.mode.set(newMode);
 
     this._settingsService.updateSetting('entryView', newMode);
+  }
+
+  public toggleViewMode(): void {
+    const newMode = this.mode() === 'list' ? 'calendar' : 'list';
+    this.mode.set(newMode);
+    this._settingsService.updateSetting('entryView', newMode);
+  }
+
+  public onExportCsv(): void {
+    this.exportCsv.emit();
   }
 
   public back(): void {

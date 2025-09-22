@@ -2,6 +2,7 @@ import { Component, computed, inject, output } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
+import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { WeatherService } from '../../../services/weather-service';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { LocationService } from '../../../services/location.service';
@@ -14,7 +15,7 @@ import type { WeatherPeriod } from '../../../types/weather.types';
 
 @Component({
   selector: 'weather-card',
-  imports: [CardModule, ButtonModule, TooltipModule, LoadingSpinnerComponent],
+  imports: [CardModule, ButtonModule, TooltipModule, LoadingSpinnerComponent, CdkDragHandle],
   templateUrl: './weather-card.component.html',
   styleUrl: './weather-card.component.scss'
 })

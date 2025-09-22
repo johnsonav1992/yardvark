@@ -46,7 +46,7 @@ export class S3Service {
 
     await this.s3.send(new PutObjectCommand(uploadParams));
 
-    return `https://${this.bucketName}.s3.${process.env.AWS_REGION_YARDVARK}.amazonaws.com/${key}`;
+    return `https://${this.bucketName}.s3.${process.env.AWS_REGION_YARDVARK}.amazonaws.com/${encodeURIComponent(key)}`;
   }
 
   public async uploadFiles(

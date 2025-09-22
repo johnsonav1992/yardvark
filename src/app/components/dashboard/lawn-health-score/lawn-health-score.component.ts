@@ -6,11 +6,12 @@ import { PopoverModule } from 'primeng/popover';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { DividerDesignTokens } from '@primeng/themes/types/divider';
+import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { LawnHealthScoreService } from '../../../services/lawn-health-score.service';
 
 @Component({
   selector: 'lawn-health-score',
-  imports: [CardModule, DividerModule, PopoverModule, ButtonModule, TooltipModule],
+  imports: [CardModule, DividerModule, PopoverModule, ButtonModule, TooltipModule, CdkDragHandle],
   templateUrl: './lawn-health-score.component.html',
   styleUrl: './lawn-health-score.component.scss'
 })

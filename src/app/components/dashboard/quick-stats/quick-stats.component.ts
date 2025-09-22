@@ -10,10 +10,11 @@ import { DividerModule } from 'primeng/divider';
 import { DividerDesignTokens } from '@primeng/themes/types/divider';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { LocationService } from '../../../services/location.service';
+import { CdkDragHandle } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'quick-stats',
-  imports: [CardModule, ButtonModule, TooltipModule, ProgressBarModule, DividerModule],
+  imports: [CardModule, ButtonModule, TooltipModule, ProgressBarModule, DividerModule, CdkDragHandle],
   templateUrl: './quick-stats.component.html',
   styleUrl: './quick-stats.component.scss'
 })

@@ -20,6 +20,7 @@ import { ButtonModule } from 'primeng/button';
 import { EntrySearchSidebarComponent } from '../../components/entries/entry-search-sidebar/entry-search-sidebar.component';
 import { WeatherCardComponent } from '../../components/dashboard/weather-card/weather-card.component';
 import { HiddenWidgetsSidebarComponent } from '../../components/dashboard/hidden-widgets-sidebar/hidden-widgets-sidebar.component';
+import { CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'dashboard',
@@ -34,7 +35,9 @@ import { HiddenWidgetsSidebarComponent } from '../../components/dashboard/hidden
     ButtonModule,
     EntrySearchSidebarComponent,
     WeatherCardComponent,
-    HiddenWidgetsSidebarComponent
+    HiddenWidgetsSidebarComponent,
+    CdkDropList,
+    CdkDrag
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
@@ -63,9 +66,16 @@ export class DashboardComponent {
     () => !!this._locationService.userLatLong()
   );
 
+  private readonly _defaultWidgetOrder = ['recent-entry', 'quick-stats', 'lawn-health-score', 'weather-card'];
+
   public hiddenWidgets = computed(() => {
     const settings = this._settingsService.currentSettings();
     return settings?.hiddenWidgets || [];
+  });
+
+  public widgetOrder = computed(() => {
+    const settings = this._settingsService.currentSettings();
+    return settings?.widgetOrder || this._defaultWidgetOrder;
   });
 
   public visibleWidgets = computed(() => {
@@ -76,6 +86,21 @@ export class DashboardComponent {
       lawnHealthScore: !hidden.includes('lawn-health-score'),
       weatherCard: !hidden.includes('weather-card')
     };
+  });
+
+  public orderedVisibleWidgets = computed(() => {
+    const order = this.widgetOrder();
+    const visible = this.visibleWidgets();
+
+    return order.filter(widgetId => {
+      switch (widgetId) {
+        case 'recent-entry': return visible.recentEntry;
+        case 'quick-stats': return visible.quickStats;
+        case 'lawn-health-score': return visible.lawnHealthScore;
+        case 'weather-card': return visible.weatherCard;
+        default: return false;
+      }
+    });
   });
 
   public hasHiddenWidgets = computed(() => this.hiddenWidgets().length > 0);
@@ -154,9 +179,17 @@ export class DashboardComponent {
     const currentHidden = this.hiddenWidgets();
     const updatedHidden = currentHidden.filter(name => name !== widgetName);
     this._settingsService.updateSetting('hiddenWidgets', updatedHidden);
-    
+
     if (updatedHidden.length === 0) {
       this.isHiddenWidgetsSidebarOpen.set(false);
     }
+  }
+
+  public onWidgetDrop(event: CdkDragDrop<string[]>): void {
+    const currentOrder = [...this.widgetOrder()];
+
+    moveItemInArray(currentOrder, event.previousIndex, event.currentIndex);
+
+    this._settingsService.updateSetting('widgetOrder', currentOrder);
   }
 }

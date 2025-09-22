@@ -9,16 +9,24 @@
           Today's Weather
         }
       </div>
-      <p-button
-        icon="ti ti-eye-off"
-        [text]="true"
-        [rounded]="true"
-        size="small"
-        severity="secondary"
-        (onClick)="hideWidget()"
-        [pTooltip]="'Hide this widget'"
-        tooltipPosition="left"
-      />
+      <div class="title-buttons">
+        <p-button
+          icon="ti ti-eye-off"
+          [text]="true"
+          [rounded]="true"
+          size="small"
+          severity="secondary"
+          (onClick)="hideWidget()"
+          [pTooltip]="'Hide this widget'"
+          tooltipPosition="left"
+        />
+        <i
+          class="ti ti-grip-vertical drag-handle"
+          cdkDragHandle
+          [pTooltip]="'Drag to reorder'"
+          tooltipPosition="left"
+        ></i>
+      </div>
     </div>
   </ng-template>
 

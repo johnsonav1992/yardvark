@@ -16,6 +16,27 @@
   }
 }
 
+.title-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .drag-handle {
+    color: var(--p-surface-400);
+    cursor: grab;
+    font-size: 1.1rem;
+    padding: 0.25rem;
+
+    &:hover {
+      color: var(--p-surface-600);
+    }
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+}
+
 .weather-content {
   display: flex;
   flex-direction: column;

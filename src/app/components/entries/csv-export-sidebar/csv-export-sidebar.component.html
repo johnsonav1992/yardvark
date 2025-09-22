@@ -1,0 +1,87 @@
+<p-drawer
+  [(visible)]="isOpen"
+  [modal]="true"
+  [position]="'right'"
+  styleClass="sidebar"
+  header="Export Entries to CSV"
+  [fullScreen]="isMobile()"
+  (onHide)="onCloseSidebar()"
+>
+  <div class="container">
+    <div class="content-area">
+      <form
+        [formGroup]="form"
+        (ngSubmit)="searchEntries()"
+        class="form-container"
+      >
+        <div class="form-field">
+          <label for="dateRange">Select Date Range</label>
+          <p-datePicker
+            id="dateRange"
+            formControlName="dates"
+            selectionMode="range"
+            [showIcon]="true"
+            dateFormat="mm/dd/yy"
+            placeholder="Select date range"
+          />
+          @if (form.get("dates")?.invalid && form.get("dates")?.touched) {
+            <small class="error">Please select a valid date range</small>
+          }
+        </div>
+        <div class="button-container">
+          <p-button
+            label="Search Entries"
+            icon="ti ti-search"
+            type="submit"
+            [disabled]="!canSearch"
+            [loading]="isLoading()"
+          />
+        </div>
+      </form>
+      @if (errorMessage()) {
+        <p-message severity="warn" [text]="errorMessage()!" />
+      }
+      @if (isLoading()) {
+        <div class="loading-container">
+          <loading-spinner [size]="'s'" />
+          <span>Searching entries...</span>
+        </div>
+      }
+      @if (searchResults() !== null && !isLoading()) {
+        <div class="results-container">
+          @if (searchResults()!.length > 0) {
+            <p-message
+              severity="success"
+              [text]="
+                'Found ' +
+                searchResults()!.length +
+                ' entries in the selected date range'
+              "
+            />
+            <div class="export-section">
+              <h4>Ready to Export</h4>
+              <p>
+                Your CSV will include all entry details: activities, lawn
+                segments, products, and notes.
+              </p>
+              <div class="button-container">
+                <p-button
+                  label="Download CSV"
+                  icon="ti ti-download"
+                  severity="success"
+                  (click)="exportCsv()"
+                  [disabled]="!canExport"
+                />
+              </div>
+            </div>
+          } @else {
+            <p-message
+              severity="warn"
+              text="No entries found in the selected date range. Try selecting a different date range."
+            />
+          }
+        </div>
+      }
+    </div>
+  </div>
+</p-drawer>

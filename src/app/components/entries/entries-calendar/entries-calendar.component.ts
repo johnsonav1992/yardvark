@@ -22,6 +22,7 @@ import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loa
 import { DoubleTapDirective } from '../../../directives/double-tap.directive';
 import { SwipeDirective } from '../../../directives/swipe.directive';
 import { EntrySearchSidebarComponent } from '../entry-search-sidebar/entry-search-sidebar.component';
+import { CsvExportSidebarComponent } from '../csv-export-sidebar/csv-export-sidebar.component';
 import { ButtonDesignTokens } from '@primeng/themes/types/button';
 import { MenuModule } from 'primeng/menu';
 import { FormsModule } from '@angular/forms';
@@ -43,6 +44,7 @@ import { getSpecificDayOfMonth } from '../../../utils/timeUtils';
     DoubleTapDirective,
     SwipeDirective,
     EntrySearchSidebarComponent,
+    CsvExportSidebarComponent,
     MenuModule,
     FormsModule,
     ToggleSwitchModule
@@ -83,11 +85,12 @@ export class EntriesCalendarComponent {
     {
       label: 'Export CSV',
       icon: 'ti ti-download',
-      command: () => this.exportCsv.emit()
+      command: () => this.openCsvExportSidebar()
     }
   ]);
 
   public isEntrySearchSidebarOpen = signal(false);
+  public isCsvExportSidebarOpen = signal(false);
 
   protected currentDate = linkedSignal(() =>
     this._dateQuery() ? new Date(this._dateQuery()!) : startOfToday()
@@ -150,6 +153,10 @@ export class EntriesCalendarComponent {
 
   public openEntrySearchSidebar(): void {
     this.isEntrySearchSidebarOpen.set(true);
+  }
+
+  public openCsvExportSidebar(): void {
+    this.isCsvExportSidebarOpen.set(true);
   }
 
   public updateViewMode(e: boolean): void {

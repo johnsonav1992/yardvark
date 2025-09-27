@@ -1,27 +1,38 @@
 import { Injectable } from '@nestjs/common';
-import { GeminiService } from './gemini.service';
 import { Entry } from '../../entries/models/entries.model';
-import { GoogleGenAI } from '@google/genai';
+import { FeatureExtractionPipeline, pipeline } from '@huggingface/transformers';
 
 @Injectable()
 export class EmbeddingService {
-  constructor(private geminiService: GeminiService) {}
+  private embedder: FeatureExtractionPipeline | null = null;
+
+  constructor() {}
 
   async generateEmbedding(text: string): Promise<number[]> {
     try {
       console.log('Generating embedding for text:', text.substring(0, 100));
 
-      const response = await (
-        this.geminiService.genAIInstance as GoogleGenAI
-      ).models.embedContent({
-        model: 'gemini-embedding-001',
-        contents: text,
-        config: {
-          outputDimensionality: 1536,
-        },
+      if (!this.embedder) {
+        this.embedder = (await pipeline(
+          'feature-extraction',
+          'Xenova/all-MiniLM-L6-v2',
+        )) as unknown as FeatureExtractionPipeline;
+      }
+
+      if (!this.embedder) {
+        throw new Error('Embedder not initialized');
+      }
+
+      const result = await this.embedder(text, {
+        pooling: 'mean',
+        normalize: true,
       });
 
-      return response.embeddings?.[0]?.values || [];
+      if (result && typeof result === 'object' && 'data' in result) {
+        return Array.from(result.data);
+      }
+
+      throw new Error('Invalid embedding result format');
     } catch (error) {
       console.error('Error generating embedding:', error);
       throw new Error(
@@ -63,10 +74,10 @@ export class EmbeddingService {
     if (entry.entryProducts?.length > 0) {
       const products = entry.entryProducts
         .map((ep) => {
-          const productInfo = ep.product
-            ? `${ep.product.name} (${ep.productQuantity} ${ep.productQuantityUnit})`
-            : '';
-          return productInfo;
+          if (!ep.product) return '';
+          const productInfo = `${ep.product.name} (${ep.productQuantity} ${ep.productQuantityUnit})`;
+          const category = ep.product.category;
+          return `${category}: ${productInfo}`;
         })
         .filter(Boolean)
         .join(', ');

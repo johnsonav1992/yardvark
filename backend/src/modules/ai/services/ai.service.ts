@@ -60,24 +60,73 @@ export class AiService {
       const queryEmbedding =
         await this.embeddingService.generateEmbedding(naturalQuery);
 
+      const dateRange = this.extractDateRange(naturalQuery);
+      console.log('Detected date range:', dateRange);
+
       const relevantEntries = await this.entriesService.searchEntriesByVector(
         userId,
         queryEmbedding,
         8,
+        dateRange?.startDate,
+        dateRange?.endDate,
       );
 
       const context = this.buildContextFromEntries(relevantEntries);
 
+      console.log(context);
+
       const systemPrompt = `You are a lawn care expert assistant. Answer the user's question based only on the provided entry data from their lawn care history. If you cannot find relevant information in the provided entries, say so clearly. Include specific dates and details when available.
 
-Entry data from user's lawn care history:
-${context}`;
+      Entry data from user's lawn care history:
+      ${context}`;
 
       return this.geminiService.chatWithSystem(systemPrompt, naturalQuery);
     } catch (error) {
       console.error('RAG query error:', error);
       throw new Error(`Failed to process query: ${(error as Error).message}`);
     }
+  }
+
+  private extractDateRange(
+    query: string,
+  ): { startDate: string; endDate: string } | null {
+    const lowerQuery = query.toLowerCase();
+
+    const monthRegex =
+      /(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{4})/i;
+    const monthMatch = lowerQuery.match(monthRegex);
+
+    if (monthMatch) {
+      const month = monthMatch[1];
+      const year = parseInt(monthMatch[2]);
+
+      const monthNum = {
+        january: 0,
+        february: 1,
+        march: 2,
+        april: 3,
+        may: 4,
+        june: 5,
+        july: 6,
+        august: 7,
+        september: 8,
+        october: 9,
+        november: 10,
+        december: 11,
+      }[month];
+
+      if (monthNum !== undefined) {
+        const startDate = new Date(year, monthNum, 1);
+        const endDate = new Date(year, monthNum + 1, 0);
+
+        return {
+          startDate: startDate.toISOString().split('T')[0],
+          endDate: endDate.toISOString().split('T')[0],
+        };
+      }
+    }
+
+    return null;
   }
 
   private buildContextFromEntries(entries: Entry[]): string {
@@ -116,7 +165,10 @@ ${context}`;
 
         if (mappedEntry.products?.length > 0) {
           const products = mappedEntry.products
-            .map((p) => `${p.name} (${p.quantity} ${p.quantityUnit})`)
+            .map(
+              (p) =>
+                `${p.category}: ${p.name} (${p.quantity} ${p.quantityUnit})`,
+            )
             .join(', ');
           parts.push(`Products used: ${products}`);
         }
@@ -138,8 +190,7 @@ ${context}`;
     const allEntriesWithoutEmbeddings =
       await this.entriesService.getEntriesWithoutEmbeddings(userId);
 
-    // Limit to just 1 entry for testing
-    const entriesWithoutEmbeddings = allEntriesWithoutEmbeddings.slice(0, 1);
+    const entriesWithoutEmbeddings = allEntriesWithoutEmbeddings;
 
     console.log(
       `Processing ${entriesWithoutEmbeddings.length} out of ${allEntriesWithoutEmbeddings.length} total entries for testing`,

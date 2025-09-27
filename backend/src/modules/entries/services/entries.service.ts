@@ -314,10 +314,12 @@ export class EntriesService {
     userId: string,
     queryEmbedding: number[],
     limit: number = 10,
+    startDate?: string,
+    endDate?: string,
   ): Promise<Entry[]> {
     const embeddingString = `[${queryEmbedding.join(',')}]`;
 
-    return this._entriesRepo
+    let query = this._entriesRepo
       .createQueryBuilder('entry')
       .leftJoinAndSelect('entry.activities', 'activities')
       .leftJoinAndSelect('entry.lawnSegments', 'lawnSegments')
@@ -325,7 +327,16 @@ export class EntriesService {
       .leftJoinAndSelect('entryProducts.product', 'product')
       .leftJoinAndSelect('entry.entryImages', 'entryImages')
       .where('entry.userId = :userId', { userId })
-      .andWhere('entry.embedding IS NOT NULL')
+      .andWhere('entry.embedding IS NOT NULL');
+
+    if (startDate && endDate) {
+      query = query.andWhere('entry.date BETWEEN :startDate AND :endDate', {
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+      });
+    }
+
+    return query
       .orderBy('entry.embedding <-> :queryEmbedding')
       .setParameter('queryEmbedding', embeddingString)
       .limit(limit)

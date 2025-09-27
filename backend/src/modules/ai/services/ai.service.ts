@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { GeminiService } from './gemini.service';
 import { EmbeddingService } from './embedding.service';
 import { EntriesService } from '../../entries/services/entries.service';
@@ -12,6 +12,7 @@ export class AiService {
   constructor(
     private geminiService: GeminiService,
     private embeddingService: EmbeddingService,
+    @Inject(forwardRef(() => EntriesService))
     private entriesService: EntriesService,
   ) {}
 
@@ -122,16 +123,24 @@ ${context}`;
   }
 
   async initializeEmbeddings(userId: string): Promise<{ processed: number; errors: number }> {
-    const entriesWithoutEmbeddings = await this.entriesService.getEntriesWithoutEmbeddings(userId);
+    const allEntriesWithoutEmbeddings = await this.entriesService.getEntriesWithoutEmbeddings(userId);
+
+    // Limit to just 1 entry for testing
+    const entriesWithoutEmbeddings = allEntriesWithoutEmbeddings.slice(0, 1);
+
+    console.log(`Processing ${entriesWithoutEmbeddings.length} out of ${allEntriesWithoutEmbeddings.length} total entries for testing`);
 
     let processed = 0;
     let errors = 0;
 
     for (const entry of entriesWithoutEmbeddings) {
       try {
+        console.log(`Processing entry ${entry.id}`);
         const embedding = await this.embeddingService.embedEntry(entry);
+        console.log(`Generated embedding with ${embedding.length} dimensions`);
         await this.entriesService.updateEntryEmbedding(entry.id, embedding);
         processed++;
+        console.log(`Successfully processed entry ${entry.id}`);
       } catch (error) {
         console.error(`Failed to process entry ${entry.id}:`, error);
         errors++;

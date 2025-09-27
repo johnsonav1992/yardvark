@@ -7,7 +7,7 @@ export class AddPgvectorAndEmbeddingColumn1758971575296
     await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS vector`);
 
     await queryRunner.query(
-      `ALTER TABLE entries ADD COLUMN embedding vector(768)`,
+      `ALTER TABLE entries ADD COLUMN embedding vector(3072)`,
     );
 
     await queryRunner.query(

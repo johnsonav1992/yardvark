@@ -36,6 +36,10 @@ export class GeminiService {
       'gemini-2.0-flash';
   }
 
+  get genAIInstance(): GoogleGenAI {
+    return this.genAI;
+  }
+
   async chat(
     messages: GeminiChatMessage[],
     options?: GeminiChatOptions,

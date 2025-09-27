@@ -12,7 +12,7 @@ import { HttpModule } from '@nestjs/axios';
     TypeOrmModule.forFeature([Entry, EntryProduct, EntryImage]),
     HttpModule,
   ],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule, EntriesService],
   controllers: [EntriesController],
   providers: [EntriesService, S3Service, ConfigService],
 })

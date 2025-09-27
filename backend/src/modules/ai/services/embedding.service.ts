@@ -6,17 +6,26 @@ import { Entry } from '../../entries/models/entries.model';
 export class EmbeddingService {
   constructor(private geminiService: GeminiService) {}
 
-  generateEmbedding(text: string): number[] {
-    console.log('Generating embedding for text:', text.substring(0, 100));
+  async generateEmbedding(text: string): Promise<number[]> {
+    try {
+      console.log('Generating embedding for text:', text.substring(0, 100));
 
-    const hash = this.simpleHash(text);
-    const embedding = Array.from(
-      { length: 768 },
-      (_, i) =>
-        Math.sin(hash + i * 0.1) * 0.5 + Math.cos(hash * 0.7 + i * 0.2) * 0.3,
-    );
+      const response =
+        await this.geminiService.genAIInstance.models.embedContent({
+          model: 'gemini-embedding-001',
+          contents: text,
+          config: {
+            outputDimensionality: 1536,
+          },
+        });
 
-    return embedding;
+      return response.embeddings?.[0]?.values || [];
+    } catch (error) {
+      console.error('Error generating embedding:', error);
+      throw new Error(
+        `Failed to generate embedding: ${(error as Error).message}`,
+      );
+    }
   }
 
   async embedEntry(entry: Entry): Promise<number[]> {
@@ -101,15 +110,5 @@ export class EmbeddingService {
         .split(',')
         .map((n) => parseFloat(n.trim()));
     }
-  }
-
-  private simpleHash(str: string): number {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = (hash << 5) - hash + char;
-      hash = hash & hash;
-    }
-    return Math.abs(hash) / 1000000;
   }
 }

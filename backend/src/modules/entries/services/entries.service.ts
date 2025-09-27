@@ -309,4 +309,43 @@ export class EntriesService {
   async recoverEntryImage(entryImageId: number) {
     await this._entryImagesRepo.restore(entryImageId);
   }
+
+  async searchEntriesByVector(
+    userId: string,
+    queryEmbedding: number[],
+    limit: number = 10,
+  ): Promise<Entry[]> {
+    const embeddingString = `[${queryEmbedding.join(',')}]`;
+
+    return this._entriesRepo
+      .createQueryBuilder('entry')
+      .leftJoinAndSelect('entry.activities', 'activities')
+      .leftJoinAndSelect('entry.lawnSegments', 'lawnSegments')
+      .leftJoinAndSelect('entry.entryProducts', 'entryProducts')
+      .leftJoinAndSelect('entryProducts.product', 'product')
+      .leftJoinAndSelect('entry.entryImages', 'entryImages')
+      .where('entry.userId = :userId', { userId })
+      .andWhere('entry.embedding IS NOT NULL')
+      .orderBy('entry.embedding <-> :queryEmbedding')
+      .setParameter('queryEmbedding', embeddingString)
+      .limit(limit)
+      .getMany();
+  }
+
+  async updateEntryEmbedding(entryId: number, embedding: number[]) {
+    const embeddingString = `[${embedding.join(',')}]`;
+    await this._entriesRepo.update(entryId, { embedding: embeddingString });
+  }
+
+  async getEntriesWithoutEmbeddings(userId: string): Promise<Entry[]> {
+    return this._entriesRepo
+      .createQueryBuilder('entry')
+      .leftJoinAndSelect('entry.activities', 'activities')
+      .leftJoinAndSelect('entry.lawnSegments', 'lawnSegments')
+      .leftJoinAndSelect('entry.entryProducts', 'entryProducts')
+      .leftJoinAndSelect('entryProducts.product', 'product')
+      .where('entry.userId = :userId', { userId })
+      .andWhere('entry.embedding IS NULL')
+      .getMany();
+  }
 }

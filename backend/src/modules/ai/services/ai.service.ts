@@ -52,9 +52,13 @@ export class AiService {
     return result.data;
   }
 
-  async queryEntries(userId: string, naturalQuery: string): Promise<AiChatResponse> {
+  async queryEntries(
+    userId: string,
+    naturalQuery: string,
+  ): Promise<AiChatResponse> {
     try {
-      const queryEmbedding = await this.embeddingService.generateEmbedding(naturalQuery);
+      const queryEmbedding =
+        await this.embeddingService.generateEmbedding(naturalQuery);
 
       const relevantEntries = await this.entriesService.searchEntriesByVector(
         userId,
@@ -86,7 +90,7 @@ ${context}`;
         const mappedEntry = getEntryResponseMapping(entry);
         const parts = [`Entry ${index + 1}:`];
 
-        parts.push(`Date: ${mappedEntry.date}`);
+        parts.push(`Date: ${mappedEntry.date.toString()}`);
 
         if (mappedEntry.title) {
           parts.push(`Title: ${mappedEntry.title}`);
@@ -97,24 +101,30 @@ ${context}`;
         }
 
         if (mappedEntry.activities?.length > 0) {
-          const activities = mappedEntry.activities.map(a => a.name).join(', ');
+          const activities = mappedEntry.activities
+            .map((a) => a.name)
+            .join(', ');
           parts.push(`Activities: ${activities}`);
         }
 
         if (mappedEntry.lawnSegments?.length > 0) {
-          const segments = mappedEntry.lawnSegments.map(s => s.name).join(', ');
+          const segments = mappedEntry.lawnSegments
+            .map((s) => s.name)
+            .join(', ');
           parts.push(`Lawn segments: ${segments}`);
         }
 
         if (mappedEntry.products?.length > 0) {
           const products = mappedEntry.products
-            .map(p => `${p.name} (${p.quantity} ${p.quantityUnit})`)
+            .map((p) => `${p.name} (${p.quantity} ${p.quantityUnit})`)
             .join(', ');
           parts.push(`Products used: ${products}`);
         }
 
         if (mappedEntry.soilTemperature) {
-          parts.push(`Soil temperature: ${mappedEntry.soilTemperature}°${mappedEntry.soilTemperatureUnit}`);
+          parts.push(
+            `Soil temperature: ${mappedEntry.soilTemperature}°${mappedEntry.soilTemperatureUnit}`,
+          );
         }
 
         return parts.join(' | ');
@@ -122,13 +132,18 @@ ${context}`;
       .join('\n\n');
   }
 
-  async initializeEmbeddings(userId: string): Promise<{ processed: number; errors: number }> {
-    const allEntriesWithoutEmbeddings = await this.entriesService.getEntriesWithoutEmbeddings(userId);
+  async initializeEmbeddings(
+    userId: string,
+  ): Promise<{ processed: number; errors: number }> {
+    const allEntriesWithoutEmbeddings =
+      await this.entriesService.getEntriesWithoutEmbeddings(userId);
 
     // Limit to just 1 entry for testing
     const entriesWithoutEmbeddings = allEntriesWithoutEmbeddings.slice(0, 1);
 
-    console.log(`Processing ${entriesWithoutEmbeddings.length} out of ${allEntriesWithoutEmbeddings.length} total entries for testing`);
+    console.log(
+      `Processing ${entriesWithoutEmbeddings.length} out of ${allEntriesWithoutEmbeddings.length} total entries for testing`,
+    );
 
     let processed = 0;
     let errors = 0;

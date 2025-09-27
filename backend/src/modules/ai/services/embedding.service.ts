@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { GeminiService } from './gemini.service';
 import { Entry } from '../../entries/models/entries.model';
+import { GoogleGenAI } from '@google/genai';
 
 @Injectable()
 export class EmbeddingService {
@@ -10,14 +11,15 @@ export class EmbeddingService {
     try {
       console.log('Generating embedding for text:', text.substring(0, 100));
 
-      const response =
-        await this.geminiService.genAIInstance.models.embedContent({
-          model: 'gemini-embedding-001',
-          contents: text,
-          config: {
-            outputDimensionality: 1536,
-          },
-        });
+      const response = await (
+        this.geminiService.genAIInstance as GoogleGenAI
+      ).models.embedContent({
+        model: 'gemini-embedding-001',
+        contents: text,
+        config: {
+          outputDimensionality: 1536,
+        },
+      });
 
       return response.embeddings?.[0]?.values || [];
     } catch (error) {
@@ -103,7 +105,7 @@ export class EmbeddingService {
 
   stringToVector(vectorString: string): number[] {
     try {
-      return JSON.parse(vectorString);
+      return JSON.parse(vectorString) as number[];
     } catch {
       return vectorString
         .slice(1, -1)

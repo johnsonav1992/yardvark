@@ -57,23 +57,23 @@ export class AiService {
     naturalQuery: string,
   ): Promise<AiChatResponse> {
     try {
+      const preprocessedQuery = this.preprocessQuery(naturalQuery);
       const queryEmbedding =
-        await this.embeddingService.generateEmbedding(naturalQuery);
+        await this.embeddingService.generateEmbedding(preprocessedQuery);
 
       const dateRange = this.extractDateRange(naturalQuery);
       console.log('Detected date range:', dateRange);
 
-      const relevantEntries = await this.entriesService.searchEntriesByVector(
+      const relevantEntries = await this.entriesService.searchEntriesByVector({
         userId,
         queryEmbedding,
-        8,
-        dateRange?.startDate,
-        dateRange?.endDate,
-      );
+        startDate: dateRange?.startDate,
+        endDate: dateRange?.endDate,
+      });
+
+      console.log(relevantEntries.length);
 
       const context = this.buildContextFromEntries(relevantEntries);
-
-      console.log(context);
 
       const systemPrompt = `You are a lawn care expert assistant. Answer the user's question based only on the provided entry data from their lawn care history. If you cannot find relevant information in the provided entries, say so clearly. Include specific dates and details when available.
 
@@ -91,42 +91,114 @@ export class AiService {
     query: string,
   ): { startDate: string; endDate: string } | null {
     const lowerQuery = query.toLowerCase();
+    const currentYear = new Date().getFullYear();
 
-    const monthRegex =
-      /(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{4})/i;
-    const monthMatch = lowerQuery.match(monthRegex);
+    const monthMap = {
+      january: 0,
+      jan: 0,
+      february: 1,
+      feb: 1,
+      march: 2,
+      mar: 2,
+      april: 3,
+      apr: 3,
+      may: 4,
+      june: 5,
+      jun: 5,
+      july: 6,
+      jul: 6,
+      august: 7,
+      aug: 7,
+      september: 8,
+      sep: 8,
+      october: 9,
+      oct: 9,
+      november: 10,
+      nov: 10,
+      december: 11,
+      dec: 11,
+    };
 
-    if (monthMatch) {
-      const month = monthMatch[1];
-      const year = parseInt(monthMatch[2]);
+    const createRange = (year: number, month: number) => ({
+      startDate: new Date(year, month, 1).toISOString().split('T')[0],
+      endDate: new Date(year, month + 1, 0).toISOString().split('T')[0],
+    });
 
-      const monthNum = {
-        january: 0,
-        february: 1,
-        march: 2,
-        april: 3,
-        may: 4,
-        june: 5,
-        july: 6,
-        august: 7,
-        september: 8,
-        october: 9,
-        november: 10,
-        december: 11,
-      }[month];
-
+    // "May 2024" or "march 2023"
+    const monthYearMatch = lowerQuery.match(
+      /(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)\s+(\d{4})/,
+    );
+    if (monthYearMatch) {
+      const monthNum = monthMap[monthYearMatch[1] as keyof typeof monthMap];
       if (monthNum !== undefined) {
-        const startDate = new Date(year, monthNum, 1);
-        const endDate = new Date(year, monthNum + 1, 0);
-
-        return {
-          startDate: startDate.toISOString().split('T')[0],
-          endDate: endDate.toISOString().split('T')[0],
-        };
+        return createRange(parseInt(monthYearMatch[2]), monthNum);
       }
     }
 
+    // "in May", "during March" (assume current year)
+    const monthOnlyMatch = lowerQuery.match(
+      /(?:in|during)\s+(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|oct|nov|dec)\b/,
+    );
+    if (monthOnlyMatch) {
+      const monthNum = monthMap[monthOnlyMatch[1] as keyof typeof monthMap];
+      if (monthNum !== undefined) {
+        return createRange(currentYear, monthNum);
+      }
+    }
+
+    // "2024", "in 2023"
+    const yearMatch = lowerQuery.match(/\b(?:in\s+)?(\d{4})\b/);
+    if (yearMatch) {
+      const year = parseInt(yearMatch[1]);
+      return {
+        startDate: new Date(year, 0, 1).toISOString().split('T')[0],
+        endDate: new Date(year, 11, 31).toISOString().split('T')[0],
+      };
+    }
+
     return null;
+  }
+
+  private preprocessQuery(query: string): string {
+    let processedQuery = query.toLowerCase();
+
+    // Enhance counting queries
+    processedQuery = processedQuery.replace(/\bhow many times\b/gi, 'frequency count of');
+    processedQuery = processedQuery.replace(/\bdid i\b/gi, 'performed');
+    processedQuery = processedQuery.replace(/\bcount\b/gi, 'number of times');
+
+    // Add semantic context for activities
+    if (/\bmow|cut|cutting\b/i.test(processedQuery)) {
+      processedQuery += ' lawn cutting grass maintenance mowing';
+    }
+
+    if (/\bfertiliz|feed\b/i.test(processedQuery)) {
+      processedQuery += ' fertilizing nutrient application lawn feeding';
+    }
+
+    if (/\bwater|irrigat\b/i.test(processedQuery)) {
+      processedQuery += ' watering irrigation lawn hydration';
+    }
+
+    // Add temporal context
+    const monthMatch = processedQuery.match(/\b(january|february|march|april|may|june|july|august|september|october|november|december)\b/i);
+    if (monthMatch) {
+      const month = monthMatch[1].toLowerCase();
+      const season = this.getMonthSeason(month);
+      processedQuery += ` ${month} ${season} seasonal lawn care`;
+    }
+
+    return processedQuery;
+  }
+
+  private getMonthSeason(month: string): string {
+    const seasonMap: { [key: string]: string } = {
+      december: 'winter', january: 'winter', february: 'winter',
+      march: 'spring', april: 'spring', may: 'spring',
+      june: 'summer', july: 'summer', august: 'summer',
+      september: 'fall', october: 'fall', november: 'fall',
+    };
+    return seasonMap[month.toLowerCase()] || '';
   }
 
   private buildContextFromEntries(entries: Entry[]): string {

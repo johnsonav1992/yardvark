@@ -310,13 +310,19 @@ export class EntriesService {
     await this._entryImagesRepo.restore(entryImageId);
   }
 
-  async searchEntriesByVector(
-    userId: string,
-    queryEmbedding: number[],
-    limit: number = 10,
-    startDate?: string,
-    endDate?: string,
-  ): Promise<Entry[]> {
+  async searchEntriesByVector({
+    userId,
+    queryEmbedding,
+    limit = 200,
+    startDate,
+    endDate,
+  }: {
+    userId: string;
+    queryEmbedding: number[];
+    limit?: number;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<Entry[]> {
     const embeddingString = `[${queryEmbedding.join(',')}]`;
 
     let query = this._entriesRepo

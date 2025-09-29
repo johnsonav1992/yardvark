@@ -76,6 +76,39 @@ export class AiService {
     }
   }
 
+  async *streamQueryEntries(
+    userId: string,
+    naturalQuery: string,
+  ): AsyncGenerator<{ content: string; done: boolean }, void, unknown> {
+    try {
+      const preprocessedQuery = preprocessQuery(naturalQuery);
+      const queryEmbedding =
+        await this.embeddingService.generateEmbedding(preprocessedQuery);
+      const dateRange = extractDateRange(naturalQuery);
+      const relevantEntries = await this.entriesService.searchEntriesByVector({
+        userId,
+        queryEmbedding,
+        startDate: dateRange?.startDate,
+        endDate: dateRange?.endDate,
+      });
+      const context = buildContextFromEntries(relevantEntries);
+
+      const systemPrompt = `You are a lawn care expert assistant. Answer the user's question based only on the provided entry data from their lawn care history. If you cannot find relevant information in the provided entries, say so clearly. Include specific dates and details when available.
+
+      Entry data from user's lawn care history:
+      ${context}`;
+
+      yield* this.geminiService.streamChatWithSystem(
+        systemPrompt,
+        naturalQuery,
+      );
+    } catch (error) {
+      throw new Error(
+        `Failed to process streaming query: ${(error as Error).message}`,
+      );
+    }
+  }
+
   async initializeEmbeddings(
     userId: string,
   ): Promise<{ processed: number; errors: number }> {

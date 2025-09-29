@@ -5,7 +5,9 @@ import {
   HttpException,
   HttpStatus,
   Req,
+  Res,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { AiService } from '../services/ai.service';
 import { tryCatch } from '../../../utils/tryCatch';
 import { AiChatResponse, AiChatRequest } from '../../../types/ai.types';
@@ -82,5 +84,56 @@ export class AiController {
     }
 
     return result.data;
+  }
+
+  @Public()
+  @Post('stream-query-entries')
+  async streamQueryEntries(
+    @Req() req: Request,
+    @Res() res: Response,
+    @Body() body: { query: string; userId?: string },
+  ): Promise<void> {
+    if (!body.query || body.query.trim().length === 0) {
+      throw new HttpException('Query is required', HttpStatus.BAD_REQUEST);
+    }
+
+    const userId = body.userId || req.user?.userId;
+
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Cache-Control');
+
+    res.write('data: {"type":"connected"}\n\n');
+
+    try {
+      const stream = this.aiService.streamQueryEntries(userId, body.query);
+
+      for await (const chunk of stream) {
+        if (chunk.content) {
+          const data = JSON.stringify({
+            type: 'chunk',
+            content: chunk.content,
+            done: chunk.done,
+          });
+
+          res.write(`data: ${data}\n\n`);
+        }
+        if (chunk.done) {
+          res.write('data: {"type":"done"}\n\n');
+          break;
+        }
+      }
+
+      res.end();
+    } catch (error) {
+      const errorData = JSON.stringify({
+        type: 'error',
+        message: (error as Error).message || 'Unknown error',
+      });
+      res.write(`data: ${errorData}\n\n`);
+      res.end();
+    }
   }
 }

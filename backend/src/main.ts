@@ -7,10 +7,10 @@ import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  
+
   // Security: Add helmet for security headers
   app.use(helmet());
-  
+
   app.useGlobalInterceptors(new LoggingInterceptor());
 
   // Security: Global validation pipe for input validation and sanitization

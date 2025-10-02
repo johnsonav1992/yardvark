@@ -12,7 +12,7 @@ import { AiService } from '../services/ai.service';
 import { tryCatch } from '../../../utils/tryCatch';
 import { AiChatResponse, AiChatRequest } from '../../../types/ai.types';
 import { Request } from 'express';
-import { Public } from '../../../decorators/public.decorator';
+// import { Public } from '../../../decorators/public.decorator';
 import { FeatureFlag } from '../../../decorators/feature-flag.decorator';
 
 @Controller('ai')
@@ -40,7 +40,7 @@ export class AiController {
   }
 
   @FeatureFlag('ENABLE_ENTRY_QUERY')
-  @Public()
+  // @Public()
   @Post('query-entries')
   async queryEntries(
     @Req() req: Request,

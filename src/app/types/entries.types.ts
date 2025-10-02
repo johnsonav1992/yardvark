@@ -53,6 +53,17 @@ export type EntryCreationRequestFormInput = Omit<
   images: File[];
 };
 
+export type BatchEntryCreationRequest = {
+  entries: EntryCreationRequest[];
+};
+
+export type BatchEntryCreationResponse = {
+  created: number;
+  failed: number;
+  entries: Entry[];
+  errors?: { index: number; error: string }[];
+};
+
 export type EntriesSearchRequest = {
   dateRange: string[];
   titleOrNotes: string;

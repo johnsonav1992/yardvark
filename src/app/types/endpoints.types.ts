@@ -16,6 +16,7 @@ type SettingsRoutes = 'settings';
 
 type EntriesRoutes =
   | 'entries'
+  | 'entries/batch'
   | 'entries/single'
   | 'entries/single/by-date'
   | 'entries/single/most-recent'

@@ -13,6 +13,17 @@ export type EntryCreationRequest = Omit<
   imageUrls?: string[];
 };
 
+export type BatchEntryCreationRequest = {
+  entries: EntryCreationRequest[];
+};
+
+export type BatchEntryCreationResponse = {
+  created: number;
+  failed: number;
+  entries: Entry[];
+  errors?: { index: number; error: string }[];
+};
+
 export type EntriesSearchRequest = {
   dateRange: string[];
   titleOrNotes: string;

@@ -11,6 +11,8 @@ import {
 } from '@nestjs/common';
 import { EntriesService } from '../services/entries.service';
 import {
+  BatchEntryCreationRequest,
+  BatchEntryCreationResponse,
   EntriesSearchRequest,
   EntryCreationRequest,
 } from '../models/entries.types';
@@ -64,6 +66,14 @@ export class EntriesController {
   @Post()
   async createEntry(@Req() req: Request, @Body() entry: EntryCreationRequest) {
     return this._entriesService.createEntry(req.user.userId, entry);
+  }
+
+  @Post('batch')
+  async createEntriesBatch(
+    @Req() req: Request,
+    @Body() body: BatchEntryCreationRequest,
+  ): Promise<BatchEntryCreationResponse> {
+    return this._entriesService.createEntriesBatch(req.user.userId, body);
   }
 
   @Put(':entryId')

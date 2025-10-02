@@ -1,6 +1,8 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Injectable, Signal } from '@angular/core';
 import {
+  BatchEntryCreationRequest,
+  BatchEntryCreationResponse,
   EntriesSearchRequest,
   Entry,
   EntryCreationRequest,
@@ -9,7 +11,7 @@ import {
 import { apiUrl, deleteReq, postReq, putReq } from '../utils/httpUtils';
 import { endOfMonth, startOfMonth } from 'date-fns';
 import { formatDate } from '@angular/common';
-import { Observable, ObservableInput, of, switchMap } from 'rxjs';
+import { forkJoin, Observable, ObservableInput, of, switchMap } from 'rxjs';
 import { FilesService } from './files.service';
 
 @Injectable({
@@ -75,6 +77,33 @@ export class EntriesService {
     ).pipe(
       switchMap((entry) =>
         postReq<void, EntryCreationRequest>(apiUrl('entries'), entry)
+      )
+    );
+  }
+
+  public addEntriesBatch(
+    entries: EntryCreationRequestFormInput[]
+  ): Observable<BatchEntryCreationResponse> {
+    const uploadObservables = entries.map((entry) =>
+      entry.images?.length
+        ? this._filesService.uploadFiles(entry.images).pipe(
+            switchMap<string[], ObservableInput<EntryCreationRequest>>(
+              (fileIds) =>
+                of({
+                  ...entry,
+                  imageUrls: fileIds
+                })
+            )
+          )
+        : of({ ...entry, imageUrls: [] })
+    );
+
+    return forkJoin(uploadObservables).pipe(
+      switchMap((processedEntries) =>
+        postReq<BatchEntryCreationResponse, BatchEntryCreationRequest>(
+          apiUrl('entries/batch'),
+          { entries: processedEntries }
+        )
       )
     );
   }

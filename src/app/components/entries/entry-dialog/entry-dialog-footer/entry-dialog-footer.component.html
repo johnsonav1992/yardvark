@@ -1,8 +1,8 @@
 <div class="container">
   <p-button
-    label="Create"
+    [label]="(entryForms?.length || 0) > 1 ? 'Create ' + (entryForms?.length || 0) + ' Entries' : 'Create Entry'"
     (click)="close()"
-    [disabled]="isLoading() || form?.invalid"
+    [disabled]="isLoading() || entryForms?.invalid"
     [icon]="isLoading() ? 'ti ti-loader-2 icon-spin' : ''"
   />
 </div>

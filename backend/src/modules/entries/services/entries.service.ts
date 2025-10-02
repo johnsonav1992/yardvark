@@ -1,5 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
+  BatchEntryCreationRequest,
+  BatchEntryCreationResponse,
   EntriesSearchRequest,
   EntryCreationRequest,
 } from '../models/entries.types';
@@ -179,6 +181,36 @@ export class EntriesService {
     await this._entriesRepo.save(newEntry);
 
     return newEntry;
+  }
+
+  async createEntriesBatch(
+    userId: string,
+    body: BatchEntryCreationRequest,
+  ): Promise<BatchEntryCreationResponse> {
+    const results = await Promise.allSettled(
+      body.entries.map((entry) => this.createEntry(userId, entry)),
+    );
+
+    const entries: Entry[] = [];
+    const errors: { index: number; error: string }[] = [];
+
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        entries.push(result.value);
+      } else {
+        errors.push({
+          index,
+          error: result.reason?.message || 'Unknown error',
+        });
+      }
+    });
+
+    return {
+      created: entries.length,
+      failed: errors.length,
+      entries,
+      errors: errors.length > 0 ? errors : undefined,
+    };
   }
 
   async updateEntry(entryId: number, entry: Partial<EntryCreationRequest>) {

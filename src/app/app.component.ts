@@ -12,6 +12,7 @@ import { environment } from '../environments/environment';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { SwUpdate } from '@angular/service-worker';
 import { ConfirmationService } from 'primeng/api';
+import { ChangelogService } from './services/changelog.service';
 
 @Component({
   selector: 'app-root',
@@ -31,6 +32,7 @@ export class AppComponent {
   private _globalUiService = inject(GlobalUiService);
   private _swUpdate = inject(SwUpdate);
   private _confirmationService = inject(ConfirmationService);
+  private _changelogService = inject(ChangelogService);
 
   public isMobile = this._globalUiService.isMobile;
 
@@ -41,22 +43,45 @@ export class AppComponent {
     if (this._swUpdate.isEnabled) {
       this._swUpdate.versionUpdates.subscribe((event) => {
         if (event.type === 'VERSION_READY') {
-          this._confirmationService.confirm({
-            header: 'Update Available',
-            message:
-              'A new version of the app is available. Would you like to load it?',
-            accept: () => {
-              this._swUpdate
-                .activateUpdate()
-                .then(() => document.location.reload());
-            },
-            reject: () => {
-              console.log('User chose not to update.');
-            }
-          });
+          this.showUpdateDialog();
         }
       });
     }
+  }
+
+  private showUpdateDialog(): void {
+    this._changelogService.getLatestChangelog().subscribe((changelog) => {
+      const header = 'Update Available';
+      const message = changelog
+        ? this.buildChangelogMessage(changelog)
+        : 'A new version of the app is available. Would you like to load it?';
+
+      this._confirmationService.confirm({
+        header,
+        message,
+        accept: () => {
+          this._swUpdate
+            .activateUpdate()
+            .then(() => document.location.reload());
+        },
+        acceptLabel: 'Reload app',
+        rejectLabel: 'Dismiss'
+      });
+    });
+  }
+
+  private buildChangelogMessage(changelog: string): string {
+    const formattedChangelog =
+      this._changelogService.formatChangelogToHtml(changelog);
+
+    return `
+      <div class="changelog-content">
+        <p><strong>This release includes:</strong></p>
+        <ul>
+          ${formattedChangelog}
+        </ul>
+      </div>
+    `;
   }
 
   public ngOnInit(): void {

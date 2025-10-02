@@ -36,6 +36,10 @@ export class GeminiService {
       'gemini-2.0-flash';
   }
 
+  get genAIInstance(): GoogleGenAI {
+    return this.genAI;
+  }
+
   async chat(
     messages: GeminiChatMessage[],
     options?: GeminiChatOptions,
@@ -115,6 +119,55 @@ export class GeminiService {
     options?: GeminiChatOptions,
   ): Promise<AiChatResponse> {
     return this.chat(
+      [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt },
+      ],
+      options,
+    );
+  }
+
+  async *streamChat(
+    messages: GeminiChatMessage[],
+    options?: GeminiChatOptions,
+  ): AsyncGenerator<{ content: string; done: boolean }, void, unknown> {
+    try {
+      const modelName = options?.model || this.defaultModel;
+      const formattedMessages = this.formatMessagesForGemini(messages);
+
+      const stream = await this.genAI.models.generateContentStream({
+        model: modelName,
+        contents: formattedMessages,
+        config: {
+          temperature: options?.temperature ?? 0.7,
+          maxOutputTokens: options?.maxOutputTokens ?? 800,
+          topP: options?.topP,
+          topK: options?.topK,
+          stopSequences: options?.stopSequences,
+        },
+      });
+
+      for await (const chunk of stream) {
+        const content = chunk.text;
+        if (content) {
+          yield { content, done: false };
+        }
+      }
+
+      yield { content: '', done: true };
+    } catch (error) {
+      console.error('Gemini streaming error:', error);
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      throw new Error(`Gemini streaming error: ${message}`);
+    }
+  }
+
+  async *streamChatWithSystem(
+    systemPrompt: string,
+    userPrompt: string,
+    options?: GeminiChatOptions,
+  ): AsyncGenerator<{ content: string; done: boolean }, void, unknown> {
+    yield* this.streamChat(
       [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt },

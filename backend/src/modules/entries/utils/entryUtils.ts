@@ -6,6 +6,7 @@ export const getEntryProductMapping = (entryProducts: EntryProduct[]) => {
       id: product.id,
       name: product.name,
       brand: product.brand,
+      category: product.category,
       imageUrl: product.imageUrl,
       quantity: productQuantity,
       quantityUnit: productQuantityUnit,

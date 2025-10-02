@@ -1,4 +1,11 @@
-import { Component, computed, inject, input, OnInit } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  OnInit,
+  signal
+} from '@angular/core';
 import {
   FormArray,
   FormControl,
@@ -23,6 +30,20 @@ import { ProductsSelectorComponent } from '../../products/products-selector/prod
 import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
 import { MAX_FILE_LARGE_UPLOAD_SIZE } from '../../../constants/file-constants';
 import { ButtonModule } from 'primeng/button';
+import { AccordionModule, AccordionTab } from 'primeng/accordion';
+import { TooltipModule } from 'primeng/tooltip';
+
+export type EntryFormGroup = FormGroup<{
+  title: FormControl<string>;
+  date: FormControl<Date>;
+  time: FormControl<Date | null>;
+  activities: FormControl<Activity[]>;
+  lawnSegments: FormControl<LawnSegment[]>;
+  products: FormArray<EntryProductRow>;
+  productsSelected: FormControl<Product[]>;
+  notes: FormControl<string | null>;
+  images: FormControl<File[]>;
+}>;
 
 @Component({
   selector: 'entry-dialog',
@@ -36,7 +57,10 @@ import { ButtonModule } from 'primeng/button';
     SelectModule,
     ProductsSelectorComponent,
     FileUploadModule,
-    ButtonModule
+    ButtonModule,
+    AccordionModule,
+    AccordionTab,
+    TooltipModule
   ],
   templateUrl: './entry-dialog.component.html',
   styleUrl: './entry-dialog.component.scss'
@@ -57,45 +81,90 @@ export class EntryDialogComponent implements OnInit {
 
   public lawnSegments = computed(() => this.lawnSegmentsResource.value());
 
-  public form = new FormGroup({
-    title: new FormControl<string>(''),
-    date: new FormControl(new Date(), [Validators.required]),
-    time: new FormControl<Date | null>(null),
-    activities: new FormControl<Activity[]>([]),
-    lawnSegments: new FormControl<LawnSegment[]>([]),
-    products: new FormArray<EntryProductRow>([]),
-    productsSelected: new FormControl<Product[]>([]), // Noop for this view to make Angular forms + primeng happy
-    notes: new FormControl<string | null>(null),
-    images: new FormControl<File[]>([])
-  });
+  public entryForms = new FormArray<EntryFormGroup>([]);
+  public activeIndex = signal(0);
 
   public constructor() {
-    this.form.controls.notes.valueChanges.subscribe((value) => {
+    this.addEntryForm();
+  }
+
+  public ngOnInit(): void {
+    const initialDate = this.date() || new Date();
+    this.entryForms.at(0)?.patchValue({ date: initialDate });
+  }
+
+  private createEntryForm(date?: Date): EntryFormGroup {
+    const form = new FormGroup({
+      title: new FormControl<string>('', { nonNullable: true }),
+      date: new FormControl<Date>(date || new Date(), {
+        nonNullable: true,
+        validators: [Validators.required]
+      }),
+      time: new FormControl<Date | null>(null),
+      activities: new FormControl<Activity[]>([], { nonNullable: true }),
+      lawnSegments: new FormControl<LawnSegment[]>([], { nonNullable: true }),
+      products: new FormArray<EntryProductRow>([]),
+      productsSelected: new FormControl<Product[]>([], { nonNullable: true }),
+      notes: new FormControl<string | null>(null),
+      images: new FormControl<File[]>([], { nonNullable: true })
+    });
+
+    form.controls.notes.valueChanges.subscribe((value) => {
       if (typeof value === 'string') {
-        this.form.controls.notes.setValue(decodeURIComponent(value), {
+        form.controls.notes.setValue(decodeURIComponent(value), {
           emitEvent: false
         });
       }
     });
+
+    return form;
   }
 
-  public ngOnInit(): void {
-    this.form.patchValue({
-      date: this.date()
-    });
+  public addEntryForm(date?: Date): void {
+    this.entryForms.push(this.createEntryForm(date));
+    this.activeIndex.set(this.entryForms.length - 1);
   }
 
-  public onFilesSelect(e: FileSelectEvent): void {
+  public removeEntryForm(index: number): void {
+    if (this.entryForms.length > 1) {
+      this.entryForms.removeAt(index);
+
+      if (this.activeIndex() >= this.entryForms.length) {
+        this.activeIndex.set(this.entryForms.length - 1);
+      }
+    }
+  }
+
+  public duplicateEntryForm(index: number): void {
+    const formToDuplicate = this.entryForms.at(index);
+    if (formToDuplicate) {
+      const duplicatedForm = this.createEntryForm();
+      const value = formToDuplicate.getRawValue();
+      duplicatedForm.patchValue({
+        ...value,
+        title: '',
+        notes: null,
+        images: []
+      });
+      this.entryForms.insert(index + 1, duplicatedForm);
+      this.activeIndex.set(index + 1);
+    }
+  }
+
+  public onFilesSelect(e: FileSelectEvent, formIndex: number): void {
     if (!e.files || e.files.length === 0) return;
 
-    const currentFiles = this.form.controls.images.value || [];
+    const form = this.entryForms.at(formIndex);
+    if (!form) return;
+
+    const currentFiles = form.controls.images.value || [];
     const existingFileNames = new Set(currentFiles.map((file) => file.name));
 
     const newUniqueFiles = Array.from(e.files).filter(
       (file) => !existingFileNames.has(file.name)
     );
 
-    this.form.controls.images.setValue([...currentFiles, ...newUniqueFiles]);
+    form.controls.images.setValue([...currentFiles, ...newUniqueFiles]);
   }
 
   public onRemoveFile(
@@ -104,5 +173,14 @@ export class EntryDialogComponent implements OnInit {
     index: number
   ) {
     removeFileCallback(file, index);
+  }
+
+  public handleActiveIndexChange(value: string | number | string[] | number[]): void {
+    if (Array.isArray(value)) {
+      const firstValue = value[0];
+      this.activeIndex.set(typeof firstValue === 'string' ? parseInt(firstValue, 10) : firstValue ?? 0);
+    } else {
+      this.activeIndex.set(typeof value === 'string' ? parseInt(value, 10) : value);
+    }
   }
 }

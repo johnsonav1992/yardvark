@@ -1,5 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import {
+  BatchEntryCreationRequest,
+  BatchEntryCreationResponse,
   EntriesSearchRequest,
   EntryCreationRequest,
 } from '../models/entries.types';
@@ -181,6 +183,36 @@ export class EntriesService {
     return newEntry;
   }
 
+  async createEntriesBatch(
+    userId: string,
+    body: BatchEntryCreationRequest,
+  ): Promise<BatchEntryCreationResponse> {
+    const results = await Promise.allSettled(
+      body.entries.map((entry) => this.createEntry(userId, entry)),
+    );
+
+    const entries: Entry[] = [];
+    const errors: { index: number; error: string }[] = [];
+
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        entries.push(result.value);
+      } else {
+        errors.push({
+          index,
+          error: result.reason?.message || 'Unknown error',
+        });
+      }
+    });
+
+    return {
+      created: entries.length,
+      failed: errors.length,
+      entries,
+      errors: errors.length > 0 ? errors : undefined,
+    };
+  }
+
   async updateEntry(entryId: number, entry: Partial<EntryCreationRequest>) {
     const entryToUpdate = await this._entriesRepo.findOne({
       where: { id: entryId },
@@ -308,5 +340,61 @@ export class EntriesService {
 
   async recoverEntryImage(entryImageId: number) {
     await this._entryImagesRepo.restore(entryImageId);
+  }
+
+  async searchEntriesByVector({
+    userId,
+    queryEmbedding,
+    limit = 200,
+    startDate,
+    endDate,
+  }: {
+    userId: string;
+    queryEmbedding: number[];
+    limit?: number;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<Entry[]> {
+    const embeddingString = `[${queryEmbedding.join(',')}]`;
+
+    let query = this._entriesRepo
+      .createQueryBuilder('entry')
+      .leftJoinAndSelect('entry.activities', 'activities')
+      .leftJoinAndSelect('entry.lawnSegments', 'lawnSegments')
+      .leftJoinAndSelect('entry.entryProducts', 'entryProducts')
+      .leftJoinAndSelect('entryProducts.product', 'product')
+      .leftJoinAndSelect('entry.entryImages', 'entryImages')
+      .where('entry.userId = :userId', { userId })
+      .andWhere('entry.embedding IS NOT NULL');
+
+    if (startDate && endDate) {
+      query = query.andWhere('entry.date BETWEEN :startDate AND :endDate', {
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+      });
+    }
+
+    return query
+      .orderBy('entry.embedding <-> :queryEmbedding')
+      .setParameter('queryEmbedding', embeddingString)
+      .limit(limit)
+      .getMany();
+  }
+
+  async updateEntryEmbedding(entryId: number, embedding: number[]) {
+    const embeddingString = `[${embedding.join(',')}]`;
+    await this._entriesRepo.update(entryId, { embedding: embeddingString });
+  }
+
+  async getEntriesWithoutEmbeddings(userId: string): Promise<Entry[]> {
+    return this._entriesRepo
+      .createQueryBuilder('entry')
+      .leftJoinAndSelect('entry.activities', 'activities')
+      .leftJoinAndSelect('entry.lawnSegments', 'lawnSegments')
+      .leftJoinAndSelect('entry.entryProducts', 'entryProducts')
+      .leftJoinAndSelect('entryProducts.product', 'product')
+      .where('entry.userId = :userId', { userId })
+      .andWhere('entry.embedding IS NULL')
+      .getMany();
   }
 }

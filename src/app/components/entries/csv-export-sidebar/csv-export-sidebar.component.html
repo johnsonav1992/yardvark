@@ -16,21 +16,22 @@
       >
         <div class="form-field">
           <label for="dateRange">Select Date Range</label>
+          <small class="helper-text">Click to select start date, then click again to select end date</small>
           <p-datePicker
             id="dateRange"
             formControlName="dates"
             selectionMode="range"
             [showIcon]="true"
             dateFormat="mm/dd/yy"
-            placeholder="Select date range"
+            placeholder="Click to select start and end dates"
           />
           @if (form.get("dates")?.invalid && form.get("dates")?.touched) {
-            <small class="error">Please select a valid date range</small>
+            <small class="error">Please select both a start and end date</small>
           }
         </div>
         <div class="button-container">
           <p-button
-            label="Search Entries"
+            label="Find Entries to Download"
             icon="ti ti-search"
             type="submit"
             [disabled]="!canSearch"

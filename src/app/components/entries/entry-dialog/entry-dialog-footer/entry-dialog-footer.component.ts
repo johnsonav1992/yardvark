@@ -26,7 +26,7 @@ export class EntryDialogFooterComponent {
 
   public user = injectUserData();
 
-  public form: InstanceType<typeof EntryDialogComponent>['form'] | null = null;
+  public entryForms: InstanceType<typeof EntryDialogComponent>['entryForms'] | null = null;
 
   public isLoading = signal(false);
   public shouldFetchSoilData = signal(false);
@@ -41,58 +41,87 @@ export class EntryDialogFooterComponent {
     this._dialogRef.onChildComponentLoaded
       .pipe(takeUntilDestroyed(this._destroyRef))
       .subscribe((comp) => {
-        this.form = comp.form;
+        this.entryForms = comp.entryForms;
 
         this.shouldFetchSoilData.set(true);
 
-        this.form?.controls.date.valueChanges
+        const firstForm = this.entryForms?.at(0);
+        firstForm?.controls.date.valueChanges
           .pipe(takeUntilDestroyed(this._destroyRef))
           .subscribe(this.soilTempDate.set);
       });
   }
 
   public close(): void {
-    if (this.form?.invalid) return;
+    if (!this.entryForms || this.entryForms.invalid) return;
 
     this.isLoading.set(true);
 
-    const req = {
-      date: this.form?.value.date!,
-      time: this.form?.value.time
-        ? format(this.form?.value.time!, 'HH:mm:ss')
-        : null,
-      notes: this.form?.value.notes!,
-      title: this.form?.value.title!,
+    const entries = this.entryForms.controls.map((form) => ({
+      date: form.value.date!,
+      time: form.value.time ? format(form.value.time!, 'HH:mm:ss') : null,
+      notes: form.value.notes!,
+      title: form.value.title!,
       soilTemperature:
         this.pointInTimeSoilTemperature.value()?.hourly
           .soil_temperature_6cm[0] || null,
-      activityIds: this.form?.value.activities?.map(({ id }) => id) || [],
-      lawnSegmentIds: this.form?.value.lawnSegments?.map(({ id }) => id) || [],
+      activityIds: form.value.activities?.map(({ id }) => id) || [],
+      lawnSegmentIds: form.value.lawnSegments?.map(({ id }) => id) || [],
       products:
-        this.form?.value.products?.map((row) => ({
+        form.value.products?.map((row) => ({
           productId: row.product?.id!,
           productQuantity: row.quantity!,
           productQuantityUnit: row.quantityUnit!
         })) || [],
       soilTemperatureUnit: this._soilTempService.temperatureUnit(),
-      images: this.form?.value.images || []
-    };
+      images: form.value.images || []
+    }));
 
-    this._entriesService.addEntry(req).subscribe({
-      next: () => {
-        this.isLoading.set(false);
-        this._dialogRef.close(this.form?.value.date!);
+    if (entries.length === 1) {
+      this._entriesService.addEntry(entries[0]).subscribe({
+        next: () => {
+          this.isLoading.set(false);
+          this._dialogRef.close(entries[0].date!);
 
-        // TODO: Find a way to refetch these more efficiently
-        this._analyticsService.analyticsData.reload();
-        this._entriesService.lastMow.reload();
-        this._entriesService.recentEntry.reload();
-        this._entriesService.lastProductApp.reload();
-      },
-      error: () => {
-        this.isLoading.set(false);
-        this.throwErrorToast('Failed to create entry');
-      }
-    });
+          // TODO: Find a way to refetch these more efficiently
+          this._analyticsService.analyticsData.reload();
+          this._entriesService.lastMow.reload();
+          this._entriesService.recentEntry.reload();
+          this._entriesService.lastProductApp.reload();
+        },
+        error: () => {
+          this.isLoading.set(false);
+          this.throwErrorToast('Failed to create entry');
+        }
+      });
+    } else {
+      this._entriesService.addEntriesBatch(entries).subscribe({
+        next: (response) => {
+          this.isLoading.set(false);
+
+          if (response.failed > 0) {
+            this.throwErrorToast(
+              `Created ${response.created} entries, ${response.failed} failed`
+            );
+          }
+
+          const latestDate = entries
+            .map((e) => new Date(e.date))
+            .sort((a, b) => b.getTime() - a.getTime())[0];
+
+          this._dialogRef.close(latestDate);
+
+          // TODO: Find a way to refetch these more efficiently
+          this._analyticsService.analyticsData.reload();
+          this._entriesService.lastMow.reload();
+          this._entriesService.recentEntry.reload();
+          this._entriesService.lastProductApp.reload();
+        },
+        error: () => {
+          this.isLoading.set(false);
+          this.throwErrorToast('Failed to create entries');
+        }
+      });
+    }
   }
 }

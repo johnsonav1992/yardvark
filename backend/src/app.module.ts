@@ -9,6 +9,7 @@ import { ProductsModule } from './modules/products/products.module';
 import { JwtStrategy } from './guards/jwt.strategy';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/auth.guard';
+import { FeatureFlagGuard } from './guards/feature-flag.guard';
 import { UsersController } from './modules/users/controllers/users.controller';
 import { UsersService } from './modules/users/services/users.service';
 import { UsersModule } from './modules/users/users.module';
@@ -50,6 +51,10 @@ import { EmailModule } from './modules/email/email.module';
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: FeatureFlagGuard,
     },
     UsersService,
     S3Service,

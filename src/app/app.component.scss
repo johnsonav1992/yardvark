@@ -16,3 +16,43 @@
     padding: 1rem;
   }
 }
+
+::ng-deep {
+  .p-confirm-dialog {
+    .changelog-content {
+      max-height: 400px;
+      overflow-y: auto;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      p {
+        margin: 0.5rem 0;
+        line-height: 1.6;
+      }
+
+      strong {
+        font-weight: 600;
+        color: var(--text-color);
+      }
+
+      ul {
+        margin: 0.75rem 0;
+        padding-left: 1.5rem;
+
+        li {
+          margin: 0.5rem 0;
+          line-height: 1.6;
+          color: var(--text-color);
+        }
+      }
+
+      small {
+        margin-top: 1rem;
+        color: var(--text-color-secondary);
+        font-style: italic;
+      }
+    }
+  }
+}

@@ -3,14 +3,25 @@ import { Entry } from '../../entries/models/entries.model';
 import { FeatureExtractionPipeline, pipeline } from '@huggingface/transformers';
 import { createEntryEmbeddingText } from '../../entries/utils/entryRagUtils';
 import { tryCatch } from '../../../utils/tryCatch';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class EmbeddingService implements OnModuleInit {
   private embedder: FeatureExtractionPipeline | null = null;
 
-  constructor() {}
+  constructor(private configService: ConfigService) {}
 
   async onModuleInit() {
+    const enableEntryQuery =
+      this.configService.get<string>('ENABLE_ENTRY_QUERY') === 'true';
+
+    if (!enableEntryQuery) {
+      console.log(
+        'Entry query feature is disabled. Skipping embedding model initialization.',
+      );
+      return;
+    }
+
     const result = await tryCatch(() =>
       pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2'),
     );

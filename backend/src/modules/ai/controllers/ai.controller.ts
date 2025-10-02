@@ -13,6 +13,7 @@ import { tryCatch } from '../../../utils/tryCatch';
 import { AiChatResponse, AiChatRequest } from '../../../types/ai.types';
 import { Request } from 'express';
 import { Public } from '../../../decorators/public.decorator';
+import { FeatureFlag } from '../../../decorators/feature-flag.decorator';
 
 @Controller('ai')
 export class AiController {
@@ -38,6 +39,7 @@ export class AiController {
     return result.data;
   }
 
+  @FeatureFlag('ENABLE_ENTRY_QUERY')
   @Public()
   @Post('query-entries')
   async queryEntries(
@@ -64,7 +66,8 @@ export class AiController {
     return result.data;
   }
 
-  @Public()
+  @FeatureFlag('ENABLE_ENTRY_QUERY')
+  // @Public()
   @Post('initialize-embeddings')
   async initializeEmbeddings(
     @Req() req: Request,
@@ -86,7 +89,8 @@ export class AiController {
     return result.data;
   }
 
-  @Public()
+  @FeatureFlag('ENABLE_ENTRY_QUERY')
+  // @Public()
   @Post('stream-query-entries')
   async streamQueryEntries(
     @Req() req: Request,

@@ -32,8 +32,8 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
     TypeOrmModule.forRoot(dataSource.options),
     ThrottlerModule.forRoot([
       {
-        ttl: 60000, // 60 seconds
-        limit: 100, // 100 requests per minute per IP
+        ttl: 60000,
+        limit: 100,
       },
     ]),
     SettingsModule,

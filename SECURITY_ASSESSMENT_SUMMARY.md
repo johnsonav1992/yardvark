@@ -58,7 +58,7 @@ Yardvark has been thoroughly assessed for public rollout readiness. The applicat
 - ✅ Updated .gitignore for environment file protection
 - ✅ Enhanced main.ts with security middleware
 - ✅ Updated app.module.ts with security guards
-- ✅ Created skip-throttle decorator
+- ✅ Configured rate limiting with built-in decorators
 - ✅ Updated README with security information
 
 ---

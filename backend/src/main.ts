@@ -8,30 +8,27 @@ import helmet from 'helmet';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Security: Add helmet for security headers
   app.use(helmet());
 
   app.useGlobalInterceptors(new LoggingInterceptor());
 
-  // Security: Global validation pipe for input validation and sanitization
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // Strip properties that don't have decorators
-      forbidNonWhitelisted: true, // Throw error if non-whitelisted properties are present
-      transform: true, // Automatically transform payloads to DTO types
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
       transformOptions: {
-        enableImplicitConversion: true, // Enable automatic type conversion
+        enableImplicitConversion: true,
       },
     }),
   );
 
-  // Configure CORS to allow production, local dev, and Netlify preview domains
   app.enableCors({
     origin: [
-      'https://yardvark.netlify.app', // Production
-      'http://localhost:4200', // Local development
-      /^https:\/\/deploy-preview-\d+--yardvark\.netlify\.app$/, // Netlify deploy previews
-      /^https:\/\/[a-zA-Z0-9-]+--yardvark\.netlify\.app$/, // Netlify branch previews
+      'https://yardvark.netlify.app',
+      'http://localhost:4200',
+      /^https:\/\/deploy-preview-\d+--yardvark\.netlify\.app$/,
+      /^https:\/\/[a-zA-Z0-9-]+--yardvark\.netlify\.app$/,
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],

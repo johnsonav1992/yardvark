@@ -17,7 +17,7 @@ ThrottlerModule.forRoot([{
 
 **To skip rate limiting on a route**:
 ```typescript
-import { SkipThrottle } from '../decorators/skip-throttle.decorator';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @SkipThrottle()
 @Get('health')

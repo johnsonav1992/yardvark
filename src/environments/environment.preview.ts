@@ -3,9 +3,7 @@ import { Environment } from '../app/types/environments.types';
 // Staging backend URL for all preview deployments
 const STAGING_BE_API_URL = 'https://yardvark-backend-staging.up.railway.app';
 
-// Function to get dynamic FE URL for previews
 function getPreviewFeUrl(): string {
-  // Use the current hostname for FE URL in previews
   if (typeof window !== 'undefined') {
     return `https://${window.location.hostname}`;
   }
@@ -13,7 +11,7 @@ function getPreviewFeUrl(): string {
 }
 
 export const environment: Environment = {
-  production: false, // Preview environments are not production
+  production: false,
   apiUrl: STAGING_BE_API_URL,
   feAppUrl: getPreviewFeUrl(),
   auth0Domain: 'dev-w4uj6ulyqeacwtfi.us.auth0.com',

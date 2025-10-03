@@ -5,18 +5,20 @@ Use this checklist before deploying Yardvark to production with public user regi
 ## Security Configuration
 
 ### Backend Security
+
 - [x] Rate limiting enabled (@nestjs/throttler)
 - [x] Helmet security headers configured
 - [x] Input validation with class-validator
 - [x] Global JWT authentication guard
 - [x] CORS properly configured
-- [ ] All environment variables set in production
-- [ ] Database connection uses SSL in production
-- [ ] Error messages don't expose sensitive information
+- [x] All environment variables set in production
+- [x] Database connection uses SSL in production
+- [x] Error messages don't expose sensitive information
 
 ### Auth0 Configuration
+
 - [ ] Email whitelist removed or modified (see `auth0-actions/ENABLE_PUBLIC_ACCESS.md`)
-- [ ] Brute force protection enabled
+- [x] Brute force protection enabled
 - [ ] Email verification required for new users
 - [ ] Allowed Callback URLs configured:
   - [ ] `https://yardvark.netlify.app/callback`
@@ -25,10 +27,11 @@ Use this checklist before deploying Yardvark to production with public user regi
   - [ ] `https://yardvark.netlify.app`
   - [ ] Any other production URLs
 - [ ] Allowed Web Origins configured
-- [ ] Social connections configured (if using)
+- [x] Social connections configured (if using)
 - [ ] Custom domain configured (optional but recommended)
 
 ### API Keys & Third-Party Services
+
 - [ ] MapBox API key restricted to production domain
 - [ ] AWS S3 bucket has proper IAM permissions (least privilege)
 - [ ] AWS S3 bucket CORS configured correctly
@@ -39,6 +42,7 @@ Use this checklist before deploying Yardvark to production with public user regi
 - [ ] All API keys are stored as environment variables (never in code)
 
 ### Database
+
 - [ ] Database backups configured and tested
 - [ ] Database connection pooling configured
 - [ ] Database has appropriate indexes
@@ -49,7 +53,9 @@ Use this checklist before deploying Yardvark to production with public user regi
 ## Environment Variables
 
 ### Backend Required Variables
+
 Verify these are set in production (Railway):
+
 - [ ] `DATABASE_HOST`
 - [ ] `DATABASE_PORT`
 - [ ] `DATABASE_USERNAME`
@@ -69,7 +75,9 @@ Verify these are set in production (Railway):
 - [ ] `NODE_ENV=production`
 
 ### Frontend Configuration
+
 Verify these are correct in `src/environments/environment.ts`:
+
 - [ ] `production: true`
 - [ ] `apiUrl` points to production backend
 - [ ] `feAppUrl` points to production frontend
@@ -80,6 +88,7 @@ Verify these are correct in `src/environments/environment.ts`:
 ## Testing
 
 ### Pre-Deployment Testing
+
 - [ ] All unit tests passing
 - [ ] All e2e tests passing (if available)
 - [ ] Manual testing of critical paths:
@@ -108,6 +117,7 @@ Verify these are correct in `src/environments/environment.ts`:
 - [ ] Error handling tested (network errors, API errors, etc.)
 
 ### Security Testing
+
 - [ ] Authentication flows tested thoroughly
 - [ ] Authorization tested (users can only access their own data)
 - [ ] Rate limiting triggers correctly
@@ -122,6 +132,7 @@ Verify these are correct in `src/environments/environment.ts`:
 ## Monitoring & Observability
 
 ### Application Monitoring
+
 - [ ] Application performance monitoring (APM) configured
 - [ ] Error tracking configured (e.g., Sentry, Rollbar)
 - [ ] Log aggregation configured
@@ -130,6 +141,7 @@ Verify these are correct in `src/environments/environment.ts`:
 - [ ] API endpoint monitoring configured
 
 ### Alerts
+
 - [ ] High error rate alerts
 - [ ] API latency alerts
 - [ ] Database connection alerts
@@ -139,6 +151,7 @@ Verify these are correct in `src/environments/environment.ts`:
 - [ ] Failed authentication attempt alerts
 
 ### Dashboards
+
 - [ ] User registration dashboard
 - [ ] API usage dashboard
 - [ ] Error rate dashboard
@@ -148,6 +161,7 @@ Verify these are correct in `src/environments/environment.ts`:
 ## Infrastructure
 
 ### Backend (Railway)
+
 - [ ] Auto-scaling configured (if available)
 - [ ] Health check endpoint configured
 - [ ] Graceful shutdown handling
@@ -155,6 +169,7 @@ Verify these are correct in `src/environments/environment.ts`:
 - [ ] Deployment rollback plan documented
 
 ### Frontend (Netlify)
+
 - [ ] CDN caching configured
 - [ ] Build settings correct
 - [ ] Environment variables set (if any)
@@ -163,6 +178,7 @@ Verify these are correct in `src/environments/environment.ts`:
 - [ ] SSL certificate active
 
 ### Database
+
 - [ ] Sufficient storage allocated
 - [ ] Backup retention policy defined
 - [ ] Point-in-time recovery enabled (if available)
@@ -193,12 +209,14 @@ Verify these are correct in `src/environments/environment.ts`:
 ## Communication
 
 ### Internal
+
 - [ ] Team notified of deployment schedule
 - [ ] On-call rotation defined
 - [ ] Escalation path documented
 - [ ] Post-deployment plan communicated
 
 ### External
+
 - [ ] Users notified of any downtime (if applicable)
 - [ ] Status page available
 - [ ] Support channels ready (email, chat, etc.)
@@ -207,6 +225,7 @@ Verify these are correct in `src/environments/environment.ts`:
 ## Post-Deployment
 
 ### Immediate (First 24 hours)
+
 - [ ] Monitor error rates closely
 - [ ] Monitor registration flow
 - [ ] Monitor API performance
@@ -217,6 +236,7 @@ Verify these are correct in `src/environments/environment.ts`:
 - [ ] Verify emails are being sent
 
 ### Short-term (First week)
+
 - [ ] Review logs for errors or warnings
 - [ ] Analyze user registration trends
 - [ ] Monitor API usage patterns
@@ -226,6 +246,7 @@ Verify these are correct in `src/environments/environment.ts`:
 - [ ] Optimize slow queries (if any)
 
 ### Medium-term (First month)
+
 - [ ] Review and optimize rate limits based on actual usage
 - [ ] Analyze user behavior patterns
 - [ ] Identify and fix any pain points
@@ -239,16 +260,19 @@ Verify these are correct in `src/environments/environment.ts`:
 If critical issues arise:
 
 1. **Immediate actions**:
+
    - [ ] Re-enable Auth0 email whitelist (temporary measure)
    - [ ] Scale down infrastructure if overwhelmed
    - [ ] Enable maintenance mode if necessary
 
 2. **Investigation**:
+
    - [ ] Review error logs
    - [ ] Check monitoring dashboards
    - [ ] Identify root cause
 
 3. **Communication**:
+
    - [ ] Notify users via status page
    - [ ] Update team on status
    - [ ] Provide regular updates
@@ -271,10 +295,10 @@ If critical issues arise:
 
 **Note**: This checklist should be reviewed and updated regularly based on your specific requirements and lessons learned from deployments.
 
-**Date Prepared**: _____________
+**Date Prepared**: ******\_******
 
-**Prepared By**: _____________
+**Prepared By**: ******\_******
 
-**Deployment Date**: _____________
+**Deployment Date**: ******\_******
 
-**Sign-off**: _____________
+**Sign-off**: ******\_******

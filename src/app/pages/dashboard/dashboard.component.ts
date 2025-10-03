@@ -160,9 +160,19 @@ export class DashboardComponent {
 
   public isLawnHealthScoreLoading = this._lawnHealthScoreService.isLoading;
 
-  public isWeatherCardLoading = computed(() =>
-    this._weatherService.weatherDataResource.isLoading()
-  );
+  public isWeatherCardLoading = computed(() => {
+    const locationLoading = this._settingsService.settings.isLoading();
+    const hasLocation = !!this._locationService.userLatLong();
+
+    if (locationLoading) return true;
+
+    if (!hasLocation) return false;
+
+    const resource = this._weatherService.weatherDataResource;
+    const weatherData = this._weatherService.weatherForecastData();
+
+    return resource.isLoading() || !weatherData || weatherData.length === 0;
+  });
 
   public mobileSpeedDialMenu = computed<MenuItem[]>(() => [
     {

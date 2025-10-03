@@ -31,6 +31,7 @@ export class RecentEntryComponent {
   public isMobile = this._globalUiService.isMobile;
 
   public recentEntry = this._entriesService.recentEntry;
+  public isLoading = this._entriesService.recentEntry.isLoading;
 
   public onHideWidget = output<void>();
 

@@ -31,6 +31,12 @@ export class QuickStatsComponent {
   public lastEntry = this._entriesService.recentEntry;
   public userCoords = this._locationService.userLatLong;
 
+  public isLoading = computed(() =>
+    this.lastMowDate.isLoading() ||
+    this.lastEntry.isLoading() ||
+    this._entriesService.lastProductApp.isLoading()
+  );
+
   public daysSinceLastMow = computed(() => {
     const lastMowDate = this.lastMowDate.value()?.lastMowDate;
 

@@ -36,6 +36,12 @@ export class LawnHealthScoreService {
   public lastMowDate = this._entriesService.lastMow;
   public lastProductApp = this._entriesService.lastProductApp;
 
+  public isLoading = computed(() =>
+    this.analyticsData.isLoading() ||
+    this.lastMowDate.isLoading() ||
+    this.lastProductApp.isLoading()
+  );
+
   public healthScoreFactors = computed((): LawnHealthScoreFactors => {
     const lastMow = this.lastMowDate.value();
     const lastProductAppData = this.lastProductApp.value();

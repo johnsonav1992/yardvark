@@ -147,11 +147,7 @@ export class MobileBottomNavbarComponent {
       height: 'auto'
     });
 
-    dialogRef.onClose.subscribe((result) => {
-      if (result) {
-        console.log('Feedback sent successfully');
-      }
-    });
+    dialogRef.onClose.subscribe();
   };
 
   public openCustomizationDialog = () => {
@@ -165,11 +161,7 @@ export class MobileBottomNavbarComponent {
       height: 'auto'
     });
 
-    dialogRef.onClose.subscribe((result) => {
-      if (result) {
-        console.log('Navbar preferences updated');
-      }
-    });
+    dialogRef.onClose.subscribe();
   };
 
   public menuDt = computed<MenuDesignTokens>(() => ({

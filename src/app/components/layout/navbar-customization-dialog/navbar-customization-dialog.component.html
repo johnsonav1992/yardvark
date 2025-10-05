@@ -8,18 +8,16 @@
 
   <div class="items-grid">
     @for (item of items(); track item.id) {
-      <button
-        class="nav-item-button"
-        [class.selected]="item.selected"
-        [class.disabled]="!item.selected && selectedCount() >= 4"
-        (click)="toggleItem(item.id)"
-      >
-        <i [class]="item.icon"></i>
-        <span>{{ item.label }}</span>
-        @if (item.selected) {
-          <i class="check-icon ti ti-check"></i>
-        }
-      </button>
+      <p-toggleButton
+        [(ngModel)]="item.selected"
+        [onIcon]="item.icon"
+        [offIcon]="item.icon"
+        [onLabel]="item.label"
+        [offLabel]="item.label"
+        [disabled]="!canToggleItem(item)"
+        (onChange)="toggleItem(item.id)"
+        styleClass="nav-item-toggle"
+      />
     }
   </div>
 

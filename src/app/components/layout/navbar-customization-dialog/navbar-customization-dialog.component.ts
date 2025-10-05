@@ -1,6 +1,8 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
+import { ToggleButtonModule } from 'primeng/togglebutton';
+import { FormsModule } from '@angular/forms';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { BottomNavbarPreferencesService } from '../../../services/bottom-navbar-preferences.service';
 
@@ -13,7 +15,7 @@ interface SelectableNavItem {
 
 @Component({
   selector: 'navbar-customization-dialog',
-  imports: [CommonModule, ButtonModule],
+  imports: [CommonModule, ButtonModule, ToggleButtonModule, FormsModule],
   templateUrl: './navbar-customization-dialog.component.html',
   styleUrl: './navbar-customization-dialog.component.scss'
 })
@@ -31,7 +33,9 @@ export class NavbarCustomizationDialogComponent {
     { id: 'calculators', label: 'Calculators', icon: 'ti ti-calculator', selected: false }
   ]);
 
-  public selectedCount = signal(0);
+  public selectedCount = computed(() => 
+    this.items().filter(item => item.selected).length
+  );
 
   constructor() {
     const currentSelection = this._preferencesService.selectedItemIds();
@@ -41,27 +45,22 @@ export class NavbarCustomizationDialogComponent {
         selected: currentSelection.includes(item.id)
       }))
     );
-    this.updateSelectedCount();
+  }
+
+  public canToggleItem(item: SelectableNavItem): boolean {
+    return item.selected || this.selectedCount() < 4;
   }
 
   public toggleItem(itemId: string): void {
-    const currentSelected = this.items().filter(item => item.selected).length;
     const item = this.items().find(i => i.id === itemId);
     
-    if (!item) return;
+    if (!item || !this.canToggleItem(item)) return;
 
-    if (item.selected || currentSelected < 4) {
-      this.items.update(items =>
-        items.map(i =>
-          i.id === itemId ? { ...i, selected: !i.selected } : i
-        )
-      );
-      this.updateSelectedCount();
-    }
-  }
-
-  private updateSelectedCount(): void {
-    this.selectedCount.set(this.items().filter(item => item.selected).length);
+    this.items.update(items =>
+      items.map(i =>
+        i.id === itemId ? { ...i, selected: !i.selected } : i
+      )
+    );
   }
 
   public save(): void {

@@ -11,14 +11,14 @@
         <span class="navbar-label">{{ item.label }}</span>
       </a>
     }
-    <button
-      class="navbar-item more-button"
-      (click)="toggleMoreMenu()"
+    <p-button
+      icon="ti ti-menu-2"
+      label="More"
+      [text]="true"
+      styleClass="navbar-item more-button"
       [class.navbar-item-active]="isMoreMenuOpen()"
-    >
-      <i class="ti ti-menu-2"></i>
-      <span class="navbar-label">More</span>
-    </button>
+      (onClick)="toggleMoreMenu()"
+    />
   </div>
 </div>
 

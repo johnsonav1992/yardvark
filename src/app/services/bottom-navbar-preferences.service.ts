@@ -1,4 +1,5 @@
-import { Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable } from '@angular/core';
+import { SettingsService } from './settings.service';
 
 export interface BottomNavItem {
   id: string;
@@ -14,43 +15,23 @@ const DEFAULT_BOTTOM_NAV_ITEMS: string[] = [
   'analytics'
 ];
 
-const STORAGE_KEY = 'yv-bottom-nav-preferences';
-
 @Injectable({
   providedIn: 'root'
 })
 export class BottomNavbarPreferencesService {
-  public selectedItemIds = signal<string[]>(DEFAULT_BOTTOM_NAV_ITEMS);
+  private _settingsService = inject(SettingsService);
 
-  constructor() {
-    this.loadPreferences();
-  }
+  public selectedItemIds = computed(() => {
+    const settings = this._settingsService.currentSettings();
+    return settings?.mobileNavbarItems?.length === 4
+      ? settings.mobileNavbarItems
+      : DEFAULT_BOTTOM_NAV_ITEMS;
+  });
 
   public updateSelectedItems(itemIds: string[]): void {
     if (itemIds.length !== 4) {
       return;
     }
-    this.selectedItemIds.set(itemIds);
-    this.savePreferences();
-  }
-
-  private loadPreferences(): void {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length === 4) {
-          this.selectedItemIds.set(parsed);
-        }
-      } catch {
-        this.savePreferences();
-      }
-    } else {
-      this.savePreferences();
-    }
-  }
-
-  private savePreferences(): void {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(this.selectedItemIds()));
+    this._settingsService.updateSetting('mobileNavbarItems', itemIds);
   }
 }

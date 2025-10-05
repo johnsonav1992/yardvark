@@ -5,12 +5,14 @@
   right: 0;
   background-color: var(--p-surface-0);
   border-top: 1px solid var(--p-surface-200);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   padding-bottom: env(safe-area-inset-bottom);
 
   :root.yv-dark-mode & {
     background-color: var(--p-surface-900);
     border-top-color: var(--p-surface-700);
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
   }
 
   .navbar-items {

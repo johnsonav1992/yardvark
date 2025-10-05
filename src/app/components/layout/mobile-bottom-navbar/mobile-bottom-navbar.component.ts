@@ -95,9 +95,18 @@ export class MobileBottomNavbarComponent {
 
   public primaryNavItems = computed(() => {
     const selectedIds = this._preferencesService.selectedItemIds();
-    return selectedIds
+    const items = selectedIds
       .map(id => this.allNavItems.find(item => item.id === id))
       .filter((item): item is NavItem => item !== undefined);
+
+    items.push({
+      id: 'more',
+      label: 'More',
+      icon: 'ti ti-menu-2',
+      command: () => this.toggleMoreMenu()
+    });
+
+    return items;
   });
 
   public moreMenuItems = computed<MenuItem[]>(() => {
@@ -112,6 +121,11 @@ export class MobileBottomNavbarComponent {
 
   public toggleMoreMenu = () => {
     this.isMoreMenuOpen.update(prev => !prev);
+  };
+
+  public handleMoreClick = (event: Event) => {
+    event.preventDefault();
+    this.toggleMoreMenu();
   };
 
   public closeMoreMenu = () => {

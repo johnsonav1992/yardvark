@@ -9,7 +9,7 @@
   <div class="items-grid">
     @for (item of items(); track item.id) {
       <p-toggleButton
-        [(ngModel)]="item.selected"
+        [ngModel]="item.selected"
         [onIcon]="item.icon"
         [offIcon]="item.icon"
         [onLabel]="item.label"

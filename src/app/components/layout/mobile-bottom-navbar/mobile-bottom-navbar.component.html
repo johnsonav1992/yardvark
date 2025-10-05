@@ -3,31 +3,25 @@
     @for (item of primaryNavItems(); track item.id) {
       <a
         class="navbar-item"
-        [routerLink]="item.routerLink"
-        routerLinkActive="navbar-item-active"
+        [class.navbar-item-active]="item.id === 'more' ? isMoreMenuOpen() : false"
+        [routerLink]="item.routerLink || null"
+        [routerLinkActive]="item.id !== 'more' ? 'navbar-item-active' : ''"
         [routerLinkActiveOptions]="item.routerLinkActiveOptions || {}"
+        (click)="item.id === 'more' && handleMoreClick($event)"
       >
         <i [class]="item.icon"></i>
         <span class="navbar-label">{{ item.label }}</span>
       </a>
     }
-    <p-button
-      icon="ti ti-menu-2"
-      label="More"
-      [text]="true"
-      styleClass="navbar-item more-button"
-      [class.navbar-item-active]="isMoreMenuOpen()"
-      (onClick)="toggleMoreMenu()"
-    />
   </div>
 </div>
-
 <p-drawer
   [visible]="isMoreMenuOpen()"
   [position]="'bottom'"
   [modal]="true"
   [dismissible]="true"
-  [styleClass]="'more-menu-drawer'"
+  [baseZIndex]="100000"
+  styleClass="more-menu-drawer"
   (onHide)="closeMoreMenu()"
 >
   <ng-template #headless>
@@ -35,10 +29,7 @@
       <div class="more-menu-header">
         <h3>More Options</h3>
       </div>
-      <p-menu
-        [model]="moreMenuItems()"
-        [dt]="menuDt()"
-      />
+      <p-menu [model]="moreMenuItems()" [dt]="menuDt()" />
       <div class="more-menu-controls">
         <div class="control-item">
           <p-button
@@ -57,11 +48,11 @@
           />
         </div>
         <div class="control-item dark-mode-control">
+          <span>Dark Mode</span>
           <p-toggleSwitch
             [ngModel]="isDarkMode()"
             (onChange)="toggleDarkMode()"
           />
-          <span>Dark Mode</span>
         </div>
       </div>
     </div>

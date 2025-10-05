@@ -35,6 +35,10 @@ export type SettingsData = {
    * Ordered array of dashboard widget names for custom ordering
    */
   widgetOrder: string[];
+  /**
+   * Array of navigation item IDs for mobile bottom navbar (4 items)
+   */
+  mobileNavbarItems: string[];
 };
 
 export type SettingsResponse = {

@@ -1,0 +1,62 @@
+<div class="mobile-bottom-navbar">
+  <div class="navbar-items">
+    @for (item of primaryNavItems(); track item.id) {
+      <a
+        class="navbar-item"
+        [class.navbar-item-active]="
+          item.id === 'more' ? isMoreMenuOpen() : false
+        "
+        [routerLink]="item.routerLink || null"
+        [routerLinkActive]="item.id !== 'more' ? 'navbar-item-active' : ''"
+        [routerLinkActiveOptions]="item.routerLinkActiveOptions || { exact: false }"
+        (click)="item.id === 'more' && handleMoreClick($event)"
+      >
+        <i [class]="item.icon"></i>
+        <span class="navbar-label">{{ item.label }}</span>
+      </a>
+    }
+  </div>
+</div>
+<p-drawer
+  [visible]="isMoreMenuOpen()"
+  [position]="'bottom'"
+  [modal]="true"
+  [dismissible]="true"
+  [baseZIndex]="100000"
+  styleClass="more-menu-drawer"
+  (onHide)="closeMoreMenu()"
+>
+  <ng-template #headless>
+    <div class="more-menu-content">
+      <div class="more-menu-header">
+        <h3>More Options</h3>
+      </div>
+      <p-menu [model]="moreMenuItems()" [dt]="menuDt()" />
+      <div class="more-menu-controls">
+        <div class="control-item">
+          <p-button
+            icon="ti ti-adjustments"
+            label="Customize navbar"
+            [outlined]="true"
+            (click)="openCustomizationDialog()"
+          />
+        </div>
+        <div class="control-item">
+          <p-button
+            icon="ti ti-message-circle"
+            label="Give feedback"
+            [outlined]="true"
+            (click)="openFeedbackDialog()"
+          />
+        </div>
+        <div class="control-item dark-mode-control">
+          <span>Dark Mode</span>
+          <p-toggleSwitch
+            [ngModel]="isDarkMode()"
+            (onChange)="toggleDarkMode()"
+          />
+        </div>
+      </div>
+    </div>
+  </ng-template>
+</p-drawer>

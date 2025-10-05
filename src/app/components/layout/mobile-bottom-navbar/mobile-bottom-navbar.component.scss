@@ -1,0 +1,221 @@
+.mobile-bottom-navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--p-surface-0);
+  border-top: 1px solid var(--p-surface-200);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  padding-bottom: env(safe-area-inset-bottom);
+
+  :root.yv-dark-mode & {
+    background-color: var(--p-surface-900);
+    border-top-color: var(--p-surface-700);
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .navbar-items {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 60px;
+    padding: 0 0.5rem;
+  }
+
+  .navbar-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    text-decoration: none;
+    color: var(--p-surface-500);
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s;
+
+    :root.yv-dark-mode & {
+      color: var(--p-surface-400);
+    }
+
+    i {
+      font-size: 1.5rem;
+    }
+
+    .navbar-label {
+      font-size: 0.65rem;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    &:hover {
+      color: var(--p-primary-600);
+
+      :root.yv-dark-mode & {
+        color: var(--p-primary-300);
+      }
+    }
+
+    &.navbar-item-active {
+      color: var(--p-primary-600);
+
+      :root.yv-dark-mode & {
+        color: var(--p-primary-300);
+      }
+    }
+  }
+}
+
+.more-menu-drawer {
+  z-index: 100000 !important;
+  background-color: var(--p-surface-0) !important;
+  height: auto !important;
+  max-height: 90vh !important;
+  border-top-left-radius: 1rem !important;
+  border-top-right-radius: 1rem !important;
+
+  :root.yv-dark-mode & {
+    background-color: var(--p-surface-900) !important;
+  }
+
+  .p-drawer-content {
+    background-color: var(--p-surface-0) !important;
+    padding: 0 !important;
+    overflow-y: auto;
+
+    :root.yv-dark-mode & {
+      background-color: var(--p-surface-900) !important;
+    }
+  }
+
+  .more-menu-content {
+    .more-menu-header {
+      padding: 1.5rem 1.5rem 1rem;
+      border-bottom: 1px solid var(--p-surface-100);
+
+      :root.yv-dark-mode & {
+        border-bottom-color: var(--p-surface-800);
+      }
+
+      h3 {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--p-surface-900);
+
+        :root.yv-dark-mode & {
+          color: var(--p-surface-50);
+        }
+      }
+    }
+
+    p-menu {
+      padding: 0.75rem 0.5rem;
+
+      .p-menu {
+        border: none;
+        background: transparent;
+
+        .p-menu-list {
+          padding: 0;
+        }
+
+        .p-menu-item {
+          margin-bottom: 0.25rem;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+
+        .p-menu-item-link {
+          padding: 0.875rem 1rem;
+          border-radius: 0.5rem;
+          transition: all 0.2s;
+
+          &:hover {
+            background-color: var(--p-surface-100);
+
+            :root.yv-dark-mode & {
+              background-color: var(--p-surface-800);
+            }
+          }
+        }
+
+        .p-menu-item-icon {
+          font-size: 1.25rem;
+          margin-right: 0.75rem;
+        }
+
+        .p-menu-item-label {
+          font-size: 0.9375rem;
+          font-weight: 500;
+        }
+      }
+    }
+
+    .more-menu-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 1.25rem 1.5rem 2rem;
+      border-top: 1px solid var(--p-surface-100);
+
+      :root.yv-dark-mode & {
+        border-top-color: var(--p-surface-800);
+      }
+
+      .control-item {
+        &:not(.dark-mode-control) {
+          p-button {
+            display: block;
+
+            .p-button {
+              width: 100%;
+              padding: 0.75rem 1rem;
+              font-size: 0.9375rem;
+              font-weight: 500;
+              justify-content: flex-start;
+              border-color: var(--p-surface-300);
+
+              :root.yv-dark-mode & {
+                border-color: var(--p-surface-700);
+              }
+
+              .p-button-icon {
+                font-size: 1.125rem;
+              }
+            }
+          }
+        }
+
+        &.dark-mode-control {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 1rem 0 0.5rem;
+
+          span {
+            font-size: 0.9375rem;
+            font-weight: 500;
+            color: var(--p-surface-700);
+
+            :root.yv-dark-mode & {
+              color: var(--p-surface-300);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@media (display-mode: standalone) {
+  .mobile-bottom-navbar {
+    padding-bottom: max(env(safe-area-inset-bottom), 10px);
+  }
+}

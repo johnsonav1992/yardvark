@@ -4,7 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { FormsModule } from '@angular/forms';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
-import { BottomNavbarPreferencesService } from '../../../services/bottom-navbar-preferences.service';
+import { SettingsService } from '../../../services/settings.service';
 
 interface SelectableNavItem {
   id: string;
@@ -12,6 +12,8 @@ interface SelectableNavItem {
   icon: string;
   selected: boolean;
 }
+
+const DEFAULT_NAV_ITEMS = ['dashboard', 'entry-log', 'products', 'analytics'];
 
 @Component({
   selector: 'navbar-customization-dialog',
@@ -21,7 +23,7 @@ interface SelectableNavItem {
 })
 export class NavbarCustomizationDialogComponent {
   private _dialogRef = inject(DynamicDialogRef);
-  private _preferencesService = inject(BottomNavbarPreferencesService);
+  private _settingsService = inject(SettingsService);
 
   public items = signal<SelectableNavItem[]>([
     {
@@ -73,7 +75,11 @@ export class NavbarCustomizationDialogComponent {
   );
 
   constructor() {
-    const currentSelection = this._preferencesService.selectedItemIds();
+    const settings = this._settingsService.currentSettings();
+    const currentSelection = settings?.mobileNavbarItems?.length === 4
+      ? settings.mobileNavbarItems
+      : DEFAULT_NAV_ITEMS;
+
     this.items.update((items) =>
       items.map((item) => ({
         ...item,
@@ -102,7 +108,7 @@ export class NavbarCustomizationDialogComponent {
       .map((item) => item.id);
 
     if (selectedIds.length === 4) {
-      this._preferencesService.updateSelectedItems(selectedIds);
+      this._settingsService.updateSetting('mobileNavbarItems', selectedIds);
       this._dialogRef.close(true);
     }
   }

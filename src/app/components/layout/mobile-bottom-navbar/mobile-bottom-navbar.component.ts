@@ -8,7 +8,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { FormsModule } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
 import { GlobalUiService } from '../../../services/global-ui.service';
-import { BottomNavbarPreferencesService } from '../../../services/bottom-navbar-preferences.service';
+import { SettingsService } from '../../../services/settings.service';
 import { DialogService } from 'primeng/dynamicdialog';
 import { FeedbackDialogComponent } from '../../feedback/feedback-dialog/feedback-dialog.component';
 import { NavbarCustomizationDialogComponent } from '../navbar-customization-dialog/navbar-customization-dialog.component';
@@ -17,6 +17,8 @@ import { MenuDesignTokens } from '@primeng/themes/types/menu';
 interface NavItem extends MenuItem {
   id: string;
 }
+
+const DEFAULT_NAV_ITEMS = ['dashboard', 'entry-log', 'products', 'analytics'];
 
 @Component({
   selector: 'mobile-bottom-navbar',
@@ -36,11 +38,18 @@ interface NavItem extends MenuItem {
 })
 export class MobileBottomNavbarComponent {
   private _globalUiService = inject(GlobalUiService);
-  private _preferencesService = inject(BottomNavbarPreferencesService);
+  private _settingsService = inject(SettingsService);
   private _dialogService = inject(DialogService);
 
   public isDarkMode = this._globalUiService.isDarkMode;
   public isMoreMenuOpen = signal(false);
+
+  private selectedItemIds = computed(() => {
+    const settings = this._settingsService.currentSettings();
+    return settings?.mobileNavbarItems?.length === 4
+      ? settings.mobileNavbarItems
+      : DEFAULT_NAV_ITEMS;
+  });
 
   public allNavItems: NavItem[] = [
     {
@@ -94,7 +103,7 @@ export class MobileBottomNavbarComponent {
   ];
 
   public primaryNavItems = computed(() => {
-    const selectedIds = this._preferencesService.selectedItemIds();
+    const selectedIds = this.selectedItemIds();
     const items = selectedIds
       .map(id => this.allNavItems.find(item => item.id === id))
       .filter((item): item is NavItem => item !== undefined);
@@ -110,7 +119,7 @@ export class MobileBottomNavbarComponent {
   });
 
   public moreMenuItems = computed<MenuItem[]>(() => {
-    const selectedIds = this._preferencesService.selectedItemIds();
+    const selectedIds = this.selectedItemIds();
     return this.allNavItems
       .filter(item => !selectedIds.includes(item.id))
       .map(item => ({

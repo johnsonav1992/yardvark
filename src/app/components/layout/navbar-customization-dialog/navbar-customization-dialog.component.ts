@@ -5,6 +5,7 @@ import { ToggleButtonModule } from 'primeng/togglebutton';
 import { FormsModule } from '@angular/forms';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { SettingsService } from '../../../services/settings.service';
+import { NAV_ITEMS, DEFAULT_MOBILE_NAV_ITEMS } from '../../../config/navigation.config';
 
 interface SelectableNavItem {
   id: string;
@@ -12,8 +13,6 @@ interface SelectableNavItem {
   icon: string;
   selected: boolean;
 }
-
-const DEFAULT_NAV_ITEMS = ['dashboard', 'entry-log', 'products', 'analytics'];
 
 @Component({
   selector: 'navbar-customization-dialog',
@@ -25,50 +24,14 @@ export class NavbarCustomizationDialogComponent {
   private _dialogRef = inject(DynamicDialogRef);
   private _settingsService = inject(SettingsService);
 
-  public items = signal<SelectableNavItem[]>([
-    {
-      id: 'dashboard',
-      label: 'Dashboard',
-      icon: 'ti ti-dashboard',
+  public items = signal<SelectableNavItem[]>(
+    NAV_ITEMS.map(item => ({
+      id: item.id,
+      label: item.label,
+      icon: item.icon,
       selected: false
-    },
-    {
-      id: 'entry-log',
-      label: 'Entry Log',
-      icon: 'ti ti-calendar',
-      selected: false
-    },
-    {
-      id: 'soil-data',
-      label: 'Soil data',
-      icon: 'ti ti-shovel',
-      selected: false
-    },
-    {
-      id: 'products',
-      label: 'Products',
-      icon: 'ti ti-packages',
-      selected: false
-    },
-    {
-      id: 'equipment',
-      label: 'Equipment',
-      icon: 'ti ti-assembly',
-      selected: false
-    },
-    {
-      id: 'analytics',
-      label: 'Analytics',
-      icon: 'ti ti-chart-dots',
-      selected: false
-    },
-    {
-      id: 'calculators',
-      label: 'Calculators',
-      icon: 'ti ti-calculator',
-      selected: false
-    }
-  ]);
+    }))
+  );
 
   public selectedCount = computed(
     () => this.items().filter((item) => item.selected).length
@@ -78,7 +41,7 @@ export class NavbarCustomizationDialogComponent {
     const settings = this._settingsService.currentSettings();
     const currentSelection = settings?.mobileNavbarItems?.length === 4
       ? settings.mobileNavbarItems
-      : DEFAULT_NAV_ITEMS;
+      : DEFAULT_MOBILE_NAV_ITEMS;
 
     this.items.update((items) =>
       items.map((item) => ({

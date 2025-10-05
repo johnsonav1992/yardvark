@@ -9,6 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { DialogService } from 'primeng/dynamicdialog';
 import { FeedbackDialogComponent } from '../../feedback/feedback-dialog/feedback-dialog.component';
+import { NAV_ITEMS } from '../../../config/navigation.config';
 
 @Component({
   selector: 'main-side-nav',
@@ -46,63 +47,13 @@ export class MainSideNavComponent {
       height: 'auto'
     });
 
-    dialogRef.onClose.subscribe((result) => {
-      if (result) {
-        console.log('Feedback sent successfully');
-      }
-    });
+    dialogRef.onClose.subscribe();
   };
 
-  public menuItems: MenuItem[] = [
-    {
-      label: 'Dashboard',
-      icon: 'ti ti-dashboard',
-      routerLink: '/dashboard',
-      command: this.closeSidebar,
-      routerLinkActiveOptions: { exact: true }
-    },
-    {
-      label: 'Entry Log',
-      icon: 'ti ti-calendar',
-      routerLink: '/entry-log',
-      command: this.closeSidebar
-    },
-    {
-      label: 'Soil data',
-      icon: 'ti ti-shovel',
-      routerLink: '/soil-data',
-      command: this.closeSidebar,
-      routerLinkActiveOptions: { exact: true }
-    },
-    {
-      label: 'Products',
-      icon: 'ti ti-packages',
-      routerLink: '/products',
-      command: this.closeSidebar,
-      routerLinkActiveOptions: { exact: true }
-    },
-    {
-      label: 'Equipment',
-      icon: 'ti ti-assembly',
-      routerLink: '/equipment',
-      command: this.closeSidebar,
-      routerLinkActiveOptions: { exact: true }
-    },
-    {
-      label: 'Analytics',
-      icon: 'ti ti-chart-dots',
-      routerLink: '/analytics',
-      command: this.closeSidebar,
-      routerLinkActiveOptions: { exact: true }
-    },
-    {
-      label: 'Calculators',
-      icon: 'ti ti-calculator',
-      routerLink: '/calculators',
-      command: this.closeSidebar,
-      routerLinkActiveOptions: { exact: true }
-    }
-  ];
+  public menuItems: MenuItem[] = NAV_ITEMS.map(item => ({
+    ...item,
+    command: this.closeSidebar
+  }));
 
   public menuDt = computed<MenuDesignTokens>(() => ({
     root: {

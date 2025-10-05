@@ -3,10 +3,12 @@
     @for (item of primaryNavItems(); track item.id) {
       <a
         class="navbar-item"
-        [class.navbar-item-active]="item.id === 'more' ? isMoreMenuOpen() : false"
+        [class.navbar-item-active]="
+          item.id === 'more' ? isMoreMenuOpen() : false
+        "
         [routerLink]="item.routerLink || null"
         [routerLinkActive]="item.id !== 'more' ? 'navbar-item-active' : ''"
-        [routerLinkActiveOptions]="item.routerLinkActiveOptions || {}"
+        [routerLinkActiveOptions]="item.routerLinkActiveOptions || { exact: false }"
         (click)="item.id === 'more' && handleMoreClick($event)"
       >
         <i [class]="item.icon"></i>

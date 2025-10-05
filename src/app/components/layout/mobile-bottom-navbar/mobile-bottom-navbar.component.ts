@@ -1,4 +1,10 @@
-import { Component, computed, inject, signal, ViewEncapsulation } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  signal,
+  ViewEncapsulation
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -13,12 +19,11 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { FeedbackDialogComponent } from '../../feedback/feedback-dialog/feedback-dialog.component';
 import { NavbarCustomizationDialogComponent } from '../navbar-customization-dialog/navbar-customization-dialog.component';
 import { MenuDesignTokens } from '@primeng/themes/types/menu';
-
-interface NavItem extends MenuItem {
-  id: string;
-}
-
-const DEFAULT_NAV_ITEMS = ['dashboard', 'entry-log', 'products', 'analytics'];
+import {
+  NAV_ITEMS,
+  DEFAULT_MOBILE_NAV_ITEMS,
+  NavItem
+} from '../../../config/navigation.config';
 
 @Component({
   selector: 'mobile-bottom-navbar',
@@ -48,71 +53,23 @@ export class MobileBottomNavbarComponent {
     const settings = this._settingsService.currentSettings();
     return settings?.mobileNavbarItems?.length === 4
       ? settings.mobileNavbarItems
-      : DEFAULT_NAV_ITEMS;
+      : DEFAULT_MOBILE_NAV_ITEMS;
   });
 
-  public allNavItems: NavItem[] = [
-    {
-      id: 'dashboard',
-      label: 'Dashboard',
-      icon: 'ti ti-dashboard',
-      routerLink: '/dashboard',
-      routerLinkActiveOptions: { exact: true }
-    },
-    {
-      id: 'entry-log',
-      label: 'Entry Log',
-      icon: 'ti ti-calendar',
-      routerLink: '/entry-log'
-    },
-    {
-      id: 'soil-data',
-      label: 'Soil data',
-      icon: 'ti ti-shovel',
-      routerLink: '/soil-data',
-      routerLinkActiveOptions: { exact: true }
-    },
-    {
-      id: 'products',
-      label: 'Products',
-      icon: 'ti ti-packages',
-      routerLink: '/products',
-      routerLinkActiveOptions: { exact: true }
-    },
-    {
-      id: 'equipment',
-      label: 'Equipment',
-      icon: 'ti ti-assembly',
-      routerLink: '/equipment',
-      routerLinkActiveOptions: { exact: true }
-    },
-    {
-      id: 'analytics',
-      label: 'Analytics',
-      icon: 'ti ti-chart-dots',
-      routerLink: '/analytics',
-      routerLinkActiveOptions: { exact: true }
-    },
-    {
-      id: 'calculators',
-      label: 'Calculators',
-      icon: 'ti ti-calculator',
-      routerLink: '/calculators',
-      routerLinkActiveOptions: { exact: true }
-    }
-  ];
+  public allNavItems = NAV_ITEMS;
 
   public primaryNavItems = computed(() => {
     const selectedIds = this.selectedItemIds();
-    const items = selectedIds
-      .map(id => this.allNavItems.find(item => item.id === id))
-      .filter((item): item is NavItem => item !== undefined);
+    const items: NavItem[] = selectedIds
+      .map((id) => this.allNavItems.find((item) => item.id === id))
+      .filter((item) => item !== undefined);
 
     items.push({
       id: 'more',
       label: 'More',
       icon: 'ti ti-menu-2',
-      command: () => this.toggleMoreMenu()
+      command: () => this.toggleMoreMenu(),
+      routerLinkActiveOptions: { exact: false }
     });
 
     return items;
@@ -121,15 +78,15 @@ export class MobileBottomNavbarComponent {
   public moreMenuItems = computed<MenuItem[]>(() => {
     const selectedIds = this.selectedItemIds();
     return this.allNavItems
-      .filter(item => !selectedIds.includes(item.id))
-      .map(item => ({
+      .filter((item) => !selectedIds.includes(item.id))
+      .map((item) => ({
         ...item,
         command: () => this.closeMoreMenu()
       }));
   });
 
   public toggleMoreMenu = () => {
-    this.isMoreMenuOpen.update(prev => !prev);
+    this.isMoreMenuOpen.update((prev) => !prev);
   };
 
   public handleMoreClick = (event: Event) => {
@@ -162,13 +119,16 @@ export class MobileBottomNavbarComponent {
   public openCustomizationDialog = () => {
     this.closeMoreMenu();
 
-    const dialogRef = this._dialogService.open(NavbarCustomizationDialogComponent, {
-      header: 'Customize Navigation Bar',
-      modal: true,
-      focusOnShow: false,
-      width: '90%',
-      height: 'auto'
-    });
+    const dialogRef = this._dialogService.open(
+      NavbarCustomizationDialogComponent,
+      {
+        header: 'Customize Navigation Bar',
+        modal: true,
+        focusOnShow: false,
+        width: '90%',
+        height: 'auto'
+      }
+    );
 
     dialogRef.onClose.subscribe();
   };

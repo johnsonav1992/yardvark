@@ -91,6 +91,8 @@ export class LawnHealthScoreService {
 
   public aiDescriptionResource = rxResource({
     params: () => {
+      if (this.isLoading()) return undefined;
+
       const scoreData = this.lawnHealthScore();
       return scoreData.totalScore > 0
         ? {

@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
 import { MainHeaderComponent } from './components/layout/main-header/main-header.component';
 import { MainSideNavComponent } from './components/layout/main-side-nav/main-side-nav.component';
+import { MobileBottomNavbarComponent } from './components/layout/mobile-bottom-navbar/mobile-bottom-navbar.component';
 import { ToastModule } from 'primeng/toast';
 import { GlobalUiService } from './services/global-ui.service';
 import LogRocket from 'logrocket';
@@ -20,6 +21,7 @@ import { ChangelogService } from './services/changelog.service';
     RouterOutlet,
     MainHeaderComponent,
     MainSideNavComponent,
+    MobileBottomNavbarComponent,
     ToastModule,
     LoadingSpinnerComponent,
     ConfirmDialog

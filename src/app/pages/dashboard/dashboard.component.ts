@@ -144,6 +144,7 @@ export class DashboardComponent {
     const user = this.user() as YVUser;
 
     return (
+      user &&
       isToday(user['https://yardvark.netlify.app/signup-date']) &&
       !this.recentEntry.value()
     );

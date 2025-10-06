@@ -2,7 +2,6 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import { RecentEntryComponent } from '../../components/dashboard/recent-entry/recent-entry.component';
 import { EntriesService } from '../../services/entries.service';
-import { LoadingSpinnerComponent } from '../../components/miscellanious/loading-spinner/loading-spinner.component';
 import { MessageModule } from 'primeng/message';
 import { injectUserData } from '../../utils/authUtils';
 import { YVUser } from '../../types/user.types';
@@ -20,14 +19,20 @@ import { ButtonModule } from 'primeng/button';
 import { EntrySearchSidebarComponent } from '../../components/entries/entry-search-sidebar/entry-search-sidebar.component';
 import { WeatherCardComponent } from '../../components/dashboard/weather-card/weather-card.component';
 import { HiddenWidgetsSidebarComponent } from '../../components/dashboard/hidden-widgets-sidebar/hidden-widgets-sidebar.component';
-import { CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray } from '@angular/cdk/drag-drop';
+import {
+  CdkDragDrop,
+  CdkDropList,
+  CdkDrag,
+  moveItemInArray
+} from '@angular/cdk/drag-drop';
+import { CardSkeletonComponent } from '../../components/miscellanious/card-skeleton/card-skeleton.component';
+import { LawnHealthScoreService } from '../../services/lawn-health-score.service';
 
 @Component({
   selector: 'dashboard',
   imports: [
     PageContainerComponent,
     RecentEntryComponent,
-    LoadingSpinnerComponent,
     MessageModule,
     SpeedDialModule,
     QuickStatsComponent,
@@ -37,7 +42,8 @@ import { CdkDragDrop, CdkDropList, CdkDrag, moveItemInArray } from '@angular/cdk
     WeatherCardComponent,
     HiddenWidgetsSidebarComponent,
     CdkDropList,
-    CdkDrag
+    CdkDrag,
+    CardSkeletonComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
@@ -48,16 +54,14 @@ export class DashboardComponent {
   private _router = inject(Router);
   private _locationService = inject(LocationService);
   private _settingsService = inject(SettingsService);
+  private _lawnHealthScoreService = inject(LawnHealthScoreService);
+  private _weatherService = inject(WeatherService);
 
   public user = injectUserData();
   public isMobile = this._globalUiService.isMobile;
 
   public isEntrySearchSidebarOpen = signal(false);
   public isHiddenWidgetsSidebarOpen = signal(false);
-
-  public constructor() {
-    inject(WeatherService);
-  }
 
   public isLocationLoading = computed(() =>
     this._settingsService.settings.isLoading()
@@ -66,7 +70,12 @@ export class DashboardComponent {
     () => !!this._locationService.userLatLong()
   );
 
-  private readonly _defaultWidgetOrder = ['recent-entry', 'quick-stats', 'lawn-health-score', 'weather-card'];
+  private readonly _defaultWidgetOrder = [
+    'recent-entry',
+    'quick-stats',
+    'lawn-health-score',
+    'weather-card'
+  ];
 
   public hiddenWidgets = computed(() => {
     const settings = this._settingsService.currentSettings();
@@ -92,13 +101,18 @@ export class DashboardComponent {
     const order = this.widgetOrder();
     const visible = this.visibleWidgets();
 
-    return order.filter(widgetId => {
+    return order.filter((widgetId) => {
       switch (widgetId) {
-        case 'recent-entry': return visible.recentEntry;
-        case 'quick-stats': return visible.quickStats;
-        case 'lawn-health-score': return visible.lawnHealthScore;
-        case 'weather-card': return visible.weatherCard;
-        default: return false;
+        case 'recent-entry':
+          return visible.recentEntry;
+        case 'quick-stats':
+          return visible.quickStats;
+        case 'lawn-health-score':
+          return visible.lawnHealthScore;
+        case 'weather-card':
+          return visible.weatherCard;
+        default:
+          return false;
       }
     });
   });
@@ -107,30 +121,59 @@ export class DashboardComponent {
 
   public allWidgetsHidden = computed(() => {
     const visible = this.visibleWidgets();
-    return !visible.recentEntry && !visible.quickStats && !visible.lawnHealthScore && !visible.weatherCard;
+    return (
+      !visible.recentEntry &&
+      !visible.quickStats &&
+      !visible.lawnHealthScore &&
+      !visible.weatherCard
+    );
   });
 
   public hiddenWidgetNames = computed(() => {
     const hidden = this.hiddenWidgets();
     const nameMap: Record<string, string> = {
       'recent-entry': 'Recent Entry',
-      'quick-stats': 'Quick Stats', 
+      'quick-stats': 'Quick Stats',
       'lawn-health-score': 'Lawn Health Score',
       'weather-card': 'Weather'
     };
-    return hidden.map(name => ({ id: name, label: nameMap[name] || name }));
+    return hidden.map((name) => ({ id: name, label: nameMap[name] || name }));
   });
 
   public userIsNewWithNoEntries = computed(() => {
     const user = this.user() as YVUser;
 
     return (
+      user &&
       isToday(user['https://yardvark.netlify.app/signup-date']) &&
       !this.recentEntry.value()
     );
   });
 
   public recentEntry = this._entriesService.recentEntry;
+
+  public isQuickStatsLoading = computed(
+    () =>
+      this._entriesService.lastMow.isLoading() ||
+      this._entriesService.recentEntry.isLoading() ||
+      this._entriesService.lastProductApp.isLoading()
+  );
+
+  public isLawnHealthScoreLoading = this._lawnHealthScoreService.isLoading;
+
+  public isWeatherCardLoading = computed(() => {
+    const locationLoading = this._settingsService.settings.isLoading();
+    const hasLocation = !!this._locationService.userLatLong();
+
+    if (locationLoading) return true;
+
+    if (!hasLocation) return false;
+
+    const resource = this._weatherService.weatherDataResource;
+    const weatherData = this._weatherService.weatherForecastData();
+
+    return resource.isLoading() || !weatherData || weatherData.length === 0;
+  });
 
   public mobileSpeedDialMenu = computed<MenuItem[]>(() => [
     {
@@ -177,7 +220,7 @@ export class DashboardComponent {
 
   public showWidget(widgetName: string): void {
     const currentHidden = this.hiddenWidgets();
-    const updatedHidden = currentHidden.filter(name => name !== widgetName);
+    const updatedHidden = currentHidden.filter((name) => name !== widgetName);
     this._settingsService.updateSetting('hiddenWidgets', updatedHidden);
 
     if (updatedHidden.length === 0) {

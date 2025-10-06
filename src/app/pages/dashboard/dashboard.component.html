@@ -21,59 +21,71 @@
       />
     </div>
   </ng-template>
-  @if (recentEntry.isLoading()) {
-    <loading-spinner />
-  } @else {
-    @if (userIsNewWithNoEntries()) {
+  @if (userIsNewWithNoEntries()) {
       <p-message
         icon="ti ti-comet"
         text="Welcome to Yardvark! Click below to create your first entry."
         severity="success"
       />
-    }
-    @if (!userHasALocation() && !isLocationLoading()) {
+  }
+  @if (!userHasALocation() && !isLocationLoading()) {
       <p-message
         icon="ti ti-info-circle"
         text="It looks like you haven't set your location yet! Go to settings to set your location and start receiving soil temperature data."
         severity="warn"
       />
-    }
-    @if (allWidgetsHidden()) {
+  }
+  @if (allWidgetsHidden()) {
       <div class="all-widgets-hidden">
         <i class="ti ti-eye-off"></i>
         <h3>All dashboard widgets are hidden</h3>
         <p>Click the button above to restore widgets to your dashboard.</p>
       </div>
-    } @else {
-      <div class="cards-container" cdkDropList (cdkDropListDropped)="onWidgetDrop($event)" cdkDropListOrientation="mixed">
+  } @else {
+    <div class="cards-container" cdkDropList (cdkDropListDropped)="onWidgetDrop($event)" cdkDropListOrientation="mixed">
         @for (widgetId of orderedVisibleWidgets(); track widgetId) {
           <div cdkDrag class="widget-wrapper">
             @switch (widgetId) {
               @case ('recent-entry') {
-                <recent-entry (onHideWidget)="hideWidget('recent-entry')" />
+                @if (recentEntry.isLoading()) {
+                  <card-skeleton />
+                } @else {
+                  <recent-entry (onHideWidget)="hideWidget('recent-entry')" />
+                }
               }
               @case ('quick-stats') {
-                <quick-stats (onHideWidget)="hideWidget('quick-stats')" />
+                @if (isQuickStatsLoading()) {
+                  <card-skeleton />
+                } @else {
+                  <quick-stats (onHideWidget)="hideWidget('quick-stats')" />
+                }
               }
               @case ('lawn-health-score') {
-                <lawn-health-score (onHideWidget)="hideWidget('lawn-health-score')" />
+                @if (isLawnHealthScoreLoading()) {
+                  <card-skeleton />
+                } @else {
+                  <lawn-health-score (onHideWidget)="hideWidget('lawn-health-score')" />
+                }
               }
               @case ('weather-card') {
-                <weather-card (onHideWidget)="hideWidget('weather-card')" />
+                @if (isWeatherCardLoading()) {
+                  <card-skeleton />
+                } @else {
+                  <weather-card (onHideWidget)="hideWidget('weather-card')" />
+                }
               }
             }
           </div>
         }
       </div>
-    }
-    @if (isMobile()) {
+  }
+  @if (isMobile()) {
       <p-speeddial
         icon="ti ti-plus"
         [model]="mobileSpeedDialMenu()"
-        [style]="{ position: 'fixed', bottom: '20px', right: '20px' }"
+        [style]="{ position: 'fixed', bottom: '80px', right: '20px' }"
       />
     }
-  }
 </page-container>
 
 <entry-search-sidebar [(isOpen)]="isEntrySearchSidebarOpen" />

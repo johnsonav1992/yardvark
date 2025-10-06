@@ -24,6 +24,7 @@ export class LawnHealthScoreComponent {
   public lawnHealthScore = this._lawnHealthScoreService.lawnHealthScore;
   public finalDescription = this._lawnHealthScoreService.finalDescription;
   public scoreColor = this._lawnHealthScoreService.scoreColor;
+  public isLoading = this._lawnHealthScoreService.isLoading;
 
   public isAiGenerated = computed(() => {
     const aiResource = this._lawnHealthScoreService.aiDescriptionResource;

@@ -24,11 +24,18 @@ import { WeatherModule } from './modules/weather/weather.module';
 import { RemindersModule } from './modules/reminders/reminders.module';
 import { AiModule } from './modules/ai/ai.module';
 import { EmailModule } from './modules/email/email.module';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: '.env' }),
     TypeOrmModule.forRoot(dataSource.options),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 100,
+      },
+    ]),
     SettingsModule,
     ActivitiesModule,
     LawnSegmentsModule,
@@ -55,6 +62,10 @@ import { EmailModule } from './modules/email/email.module';
     {
       provide: APP_GUARD,
       useClass: FeatureFlagGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
     },
     UsersService,
     S3Service,

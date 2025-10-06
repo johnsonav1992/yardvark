@@ -8,15 +8,21 @@
   </div>
 } @else if (isLoggedIn()) {
   <main-header />
-  <main-side-nav />
+  @if (!isMobile()) {
+    <main-side-nav />
+  }
   <div
     class="main-content-wrapper"
     [style.padding-left]="isMobile() ? 0 : undefined"
+    [style.padding-bottom]="isMobile() ? '80px' : undefined"
   >
     <div class="inner-content-wrapper">
       <router-outlet />
     </div>
   </div>
+  @if (isMobile()) {
+    <mobile-bottom-navbar />
+  }
   <p-toast position="bottom-left" />
   <p-confirmDialog position="top" />
 }

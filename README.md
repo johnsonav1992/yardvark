@@ -1,6 +1,6 @@
 # Yardvark
 
-**The ultimate lawn care management app for LCN professionals**
+**The ultimate lawncare tracking app for LCNs**
 
 Built with Angular and Nest.js, Yardvark helps lawncare DIYers manage their lawn tracking with ease. Track activities, manage equipment, analyze performance in one beautiful, modern interface.
 

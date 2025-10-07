@@ -23,7 +23,7 @@ import { DoubleTapDirective } from '../../../directives/double-tap.directive';
 import { SwipeDirective } from '../../../directives/swipe.directive';
 import { EntrySearchSidebarComponent } from '../entry-search-sidebar/entry-search-sidebar.component';
 import { CsvExportSidebarComponent } from '../csv-export-sidebar/csv-export-sidebar.component';
-import { ButtonDesignTokens } from '@primeng/themes/types/button';
+import { ButtonDesignTokens } from '@primeuix/themes/types/button';
 import { MenuModule } from 'primeng/menu';
 import { FormsModule } from '@angular/forms';
 import { MenuItem } from 'primeng/api';

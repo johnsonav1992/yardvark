@@ -12,7 +12,7 @@ import {
   EntriesCalendarComponent
 } from '../../components/entries/entries-calendar/entries-calendar.component';
 import { ButtonModule } from 'primeng/button';
-import { ButtonDesignTokens } from '@primeng/themes/types/button';
+import { ButtonDesignTokens } from '@primeuix/themes/types/button';
 import { injectUserData } from '../../utils/authUtils';
 import { Entry } from '../../types/entries.types';
 import { getEntryIcon } from '../../utils/entriesUtils';
@@ -247,9 +247,12 @@ export class EntryLogComponent implements OnInit {
       maximizable: true
     });
 
-    if (this.isMobile()) this._dialogService.getInstance(dialogRef).maximize();
+    if (dialogRef && this.isMobile()) {
+      const instance = this._dialogService.getInstance(dialogRef);
+      if (instance) instance.maximize();
+    }
 
-    dialogRef.onClose.subscribe((result?: string) => {
+    dialogRef?.onClose.subscribe((result?: string) => {
       if (result) {
         this.changeMonths(new Date(result));
 

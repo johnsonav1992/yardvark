@@ -18,7 +18,7 @@ import { SettingsService } from '../../../services/settings.service';
 import { DialogService } from 'primeng/dynamicdialog';
 import { FeedbackDialogComponent } from '../../feedback/feedback-dialog/feedback-dialog.component';
 import { NavbarCustomizationDialogComponent } from '../navbar-customization-dialog/navbar-customization-dialog.component';
-import { MenuDesignTokens } from '@primeng/themes/types/menu';
+import { MenuDesignTokens } from '@primeuix/themes/types/menu';
 import {
   NAV_ITEMS,
   DEFAULT_MOBILE_NAV_ITEMS,
@@ -113,7 +113,7 @@ export class MobileBottomNavbarComponent {
       height: 'auto'
     });
 
-    dialogRef.onClose.subscribe();
+    dialogRef?.onClose.subscribe();
   };
 
   public openCustomizationDialog = () => {
@@ -130,7 +130,7 @@ export class MobileBottomNavbarComponent {
       }
     );
 
-    dialogRef.onClose.subscribe();
+    dialogRef?.onClose.subscribe();
   };
 
   public menuDt = computed<MenuDesignTokens>(() => ({

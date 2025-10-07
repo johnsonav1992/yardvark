@@ -19,7 +19,7 @@ import { map } from 'rxjs';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ChipModule } from 'primeng/chip';
-import { ChipDesignTokens } from '@primeng/themes/types/chip';
+import { ChipDesignTokens } from '@primeuix/themes/types/chip';
 import { DividerModule } from 'primeng/divider';
 import { SkeletonModule } from 'primeng/skeleton';
 import { capitalize } from '../../../utils/stringUtils';

@@ -8,7 +8,7 @@ import { getUserInitials, injectUserData } from '../../../utils/authUtils';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { GlobalUiService } from '../../../services/global-ui.service';
-import { AvatarDesignTokens } from '@primeng/themes/types/avatar';
+import { AvatarDesignTokens } from '@primeuix/themes/types/avatar';
 import { environment } from '../../../../environments/environment';
 import { YVUser } from '../../../types/user.types';
 

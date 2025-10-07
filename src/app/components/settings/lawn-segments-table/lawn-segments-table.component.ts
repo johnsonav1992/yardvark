@@ -10,7 +10,7 @@ import {
 import { ButtonModule } from 'primeng/button';
 import { Table, TableModule } from 'primeng/table';
 import { LawnSegment } from '../../../types/lawnSegments.types';
-import { DataTableDesignTokens } from '@primeng/themes/types/datatable';
+import { DataTableDesignTokens } from '@primeuix/themes/types/datatable';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { LawnSegmentsService } from '../../../services/lawn-segments.service';

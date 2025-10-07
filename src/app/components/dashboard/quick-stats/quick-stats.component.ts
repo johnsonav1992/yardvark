@@ -7,7 +7,7 @@ import { differenceInDays } from 'date-fns';
 import { getLawnSeasonCompletedPercentage } from '../../../utils/lawnSeasonUtils';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { DividerModule } from 'primeng/divider';
-import { DividerDesignTokens } from '@primeng/themes/types/divider';
+import { DividerDesignTokens } from '@primeuix/themes/types/divider';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { LocationService } from '../../../services/location.service';
 import { CdkDragHandle } from '@angular/cdk/drag-drop';

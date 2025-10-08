@@ -84,7 +84,7 @@ export class EntryDialogComponent implements OnInit {
   public lawnSegments = computed(() => this.lawnSegmentsResource.value());
 
   public entryForms = new FormArray<EntryFormGroup>([]);
-  public activeIndex = signal<number | null>(0);
+  public activeIndex = signal<number>(0);
 
   public constructor() {
     this.addEntryForm();
@@ -132,7 +132,7 @@ export class EntryDialogComponent implements OnInit {
       this.entryForms.removeAt(index);
 
       const currentIndex = this.activeIndex();
-      if (currentIndex !== null && currentIndex >= this.entryForms.length) {
+      if (currentIndex >= this.entryForms.length) {
         this.activeIndex.set(this.entryForms.length - 1);
       }
     }
@@ -181,8 +181,6 @@ export class EntryDialogComponent implements OnInit {
   public onActiveIndexChange(value: string | number | string[] | number[] | null | undefined): void {
     if (typeof value === 'number') {
       this.activeIndex.set(value);
-    } else if (value === null || value === undefined) {
-      this.activeIndex.set(null);
     }
   }
 }

@@ -4,6 +4,8 @@ import { of, map } from 'rxjs';
 import { AnalyticsService } from './analytics.service';
 import { EntriesService } from './entries.service';
 import { AiService } from './ai.service';
+import { LocationService } from './location.service';
+import { SoilTemperatureService } from './soil-temperature.service';
 import {
   calculateLawnHealthScore,
   isCurrentlyGrowingSeason
@@ -31,23 +33,49 @@ export class LawnHealthScoreService {
   private _analyticsService = inject(AnalyticsService);
   private _entriesService = inject(EntriesService);
   private _aiService = inject(AiService);
+  private _locationService = inject(LocationService);
+  private _soilTempService = inject(SoilTemperatureService);
 
   public analyticsData = this._analyticsService.analyticsData;
   public lastMowDate = this._entriesService.lastMow;
   public lastProductApp = this._entriesService.lastProductApp;
+  public userCoords = this._locationService.userLatLong;
+  public past24HourSoilData =
+    this._soilTempService.past24HourSoilTemperatureData;
+  public temperatureUnit = this._soilTempService.temperatureUnit;
 
-  public isLoading = computed(() =>
-    this.analyticsData.isLoading() ||
-    this.lastMowDate.isLoading() ||
-    this.lastProductApp.isLoading()
+  public isLoading = computed(
+    () =>
+      this.analyticsData.isLoading() ||
+      this.lastMowDate.isLoading() ||
+      this.lastProductApp.isLoading()
   );
+
+  public currentSoilTemp = computed(() => {
+    const soilData = this.past24HourSoilData.value();
+    if (!soilData?.hourly?.soil_temperature_6cm) return null;
+
+    const temps = soilData.hourly.soil_temperature_6cm.filter(
+      (t): t is number => t !== null
+    );
+    if (temps.length === 0) return null;
+
+    return temps.reduce((sum, temp) => sum + temp, 0) / temps.length;
+  });
 
   public healthScoreFactors = computed((): LawnHealthScoreFactors => {
     const lastMow = this.lastMowDate.value();
     const lastProductAppData = this.lastProductApp.value();
 
     const currentMonth = getMonth(new Date()) + 1;
-    const isGrowingSeason = isCurrentlyGrowingSeason();
+    const coords = this.userCoords();
+    const soilTemp = this.currentSoilTemp();
+    const tempUnit = this.temperatureUnit();
+    const isGrowingSeason = isCurrentlyGrowingSeason(
+      coords ?? undefined,
+      soilTemp,
+      tempUnit
+    );
 
     const daysSinceLastMow = lastMow?.lastMowDate
       ? differenceInDays(new Date(), lastMow.lastMowDate.toString())
@@ -94,7 +122,7 @@ export class LawnHealthScoreService {
       if (this.isLoading()) return undefined;
 
       const scoreData = this.lawnHealthScore();
-      return scoreData.totalScore > 0
+      return scoreData.totalScore > 0 && !scoreData.isOffSeason
         ? {
             totalScore: scoreData.totalScore,
             grade: scoreData.grade,
@@ -187,6 +215,9 @@ export class LawnHealthScoreService {
     LawnHealthScoreMonthlyData
   ] {
     const now = new Date();
+    const coords = this.userCoords();
+    const soilTemp = this.currentSoilTemp();
+    const tempUnit = this.temperatureUnit();
 
     const months = [];
 
@@ -194,6 +225,10 @@ export class LawnHealthScoreService {
       const targetDate = subMonths(now, i);
       const month = getMonth(targetDate) + 1;
       const year = getYear(targetDate);
+
+      const isGrowingSeason = coords
+        ? this.isMonthInGrowingSeason(month, year, coords, soilTemp, tempUnit)
+        : month >= 3 && month <= 11;
 
       months.push({
         mowingFrequency: this.getMowingFrequencyForMonth(month, year),
@@ -205,7 +240,7 @@ export class LawnHealthScoreService {
         entriesCount: this.getEntriesForMonth(month, year),
         month,
         year,
-        isGrowingSeason: month >= 3 && month <= 11
+        isGrowingSeason
       });
     }
 
@@ -214,6 +249,24 @@ export class LawnHealthScoreService {
       LawnHealthScoreMonthlyData,
       LawnHealthScoreMonthlyData
     ];
+  }
+
+  private isMonthInGrowingSeason(
+    month: number,
+    year: number,
+    coords: { lat: number; long: number },
+    currentSoilTemp: number | null,
+    temperatureUnit: 'fahrenheit' | 'celsius'
+  ): boolean {
+    const today = new Date();
+    const currentMonth = getMonth(today) + 1;
+    const currentYear = getYear(today);
+
+    if (month === currentMonth && year === currentYear) {
+      return isCurrentlyGrowingSeason(coords, currentSoilTemp, temperatureUnit);
+    }
+
+    return month >= 3 && month <= 11;
   }
 
   private getMowingFrequencyForMonth(month: number, year: number): number {

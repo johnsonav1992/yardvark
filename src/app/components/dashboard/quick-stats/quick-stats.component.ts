@@ -4,13 +4,15 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { EntriesService } from '../../../services/entries.service';
 import { differenceInDays } from 'date-fns';
-import { getLawnSeasonCompletedPercentage } from '../../../utils/lawnSeasonUtils';
+import { getLawnSeasonCompletedPercentageWithTemp } from '../../../utils/lawnSeasonUtils';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { DividerModule } from 'primeng/divider';
 import { DividerDesignTokens } from '@primeuix/themes/types/divider';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { LocationService } from '../../../services/location.service';
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
+import { SoilTemperatureService } from '../../../services/soil-temperature.service';
+import { calculate24HourNumericAverage } from '../../../utils/soilTemperatureUtils';
 
 @Component({
   selector: 'quick-stats',
@@ -22,6 +24,7 @@ export class QuickStatsComponent {
   private _entriesService = inject(EntriesService);
   private _locationService = inject(LocationService);
   private _globalUiService = inject(GlobalUiService);
+  private _soilTempService = inject(SoilTemperatureService);
 
   public isMobile = this._globalUiService.isMobile;
 
@@ -30,6 +33,8 @@ export class QuickStatsComponent {
   public lastMowDate = this._entriesService.lastMow;
   public lastEntry = this._entriesService.recentEntry;
   public userCoords = this._locationService.userLatLong;
+  public past24HourSoilData = this._soilTempService.past24HourSoilTemperatureData;
+  public temperatureUnit = this._soilTempService.temperatureUnit;
 
   public isLoading = computed(() =>
     this.lastMowDate.isLoading() ||
@@ -71,12 +76,26 @@ export class QuickStatsComponent {
     return daysSince ?? 'N/A';
   });
 
+  public currentSoilTemp = computed(() => {
+    const soilData = this.past24HourSoilData.value();
+    if (!soilData?.hourly?.soil_temperature_6cm) return null;
+
+    return calculate24HourNumericAverage(soilData.hourly.soil_temperature_6cm);
+  });
+
   public lawnSeasonPercentage = computed(() => {
     const coords = this.userCoords();
 
     if (!coords) return null;
 
-    const progressPercentage = getLawnSeasonCompletedPercentage(coords);
+    const currentTemp = this.currentSoilTemp();
+    const tempUnit = this.temperatureUnit();
+
+    const progressPercentage = getLawnSeasonCompletedPercentageWithTemp(
+      coords,
+      currentTemp,
+      tempUnit
+    );
 
     if (progressPercentage < 0 || progressPercentage > 100) {
       return null;

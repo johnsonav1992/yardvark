@@ -1,0 +1,17 @@
+{
+  "name": "Yardvark (Staging)",
+  "short_name": "YV Staging",
+  "theme_color": "#ff6b00",
+  "background_color": "#fafafa",
+  "display": "standalone",
+  "scope": "./",
+  "start_url": "./",
+  "icons": [
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ]
+}

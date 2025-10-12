@@ -1,4 +1,4 @@
-import { $dt } from '@primeng/themes';
+import { $dt } from '@primeuix/themes';
 import { PrimeNGColorToken } from '../types/style.types';
 import { inject } from '@angular/core';
 import { BreakpointObserver } from '@angular/cdk/layout';
@@ -14,7 +14,7 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 export const getPrimeNgHexColor = (tokenName: PrimeNGColorToken): string => {
   const token = $dt(tokenName);
 
-  return token.value;
+  return token.value as string;
 };
 
 /**

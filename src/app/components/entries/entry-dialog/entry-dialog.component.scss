@@ -83,8 +83,27 @@
     margin-bottom: 0.5rem;
   }
 
-  .p-accordionheader-toggle {
+  .p-accordionheader {
+    display: flex;
+    flex-direction: row-reverse;
     padding: 1rem;
+
+    svg {
+      margin-right: 0.5rem;
+      margin-left: 0;
+    }
+  }
+
+  p-datePicker {
+    width: 100%;
+
+    .p-datepicker-input-container {
+      width: 100%;
+    }
+
+    .p-inputtext {
+      width: 100%;
+    }
   }
 
   @media (max-width: 800px) {

@@ -30,7 +30,7 @@ import { ProductsSelectorComponent } from '../../products/products-selector/prod
 import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
 import { MAX_FILE_LARGE_UPLOAD_SIZE } from '../../../constants/file-constants';
 import { ButtonModule } from 'primeng/button';
-import { AccordionModule, AccordionTab } from 'primeng/accordion';
+import { Accordion, AccordionPanel, AccordionHeader, AccordionContent } from 'primeng/accordion';
 import { TooltipModule } from 'primeng/tooltip';
 
 export type EntryFormGroup = FormGroup<{
@@ -58,8 +58,10 @@ export type EntryFormGroup = FormGroup<{
     ProductsSelectorComponent,
     FileUploadModule,
     ButtonModule,
-    AccordionModule,
-    AccordionTab,
+    Accordion,
+    AccordionPanel,
+    AccordionHeader,
+    AccordionContent,
     TooltipModule
   ],
   templateUrl: './entry-dialog.component.html',
@@ -82,7 +84,7 @@ export class EntryDialogComponent implements OnInit {
   public lawnSegments = computed(() => this.lawnSegmentsResource.value());
 
   public entryForms = new FormArray<EntryFormGroup>([]);
-  public activeIndex = signal(0);
+  public activeIndex = signal<number>(0);
 
   public constructor() {
     this.addEntryForm();
@@ -129,7 +131,8 @@ export class EntryDialogComponent implements OnInit {
     if (this.entryForms.length > 1) {
       this.entryForms.removeAt(index);
 
-      if (this.activeIndex() >= this.entryForms.length) {
+      const currentIndex = this.activeIndex();
+      if (currentIndex >= this.entryForms.length) {
         this.activeIndex.set(this.entryForms.length - 1);
       }
     }
@@ -175,12 +178,9 @@ export class EntryDialogComponent implements OnInit {
     removeFileCallback(file, index);
   }
 
-  public handleActiveIndexChange(value: string | number | string[] | number[]): void {
-    if (Array.isArray(value)) {
-      const firstValue = value[0];
-      this.activeIndex.set(typeof firstValue === 'string' ? parseInt(firstValue, 10) : firstValue ?? 0);
-    } else {
-      this.activeIndex.set(typeof value === 'string' ? parseInt(value, 10) : value);
+  public onActiveIndexChange(value: string | number | string[] | number[] | null | undefined): void {
+    if (typeof value === 'number') {
+      this.activeIndex.set(value);
     }
   }
 }

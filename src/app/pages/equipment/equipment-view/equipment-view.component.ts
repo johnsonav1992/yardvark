@@ -4,7 +4,7 @@ import { LoadingSpinnerComponent } from '../../../components/miscellanious/loadi
 import { DividerModule } from 'primeng/divider';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { EquipmentService } from '../../../services/equipment.service';
-import { DividerDesignTokens } from '@primeng/themes/types/divider';
+import { DividerDesignTokens } from '@primeuix/themes/types/divider';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
@@ -16,14 +16,14 @@ import {
 } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
-import { CardDesignTokens } from '@primeng/themes/types/card';
+import { CardDesignTokens } from '@primeuix/themes/types/card';
 import { ButtonModule } from 'primeng/button';
 import { DialogService } from 'primeng/dynamicdialog';
 import { EquipmentMaintenanceAddEditModalComponent } from '../../../components/equipment/equipment-maintenance-add-edit-modal/equipment-maintenance-add-edit-modal.component';
 import { EquipmentMaintenance } from '../../../types/equipment.types';
 import { injectErrorToast } from '../../../utils/toastUtils';
 import { ConfirmationService } from 'primeng/api';
-import { ButtonDesignTokens } from '@primeng/themes/types/button';
+import { ButtonDesignTokens } from '@primeuix/themes/types/button';
 import { NO_IMAGE_URL } from '../../../constants/style-constants';
 
 @Component({
@@ -98,9 +98,12 @@ export class EquipmentViewComponent {
       }
     );
 
-    if (this.isMobile()) this._dialogService.getInstance(dialogRef).maximize();
+    if (dialogRef && this.isMobile()) {
+      const instance = this._dialogService.getInstance(dialogRef);
+      if (instance) instance.maximize();
+    }
 
-    dialogRef.onClose.subscribe((result) => {
+    dialogRef?.onClose.subscribe((result) => {
       if (result === 'success') {
         this._equipmentService.equipment.reload();
       }

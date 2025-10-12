@@ -2,12 +2,8 @@ import { differenceInDays } from 'date-fns';
 import { LatLong } from '../types/location.types';
 import { lawnSeasonDatesAndTemperaturesReference } from '../constants/soil-temperature-constants';
 
-/**
- * Calculates the percentage of the lawn season that has been completed based on the current date.
- *
- * @param coords - The latitude and longitude coordinates.
- * @returns A number representing the percentage of the lawn season completed (0-100), or -1 if the season has not started yet.
- */
+const SOIL_TEMP_SEASON_THRESHOLD = 55;
+
 export const getLawnSeasonCompletedPercentage = (coords: LatLong) => {
   const today = new Date();
 
@@ -24,6 +20,47 @@ export const getLawnSeasonCompletedPercentage = (coords: LatLong) => {
   const daysPassedInLawnSeason = differenceInDays(today, seasonStart);
 
   return Math.round((daysPassedInLawnSeason / totalDaysInLawnSeason) * 100);
+};
+
+export const getLawnSeasonCompletedPercentageWithTemp = (
+  coords: LatLong,
+  currentSoilTemp: number | null | undefined,
+  temperatureUnit: 'fahrenheit' | 'celsius' = 'fahrenheit'
+) => {
+  const today = new Date();
+  const { start, end } = getLawnSeasonStartAndEndDates(coords);
+
+  if (currentSoilTemp !== null && currentSoilTemp !== undefined) {
+    const tempInFahrenheit =
+      temperatureUnit === 'celsius'
+        ? (currentSoilTemp * 9) / 5 + 32
+        : currentSoilTemp;
+
+    if (tempInFahrenheit < SOIL_TEMP_SEASON_THRESHOLD) {
+      return today < start ? -1 : 100;
+    }
+
+    const tempDifferential = tempInFahrenheit - SOIL_TEMP_SEASON_THRESHOLD;
+    const weeksPerDegree = 0.2;
+    const adjustmentWeeks = Math.round(tempDifferential * weeksPerDegree);
+    const adjustmentDays = adjustmentWeeks * 7;
+
+    const adjustedStart = new Date(start);
+    adjustedStart.setDate(adjustedStart.getDate() - adjustmentDays);
+
+    const adjustedEnd = new Date(end);
+    adjustedEnd.setDate(adjustedEnd.getDate() + adjustmentDays);
+
+    if (today < adjustedStart) return -1;
+    if (today > adjustedEnd) return 100;
+
+    const totalDaysInSeason = differenceInDays(adjustedEnd, adjustedStart);
+    const daysPassed = differenceInDays(today, adjustedStart);
+
+    return Math.round((daysPassed / totalDaysInSeason) * 100);
+  }
+
+  return getLawnSeasonCompletedPercentage(coords);
 };
 
 /**

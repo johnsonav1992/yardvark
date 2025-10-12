@@ -9,7 +9,7 @@ import {
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import { getUserInitials, injectUserData } from '../../utils/authUtils';
 import { AvatarModule } from 'primeng/avatar';
-import { AvatarDesignTokens } from '@primeng/themes/types/avatar';
+import { AvatarDesignTokens } from '@primeuix/themes/types/avatar';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';

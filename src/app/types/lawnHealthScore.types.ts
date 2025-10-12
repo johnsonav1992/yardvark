@@ -4,8 +4,9 @@ export type LawnHealthScoreBreakdown = {
   consistencyScore: number;
   recencyScore: number;
   totalScore: number;
-  grade: 'A' | 'B' | 'C' | 'D' | 'F';
+  grade: 'A' | 'B' | 'C' | 'D' | 'F' | 'Off-Season';
   description: string;
+  isOffSeason?: boolean;
 };
 
 export type LawnHealthScoreMonthlyData = {

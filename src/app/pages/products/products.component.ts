@@ -16,7 +16,7 @@ import {
 import { EmptyMessageComponent } from '../../components/miscellanious/empty-message/empty-message.component';
 import { ProductsService } from '../../services/products.service';
 import { ButtonModule } from 'primeng/button';
-import { ButtonDesignTokens } from '@primeng/themes/types/button';
+import { ButtonDesignTokens } from '@primeuix/themes/types/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { Router } from '@angular/router';
 import { GlobalUiService } from '../../services/global-ui.service';
@@ -108,7 +108,9 @@ export class ProductsComponent {
     );
   });
 
-  public onTabChange(tab: string | number): void {
+  public onTabChange(tab: string | number | undefined): void {
+    if (tab === undefined) return;
+
     const selectedTab = tab as Uncapitalize<ProductCategories>;
 
     this.selectedTab.set(selectedTab);
@@ -167,7 +169,10 @@ export class ProductsComponent {
       }
     );
 
-    if (this.isMobile()) this._dialogService.getInstance(dialogRef).maximize();
+    if (dialogRef && this.isMobile()) {
+      const instance = this._dialogService.getInstance(dialogRef);
+      if (instance) instance.maximize();
+    }
   }
 
   public addButtonDt = computed<ButtonDesignTokens>(() => ({

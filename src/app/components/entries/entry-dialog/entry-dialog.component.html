@@ -9,10 +9,10 @@
     />
   </div>
 
-  <p-accordion [activeIndex]="activeIndex()" (activeIndexChange)="handleActiveIndexChange($event)">
+  <p-accordion [value]="activeIndex()" (valueChange)="onActiveIndexChange($event)">
     @for (form of entryForms.controls; track $index) {
-      <p-accordionTab>
-        <ng-template pTemplate="header">
+      <p-accordionpanel [value]="$index">
+        <p-accordionheader>
           <div class="accordion-header">
             <span class="entry-title">
               Entry {{ $index + 1 }}
@@ -45,9 +45,9 @@
               }
             </div>
           </div>
-        </ng-template>
-
-        <form [formGroup]="form" class="main-form">
+        </p-accordionheader>
+        <p-accordioncontent>
+          <form [formGroup]="form" class="main-form">
           <span class="input-wrapper">
             <div [style]="{ display: 'flex' }">
               <p>Title (optional):</p>
@@ -138,8 +138,9 @@
             <!-- Noop because primeng is dumb  -->
             <ng-template #file></ng-template>
           </p-fileUpload>
-        </form>
-      </p-accordionTab>
+          </form>
+        </p-accordioncontent>
+      </p-accordionpanel>
     }
   </p-accordion>
 </div>

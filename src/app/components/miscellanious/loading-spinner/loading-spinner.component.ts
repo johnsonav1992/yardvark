@@ -1,5 +1,5 @@
 import { Component, computed, input } from '@angular/core';
-import { ProgressSpinnerDesignTokens } from '@primeng/themes/types/progressspinner';
+import { ProgressSpinnerDesignTokens } from '@primeuix/themes/types/progressspinner';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({

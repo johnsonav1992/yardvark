@@ -8,7 +8,7 @@ import { ProductsComponent } from './pages/products/products.component';
 import { EquipmentComponent } from './pages/equipment/equipment.component';
 import { EntryViewComponent } from './pages/entry-log/entry-view/entry-view.component';
 import { AddProductComponent } from './pages/products/add-product/add-product.component';
-import { authGuard } from './guards/auth.guard';
+import { authGuardFn } from '@auth0/auth0-angular';
 import { ProductViewComponent } from './pages/products/product-view/product-view.component';
 import { EquipmentViewComponent } from './pages/equipment/equipment-view/equipment-view.component';
 import { AddEditEquipmentComponent } from './pages/equipment/add-edit-equipment/add-edit-equipment.component';
@@ -25,78 +25,78 @@ export const mainRoutes: Routes = [
   {
     path: 'dashboard',
     component: DashboardComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuardFn]
   },
   {
     path: 'profile',
     component: ProfileComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuardFn]
   },
   {
     path: 'entry-log',
     component: EntryLogComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuardFn]
   },
   {
     path: 'entry-log/:entryId',
     component: EntryViewComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuardFn]
   },
   {
     path: 'soil-data',
     component: SoilDataComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuardFn]
   },
   {
     path: 'products/add',
     component: AddProductComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuardFn]
   },
   {
     path: 'products/:productId',
     component: ProductViewComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuardFn]
   },
   {
     path: 'products',
     component: ProductsComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuardFn]
   },
   {
     path: 'equipment',
     component: EquipmentComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuardFn],
     pathMatch: 'full'
   },
   {
     path: 'equipment/add',
     component: AddEditEquipmentComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuardFn]
   },
   {
     path: 'equipment/edit/:equipmentId',
     component: AddEditEquipmentComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuardFn]
   },
   {
     path: 'equipment/:equipmentId',
     component: EquipmentViewComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuardFn]
   },
   {
     path: 'settings',
     component: SettingsComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuardFn],
     canDeactivate: [unsavedChangesGuard]
   },
   {
     path: 'analytics',
     component: AnalyticsComponent,
-    canActivate: [authGuard]
+    canActivate: [authGuardFn]
   },
   {
     path: 'calculators',
     component: CalculatorsPage,
-    canActivate: [authGuard]
+    canActivate: [authGuardFn]
   }
 ];

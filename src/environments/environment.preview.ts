@@ -12,6 +12,7 @@ function getPreviewFeUrl(): string {
 
 export const environment: Environment = {
   production: false,
+  isStaging: true,
   apiUrl: STAGING_BE_API_URL,
   feAppUrl: getPreviewFeUrl(),
   auth0Domain: 'dev-w4uj6ulyqeacwtfi.us.auth0.com',

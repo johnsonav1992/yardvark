@@ -6,8 +6,31 @@
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="favicon.png" />
-    <link rel="manifest" href="manifest.webmanifest" />
-    <meta name="theme-color" content="#64a40b" />
+    <link rel="manifest" href="manifest.webmanifest" id="app-manifest" />
+    <meta name="theme-color" content="#64a40b" id="theme-color" />
+    <script>
+      (function () {
+        const isStaging =
+          window.location.hostname.includes("deploy-preview") ||
+          window.location.hostname.includes("branch-");
+
+        if (isStaging) {
+          const manifestLink = document.getElementById("app-manifest");
+
+          if (manifestLink) {
+            manifestLink.href = "manifest.staging.webmanifest";
+          }
+
+          const themeColor = document.getElementById("theme-color");
+
+          if (themeColor) {
+            themeColor.content = "#ff6b00";
+          }
+
+          document.title = "Yardvark (Staging)";
+        }
+      })();
+    </script>
   </head>
   <body>
     <app-root></app-root>

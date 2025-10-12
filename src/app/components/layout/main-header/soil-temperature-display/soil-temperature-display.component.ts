@@ -1,7 +1,7 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
-import { PopoverModule } from 'primeng/popover';
+import { PopoverModule, Popover } from 'primeng/popover';
 import { FormsModule } from '@angular/forms';
 import { SoilTemperatureService } from '../../../../services/soil-temperature.service';
 import {
@@ -12,6 +12,7 @@ import { injectSettingsService } from '../../../../services/settings.service';
 import { DegreesDisplay } from '../../../../types/temperature.styles';
 import { GlobalUiService } from '../../../../services/global-ui.service';
 import { LocationService } from '../../../../services/location.service';
+import { fixOverlayPositionForScroll } from '../../../../utils/overlayPositioningUtils';
 
 @Component({
   selector: 'soil-temperature-display',
@@ -32,6 +33,8 @@ export class SoilTemperatureDisplayComponent {
     this._soilTemperatureService.past24HourSoilTemperatureData;
 
   public showDeepTemp = signal<boolean>(false);
+
+  public depthPopover = viewChild.required<Popover>('depthPopover');
 
   public userHasALocation = computed(
     () => !!this._locationService.userLatLong()
@@ -66,4 +69,12 @@ export class SoilTemperatureDisplayComponent {
     () =>
       this._settingsService.currentSettings()?.temperatureUnit || 'fahrenheit'
   );
+
+  public showPopover(event: Event): void {
+    this.depthPopover().toggle(event);
+
+    fixOverlayPositionForScroll(() =>
+      this.depthPopover().overlayVisible ? this.depthPopover().container : null
+    );
+  }
 }

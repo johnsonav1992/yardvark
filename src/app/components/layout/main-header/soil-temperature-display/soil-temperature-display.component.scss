@@ -30,3 +30,8 @@
   gap: 0.5rem;
   align-items: center;
 }
+
+::ng-deep .fixed-header-popover.p-popover.p-component {
+  position: fixed !important;
+  z-index: 1300 !important;
+}

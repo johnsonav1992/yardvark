@@ -30,3 +30,8 @@
 .user-logo {
   cursor: pointer;
 }
+
+::ng-deep .fixed-header-menu.p-menu.p-component {
+  position: fixed !important;
+  z-index: 1300 !important;
+}

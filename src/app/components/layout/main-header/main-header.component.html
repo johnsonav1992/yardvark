@@ -1,6 +1,6 @@
 <div class="header" [class.dark-mode]="isDarkMode()">
   <img
-    [src]="`assets/yardvark-logo-${isMobile() ? 'minimal' :'transparent'}.png`"
+    [src]="`assets/yardvark-logo-${isMobile() ? 'minimal' : 'transparent'}.png`"
     alt="logo"
     height="50px"
     width="auto"
@@ -8,12 +8,18 @@
     [style]="{ cursor: 'pointer' }"
   />
   <div class="menu">
-    <p-menu #authMenu [model]="menuItems" [popup]="true" />
+    <p-menu
+      #authMenu
+      [model]="menuItems"
+      [popup]="true"
+      appendTo="body"
+      styleClass="fixed-header-menu"
+    />
     <soil-temperature-display />
     <p-avatar
       shape="circle"
       [label]="isDefaultPicture() ? userInitials() : undefined"
-      (click)="authMenu.show($event)"
+      (click)="showMenu($event)"
       styleClass="user-logo"
       [dt]="avatarDt"
       [style]="{ color: 'var(--p-surface-400)' }"

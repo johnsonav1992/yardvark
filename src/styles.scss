@@ -13,10 +13,17 @@
 html {
   font-family: "Inter", sans-serif;
   color: var(--text-color, var(--p-surface-600));
+  height: 100%;
+  overflow-x: hidden;
 
   &.yv-dark-mode {
     color: var(--text-color-dark, var(--p-surface-300));
   }
+}
+
+body {
+  height: 100%;
+  overflow-x: hidden;
 }
 
 @keyframes spin {
@@ -110,10 +117,24 @@ html {
 }
 
 @media (max-width: 768px) {
-  html,
-  body {
+  html {
+    height: 100%;
+    height: -webkit-fill-available;
     scrollbar-width: none;
     -ms-overflow-style: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  body {
+    height: 100%;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    position: relative;
 
     &::-webkit-scrollbar {
       display: none;
@@ -123,6 +144,8 @@ html {
   .main-content-wrapper {
     scrollbar-width: none;
     -ms-overflow-style: none;
+    position: relative;
+    min-height: calc(100vh - var(--main-header-height));
 
     &::-webkit-scrollbar {
       display: none;

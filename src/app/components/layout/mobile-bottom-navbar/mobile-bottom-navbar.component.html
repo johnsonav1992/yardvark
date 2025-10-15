@@ -37,6 +37,15 @@
       <div class="more-menu-controls">
         <div class="control-item">
           <p-button
+            icon="ti ti-settings"
+            label="Settings"
+            [outlined]="true"
+            routerLink="/settings"
+            (click)="closeMoreMenu()"
+          />
+        </div>
+        <div class="control-item">
+          <p-button
             icon="ti ti-adjustments"
             label="Customize navbar"
             [outlined]="true"
@@ -47,7 +56,6 @@
           <p-button
             icon="ti ti-message-circle"
             label="Give feedback"
-            [outlined]="true"
             (click)="openFeedbackDialog()"
           />
         </div>

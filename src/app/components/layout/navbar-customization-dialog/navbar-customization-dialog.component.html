@@ -1,11 +1,11 @@
 <div class="navbar-customization-dialog">
   <div class="instruction-text">
     <p>
-      Select exactly 4 items to display in your bottom navigation bar. The
+      Select 4 or 5 items to display in your bottom navigation bar. The
       remaining items will be available in the "More" menu.
     </p>
     <p class="selection-count">
-      Selected: <strong>{{ selectedCount() }} / 4</strong>
+      Selected: <strong>{{ selectedCount() }} / 5</strong>
     </p>
   </div>
   <div class="items-grid">
@@ -26,7 +26,7 @@
     <p-button label="Cancel" [outlined]="true" (click)="cancel()" />
     <p-button
       label="Save"
-      [disabled]="selectedCount() !== 4"
+      [disabled]="selectedCount() < 4 || selectedCount() > 5"
       (click)="save()"
     />
   </div>

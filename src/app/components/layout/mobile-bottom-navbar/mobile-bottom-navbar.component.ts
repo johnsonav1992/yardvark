@@ -49,20 +49,35 @@ export class MobileBottomNavbarComponent {
   public isDarkMode = this._globalUiService.isDarkMode;
   public isMoreMenuOpen = signal(false);
 
-  private selectedItemIds = computed(() => {
+  public isSettingsLoaded = computed(() => {
+    return !this._settingsService.settings.isLoading();
+  });
+
+  private selectedItemIds = computed<string[]>(() => {
     const settings = this._settingsService.currentSettings();
-    return settings?.mobileNavbarItems?.length === 4
-      ? settings.mobileNavbarItems
+    const items = settings?.mobileNavbarItems;
+    return items && items.length >= 4 && items.length <= 5
+      ? items
       : DEFAULT_MOBILE_NAV_ITEMS;
   });
 
   public allNavItems = NAV_ITEMS;
 
+  public shouldUseShortLabels = computed(() => {
+    return this.selectedItemIds().length === 5;
+  });
+
   public primaryNavItems = computed(() => {
     const selectedIds = this.selectedItemIds();
+    const useShortLabels = this.shouldUseShortLabels();
+
     const items: NavItem[] = selectedIds
       .map((id) => this.allNavItems.find((item) => item.id === id))
-      .filter((item) => item !== undefined);
+      .filter((item) => item !== undefined)
+      .map((item) => ({
+        ...item,
+        label: useShortLabels && item.shortLabel ? item.shortLabel : item.label
+      }));
 
     items.push({
       id: 'more',

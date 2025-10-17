@@ -4,7 +4,11 @@ import {
   provideZonelessChangeDetection,
   isDevMode
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import {
+  provideRouter,
+  withInMemoryScrolling,
+  withViewTransitions
+} from '@angular/router';
 
 import { mainRoutes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -21,7 +25,13 @@ import { provideServiceWorker } from '@angular/service-worker';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZonelessChangeDetection(),
-    provideRouter(mainRoutes),
+    provideRouter(
+      mainRoutes,
+      withInMemoryScrolling({
+        scrollPositionRestoration: 'top'
+      }),
+      withViewTransitions({ skipInitialTransition: true })
+    ),
     provideHttpClient(withInterceptors([authHttpInterceptorFn])),
     provideAnimationsAsync(),
     providePrimeNG({

@@ -4,10 +4,6 @@
 :root {
   --side-nav-width: 225px;
   --main-header-height: 75px;
-
-  // Viewport offset for mobile navbar positioning
-  // Updated dynamically by ViewportService
-  --viewport-bottom-offset: 0px;
 }
 
 * {
@@ -122,11 +118,8 @@ body {
 
 @media (max-width: 768px) {
   html {
-    // Use dynamic viewport height units for better mobile browser compatibility
-    // Fallback chain for browser support
-    height: 100dvh; // Modern: Chrome 108+, Safari 17+, Firefox 101+
-    height: 100vh; // Fallback
-    height: -webkit-fill-available; // iOS fallback
+    height: 100%;
+    height: -webkit-fill-available;
     scrollbar-width: none;
     -ms-overflow-style: none;
 
@@ -137,8 +130,6 @@ body {
 
   body {
     height: 100%;
-    // Use dynamic viewport height that accounts for browser UI
-    min-height: 100dvh;
     min-height: 100vh;
     min-height: -webkit-fill-available;
     scrollbar-width: none;

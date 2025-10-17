@@ -1,6 +1,6 @@
 .mobile-bottom-navbar {
   position: fixed;
-  bottom: 0; // Will be dynamically adjusted by ViewportService via inline style
+  bottom: 0;
   left: 0;
   right: 0;
   width: 100%;
@@ -9,14 +9,8 @@
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   padding-bottom: env(safe-area-inset-bottom);
-
-  // GPU acceleration for smoother position changes
   transform: translateZ(0);
   -webkit-transform: translateZ(0);
-  will-change: bottom;
-
-  // Smooth transition when viewport offset changes
-  transition: bottom 0.2s ease-out;
 
   :root.yv-dark-mode & {
     background-color: var(--p-surface-900);

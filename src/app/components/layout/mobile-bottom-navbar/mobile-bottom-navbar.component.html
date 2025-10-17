@@ -1,5 +1,5 @@
 @if (isSettingsLoaded()) {
-  <div class="mobile-bottom-navbar" [style.bottom.px]="viewportBottomOffset()">
+  <div class="mobile-bottom-navbar">
     <div class="navbar-items">
       @for (item of primaryNavItems(); track item.id) {
         <a

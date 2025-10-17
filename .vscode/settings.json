@@ -1,4 +1,3 @@
 {
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "githubPullRequests.ignoredPullRequestBranches": ["dev"]
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

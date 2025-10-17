@@ -15,6 +15,7 @@ import { FormsModule } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { SettingsService } from '../../../services/settings.service';
+import { ViewportService } from '../../../services/viewport.service';
 import { DialogService } from 'primeng/dynamicdialog';
 import { FeedbackDialogComponent } from '../../feedback/feedback-dialog/feedback-dialog.component';
 import { NavbarCustomizationDialogComponent } from '../navbar-customization-dialog/navbar-customization-dialog.component';
@@ -45,9 +46,16 @@ export class MobileBottomNavbarComponent {
   private _globalUiService = inject(GlobalUiService);
   private _settingsService = inject(SettingsService);
   private _dialogService = inject(DialogService);
+  private _viewportService = inject(ViewportService);
 
   public isDarkMode = this._globalUiService.isDarkMode;
   public isMoreMenuOpen = signal(false);
+
+  /**
+   * Viewport bottom offset for handling mobile browser UI changes
+   * Adjusts the navbar position when keyboard or address bar changes
+   */
+  public viewportBottomOffset = this._viewportService.viewportBottomOffset;
 
   public isSettingsLoaded = computed(() => {
     return !this._settingsService.settings.isLoading();

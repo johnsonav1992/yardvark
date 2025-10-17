@@ -12,6 +12,12 @@
   padding-left: var(--side-nav-width);
   padding-top: var(--main-header-height);
 
+  // On mobile, absolute positioning handles spacing, no padding needed
+  @media (max-width: 768px) {
+    padding-top: 0;
+    padding-left: 0;
+  }
+
   .inner-content-wrapper {
     padding: 1rem;
   }

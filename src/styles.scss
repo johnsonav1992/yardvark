@@ -118,23 +118,26 @@ body {
 
 @media (max-width: 768px) {
   html {
-    height: 100%;
+    // Use dynamic viewport height with fallbacks
+    height: 100dvh;
+    height: 100vh;
     height: -webkit-fill-available;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-
-    &::-webkit-scrollbar {
-      display: none;
-    }
+    // Prevent body scrolling - content container will scroll instead
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
   }
 
   body {
-    height: 100%;
-    min-height: 100vh;
-    min-height: -webkit-fill-available;
+    // Lock body in place on mobile
+    height: 100dvh;
+    height: 100vh;
+    height: -webkit-fill-available;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    position: relative;
 
     &::-webkit-scrollbar {
       display: none;
@@ -142,10 +145,18 @@ body {
   }
 
   .main-content-wrapper {
+    // Make content wrapper scrollable instead of body
+    position: absolute;
+    top: var(--main-header-height);
+    bottom: 80px; // Height of mobile navbar
+    left: 0;
+    right: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    // Enable smooth momentum scrolling on iOS
+    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    position: relative;
-    min-height: calc(100vh - var(--main-header-height));
 
     &::-webkit-scrollbar {
       display: none;

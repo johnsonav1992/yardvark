@@ -25,6 +25,11 @@
     align-items: center;
     gap: 0.75rem;
   }
+
+  // Use absolute positioning on mobile for better compatibility
+  @media (max-width: 768px) {
+    position: absolute;
+  }
 }
 
 .user-logo {

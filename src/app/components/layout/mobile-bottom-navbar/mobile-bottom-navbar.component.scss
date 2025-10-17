@@ -1,5 +1,7 @@
 .mobile-bottom-navbar {
-  position: fixed;
+  // Use absolute positioning on mobile instead of fixed for better browser compatibility
+  // This prevents the "floating" issue when mobile browser UI changes
+  position: absolute;
   bottom: 0;
   left: 0;
   right: 0;

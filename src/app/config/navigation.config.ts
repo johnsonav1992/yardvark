@@ -1,6 +1,7 @@
 export interface NavItem {
   id: string;
   label: string;
+  shortLabel?: string;
   icon: string;
   routerLink?: string;
   routerLinkActiveOptions?: { exact: boolean };
@@ -11,6 +12,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: 'dashboard',
     label: 'Dashboard',
+    shortLabel: 'Dash',
     icon: 'ti ti-dashboard',
     routerLink: '/dashboard',
     routerLinkActiveOptions: { exact: true }
@@ -18,12 +20,14 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: 'entry-log',
     label: 'Entry Log',
+    shortLabel: 'Entries',
     icon: 'ti ti-calendar',
     routerLink: '/entry-log'
   },
   {
     id: 'soil-data',
     label: 'Soil data',
+    shortLabel: 'Soil',
     icon: 'ti ti-shovel',
     routerLink: '/soil-data',
     routerLinkActiveOptions: { exact: true }
@@ -31,6 +35,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: 'products',
     label: 'Products',
+    shortLabel: 'Products',
     icon: 'ti ti-packages',
     routerLink: '/products',
     routerLinkActiveOptions: { exact: true }
@@ -38,6 +43,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: 'equipment',
     label: 'Equipment',
+    shortLabel: 'Equipment',
     icon: 'ti ti-assembly',
     routerLink: '/equipment',
     routerLinkActiveOptions: { exact: true }
@@ -45,6 +51,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: 'analytics',
     label: 'Analytics',
+    shortLabel: 'Analytics',
     icon: 'ti ti-chart-dots',
     routerLink: '/analytics',
     routerLinkActiveOptions: { exact: true }
@@ -52,6 +59,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     id: 'calculators',
     label: 'Calculators',
+    shortLabel: 'Calculators',
     icon: 'ti ti-calculator',
     routerLink: '/calculators',
     routerLinkActiveOptions: { exact: true }

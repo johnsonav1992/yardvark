@@ -2,7 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import {
   EnvironmentInjector,
   inject,
-  runInInjectionContext
+  runInInjectionContext,
+  provideAppInitializer
 } from '@angular/core';
 import { ApiEndpointRoutes } from '../types/endpoints.types';
 import { environment } from '../../environments/environment';
@@ -10,10 +11,22 @@ import { environment } from '../../environments/environment';
 let environmentInjector: EnvironmentInjector | null = null;
 
 /**
- * Allows HTTP utils to be set up by setting the global environmentInjector for the app.
+ * Provides HTTP utilities initialization for the application.
+ *
+ * @example
+ * ```ts
+ * export const appConfig: ApplicationConfig = {
+ *   providers: [
+ *     provideHttpUtils(),
+ *     // ... other providers
+ *   ]
+ * };
+ * ```
  */
-export const initHttpUtils = () => {
-  environmentInjector = inject(EnvironmentInjector);
+export const provideHttpUtils = () => {
+  return provideAppInitializer(() => {
+    environmentInjector = inject(EnvironmentInjector);
+  });
 };
 
 const createHttpUtil = <T, TArgs extends any[]>(

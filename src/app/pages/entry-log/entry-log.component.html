@@ -13,7 +13,7 @@
       @for (marker of dayMarkers; track marker.id) {
         <div [style.margin-left]="$index !== 0 ? '-.25rem' : ''">
           <p-button
-            (click)="navigateToEntry(marker.data.entry)"
+            (click)="navigateToEntry(marker.data.entry); $event.stopPropagation()"
             [icon]="marker.icon"
             rounded
             size="small"

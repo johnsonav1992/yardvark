@@ -15,6 +15,7 @@ import { AddEditEquipmentComponent } from './pages/equipment/add-edit-equipment/
 import { AnalyticsComponent } from './pages/analytics/analytics.component';
 import { unsavedChangesGuard } from './guards/unsaved-changes-guard';
 import { CalculatorsPage } from './pages/calculators/calculators-page';
+import { AddEntryComponent } from './pages/entry-log/add-entry/add-entry.component';
 
 export const mainRoutes: Routes = [
   {
@@ -35,6 +36,11 @@ export const mainRoutes: Routes = [
   {
     path: 'entry-log',
     component: EntryLogComponent,
+    canActivate: [authGuardFn]
+  },
+  {
+    path: 'entry-log/add',
+    component: AddEntryComponent,
     canActivate: [authGuardFn]
   },
   {

@@ -46,6 +46,18 @@ export class Entry {
   @Column()
   soilTemperatureUnit: string;
 
+  @Column('decimal', {
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseFloat(value),
+    },
+    nullable: true,
+  })
+  mowingHeight?: number;
+
+  @Column({ nullable: true })
+  mowingHeightUnit?: string;
+
   @ManyToMany(() => Activity, (activity) => activity.entries)
   @JoinTable({
     name: 'entry_activities',

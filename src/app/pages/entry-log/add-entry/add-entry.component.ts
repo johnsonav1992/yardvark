@@ -48,6 +48,7 @@ import { GlobalUiService } from '../../../services/global-ui.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { ACTIVITY_IDS } from '../../../constants/activity-constants';
 
 export type EntryFormGroup = FormGroup<{
   title: FormControl<string>;
@@ -59,6 +60,7 @@ export type EntryFormGroup = FormGroup<{
   productsSelected: FormControl<Product[]>;
   notes: FormControl<string | null>;
   images: FormControl<File[]>;
+  mowingHeight: FormControl<number | null>;
 }>;
 
 @Component({
@@ -99,6 +101,7 @@ export class AddEntryComponent implements OnInit {
   public throwErrorToast = injectErrorToast();
 
   public maxFileUploadSize = MAX_FILE_LARGE_UPLOAD_SIZE;
+  public ACTIVITY_IDS = ACTIVITY_IDS;
 
   public isMobile = this._globalUiService.isMobile;
   public darkMode = this._globalUiService.isDarkMode;
@@ -129,6 +132,7 @@ export class AddEntryComponent implements OnInit {
 
   public entryForms = new FormArray<EntryFormGroup>([]);
   public activeIndex = signal<number>(0);
+  public hasMowingActivity = signal<boolean>(false);
 
   public isLoading = signal(false);
   public shouldFetchSoilData = signal(false);
@@ -173,7 +177,8 @@ export class AddEntryComponent implements OnInit {
       products: new FormArray<EntryProductRow>([]),
       productsSelected: new FormControl<Product[]>([], { nonNullable: true }),
       notes: new FormControl<string | null>(null),
-      images: new FormControl<File[]>([], { nonNullable: true })
+      images: new FormControl<File[]>([], { nonNullable: true }),
+      mowingHeight: new FormControl<number | null>(null)
     });
 
     form.controls.notes.valueChanges.subscribe((value) => {
@@ -182,6 +187,14 @@ export class AddEntryComponent implements OnInit {
           emitEvent: false
         });
       }
+    });
+
+    form.controls.activities.valueChanges.subscribe((activities) => {
+      const hasMowing =
+        activities?.some((activity) => activity.id === ACTIVITY_IDS.MOW) ??
+        false;
+
+      this.hasMowingActivity.set(hasMowing);
     });
 
     return form;
@@ -290,6 +303,8 @@ export class AddEntryComponent implements OnInit {
           productQuantityUnit: row.quantityUnit!
         })) || [],
       soilTemperatureUnit: this._soilTempService.temperatureUnit(),
+      mowingHeight: form.value.mowingHeight ?? null,
+      mowingHeightUnit: 'inches',
       images: form.value.images || []
     }));
 

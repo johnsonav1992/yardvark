@@ -1,0 +1,11 @@
+export const ACTIVITY_IDS = {
+  MOW: 1,
+  EDGE: 2,
+  TRIM: 3,
+  DETHATCH: 4,
+  BLOW: 5,
+  AERATE: 6,
+  WATER: 7,
+  LAWN_LEVELING: 8,
+  PRODUCT_APPLICATION: 9
+} as const;

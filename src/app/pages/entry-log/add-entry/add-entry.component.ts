@@ -61,6 +61,7 @@ export type EntryFormGroup = FormGroup<{
   notes: FormControl<string | null>;
   images: FormControl<File[]>;
   mowingHeight: FormControl<number | null>;
+  hasMowingActivity: FormControl<boolean | null>;
 }>;
 
 @Component({
@@ -132,7 +133,6 @@ export class AddEntryComponent implements OnInit {
 
   public entryForms = new FormArray<EntryFormGroup>([]);
   public activeIndex = signal<number>(0);
-  public hasMowingActivity = signal<boolean>(false);
 
   public isLoading = signal(false);
   public shouldFetchSoilData = signal(false);
@@ -178,7 +178,8 @@ export class AddEntryComponent implements OnInit {
       productsSelected: new FormControl<Product[]>([], { nonNullable: true }),
       notes: new FormControl<string | null>(null),
       images: new FormControl<File[]>([], { nonNullable: true }),
-      mowingHeight: new FormControl<number | null>(null)
+      mowingHeight: new FormControl<number | null>(null),
+      hasMowingActivity: new FormControl<boolean>(false)
     });
 
     form.controls.notes.valueChanges.subscribe((value) => {
@@ -194,7 +195,7 @@ export class AddEntryComponent implements OnInit {
         activities?.some((activity) => activity.id === ACTIVITY_IDS.MOW) ??
         false;
 
-      this.hasMowingActivity.set(hasMowing);
+      form.controls.hasMowingActivity.setValue(hasMowing);
     });
 
     return form;

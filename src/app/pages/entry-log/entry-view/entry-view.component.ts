@@ -100,7 +100,8 @@ export class EntryViewComponent {
     products: new FormArray<EntryProductRow>([]),
     productsSelected: new FormControl<EntryProduct[]>([]),
     notes: new FormControl<string | null>(null),
-    images: new FormControl<File[]>([])
+    images: new FormControl<File[]>([]),
+    mowingHeight: new FormControl<number | null>(null)
   });
 
   public entryId = toSignal<number>(
@@ -246,7 +247,8 @@ export class EntryViewComponent {
         activities: this.entryData()?.activities,
         lawnSegments: this.entryData()?.lawnSegments,
         productsSelected: this.entryData()?.products,
-        notes: this.entryData()?.notes
+        notes: this.entryData()?.notes,
+        mowingHeight: this.entryData()?.mowingHeight
       });
 
       if (!this.editForm.controls.products.length) {
@@ -275,6 +277,8 @@ export class EntryViewComponent {
           productQuantityUnit: row.quantityUnit!
         })) || [],
       notes: this.editForm.value.notes || '',
+      mowingHeight: this.editForm.value.mowingHeight ?? null,
+      mowingHeightUnit: 'inches',
       images: this.editForm.value.images?.filter(
         (img) => !this.getCurrentEntryImage(img)
       )

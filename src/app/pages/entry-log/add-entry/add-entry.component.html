@@ -87,7 +87,7 @@
                   appendTo="body"
                 />
               </div>
-              @if (hasMowingActivity()) {
+              @if (form.controls.hasMowingActivity.value) {
                 <span class="input-wrapper">
                   <div [style]="{ display: 'flex' }">
                     <p>Mowing Height (optional):</p>

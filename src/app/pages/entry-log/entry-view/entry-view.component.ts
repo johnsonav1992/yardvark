@@ -172,17 +172,31 @@ export class EntryViewComponent {
     entryData ? this.entryData.set(entryData) : this.shouldFetchEntry.set(true);
   }
 
-  public deleteEntry() {
+  public openConfirmDelete(): void {
+    this._confirmationService.confirm({
+      message: 'Are you sure you want to delete this entry?',
+      header: 'Delete Entry',
+      icon: 'ti ti-alert-triangle',
+      accept: () => {
+        this.deleteEntry();
+      },
+      reject: () => {}
+    });
+  }
+
+  private deleteEntry(): void {
     const dateOfDeletedEntry = this.entryData()?.date;
 
     this._entryService.deleteEntry(this.entryId()!).subscribe(() => {
-      this._router.navigate(['entry-log'], {
+      this._entryService.recentEntry.reload();
+      this._entryService.lastMow.reload();
+      this._entryService.lastProductApp.reload();
+
+      this._router.navigate(['/entry-log'], {
         queryParams: {
-          date: new Date(dateOfDeletedEntry!)
+          date: dateOfDeletedEntry
         }
       });
-
-      this._entryService.recentEntry.reload();
     });
   }
 

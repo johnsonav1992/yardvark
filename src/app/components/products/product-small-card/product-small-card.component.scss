@@ -11,6 +11,19 @@
     gap: 0.5rem;
     align-items: center;
 
+    .image-container {
+      width: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+
+      img {
+        width: auto;
+        max-width: 100%;
+      }
+    }
+
     .sub-text {
       font-size: 0.75rem;
       color: var(--p-surface-400);

@@ -44,7 +44,7 @@
   } @else {
     <div class="cards-container" cdkDropList (cdkDropListDropped)="onWidgetDrop($event)" cdkDropListOrientation="mixed">
         @for (widgetId of orderedVisibleWidgets(); track widgetId) {
-          <div cdkDrag class="widget-wrapper">
+          <div cdkDrag [cdkDragDisabled]="isAnyWidgetLoading()" [cdkDragStartDelay]="0" class="widget-wrapper">
             @switch (widgetId) {
               @case ('recent-entry') {
                 @if (recentEntry.isLoading()) {

@@ -2,10 +2,12 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  padding-bottom: 100px; // Space for sticky buttons
 
-  .header-controls {
+  .add-another-controls {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
+    margin-top: 1rem;
     margin-bottom: 0.5rem;
   }
 
@@ -28,6 +30,27 @@
     .header-actions {
       display: flex;
       gap: 0.25rem;
+    }
+  }
+
+  .button-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 1rem;
+    background-color: var(--p-surface-0);
+    border-top: 1px solid var(--p-surface-200);
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+
+    :root.yv-dark-mode & {
+      background-color: var(--p-surface-900);
+      border-top-color: var(--p-surface-700);
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
     }
   }
 }
@@ -107,12 +130,52 @@
   }
 
   @media (max-width: 800px) {
-    .header-controls {
-      justify-content: stretch;
+    .add-another-controls {
+      justify-content: center;
 
       p-button {
         width: 100%;
       }
+    }
+
+    .date-title-wrapper {
+      flex-direction: column;
+      gap: 1rem;
+    }
+  }
+}
+
+@media (max-width: 800px) {
+  .entries-container {
+    padding-bottom: 220px; // More space for stacked buttons + mobile navbar on mobile
+
+    .button-container {
+      flex-direction: column;
+      bottom: 68px; // Position above mobile navbar (60px navbar + 8px padding)
+      padding: 1rem;
+      z-index: 99; // Below mobile navbar (which is z-index: 1000) but above content
+
+      p-button {
+        width: 100%;
+
+        button {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+:host::ng-deep .button-container {
+  p-button button {
+    width: auto;
+  }
+}
+
+@media (max-width: 800px) {
+  :host::ng-deep .button-container {
+    p-button button {
+      width: 100%;
     }
   }
 }

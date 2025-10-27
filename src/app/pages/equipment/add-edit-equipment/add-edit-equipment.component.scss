@@ -3,6 +3,7 @@
   flex-direction: column;
   margin-bottom: 1rem;
   gap: 1rem;
+  padding-bottom: 80px;
 
   .inner-form-container {
     display: flex;
@@ -24,10 +25,19 @@
   }
 
   .button-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     display: flex;
     gap: 0.5rem;
     justify-content: flex-end;
     align-items: center;
+    padding: 1rem;
+    background-color: var(--p-surface-0);
+    border-top: 1px solid var(--p-surface-200);
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 100;
 
     .master-user-controls {
       margin-right: auto;
@@ -43,6 +53,18 @@
   flex-direction: column;
   gap: 0.25rem;
   width: 100%;
+}
+
+:host::ng-deep .p-datepicker {
+  width: 100%;
+
+  input {
+    width: 100%;
+  }
+
+  .p-datepicker-input-icon-container {
+    width: 100%;
+  }
 }
 
 :host::ng-deep .p-fileupload-content {
@@ -107,5 +129,32 @@
   .upload-icon {
     font-size: 5rem;
     color: var(--p-surface-300);
+  }
+}
+
+@media (max-width: 800px) {
+  .form-container {
+    padding-bottom: 220px;
+
+    .grouped-bottom-section {
+      flex-direction: column;
+    }
+
+    .button-container {
+      flex-direction: column;
+      bottom: 68px;
+      padding: 1rem;
+      z-index: 99;
+    }
+  }
+
+  :host::ng-deep .form-container .button-container {
+    p-button {
+      width: 100%;
+
+      button {
+        width: 100%;
+      }
+    }
   }
 }

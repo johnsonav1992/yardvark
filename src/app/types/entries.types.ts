@@ -10,6 +10,8 @@ export type Entry = {
   notes: string;
   soilTemperature: number | string;
   soilTemperatureUnit: string;
+  mowingHeight?: number;
+  mowingHeightUnit?: string;
   activities: Activity[];
   lawnSegments: LawnSegment[];
   products: EntryProduct[];
@@ -42,6 +44,8 @@ export type EntryCreationRequest = {
     productQuantityUnit: string;
   }>;
   soilTemperatureUnit: string;
+  mowingHeight: number | null;
+  mowingHeightUnit: string;
   imageUrls?: string[];
   images?: File[];
 };

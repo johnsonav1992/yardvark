@@ -31,44 +31,59 @@
                 </h3>
               }
             }
-            <div class="button-container">
-              <p-button
-                [label]="isInEditMode() ? 'Save' : 'Edit'"
-                [icon]="
-                  isLoading()
-                    ? 'ti ti-loader-2 icon-spin'
-                    : isInEditMode()
-                      ? 'ti ti-check'
-                      : 'ti ti-pencil'
-                "
-                outlined
-                (click)="isInEditMode() ? submitEdits() : toggleEditMode()"
-                [severity]="isInEditMode() ? 'success' : 'secondary'"
-              />
-              <p-button
-                [label]="isInEditMode() ? 'Cancel' : 'Delete'"
-                [icon]="isInEditMode() ? 'ti ti-x' : 'ti ti-trash-x'"
-                outlined
-                (click)="isInEditMode() ? toggleEditMode() : deleteEntry()"
-                severity="danger"
-              />
-            </div>
+            @if (!isMobile()) {
+              <div class="button-container">
+                <p-button
+                  [label]="isInEditMode() ? 'Save' : 'Edit'"
+                  [icon]="
+                    isLoading()
+                      ? 'ti ti-loader-2 icon-spin'
+                      : isInEditMode()
+                        ? 'ti ti-check'
+                        : 'ti ti-pencil'
+                  "
+                  outlined
+                  (click)="isInEditMode() ? submitEdits() : toggleEditMode()"
+                  [severity]="isInEditMode() ? 'success' : 'secondary'"
+                />
+                <p-button
+                  [label]="isInEditMode() ? 'Cancel' : 'Delete'"
+                  [icon]="isInEditMode() ? 'ti ti-x' : 'ti ti-trash-x'"
+                  outlined
+                  (click)="isInEditMode() ? toggleEditMode() : openConfirmDelete()"
+                  severity="danger"
+                />
+              </div>
+            }
           }
         </div>
         @if (isInEditMode()) {
           <div class="time-title-edit-container">
-            <p-datePicker
-              timeOnly
-              [hourFormat]="'12'"
-              formControlName="time"
-              placeholder="Enter time"
-              [style]="!isMobile() ? { width: '110px' } : {}"
-            />
             @if (isMobile()) {
-              <input
-                pInputText
-                formControlName="title"
-                placeholder="Enter title"
+              <div class="edit-field-wrapper">
+                <h3>Time:</h3>
+                <p-datePicker
+                  timeOnly
+                  [hourFormat]="'12'"
+                  formControlName="time"
+                  placeholder="Enter time"
+                />
+              </div>
+              <div class="edit-field-wrapper">
+                <h3>Title (optional):</h3>
+                <input
+                  pInputText
+                  formControlName="title"
+                  placeholder="Enter title"
+                />
+              </div>
+            } @else {
+              <p-datePicker
+                timeOnly
+                [hourFormat]="'12'"
+                formControlName="time"
+                placeholder="Enter time"
+                [style]="{ width: '110px' }"
               />
             }
           </div>
@@ -131,6 +146,30 @@
               }
             }
           </div>
+          @if (entryData()?.mowingHeight || isInEditMode()) {
+            <div class="section-container">
+              <h3>Mowing Height:</h3>
+              @if (isInEditMode()) {
+                <input
+                  pInputText
+                  type="number"
+                  step="0.25"
+                  min="0.5"
+                  max="6"
+                  formControlName="mowingHeight"
+                  placeholder="e.g., 3.5"
+                  [style]="{ width: isMobile() ? '100%' : '50%' }"
+                />
+                <small class="text-muted">Height in inches</small>
+              } @else {
+                @if (entryData()?.mowingHeight) {
+                  <p>{{ entryData()?.mowingHeight }}"</p>
+                } @else {
+                  <p>N/A</p>
+                }
+              }
+            </div>
+          }
           <div class="section-container">
             <h3>Lawn segments:</h3>
             @if (isInEditMode()) {
@@ -231,6 +270,30 @@
               <!-- Noop because primeng is dumb  -->
               <ng-template #file></ng-template>
             </p-fileUpload>
+          </div>
+        }
+        @if (isMobile()) {
+          <div class="mobile-action-buttons">
+            <p-button
+              [label]="isInEditMode() ? 'Save' : 'Edit'"
+              [icon]="
+                isLoading()
+                  ? 'ti ti-loader-2 icon-spin'
+                  : isInEditMode()
+                    ? 'ti ti-check'
+                    : 'ti ti-pencil'
+              "
+              outlined
+              (click)="isInEditMode() ? submitEdits() : toggleEditMode()"
+              [severity]="isInEditMode() ? 'success' : 'secondary'"
+            />
+            <p-button
+              [label]="isInEditMode() ? 'Cancel' : 'Delete'"
+              [icon]="isInEditMode() ? 'ti ti-x' : 'ti ti-trash-x'"
+              outlined
+              (click)="isInEditMode() ? toggleEditMode() : openConfirmDelete()"
+              severity="danger"
+            />
           </div>
         }
       </div>

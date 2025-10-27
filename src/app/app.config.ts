@@ -1,6 +1,5 @@
 import {
   ApplicationConfig,
-  provideAppInitializer,
   provideZonelessChangeDetection,
   isDevMode
 } from '@angular/core';
@@ -17,7 +16,7 @@ import { providePrimeNG } from 'primeng/config';
 import { authHttpInterceptorFn, provideAuth0 } from '@auth0/auth0-angular';
 import { theme } from './theme/theme';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { initHttpUtils } from './utils/httpUtils';
+import { provideHttpUtils } from './utils/httpUtils';
 import { YV_DARK_MODE_SELECTOR } from './constants/style-constants';
 import { environment } from '../environments/environment';
 import { provideServiceWorker } from '@angular/service-worker';
@@ -63,7 +62,7 @@ export const appConfig: ApplicationConfig = {
         ]
       }
     }),
-    provideAppInitializer(() => initHttpUtils()),
+    provideHttpUtils(),
     MessageService,
     ConfirmationService,
     provideServiceWorker('ngsw-worker.js', {

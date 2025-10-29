@@ -48,9 +48,9 @@ export class LawnMapComponent implements OnInit, OnDestroy {
 
   private map: L.Map | null = null;
   private drawnItems = new L.FeatureGroup();
-  private segmentLayers = new Map<number, L.Rectangle>();
-  private tempLayer: L.Rectangle | null = null;
-  private unsavedLayers = new Map<L.Rectangle, { coordinates: number[][], size: number }>();
+  private segmentLayers = new Map<number, L.Rectangle | L.Polygon>();
+  private tempLayer: L.Rectangle | L.Polygon | null = null;
+  private unsavedLayers = new Map<L.Rectangle | L.Polygon, { coordinates: number[][], size: number }>();
 
   public showSegmentDialog = signal(false);
   public currentSegment = signal<Partial<LawnSegment> | null>(null);
@@ -126,7 +126,15 @@ export class LawnMapComponent implements OnInit, OnDestroy {
           showArea: false,
           metric: false
         },
-        polygon: false,
+        polygon: {
+          shapeOptions: {
+            color: this.selectedColor(),
+            fillOpacity: 0.3
+          },
+          repeatMode: true,
+          showArea: false,
+          allowIntersection: false
+        },
         circle: false,
         marker: false,
         polyline: false,
@@ -155,10 +163,22 @@ export class LawnMapComponent implements OnInit, OnDestroy {
   }
 
   private onShapeCreated(event: any): void {
-    const layer = event.layer as L.Rectangle;
-    const bounds = layer.getBounds();
-    const coordinates = this.boundsToCoordinates(bounds);
-    const area = this.calculateArea(bounds);
+    const layer = event.layer;
+    const layerType = event.layerType;
+    
+    let coordinates: number[][];
+    let area: number;
+    
+    if (layerType === 'rectangle') {
+      const bounds = layer.getBounds();
+      coordinates = this.boundsToCoordinates(bounds);
+      area = this.calculateRectangleArea(bounds);
+    } else if (layerType === 'polygon') {
+      coordinates = this.polygonToCoordinates(layer);
+      area = this.calculatePolygonArea(layer);
+    } else {
+      return;
+    }
 
     this.unsavedLayers.set(layer, { coordinates, size: area });
 
@@ -195,14 +215,19 @@ export class LawnMapComponent implements OnInit, OnDestroy {
 
   private onShapeEdited(event: any): void {
     const layers = event.layers;
-    layers.eachLayer((layer: L.Rectangle) => {
+    layers.eachLayer((layer: any) => {
       const segmentId = this.getSegmentIdForLayer(layer);
       if (segmentId) {
         const segment = this.lawnSegments()?.find((s) => s.id === segmentId);
         if (segment) {
-          const bounds = layer.getBounds();
-          segment.coordinates = [this.boundsToCoordinates(bounds)];
-          segment.size = this.calculateArea(bounds);
+          if (layer.getBounds) {
+            const bounds = layer.getBounds();
+            segment.coordinates = [this.boundsToCoordinates(bounds)];
+            segment.size = this.calculateRectangleArea(bounds);
+          } else if (layer.getLatLngs) {
+            segment.coordinates = [this.polygonToCoordinates(layer)];
+            segment.size = this.calculatePolygonArea(layer);
+          }
           this.updateSegment(segment);
         }
       }
@@ -238,25 +263,36 @@ export class LawnMapComponent implements OnInit, OnDestroy {
     segments.forEach((segment) => {
       if (segment.coordinates && segment.coordinates[0]) {
         const coords = segment.coordinates[0];
-        const bounds = L.latLngBounds([
-          [coords[0][1], coords[0][0]],
-          [coords[2][1], coords[2][0]]
-        ]);
+        let shape: L.Rectangle | L.Polygon;
+        
+        if (this.isRectangle(coords)) {
+          const bounds = L.latLngBounds([
+            [coords[0][1], coords[0][0]],
+            [coords[2][1], coords[2][0]]
+          ]);
+          
+          shape = L.rectangle(bounds, {
+            color: segment.color || DEFAULT_LAWN_SEGMENT_COLOR,
+            fillOpacity: 0.3
+          });
+        } else {
+          const latlngs = coords.slice(0, -1).map(coord => [coord[1], coord[0]] as [number, number]);
+          
+          shape = L.polygon(latlngs, {
+            color: segment.color || DEFAULT_LAWN_SEGMENT_COLOR,
+            fillOpacity: 0.3
+          });
+        }
 
-        const rectangle = L.rectangle(bounds, {
-          color: segment.color || DEFAULT_LAWN_SEGMENT_COLOR,
-          fillOpacity: 0.3
-        });
-
-        rectangle.bindPopup(`
+        shape.bindPopup(`
           <div style="text-align: center;">
             <strong>${segment.name}</strong><br/>
             ${segment.size.toFixed(2)} ft²
           </div>
         `);
 
-        this.drawnItems.addLayer(rectangle);
-        this.segmentLayers.set(segment.id, rectangle);
+        this.drawnItems.addLayer(shape);
+        this.segmentLayers.set(segment.id, shape);
       }
     });
 
@@ -268,13 +304,21 @@ export class LawnMapComponent implements OnInit, OnDestroy {
     }
   }
 
-  private getSegmentIdForLayer(layer: L.Rectangle): number | null {
+  private getSegmentIdForLayer(layer: L.Rectangle | L.Polygon): number | null {
     for (const [id, storedLayer] of this.segmentLayers.entries()) {
       if (storedLayer === layer) {
         return id;
       }
     }
     return null;
+  }
+
+  private isRectangle(coords: number[][]): boolean {
+    return coords.length === 5 && 
+           coords[0][0] === coords[3][0] &&
+           coords[0][1] === coords[1][1] &&
+           coords[1][0] === coords[2][0] &&
+           coords[2][1] === coords[3][1];
   }
 
   private boundsToCoordinates(bounds: L.LatLngBounds): number[][] {
@@ -289,7 +333,16 @@ export class LawnMapComponent implements OnInit, OnDestroy {
     ];
   }
 
-  private calculateArea(bounds: L.LatLngBounds): number {
+  private polygonToCoordinates(polygon: L.Polygon): number[][] {
+    const latlngs = polygon.getLatLngs()[0] as L.LatLng[];
+    const coords = latlngs.map((latlng) => [latlng.lng, latlng.lat]);
+    if (coords.length > 0) {
+      coords.push([...coords[0]]);
+    }
+    return coords;
+  }
+
+  private calculateRectangleArea(bounds: L.LatLngBounds): number {
     const sw = bounds.getSouthWest();
     const ne = bounds.getNorthEast();
 
@@ -307,6 +360,34 @@ export class LawnMapComponent implements OnInit, OnDestroy {
 
     const areaSquareMeters = Math.abs(widthMeters * heightMeters);
     const areaSquareFeet = areaSquareMeters * 10.7639;
+
+    return Math.round(areaSquareFeet * 100) / 100;
+  }
+
+  private calculatePolygonArea(polygon: L.Polygon): number {
+    const latlngs = polygon.getLatLngs()[0] as L.LatLng[];
+    
+    if (latlngs.length < 3) {
+      return 0;
+    }
+
+    const R = 6371000;
+    let area = 0;
+
+    for (let i = 0; i < latlngs.length; i++) {
+      const p1 = latlngs[i];
+      const p2 = latlngs[(i + 1) % latlngs.length];
+      
+      const lat1 = (p1.lat * Math.PI) / 180;
+      const lat2 = (p2.lat * Math.PI) / 180;
+      const lng1 = (p1.lng * Math.PI) / 180;
+      const lng2 = (p2.lng * Math.PI) / 180;
+      
+      area += (lng2 - lng1) * (2 + Math.sin(lat1) + Math.sin(lat2));
+    }
+
+    area = Math.abs((area * R * R) / 2);
+    const areaSquareFeet = area * 10.7639;
 
     return Math.round(areaSquareFeet * 100) / 100;
   }

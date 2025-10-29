@@ -171,7 +171,10 @@ export class LawnMapComponent implements OnInit, OnDestroy {
       this.onShapeDeleted(event);
     });
 
-    this.renderSegments(this.lawnSegments() || []);
+    const currentSegments = this.lawnSegments();
+    if (currentSegments && currentSegments.length > 0) {
+      this.renderSegments(currentSegments);
+    }
   }
 
   private onShapeCreated(event: any): void {
@@ -417,11 +420,12 @@ export class LawnMapComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this._throwSuccessToast('Lawn segment created');
-          this._lawnSegmentsService.lawnSegments.reload();
           if (this.tempLayer) {
+            this.drawnItems.removeLayer(this.tempLayer);
             this.unsavedLayers.delete(this.tempLayer);
             this.tempLayer = null;
           }
+          this._lawnSegmentsService.lawnSegments.reload();
           this.showSegmentDialog.set(false);
           this.currentSegment.set(null);
         },

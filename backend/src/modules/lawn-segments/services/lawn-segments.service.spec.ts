@@ -19,6 +19,8 @@ describe('LawnSegmentsService', () => {
   const mockLawnSegmentCreationRequest: LawnSegmentCreationRequest = {
     name: 'Front Yard',
     size: 2500.5,
+    coordinates: null,
+    color: '#3388ff',
   };
 
   const mockLawnSegment: LawnSegment = {
@@ -26,6 +28,8 @@ describe('LawnSegmentsService', () => {
     userId: 'user-123',
     name: 'Front Yard',
     size: 2500.5,
+    coordinates: null,
+    color: '#3388ff',
     entries: [],
   };
 
@@ -36,6 +40,8 @@ describe('LawnSegmentsService', () => {
       userId: 'user-123',
       name: 'Back Yard',
       size: 3200.75,
+      coordinates: null,
+      color: '#3388ff',
       entries: [],
     },
     {
@@ -43,6 +49,8 @@ describe('LawnSegmentsService', () => {
       userId: 'user-123',
       name: 'Side Yard',
       size: 800.25,
+      coordinates: null,
+      color: '#3388ff',
       entries: [],
     },
   ];
@@ -151,6 +159,8 @@ describe('LawnSegmentsService', () => {
       const differentSegmentRequest: LawnSegmentCreationRequest = {
         name: 'Pool Area',
         size: 750.25,
+        coordinates: null,
+        color: '#3388ff',
       };
 
       const expectedCreated = {
@@ -162,6 +172,8 @@ describe('LawnSegmentsService', () => {
         userId: 'user-456',
         name: 'Pool Area',
         size: 750.25,
+        coordinates: null,
+        color: '#3388ff',
         entries: [],
       };
 
@@ -181,6 +193,8 @@ describe('LawnSegmentsService', () => {
       const largeSegmentRequest: LawnSegmentCreationRequest = {
         name: 'Main Lawn',
         size: 50000.99,
+        coordinates: null,
+        color: '#3388ff',
       };
 
       const createdSegment = { ...largeSegmentRequest, userId: 'user-123' };
@@ -189,6 +203,8 @@ describe('LawnSegmentsService', () => {
         userId: 'user-123',
         name: 'Main Lawn',
         size: 50000.99,
+        coordinates: null,
+        color: '#3388ff',
         entries: [],
       };
 
@@ -207,6 +223,8 @@ describe('LawnSegmentsService', () => {
       const smallSegmentRequest: LawnSegmentCreationRequest = {
         name: 'Flower Bed',
         size: 25.75,
+        coordinates: null,
+        color: '#3388ff',
       };
 
       const createdSegment = { ...smallSegmentRequest, userId: 'user-123' };
@@ -215,6 +233,8 @@ describe('LawnSegmentsService', () => {
         userId: 'user-123',
         name: 'Flower Bed',
         size: 25.75,
+        coordinates: null,
+        color: '#3388ff',
         entries: [],
       };
 
@@ -233,6 +253,8 @@ describe('LawnSegmentsService', () => {
       const specialNameRequest: LawnSegmentCreationRequest = {
         name: "Bob's Corner Lot #1",
         size: 1200.5,
+        coordinates: null,
+        color: '#3388ff',
       };
 
       const createdSegment = { ...specialNameRequest, userId: 'user-123' };
@@ -241,6 +263,8 @@ describe('LawnSegmentsService', () => {
         userId: 'user-123',
         name: "Bob's Corner Lot #1",
         size: 1200.5,
+        coordinates: null,
+        color: '#3388ff',
         entries: [],
       };
 
@@ -454,6 +478,8 @@ describe('LawnSegmentsService', () => {
       const emptyNameRequest: LawnSegmentCreationRequest = {
         name: '',
         size: 100.0,
+        coordinates: null,
+        color: '#3388ff',
       };
 
       const createdSegment = { ...emptyNameRequest, userId: 'user-123' };
@@ -462,6 +488,8 @@ describe('LawnSegmentsService', () => {
         userId: 'user-123',
         name: '',
         size: 100.0,
+        coordinates: null,
+        color: '#3388ff',
         entries: [],
       };
 
@@ -481,6 +509,8 @@ describe('LawnSegmentsService', () => {
       const longNameRequest: LawnSegmentCreationRequest = {
         name: longName,
         size: 500.0,
+        coordinates: null,
+        color: '#3388ff',
       };
 
       const createdSegment = { ...longNameRequest, userId: 'user-123' };
@@ -489,6 +519,8 @@ describe('LawnSegmentsService', () => {
         userId: 'user-123',
         name: longName,
         size: 500.0,
+        coordinates: null,
+        color: '#3388ff',
         entries: [],
       };
 

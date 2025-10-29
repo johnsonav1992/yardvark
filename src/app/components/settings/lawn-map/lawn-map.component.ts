@@ -19,6 +19,7 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { injectErrorToast, injectSuccessToast } from '../../../utils/toastUtils';
+import { injectSettingsService } from '../../../services/settings.service';
 
 @Component({
   selector: 'lawn-map',
@@ -36,11 +37,13 @@ import { injectErrorToast, injectSuccessToast } from '../../../utils/toastUtils'
 export class LawnMapComponent implements OnInit, OnDestroy {
   private _lawnSegmentsService = inject(LawnSegmentsService);
   private _globalUiService = inject(GlobalUiService);
+  private _settingsService = injectSettingsService();
   private _throwErrorToast = injectErrorToast();
   private _throwSuccessToast = injectSuccessToast();
 
   public lawnSegments = model.required<LawnSegment[] | undefined>();
   public isMobile = this._globalUiService.isMobile;
+  public currentSettings = this._settingsService.currentSettings;
 
   private map: L.Map | null = null;
   private drawnItems = new L.FeatureGroup();
@@ -69,9 +72,16 @@ export class LawnMapComponent implements OnInit, OnDestroy {
   }
 
   private initializeMap(): void {
+    const settings = this.currentSettings();
+    const location = settings?.location;
+    const defaultCenter: [number, number] = location 
+      ? [location.lat, location.long]
+      : [39.8283, -98.5795];
+    const defaultZoom = location ? 18 : 4;
+
     this.map = L.map('lawn-map', {
-      center: [39.8283, -98.5795],
-      zoom: 4,
+      center: defaultCenter,
+      zoom: defaultZoom,
       zoomControl: true
     });
 

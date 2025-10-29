@@ -1,6 +1,12 @@
 <p-card>
   <div class="map-header">
     <h4>Lawn Map</h4>
+    @if (!currentSettings()?.location) {
+      <small class="location-warning">
+        <i class="ti ti-alert-circle"></i>
+        Set your location in the settings above to see your property on the map
+      </small>
+    }
     <div class="color-picker-wrapper">
       <label>Drawing Color:</label>
       <p-colorPicker [(ngModel)]="selectedColor" />
@@ -11,7 +17,7 @@
     <small>
       <i class="ti ti-info-circle"></i>
       Use the rectangle tool to draw lawn segments on the map. Square footage is
-      auto-calculated.
+      auto-calculated. Use the edit/delete tools to modify or remove segments.
     </small>
   </div>
 </p-card>

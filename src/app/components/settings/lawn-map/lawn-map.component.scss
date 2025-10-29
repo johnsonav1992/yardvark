@@ -6,9 +6,19 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 
   h4 {
     margin: 0;
+  }
+
+  .location-warning {
+    color: var(--p-amber-500);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
   }
 
   .color-picker-wrapper {

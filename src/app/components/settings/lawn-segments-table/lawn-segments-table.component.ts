@@ -62,7 +62,15 @@ export class LawnSegmentsTableComponent implements OnDestroy {
 
   public addLawnSegmentRow(): void {
     const newId = Math.random();
-    const newRow = { id: newId, name: '', area: 0, userId: '', size: 0 };
+    const newRow = { 
+      id: newId, 
+      name: '', 
+      area: 0, 
+      userId: '', 
+      size: 0,
+      color: '#3388ff',
+      coordinates: null
+    };
 
     this.lawnSegments.update((prev) => {
       return [...prev!, newRow];

@@ -50,6 +50,7 @@ export class LawnMapComponent implements OnInit, OnDestroy {
   private drawnItems = new L.FeatureGroup();
   private segmentLayers = new Map<number, L.Rectangle>();
   private tempLayer: L.Rectangle | null = null;
+  private unsavedLayers = new Map<L.Rectangle, { coordinates: number[][], size: number }>();
 
   public showSegmentDialog = signal(false);
   public currentSegment = signal<Partial<LawnSegment> | null>(null);
@@ -157,15 +158,36 @@ export class LawnMapComponent implements OnInit, OnDestroy {
     const coordinates = this.boundsToCoordinates(bounds);
     const area = this.calculateArea(bounds);
 
-    this.tempLayer = layer;
-    this.currentSegment.set({
-      name: '',
-      size: area,
-      coordinates: [coordinates],
-      color: this.selectedColor()
+    this.unsavedLayers.set(layer, { coordinates, size: area });
+
+    layer.setStyle({
+      color: this.selectedColor(),
+      fillOpacity: 0.3,
+      dashArray: '5, 5'
     });
 
-    this.showSegmentDialog.set(true);
+    layer.bindPopup(
+      `<div style="text-align: center;">
+        <strong>Unsaved Segment</strong><br/>
+        ${area.toFixed(2)} ft²<br/>
+        <small>Click to name and save</small>
+      </div>`
+    );
+
+    layer.on('click', () => {
+      const data = this.unsavedLayers.get(layer);
+      if (data) {
+        this.tempLayer = layer;
+        this.currentSegment.set({
+          name: '',
+          size: data.size,
+          coordinates: [data.coordinates],
+          color: this.selectedColor()
+        });
+        this.showSegmentDialog.set(true);
+      }
+    });
+
     this.drawnItems.addLayer(layer);
   }
 
@@ -299,14 +321,18 @@ export class LawnMapComponent implements OnInit, OnDestroy {
         next: () => {
           this._throwSuccessToast('Lawn segment created');
           this._lawnSegmentsService.lawnSegments.reload();
+          if (this.tempLayer) {
+            this.unsavedLayers.delete(this.tempLayer);
+            this.tempLayer = null;
+          }
           this.showSegmentDialog.set(false);
           this.currentSegment.set(null);
-          this.tempLayer = null;
         },
         error: () => {
           this._throwErrorToast('Error creating lawn segment');
           if (this.tempLayer) {
             this.drawnItems.removeLayer(this.tempLayer);
+            this.unsavedLayers.delete(this.tempLayer);
             this.tempLayer = null;
           }
         }
@@ -316,6 +342,7 @@ export class LawnMapComponent implements OnInit, OnDestroy {
   public cancelNewSegment(): void {
     if (this.tempLayer) {
       this.drawnItems.removeLayer(this.tempLayer);
+      this.unsavedLayers.delete(this.tempLayer);
       this.tempLayer = null;
     }
     this.showSegmentDialog.set(false);

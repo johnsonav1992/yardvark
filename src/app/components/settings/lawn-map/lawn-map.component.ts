@@ -49,6 +49,7 @@ export class LawnMapComponent implements OnInit, OnDestroy {
   private map: L.Map | null = null;
   private drawnItems = new L.FeatureGroup();
   private segmentLayers = new Map<number, L.Rectangle>();
+  private tempLayer: L.Rectangle | null = null;
 
   public showSegmentDialog = signal(false);
   public currentSegment = signal<Partial<LawnSegment> | null>(null);
@@ -135,6 +136,7 @@ export class LawnMapComponent implements OnInit, OnDestroy {
     const coordinates = this.boundsToCoordinates(bounds);
     const area = this.calculateArea(bounds);
 
+    this.tempLayer = layer;
     this.currentSegment.set({
       name: '',
       size: area,
@@ -167,7 +169,17 @@ export class LawnMapComponent implements OnInit, OnDestroy {
     layers.eachLayer((layer: L.Rectangle) => {
       const segmentId = this.getSegmentIdForLayer(layer);
       if (segmentId) {
-        this.segmentLayers.delete(segmentId);
+        this._lawnSegmentsService.deleteLawnSegment(segmentId).subscribe({
+          next: () => {
+            this._throwSuccessToast('Lawn segment deleted');
+            this._lawnSegmentsService.lawnSegments.reload();
+            this.segmentLayers.delete(segmentId);
+          },
+          error: () => {
+            this._throwErrorToast('Error deleting lawn segment');
+            this.renderSegments(this.lawnSegments() || []);
+          }
+        });
       }
     });
   }
@@ -263,20 +275,28 @@ export class LawnMapComponent implements OnInit, OnDestroy {
     this._lawnSegmentsService
       .addLawnSegment(segment as LawnSegment)
       .subscribe({
-        next: (newSegment) => {
+        next: () => {
           this._throwSuccessToast('Lawn segment created');
-          this.lawnSegments.update((prev) => [...(prev || []), newSegment]);
+          this._lawnSegmentsService.lawnSegments.reload();
           this.showSegmentDialog.set(false);
           this.currentSegment.set(null);
+          this.tempLayer = null;
         },
         error: () => {
           this._throwErrorToast('Error creating lawn segment');
+          if (this.tempLayer) {
+            this.drawnItems.removeLayer(this.tempLayer);
+            this.tempLayer = null;
+          }
         }
       });
   }
 
   public cancelNewSegment(): void {
-    this.drawnItems.clearLayers();
+    if (this.tempLayer) {
+      this.drawnItems.removeLayer(this.tempLayer);
+      this.tempLayer = null;
+    }
     this.showSegmentDialog.set(false);
     this.currentSegment.set(null);
   }
@@ -287,11 +307,9 @@ export class LawnMapComponent implements OnInit, OnDestroy {
 
   private updateSegment(segment: LawnSegment): void {
     this._lawnSegmentsService.updateLawnSegment(segment).subscribe({
-      next: (updated) => {
+      next: () => {
         this._throwSuccessToast('Lawn segment updated');
-        this.lawnSegments.update((prev) =>
-          prev?.map((s) => (s.id === updated.id ? updated : s))
-        );
+        this._lawnSegmentsService.lawnSegments.reload();
       },
       error: () => {
         this._throwErrorToast('Error updating lawn segment');

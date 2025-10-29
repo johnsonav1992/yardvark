@@ -4,6 +4,7 @@ import { Repository, DeleteResult } from 'typeorm';
 import { LawnSegmentsService } from '../services/lawn-segments.service';
 import { LawnSegment } from '../models/lawn-segments.model';
 import { LawnSegmentCreationRequest } from '../models/lawn-segments.types';
+import { DEFAULT_LAWN_SEGMENT_COLOR } from '../../../constants/lawn-segments.constants';
 
 describe('LawnSegmentsService', () => {
   let service: LawnSegmentsService;
@@ -20,7 +21,7 @@ describe('LawnSegmentsService', () => {
     name: 'Front Yard',
     size: 2500.5,
     coordinates: null,
-    color: '#3388ff',
+    color: DEFAULT_LAWN_SEGMENT_COLOR,
   };
 
   const mockLawnSegment: LawnSegment = {
@@ -29,7 +30,7 @@ describe('LawnSegmentsService', () => {
     name: 'Front Yard',
     size: 2500.5,
     coordinates: null,
-    color: '#3388ff',
+    color: DEFAULT_LAWN_SEGMENT_COLOR,
     entries: [],
   };
 
@@ -41,7 +42,7 @@ describe('LawnSegmentsService', () => {
       name: 'Back Yard',
       size: 3200.75,
       coordinates: null,
-      color: '#3388ff',
+      color: DEFAULT_LAWN_SEGMENT_COLOR,
       entries: [],
     },
     {
@@ -50,7 +51,7 @@ describe('LawnSegmentsService', () => {
       name: 'Side Yard',
       size: 800.25,
       coordinates: null,
-      color: '#3388ff',
+      color: DEFAULT_LAWN_SEGMENT_COLOR,
       entries: [],
     },
   ];
@@ -160,7 +161,7 @@ describe('LawnSegmentsService', () => {
         name: 'Pool Area',
         size: 750.25,
         coordinates: null,
-        color: '#3388ff',
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
       };
 
       const expectedCreated = {
@@ -173,7 +174,7 @@ describe('LawnSegmentsService', () => {
         name: 'Pool Area',
         size: 750.25,
         coordinates: null,
-        color: '#3388ff',
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
         entries: [],
       };
 
@@ -194,7 +195,7 @@ describe('LawnSegmentsService', () => {
         name: 'Main Lawn',
         size: 50000.99,
         coordinates: null,
-        color: '#3388ff',
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
       };
 
       const createdSegment = { ...largeSegmentRequest, userId: 'user-123' };
@@ -204,7 +205,7 @@ describe('LawnSegmentsService', () => {
         name: 'Main Lawn',
         size: 50000.99,
         coordinates: null,
-        color: '#3388ff',
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
         entries: [],
       };
 
@@ -224,7 +225,7 @@ describe('LawnSegmentsService', () => {
         name: 'Flower Bed',
         size: 25.75,
         coordinates: null,
-        color: '#3388ff',
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
       };
 
       const createdSegment = { ...smallSegmentRequest, userId: 'user-123' };
@@ -234,7 +235,7 @@ describe('LawnSegmentsService', () => {
         name: 'Flower Bed',
         size: 25.75,
         coordinates: null,
-        color: '#3388ff',
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
         entries: [],
       };
 
@@ -254,7 +255,7 @@ describe('LawnSegmentsService', () => {
         name: "Bob's Corner Lot #1",
         size: 1200.5,
         coordinates: null,
-        color: '#3388ff',
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
       };
 
       const createdSegment = { ...specialNameRequest, userId: 'user-123' };
@@ -264,7 +265,7 @@ describe('LawnSegmentsService', () => {
         name: "Bob's Corner Lot #1",
         size: 1200.5,
         coordinates: null,
-        color: '#3388ff',
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
         entries: [],
       };
 
@@ -479,7 +480,7 @@ describe('LawnSegmentsService', () => {
         name: '',
         size: 100.0,
         coordinates: null,
-        color: '#3388ff',
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
       };
 
       const createdSegment = { ...emptyNameRequest, userId: 'user-123' };
@@ -489,7 +490,7 @@ describe('LawnSegmentsService', () => {
         name: '',
         size: 100.0,
         coordinates: null,
-        color: '#3388ff',
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
         entries: [],
       };
 
@@ -510,7 +511,7 @@ describe('LawnSegmentsService', () => {
         name: longName,
         size: 500.0,
         coordinates: null,
-        color: '#3388ff',
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
       };
 
       const createdSegment = { ...longNameRequest, userId: 'user-123' };
@@ -520,7 +521,7 @@ describe('LawnSegmentsService', () => {
         name: longName,
         size: 500.0,
         coordinates: null,
-        color: '#3388ff',
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
         entries: [],
       };
 

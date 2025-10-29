@@ -18,6 +18,7 @@ import { injectErrorToast } from '../../../utils/toastUtils';
 import { CardModule } from 'primeng/card';
 import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loading-spinner.component';
 import { InputNumber } from 'primeng/inputnumber';
+import { DEFAULT_LAWN_SEGMENT_COLOR } from '../../../constants/lawn-segment-constants';
 
 @Component({
   selector: 'lawn-segments-table',
@@ -68,7 +69,7 @@ export class LawnSegmentsTableComponent implements OnDestroy {
       area: 0, 
       userId: '', 
       size: 0,
-      color: '#3388ff',
+      color: DEFAULT_LAWN_SEGMENT_COLOR,
       coordinates: null
     };
 

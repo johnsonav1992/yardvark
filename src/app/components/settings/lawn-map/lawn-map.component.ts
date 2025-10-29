@@ -20,6 +20,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { injectErrorToast, injectSuccessToast } from '../../../utils/toastUtils';
 import { injectSettingsService } from '../../../services/settings.service';
+import { DEFAULT_LAWN_SEGMENT_COLOR } from '../../../constants/lawn-segment-constants';
 
 @Component({
   selector: 'lawn-map',
@@ -51,7 +52,7 @@ export class LawnMapComponent implements OnInit, OnDestroy {
 
   public showSegmentDialog = signal(false);
   public currentSegment = signal<Partial<LawnSegment> | null>(null);
-  public selectedColor = signal('#3388ff');
+  public selectedColor = signal(DEFAULT_LAWN_SEGMENT_COLOR);
 
   _segmentsWatcher = effect(() => {
     const segments = this.lawnSegments();
@@ -186,7 +187,7 @@ export class LawnMapComponent implements OnInit, OnDestroy {
         ]);
 
         const rectangle = L.rectangle(bounds, {
-          color: segment.color || '#3388ff',
+          color: segment.color || DEFAULT_LAWN_SEGMENT_COLOR,
           fillOpacity: 0.3
         });
 

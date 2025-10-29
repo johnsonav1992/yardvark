@@ -87,10 +87,30 @@ export class LawnMapComponent implements OnInit, OnDestroy {
       zoomControl: true
     });
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 22,
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(this.map);
+    const satelliteLayer = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      {
+        maxZoom: 22,
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+      }
+    );
+
+    const streetLayer = L.tileLayer(
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      {
+        maxZoom: 22,
+        attribution: '© OpenStreetMap contributors'
+      }
+    );
+
+    satelliteLayer.addTo(this.map);
+
+    const baseMaps = {
+      'Satellite': satelliteLayer,
+      'Street': streetLayer
+    };
+
+    L.control.layers(baseMaps).addTo(this.map);
 
     this.map.addLayer(this.drawnItems);
 
@@ -100,7 +120,8 @@ export class LawnMapComponent implements OnInit, OnDestroy {
           shapeOptions: {
             color: this.selectedColor(),
             fillOpacity: 0.3
-          }
+          },
+          repeatMode: true
         },
         polygon: false,
         circle: false,

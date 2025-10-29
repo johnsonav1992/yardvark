@@ -122,7 +122,9 @@ export class LawnMapComponent implements OnInit, OnDestroy {
             color: this.selectedColor(),
             fillOpacity: 0.3
           },
-          repeatMode: true
+          repeatMode: true,
+          showArea: false,
+          metric: false
         },
         polygon: false,
         circle: false,

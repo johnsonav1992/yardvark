@@ -133,7 +133,19 @@ export class LawnMapComponent implements OnInit, OnDestroy {
           },
           repeatMode: true,
           showArea: false,
-          allowIntersection: false
+          allowIntersection: false,
+          drawError: {
+            color: '#e74c3c',
+            message: 'Polygon edges cannot cross'
+          },
+          icon: new L.DivIcon({
+            iconSize: new L.Point(8, 8),
+            className: 'leaflet-div-icon leaflet-editing-icon'
+          }),
+          touchIcon: new L.DivIcon({
+            iconSize: new L.Point(12, 12),
+            className: 'leaflet-div-icon leaflet-editing-icon leaflet-touch-icon'
+          })
         },
         circle: false,
         marker: false,
@@ -257,7 +269,9 @@ export class LawnMapComponent implements OnInit, OnDestroy {
   private renderSegments(segments: LawnSegment[]): void {
     if (!this.map) return;
 
-    this.drawnItems.clearLayers();
+    this.segmentLayers.forEach((layer) => {
+      this.drawnItems.removeLayer(layer);
+    });
     this.segmentLayers.clear();
 
     segments.forEach((segment) => {

@@ -29,6 +29,7 @@
   [modal]="true"
   [closable]="true"
   [style]="{ width: isMobile() ? '90vw' : '450px' }"
+  [contentStyle]="{ overflow: 'visible' }"
   header="New Lawn Segment"
 >
   @if (currentSegment(); as segment) {

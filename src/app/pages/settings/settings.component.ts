@@ -19,6 +19,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { LawnSegmentsTableComponent } from '../../components/settings/lawn-segments-table/lawn-segments-table.component';
+import { LawnMapComponent } from '../../components/settings/lawn-map/lawn-map.component';
 import { GlobalUiService } from '../../services/global-ui.service';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { UnsavedChanges } from '../../guards/unsaved-changes-guard';
@@ -35,6 +36,7 @@ import { UnsavedChanges } from '../../guards/unsaved-changes-guard';
     InputTextModule,
     TooltipModule,
     LawnSegmentsTableComponent,
+    LawnMapComponent,
     ToggleSwitchModule
   ],
   templateUrl: './settings.component.html',

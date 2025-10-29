@@ -1,0 +1,95 @@
+<p-card>
+  <div class="map-header">
+    <h4>Lawn Map</h4>
+    <div class="color-picker-wrapper">
+      <label>Drawing Color:</label>
+      <p-colorPicker [(ngModel)]="selectedColor" />
+    </div>
+  </div>
+  <div id="lawn-map" [style]="{ height: isMobile() ? '400px' : '600px' }"></div>
+  <div class="map-instructions">
+    <small>
+      <i class="ti ti-info-circle"></i>
+      Use the rectangle tool to draw lawn segments on the map. Square footage is
+      auto-calculated.
+    </small>
+  </div>
+</p-card>
+
+<p-dialog
+  [(visible)]="showSegmentDialog"
+  [modal]="true"
+  [closable]="true"
+  [style]="{ width: isMobile() ? '90vw' : '450px' }"
+  header="New Lawn Segment"
+>
+  @if (currentSegment(); as segment) {
+    <div class="segment-form">
+      <div class="form-field">
+        <label>Segment Name</label>
+        <input
+          pInputText
+          [(ngModel)]="segment.name"
+          placeholder="Enter segment name"
+          [style]="{ width: '100%' }"
+        />
+      </div>
+      <div class="form-field">
+        <label>Square Footage</label>
+        <input
+          pInputText
+          [ngModel]="segment.size?.toFixed(2)"
+          [disabled]="true"
+          [style]="{ width: '100%' }"
+        />
+      </div>
+      <div class="form-field">
+        <label>Color</label>
+        <p-colorPicker [(ngModel)]="segment.color" />
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <p-button
+        label="Cancel"
+        severity="secondary"
+        (onClick)="cancelNewSegment()"
+      />
+      <p-button
+        label="Save"
+        severity="success"
+        (onClick)="saveNewSegment()"
+        [disabled]="!segment.name"
+      />
+    </div>
+  }
+</p-dialog>
+
+<div class="segment-list">
+  @if (lawnSegments(); as segments) {
+    @if (segments.length > 0) {
+      <h5>Segments</h5>
+      <div class="segments-grid">
+        @for (segment of segments; track segment.id) {
+          @if (segment.coordinates) {
+            <div class="segment-card">
+              <div class="segment-info">
+                <div
+                  class="color-indicator"
+                  [style.background-color]="segment.color || '#3388ff'"
+                ></div>
+                <div class="segment-details">
+                  <strong>{{ segment.name }}</strong>
+                  <span>{{ segment.size.toFixed(2) }} ft²</span>
+                </div>
+              </div>
+              <p-colorPicker
+                [(ngModel)]="segment.color"
+                (onChange)="updateSegmentColor(segment)"
+              />
+            </div>
+          }
+        }
+      </div>
+    }
+  }
+</div>

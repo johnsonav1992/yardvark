@@ -15,8 +15,10 @@ export class LawnSegmentsService {
   public addLawnSegment(newSegment: LawnSegment): Observable<LawnSegment> {
     return postReq<LawnSegment>(apiUrl('lawn-segments'), {
       name: newSegment.name,
-      size: newSegment.size
-    } satisfies Pick<LawnSegment, 'name' | 'size'>);
+      size: newSegment.size,
+      coordinates: newSegment.coordinates,
+      color: newSegment.color
+    });
   }
 
   public updateLawnSegment(segment: LawnSegment): Observable<LawnSegment> {

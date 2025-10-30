@@ -13,7 +13,6 @@ import { LawnSegment } from '../../../types/lawnSegments.types';
 import { LawnSegmentsService } from '../../../services/lawn-segments.service';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
-import { ColorPickerModule } from 'primeng/colorpicker';
 import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
@@ -27,7 +26,6 @@ import { DEFAULT_LAWN_SEGMENT_COLOR } from '../../../constants/lawn-segment-cons
   imports: [
     CardModule,
     ButtonModule,
-    ColorPickerModule,
     FormsModule,
     DialogModule,
     InputTextModule
@@ -51,6 +49,7 @@ export class LawnMapComponent implements OnInit, OnDestroy {
   private segmentLayers = new Map<number, L.Rectangle | L.Polygon>();
   private tempLayer: L.Rectangle | L.Polygon | null = null;
   private unsavedLayers = new Map<L.Rectangle | L.Polygon, { coordinates: number[][], size: number }>();
+  private drawControl: L.Control.Draw | null = null;
 
   public showSegmentDialog = signal(false);
   public currentSegment = signal<Partial<LawnSegment> | null>(null);
@@ -60,6 +59,24 @@ export class LawnMapComponent implements OnInit, OnDestroy {
     const segments = this.lawnSegments();
     if (segments && this.map) {
       this.renderSegments(segments);
+    }
+  });
+
+  _locationWatcher = effect(() => {
+    const settings = this.currentSettings();
+    const location = settings?.location;
+    if (location && this.map) {
+      this.map.setView([location.lat, location.long], 20);
+    }
+  });
+
+  _colorWatcher = effect(() => {
+    const color = this.selectedColor();
+    if (this.map && this.drawControl) {
+      this.map.removeControl(this.drawControl);
+      const newControl = this.createDrawControl(color);
+      this.drawControl = newControl;
+      this.map.addControl(newControl);
     }
   });
 
@@ -74,13 +91,49 @@ export class LawnMapComponent implements OnInit, OnDestroy {
     }
   }
 
+  private createDrawControl(color: string): L.Control.Draw {
+    return new L.Control.Draw({
+      draw: {
+        rectangle: {
+          shapeOptions: {
+            color: color,
+            fillOpacity: 0.3
+          },
+          repeatMode: true,
+          showArea: false,
+          metric: false
+        },
+        polygon: {
+          shapeOptions: {
+            color: color,
+            fillOpacity: 0.3
+          },
+          repeatMode: false,
+          showArea: false,
+          allowIntersection: false,
+          drawError: {
+            color: '#e74c3c',
+            message: 'Polygon edges cannot cross'
+          }
+        },
+        circle: false,
+        marker: false,
+        polyline: false,
+        circlemarker: false
+      },
+      edit: {
+        featureGroup: this.drawnItems
+      }
+    });
+  }
+
   private initializeMap(): void {
     const settings = this.currentSettings();
     const location = settings?.location;
-    const defaultCenter: [number, number] = location 
+    const defaultCenter: [number, number] = location
       ? [location.lat, location.long]
       : [39.8283, -98.5795];
-    const defaultZoom = location ? 18 : 4;
+    const defaultZoom = location ? 20 : 4;
 
     this.map = L.map('lawn-map', {
       center: defaultCenter,
@@ -115,49 +168,8 @@ export class LawnMapComponent implements OnInit, OnDestroy {
 
     this.map.addLayer(this.drawnItems);
 
-    const drawControl = new L.Control.Draw({
-      draw: {
-        rectangle: {
-          shapeOptions: {
-            color: this.selectedColor(),
-            fillOpacity: 0.3
-          },
-          repeatMode: true,
-          showArea: false,
-          metric: false
-        },
-        polygon: {
-          shapeOptions: {
-            color: this.selectedColor(),
-            fillOpacity: 0.3
-          },
-          repeatMode: true,
-          showArea: false,
-          allowIntersection: false,
-          drawError: {
-            color: '#e74c3c',
-            message: 'Polygon edges cannot cross'
-          },
-          icon: new L.DivIcon({
-            iconSize: new L.Point(8, 8),
-            className: 'leaflet-div-icon leaflet-editing-icon'
-          }),
-          touchIcon: new L.DivIcon({
-            iconSize: new L.Point(12, 12),
-            className: 'leaflet-div-icon leaflet-editing-icon leaflet-touch-icon'
-          })
-        },
-        circle: false,
-        marker: false,
-        polyline: false,
-        circlemarker: false
-      },
-      edit: {
-        featureGroup: this.drawnItems
-      }
-    });
-
-    this.map.addControl(drawControl);
+    this.drawControl = this.createDrawControl(this.selectedColor());
+    this.map.addControl(this.drawControl);
 
     this.map.on(L.Draw.Event.CREATED, (event: any) => {
       this.onShapeCreated(event);
@@ -203,29 +215,16 @@ export class LawnMapComponent implements OnInit, OnDestroy {
       dashArray: '5, 5'
     });
 
-    layer.bindPopup(
-      `<div style="text-align: center;">
-        <strong>Unsaved Segment</strong><br/>
-        ${area.toFixed(2)} ft²<br/>
-        <small>Click to name and save</small>
-      </div>`
-    );
-
-    layer.on('click', () => {
-      const data = this.unsavedLayers.get(layer);
-      if (data) {
-        this.tempLayer = layer;
-        this.currentSegment.set({
-          name: '',
-          size: data.size,
-          coordinates: [data.coordinates],
-          color: this.selectedColor()
-        });
-        this.showSegmentDialog.set(true);
-      }
-    });
-
     this.drawnItems.addLayer(layer);
+
+    this.tempLayer = layer;
+    this.currentSegment.set({
+      name: '',
+      size: area,
+      coordinates: [coordinates],
+      color: this.selectedColor()
+    });
+    this.showSegmentDialog.set(true);
   }
 
   private onShapeEdited(event: any): void {
@@ -304,7 +303,7 @@ export class LawnMapComponent implements OnInit, OnDestroy {
         shape.bindPopup(`
           <div style="text-align: center;">
             <strong>${segment.name}</strong><br/>
-            ${segment.size.toFixed(2)} ft²
+            ${(+segment.size).toFixed(2)} ft²
           </div>
         `);
 

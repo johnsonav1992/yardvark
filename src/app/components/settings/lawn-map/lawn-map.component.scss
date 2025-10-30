@@ -1,3 +1,21 @@
+@mixin color-input($width: 50px, $height: 35px) {
+  width: $width;
+  height: $height;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 2px;
+
+  &::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+
+  &::-webkit-color-swatch {
+    border: none;
+    border-radius: 3px;
+  }
+}
+
 .map-header {
   display: flex;
   justify-content: space-between;
@@ -25,6 +43,10 @@
 
     label {
       font-weight: 500;
+    }
+
+    .color-input {
+      @include color-input(30px, 30px);
     }
   }
 }
@@ -64,6 +86,10 @@
     label {
       font-weight: 500;
       font-size: 0.9rem;
+    }
+
+    .color-input {
+      @include color-input(60px, 40px);
     }
   }
 }
@@ -122,6 +148,10 @@
             color: var(--p-text-muted-color);
           }
         }
+      }
+
+      .color-input {
+        @include color-input(40px, 40px);
       }
     }
   }

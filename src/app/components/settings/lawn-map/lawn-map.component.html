@@ -9,7 +9,7 @@
     }
     <div class="color-picker-wrapper">
       <label>Drawing Color:</label>
-      <p-colorPicker [(ngModel)]="selectedColor" />
+      <input type="color" [(ngModel)]="selectedColor" class="color-input" />
     </div>
   </div>
   <div id="lawn-map" [style]="{ height: isMobile() ? '400px' : '600px' }"></div>
@@ -47,14 +47,14 @@
         <label>Square Footage</label>
         <input
           pInputText
-          [ngModel]="segment.size?.toFixed(2)"
+          [ngModel]="segment.size ? (+segment.size).toFixed(2) : ''"
           [disabled]="true"
           [style]="{ width: '100%' }"
         />
       </div>
       <div class="form-field">
         <label>Color</label>
-        <p-colorPicker [(ngModel)]="segment.color" />
+        <input type="color" [(ngModel)]="segment.color" class="color-input" />
       </div>
     </div>
     <div class="dialog-footer">
@@ -88,12 +88,14 @@
                 ></div>
                 <div class="segment-details">
                   <strong>{{ segment.name }}</strong>
-                  <span>{{ segment.size.toFixed(2) }} ft²</span>
+                  <span>{{ (+segment.size).toFixed(2) }} ft²</span>
                 </div>
               </div>
-              <p-colorPicker
+              <input
+                type="color"
                 [(ngModel)]="segment.color"
-                (onChange)="updateSegmentColor(segment)"
+                (change)="updateSegmentColor(segment)"
+                class="color-input"
               />
             </div>
           }

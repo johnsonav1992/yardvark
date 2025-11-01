@@ -19,6 +19,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { LawnSegmentsTableComponent } from '../../components/settings/lawn-segments-table/lawn-segments-table.component';
+import { LawnMapComponent } from '../../components/settings/lawn-map/lawn-map.component';
 import { GlobalUiService } from '../../services/global-ui.service';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { UnsavedChanges } from '../../guards/unsaved-changes-guard';
@@ -35,6 +36,7 @@ import { UnsavedChanges } from '../../guards/unsaved-changes-guard';
     InputTextModule,
     TooltipModule,
     LawnSegmentsTableComponent,
+    LawnMapComponent,
     ToggleSwitchModule
   ],
   templateUrl: './settings.component.html',
@@ -56,6 +58,7 @@ export class SettingsComponent implements UnsavedChanges {
   public hasUnsavedChanges = signal(false);
   public locationSearchText = signal<string>('');
   public debouncedSearchText = debouncedSignal(this.locationSearchText, 700);
+  public segmentToFocusOnMap = signal<number | null>(null);
 
   public foundLocations = rxResource({
     params: () =>
@@ -86,6 +89,16 @@ export class SettingsComponent implements UnsavedChanges {
       long,
       address: locationFeature.properties.full_address
     });
+  }
+
+  public onEditOnMap(segment: { id: number }): void {
+    this.segmentToFocusOnMap.set(segment.id);
+
+    // Scroll to map
+    const mapElement = document.querySelector('lawn-map');
+    if (mapElement) {
+      mapElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   }
 
   private debouncedLawnSizeSetter = debounce(

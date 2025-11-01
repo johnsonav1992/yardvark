@@ -3,4 +3,6 @@ export type LawnSegment = {
   userId: string;
   name: string;
   size: number;
+  coordinates?: number[][][] | null;
+  color?: string;
 };

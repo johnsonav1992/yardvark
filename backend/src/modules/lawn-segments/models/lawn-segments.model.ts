@@ -22,6 +22,12 @@ export class LawnSegment {
   @Column({ type: 'decimal', precision: 10, scale: 2 })
   size: number;
 
+  @Column({ type: 'jsonb', nullable: true })
+  coordinates: number[][][] | null;
+
+  @Column({ type: 'varchar', length: 7, default: '#3388ff' })
+  color: string;
+
   @ManyToMany(() => Entry, (entry) => entry.lawnSegments)
   entries: Entry[];
 }

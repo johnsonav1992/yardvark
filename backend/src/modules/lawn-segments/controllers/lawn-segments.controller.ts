@@ -11,7 +11,7 @@ import {
 import { LawnSegmentsService } from '../services/lawn-segments.service';
 import { LawnSegmentCreationRequest } from '../models/lawn-segments.types';
 import { Request } from 'express';
-import { LawnSegment } from '../models/lawn-segments.model';
+import { UpdateLawnSegmentDto } from '../models/lawn-segments.dto';
 
 @Controller('lawn-segments')
 export class LawnSegmentsController {
@@ -34,8 +34,11 @@ export class LawnSegmentsController {
   }
 
   @Put(':id')
-  updateLawnSegment(@Body() lawnSegment: LawnSegment) {
-    return this._lawnSegmentService.updateLawnSegment(lawnSegment);
+  updateLawnSegment(
+    @Param('id') id: number,
+    @Body() updateDto: UpdateLawnSegmentDto,
+  ) {
+    return this._lawnSegmentService.updateLawnSegment(id, updateDto);
   }
 
   @Delete(':id')

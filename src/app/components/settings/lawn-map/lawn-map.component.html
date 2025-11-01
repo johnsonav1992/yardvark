@@ -1,0 +1,100 @@
+<p-card>
+  <div class="map-header">
+    <h4>Lawn Map</h4>
+    @if (!currentSettings()?.location) {
+      <small class="location-warning">
+        <i class="ti ti-alert-circle"></i>
+        Set your location in the settings above to see your property on the map
+      </small>
+    }
+    <div class="color-picker-wrapper">
+      <label>Drawing Color:</label>
+      <input type="color" [(ngModel)]="selectedColor" class="color-input" />
+    </div>
+  </div>
+
+  @if (targetSegmentForDrawing(); as targetSegment) {
+    <div class="drawing-mode-banner">
+      <div class="banner-content">
+        <i class="ti ti-map-pin"></i>
+        <div class="banner-text">
+          <strong>{{ targetSegment.coordinates ? 'Editing' : 'Drawing' }} mode active</strong>
+          <span>{{ targetSegment.coordinates ? 'Edit the shape for' : 'Draw the shape for' }} "{{ targetSegment.name }}"</span>
+        </div>
+      </div>
+      <p-button
+        [icon]="'ti ti-x'"
+        [text]="true"
+        severity="secondary"
+        size="small"
+        (onClick)="cancelEditing()"
+      />
+    </div>
+  }
+
+  <div id="lawn-map" [style]="{ height: isMobile() ? '400px' : '600px' }"></div>
+  <div class="map-instructions">
+    <small>
+      <i class="ti ti-info-circle"></i>
+      Use the rectangle tool for square/rectangular segments or the polygon tool for irregular shapes. 
+      For rectangles: click two corners. For polygons: click multiple points, then <strong>double-click the last point to finish</strong>. 
+      After drawing, click the shape to name and save it.
+      Use the layer control (top-right) to switch between Satellite and Street views.
+    </small>
+  </div>
+</p-card>
+
+<p-dialog
+  [(visible)]="showSegmentDialog"
+  [modal]="true"
+  [closable]="true"
+  [style]="{ width: isMobile() ? '90vw' : '450px' }"
+  [contentStyle]="{ overflow: 'visible' }"
+  header="New Lawn Segment"
+>
+  @if (currentSegment(); as segment) {
+    <div class="segment-form">
+      <div class="form-field">
+        <label>Segment Name</label>
+        <input
+          pInputText
+          [(ngModel)]="segment.name"
+          placeholder="Enter segment name"
+          [style]="{ width: '100%' }"
+        />
+      </div>
+      <div class="form-field">
+        <label>Square Footage</label>
+        <input
+          pInputText
+          [ngModel]="segment.size ? (+segment.size).toFixed(2) : ''"
+          [disabled]="true"
+          [style]="{ width: '100%' }"
+        />
+      </div>
+      <div class="form-field">
+        <label>Color</label>
+        <input
+          type="color"
+          [ngModel]="segment.color"
+          (ngModelChange)="updateNewSegmentColor($event)"
+          class="color-input"
+        />
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <p-button
+        label="Cancel"
+        severity="secondary"
+        (onClick)="cancelNewSegment()"
+      />
+      <p-button
+        label="Save"
+        severity="success"
+        (onClick)="saveNewSegment()"
+        [disabled]="!segment.name"
+      />
+    </div>
+  }
+</p-dialog>
+

@@ -12,6 +12,26 @@
       <input type="color" [(ngModel)]="selectedColor" class="color-input" />
     </div>
   </div>
+
+  @if (targetSegmentForDrawing(); as targetSegment) {
+    <div class="drawing-mode-banner">
+      <div class="banner-content">
+        <i class="ti ti-map-pin"></i>
+        <div class="banner-text">
+          <strong>Drawing mode active</strong>
+          <span>Draw the shape for "{{ targetSegment.name }}"</span>
+        </div>
+      </div>
+      <p-button
+        [icon]="'ti ti-x'"
+        [text]="true"
+        severity="secondary"
+        size="small"
+        (onClick)="targetSegmentForDrawing.set(null)"
+      />
+    </div>
+  }
+
   <div id="lawn-map" [style]="{ height: isMobile() ? '400px' : '600px' }"></div>
   <div class="map-instructions">
     <small>
@@ -54,7 +74,12 @@
       </div>
       <div class="form-field">
         <label>Color</label>
-        <input type="color" [(ngModel)]="segment.color" class="color-input" />
+        <input
+          type="color"
+          [ngModel]="segment.color"
+          (ngModelChange)="updateNewSegmentColor($event)"
+          class="color-input"
+        />
       </div>
     </div>
     <div class="dialog-footer">
@@ -73,34 +98,3 @@
   }
 </p-dialog>
 
-<div class="segment-list">
-  @if (lawnSegments(); as segments) {
-    @if (segments.length > 0) {
-      <h5>Segments</h5>
-      <div class="segments-grid">
-        @for (segment of segments; track segment.id) {
-          @if (segment.coordinates) {
-            <div class="segment-card">
-              <div class="segment-info">
-                <div
-                  class="color-indicator"
-                  [style.background-color]="segment.color || '#3388ff'"
-                ></div>
-                <div class="segment-details">
-                  <strong>{{ segment.name }}</strong>
-                  <span>{{ (+segment.size).toFixed(2) }} ft²</span>
-                </div>
-              </div>
-              <input
-                type="color"
-                [(ngModel)]="segment.color"
-                (change)="updateSegmentColor(segment)"
-                class="color-input"
-              />
-            </div>
-          }
-        }
-      </div>
-    }
-  }
-</div>

@@ -91,11 +91,13 @@
     <lawn-segments-table
       [lawnSegments]="lawnSegments.value()"
       [(hasUnsavedChanges)]="hasUnsavedChanges"
+      (editOnMapClicked)="onEditOnMap($event)"
     />
   </div>
   <div class="section-wrapper">
     <lawn-map
       [lawnSegments]="lawnSegments.value()"
+      [segmentToFocus]="segmentToFocusOnMap()"
     />
   </div>
 </page-container>

@@ -58,6 +58,7 @@ export class SettingsComponent implements UnsavedChanges {
   public hasUnsavedChanges = signal(false);
   public locationSearchText = signal<string>('');
   public debouncedSearchText = debouncedSignal(this.locationSearchText, 700);
+  public segmentToFocusOnMap = signal<number | null>(null);
 
   public foundLocations = rxResource({
     params: () =>
@@ -88,6 +89,16 @@ export class SettingsComponent implements UnsavedChanges {
       long,
       address: locationFeature.properties.full_address
     });
+  }
+
+  public onEditOnMap(segment: { id: number }): void {
+    this.segmentToFocusOnMap.set(segment.id);
+
+    // Scroll to map
+    const mapElement = document.querySelector('lawn-map');
+    if (mapElement) {
+      mapElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
   }
 
   private debouncedLawnSizeSetter = debounce(

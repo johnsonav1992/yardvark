@@ -4,6 +4,7 @@ import {
   inject,
   model,
   OnDestroy,
+  output,
   signal,
   viewChild
 } from '@angular/core';
@@ -17,8 +18,8 @@ import { LawnSegmentsService } from '../../../services/lawn-segments.service';
 import { injectErrorToast } from '../../../utils/toastUtils';
 import { CardModule } from 'primeng/card';
 import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loading-spinner.component';
-import { InputNumber } from 'primeng/inputnumber';
 import { DEFAULT_LAWN_SEGMENT_COLOR } from '../../../constants/lawn-segment-constants';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'lawn-segments-table',
@@ -29,7 +30,7 @@ import { DEFAULT_LAWN_SEGMENT_COLOR } from '../../../constants/lawn-segment-cons
     InputTextModule,
     CardModule,
     LoadingSpinnerComponent,
-    InputNumber
+    TooltipModule
   ],
   templateUrl: './lawn-segments-table.component.html',
   styleUrl: './lawn-segments-table.component.scss'
@@ -41,6 +42,7 @@ export class LawnSegmentsTableComponent implements OnDestroy {
   public lawnSegments = model.required<LawnSegment[] | undefined>();
   public hasUnsavedChanges = model.required<boolean>();
   public currentlyEditingLawnSegmentIds = signal<number[] | null>(null);
+  public editOnMapClicked = output<LawnSegment>();
 
   public lawnSegmentTable = viewChild(Table);
 
@@ -63,12 +65,12 @@ export class LawnSegmentsTableComponent implements OnDestroy {
 
   public addLawnSegmentRow(): void {
     const newId = Math.random();
-    const newRow = { 
-      id: newId, 
-      name: '', 
-      area: 0, 
-      userId: '', 
-      size: 0,
+    const newRow = {
+      id: newId,
+      name: '',
+      area: 0,
+      userId: '',
+      size: 0, // Will be set when mapped
       color: DEFAULT_LAWN_SEGMENT_COLOR,
       coordinates: null
     };
@@ -122,6 +124,10 @@ export class LawnSegmentsTableComponent implements OnDestroy {
         this._throwErrorToast('Error deleting lawn segment');
       }
     });
+  }
+
+  public editOnMap(segment: LawnSegment): void {
+    this.editOnMapClicked.emit(segment);
   }
 
   public cancelRowEdit(segment: LawnSegment): void {

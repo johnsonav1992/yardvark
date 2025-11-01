@@ -24,7 +24,12 @@ export class LawnSegmentsService {
   public updateLawnSegment(segment: LawnSegment): Observable<LawnSegment> {
     return putReq<LawnSegment>(
       apiUrl('lawn-segments', { params: [segment.id] }),
-      segment
+      {
+        name: segment.name,
+        size: segment.size,
+        coordinates: segment.coordinates,
+        color: segment.color
+      }
     );
   }
 

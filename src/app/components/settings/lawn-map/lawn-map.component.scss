@@ -72,6 +72,45 @@
   }
 }
 
+.drawing-mode-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background: var(--p-primary-50);
+  border: 2px solid var(--p-primary-200);
+  border-radius: 4px;
+  gap: 1rem;
+
+  .banner-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    i {
+      font-size: 1.5rem;
+      color: var(--p-primary-color);
+    }
+
+    .banner-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      strong {
+        font-size: 0.95rem;
+        color: var(--p-primary-900);
+      }
+
+      span {
+        font-size: 0.85rem;
+        color: var(--p-primary-700);
+      }
+    }
+  }
+}
+
 .segment-form {
   display: flex;
   flex-direction: column;

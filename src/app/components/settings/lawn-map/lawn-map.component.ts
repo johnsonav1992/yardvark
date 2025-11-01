@@ -86,8 +86,9 @@ export class LawnMapComponent implements OnInit, OnDestroy {
 
       if (segment) {
         if (segment.coordinates) {
-          // Segment already has coordinates - just focus on it
+          // Segment already has coordinates - zoom to it and enable editing
           this.focusOnSegment(segmentId);
+          this.enableEditingForSegment(segmentId, segment);
         } else {
           // Segment doesn't have coordinates - enter drawing mode
           this.targetSegmentForDrawing.set(segment);
@@ -326,6 +327,14 @@ export class LawnMapComponent implements OnInit, OnDestroy {
             segment.size = this.calculatePolygonArea(layer);
           }
           this.updateSegment(segment);
+
+          // Disable editing mode on the layer after save
+          if (layer.editing) {
+            layer.editing.disable();
+          }
+
+          // Clear the target segment banner
+          this.targetSegmentForDrawing.set(null);
         }
       }
     });
@@ -578,25 +587,8 @@ export class LawnMapComponent implements OnInit, OnDestroy {
         : (layer as L.Polygon).getBounds();
       this.map.fitBounds(bounds.pad(0.2));
 
-      // Temporarily highlight the segment
-      const originalColor = (layer.options as any).color;
-      layer.setStyle({
-        color: '#ff6b6b',
-        weight: 4,
-        fillOpacity: 0.5
-      });
-
       // Open popup
       layer.openPopup();
-
-      // Reset color after a delay
-      setTimeout(() => {
-        layer.setStyle({
-          color: originalColor,
-          weight: 3,
-          fillOpacity: 0.3
-        });
-      }, 2000);
     } else {
       // If segment doesn't have coordinates yet, show a message
       const segments = this.lawnSegments();
@@ -607,5 +599,32 @@ export class LawnMapComponent implements OnInit, OnDestroy {
         );
       }
     }
+  }
+
+  private enableEditingForSegment(segmentId: number, segment: LawnSegment): void {
+    const layer = this.segmentLayers.get(segmentId);
+    if (layer && this.map) {
+      // Enable editing on the layer
+      if ((layer as any).editing) {
+        (layer as any).editing.enable();
+
+        // Show banner to indicate editing mode
+        this.targetSegmentForDrawing.set(segment);
+
+        // Close the popup while editing
+        layer.closePopup();
+      }
+    }
+  }
+
+  public cancelEditing(): void {
+    const targetSegment = this.targetSegmentForDrawing();
+    if (targetSegment && targetSegment.id) {
+      const layer = this.segmentLayers.get(targetSegment.id);
+      if (layer && (layer as any).editing) {
+        (layer as any).editing.disable();
+      }
+    }
+    this.targetSegmentForDrawing.set(null);
   }
 }

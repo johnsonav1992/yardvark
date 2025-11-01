@@ -18,8 +18,8 @@
       <div class="banner-content">
         <i class="ti ti-map-pin"></i>
         <div class="banner-text">
-          <strong>Drawing mode active</strong>
-          <span>Draw the shape for "{{ targetSegment.name }}"</span>
+          <strong>{{ targetSegment.coordinates ? 'Editing' : 'Drawing' }} mode active</strong>
+          <span>{{ targetSegment.coordinates ? 'Edit the shape for' : 'Draw the shape for' }} "{{ targetSegment.name }}"</span>
         </div>
       </div>
       <p-button
@@ -27,7 +27,7 @@
         [text]="true"
         severity="secondary"
         size="small"
-        (onClick)="targetSegmentForDrawing.set(null)"
+        (onClick)="cancelEditing()"
       />
     </div>
   }

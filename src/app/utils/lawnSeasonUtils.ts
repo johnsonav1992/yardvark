@@ -2,7 +2,62 @@ import { differenceInDays } from 'date-fns';
 import { LatLong } from '../types/location.types';
 import { lawnSeasonDatesAndTemperaturesReference } from '../constants/soil-temperature-constants';
 
-const SOIL_TEMP_SEASON_THRESHOLD = 55;
+const SOIL_TEMP_SEASON_THRESHOLD = 50;
+
+const convertToFahrenheit = (
+  temp: number,
+  unit: 'fahrenheit' | 'celsius'
+): number => {
+  return unit === 'celsius' ? (temp * 9) / 5 + 32 : temp;
+};
+
+const isDormantTemperature = (tempInFahrenheit: number): boolean => {
+  return tempInFahrenheit < SOIL_TEMP_SEASON_THRESHOLD;
+};
+
+const calculateDateBasedPercentage = (
+  today: Date,
+  start: Date,
+  end: Date
+): number => {
+  const totalDaysInSeason = differenceInDays(end, start);
+  const daysPassed = differenceInDays(today, start);
+  return (daysPassed / totalDaysInSeason) * 100;
+};
+
+const isSpringPhase = (
+  daysPassed: number,
+  totalDaysInSeason: number
+): boolean => {
+  const midpoint = totalDaysInSeason / 2;
+  return daysPassed < midpoint;
+};
+
+const calculateSpringPercentage = (dateBasedPercentage: number): number => {
+  return Math.round(Math.min(50, dateBasedPercentage));
+};
+
+const calculateTemperatureWeight = (tempAboveThreshold: number): number => {
+  const maxTempRange = 15;
+  return Math.max(
+    0,
+    Math.min(1, (maxTempRange - tempAboveThreshold) / maxTempRange)
+  );
+};
+
+const calculateTemperaturePercentage = (tempAboveThreshold: number): number => {
+  return 100 - tempAboveThreshold;
+};
+
+const blendPercentages = (
+  datePercentage: number,
+  tempPercentage: number,
+  tempWeight: number
+): number => {
+  const dateWeight = 1 - tempWeight;
+  const blended = datePercentage * dateWeight + tempPercentage * tempWeight;
+  return Math.round(Math.max(50, Math.min(100, blended)));
+};
 
 export const getLawnSeasonCompletedPercentage = (coords: LatLong) => {
   const today = new Date();
@@ -31,33 +86,31 @@ export const getLawnSeasonCompletedPercentageWithTemp = (
   const { start, end } = getLawnSeasonStartAndEndDates(coords);
 
   if (currentSoilTemp !== null && currentSoilTemp !== undefined) {
-    const tempInFahrenheit =
-      temperatureUnit === 'celsius'
-        ? (currentSoilTemp * 9) / 5 + 32
-        : currentSoilTemp;
+    const tempInFahrenheit = convertToFahrenheit(
+      currentSoilTemp,
+      temperatureUnit
+    );
 
-    if (tempInFahrenheit < SOIL_TEMP_SEASON_THRESHOLD) {
+    if (isDormantTemperature(tempInFahrenheit)) {
       return today < start ? -1 : 100;
     }
 
-    const tempDifferential = tempInFahrenheit - SOIL_TEMP_SEASON_THRESHOLD;
-    const weeksPerDegree = 0.2;
-    const adjustmentWeeks = Math.round(tempDifferential * weeksPerDegree);
-    const adjustmentDays = adjustmentWeeks * 7;
+    if (today < start) return -1;
+    if (today > end) return 100;
 
-    const adjustedStart = new Date(start);
-    adjustedStart.setDate(adjustedStart.getDate() - adjustmentDays);
+    const totalDaysInSeason = differenceInDays(end, start);
+    const daysPassed = differenceInDays(today, start);
+    const dateBasedPercentage = calculateDateBasedPercentage(today, start, end);
 
-    const adjustedEnd = new Date(end);
-    adjustedEnd.setDate(adjustedEnd.getDate() + adjustmentDays);
+    if (isSpringPhase(daysPassed, totalDaysInSeason)) {
+      return calculateSpringPercentage(dateBasedPercentage);
+    }
 
-    if (today < adjustedStart) return -1;
-    if (today > adjustedEnd) return 100;
+    const tempAboveThreshold = tempInFahrenheit - SOIL_TEMP_SEASON_THRESHOLD;
+    const tempWeight = calculateTemperatureWeight(tempAboveThreshold);
+    const tempPercentage = calculateTemperaturePercentage(tempAboveThreshold);
 
-    const totalDaysInSeason = differenceInDays(adjustedEnd, adjustedStart);
-    const daysPassed = differenceInDays(today, adjustedStart);
-
-    return Math.round((daysPassed / totalDaysInSeason) * 100);
+    return blendPercentages(dateBasedPercentage, tempPercentage, tempWeight);
   }
 
   return getLawnSeasonCompletedPercentage(coords);
@@ -89,9 +142,13 @@ export const getLawnSeasonStartAndEndDates = (coords: LatLong) => {
   return {
     start: new Date(
       year,
-      closestReference.spring.month,
+      closestReference.spring.month - 1,
       closestReference.spring.day
     ),
-    end: new Date(year, closestReference.fall.month, closestReference.fall.day)
+    end: new Date(
+      year,
+      closestReference.fall.month - 1,
+      closestReference.fall.day
+    )
   };
 };

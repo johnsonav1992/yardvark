@@ -15,27 +15,27 @@
 export const lawnSeasonDatesAndTemperaturesReference = [
   {
     lat: 30,
-    spring: { month: 1, day: 28 },
-    fall: { month: 9, day: 25 }
+    spring: { month: 2, day: 15 }, // Deep South - soil hits 50°F mid-late Feb
+    fall: { month: 11, day: 20 } // Stays warm through late Nov
   },
   {
     lat: 35,
-    spring: { month: 1, day: 15 },
-    fall: { month: 9, day: 10 }
+    spring: { month: 2, day: 28 }, // Texas/Oklahoma - soil hits 50°F late Feb/early March
+    fall: { month: 11, day: 5 } // Typically goes dormant early Nov
   },
   {
     lat: 40,
-    spring: { month: 2, day: 10 },
-    fall: { month: 8, day: 15 }
+    spring: { month: 3, day: 20 }, // Mid-Atlantic - soil hits 50°F late March
+    fall: { month: 10, day: 20 } // Goes dormant late Oct
   },
   {
     lat: 45,
-    spring: { month: 2, day: 25 },
-    fall: { month: 7, day: 30 }
+    spring: { month: 4, day: 10 }, // Northern states - soil hits 50°F mid-April
+    fall: { month: 10, day: 5 } // Goes dormant early Oct
   },
   {
     lat: 50,
-    spring: { month: 3, day: 10 },
-    fall: { month: 7, day: 15 }
+    spring: { month: 4, day: 25 }, // Canadian border - soil hits 50°F late April
+    fall: { month: 9, day: 20 } // Goes dormant late Sept
   }
 ];

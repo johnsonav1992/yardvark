@@ -414,18 +414,52 @@ Response: {
 **GDD Service** (new file: `backend/src/modules/gdd/gdd.service.ts`)
 
 Key responsibilities:
-1. Fetch weather data from Open-Meteo (high/low temps)
-2. Calculate daily GDD using base temperature from user settings
-3. Query last PGR application date from entries
-4. Accumulate GDD from last app date to present
-5. Project future GDD based on weather forecast
-6. Calculate next recommended application date
+1. **Fetch historical air temperatures** from Open-Meteo Archive API
+   - Endpoint: `https://api.open-meteo.com/v1/archive`
+   - Parameters: `daily=temperature_2m_max,temperature_2m_min`
+   - Date range: Last PGR application to today
+2. **Calculate daily GDD** using base temperature from user settings
+   - Use existing `getDailyGDDCalculation()` from `lawnCalculatorUtils.ts`
+3. **Query last PGR application date** from entries
+   - Filter products by `category = 'pgr'`
+   - Get most recent entry with PGR product
+4. **Accumulate GDD** from last app date to present
+   - Sum daily GDD values
+5. **Project future GDD** based on Weather.gov forecast
+   - Reuse existing Weather.gov data (already fetched!)
+   - Process day/night periods to extract high/low temps
+   - Calculate projected GDD for next 7 days
+6. **Calculate next recommended application date**
+   - When accumulated + projected GDD reaches target
 
 **Integration Points:**
-- Use existing `WeatherService` or create weather data utility
-- Query `EntriesService` for last PGR app
-- Query `SettingsService` for user's GDD preferences
-- Leverage existing location data
+- **Weather data:** Direct call to Open-Meteo Archive API for historical
+- **Forecast data:** Reuse existing Weather.gov service (zero new calls!)
+- **Entries:** Query `EntriesService` for last PGR app
+- **Settings:** Query `SettingsService` for user's GDD preferences and location
+- **Caching:** Use NestJS `@nestjs/cache-manager` with 24-hour TTL
+
+**Weather API Details:**
+
+*Historical temps (NEW API call):*
+```typescript
+// Open-Meteo Archive API
+const response = await fetch(
+  `https://api.open-meteo.com/v1/archive?` +
+  `latitude=${lat}&longitude=${long}&` +
+  `start_date=${startDate}&end_date=${endDate}&` +
+  `daily=temperature_2m_max,temperature_2m_min&` +
+  `temperature_unit=${tempUnit}`
+);
+```
+
+*Forecast temps (REUSE existing data):*
+```typescript
+// Weather.gov data already fetched by WeatherController
+// Just access the cached response and process periods
+const forecast = await this.weatherService.getForecast(lat, long);
+const dailyHighLow = this.extractDailyTemps(forecast.properties.periods);
+```
 
 ### Phase 2: Frontend Infrastructure
 
@@ -879,24 +913,75 @@ public defaultMobileNavbarItems = [
 
 ## Technical Considerations
 
-### Weather Data Accuracy
+### Weather Data Accuracy & API Strategy
 
-**Challenge:** Need accurate high/low temps for GDD calculation
+**CRITICAL: GDD uses AIR temperature, NOT soil temperature!**
 
-**Current Options:**
-1. **Open-Meteo API** (currently used for soil temps)
-   - Pros: Reliable, historical data, free
-   - Cons: Not specialized for turf management
+PGR efficacy is based on air temperature and plant metabolism. While Yardvark currently fetches soil temperature data from Open-Meteo, GDD requires a different data set: daily high/low AIR temperatures.
 
-2. **Weather.gov** (currently used for forecasts)
-   - Pros: Official NOAA data, accurate
-   - Cons: US-only
+#### Current State
+**Open-Meteo (currently fetching):**
+- ✅ Soil temperatures at 6cm and 18cm depths
+- ❌ NOT fetching air temperature (yet)
 
-**Recommendation:**
-- Use Open-Meteo for historical daily high/low temps
-- API call: `https://api.open-meteo.com/v1/forecast`
-- Parameters: `latitude`, `longitude`, `daily=temperature_2m_max,temperature_2m_min`
-- Cache aggressively (historical data doesn't change)
+**Weather.gov/NOAA (currently fetching):**
+- ✅ 7-day forecast with air temperatures
+- ✅ Includes BOTH day and night periods (gives us high/low temps)
+- Currently only displaying daytime in UI, but both periods are in the API response
+- ✅ No rate limits (free, respect usage guidelines)
+- ❌ No historical data
+
+#### What GDD MVP Needs
+
+**1. Historical Air Temperatures** (NEW API call required)
+- **API:** Open-Meteo Archive API
+- **Endpoint:** `https://api.open-meteo.com/v1/archive`
+- **Parameters:**
+  - `latitude`, `longitude` (from user settings)
+  - `start_date`: Date of last PGR application
+  - `end_date`: Today's date
+  - `daily`: `temperature_2m_max,temperature_2m_min` (air temp, not soil!)
+  - `temperature_unit`: `fahrenheit` or `celsius`
+- **When to fetch:** Only when user views GDD page or quick stats
+- **Frequency:** Once per day per user (with aggressive caching)
+
+**2. Forecast Temperatures** (NO NEW API call!)
+- **API:** Weather.gov (already fetching!)
+- **Strategy:** Reuse existing forecast data
+- **Implementation:** Process both day/night periods to extract high/low for each day
+- **Zero additional API calls** ✅
+
+#### API Rate Limit Analysis
+
+**Open-Meteo Free Tier:**
+- Limit: 10,000 API calls per day
+- Current usage: ~2-3 calls per active user per day (soil temp data)
+- GDD addition: +1 call per user when viewing GDD data (IF cache expired)
+
+**Projected Usage:**
+- 100 active users × 3 existing calls = 300 calls/day
+- 100 users checking GDD once = 100 calls/day (with caching)
+- **Total: 400 calls/day (4% of limit)**
+
+Even with 500 users:
+- 500 × 3 existing + 500 × 1 GDD = 2,000 calls/day
+- **Still only 20% of limit** ✅
+
+**Weather.gov:**
+- No official rate limits
+- Best practices: User-Agent header, don't hammer API
+- **GDD addition: ZERO new calls** (reuse existing data) ✅
+
+#### Data Volume Comparison
+
+**Current soil temp fetching:**
+- 7 days × 24 hours × 2 depths = 336 data points per user
+
+**GDD air temp fetching:**
+- 30 days × 2 values (high/low) = 60 data points per user
+- **GDD is 82% LESS data than current soil temp fetching!** ✅
+
+**Recommendation: No concerns about rate limits or data volume for MVP.**
 
 ### GDD Reset Logic
 
@@ -937,15 +1022,75 @@ public defaultMobileNavbarItems = [
 
 ### Performance Optimization
 
-**Caching Strategy:**
-- Cache historical GDD calculations (immutable)
-- Refresh current GDD once per day
-- Store calculated GDD values in database for analytics
+**Caching Strategy (CRITICAL for API efficiency):**
 
-**API Rate Limiting:**
-- Open-Meteo: 10,000 calls/day (generous)
-- Cache weather data per location per day
-- Batch requests when possible
+Since we're on Open-Meteo's free tier (10,000 calls/day), aggressive caching is essential:
+
+**Backend Caching:**
+```typescript
+// Redis or in-memory cache with 24-hour TTL
+@Cacheable('gdd-current', { ttl: 86400 }) // 24 hours
+async getCurrentGdd(userId: string): Promise<CurrentGddResponse> {
+  // Only hits Open-Meteo API if cache miss
+  // Subsequent requests same day = instant response, zero API calls
+}
+```
+
+**Cache Key Strategy:**
+- Key: `gdd:${userId}:${lastPgrDate}:${today}`
+- TTL: 24 hours (GDD doesn't need real-time updates)
+- Invalidate: When user logs new PGR application
+- Result: 95%+ cache hit rate
+
+**Lazy Loading:**
+```typescript
+// Frontend: Only fetch when GDD feature is enabled
+public currentGdd = httpResource<CurrentGddResponse>(() => {
+  const gddEnabled = this._settingsService.settings()?.gddSettings?.enabled;
+  return gddEnabled ? { url: apiUrl('gdd/current') } : undefined;
+});
+```
+
+**API Call Minimization:**
+1. **Don't fetch on every page load** - Cache in localStorage with timestamp
+2. **Batch date ranges** - Single API call for 30-60 days of temps (not daily calls)
+3. **Reuse Weather.gov data** - Zero additional calls for forecasts
+4. **Daily refresh only** - GDD accumulates slowly, no need for hourly updates
+
+**Example User Flow:**
+```
+Day 1, 9am: User checks GDD
+  → Backend cache MISS
+  → Call Open-Meteo for 15 days of temps
+  → Calculate GDD: 145
+  → Cache result for 24 hours
+  → API calls: 1
+
+Day 1, 2pm: User checks GDD again
+  → Backend cache HIT
+  → Return cached value: 145 GDD
+  → API calls: 0
+
+Day 1, 6pm: User checks GDD again
+  → Backend cache HIT
+  → API calls: 0
+
+Day 2, 9am: User checks GDD
+  → Cache expired (24 hours passed)
+  → Call Open-Meteo for 16 days of temps
+  → Calculate GDD: 152
+  → Cache for 24 hours
+  → API calls: 1
+```
+
+**Result:** 1 API call per user per day (instead of potentially dozens)
+
+**API Rate Limiting - Final Numbers:**
+With aggressive caching:
+- 1,000 active users × 1 GDD call/day = 1,000 calls/day
+- Add existing soil temp calls: 3,000 calls/day
+- **Total: 4,000 calls/day (40% of Open-Meteo free tier limit)**
+- **Comfortable headroom for growth** ✅
 
 ### Database Performance
 
@@ -1013,14 +1158,20 @@ public defaultMobileNavbarItems = [
 
 1. **Open-Meteo**
    - https://open-meteo.com/
-   - Currently used in Yardvark
-   - Endpoints: `/v1/forecast`, `/v1/historical`
-   - Parameters: `daily=temperature_2m_max,temperature_2m_min`
+   - **Currently used:** Soil temperature data at `/v1/forecast`
+   - **GDD will use:** Historical air temps at `/v1/archive`
+   - **Endpoint for GDD:** `https://api.open-meteo.com/v1/archive`
+   - **Parameters:** `daily=temperature_2m_max,temperature_2m_min` (AIR temp, not soil!)
+   - **Free tier:** 10,000 API calls/day
+   - **Documentation:** https://open-meteo.com/en/docs/historical-weather-api
 
 2. **Weather.gov (NOAA)**
    - https://www.weather.gov/documentation/services-web-api
-   - Currently used in Yardvark
-   - US-only, highly accurate
+   - **Currently used:** 7-day forecast in Yardvark (proxied through backend)
+   - **GDD will reuse:** Existing forecast data for projections (NO new API calls!)
+   - **Contains:** Both day and night periods (gives us daily high/low temps)
+   - **Rate limits:** None (free, just respect usage guidelines)
+   - **Coverage:** US-only, highly accurate
 
 ### PGR Product Information
 
@@ -1108,19 +1259,27 @@ public defaultMobileNavbarItems = [
 - User satisfaction surveys
 
 **Potential Challenges:**
-- User education (what is GDD?)
-- Weather data accuracy
-- Handling edge cases (missed applications, location changes)
+- User education (what is GDD? why is it better than calendar days?)
+- Handling edge cases (missed applications, location changes, travel)
+- Distinguishing PGR products from other products in user's inventory
+
+**Non-Concerns (Confirmed):**
+- ✅ API rate limits - Open-Meteo free tier is more than sufficient
+- ✅ Weather data accuracy - Using NOAA and Open-Meteo (both highly reliable)
+- ✅ Additional API costs - All data sources are free
+- ✅ Data volume - GDD data is actually LESS than current soil temp data
 
 ### Development Checklist
 
 Before starting implementation:
 - [ ] Review this plan with team
-- [ ] Confirm weather API strategy
+- [x] **Confirm weather API strategy** ✅
+  - Open-Meteo Archive API for historical air temps (NEW call, ~1/user/day with caching)
+  - Weather.gov for forecasts (REUSE existing data, zero new calls)
 - [ ] Design mockups for GDD page and settings
 - [ ] Prioritize Phase 1 features
-- [ ] Set up testing environment
-- [ ] Create user education content (tooltips, help text)
+- [ ] Set up testing environment with Open-Meteo Archive API
+- [ ] Create user education content (tooltips, help text, "What is GDD?" modal)
 
 ---
 
@@ -1156,6 +1315,16 @@ A: Growing season dates will be different (winter in June-August). Ensure date c
 
 **Q: What if weather API is down?**
 A: Cache last known GDD value. Show warning that data is stale. Provide manual entry option as backup.
+
+**Q: Will GDD tracking cause us to hit API rate limits?**
+A: No. With backend caching (24-hour TTL), we'll add only ~1 API call per user per day to Open-Meteo. Even with 1,000 active users, that's only 4,000 total calls/day (40% of the 10,000/day free tier limit). Weather.gov forecasts require ZERO new API calls since we're already fetching that data - we just reuse it for GDD projections.
+
+**Q: Why fetch air temperature when we're already fetching soil temperature?**
+A: They're used for different purposes:
+- **Soil temperature** → Germination models, pre-emergent timing, soil activity (current use in Yardvark)
+- **Air temperature** → Plant growth, PGR efficacy, above-ground biological processes (GDD use)
+
+PGR works by affecting plant cells and metabolism, which responds to air temperature, not soil temperature. The research-based GDD intervals (200-250 GDD) are all calculated using air temps.
 
 ---
 

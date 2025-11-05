@@ -1,7 +1,7 @@
 import { FormGroup, ValidatorFn } from '@angular/forms';
 
 export const GUARANTEED_ANALYSIS_FORMAT_REGEX =
-  /^([0-9]|[1-9][0-9]|100)-([0-9]|[1-9][0-9]|100)-([0-9]|[1-9][0-9]|100)$/;
+  /^([0-9](\.\d{1,2})?|[1-9][0-9](\.\d{1,2})?|100(\.0{1,2})?)-([0-9](\.\d{1,2})?|[1-9][0-9](\.\d{1,2})?|100(\.0{1,2})?)-([0-9](\.\d{1,2})?|[1-9][0-9](\.\d{1,2})?|100(\.0{1,2})?)$/;
 export const APPLICATION_RATE_FORMAT_REGEX = /^(.+)\/(.+)sqft$/i;
 
 export const guaranteedAnalysisFieldValidator: ValidatorFn = (control) => {

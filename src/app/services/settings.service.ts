@@ -26,6 +26,11 @@ export class SettingsService {
       [settingName]: newValue
     };
 
+    this.currentSettings.update((currSettings) => ({
+      ...currSettings,
+      ...updatedSettings
+    }));
+
     putReq<SettingsData>(apiUrl('settings'), updatedSettings).subscribe({
       next: (updatedSettingsRes) =>
         this.currentSettings.update((currSettings) => ({

@@ -1,22 +1,24 @@
-<div class="mobile-bottom-navbar">
-  <div class="navbar-items">
-    @for (item of primaryNavItems(); track item.id) {
-      <a
-        class="navbar-item"
-        [class.navbar-item-active]="
-          item.id === 'more' ? isMoreMenuOpen() : false
-        "
-        [routerLink]="item.routerLink || null"
-        [routerLinkActive]="item.id !== 'more' ? 'navbar-item-active' : ''"
-        [routerLinkActiveOptions]="item.routerLinkActiveOptions || { exact: false }"
-        (click)="item.id === 'more' && handleMoreClick($event)"
-      >
-        <i [class]="item.icon"></i>
-        <span class="navbar-label">{{ item.label }}</span>
-      </a>
-    }
+@if (isSettingsLoaded()) {
+  <div class="mobile-bottom-navbar">
+    <div class="navbar-items">
+      @for (item of primaryNavItems(); track item.id) {
+        <a
+          class="navbar-item"
+          [class.navbar-item-active]="
+            item.id === 'more' ? isMoreMenuOpen() : false
+          "
+          [routerLink]="item.routerLink || null"
+          [routerLinkActive]="item.id !== 'more' ? 'navbar-item-active' : ''"
+          [routerLinkActiveOptions]="item.routerLinkActiveOptions || { exact: false }"
+          (click)="item.id === 'more' && handleMoreClick($event)"
+        >
+          <i [class]="item.icon"></i>
+          <span class="navbar-label">{{ item.label }}</span>
+        </a>
+      }
+    </div>
   </div>
-</div>
+}
 <p-drawer
   [visible]="isMoreMenuOpen()"
   [position]="'bottom'"
@@ -35,6 +37,15 @@
       <div class="more-menu-controls">
         <div class="control-item">
           <p-button
+            icon="ti ti-settings"
+            label="Settings"
+            [outlined]="true"
+            routerLink="/settings"
+            (click)="closeMoreMenu()"
+          />
+        </div>
+        <div class="control-item">
+          <p-button
             icon="ti ti-adjustments"
             label="Customize navbar"
             [outlined]="true"
@@ -45,7 +56,6 @@
           <p-button
             icon="ti ti-message-circle"
             label="Give feedback"
-            [outlined]="true"
             (click)="openFeedbackDialog()"
           />
         </div>

@@ -175,6 +175,17 @@ export class DashboardComponent {
     return resource.isLoading() || !weatherData || weatherData.length === 0;
   });
 
+  public isAnyWidgetLoading = computed(() => {
+    const visible = this.visibleWidgets();
+
+    if (visible.recentEntry && this.recentEntry.isLoading()) return true;
+    if (visible.quickStats && this.isQuickStatsLoading()) return true;
+    if (visible.lawnHealthScore && this.isLawnHealthScoreLoading()) return true;
+    if (visible.weatherCard && this.isWeatherCardLoading()) return true;
+
+    return false;
+  });
+
   public mobileSpeedDialMenu = computed<MenuItem[]>(() => [
     {
       label: 'Create entry',

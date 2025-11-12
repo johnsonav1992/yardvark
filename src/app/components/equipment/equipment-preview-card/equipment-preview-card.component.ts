@@ -59,9 +59,12 @@ export class EquipmentPreviewCardComponent {
       }
     );
 
-    if (this.isMobile()) this._dialogService.getInstance(dialogRef).maximize();
+    if (dialogRef && this.isMobile()) {
+      const instance = this._dialogService.getInstance(dialogRef);
+      if (instance) instance.maximize();
+    }
 
-    dialogRef.onClose.subscribe((result) => {
+    dialogRef?.onClose.subscribe((result) => {
       if (result === 'success') {
         this._equipmentService.equipment.reload();
       }

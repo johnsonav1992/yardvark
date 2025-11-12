@@ -1,10 +1,13 @@
 import {
   ApplicationConfig,
-  provideAppInitializer,
   provideZonelessChangeDetection,
   isDevMode
 } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import {
+  provideRouter,
+  withInMemoryScrolling,
+  withViewTransitions
+} from '@angular/router';
 
 import { mainRoutes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -13,7 +16,7 @@ import { providePrimeNG } from 'primeng/config';
 import { authHttpInterceptorFn, provideAuth0 } from '@auth0/auth0-angular';
 import { theme } from './theme/theme';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { initHttpUtils } from './utils/httpUtils';
+import { provideHttpUtils } from './utils/httpUtils';
 import { YV_DARK_MODE_SELECTOR } from './constants/style-constants';
 import { environment } from '../environments/environment';
 import { provideServiceWorker } from '@angular/service-worker';
@@ -21,7 +24,13 @@ import { provideServiceWorker } from '@angular/service-worker';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZonelessChangeDetection(),
-    provideRouter(mainRoutes),
+    provideRouter(
+      mainRoutes,
+      withInMemoryScrolling({
+        scrollPositionRestoration: 'top'
+      }),
+      withViewTransitions({ skipInitialTransition: true })
+    ),
     provideHttpClient(withInterceptors([authHttpInterceptorFn])),
     provideAnimationsAsync(),
     providePrimeNG({
@@ -53,7 +62,7 @@ export const appConfig: ApplicationConfig = {
         ]
       }
     }),
-    provideAppInitializer(() => initHttpUtils()),
+    provideHttpUtils(),
     MessageService,
     ConfirmationService,
     provideServiceWorker('ngsw-worker.js', {

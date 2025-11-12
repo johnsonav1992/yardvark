@@ -7,7 +7,7 @@ import { LoadingSpinnerComponent } from '../../components/miscellanious/loading-
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { GlobalUiService } from '../../services/global-ui.service';
-import { ButtonDesignTokens } from '@primeng/themes/types/button';
+import { ButtonDesignTokens } from '@primeuix/themes/types/button';
 import { Router } from '@angular/router';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { IconFieldModule } from 'primeng/iconfield';

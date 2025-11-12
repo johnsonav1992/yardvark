@@ -12,15 +12,12 @@ import {
   EntriesCalendarComponent
 } from '../../components/entries/entries-calendar/entries-calendar.component';
 import { ButtonModule } from 'primeng/button';
-import { ButtonDesignTokens } from '@primeng/themes/types/button';
+import { ButtonDesignTokens } from '@primeuix/themes/types/button';
 import { injectUserData } from '../../utils/authUtils';
 import { Entry } from '../../types/entries.types';
 import { getEntryIcon } from '../../utils/entriesUtils';
 import { TooltipModule } from 'primeng/tooltip';
 import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
-import { DialogService } from 'primeng/dynamicdialog';
-import { EntryDialogComponent } from '../../components/entries/entry-dialog/entry-dialog.component';
-import { EntryDialogFooterComponent } from '../../components/entries/entry-dialog/entry-dialog-footer/entry-dialog-footer.component';
 import { EntriesService } from '../../services/entries.service';
 import { GlobalUiService } from '../../services/global-ui.service';
 import { DividerModule } from 'primeng/divider';
@@ -52,13 +49,11 @@ import { getEntryCsvConfig } from '../../utils/csvUtils';
     WeatherDayMarker
   ],
   templateUrl: './entry-log.component.html',
-  styleUrl: './entry-log.component.scss',
-  providers: [DialogService]
+  styleUrl: './entry-log.component.scss'
 })
 export class EntryLogComponent implements OnInit {
   private _router = inject(Router);
   private _activatedRoute = inject(ActivatedRoute);
-  private _dialogService = inject(DialogService);
   private _entriesService = inject(EntriesService);
   private _globalUiService = inject(GlobalUiService);
   private _settingsService = inject(SettingsService);
@@ -227,38 +222,8 @@ export class EntryLogComponent implements OnInit {
   }
 
   public createEntry(date?: Date): void {
-    const dialogRef = this._dialogService.open(EntryDialogComponent, {
-      header: 'Add Entry',
-      modal: true,
-      focusOnShow: false,
-      width: '50%',
-      dismissableMask: true,
-      closable: true,
-      contentStyle: { overflow: 'auto' },
-      inputValues: {
-        date
-      },
-      templates: {
-        footer: EntryDialogFooterComponent
-      },
-      breakpoints: {
-        '800px': '95%'
-      },
-      maximizable: true
-    });
-
-    if (this.isMobile()) this._dialogService.getInstance(dialogRef).maximize();
-
-    dialogRef.onClose.subscribe((result?: string) => {
-      if (result) {
-        this.changeMonths(new Date(result));
-
-        if (this.isMobile())
-          this.selectedMobileDateToView.set(new Date(result));
-
-        this.entries.reload();
-      }
-    });
+    const queryParams = date ? { date: date.toISOString() } : {};
+    this._router.navigate(['entry-log', 'add'], { queryParams });
   }
 
   public selectDay(e: DaySelectedEvent): void {

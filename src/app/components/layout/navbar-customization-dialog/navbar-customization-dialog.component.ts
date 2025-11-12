@@ -39,8 +39,9 @@ export class NavbarCustomizationDialogComponent {
 
   constructor() {
     const settings = this._settingsService.currentSettings();
-    const currentSelection = settings?.mobileNavbarItems?.length === 4
-      ? settings.mobileNavbarItems
+    const items = settings?.mobileNavbarItems;
+    const currentSelection = items && items.length >= 4 && items.length <= 5
+      ? items
       : DEFAULT_MOBILE_NAV_ITEMS;
 
     this.items.update((items) =>
@@ -54,7 +55,7 @@ export class NavbarCustomizationDialogComponent {
   public canToggleItem(item: SelectableNavItem): boolean {
     if (item.selected) return true;
 
-    return this.selectedCount() < 4;
+    return this.selectedCount() < 5;
   }
 
   public toggleItem(itemId: string): void {
@@ -70,7 +71,7 @@ export class NavbarCustomizationDialogComponent {
       .filter((item) => item.selected)
       .map((item) => item.id);
 
-    if (selectedIds.length === 4) {
+    if (selectedIds.length >= 4 && selectedIds.length <= 5) {
       this._settingsService.updateSetting('mobileNavbarItems', selectedIds);
       this._dialogRef.close(true);
     }

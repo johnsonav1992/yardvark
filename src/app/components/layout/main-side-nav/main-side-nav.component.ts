@@ -1,5 +1,5 @@
 import { Component, computed, inject, ViewEncapsulation } from '@angular/core';
-import { MenuDesignTokens } from '@primeng/themes/types/menu';
+import { MenuDesignTokens } from '@primeuix/themes/types/menu';
 import { MenuItem } from 'primeng/api';
 import { DrawerModule } from 'primeng/drawer';
 import { MenuModule } from 'primeng/menu';
@@ -47,7 +47,7 @@ export class MainSideNavComponent {
       height: 'auto'
     });
 
-    dialogRef.onClose.subscribe();
+    dialogRef?.onClose.subscribe();
   };
 
   public menuItems: MenuItem[] = NAV_ITEMS.map(item => ({

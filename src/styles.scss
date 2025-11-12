@@ -13,10 +13,17 @@
 html {
   font-family: "Inter", sans-serif;
   color: var(--text-color, var(--p-surface-600));
+  height: 100%;
+  overflow-x: hidden;
 
   &.yv-dark-mode {
     color: var(--text-color-dark, var(--p-surface-300));
   }
+}
+
+body {
+  height: 100%;
+  overflow-x: hidden;
 }
 
 @keyframes spin {
@@ -50,7 +57,6 @@ html {
   display: none !important;
 }
 
-// Need to make sure this doesn't break anything else
 .p-overlay {
   z-index: 10000 !important;
 }
@@ -59,7 +65,6 @@ html {
   display: none !important;
 }
 
-// PWA-specific styles to hide browser chrome during navigation
 @media (display-mode: standalone) {
   html {
     overscroll-behavior: none;
@@ -110,8 +115,22 @@ html {
 }
 
 @media (max-width: 768px) {
-  html,
+  html {
+    height: 100dvh;
+    height: 100vh;
+    height: -webkit-fill-available;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
+  }
+
   body {
+    height: 100dvh;
+    height: 100vh;
+    height: -webkit-fill-available;
+    overflow: hidden;
+    position: fixed;
+    width: 100%;
     scrollbar-width: none;
     -ms-overflow-style: none;
 
@@ -121,8 +140,17 @@ html {
   }
 
   .main-content-wrapper {
+    position: absolute;
+    top: var(--main-header-height);
+    bottom: 0;
+    left: 0;
+    right: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 10px) + 10px);
 
     &::-webkit-scrollbar {
       display: none;

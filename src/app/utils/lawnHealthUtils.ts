@@ -5,6 +5,7 @@ import {
   LawnHealthScoreMonthlyData
 } from '../types/lawnHealthScore.types';
 import { getMonth, getYear, getDate } from 'date-fns';
+import { getLawnSeasonCompletedPercentageWithTemp } from './lawnSeasonUtils';
 
 export const calculateLawnHealthScore = (
   analyticsData: AnalyticsRes | undefined,
@@ -25,6 +26,19 @@ export const calculateLawnHealthScore = (
       totalScore: 0,
       grade: 'F',
       description: 'No data available'
+    };
+  }
+
+  if (!factors.isGrowingSeason) {
+    return {
+      mowingScore: 0,
+      fertilizationScore: 0,
+      consistencyScore: 0,
+      recencyScore: 0,
+      totalScore: 0,
+      grade: 'Off-Season',
+      description: 'Lawn is dormant for the season',
+      isOffSeason: true
     };
   }
 
@@ -268,8 +282,21 @@ const getHealthDescription = (score: number): string => {
   return 'Needs significant improvement';
 };
 
-export const isCurrentlyGrowingSeason = (): boolean => {
-  const currentMonth = getMonth(new Date()) + 1;
+export const isCurrentlyGrowingSeason = (
+  coords?: { lat: number; long: number },
+  currentSoilTemp?: number | null,
+  temperatureUnit: 'fahrenheit' | 'celsius' = 'fahrenheit'
+): boolean => {
+  if (!coords) {
+    const currentMonth = getMonth(new Date()) + 1;
+    return currentMonth >= 4 && currentMonth <= 10;
+  }
 
-  return currentMonth >= 4 && currentMonth <= 10;
+  const seasonPercentage = getLawnSeasonCompletedPercentageWithTemp(
+    coords,
+    currentSoilTemp,
+    temperatureUnit
+  );
+
+  return seasonPercentage >= 0 && seasonPercentage < 100;
 };

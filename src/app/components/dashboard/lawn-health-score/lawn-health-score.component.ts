@@ -5,7 +5,7 @@ import { DividerModule } from 'primeng/divider';
 import { PopoverModule } from 'primeng/popover';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
-import { DividerDesignTokens } from '@primeng/themes/types/divider';
+import { DividerDesignTokens } from '@primeuix/themes/types/divider';
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { LawnHealthScoreService } from '../../../services/lawn-health-score.service';
 

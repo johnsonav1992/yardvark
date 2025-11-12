@@ -25,8 +25,18 @@
     align-items: center;
     gap: 0.75rem;
   }
+
+  // Use absolute positioning on mobile for better compatibility
+  @media (max-width: 768px) {
+    position: absolute;
+  }
 }
 
 .user-logo {
   cursor: pointer;
+}
+
+::ng-deep .fixed-header-menu.p-menu.p-component {
+  position: fixed !important;
+  z-index: 1300 !important;
 }

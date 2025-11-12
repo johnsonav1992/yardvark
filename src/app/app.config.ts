@@ -8,6 +8,8 @@ import {
   withInMemoryScrolling,
   withViewTransitions
 } from '@angular/router';
+import config from '../../capacitor.config';
+import { Capacitor } from '@capacitor/core';
 
 import { mainRoutes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -20,6 +22,14 @@ import { provideHttpUtils } from './utils/httpUtils';
 import { YV_DARK_MODE_SELECTOR } from './constants/style-constants';
 import { environment } from '../environments/environment';
 import { provideServiceWorker } from '@angular/service-worker';
+
+const getRedirectUri = () => {
+  if (Capacitor.isNativePlatform()) {
+    return `${config.appId}://${environment.auth0Domain}/capacitor/${config.appId}/callback`;
+  }
+
+  return window.location.origin;
+};
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -46,9 +56,11 @@ export const appConfig: ApplicationConfig = {
       domain: environment.auth0Domain,
       clientId: environment.auth0ClientId,
       authorizationParams: {
-        redirect_uri: window.location.origin,
+        redirect_uri: getRedirectUri(),
         audience: `https://${environment.auth0Domain}/api/v2/`
       },
+      useRefreshTokens: true,
+      useRefreshTokensFallback: false,
       httpInterceptor: {
         allowedList: [
           {

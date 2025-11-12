@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, NgZone, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
 import { MainHeaderComponent } from './components/layout/main-header/main-header.component';
@@ -14,6 +14,10 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
 import { SwUpdate } from '@angular/service-worker';
 import { ConfirmationService } from 'primeng/api';
 import { ChangelogService } from './services/changelog.service';
+import { Browser } from '@capacitor/browser';
+import { App } from '@capacitor/app';
+import config from '../../capacitor.config';
+import { catchError, mergeMap, of } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -35,6 +39,7 @@ export class AppComponent {
   private _swUpdate = inject(SwUpdate);
   private _confirmationService = inject(ConfirmationService);
   private _changelogService = inject(ChangelogService);
+  private _ngZone = inject(NgZone);
 
   public isMobile = this._globalUiService.isMobile;
 
@@ -42,6 +47,36 @@ export class AppComponent {
   public isAuthLoading = toSignal(this._auth.isLoading$);
 
   public constructor() {
+    const callbackUri = `${config.appId}://${environment.auth0Domain}/capacitor/${config.appId}/callback`;
+
+    App.addListener('appUrlOpen', ({ url }) => {
+      // Must run inside an NgZone for Angular to pick up the changes
+      // https://capacitorjs.com/docs/guides/angular
+      this._ngZone.run(() => {
+        if (url?.startsWith(callbackUri)) {
+          // If the URL is an authentication callback URL..
+          if (
+            url.includes('state=') &&
+            (url.includes('error=') || url.includes('code='))
+          ) {
+            // Call handleRedirectCallback and close the browser
+            this._auth
+              .handleRedirectCallback(url)
+              .pipe(
+                mergeMap(() => Browser.close()),
+                catchError((err) => {
+                  console.log(err);
+                  return of(null);
+                })
+              )
+              .subscribe();
+          } else {
+            Browser.close();
+          }
+        }
+      });
+    });
+
     if (this._swUpdate.isEnabled) {
       this._swUpdate.versionUpdates.subscribe((event) => {
         if (event.type === 'VERSION_READY') {
@@ -91,7 +126,13 @@ export class AppComponent {
       this.isLoggedIn.set(isAuthenticated);
 
       if (!isAuthenticated) {
-        this._auth.loginWithRedirect();
+        this._auth.loginWithRedirect({
+          openUrl: async (url) => {
+            await Browser.open({ url, windowName: '_self' });
+          }
+        });
+      } else {
+        console.log('User is authenticated!');
       }
     });
 

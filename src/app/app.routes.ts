@@ -25,8 +25,8 @@ export const mainRoutes: Routes = [
   },
   {
     path: 'dashboard',
-    component: DashboardComponent,
-    canActivate: [authGuardFn]
+    component: DashboardComponent
+    // canActivate: [authGuardFn]
   },
   {
     path: 'profile',

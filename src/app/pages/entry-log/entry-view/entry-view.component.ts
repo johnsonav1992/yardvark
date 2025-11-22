@@ -54,6 +54,7 @@ import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
 import { MAX_FILE_LARGE_UPLOAD_SIZE } from '../../../constants/file-constants';
 import { FilesService } from '../../../services/files.service';
 import { ConfirmationService } from 'primeng/api';
+import { ACTIVITY_IDS } from '../../../constants/activity-constants';
 
 @Component({
   selector: 'entry-view',
@@ -91,6 +92,23 @@ export class EntryViewComponent {
 
   public isMobile = this._globalUiService.isMobile;
   public maxFileUploadSize = MAX_FILE_LARGE_UPLOAD_SIZE;
+
+  public hasMowingActivity = computed(() => {
+    const activities = this.editForm.controls.activities.value;
+    return (
+      activities?.some((activity) => activity.id === ACTIVITY_IDS.MOW) ?? false
+    );
+  });
+
+  public originalMowingHeight = computed(() => this.entryData()?.mowingHeight);
+
+  public shouldShowMowingHeight = computed(() => {
+    if (!this.isInEditMode()) {
+      return !!this.originalMowingHeight();
+    }
+
+    return this.hasMowingActivity() || !!this.originalMowingHeight();
+  });
 
   public editForm = new FormGroup({
     time: new FormControl<Date | null>(null),

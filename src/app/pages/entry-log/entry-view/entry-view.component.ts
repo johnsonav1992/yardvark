@@ -93,8 +93,10 @@ export class EntryViewComponent {
   public isMobile = this._globalUiService.isMobile;
   public maxFileUploadSize = MAX_FILE_LARGE_UPLOAD_SIZE;
 
+  public selectedActivities = signal<Activity[]>([]);
+
   public hasMowingActivity = computed(() => {
-    const activities = this.editForm.controls.activities.value;
+    const activities = this.selectedActivities();
     return (
       activities?.some((activity) => activity.id === ACTIVITY_IDS.MOW) ?? false
     );
@@ -166,6 +168,19 @@ export class EntryViewComponent {
   );
 
   public downloadedFiles = signal<File[]>([]);
+
+  // @ts-expect-error -> using this until signal forms are ready
+  private _activitiesSubscriptionEffect = effect((onCleanup) => {
+    const activitiesControl = this.editForm.controls.activities;
+
+    const subscription = activitiesControl.valueChanges.subscribe((values) => {
+      this.selectedActivities.set(values || []);
+    });
+
+    this.selectedActivities.set(activitiesControl.value || []);
+
+    onCleanup(() => subscription.unsubscribe());
+  });
 
   _formFileUpdater = effect(() => {
     const entryData = this.entryData();

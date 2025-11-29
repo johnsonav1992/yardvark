@@ -14,7 +14,12 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 export const getPrimeNgHexColor = (tokenName: PrimeNGColorToken): string => {
   const token = $dt(tokenName);
 
-  return token.value as string;
+  const cssVarName = token.name as string;
+  const computedValue = getComputedStyle(document.documentElement)
+    .getPropertyValue(cssVarName)
+    .trim();
+
+  return computedValue;
 };
 
 /**

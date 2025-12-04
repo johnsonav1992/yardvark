@@ -161,6 +161,25 @@ export class EntriesService {
     return entry?.date || null;
   }
 
+  /**
+   * Gets the date of the most recent entry with a PGR (Plant Growth Regulator) product
+   * Used for GDD (Growing Degree Days) calculation
+   */
+  async getLastPgrApplicationDate(userId: string) {
+    const entry = await this._entriesRepo
+      .createQueryBuilder('entry')
+      .leftJoin('entry.entryProducts', 'entryProduct')
+      .leftJoin('entryProduct.product', 'product')
+      .where('entry.userId = :userId', { userId })
+      .andWhere('entry.date <= :today', { today: new Date() })
+      .andWhere('product.category = :category', { category: 'pgr' })
+      .orderBy('entry.date', 'DESC')
+      .addOrderBy('entry.time', 'DESC')
+      .getOne();
+
+    return entry?.date || null;
+  }
+
   async createEntry(userId: string, entry: EntryCreationRequest) {
     const newEntry = this._entriesRepo.create({
       ...entry,

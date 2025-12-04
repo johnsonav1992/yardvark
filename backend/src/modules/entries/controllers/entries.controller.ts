@@ -53,6 +53,15 @@ export class EntriesController {
     return { lastProductAppDate };
   }
 
+  @Get('last-pgr-app')
+  async getLastPgrAppDate(@Req() req: Request) {
+    const lastPgrAppDate = await this._entriesService.getLastPgrApplicationDate(
+      req.user.userId,
+    );
+
+    return { lastPgrAppDate };
+  }
+
   @Get('single/by-date/:date')
   getEntryByDate(@Req() req: Request, @Param('date') date: string) {
     return this._entriesService.getEntryByDate(req.user.userId, date);

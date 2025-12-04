@@ -54,6 +54,7 @@ import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
 import { MAX_FILE_LARGE_UPLOAD_SIZE } from '../../../constants/file-constants';
 import { FilesService } from '../../../services/files.service';
 import { ConfirmationService } from 'primeng/api';
+import { ACTIVITY_IDS } from '../../../constants/activity-constants';
 
 @Component({
   selector: 'entry-view',
@@ -91,6 +92,25 @@ export class EntryViewComponent {
 
   public isMobile = this._globalUiService.isMobile;
   public maxFileUploadSize = MAX_FILE_LARGE_UPLOAD_SIZE;
+
+  public selectedActivities = signal<Activity[]>([]);
+
+  public hasMowingActivity = computed(() => {
+    const activities = this.selectedActivities();
+    return (
+      activities?.some((activity) => activity.id === ACTIVITY_IDS.MOW) ?? false
+    );
+  });
+
+  public originalMowingHeight = computed(() => this.entryData()?.mowingHeight);
+
+  public shouldShowMowingHeight = computed(() => {
+    if (!this.isInEditMode()) {
+      return !!this.originalMowingHeight();
+    }
+
+    return this.hasMowingActivity() || !!this.originalMowingHeight();
+  });
 
   public editForm = new FormGroup({
     time: new FormControl<Date | null>(null),
@@ -148,6 +168,19 @@ export class EntryViewComponent {
   );
 
   public downloadedFiles = signal<File[]>([]);
+
+  // @ts-expect-error -> using this until signal forms are ready
+  private _activitiesSubscriptionEffect = effect((onCleanup) => {
+    const activitiesControl = this.editForm.controls.activities;
+
+    const subscription = activitiesControl.valueChanges.subscribe((values) => {
+      this.selectedActivities.set(values || []);
+    });
+
+    this.selectedActivities.set(activitiesControl.value || []);
+
+    onCleanup(() => subscription.unsubscribe());
+  });
 
   _formFileUpdater = effect(() => {
     const entryData = this.entryData();

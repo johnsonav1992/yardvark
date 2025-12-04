@@ -4,6 +4,7 @@ import { EntriesService } from '../services/entries.service';
 
 describe('EntriesController', () => {
   let controller: EntriesController;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let service: EntriesService;
 
   const mockEntriesService = {

@@ -75,7 +75,6 @@ export class WeatherService {
           .get<OpenMeteoHistoricalResponse>(
             `${this.openMeteoHistoricalUrl}?${params}`,
           )
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
           .pipe(map((res) => res.data)),
       ),
     );
@@ -86,7 +85,6 @@ export class WeatherService {
       );
     }
 
-    /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
     const { daily } = result.data;
 
     return daily.time.map((date: string, i: number) => ({
@@ -94,6 +92,5 @@ export class WeatherService {
       maxTemp: daily.temperature_2m_max[i],
       minTemp: daily.temperature_2m_min[i],
     }));
-    /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
   }
 }

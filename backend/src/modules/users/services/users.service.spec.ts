@@ -5,7 +5,9 @@ import { UsersService } from '../services/users.service';
 
 describe('UsersService', () => {
   let service: UsersService;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let httpService: HttpService;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let configService: ConfigService;
 
   const mockHttpService = {

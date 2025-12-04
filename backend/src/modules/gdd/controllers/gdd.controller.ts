@@ -17,7 +17,11 @@ export class GddController {
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {
-    return this._gddService.getHistoricalGdd(req.user.userId, startDate, endDate);
+    return this._gddService.getHistoricalGdd(
+      req.user.userId,
+      startDate,
+      endDate,
+    );
   }
 
   @Get('forecast')

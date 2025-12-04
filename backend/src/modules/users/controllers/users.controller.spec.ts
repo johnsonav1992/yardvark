@@ -4,6 +4,7 @@ import { UsersService } from '../services/users.service';
 
 describe('UsersController', () => {
   let controller: UsersController;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let service: UsersService;
 
   const mockUsersService = {

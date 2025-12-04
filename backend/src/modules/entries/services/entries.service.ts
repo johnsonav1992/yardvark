@@ -217,9 +217,10 @@ export class EntriesService {
       if (result.status === 'fulfilled') {
         entries.push(result.value);
       } else {
+        const reason = result.reason as Error | undefined;
         errors.push({
           index,
-          error: result.reason?.message || 'Unknown error',
+          error: reason?.message || 'Unknown error',
         });
       }
     });

@@ -13,6 +13,7 @@ import * as tryCatchModule from '../../../utils/tryCatch';
 
 describe('WeatherService', () => {
   let service: WeatherService;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let httpService: HttpService;
 
   const mockHttpService = {
@@ -363,7 +364,7 @@ describe('WeatherService', () => {
       jest.spyOn(tryCatchModule, 'tryCatch').mockResolvedValueOnce({
         data: null,
         error: 'String error' as unknown as Error,
-      });
+      } as never);
 
       await expect(
         service.getWeatherData('32.7767', '-96.7970'),
@@ -374,7 +375,7 @@ describe('WeatherService', () => {
       jest.spyOn(tryCatchModule, 'tryCatch').mockResolvedValueOnce({
         data: null,
         error: null,
-      });
+      } as never);
 
       await expect(
         service.getWeatherData('32.7767', '-96.7970'),

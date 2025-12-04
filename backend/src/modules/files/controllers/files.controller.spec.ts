@@ -5,7 +5,9 @@ import { S3Service } from 'src/modules/s3/s3.service';
 
 describe('FilesController', () => {
   let controller: FilesController;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let s3Service: S3Service;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let httpService: HttpService;
 
   const mockS3Service = {

@@ -7,6 +7,7 @@ import { LawnSegmentCreationRequest } from '../models/lawn-segments.types';
 
 describe('LawnSegmentsService', () => {
   let service: LawnSegmentsService;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let repository: Repository<LawnSegment>;
 
   const mockRepository = {

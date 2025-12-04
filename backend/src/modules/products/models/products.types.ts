@@ -7,6 +7,7 @@ export const PRODUCT_TYPES = {
   PLANT_FERTILIZER: 'plant-fertilizer',
   SEED: 'seed',
   FUNGUS_CONTROL: 'fungus-control',
+  PGR: 'pgr',
   OTHER: 'other',
 } as const;
 

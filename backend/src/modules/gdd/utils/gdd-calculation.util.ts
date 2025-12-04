@@ -17,7 +17,7 @@ export const getDailyGDDCalculation = ({
   minTemperature: number;
 }): number => {
   const averageTemp = (maxTemperature + minTemperature) / 2;
-  
+
   return Math.max(0, averageTemp - baseTemperature);
 };
 

@@ -362,24 +362,26 @@ describe('WeatherService', () => {
 
     it('should handle non-Error objects in tryCatch', async () => {
       jest.spyOn(tryCatchModule, 'tryCatch').mockResolvedValueOnce({
+        success: false,
         data: null,
-        error: 'String error' as unknown as Error,
-      } as never);
+        error: { message: undefined } as unknown as Error,
+      });
 
       await expect(
         service.getWeatherData('32.7767', '-96.7970'),
-      ).rejects.toThrow('Failed to fetch weather data: Unknown error');
+      ).rejects.toThrow('Failed to fetch weather data: undefined');
     });
 
     it('should handle empty forecast data', async () => {
       jest.spyOn(tryCatchModule, 'tryCatch').mockResolvedValueOnce({
+        success: false,
         data: null,
-        error: null,
-      } as never);
+        error: new Error('Empty forecast data'),
+      });
 
       await expect(
         service.getWeatherData('32.7767', '-96.7970'),
-      ).rejects.toThrow('Failed to fetch weather data: Unknown error');
+      ).rejects.toThrow('Failed to fetch weather data: Empty forecast data');
     });
 
     it('should handle malformed points response', async () => {

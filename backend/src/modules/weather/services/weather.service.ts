@@ -52,17 +52,6 @@ export class WeatherService {
     return result.data;
   }
 
-  /**
-   * Fetches historical daily air temperatures from Open-Meteo Historical Forecast API
-   * Used for GDD (Growing Degree Days) calculation
-   *
-   * @param lat - Latitude
-   * @param long - Longitude
-   * @param startDate - Start date (YYYY-MM-DD)
-   * @param endDate - End date (YYYY-MM-DD)
-   * @param temperatureUnit - Temperature unit ('fahrenheit' or 'celsius')
-   * @returns Array of daily temperature data with date, max temp, and min temp
-   */
   async getHistoricalAirTemperatures(
     lat: number,
     long: number,
@@ -86,7 +75,8 @@ export class WeatherService {
           .get<OpenMeteoHistoricalResponse>(
             `${this.openMeteoHistoricalUrl}?${params}`,
           )
-          .pipe(map((response) => response.data)),
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+          .pipe(map((res) => res.data)),
       ),
     );
 
@@ -96,12 +86,14 @@ export class WeatherService {
       );
     }
 
+    /* eslint-disable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
     const { daily } = result.data;
 
-    return daily.time.map((date, i) => ({
+    return daily.time.map((date: string, i: number) => ({
       date,
       maxTemp: daily.temperature_2m_max[i],
       minTemp: daily.temperature_2m_min[i],
     }));
+    /* eslint-enable @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
   }
 }

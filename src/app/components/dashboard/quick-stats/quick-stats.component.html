@@ -46,10 +46,25 @@
         {{ daysSinceLastProductApplication() }}
       </b>
     </p>
+    @if (hasGddData()) {
+      <p-divider [dt]="dividerDt" />
+
+      <div class="gdd-progress">
+        <p class="stat">
+          <i class="ti ti-flame icon"></i> GDD Progress:
+          <b>{{ gddAccumulated() }} / {{ gddTarget() }}</b>
+        </p>
+
+        <p-progressbar [value]="gddPercentage()" [showValue]="false" />
+      </div>
+    }
+
     @if (lawnSeasonPercentage()) {
       <p-divider [dt]="dividerDt" />
+
       <div class="season-progress">
         <p class="stat">Season progress:</p>
+
         <p-progressbar [value]="lawnSeasonPercentage()" />
       </div>
     }

@@ -13,6 +13,7 @@ import { LocationService } from '../../../services/location.service';
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { SoilTemperatureService } from '../../../services/soil-temperature.service';
 import { calculate24HourNumericAverage } from '../../../utils/soilTemperatureUtils';
+import { GddService } from '../../../services/gdd.service';
 
 @Component({
   selector: 'quick-stats',
@@ -25,6 +26,7 @@ export class QuickStatsComponent {
   private _locationService = inject(LocationService);
   private _globalUiService = inject(GlobalUiService);
   private _soilTempService = inject(SoilTemperatureService);
+  private _gddService = inject(GddService);
 
   public isMobile = this._globalUiService.isMobile;
 
@@ -103,6 +105,25 @@ export class QuickStatsComponent {
 
     return progressPercentage;
   });
+
+  public currentGddData = this._gddService.currentGdd;
+
+  public hasGddData = computed(() => {
+    const data = this.currentGddData.value();
+    return data && data.lastPgrAppDate !== null;
+  });
+
+  public gddAccumulated = computed(
+    () => this.currentGddData.value()?.accumulatedGdd ?? 0
+  );
+
+  public gddTarget = computed(
+    () => this.currentGddData.value()?.targetGdd ?? 200
+  );
+
+  public gddPercentage = computed(
+    () => this.currentGddData.value()?.percentageToTarget ?? 0
+  );
 
   public dividerDt: DividerDesignTokens = {
     horizontal: {

@@ -168,8 +168,8 @@ export class EntriesService {
   async getLastPgrApplicationDate(userId: string) {
     const entry = await this._entriesRepo
       .createQueryBuilder('entry')
-      .leftJoin('entry.entryProducts', 'entryProduct')
-      .leftJoin('entryProduct.product', 'product')
+      .innerJoin('entry.entryProducts', 'entryProduct')
+      .innerJoin('entryProduct.product', 'product')
       .where('entry.userId = :userId', { userId })
       .andWhere('entry.date <= :today', { today: new Date() })
       .andWhere('product.category = :category', { category: 'pgr' })

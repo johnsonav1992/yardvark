@@ -26,4 +26,8 @@ export class GqlAuthGuard extends AuthGuard('jwt') {
 
     return super.canActivate(context);
   }
+
+  getAuthenticateOptions() {
+    return { session: false };
+  }
 }

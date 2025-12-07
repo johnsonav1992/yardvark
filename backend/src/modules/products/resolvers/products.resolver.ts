@@ -4,6 +4,7 @@ import { Product } from '../models/products.model';
 import { ProductsService } from '../services/products.service';
 import { GqlAuthGuard } from '../../../guards/gql-auth.guard';
 import { CreateProductInput, ProductWithHidden } from './products.inputs';
+import { GqlContext } from '../../../types/gql-context';
 
 @Resolver(() => Product)
 @UseGuards(GqlAuthGuard)
@@ -12,27 +13,33 @@ export class ProductsResolver {
 
   @Query(() => [ProductWithHidden], { name: 'products' })
   async getProducts(
-    @Context() ctx: { user: { userId: string } },
+    @Context() ctx: GqlContext,
     @Args('userOnly', { nullable: true }) userOnly?: boolean,
     @Args('systemOnly', { nullable: true }) systemOnly?: boolean,
   ): Promise<ProductWithHidden[]> {
-    return this.productsService.getProducts(ctx.user.userId, { userOnly, systemOnly });
+    return this.productsService.getProducts(ctx.req.user.userId, {
+      userOnly,
+      systemOnly,
+    });
   }
 
   @Mutation(() => Product)
   async createProduct(
     @Args('input') input: CreateProductInput,
-    @Context() ctx: { user: { userId: string } },
+    @Context() ctx: GqlContext,
   ): Promise<Product> {
-    return this.productsService.addProduct({ ...input, userId: ctx.user.userId } as Product);
+    return this.productsService.addProduct({
+      ...input,
+      userId: ctx.req.user.userId,
+    } as Product);
   }
 
   @Mutation(() => Boolean)
   async hideProduct(
     @Args('productId', { type: () => Int }) productId: number,
-    @Context() ctx: { user: { userId: string } },
+    @Context() ctx: GqlContext,
   ): Promise<boolean> {
-    await this.productsService.hideProduct(ctx.user.userId, productId);
+    await this.productsService.hideProduct(ctx.req.user.userId, productId);
 
     return true;
   }
@@ -40,10 +47,10 @@ export class ProductsResolver {
   @Mutation(() => Boolean)
   async unhideProduct(
     @Args('productId', { type: () => Int }) productId: number,
-    @Context() ctx: { user: { userId: string } },
+    @Context() ctx: GqlContext,
   ): Promise<boolean> {
-    await this.productsService.unhideProduct(ctx.user.userId, productId);
-    
+    await this.productsService.unhideProduct(ctx.req.user.userId, productId);
+
     return true;
   }
 }

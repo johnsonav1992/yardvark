@@ -24,7 +24,8 @@ import { WeatherModule } from './modules/weather/weather.module';
 import { RemindersModule } from './modules/reminders/reminders.module';
 import { AiModule } from './modules/ai/ai.module';
 import { EmailModule } from './modules/email/email.module';
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { GqlThrottlerGuard } from './guards/gql-throttler.guard';
 import { GddModule } from './modules/gdd/gdd.module';
 import { AppGraphQLModule } from './graphql/graphql.module';
 
@@ -69,7 +70,7 @@ import { AppGraphQLModule } from './graphql/graphql.module';
     },
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard,
+      useClass: GqlThrottlerGuard,
     },
     UsersService,
     S3Service,

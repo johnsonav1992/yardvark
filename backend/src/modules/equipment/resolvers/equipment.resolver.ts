@@ -5,6 +5,7 @@ import { EquipmentMaintenance } from '../models/equipmentMaintenance.model';
 import { EquipmentService } from '../services/equipment.service';
 import { GqlAuthGuard } from '../../../guards/gql-auth.guard';
 import { CreateEquipmentInput, UpdateEquipmentInput, CreateMaintenanceInput, UpdateMaintenanceInput } from './equipment.inputs';
+import { GqlContext } from '../../../types/gql-context';
 
 @Resolver(() => Equipment)
 @UseGuards(GqlAuthGuard)
@@ -12,16 +13,16 @@ export class EquipmentResolver {
   constructor(private readonly equipmentService: EquipmentService) {}
 
   @Query(() => [Equipment], { name: 'equipment' })
-  async getEquipment(@Context() ctx: { user: { userId: string } }): Promise<Equipment[]> {
-    return this.equipmentService.getAllUserEquipment(ctx.user.userId);
+  async getEquipment(@Context() ctx: GqlContext): Promise<Equipment[]> {
+    return this.equipmentService.getAllUserEquipment(ctx.req.user.userId);
   }
 
   @Mutation(() => Equipment)
   async createEquipment(
     @Args('input') input: CreateEquipmentInput,
-    @Context() ctx: { user: { userId: string } },
+    @Context() ctx: GqlContext,
   ): Promise<Equipment> {
-    return this.equipmentService.createEquipment(ctx.user.userId, input);
+    return this.equipmentService.createEquipment(ctx.req.user.userId, input);
   }
 
   @Mutation(() => Equipment)

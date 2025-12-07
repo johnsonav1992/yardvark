@@ -4,6 +4,9 @@ import { Settings } from '../models/settings.model';
 import { SettingsService } from '../services/settings.service';
 import { GqlAuthGuard } from '../../../guards/gql-auth.guard';
 import { SettingsResponse } from './settings.types';
+import { Stringified } from 'src/types/json-modified';
+import { SettingsData } from '../models/settings.types';
+import { GqlContext } from '../../../types/gql-context';
 
 @Resolver(() => Settings)
 @UseGuards(GqlAuthGuard)
@@ -11,8 +14,12 @@ export class SettingsResolver {
   constructor(private readonly settingsService: SettingsService) {}
 
   @Query(() => SettingsResponse, { name: 'settings', nullable: true })
-  async getSettings(@Context() ctx: { user: { userId: string } }): Promise<SettingsResponse | null> {
-    const result = await this.settingsService.getUserSettings(ctx.user.userId);
+  async getSettings(
+    @Context() ctx: GqlContext,
+  ): Promise<SettingsResponse | null> {
+    const result = await this.settingsService.getUserSettings(
+      ctx.req.user.userId,
+    );
 
     if (Array.isArray(result)) return null;
 
@@ -26,10 +33,13 @@ export class SettingsResolver {
   @Mutation(() => String)
   async updateSettings(
     @Args('settings') settings: string,
-    @Context() ctx: { user: { userId: string } },
+    @Context() ctx: GqlContext,
   ): Promise<string> {
-    const result = await this.settingsService.updateSettings(ctx.user.userId, settings);
-    
+    const result = await this.settingsService.updateSettings(
+      ctx.req.user.userId,
+      settings as Stringified<SettingsData>,
+    );
+
     return JSON.stringify(result);
   }
 }

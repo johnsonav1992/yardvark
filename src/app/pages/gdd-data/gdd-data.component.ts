@@ -3,10 +3,12 @@ import { Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { ProgressBarModule } from 'primeng/progressbar';
+import { ChartModule } from 'primeng/chart';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import { GddService } from '../../services/gdd.service';
 import { LocationService } from '../../services/location.service';
 import { GlobalUiService } from '../../services/global-ui.service';
+import { getGddForecastChartConfig } from '../../utils/gddChartUtils';
 
 @Component({
   selector: 'gdd-data',
@@ -14,7 +16,8 @@ import { GlobalUiService } from '../../services/global-ui.service';
     PageContainerComponent,
     CardModule,
     ButtonModule,
-    ProgressBarModule
+    ProgressBarModule,
+    ChartModule
   ],
   templateUrl: './gdd-data.component.html',
   styleUrl: './gdd-data.component.scss'
@@ -26,6 +29,7 @@ export class GddDataComponent {
   private _globalUiService = inject(GlobalUiService);
 
   public isMobile = this._globalUiService.isMobile;
+  public isDarkMode = this._globalUiService.isDarkMode;
 
   public userHasALocation = computed(
     () => !!this._locationService.userLatLong()
@@ -74,6 +78,13 @@ export class GddDataComponent {
 
   public daysUntilTarget = computed(
     () => this.forecastData.value()?.daysUntilTarget
+  );
+
+  public forecastChartConfig = computed(() =>
+    getGddForecastChartConfig(this.forecastData.value(), {
+      isDarkMode: this.isDarkMode(),
+      isMobile: this.isMobile()
+    })
   );
 
   public goToSettings(): void {

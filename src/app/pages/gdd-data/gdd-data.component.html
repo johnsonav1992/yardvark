@@ -119,6 +119,16 @@
                 <span>Target GDD not expected to be reached within 7 days</span>
               </div>
             }
+
+            @if (forecastChartConfig().chartData.datasets.length) {
+              <div class="forecast-chart">
+                <p-chart
+                  type="bar"
+                  [data]="forecastChartConfig().chartData"
+                  [options]="forecastChartConfig().options"
+                />
+              </div>
+            }
           </div>
         </p-card>
       }

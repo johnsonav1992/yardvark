@@ -29,22 +29,27 @@ export class EntriesResolver {
       ctx.req.user.userId,
       startDate,
       endDate,
+      { raw: true },
     );
   }
 
   @Query(() => Entry, { name: 'entry', nullable: true })
   async getEntry(@Args('id', { type: () => Int }) id: number) {
-    return this.entriesService.getEntry(id);
+    return this.entriesService.getEntry(id, { raw: true });
   }
 
   @Query(() => Entry, { name: 'entryByDate', nullable: true })
   async getEntryByDate(@Args('date') date: string, @Context() ctx: GqlContext) {
-    return this.entriesService.getEntryByDate(ctx.req.user.userId, date);
+    return this.entriesService.getEntryByDate(ctx.req.user.userId, date, {
+      raw: true,
+    });
   }
 
   @Query(() => Entry, { name: 'mostRecentEntry', nullable: true })
   async getMostRecentEntry(@Context() ctx: GqlContext) {
-    return this.entriesService.getMostRecentEntry(ctx.req.user.userId);
+    return this.entriesService.getMostRecentEntry(ctx.req.user.userId, {
+      raw: true,
+    });
   }
 
   @Query(() => Date, { name: 'lastMowDate', nullable: true })
@@ -74,6 +79,7 @@ export class EntriesResolver {
     return this.entriesService.searchEntries(
       ctx.req.user.userId,
       searchRequest,
+      { raw: true },
     );
   }
 

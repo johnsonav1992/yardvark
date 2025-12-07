@@ -1,7 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -78,13 +74,19 @@ export class WeatherService {
     return result.data;
   }
 
-  async getHistoricalAirTemperatures(
-    lat: number,
-    long: number,
-    startDate: string,
-    endDate: string,
-    temperatureUnit: 'fahrenheit' | 'celsius' = 'fahrenheit',
-  ): Promise<Array<{ date: string; maxTemp: number; minTemp: number }>> {
+  async getHistoricalAirTemperatures({
+    lat,
+    long,
+    startDate,
+    endDate,
+    temperatureUnit = 'fahrenheit',
+  }: {
+    lat: number;
+    long: number;
+    startDate: string;
+    endDate: string;
+    temperatureUnit?: 'fahrenheit' | 'celsius';
+  }): Promise<Array<{ date: string; maxTemp: number; minTemp: number }>> {
     const cacheKey = `weather:historical:${lat}:${long}:${startDate}:${endDate}:${temperatureUnit}`;
 
     type HistoricalTempResult = Array<{

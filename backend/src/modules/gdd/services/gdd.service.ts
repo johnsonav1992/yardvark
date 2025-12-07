@@ -84,13 +84,13 @@ export class GddService {
     const endDate = format(new Date(), 'yyyy-MM-dd');
 
     const temperatureData =
-      await this._weatherService.getHistoricalAirTemperatures(
-        location.lat,
-        location.long,
+      await this._weatherService.getHistoricalAirTemperatures({
+        lat: location.lat,
+        long: location.long,
         startDate,
         endDate,
         temperatureUnit,
-      );
+      });
 
     const accumulatedGdd = calculateAccumulatedGDD(
       temperatureData.map((d) => ({ high: d.maxTemp, low: d.minTemp })),
@@ -149,13 +149,13 @@ export class GddService {
     const baseTemperature = this.getBaseTemperature(grassType, temperatureUnit);
 
     const temperatureData =
-      await this._weatherService.getHistoricalAirTemperatures(
-        location.lat,
-        location.long,
+      await this._weatherService.getHistoricalAirTemperatures({
+        lat: location.lat,
+        long: location.long,
         startDate,
         endDate,
         temperatureUnit,
-      );
+      });
 
     const dailyGdd: DailyGddDataPoint[] = temperatureData.map((day) => ({
       date: day.date,

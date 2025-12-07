@@ -4,6 +4,7 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { ChartModule } from 'primeng/chart';
+import { PopoverModule } from 'primeng/popover';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import { GddService } from '../../services/gdd.service';
 import { LocationService } from '../../services/location.service';
@@ -17,7 +18,8 @@ import { getGddForecastChartConfig } from '../../utils/gddChartUtils';
     CardModule,
     ButtonModule,
     ProgressBarModule,
-    ChartModule
+    ChartModule,
+    PopoverModule
   ],
   templateUrl: './gdd-data.component.html',
   styleUrl: './gdd-data.component.scss'

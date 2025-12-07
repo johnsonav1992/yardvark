@@ -26,6 +26,7 @@ import { AiModule } from './modules/ai/ai.module';
 import { EmailModule } from './modules/email/email.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { GddModule } from './modules/gdd/gdd.module';
+import { AppGraphQLModule } from './graphql/graphql.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { GddModule } from './modules/gdd/gdd.module';
     AiModule,
     EmailModule,
     GddModule,
+    AppGraphQLModule,
   ],
   controllers: [UsersController, FilesController],
   providers: [

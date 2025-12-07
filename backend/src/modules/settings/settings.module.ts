@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { SettingsController } from './controllers/settings.controller';
 import { SettingsService } from './services/settings.service';
+import { SettingsResolver } from './resolvers/settings.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Settings } from './models/settings.model';
 
@@ -8,6 +9,6 @@ import { Settings } from './models/settings.model';
   imports: [TypeOrmModule.forFeature([Settings])],
   exports: [TypeOrmModule, SettingsService],
   controllers: [SettingsController],
-  providers: [SettingsService],
+  providers: [SettingsService, SettingsResolver],
 })
 export class SettingsModule {}

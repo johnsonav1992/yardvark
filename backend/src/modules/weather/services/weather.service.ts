@@ -2,7 +2,9 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
@@ -15,16 +17,34 @@ import { tryCatch } from '../../../utils/tryCatch';
 
 @Injectable()
 export class WeatherService {
+  private readonly _logger = new Logger(WeatherService.name);
   private readonly weatherDotGovBaseUrl = 'https://api.weather.gov';
   private readonly openMeteoHistoricalUrl =
     'https://historical-forecast-api.open-meteo.com/v1/forecast';
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    @Inject(CACHE_MANAGER) private _cacheManager: Cache,
+    @Inject('FORECAST_CACHE_TTL') private _forecastCacheTtl: number,
+    @Inject('HISTORICAL_CACHE_TTL') private _historicalCacheTtl: number,
+  ) {}
 
   async getWeatherData(
     lat: string,
     long: string,
   ): Promise<WeatherDotGovForecastResponse> {
+    const cacheKey = `weather:forecast:${lat}:${long}`;
+
+    const cached =
+      await this._cacheManager.get<WeatherDotGovForecastResponse>(cacheKey);
+
+    if (cached) {
+      this._logger.debug(`Cache hit for forecast: ${cacheKey}`);
+      return cached;
+    }
+
+    this._logger.debug(`Cache miss for forecast: ${cacheKey}`);
+
     const result = await tryCatch(() =>
       firstValueFrom(
         this.httpService
@@ -53,6 +73,8 @@ export class WeatherService {
       throw new Error(`Failed to fetch weather data: ${result.error.message}`);
     }
 
+    await this._cacheManager.set(cacheKey, result.data, this._forecastCacheTtl);
+
     return result.data;
   }
 
@@ -63,6 +85,23 @@ export class WeatherService {
     endDate: string,
     temperatureUnit: 'fahrenheit' | 'celsius' = 'fahrenheit',
   ): Promise<Array<{ date: string; maxTemp: number; minTemp: number }>> {
+    const cacheKey = `weather:historical:${lat}:${long}:${startDate}:${endDate}:${temperatureUnit}`;
+
+    type HistoricalTempResult = Array<{
+      date: string;
+      maxTemp: number;
+      minTemp: number;
+    }>;
+
+    const cached = await this._cacheManager.get<HistoricalTempResult>(cacheKey);
+
+    if (cached) {
+      this._logger.debug(`Cache hit for historical temps: ${cacheKey}`);
+      return cached;
+    }
+
+    this._logger.debug(`Cache miss for historical temps: ${cacheKey}`);
+
     const params = new URLSearchParams({
       latitude: String(lat),
       longitude: String(long),
@@ -91,10 +130,16 @@ export class WeatherService {
 
     const { daily } = result.data;
 
-    return daily.time.map((date: string, i: number) => ({
-      date,
-      maxTemp: daily.temperature_2m_max[i],
-      minTemp: daily.temperature_2m_min[i],
-    }));
+    const data: HistoricalTempResult = daily.time.map(
+      (date: string, i: number) => ({
+        date,
+        maxTemp: daily.temperature_2m_max[i],
+        minTemp: daily.temperature_2m_min[i],
+      }),
+    );
+
+    await this._cacheManager.set(cacheKey, data, this._historicalCacheTtl);
+
+    return data;
   }
 }

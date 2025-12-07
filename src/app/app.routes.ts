@@ -55,7 +55,7 @@ export const mainRoutes: Routes = [
     canActivate: [authGuardFn]
   },
   {
-    path: 'gdd-data',
+    path: 'gdd-tracking',
     component: GddDataComponent,
     canActivate: [authGuardFn]
   },

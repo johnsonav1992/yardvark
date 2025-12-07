@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpService } from '@nestjs/axios';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { WeatherService } from './weather.service';
 import {
   WeatherDotGovPointsResponse,
@@ -18,6 +19,11 @@ describe('WeatherService', () => {
 
   const mockHttpService = {
     get: jest.fn(),
+  };
+
+  const mockCacheManager = {
+    get: jest.fn(),
+    set: jest.fn(),
   };
 
   const mockProbabilityOfPrecipitation: ProbabilityOfPrecipitation = {
@@ -147,6 +153,18 @@ describe('WeatherService', () => {
           provide: HttpService,
           useValue: mockHttpService,
         },
+        {
+          provide: CACHE_MANAGER,
+          useValue: mockCacheManager,
+        },
+        {
+          provide: 'FORECAST_CACHE_TTL',
+          useValue: 3600000,
+        },
+        {
+          provide: 'HISTORICAL_CACHE_TTL',
+          useValue: 86400000,
+        },
       ],
     }).compile();
 
@@ -154,6 +172,7 @@ describe('WeatherService', () => {
     httpService = module.get<HttpService>(HttpService);
 
     jest.clearAllMocks();
+    mockCacheManager.get.mockResolvedValue(null); // Default to cache miss
   });
 
   it('should be defined', () => {
@@ -478,6 +497,49 @@ describe('WeatherService', () => {
       expect(
         result.properties.periods[0].probabilityOfPrecipitation.value,
       ).toBeNull();
+    });
+
+    it('should return cached data on cache hit', async () => {
+      mockCacheManager.get.mockResolvedValueOnce(mockForecastResponse);
+
+      const result = await service.getWeatherData('32.7767', '-96.7970');
+
+      expect(mockCacheManager.get).toHaveBeenCalledWith(
+        'weather:forecast:32.7767:-96.7970',
+      );
+      expect(mockHttpService.get).not.toHaveBeenCalled();
+      expect(result).toEqual(mockForecastResponse);
+    });
+
+    it('should cache data after fetching from API', async () => {
+      const pointsAxiosResponse: AxiosResponse<WeatherDotGovPointsResponse> = {
+        data: mockPointsResponse,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {},
+      } as never;
+
+      const forecastAxiosResponse: AxiosResponse<WeatherDotGovForecastResponse> =
+        {
+          data: mockForecastResponse,
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: {},
+        } as never;
+
+      mockHttpService.get
+        .mockReturnValueOnce(of(pointsAxiosResponse))
+        .mockReturnValueOnce(of(forecastAxiosResponse));
+
+      await service.getWeatherData('32.7767', '-96.7970');
+
+      expect(mockCacheManager.set).toHaveBeenCalledWith(
+        'weather:forecast:32.7767:-96.7970',
+        mockForecastResponse,
+        3600000,
+      );
     });
   });
 });

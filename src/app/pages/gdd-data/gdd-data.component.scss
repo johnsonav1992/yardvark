@@ -210,4 +210,9 @@
 .forecast-chart {
   margin-top: 1.5rem;
   height: 300px;
+
+  ::ng-deep p-chart {
+    display: block;
+    height: 100%;
+  }
 }

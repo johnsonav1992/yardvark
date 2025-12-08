@@ -20,7 +20,6 @@ export const getDailyGDDCalculation = ({
   maxTemperature: number;
   minTemperature: number;
 }): number => {
-  // Cap temperatures: floor min at base temp, cap max at 86°F (30°C)
   const cappedMinTemp = Math.max(minTemperature, baseTemperature);
   const cappedMaxTemp = Math.min(maxTemperature, GDD_MAX_TEMPERATURE);
   const averageTemp = (cappedMaxTemp + cappedMinTemp) / 2;

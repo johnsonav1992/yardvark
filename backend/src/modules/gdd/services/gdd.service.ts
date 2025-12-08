@@ -1,4 +1,10 @@
-import { Inject, Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  HttpException,
+  HttpStatus,
+  Logger,
+} from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { format, differenceInDays } from 'date-fns';
@@ -29,6 +35,8 @@ import {
 
 @Injectable()
 export class GddService {
+  private readonly _logger = new Logger(GddService.name);
+
   constructor(
     @Inject(CACHE_MANAGER) private _cacheManager: Cache,
     private _entriesService: EntriesService,
@@ -116,6 +124,10 @@ export class GddService {
       recentTemps: temperatureData.slice(-GDD_DORMANCY_CHECK_DAYS),
       baseTemperature,
     });
+
+    this._logger.debug(
+      `GDD calculated for user ${userId}: ${accumulatedGdd.toFixed(1)}/${targetGdd} GDD, status=${cycleStatus}, days=${daysSinceLastApp}`,
+    );
 
     const result: CurrentGddResponse = {
       accumulatedGdd: Math.round(accumulatedGdd * 10) / 10,

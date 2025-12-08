@@ -6,7 +6,9 @@
     ></i>
   </ng-template>
 
-  @if (!userHasALocation()) {
+  @if (settingsAreLoading()) {
+    <loading-spinner />
+  } @else if (!userHasALocation()) {
     <p-card>
       <div class="no-loc-container">
         <h2>It looks like you haven't set your location yet!</h2>
@@ -29,7 +31,7 @@
       <p-card class="current-gdd-card">
         <ng-template #title>Current GDD Accumulation</ng-template>
 
-        @if (isLoading()) {
+        @if (isLoading() || !hasLoadedGddData()) {
           <div class="loading-container">
             <i class="ti ti-loader-2 spin"></i>
             <span>Loading GDD data...</span>

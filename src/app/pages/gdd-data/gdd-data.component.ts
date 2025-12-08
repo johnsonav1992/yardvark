@@ -6,15 +6,18 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { ChartModule } from 'primeng/chart';
 import { PopoverModule } from 'primeng/popover';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
+import { LoadingSpinnerComponent } from '../../components/miscellanious/loading-spinner/loading-spinner.component';
 import { GddService } from '../../services/gdd.service';
 import { LocationService } from '../../services/location.service';
 import { GlobalUiService } from '../../services/global-ui.service';
 import { getGddForecastChartConfig } from '../../utils/gddChartUtils';
+import { injectSettingsService } from '../../services/settings.service';
 
 @Component({
   selector: 'gdd-data',
   imports: [
     PageContainerComponent,
+    LoadingSpinnerComponent,
     CardModule,
     ButtonModule,
     ProgressBarModule,
@@ -27,11 +30,14 @@ import { getGddForecastChartConfig } from '../../utils/gddChartUtils';
 export class GddDataComponent {
   private _gddService = inject(GddService);
   private _locationService = inject(LocationService);
+  private _settingsService = injectSettingsService();
   private _router = inject(Router);
   private _globalUiService = inject(GlobalUiService);
 
   public isMobile = this._globalUiService.isMobile;
   public isDarkMode = this._globalUiService.isDarkMode;
+
+  public settingsAreLoading = this._settingsService.settings.isLoading;
 
   public userHasALocation = computed(
     () => !!this._locationService.userLatLong()
@@ -41,8 +47,13 @@ export class GddDataComponent {
   public forecastData = this._gddService.gddForecast;
 
   public isLoading = computed(
-    () => this.currentGddData.isLoading() || this.forecastData.isLoading()
+    () =>
+      this.settingsAreLoading() ||
+      this.currentGddData.isLoading() ||
+      this.forecastData.isLoading()
   );
+
+  public hasLoadedGddData = computed(() => this.currentGddData.value() !== undefined);
 
   public accumulatedGdd = computed(
     () => this.currentGddData.value()?.accumulatedGdd ?? 0

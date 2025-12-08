@@ -20,6 +20,13 @@ export const GDD_TARGET_INTERVALS = {
 } as const;
 
 /**
+ * Maximum temperature cap for GDD calculation (in Fahrenheit)
+ * Plants don't grow faster above 86°F (30°C), so temperatures are capped
+ * to prevent over-accumulation during heat waves
+ */
+export const GDD_MAX_TEMPERATURE = 86; // 30°C
+
+/**
  * Cache TTL for GDD data (24 hours in milliseconds)
  */
 export const GDD_CACHE_TTL = 86400000;

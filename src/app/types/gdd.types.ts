@@ -1,5 +1,6 @@
 export type TemperatureUnit = 'fahrenheit' | 'celsius';
 export type GrassType = 'warm' | 'cool';
+export type GddCycleStatus = 'active' | 'complete';
 
 /**
  * Returns accumulated GDD since last PGR application
@@ -13,6 +14,7 @@ export interface CurrentGddResponse {
   targetGdd: number;
   percentageToTarget: number;
   grassType: GrassType;
+  cycleStatus: GddCycleStatus;
 }
 
 /**

@@ -82,6 +82,12 @@ export class GddDataComponent {
     () => this.forecastData.value()?.daysUntilTarget
   );
 
+  public cycleStatus = computed(
+    () => this.currentGddData.value()?.cycleStatus ?? 'active'
+  );
+
+  public isCycleComplete = computed(() => this.cycleStatus() === 'complete');
+
   public forecastChartConfig = computed(() =>
     getGddForecastChartConfig(this.forecastData.value(), {
       isDarkMode: this.isDarkMode(),

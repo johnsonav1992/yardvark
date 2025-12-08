@@ -1,4 +1,11 @@
 /**
+ * GDD cycle status
+ * - 'active': Currently tracking, below target GDD
+ * - 'complete': Target reached, ready for reapplication
+ */
+export type GddCycleStatus = 'active' | 'complete';
+
+/**
  * Returns accumulated GDD since last PGR application
  */
 export interface CurrentGddResponse {
@@ -10,6 +17,7 @@ export interface CurrentGddResponse {
   targetGdd: number;
   percentageToTarget: number;
   grassType: 'warm' | 'cool';
+  cycleStatus: GddCycleStatus;
 }
 
 /**

@@ -62,6 +62,18 @@
               <span class="percentage">{{ percentageToTarget() }}% to target</span>
             </div>
 
+            @if (isCycleComplete()) {
+              <div class="cycle-complete-banner">
+                <i class="ti ti-circle-check"></i>
+                <div class="banner-content">
+                  <span class="banner-title">Target GDD Reached!</span>
+                  <span class="banner-message">
+                    Log a new PGR application in your entry log to restart tracking.
+                  </span>
+                </div>
+              </div>
+            }
+
             <div class="gdd-details">
               <div class="detail-item">
                 <i class="ti ti-calendar"></i>

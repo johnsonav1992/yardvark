@@ -73,6 +73,7 @@ export class GddService {
         targetGdd,
         percentageToTarget: 0,
         grassType,
+        cycleStatus: 'active',
       };
 
       await this._cacheManager.set(cacheKey, result, GDD_CACHE_TTL);
@@ -103,6 +104,8 @@ export class GddService {
       Math.round((accumulatedGdd / targetGdd) * 100),
     );
 
+    const cycleStatus = percentageToTarget >= 100 ? 'complete' : 'active';
+
     const result: CurrentGddResponse = {
       accumulatedGdd: Math.round(accumulatedGdd * 10) / 10,
       lastPgrAppDate: format(lastPgrAppDate, 'yyyy-MM-dd'),
@@ -112,6 +115,7 @@ export class GddService {
       targetGdd,
       percentageToTarget,
       grassType,
+      cycleStatus,
     };
 
     await this._cacheManager.set(cacheKey, result, GDD_CACHE_TTL);

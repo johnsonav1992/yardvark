@@ -1,5 +1,8 @@
-export type Tab<TTitles extends string = string> = {
+export type Tab<
+  TTitles extends string = string,
+  TValues extends string = Uncapitalize<TTitles>
+> = {
   title: TTitles;
-  value: Uncapitalize<TTitles>;
+  value: TValues;
   content?: string;
 };

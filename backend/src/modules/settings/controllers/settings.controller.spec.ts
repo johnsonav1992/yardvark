@@ -7,6 +7,7 @@ import { ExtractedUserRequestData } from '../../../types/request';
 
 describe('SettingsController', () => {
   let controller: SettingsController;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let settingsService: SettingsService;
 
   const mockSettingsService = {
@@ -35,6 +36,9 @@ describe('SettingsController', () => {
     },
     entryView: 'calendar',
     hideSystemProducts: false,
+    hiddenWidgets: [],
+    widgetOrder: [],
+    mobileNavbarItems: [],
   };
 
   const mockSettingsResponse: SettingsResponse = {
@@ -148,6 +152,9 @@ describe('SettingsController', () => {
         },
         entryView: 'list',
         hideSystemProducts: true,
+        hiddenWidgets: [],
+        widgetOrder: [],
+        mobileNavbarItems: [],
       };
 
       mockSettingsService.updateSettings.mockResolvedValue(newSettingsData);
@@ -198,6 +205,9 @@ describe('SettingsController', () => {
         },
         entryView: 'calendar',
         hideSystemProducts: false,
+        hiddenWidgets: [],
+        widgetOrder: [],
+        mobileNavbarItems: [],
       };
 
       mockSettingsService.updateSettings.mockResolvedValue(complexSettingsData);
@@ -225,6 +235,9 @@ describe('SettingsController', () => {
         },
         entryView: 'list',
         hideSystemProducts: true,
+        hiddenWidgets: [],
+        widgetOrder: [],
+        mobileNavbarItems: [],
       };
 
       mockSettingsService.updateSettings.mockResolvedValue(minimalSettingsData);
@@ -263,10 +276,13 @@ describe('SettingsController', () => {
         location: {
           address: 'Greenwich Observatory, London, UK',
           lat: 51.4769,
-          long: -0.0005, // Near prime meridian
+          long: -0.0005,
         },
         entryView: 'calendar',
         hideSystemProducts: false,
+        hiddenWidgets: [],
+        widgetOrder: [],
+        mobileNavbarItems: [],
       };
 
       mockSettingsService.updateSettings.mockResolvedValue(

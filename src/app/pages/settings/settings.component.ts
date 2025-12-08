@@ -22,6 +22,7 @@ import { LawnSegmentsTableComponent } from '../../components/settings/lawn-segme
 import { GlobalUiService } from '../../services/global-ui.service';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { UnsavedChanges } from '../../guards/unsaved-changes-guard';
+import { GDD_TARGET_INTERVALS } from '../../constants/gdd.constants';
 
 @Component({
   selector: 'settings',
@@ -92,4 +93,23 @@ export class SettingsComponent implements UnsavedChanges {
     (newVal: number) => this.updateSetting('lawnSize', newVal),
     1500
   );
+
+  private debouncedGddTargetSetter = debounce(
+    (newVal: number | undefined) =>
+      this.updateSetting('customGddTarget', newVal),
+    1500
+  );
+
+  public getDefaultGddTarget(): number {
+    const grassType = this.currentSettings()?.grassType ?? 'cool';
+    return GDD_TARGET_INTERVALS[grassType];
+  }
+
+  public setCustomGddTarget(value: number | null): void {
+    this.debouncedGddTargetSetter(value ?? undefined);
+  }
+
+  public clearCustomGddTarget(): void {
+    this.updateSetting('customGddTarget', undefined);
+  }
 }

@@ -1,9 +1,16 @@
-// backend/src/modules/reminders/services/reminders.service.ts
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Reminder, PushSubscription } from '../models/reminder.model';
-import webpush from 'web-push';
+import webpush, { WebPushError } from 'web-push';
+
+interface PushSubscriptionData {
+  endpoint: string;
+  keys: {
+    p256dh: string;
+    auth: string;
+  };
+}
 
 @Injectable()
 export class RemindersService {
@@ -32,7 +39,10 @@ export class RemindersService {
     });
   }
 
-  async savePushSubscription(userId: string, subscription: any) {
+  async savePushSubscription(
+    userId: string,
+    subscription: PushSubscriptionData,
+  ) {
     const existingSubscription = await this.subscriptionsRepo.findOne({
       where: { userId, endpoint: subscription.endpoint },
     });
@@ -84,11 +94,10 @@ export class RemindersService {
 
       return webpush
         .sendNotification(pushSubscription, payload)
-        .catch((error) => {
+        .catch((error: WebPushError) => {
           console.error('Error sending notification:', error);
-          // Remove invalid subscriptions
           if (error.statusCode === 410) {
-            this.subscriptionsRepo.delete(sub.id);
+            void this.subscriptionsRepo.delete(sub.id);
           }
         });
     });

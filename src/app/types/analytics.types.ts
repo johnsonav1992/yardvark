@@ -39,5 +39,5 @@ export type AnalyticsChartConfig<TType extends ChartType = ChartType> = {
   title: string;
   desc?: string;
   chartData: ChartData<TType>;
-  options: ChartOptions;
+  options: ChartOptions<TType>;
 };

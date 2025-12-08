@@ -7,7 +7,9 @@ import { UserHiddenProduct } from '../models/userHiddenProducts.model';
 
 describe('ProductsService', () => {
   let service: ProductsService;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let productRepository: Repository<Product>;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let userHiddenProductRepository: Repository<UserHiddenProduct>;
   let module: TestingModule;
 

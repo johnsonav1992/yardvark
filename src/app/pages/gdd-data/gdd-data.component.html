@@ -1,0 +1,187 @@
+<page-container pageTitle="GDD Tracking">
+  <ng-template #titleSuffix>
+    <i
+      class="ti ti-info-circle info-icon"
+      (click)="gddInfoPopover.toggle($event)"
+    ></i>
+  </ng-template>
+
+  @if (settingsAreLoading()) {
+    <loading-spinner />
+  } @else if (!userHasALocation()) {
+    <p-card>
+      <div class="no-loc-container">
+        <h2>It looks like you haven't set your location yet!</h2>
+
+        <p>
+          Go to settings to set your location and start tracking Growing Degree
+          Days (GDD).
+        </p>
+
+        <p-button
+          label="Go to settings"
+          icon="ti ti-settings"
+          size="large"
+          (click)="goToSettings()"
+        />
+      </div>
+    </p-card>
+  } @else {
+    <div class="main-container">
+      <p-card class="current-gdd-card">
+        <ng-template #title>Current GDD Accumulation</ng-template>
+
+        @if (isLoading() || !hasLoadedGddData()) {
+          <div class="loading-container">
+            <i class="ti ti-loader-2 spin"></i>
+            <span>Loading GDD data...</span>
+          </div>
+        } @else if (!lastPgrAppDate()) {
+          <div class="no-data-container">
+            <i class="ti ti-calendar-x"></i>
+
+            <h3>No PGR application recorded</h3>
+
+            <p>
+              Log a PGR (Plant Growth Regulator) application in your entry log
+              to start tracking GDD accumulation.
+            </p>
+          </div>
+        } @else {
+          <div class="gdd-content">
+            <div class="gdd-progress-section">
+              <div class="gdd-value">
+                <span class="value">{{ accumulatedGdd() }}</span>
+                <span class="label">/ {{ targetGdd() }} GDD</span>
+              </div>
+
+              <p-progressBar
+                [value]="percentageToTarget()"
+                [showValue]="false"
+                styleClass="gdd-progress"
+              />
+
+              <span class="percentage">{{ percentageToTarget() }}% to target</span>
+            </div>
+
+            @if (isCycleComplete()) {
+              <div class="cycle-complete-banner">
+                <i class="ti ti-circle-check"></i>
+                <div class="banner-content">
+                  <span class="banner-title">Target GDD Reached!</span>
+                  <span class="banner-message">
+                    Log a new PGR application in your entry log to restart tracking.
+                  </span>
+                </div>
+              </div>
+            }
+
+            <div class="gdd-details">
+              <div class="detail-item">
+                <i class="ti ti-calendar"></i>
+
+                <div class="detail-content">
+                  <span class="detail-label">Last PGR Application</span>
+                  <span class="detail-value">{{ lastPgrAppDate() }}</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <i class="ti ti-clock"></i>
+
+                <div class="detail-content">
+                  <span class="detail-label">Days Since Application</span>
+                  <span class="detail-value">{{ daysSinceLastApp() }} days</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <i class="ti ti-plant"></i>
+
+                <div class="detail-content">
+                  <span class="detail-label">Grass Type</span>
+                  <span class="detail-value capitalize">{{ grassType() }}-season</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <i class="ti ti-temperature"></i>
+
+                <div class="detail-content">
+                  <span class="detail-label">Base Temperature</span>
+                  <span class="detail-value">
+                    {{ baseTemperature() }}°{{ temperatureUnit() === 'fahrenheit' ? 'F' : 'C' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        }
+      </p-card>
+
+      @if (lastPgrAppDate() && !isLoading()) {
+        <p-card class="forecast-card">
+          <ng-template #title>7-Day Forecast</ng-template>
+
+          <div class="forecast-content">
+            @if (projectedNextAppDate()) {
+              <div class="forecast-highlight">
+                <i class="ti ti-calendar-event"></i>
+
+                <div class="highlight-content">
+                  <span class="highlight-label">Projected Next Application</span>
+                  <span class="highlight-value">{{ projectedNextAppDate() }}</span>
+                  <span class="highlight-sub">in {{ daysUntilTarget() }} days</span>
+                </div>
+              </div>
+            } @else {
+              <div class="forecast-info">
+                <i class="ti ti-info-circle"></i>
+                <span>Target GDD not expected to be reached within 7 days</span>
+              </div>
+            }
+
+            @if (forecastChartConfig().chartData.datasets.length) {
+              <div class="forecast-chart">
+                <p-chart
+                  type="bar"
+                  [data]="forecastChartConfig().chartData"
+                  [options]="forecastChartConfig().options"
+                />
+              </div>
+            }
+          </div>
+        </p-card>
+      }
+    </div>
+  }
+</page-container>
+
+<p-popover #gddInfoPopover>
+  <div class="gdd-info-popover">
+    <h4>What is GDD?</h4>
+    <p>
+      <strong>Growing Degree Days (GDD)</strong> is a measure of heat accumulation
+      used to predict plant development. It's calculated daily based on the
+      difference between the average temperature and a base temperature.
+    </p>
+
+    <h4>Why track GDD for PGR?</h4>
+    <p>
+      Plant Growth Regulators (PGR) like Primo Maxx or T-Nex suppress grass growth
+      for a period determined by heat accumulation, not calendar days. Tracking GDD
+      helps you:
+    </p>
+    <ul>
+      <li>Time reapplications accurately based on actual growing conditions</li>
+      <li>Avoid applying too early (wasting product) or too late (losing regulation)</li>
+      <li>Maintain consistent turf quality throughout the growing season</li>
+    </ul>
+
+    <h4>Target GDD</h4>
+    <p>
+      Most cool-season grasses need reapplication around <strong>200 GDD</strong>,
+      while warm-season grasses typically need it around <strong>220 GDD</strong>.
+    </p>
+  </div>
+</p-popover>

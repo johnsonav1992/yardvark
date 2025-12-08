@@ -32,7 +32,8 @@
     }
   }
 
-  .season-progress {
+  .season-progress,
+  .gdd-progress {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;

@@ -7,6 +7,7 @@ import { SettingsData } from '../models/settings.types';
 
 describe('SettingsService', () => {
   let service: SettingsService;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let repository: Repository<Settings>;
 
   const mockRepository = {
@@ -27,6 +28,9 @@ describe('SettingsService', () => {
     },
     entryView: 'calendar',
     hideSystemProducts: false,
+    hiddenWidgets: [],
+    widgetOrder: [],
+    mobileNavbarItems: [],
   };
 
   const mockSettings: Settings = {
@@ -170,6 +174,9 @@ describe('SettingsService', () => {
         },
         entryView: 'list',
         hideSystemProducts: true,
+        hiddenWidgets: [],
+        widgetOrder: [],
+        mobileNavbarItems: [],
       };
       const newStringifiedSettings = JSON.stringify(newSettingsData);
 

@@ -7,7 +7,9 @@ import { EquipmentMaintenance } from '../models/equipmentMaintenance.model';
 
 describe('EquipmentService', () => {
   let service: EquipmentService;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let equipmentRepository: Repository<Equipment>;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let maintenanceRepository: Repository<EquipmentMaintenance>;
 
   const mockEquipmentRepository = {

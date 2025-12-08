@@ -48,7 +48,8 @@ export class GddService {
       );
     }
 
-    const { location, grassType, temperatureUnit } = settings.value;
+    const { location, grassType, temperatureUnit, customGddTarget } =
+      settings.value;
 
     if (!location?.lat || !location?.long) {
       throw new HttpException(
@@ -61,7 +62,7 @@ export class GddService {
       await this._entriesService.getLastPgrApplicationDate(userId);
 
     const baseTemperature = this.getBaseTemperature(grassType, temperatureUnit);
-    const targetGdd = GDD_TARGET_INTERVALS[grassType];
+    const targetGdd = customGddTarget ?? GDD_TARGET_INTERVALS[grassType];
 
     if (!lastPgrAppDate) {
       const result: CurrentGddResponse = {
@@ -206,7 +207,8 @@ export class GddService {
       );
     }
 
-    const { location, grassType, temperatureUnit } = settings.value;
+    const { location, grassType, temperatureUnit, customGddTarget } =
+      settings.value;
     if (!location?.lat || !location?.long) {
       throw new HttpException(
         'User location not configured',
@@ -215,7 +217,7 @@ export class GddService {
     }
 
     const baseTemperature = this.getBaseTemperature(grassType, temperatureUnit);
-    const targetGdd = GDD_TARGET_INTERVALS[grassType];
+    const targetGdd = customGddTarget ?? GDD_TARGET_INTERVALS[grassType];
 
     const currentGddData = await this.getCurrentGdd(userId);
     const currentAccumulatedGdd = currentGddData.accumulatedGdd;

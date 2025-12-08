@@ -44,10 +44,10 @@ export const getGddForecastChartConfig = (
     (point) => point.estimatedGdd
   );
 
-  let cumulative = forecastData.currentAccumulatedGdd;
+  let runningGddTotal = forecastData.currentAccumulatedGdd;
   const cumulativeGdd = forecastData.forecastedGdd.map((point) => {
-    cumulative += point.estimatedGdd;
-    return cumulative;
+    runningGddTotal += point.estimatedGdd;
+    return runningGddTotal;
   });
 
   const grid = getGridOptions(uiOptions.isDarkMode);
@@ -152,10 +152,10 @@ export const getGddHistoricalChartConfig = (
     format(new Date(point.date), 'MMM dd')
   );
 
-  let cumulative = 0;
+  let runningGddTotal = 0;
   const cumulativeGdd = dailyGddData.map((point) => {
-    cumulative += point.gdd;
-    return cumulative;
+    runningGddTotal += point.gdd;
+    return runningGddTotal;
   });
 
   const grid = getGridOptions(uiOptions.isDarkMode);

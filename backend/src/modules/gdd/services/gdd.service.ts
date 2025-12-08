@@ -33,7 +33,7 @@ export class GddService {
   ) {}
 
   async getCurrentGdd(userId: string): Promise<CurrentGddResponse> {
-    const cacheKey = `gdd:${userId}:current`;
+    const cacheKey = this.getCacheKey(userId, 'current');
 
     const cached = await this._cacheManager.get<CurrentGddResponse>(cacheKey);
 
@@ -129,7 +129,10 @@ export class GddService {
     startDate: string,
     endDate: string,
   ): Promise<HistoricalGddResponse> {
-    const cacheKey = `gdd:${userId}:historical:start=${startDate}:end=${endDate}`;
+    const cacheKey = this.getCacheKey(userId, 'historical', {
+      startDate,
+      endDate,
+    });
 
     const cached =
       await this._cacheManager.get<HistoricalGddResponse>(cacheKey);
@@ -194,7 +197,7 @@ export class GddService {
   }
 
   async getGddForecast(userId: string): Promise<GddForecastResponse> {
-    const cacheKey = `gdd:${userId}:forecast`;
+    const cacheKey = this.getCacheKey(userId, 'forecast');
 
     const cached = await this._cacheManager.get<GddForecastResponse>(cacheKey);
     if (cached) return cached;
@@ -276,8 +279,25 @@ export class GddService {
   }
 
   async invalidateCache(userId: string): Promise<void> {
-    await this._cacheManager.del(`gdd:${userId}:current`);
-    await this._cacheManager.del(`gdd:${userId}:forecast`);
+    await this._cacheManager.del(this.getCacheKey(userId, 'current'));
+    await this._cacheManager.del(this.getCacheKey(userId, 'forecast'));
+  }
+
+  private getCacheKey(userId: string, type: 'current' | 'forecast'): string;
+  private getCacheKey(
+    userId: string,
+    type: 'historical',
+    params: { startDate: string; endDate: string },
+  ): string;
+  private getCacheKey(
+    userId: string,
+    type: 'current' | 'forecast' | 'historical',
+    params?: { startDate: string; endDate: string },
+  ): string {
+    if (type === 'historical' && params) {
+      return `gdd:${userId}:historical:start=${params.startDate}:end=${params.endDate}`;
+    }
+    return `gdd:${userId}:${type}`;
   }
 
   private getBaseTemperature(

@@ -165,7 +165,7 @@ export class EntriesService {
    * Gets the date of the most recent entry with a PGR (Plant Growth Regulator) product
    * Used for GDD (Growing Degree Days) calculation
    */
-  async getLastPgrApplicationDate(userId: string) {
+  async getLastPgrApplicationDate(userId: string): Promise<Date | null> {
     const entry = await this._entriesRepo
       .createQueryBuilder('entry')
       .innerJoin('entry.entryProducts', 'entryProduct')

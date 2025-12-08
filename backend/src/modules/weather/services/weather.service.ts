@@ -29,7 +29,7 @@ export class WeatherService {
     lat: string,
     long: string,
   ): Promise<WeatherDotGovForecastResponse> {
-    const cacheKey = `weather:forecast:${lat}:${long}`;
+    const cacheKey = this.getCacheKey('forecast', { lat, long });
 
     const cached =
       await this._cacheManager.get<WeatherDotGovForecastResponse>(cacheKey);
@@ -87,7 +87,13 @@ export class WeatherService {
     endDate: string;
     temperatureUnit?: 'fahrenheit' | 'celsius';
   }): Promise<Array<{ date: string; maxTemp: number; minTemp: number }>> {
-    const cacheKey = `weather:historical:${lat}:${long}:${startDate}:${endDate}:${temperatureUnit}`;
+    const cacheKey = this.getCacheKey('historical', {
+      lat,
+      long,
+      startDate,
+      endDate,
+      temperatureUnit,
+    });
 
     type HistoricalTempResult = Array<{
       date: string;
@@ -143,5 +149,35 @@ export class WeatherService {
     await this._cacheManager.set(cacheKey, data, this._historicalCacheTtl);
 
     return data;
+  }
+
+  private getCacheKey(
+    type: 'forecast',
+    params: { lat: string | number; long: string | number },
+  ): string;
+  private getCacheKey(
+    type: 'historical',
+    params: {
+      lat: string | number;
+      long: string | number;
+      startDate: string;
+      endDate: string;
+      temperatureUnit: 'fahrenheit' | 'celsius' | undefined;
+    },
+  ): string;
+  private getCacheKey(
+    type: 'forecast' | 'historical',
+    params: {
+      lat: string | number;
+      long: string | number;
+      startDate?: string;
+      endDate?: string;
+      temperatureUnit?: 'fahrenheit' | 'celsius';
+    },
+  ): string {
+    if (type === 'historical') {
+      return `weather:historical:${params.lat}:${params.long}:${params.startDate}:${params.endDate}:${params.temperatureUnit}`;
+    }
+    return `weather:forecast:${params.lat}:${params.long}`;
   }
 }

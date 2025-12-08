@@ -125,7 +125,7 @@ export class GddService {
       baseTemperature,
     });
 
-    this._logger.debug(
+    this._logger.log(
       `GDD calculated for user ${userId}: ${accumulatedGdd.toFixed(1)}/${targetGdd} GDD, status=${cycleStatus}, days=${daysSinceLastApp}`,
     );
 
@@ -353,6 +353,10 @@ export class GddService {
     if (recentTemps.length > 0) {
       const avgHighTemp =
         recentTemps.reduce((sum, t) => sum + t.maxTemp, 0) / recentTemps.length;
+
+      this._logger.log(
+        `Dormancy check: avgHighTemp=${avgHighTemp.toFixed(1)}, baseTemp=${baseTemperature}, highs=${JSON.stringify(recentTemps.map((t) => t.maxTemp))}`,
+      );
 
       if (avgHighTemp < baseTemperature) return 'dormant';
     }

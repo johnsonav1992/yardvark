@@ -113,12 +113,12 @@
   gap: 1rem;
   padding: 1rem;
   border-radius: var(--border-radius);
-  background: var(--green-100);
-  border: 1px solid var(--green-300);
+  background: var(--p-green-100);
+  border: 1px solid var(--p-green-300);
 
   i {
     font-size: 1.5rem;
-    color: var(--green-600);
+    color: var(--p-green-600);
   }
 
   .banner-content {
@@ -128,12 +128,74 @@
 
     .banner-title {
       font-weight: 600;
-      color: var(--green-700);
+      color: var(--p-green-700);
     }
 
     .banner-message {
       font-size: 0.875rem;
-      color: var(--green-600);
+      color: var(--p-green-600);
+    }
+  }
+}
+
+.dormant-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  background: var(--p-blue-100);
+  border: 1px solid var(--p-blue-300);
+
+  i {
+    font-size: 1.5rem;
+    color: var(--p-blue-600);
+  }
+
+  .banner-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .banner-title {
+      font-weight: 600;
+      color: var(--p-blue-700);
+    }
+
+    .banner-message {
+      font-size: 0.875rem;
+      color: var(--p-blue-600);
+    }
+  }
+}
+
+.overdue-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  background: var(--p-orange-100);
+  border: 1px solid var(--p-orange-300);
+
+  i {
+    font-size: 1.5rem;
+    color: var(--p-orange-600);
+  }
+
+  .banner-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .banner-title {
+      font-weight: 600;
+      color: var(--p-orange-700);
+    }
+
+    .banner-message {
+      font-size: 0.875rem;
+      color: var(--p-orange-600);
     }
   }
 }

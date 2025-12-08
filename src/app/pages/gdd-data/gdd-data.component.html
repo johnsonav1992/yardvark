@@ -47,6 +47,112 @@
               to start tracking GDD accumulation.
             </p>
           </div>
+        } @else if (isDormant()) {
+          <div class="gdd-content">
+            <div class="dormant-banner">
+              <i class="ti ti-snowflake"></i>
+              <div class="banner-content">
+                <span class="banner-title">Grass is Dormant</span>
+                <span class="banner-message">
+                  Recent temperatures have been below the base temperature for your grass type.
+                  GDD tracking will resume when temperatures rise.
+                </span>
+              </div>
+            </div>
+
+            <div class="gdd-details">
+              <div class="detail-item">
+                <i class="ti ti-calendar"></i>
+
+                <div class="detail-content">
+                  <span class="detail-label">Last PGR Application</span>
+                  <span class="detail-value">{{ lastPgrAppDate() }}</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <i class="ti ti-clock"></i>
+
+                <div class="detail-content">
+                  <span class="detail-label">Days Since Application</span>
+                  <span class="detail-value">{{ daysSinceLastApp() }} days</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <i class="ti ti-plant"></i>
+
+                <div class="detail-content">
+                  <span class="detail-label">Grass Type</span>
+                  <span class="detail-value capitalize">{{ grassType() }}-season</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <i class="ti ti-temperature"></i>
+
+                <div class="detail-content">
+                  <span class="detail-label">Base Temperature</span>
+                  <span class="detail-value">
+                    {{ baseTemperature() }}°{{ temperatureUnit() === 'fahrenheit' ? 'F' : 'C' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        } @else if (isOverdue()) {
+          <div class="gdd-content">
+            <div class="overdue-banner">
+              <i class="ti ti-alert-triangle"></i>
+              <div class="banner-content">
+                <span class="banner-title">Overdue for Application</span>
+                <span class="banner-message">
+                  You're significantly past due for a PGR application.
+                  Log a new application to restart tracking.
+                </span>
+              </div>
+            </div>
+
+            <div class="gdd-details">
+              <div class="detail-item">
+                <i class="ti ti-calendar"></i>
+
+                <div class="detail-content">
+                  <span class="detail-label">Last PGR Application</span>
+                  <span class="detail-value">{{ lastPgrAppDate() }}</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <i class="ti ti-clock"></i>
+
+                <div class="detail-content">
+                  <span class="detail-label">Days Since Application</span>
+                  <span class="detail-value">{{ daysSinceLastApp() }} days</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <i class="ti ti-plant"></i>
+
+                <div class="detail-content">
+                  <span class="detail-label">Grass Type</span>
+                  <span class="detail-value capitalize">{{ grassType() }}-season</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <i class="ti ti-temperature"></i>
+
+                <div class="detail-content">
+                  <span class="detail-label">Base Temperature</span>
+                  <span class="detail-value">
+                    {{ baseTemperature() }}°{{ temperatureUnit() === 'fahrenheit' ? 'F' : 'C' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         } @else {
           <div class="gdd-content">
             <div class="gdd-progress-section">
@@ -119,7 +225,7 @@
         }
       </p-card>
 
-      @if (lastPgrAppDate() && !isLoading()) {
+      @if (lastPgrAppDate() && !isLoading() && !isDormant() && !isOverdue()) {
         <p-card class="forecast-card">
           <ng-template #title>7-Day Forecast</ng-template>
 

@@ -113,6 +113,14 @@ export class QuickStatsComponent {
     return data && data.lastPgrAppDate !== null;
   });
 
+  public gddCycleStatus = computed(
+    () => this.currentGddData.value()?.cycleStatus ?? 'active'
+  );
+
+  public isGddDormant = computed(() => this.gddCycleStatus() === 'dormant');
+  public isGddOverdue = computed(() => this.gddCycleStatus() === 'overdue');
+  public isGddComplete = computed(() => this.gddCycleStatus() === 'complete');
+
   public gddAccumulated = computed(
     () => this.currentGddData.value()?.accumulatedGdd ?? 0
   );

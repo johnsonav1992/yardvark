@@ -1,6 +1,6 @@
 export type TemperatureUnit = 'fahrenheit' | 'celsius';
 export type GrassType = 'warm' | 'cool';
-export type GddCycleStatus = 'active' | 'complete';
+export type GddCycleStatus = 'active' | 'complete' | 'overdue' | 'dormant';
 
 /**
  * Returns accumulated GDD since last PGR application

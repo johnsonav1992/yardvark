@@ -98,6 +98,8 @@ export class GddDataComponent {
   );
 
   public isCycleComplete = computed(() => this.cycleStatus() === 'complete');
+  public isDormant = computed(() => this.cycleStatus() === 'dormant');
+  public isOverdue = computed(() => this.cycleStatus() === 'overdue');
 
   public forecastChartConfig = computed(() =>
     getGddForecastChartConfig(this.forecastData.value(), {

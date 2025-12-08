@@ -30,3 +30,19 @@ export const GDD_MAX_TEMPERATURE = 86; // 30°C
  * Cache TTL for GDD data (24 hours in milliseconds)
  */
 export const GDD_CACHE_TTL = 86400000;
+
+/**
+ * Thresholds for determining overdue status
+ * A cycle is considered "overdue" when either:
+ * - Accumulated GDD exceeds target by this multiplier (e.g., 2x target)
+ * - Days since last application exceeds this threshold
+ */
+export const GDD_OVERDUE_MULTIPLIER = 2;
+export const GDD_OVERDUE_DAYS_THRESHOLD = 45;
+
+/**
+ * Number of recent days to check for dormancy detection
+ * If the average high temp over this period is below base temp,
+ * the grass is considered dormant
+ */
+export const GDD_DORMANCY_CHECK_DAYS = 7;

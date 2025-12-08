@@ -30,6 +30,18 @@
       font-size: 1.75rem !important;
       color: var(--p-primary-600);
     }
+
+    .dormant {
+      color: var(--p-blue-600);
+    }
+
+    .overdue {
+      color: var(--p-orange-600);
+    }
+
+    .complete {
+      color: var(--p-green-600);
+    }
   }
 
   .season-progress,

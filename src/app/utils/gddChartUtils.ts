@@ -57,8 +57,8 @@ export const getGddForecastChartConfig = (
       type: 'bar' as const,
       label: 'Daily GDD',
       data: dailyGdd,
-      backgroundColor: getPrimeNgHexColor('primary.300'),
-      borderColor: getPrimeNgHexColor('primary.500'),
+      backgroundColor: getPrimeNgHexColor('amber.300'),
+      borderColor: getPrimeNgHexColor('amber.500'),
       yAxisID: 'y'
     },
     {

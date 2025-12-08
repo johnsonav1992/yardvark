@@ -428,13 +428,20 @@ describe('GddService', () => {
       });
 
       it('should set cycle status to active when below target', async () => {
+        // Use recent dates to avoid overdue status (within 45 days)
+        const recentDate = new Date();
+        recentDate.setDate(recentDate.getDate() - 5);
+        const recentTemps = [
+          { date: '2025-12-03', maxTemp: 75, minTemp: 55 },
+          { date: '2025-12-04', maxTemp: 78, minTemp: 58 },
+          { date: '2025-12-05', maxTemp: 72, minTemp: 52 },
+        ];
+
         cacheManager.get.mockResolvedValue(null);
         settingsService.getUserSettings.mockResolvedValue(mockSettings);
-        entriesService.getLastPgrApplicationDate.mockResolvedValue(
-          new Date('2024-06-01'),
-        );
+        entriesService.getLastPgrApplicationDate.mockResolvedValue(recentDate);
         weatherService.getHistoricalAirTemperatures.mockResolvedValue(
-          mockHistoricalTemps,
+          recentTemps,
         );
 
         const result = await service.getCurrentGdd(mockUserId);
@@ -443,17 +450,18 @@ describe('GddService', () => {
       });
 
       it('should set cycle status to complete when target reached', async () => {
-        const highTempData = Array(10).fill({
-          date: '2024-06-01',
+        // Use recent dates to avoid overdue status
+        const recentDate = new Date();
+        recentDate.setDate(recentDate.getDate() - 6);
+        const highTempData = Array(6).fill({
+          date: '2025-12-05',
           maxTemp: 85,
           minTemp: 65,
         });
 
         cacheManager.get.mockResolvedValue(null);
         settingsService.getUserSettings.mockResolvedValue(mockSettings);
-        entriesService.getLastPgrApplicationDate.mockResolvedValue(
-          new Date('2024-06-01'),
-        );
+        entriesService.getLastPgrApplicationDate.mockResolvedValue(recentDate);
         weatherService.getHistoricalAirTemperatures.mockResolvedValue(
           highTempData,
         );
@@ -873,20 +881,21 @@ describe('GddService', () => {
 
   describe('real-world scenarios', () => {
     it('should handle typical spring PGR cycle for cool-season grass', async () => {
-      // 4 days of mild spring temps (total ~100 GDD, 50% of 200 target)
+      // Use recent dates to avoid overdue status
+      const recentDate = new Date();
+      recentDate.setDate(recentDate.getDate() - 4);
+
       const springTemps = [
-        { date: '2024-04-15', maxTemp: 60, minTemp: 40 }, // (60+40)/2 - 32 = 18
-        { date: '2024-04-16', maxTemp: 65, minTemp: 45 }, // (65+45)/2 - 32 = 23
-        { date: '2024-04-17', maxTemp: 68, minTemp: 48 }, // (68+48)/2 - 32 = 26
-        { date: '2024-04-18', maxTemp: 70, minTemp: 50 }, // (70+50)/2 - 32 = 28
+        { date: '2025-12-03', maxTemp: 60, minTemp: 40 }, // (60+40)/2 - 32 = 18
+        { date: '2025-12-04', maxTemp: 65, minTemp: 45 }, // (65+45)/2 - 32 = 23
+        { date: '2025-12-05', maxTemp: 68, minTemp: 48 }, // (68+48)/2 - 32 = 26
+        { date: '2025-12-06', maxTemp: 70, minTemp: 50 }, // (70+50)/2 - 32 = 28
       ];
       // Total: ~95 GDD
 
       cacheManager.get.mockResolvedValue(null);
       settingsService.getUserSettings.mockResolvedValue(mockSettings);
-      entriesService.getLastPgrApplicationDate.mockResolvedValue(
-        new Date('2024-04-15'),
-      );
+      entriesService.getLastPgrApplicationDate.mockResolvedValue(recentDate);
       weatherService.getHistoricalAirTemperatures.mockResolvedValue(
         springTemps,
       );
@@ -901,19 +910,21 @@ describe('GddService', () => {
     });
 
     it('should handle summer heat wave with temperature capping', async () => {
+      // Use recent dates to avoid overdue status
+      const recentDate = new Date();
+      recentDate.setDate(recentDate.getDate() - 5);
+
       const heatWaveTemps = [
-        { date: '2024-07-01', maxTemp: 95, minTemp: 75 },
-        { date: '2024-07-02', maxTemp: 98, minTemp: 78 },
-        { date: '2024-07-03', maxTemp: 100, minTemp: 80 },
-        { date: '2024-07-04', maxTemp: 102, minTemp: 82 },
-        { date: '2024-07-05', maxTemp: 97, minTemp: 77 },
+        { date: '2025-12-03', maxTemp: 95, minTemp: 75 },
+        { date: '2025-12-04', maxTemp: 98, minTemp: 78 },
+        { date: '2025-12-05', maxTemp: 100, minTemp: 80 },
+        { date: '2025-12-06', maxTemp: 102, minTemp: 82 },
+        { date: '2025-12-07', maxTemp: 97, minTemp: 77 },
       ];
 
       cacheManager.get.mockResolvedValue(null);
       settingsService.getUserSettings.mockResolvedValue(mockSettings);
-      entriesService.getLastPgrApplicationDate.mockResolvedValue(
-        new Date('2024-07-01'),
-      );
+      entriesService.getLastPgrApplicationDate.mockResolvedValue(recentDate);
       weatherService.getHistoricalAirTemperatures.mockResolvedValue(
         heatWaveTemps,
       );
@@ -932,17 +943,19 @@ describe('GddService', () => {
     });
 
     it('should handle cold snap with zero GDD accumulation', async () => {
+      // Use recent dates - dormant takes priority over date-based overdue
+      const recentDate = new Date();
+      recentDate.setDate(recentDate.getDate() - 3);
+
       const coldSnapTemps = [
-        { date: '2024-03-01', maxTemp: 40, minTemp: 25 },
-        { date: '2024-03-02', maxTemp: 35, minTemp: 20 },
-        { date: '2024-03-03', maxTemp: 28, minTemp: 15 },
+        { date: '2025-12-05', maxTemp: 40, minTemp: 25 },
+        { date: '2025-12-06', maxTemp: 35, minTemp: 20 },
+        { date: '2025-12-07', maxTemp: 28, minTemp: 15 },
       ];
 
       cacheManager.get.mockResolvedValue(null);
       settingsService.getUserSettings.mockResolvedValue(mockSettingsWarmGrass);
-      entriesService.getLastPgrApplicationDate.mockResolvedValue(
-        new Date('2024-03-01'),
-      );
+      entriesService.getLastPgrApplicationDate.mockResolvedValue(recentDate);
       weatherService.getHistoricalAirTemperatures.mockResolvedValue(
         coldSnapTemps,
       );
@@ -951,7 +964,194 @@ describe('GddService', () => {
 
       // All temps below warm-season base (50), should be 0
       expect(result.accumulatedGdd).toBe(0);
+      expect(result.cycleStatus).toBe('dormant');
+    });
+  });
+
+  describe('cycle status determination', () => {
+    beforeEach(() => {
+      cacheManager.get.mockResolvedValue(null);
+    });
+
+    it('should return dormant when recent temps are below base temperature', async () => {
+      // Winter temps for warm-season grass (base 50°F)
+      const winterTemps = [
+        { date: '2025-12-01', maxTemp: 45, minTemp: 30 },
+        { date: '2025-12-02', maxTemp: 42, minTemp: 28 },
+        { date: '2025-12-03', maxTemp: 48, minTemp: 32 },
+        { date: '2025-12-04', maxTemp: 40, minTemp: 25 },
+        { date: '2025-12-05', maxTemp: 44, minTemp: 29 },
+        { date: '2025-12-06', maxTemp: 46, minTemp: 31 },
+        { date: '2025-12-07', maxTemp: 43, minTemp: 27 },
+      ];
+
+      settingsService.getUserSettings.mockResolvedValue(mockSettingsWarmGrass);
+      // Dormant takes priority regardless of how old the app date is
+      entriesService.getLastPgrApplicationDate.mockResolvedValue(
+        new Date('2025-07-01'),
+      );
+      weatherService.getHistoricalAirTemperatures.mockResolvedValue(
+        winterTemps,
+      );
+
+      const result = await service.getCurrentGdd(mockUserId);
+
+      // Average high temp (~44°F) is below warm-season base (50°F)
+      expect(result.cycleStatus).toBe('dormant');
+    });
+
+    it('should return overdue when accumulated GDD exceeds 2x target', async () => {
+      // Use recent date but with lots of GDD accumulation
+      const recentDate = new Date();
+      recentDate.setDate(recentDate.getDate() - 30);
+
+      const manyWarmDays = Array.from({ length: 30 }, (_, i) => ({
+        date: `2025-11-${String(i + 7).padStart(2, '0')}`,
+        maxTemp: 80,
+        minTemp: 60,
+      }));
+
+      settingsService.getUserSettings.mockResolvedValue(mockSettings);
+      entriesService.getLastPgrApplicationDate.mockResolvedValue(recentDate);
+      weatherService.getHistoricalAirTemperatures.mockResolvedValue(
+        manyWarmDays,
+      );
+
+      const result = await service.getCurrentGdd(mockUserId);
+
+      // Each day: (80+60)/2 - 32 = 38 GDD
+      // 30 days = 1140 GDD, well over 2x target (400)
+      expect(result.accumulatedGdd).toBeGreaterThan(400);
+      expect(result.cycleStatus).toBe('overdue');
+    });
+
+    it('should return overdue when days since app exceeds threshold (45 days)', async () => {
+      // 50 days ago
+      const oldDate = new Date();
+      oldDate.setDate(oldDate.getDate() - 50);
+
+      const moderateTemps = Array.from({ length: 50 }, (_, i) => ({
+        date: `2025-10-${String((i % 30) + 1).padStart(2, '0')}`,
+        maxTemp: 55,
+        minTemp: 45,
+      }));
+
+      settingsService.getUserSettings.mockResolvedValue(mockSettings);
+      entriesService.getLastPgrApplicationDate.mockResolvedValue(oldDate);
+      weatherService.getHistoricalAirTemperatures.mockResolvedValue(
+        moderateTemps,
+      );
+
+      const result = await service.getCurrentGdd(mockUserId);
+
+      // Days since app > 45, should be overdue regardless of GDD
+      expect(result.daysSinceLastApp).toBeGreaterThanOrEqual(45);
+      expect(result.cycleStatus).toBe('overdue');
+    });
+
+    it('should return complete when target reached but not overdue', async () => {
+      // Use recent date to avoid overdue by days
+      const recentDate = new Date();
+      recentDate.setDate(recentDate.getDate() - 6);
+
+      const warmDays = [
+        { date: '2025-12-02', maxTemp: 85, minTemp: 65 },
+        { date: '2025-12-03', maxTemp: 85, minTemp: 65 },
+        { date: '2025-12-04', maxTemp: 85, minTemp: 65 },
+        { date: '2025-12-05', maxTemp: 85, minTemp: 65 },
+        { date: '2025-12-06', maxTemp: 85, minTemp: 65 },
+        { date: '2025-12-07', maxTemp: 85, minTemp: 65 },
+      ];
+
+      settingsService.getUserSettings.mockResolvedValue(mockSettings);
+      entriesService.getLastPgrApplicationDate.mockResolvedValue(recentDate);
+      weatherService.getHistoricalAirTemperatures.mockResolvedValue(warmDays);
+
+      const result = await service.getCurrentGdd(mockUserId);
+
+      // Each day: (85+65)/2 - 32 = 43 GDD
+      // 6 days = 258 GDD, exceeds 200 target but not 400 (2x)
+      expect(result.accumulatedGdd).toBeGreaterThanOrEqual(200);
+      expect(result.accumulatedGdd).toBeLessThan(400);
+      expect(result.daysSinceLastApp).toBeLessThan(45);
+      expect(result.cycleStatus).toBe('complete');
+    });
+
+    it('should return active when below target', async () => {
+      // Use recent date
+      const recentDate = new Date();
+      recentDate.setDate(recentDate.getDate() - 3);
+
+      const fewWarmDays = [
+        { date: '2025-12-05', maxTemp: 75, minTemp: 55 },
+        { date: '2025-12-06', maxTemp: 75, minTemp: 55 },
+        { date: '2025-12-07', maxTemp: 75, minTemp: 55 },
+      ];
+
+      settingsService.getUserSettings.mockResolvedValue(mockSettings);
+      entriesService.getLastPgrApplicationDate.mockResolvedValue(recentDate);
+      weatherService.getHistoricalAirTemperatures.mockResolvedValue(
+        fewWarmDays,
+      );
+
+      const result = await service.getCurrentGdd(mockUserId);
+
+      // Each day: (75+55)/2 - 32 = 33 GDD
+      // 3 days = 99 GDD, below 200 target
+      expect(result.accumulatedGdd).toBeLessThan(200);
       expect(result.cycleStatus).toBe('active');
+    });
+
+    it('should prioritize dormant over overdue', async () => {
+      // Cold temps but also exceeds overdue thresholds
+      const longColdPeriod = Array.from({ length: 60 }, (_, i) => ({
+        date: `2025-12-${String((i % 7) + 1).padStart(2, '0')}`,
+        maxTemp: 45,
+        minTemp: 30,
+      }));
+
+      settingsService.getUserSettings.mockResolvedValue(mockSettingsWarmGrass);
+      // Old date that would trigger overdue
+      entriesService.getLastPgrApplicationDate.mockResolvedValue(
+        new Date('2025-10-01'),
+      );
+      weatherService.getHistoricalAirTemperatures.mockResolvedValue(
+        longColdPeriod,
+      );
+
+      const result = await service.getCurrentGdd(mockUserId);
+
+      // Would be overdue by days threshold, but dormant takes priority
+      expect(result.cycleStatus).toBe('dormant');
+    });
+
+    it('should not be dormant for cool-season grass in moderate winter', async () => {
+      // Temps above cool-season base (32°F) but below warm-season base (50°F)
+      // Use recent date
+      const recentDate = new Date();
+      recentDate.setDate(recentDate.getDate() - 7);
+
+      const coolWinterTemps = [
+        { date: '2025-12-01', maxTemp: 42, minTemp: 28 },
+        { date: '2025-12-02', maxTemp: 45, minTemp: 30 },
+        { date: '2025-12-03', maxTemp: 40, minTemp: 25 },
+        { date: '2025-12-04', maxTemp: 48, minTemp: 32 },
+        { date: '2025-12-05', maxTemp: 44, minTemp: 29 },
+        { date: '2025-12-06', maxTemp: 46, minTemp: 31 },
+        { date: '2025-12-07', maxTemp: 43, minTemp: 27 },
+      ];
+
+      settingsService.getUserSettings.mockResolvedValue(mockSettings); // cool-season
+      entriesService.getLastPgrApplicationDate.mockResolvedValue(recentDate);
+      weatherService.getHistoricalAirTemperatures.mockResolvedValue(
+        coolWinterTemps,
+      );
+
+      const result = await service.getCurrentGdd(mockUserId);
+
+      // Average high (~44°F) is above cool-season base (32°F)
+      // Should NOT be dormant for cool-season grass
+      expect(result.cycleStatus).not.toBe('dormant');
     });
   });
 });

@@ -14,6 +14,9 @@ import {
   GDD_BASE_TEMPERATURES,
   GDD_TARGET_INTERVALS,
   GDD_CACHE_TTL,
+  GDD_OVERDUE_MULTIPLIER,
+  GDD_OVERDUE_DAYS_THRESHOLD,
+  GDD_DORMANCY_CHECK_DAYS,
 } from '../models/gdd.constants';
 import {
   CurrentGddResponse,
@@ -21,6 +24,7 @@ import {
   GddForecastResponse,
   DailyGddDataPoint,
   ForecastGddDataPoint,
+  GddCycleStatus,
 } from '../models/gdd.types';
 
 @Injectable()
@@ -105,7 +109,13 @@ export class GddService {
       Math.round((accumulatedGdd / targetGdd) * 100),
     );
 
-    const cycleStatus = percentageToTarget >= 100 ? 'complete' : 'active';
+    const cycleStatus = this.determineCycleStatus({
+      accumulatedGdd,
+      targetGdd,
+      daysSinceLastApp,
+      recentTemps: temperatureData.slice(-GDD_DORMANCY_CHECK_DAYS),
+      baseTemperature,
+    });
 
     const result: CurrentGddResponse = {
       accumulatedGdd: Math.round(accumulatedGdd * 10) / 10,
@@ -309,6 +319,41 @@ export class GddService {
       return Math.round((baseTempF - 32) * (5 / 9));
     }
     return baseTempF;
+  }
+
+  /**
+   * Determines the cycle status based on accumulated GDD, time elapsed, and recent temps
+   * Priority: dormant > overdue > complete > active
+   */
+  private determineCycleStatus({
+    accumulatedGdd,
+    targetGdd,
+    daysSinceLastApp,
+    recentTemps,
+    baseTemperature,
+  }: {
+    accumulatedGdd: number;
+    targetGdd: number;
+    daysSinceLastApp: number;
+    recentTemps: Array<{ maxTemp: number; minTemp: number }>;
+    baseTemperature: number;
+  }): GddCycleStatus {
+    if (recentTemps.length > 0) {
+      const avgHighTemp =
+        recentTemps.reduce((sum, t) => sum + t.maxTemp, 0) / recentTemps.length;
+
+      if (avgHighTemp < baseTemperature) return 'dormant';
+    }
+
+    const isOverdue =
+      accumulatedGdd >= targetGdd * GDD_OVERDUE_MULTIPLIER ||
+      daysSinceLastApp >= GDD_OVERDUE_DAYS_THRESHOLD;
+
+    if (isOverdue) return 'overdue';
+
+    if (accumulatedGdd >= targetGdd) return 'complete';
+
+    return 'active';
   }
 
   private extractDailyTempsFromForecast(

@@ -1,7 +1,6 @@
 import { httpResource } from '@angular/common/http';
 import { inject, Injectable, Signal } from '@angular/core';
 import {
-  BatchEntryCreationRequest,
   BatchEntryCreationResponse,
   EntriesSearchRequest,
   Entry,
@@ -76,7 +75,7 @@ export class EntriesService {
         : of({ ...req, imageUrls: [] })
     ).pipe(
       switchMap((entry) =>
-        postReq<void, EntryCreationRequest>(apiUrl('entries'), entry)
+        postReq<void>(apiUrl('entries'), entry)
       )
     );
   }
@@ -100,7 +99,7 @@ export class EntriesService {
 
     return forkJoin(uploadObservables).pipe(
       switchMap((processedEntries) =>
-        postReq<BatchEntryCreationResponse, BatchEntryCreationRequest>(
+        postReq<BatchEntryCreationResponse>(
           apiUrl('entries/batch'),
           { entries: processedEntries }
         )
@@ -128,7 +127,7 @@ export class EntriesService {
         : of({ ...updatedEntry })
     ).pipe(
       switchMap((entry) =>
-        putReq<void, Partial<EntryCreationRequest>>(
+        putReq<void>(
           apiUrl('entries', { params: [entryId] }),
           entry
         )
@@ -143,7 +142,7 @@ export class EntriesService {
   public searchEntries(
     searchCriteria: EntriesSearchRequest
   ): Observable<Entry[]> {
-    return postReq<Entry[], EntriesSearchRequest>(
+    return postReq<Entry[]>(
       apiUrl('entries/search'),
       searchCriteria
     );

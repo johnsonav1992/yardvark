@@ -31,7 +31,6 @@ export class FeedbackDialogComponent {
   public submitError = signal<string | null>(null);
   public submitSuccess = signal(false);
 
-  // Signal-based form model
   public formModel = signal({
     name: '',
     email: '',
@@ -39,23 +38,18 @@ export class FeedbackDialogComponent {
     feedbackType: 'general' as 'general' | 'bug' | 'enhancement'
   });
 
-  // Create signal form with validation schema
   public form = form(this.formModel, (f) => {
-    required(f.name);
-    disabled(f.name, () => this.isSubmitting());
+    const fields = [f.name, f.email, f.message, f.feedbackType];
     
+    required(f.name);
     required(f.email);
     email(f.email);
-    disabled(f.email, () => this.isSubmitting());
-    
     required(f.message);
-    disabled(f.message, () => this.isSubmitting());
-    
     required(f.feedbackType);
-    disabled(f.feedbackType, () => this.isSubmitting());
+    
+    fields.forEach(field => disabled(field, () => this.isSubmitting()));
   });
 
-  // Computed signal for feedback type based on form value
   public feedbackType = computed(() => this.form.feedbackType().value());
 
   public feedbackOptions = [
@@ -95,13 +89,10 @@ export class FeedbackDialogComponent {
   });
 
   public onSubmit(): void {
-    // Check if form is valid
     if (this.form().invalid()) {
-      // Mark all fields as touched to show validation errors
-      this.form.name().markAsTouched();
-      this.form.email().markAsTouched();
-      this.form.message().markAsTouched();
-      this.form.feedbackType().markAsTouched();
+      for (const [, field] of this.form) {
+        field().markAsTouched();
+      }
       return;
     }
 

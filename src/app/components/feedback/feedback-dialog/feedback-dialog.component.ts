@@ -1,18 +1,12 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormControl,
-  FormGroup,
-  Validators,
-  ReactiveFormsModule
-} from '@angular/forms';
+import { form, required, email, Field, disabled } from '@angular/forms/signals';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
 import { MessageModule } from 'primeng/message';
-import { showAllFormErrorsOnSubmit } from '../../../utils/formUtils';
 import { postReq, apiUrl } from '../../../utils/httpUtils';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -25,7 +19,7 @@ import { HttpErrorResponse } from '@angular/common/http';
     TextareaModule,
     SelectModule,
     MessageModule,
-    ReactiveFormsModule
+    Field
   ],
   templateUrl: './feedback-dialog.component.html',
   styleUrl: './feedback-dialog.component.scss'
@@ -36,25 +30,33 @@ export class FeedbackDialogComponent {
   public isSubmitting = signal(false);
   public submitError = signal<string | null>(null);
   public submitSuccess = signal(false);
-  public feedbackType = signal<'general' | 'bug' | 'enhancement'>('general');
 
-  public form = new FormGroup({
-    name: new FormControl('', [Validators.required]),
-    email: new FormControl('', [Validators.required, Validators.email]),
-    message: new FormControl('', [Validators.required]),
-    feedbackType: new FormControl<'general' | 'bug' | 'enhancement'>(
-      'general',
-      [Validators.required]
-    )
+  // Signal-based form model
+  public formModel = signal({
+    name: '',
+    email: '',
+    message: '',
+    feedbackType: 'general' as 'general' | 'bug' | 'enhancement'
   });
 
-  constructor() {
-    this.form.get('feedbackType')?.valueChanges.subscribe((value) => {
-      if (value) {
-        this.feedbackType.set(value);
-      }
-    });
-  }
+  // Create signal form with validation schema
+  public form = form(this.formModel, (f) => {
+    required(f.name);
+    disabled(f.name, () => this.isSubmitting());
+    
+    required(f.email);
+    email(f.email);
+    disabled(f.email, () => this.isSubmitting());
+    
+    required(f.message);
+    disabled(f.message, () => this.isSubmitting());
+    
+    required(f.feedbackType);
+    disabled(f.feedbackType, () => this.isSubmitting());
+  });
+
+  // Computed signal for feedback type based on form value
+  public feedbackType = computed(() => this.form.feedbackType().value());
 
   public feedbackOptions = [
     {
@@ -93,14 +95,20 @@ export class FeedbackDialogComponent {
   });
 
   public onSubmit(): void {
-    if (this.form.invalid) {
-      return showAllFormErrorsOnSubmit(this.form);
+    // Check if form is valid
+    if (this.form().invalid()) {
+      // Mark all fields as touched to show validation errors
+      this.form.name().markAsTouched();
+      this.form.email().markAsTouched();
+      this.form.message().markAsTouched();
+      this.form.feedbackType().markAsTouched();
+      return;
     }
 
     this.isSubmitting.set(true);
     this.submitError.set(null);
 
-    const formData = this.form.value;
+    const formData = this.form().value();
 
     postReq(apiUrl('email/feedback'), formData).subscribe({
       next: () => {

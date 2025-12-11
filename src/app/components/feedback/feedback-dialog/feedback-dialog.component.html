@@ -1,4 +1,4 @@
-<form [formGroup]="form" class="main-form" (ngSubmit)="onSubmit()">
+<form class="main-form" (ngSubmit)="onSubmit()">
   @if (submitSuccess()) {
     <p-message
       severity="success"
@@ -23,10 +23,9 @@
       </div>
       <input
         pInputText
-        formControlName="name"
+        [field]="form.name"
         style="width: 100%"
         placeholder="Your name"
-        [disabled]="isSubmitting()"
       />
     </span>
 
@@ -37,11 +36,10 @@
       </div>
       <input
         pInputText
-        formControlName="email"
+        [field]="form.email"
         style="width: 100%"
         placeholder="your.email@example.com"
         type="email"
-        [disabled]="isSubmitting()"
       />
     </span>
 
@@ -51,9 +49,8 @@
         <small class="error">*</small>
       </div>
       <p-select
-        formControlName="feedbackType"
+        [field]="form.feedbackType"
         [options]="feedbackOptions"
-        [disabled]="isSubmitting()"
         placeholder="Select feedback type"
         optionLabel="label"
         optionValue="value"
@@ -84,9 +81,8 @@
       <textarea
         pTextarea
         [rows]="5"
-        formControlName="message"
+        [field]="form.message"
         [placeholder]="messagePlaceholder()"
-        [disabled]="isSubmitting()"
         [style.width]="'100%'"
       ></textarea>
     </div>
@@ -105,7 +101,7 @@
         icon="ti ti-send"
         type="submit"
         [loading]="isSubmitting()"
-        [disabled]="form.invalid"
+        [disabled]="form().invalid()"
       />
     </div>
   }

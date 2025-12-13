@@ -7,10 +7,17 @@
         Set your location in the settings above to see your property on the map
       </small>
     }
-    <div class="color-picker-wrapper">
-      <label>Drawing Color:</label>
-      <input type="color" [(ngModel)]="selectedColor" class="color-input" />
-    </div>
+    @if (targetSegmentForDrawing()) {
+      <div class="color-picker-wrapper">
+        <label>Segment Color:</label>
+        <input
+          type="color"
+          [ngModel]="selectedColor()"
+          (ngModelChange)="onColorChange($event)"
+          class="color-input"
+        />
+      </div>
+    }
   </div>
 
   @if (targetSegmentForDrawing(); as targetSegment) {
@@ -22,13 +29,15 @@
           <span>{{ targetSegment.coordinates ? 'Edit the shape for' : 'Draw the shape for' }} "{{ targetSegment.name }}"</span>
         </div>
       </div>
-      <p-button
-        [icon]="'ti ti-x'"
-        [text]="true"
-        severity="secondary"
-        size="small"
-        (onClick)="cancelEditing()"
-      />
+      @if (!targetSegment.coordinates) {
+        <p-button
+          [icon]="'ti ti-x'"
+          [text]="true"
+          severity="secondary"
+          size="small"
+          (onClick)="cancelEditing()"
+        />
+      }
     </div>
   }
 
@@ -36,10 +45,8 @@
   <div class="map-instructions">
     <small>
       <i class="ti ti-info-circle"></i>
-      Use the rectangle tool for square/rectangular segments or the polygon tool for irregular shapes. 
-      For rectangles: click two corners. For polygons: click multiple points, then <strong>double-click the last point to finish</strong>. 
-      After drawing, click the shape to name and save it.
-      Use the layer control (top-right) to switch between Satellite and Street views.
+      Click <strong>edit</strong> in the table above to draw or modify a segment. For new shapes, use the polygon tool and click the first point to finish.
+      Use the color picker to change segment colors. Save your changes via the <strong>checkmark</strong> in the table.
     </small>
   </div>
 </p-card>

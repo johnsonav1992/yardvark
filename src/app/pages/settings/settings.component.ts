@@ -1,4 +1,4 @@
-import { Component, inject, linkedSignal, signal } from '@angular/core';
+import { Component, inject, linkedSignal, signal, viewChild } from '@angular/core';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
@@ -15,6 +15,7 @@ import { LocationService } from '../../services/location.service';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { debouncedSignal } from '../../utils/signalUtils';
 import { LawnSegmentsService } from '../../services/lawn-segments.service';
+import { LawnSegment } from '../../types/lawnSegments.types';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
@@ -61,6 +62,9 @@ export class SettingsComponent implements UnsavedChanges {
   public debouncedSearchText = debouncedSignal(this.locationSearchText, 700);
   public segmentToFocusOnMap = signal<number | null>(null);
 
+  private lawnMapComponent = viewChild(LawnMapComponent);
+  private lawnSegmentsTableComponent = viewChild(LawnSegmentsTableComponent);
+
   public foundLocations = rxResource({
     params: () =>
       this.debouncedSearchText()
@@ -100,6 +104,26 @@ export class SettingsComponent implements UnsavedChanges {
     if (mapElement) {
       mapElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
+  }
+
+  public onSegmentSave(segment: LawnSegment): void {
+    // Get any pending map edits
+    const mapEdits = this.lawnMapComponent()?.saveCurrentEdit();
+    if (mapEdits) {
+      segment.coordinates = [mapEdits.coordinates];
+      segment.size = mapEdits.size;
+      segment.color = mapEdits.color;
+    }
+  }
+
+  public onMapEditingCanceled(segment: LawnSegment): void {
+    // Pass false to avoid emitting event back (prevent loop)
+    this.lawnSegmentsTableComponent()?.cancelRowEdit(segment, false);
+  }
+
+  public onSegmentEditCanceled(): void {
+    // Pass false to avoid emitting event back (prevent loop)
+    this.lawnMapComponent()?.cancelEditing(false);
   }
 
   private debouncedLawnSizeSetter = debounce(

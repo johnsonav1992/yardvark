@@ -5,6 +5,7 @@ import {
   model,
   OnDestroy,
   OnInit,
+  output,
   signal
 } from '@angular/core';
 import * as L from 'leaflet';
@@ -45,6 +46,7 @@ export class LawnMapComponent implements OnInit, OnDestroy {
 
   public lawnSegments = model.required<LawnSegment[] | undefined>();
   public segmentToFocus = model<number | null>(null);
+  public editingCanceled = output<LawnSegment>();
   public isMobile = this._globalUiService.isMobile;
   public currentSettings = this._settingsService.currentSettings;
   public targetSegmentForDrawing = signal<LawnSegment | null>(null);
@@ -62,10 +64,12 @@ export class LawnMapComponent implements OnInit, OnDestroy {
   public showSegmentDialog = signal(false);
   public currentSegment = signal<Partial<LawnSegment> | null>(null);
   public selectedColor = signal(DEFAULT_LAWN_SEGMENT_COLOR);
+  private mapReady = signal(false);
 
   _segmentsWatcher = effect(() => {
     const segments = this.lawnSegments();
-    if (segments && this.map) {
+    const isMapReady = this.mapReady();
+    if (segments && isMapReady && this.map) {
       this.renderSegments(segments);
     }
   });
@@ -73,14 +77,16 @@ export class LawnMapComponent implements OnInit, OnDestroy {
   _locationWatcher = effect(() => {
     const settings = this.currentSettings();
     const location = settings?.location;
-    if (location && this.map) {
+    const isMapReady = this.mapReady();
+    if (location && isMapReady && this.map) {
       this.map.setView([location.lat, location.long], 20);
     }
   });
 
   _segmentFocusWatcher = effect(() => {
     const segmentId = this.segmentToFocus();
-    if (segmentId && this.map) {
+    const isMapReady = this.mapReady();
+    if (segmentId && isMapReady && this.map) {
       const segments = this.lawnSegments();
       const segment = segments?.find((s) => s.id === segmentId);
 
@@ -99,10 +105,21 @@ export class LawnMapComponent implements OnInit, OnDestroy {
     }
   });
 
-  _colorWatcher = effect(() => {
+  _drawControlWatcher = effect(() => {
+    const targetSegment = this.targetSegmentForDrawing();
     const color = this.selectedColor();
-    if (this.map && this.drawControl) {
+    const isMapReady = this.mapReady();
+
+    if (!isMapReady || !this.map) return;
+
+    // Remove existing draw control
+    if (this.drawControl) {
       this.map.removeControl(this.drawControl);
+      this.drawControl = null;
+    }
+
+    // Only show draw control when we need to draw a new shape for a segment
+    if (targetSegment && !targetSegment.coordinates) {
       const newControl = this.createDrawControl(color);
       this.drawControl = newControl;
       this.map.addControl(newControl);
@@ -123,15 +140,7 @@ export class LawnMapComponent implements OnInit, OnDestroy {
   private createDrawControl(color: string): L.Control.Draw {
     return new L.Control.Draw({
       draw: {
-        rectangle: {
-          shapeOptions: {
-            color: color,
-            fillOpacity: 0.3
-          },
-          repeatMode: true,
-          showArea: false,
-          metric: false
-        },
+        rectangle: false,
         polygon: {
           shapeOptions: {
             color: color,
@@ -151,7 +160,9 @@ export class LawnMapComponent implements OnInit, OnDestroy {
         circlemarker: false
       },
       edit: {
-        featureGroup: this.drawnItems
+        featureGroup: this.drawnItems,
+        edit: false,
+        remove: false
       }
     });
   }
@@ -167,13 +178,15 @@ export class LawnMapComponent implements OnInit, OnDestroy {
     this.map = L.map('lawn-map', {
       center: defaultCenter,
       zoom: defaultZoom,
-      zoomControl: true
+      zoomControl: true,
+      maxZoom: 20,
+      attributionControl: false
     });
 
     const satelliteLayer = L.tileLayer(
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
       {
-        maxZoom: 22,
+        maxZoom: 20,
         attribution:
           'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
       }
@@ -182,7 +195,7 @@ export class LawnMapComponent implements OnInit, OnDestroy {
     const streetLayer = L.tileLayer(
       'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
       {
-        maxZoom: 22,
+        maxZoom: 20,
         attribution: '© OpenStreetMap contributors'
       }
     );
@@ -198,8 +211,7 @@ export class LawnMapComponent implements OnInit, OnDestroy {
 
     this.map.addLayer(this.drawnItems);
 
-    this.drawControl = this.createDrawControl(this.selectedColor());
-    this.map.addControl(this.drawControl);
+    // Draw control is added dynamically by _drawControlWatcher when needed
 
     this.map.on(L.Draw.Event.CREATED, (event: any) => {
       this.onShapeCreated(event);
@@ -217,6 +229,9 @@ export class LawnMapComponent implements OnInit, OnDestroy {
     if (currentSegments && currentSegments.length > 0) {
       this.renderSegments(currentSegments);
     }
+
+    // Signal that map is ready - this will trigger effects that depend on mapReady
+    this.mapReady.set(true);
   }
 
   private onShapeCreated(event: any): void {
@@ -253,7 +268,7 @@ export class LawnMapComponent implements OnInit, OnDestroy {
       // Use the selected drawing color from the picker
       const drawingColor = this.selectedColor();
 
-      // We're drawing for an existing segment - assign coordinates directly
+      // We're drawing for an existing segment - add the layer but don't save yet
       layer.setStyle({
         color: drawingColor,
         fillOpacity: 0.3
@@ -261,34 +276,21 @@ export class LawnMapComponent implements OnInit, OnDestroy {
 
       this.drawnItems.addLayer(layer);
 
-      // Update the segment with coordinates and size
-      const updatedSegment: LawnSegment = {
+      // Track this layer so we can get its data when saving
+      this.segmentLayers.set(targetSegment.id, layer);
+
+      // Enable editing on the newly drawn layer so user can adjust vertices
+      if ((layer as any).editing) {
+        (layer as any).editing.enable();
+      }
+
+      // Update the targetSegmentForDrawing to indicate it now has coordinates
+      // This keeps edit mode active so user can change color, adjust shape, etc.
+      this.targetSegmentForDrawing.set({
         ...targetSegment,
         coordinates: [coordinates],
         size: area,
         color: drawingColor
-      };
-
-      console.log('Updating segment:', updatedSegment);
-
-      this._lawnSegmentsService.updateLawnSegment(updatedSegment).subscribe({
-        next: () => {
-          this._throwSuccessToast(`Mapped ${targetSegment.name}`);
-          this._lawnSegmentsService.lawnSegments.reload();
-          this.targetSegmentForDrawing.set(null);
-        },
-        error: (err) => {
-          console.error('Error updating segment:', err);
-          console.log('Attempted update with:', {
-            name: updatedSegment.name,
-            size: updatedSegment.size,
-            coordinates: updatedSegment.coordinates,
-            color: updatedSegment.color
-          });
-          this._throwErrorToast('Error mapping segment. Please try again.');
-          this.drawnItems.removeLayer(layer);
-          this.targetSegmentForDrawing.set(null);
-        }
       });
     } else {
       // Normal flow - creating a new segment
@@ -362,6 +364,12 @@ export class LawnMapComponent implements OnInit, OnDestroy {
 
   private renderSegments(segments: LawnSegment[]): void {
     if (!this.map) return;
+
+    // Don't re-render if we're actively editing a segment
+    const targetSegment = this.targetSegmentForDrawing();
+    if (targetSegment && targetSegment.coordinates) {
+      return;
+    }
 
     this.segmentLayers.forEach((layer) => {
       this.drawnItems.removeLayer(layer);
@@ -608,6 +616,9 @@ export class LawnMapComponent implements OnInit, OnDestroy {
       if ((layer as any).editing) {
         (layer as any).editing.enable();
 
+        // Set color picker to segment's current color
+        this.selectedColor.set(segment.color || DEFAULT_LAWN_SEGMENT_COLOR);
+
         // Show banner to indicate editing mode
         this.targetSegmentForDrawing.set(segment);
 
@@ -617,14 +628,69 @@ export class LawnMapComponent implements OnInit, OnDestroy {
     }
   }
 
-  public cancelEditing(): void {
+  public cancelEditing(emitEvent = true): void {
     const targetSegment = this.targetSegmentForDrawing();
-    if (targetSegment && targetSegment.id) {
-      const layer = this.segmentLayers.get(targetSegment.id);
-      if (layer && (layer as any).editing) {
-        (layer as any).editing.disable();
+    if (targetSegment) {
+      if (targetSegment.id) {
+        const layer = this.segmentLayers.get(targetSegment.id);
+        if (layer && (layer as any).editing) {
+          (layer as any).editing.disable();
+        }
+      }
+      if (emitEvent) {
+        this.editingCanceled.emit(targetSegment);
       }
     }
     this.targetSegmentForDrawing.set(null);
+  }
+
+  public onColorChange(color: string): void {
+    this.selectedColor.set(color);
+
+    // If editing an existing segment, update the layer's color
+    const targetSegment = this.targetSegmentForDrawing();
+    if (targetSegment && targetSegment.id !== undefined && targetSegment.id !== null) {
+      const layer = this.segmentLayers.get(targetSegment.id);
+      if (layer) {
+        layer.setStyle({ color: color, fillOpacity: 0.3 });
+      }
+    }
+
+    // Also update the temp layer if drawing a new segment
+    if (this.tempLayer) {
+      this.tempLayer.setStyle({ color: color, fillOpacity: 0.3, dashArray: '5, 5' });
+    }
+  }
+
+  public saveCurrentEdit(): { coordinates: number[][]; size: number; color: string } | null {
+    const targetSegment = this.targetSegmentForDrawing();
+    if (!targetSegment || !targetSegment.id) {
+      return null;
+    }
+
+    const layer = this.segmentLayers.get(targetSegment.id);
+    if (!layer) {
+      return null;
+    }
+
+    let coordinates: number[][];
+    let size: number;
+
+    if ((layer as L.Polygon).getLatLngs) {
+      coordinates = this.polygonToCoordinates(layer as L.Polygon);
+      size = this.calculatePolygonArea(layer as L.Polygon);
+    } else {
+      return null;
+    }
+
+    // Disable editing
+    if ((layer as any).editing) {
+      (layer as any).editing.disable();
+    }
+
+    const color = this.selectedColor();
+    this.targetSegmentForDrawing.set(null);
+
+    return { coordinates, size, color };
   }
 }

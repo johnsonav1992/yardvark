@@ -87,19 +87,6 @@
                 pInitEditableRow
                 [disabled]="isInEditingMode && !isRowBeingEdited"
               />
-              @if (!isNewSegment && segment.id >= 1) {
-                <p-button
-                  [icon]="'ti ti-map-pin'"
-                  (onClick)="editOnMap(segment)"
-                  rounded
-                  outlined
-                  severity="secondary"
-                  [pTooltip]="
-                    segment.coordinates ? 'Edit on map' : 'Add to map'
-                  "
-                  [disabled]="isInEditingMode"
-                />
-              }
             }
             @if (!isNewSegment) {
               <p-button

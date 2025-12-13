@@ -43,6 +43,8 @@ export class LawnSegmentsTableComponent implements OnDestroy {
   public hasUnsavedChanges = model.required<boolean>();
   public currentlyEditingLawnSegmentIds = signal<number[] | null>(null);
   public editOnMapClicked = output<LawnSegment>();
+  public segmentSaveClicked = output<LawnSegment>();
+  public segmentEditCanceled = output<LawnSegment>();
 
   public lawnSegmentTable = viewChild(Table);
 
@@ -61,6 +63,9 @@ export class LawnSegmentsTableComponent implements OnDestroy {
     this.currentlyEditingLawnSegmentIds.update((prev) => {
       return prev ? [...prev, segment.id] : [segment.id];
     });
+
+    // Trigger map editing/drawing mode
+    this.editOnMapClicked.emit(segment);
   }
 
   public addLawnSegmentRow(): void {
@@ -88,6 +93,9 @@ export class LawnSegmentsTableComponent implements OnDestroy {
 
   public onRowSave(segment: LawnSegment): void {
     const isNewSegment = segment.id < 1;
+
+    // Emit event so parent can add map edits to the segment
+    this.segmentSaveClicked.emit(segment);
 
     this._lawnSegmentsService[
       isNewSegment ? 'addLawnSegment' : 'updateLawnSegment'
@@ -126,11 +134,7 @@ export class LawnSegmentsTableComponent implements OnDestroy {
     });
   }
 
-  public editOnMap(segment: LawnSegment): void {
-    this.editOnMapClicked.emit(segment);
-  }
-
-  public cancelRowEdit(segment: LawnSegment): void {
+  public cancelRowEdit(segment: LawnSegment, emitEvent = true): void {
     const isNewSegment = segment.id < 1;
 
     if (isNewSegment) {
@@ -140,6 +144,10 @@ export class LawnSegmentsTableComponent implements OnDestroy {
     }
 
     this.removeSegmentFromEditingList(segment.id);
+
+    if (emitEvent) {
+      this.segmentEditCanceled.emit(segment);
+    }
   }
 
   private removeSegmentFromEditingList(segmentId: number): void {

@@ -161,6 +161,25 @@ export class EntriesService {
     return entry?.date || null;
   }
 
+  /**
+   * Gets the date of the most recent entry with a PGR (Plant Growth Regulator) product
+   * Used for GDD (Growing Degree Days) calculation
+   */
+  async getLastPgrApplicationDate(userId: string): Promise<Date | null> {
+    const entry = await this._entriesRepo
+      .createQueryBuilder('entry')
+      .innerJoin('entry.entryProducts', 'entryProduct')
+      .innerJoin('entryProduct.product', 'product')
+      .where('entry.userId = :userId', { userId })
+      .andWhere('entry.date <= :today', { today: new Date() })
+      .andWhere('product.category = :category', { category: 'pgr' })
+      .orderBy('entry.date', 'DESC')
+      .addOrderBy('entry.time', 'DESC')
+      .getOne();
+
+    return entry?.date || null;
+  }
+
   async createEntry(userId: string, entry: EntryCreationRequest) {
     const newEntry = this._entriesRepo.create({
       ...entry,
@@ -198,9 +217,10 @@ export class EntriesService {
       if (result.status === 'fulfilled') {
         entries.push(result.value);
       } else {
+        const reason = result.reason as Error | undefined;
         errors.push({
           index,
-          error: result.reason?.message || 'Unknown error',
+          error: reason?.message || 'Unknown error',
         });
       }
     });

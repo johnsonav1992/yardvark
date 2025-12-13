@@ -8,6 +8,7 @@ import { DEFAULT_LAWN_SEGMENT_COLOR } from '../../../constants/lawn-segments.con
 
 describe('LawnSegmentsService', () => {
   let service: LawnSegmentsService;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let repository: Repository<LawnSegment>;
 
   const mockRepository = {

@@ -10,7 +10,8 @@ export type ApiEndpointRoutes =
   | FileRoutes
   | WeatherRoutes
   | AiRoutes
-  | EmailRoutes;
+  | EmailRoutes
+  | GddRoutes;
 
 type SettingsRoutes = 'settings';
 
@@ -50,3 +51,5 @@ type WeatherRoutes = 'weather/forecast';
 type AiRoutes = 'ai/chat';
 
 type EmailRoutes = 'email/feedback';
+
+type GddRoutes = 'gdd/current' | 'gdd/historical' | 'gdd/forecast';

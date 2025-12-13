@@ -6,7 +6,7 @@ import { Settings } from './models/settings.model';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Settings])],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule, SettingsService],
   controllers: [SettingsController],
   providers: [SettingsService],
 })

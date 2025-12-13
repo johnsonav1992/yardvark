@@ -64,6 +64,34 @@
     />
   </div>
   <div class="section-wrapper">
+    <h4>Custom GDD Target</h4>
+    <small
+      ><em
+        >*Override the default GDD target for PGR reapplication timing (default:
+        {{ getDefaultGddTarget() }} GDD)</em
+      ></small
+    >
+    <div class="gdd-target-input">
+      <p-inputnumber
+        [ngModel]="currentSettings()?.customGddTarget ?? null"
+        [inputStyle]="{ flex: 'none', width: inputWidth }"
+        [placeholder]="'Using default (' + getDefaultGddTarget() + ')'"
+        [min]="50"
+        [max]="500"
+        (ngModelChange)="setCustomGddTarget($event)"
+      />
+      @if (currentSettings()?.customGddTarget) {
+        <p-button
+          icon="ti ti-x"
+          severity="secondary"
+          [text]="true"
+          (click)="clearCustomGddTarget()"
+          pTooltip="Reset to default"
+        />
+      }
+    </div>
+  </div>
+  <div class="section-wrapper">
     <h4>Hide system products</h4>
     <small
       ><em

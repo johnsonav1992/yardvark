@@ -25,6 +25,7 @@ import { RemindersModule } from './modules/reminders/reminders.module';
 import { AiModule } from './modules/ai/ai.module';
 import { EmailModule } from './modules/email/email.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { GddModule } from './modules/gdd/gdd.module';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
     RemindersModule,
     AiModule,
     EmailModule,
+    GddModule,
   ],
   controllers: [UsersController, FilesController],
   providers: [

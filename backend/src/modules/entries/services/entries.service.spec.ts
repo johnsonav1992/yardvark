@@ -6,8 +6,11 @@ import { Entry, EntryProduct, EntryImage } from '../models/entries.model';
 
 describe('EntriesService', () => {
   let service: EntriesService;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let entryRepository: Repository<Entry>;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let entryProductRepository: Repository<EntryProduct>;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let entryImageRepository: Repository<EntryImage>;
 
   const mockEntryRepository = {

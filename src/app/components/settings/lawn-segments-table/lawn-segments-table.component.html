@@ -11,6 +11,7 @@
     <ng-template #header>
       <tr>
         @if (lawnSegments()?.length) {
+          <th>Color</th>
           <th>Name</th>
           <th>Size (ft²)</th>
           <th></th>
@@ -19,7 +20,16 @@
     </ng-template>
     <ng-template #body let-segment let-editing="editing">
       <tr [pEditableRow]="segment">
-        <td [width]="'35%'">
+        <td>
+          <div class="color-cell">
+            <div
+              class="color-indicator"
+              [style.background-color]="segment.color || '#3388ff'"
+              [class.not-mapped]="!segment.coordinates"
+            ></div>
+          </div>
+        </td>
+        <td>
           <p-cellEditor>
             <ng-template #input>
               <input
@@ -33,23 +43,16 @@
             </ng-template>
           </p-cellEditor>
         </td>
-        <td [width]="'30%'">
-          <p-cellEditor>
-            <ng-template #input>
-              <p-inputNumber
-                [inputStyle]="{ width: '75%' }"
-                [(ngModel)]="segment.size"
-                mode="decimal"
-                locale="en-US"
-                [minFractionDigits]="2"
-              />
-            </ng-template>
-            <ng-template #output>
-              {{ segment.size }}
-            </ng-template>
-          </p-cellEditor>
+        <td>
+          <span class="size-display">
+            @if (segment.size && +segment.size > 0) {
+              {{ (+segment.size).toFixed(2) }}
+            } @else {
+              <span class="not-mapped-text">Not mapped</span>
+            }
+          </span>
         </td>
-        <td [width]="'15%'">
+        <td>
           <div class="buttons-container">
             @let isRowBeingEdited = editing;
             @let isInEditingMode =
@@ -63,8 +66,9 @@
                 outlined
                 severity="success"
                 pSaveEditableRow
-                [disabled]="!segment.name || !segment.size || segment.size <= 0"
+                [disabled]="!segment.name"
                 (onClick)="onRowSave(segment)"
+                [pTooltip]="!segment.name ? 'Enter a name to save' : ''"
               />
               <p-button
                 [icon]="'ti ti-x'"

@@ -1,0 +1,224 @@
+@mixin color-input($width: 50px, $height: 35px) {
+  width: $width;
+  height: $height;
+  border: 1px solid var(--p-content-border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 2px;
+
+  &::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+
+  &::-webkit-color-swatch {
+    border: none;
+    border-radius: 3px;
+  }
+}
+
+.map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+
+  h4 {
+    margin: 0;
+  }
+
+  .location-warning {
+    color: var(--p-amber-500);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+  }
+
+  .color-picker-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    label {
+      font-weight: 500;
+    }
+
+    .color-input {
+      @include color-input(30px, 30px);
+    }
+  }
+}
+
+#lawn-map {
+  width: 100%;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  z-index: 1;
+}
+
+.map-instructions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: var(--p-content-background);
+  border-radius: 4px;
+  border: 1px solid var(--p-content-border-color);
+
+  i {
+    color: var(--p-primary-color);
+  }
+}
+
+.drawing-mode-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background: var(--p-primary-50);
+  border: 2px solid var(--p-primary-200);
+  border-radius: 4px;
+  gap: 1rem;
+
+  .banner-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    i {
+      font-size: 1.5rem;
+      color: var(--p-primary-color);
+    }
+
+    .banner-text {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      strong {
+        font-size: 0.95rem;
+        color: var(--p-primary-900);
+      }
+
+      span {
+        font-size: 0.85rem;
+        color: var(--p-primary-700);
+      }
+    }
+  }
+}
+
+.segment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem 0;
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    label {
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    .color-input {
+      @include color-input(60px, 40px);
+    }
+  }
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.segment-list {
+  margin-top: 1.5rem;
+
+  h5 {
+    margin-bottom: 1rem;
+  }
+
+  .segments-grid {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+
+    .segment-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem;
+      background: var(--p-content-background);
+      border: 1px solid var(--p-content-border-color);
+      border-radius: 4px;
+
+      .segment-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+
+        .color-indicator {
+          width: 24px;
+          height: 24px;
+          border-radius: 4px;
+          border: 1px solid var(--p-content-border-color);
+        }
+
+        .segment-details {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+
+          strong {
+            font-size: 0.95rem;
+          }
+
+          span {
+            font-size: 0.85rem;
+            color: var(--p-text-muted-color);
+          }
+        }
+      }
+
+      .color-input {
+        @include color-input(40px, 40px);
+      }
+    }
+  }
+}
+
+:host ::ng-deep {
+  .leaflet-editing-icon {
+    width: 8px !important;
+    height: 8px !important;
+    margin-left: -4px !important;
+    margin-top: -4px !important;
+    border-radius: 4px;
+    background: #fff;
+    border: 2px solid #333;
+  }
+
+  .leaflet-touch-icon {
+    width: 12px !important;
+    height: 12px !important;
+    margin-left: -6px !important;
+    margin-top: -6px !important;
+  }
+
+  .location-marker {
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

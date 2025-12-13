@@ -106,6 +106,13 @@
   </div>
   <div class="section-wrapper">
     <h4>Lawn size</h4>
+    <small
+      ><em
+        >*If lawn segments are created below, all calculations and displays will
+        be based on these segments rather than the total lawn size entered
+        here.</em
+      ></small
+    >
     <p-inputnumber
       [(ngModel)]="lawnSize"
       [suffix]="' ft²'"
@@ -119,6 +126,16 @@
     <lawn-segments-table
       [lawnSegments]="lawnSegments.value()"
       [(hasUnsavedChanges)]="hasUnsavedChanges"
+      (editOnMapClicked)="onEditOnMap($event)"
+      (segmentSaveClicked)="onSegmentSave($event)"
+      (segmentEditCanceled)="onSegmentEditCanceled()"
+    />
+  </div>
+  <div class="section-wrapper">
+    <lawn-map
+      [lawnSegments]="lawnSegments.value()"
+      [(segmentToFocus)]="segmentToFocusOnMap"
+      (editingCanceled)="onMapEditingCanceled($event)"
     />
   </div>
 </page-container>

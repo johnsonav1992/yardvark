@@ -70,10 +70,9 @@ export class LawnSegmentsTableComponent implements OnDestroy {
 
   public addLawnSegmentRow(): void {
     const newId = Math.random();
-    const newRow = {
+    const newRow: LawnSegment = {
       id: newId,
       name: '',
-      area: 0,
       userId: '',
       size: 0, // Will be set when mapped
       color: DEFAULT_LAWN_SEGMENT_COLOR,
@@ -89,6 +88,9 @@ export class LawnSegmentsTableComponent implements OnDestroy {
     });
 
     this.lawnSegmentTable()?.initRowEdit(newRow);
+
+    // Trigger map drawing mode for the new segment
+    this.editOnMapClicked.emit(newRow);
   }
 
   public onRowSave(segment: LawnSegment): void {

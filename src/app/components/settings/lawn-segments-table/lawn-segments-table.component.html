@@ -68,6 +68,7 @@
                 pSaveEditableRow
                 [disabled]="!segment.name"
                 (onClick)="onRowSave(segment)"
+                [pTooltip]="!segment.name ? 'Enter a name to save' : ''"
               />
               <p-button
                 [icon]="'ti ti-x'"

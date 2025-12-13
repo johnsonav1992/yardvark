@@ -60,7 +60,7 @@ export class SettingsComponent implements UnsavedChanges {
   public hasUnsavedChanges = signal(false);
   public locationSearchText = signal<string>('');
   public debouncedSearchText = debouncedSignal(this.locationSearchText, 700);
-  public segmentToFocusOnMap = signal<number | null>(null);
+  public segmentToFocusOnMap = signal<LawnSegment | null>(null);
 
   private lawnMapComponent = viewChild(LawnMapComponent);
   private lawnSegmentsTableComponent = viewChild(LawnSegmentsTableComponent);
@@ -96,8 +96,8 @@ export class SettingsComponent implements UnsavedChanges {
     });
   }
 
-  public onEditOnMap(segment: { id: number }): void {
-    this.segmentToFocusOnMap.set(segment.id);
+  public onEditOnMap(segment: LawnSegment): void {
+    this.segmentToFocusOnMap.set(segment);
 
     // Scroll to map
     const mapElement = document.querySelector('lawn-map');

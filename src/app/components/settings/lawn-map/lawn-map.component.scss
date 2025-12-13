@@ -213,4 +213,12 @@
     margin-left: -6px !important;
     margin-top: -6px !important;
   }
+
+  .location-marker {
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }

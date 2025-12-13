@@ -21,12 +21,30 @@
   </div>
 
   @if (targetSegmentForDrawing(); as targetSegment) {
+    @let isNewSegment = targetSegment.id < 1;
     <div class="drawing-mode-banner">
       <div class="banner-content">
         <i class="ti ti-map-pin"></i>
         <div class="banner-text">
-          <strong>{{ targetSegment.coordinates ? 'Editing' : 'Drawing' }} mode active</strong>
-          <span>{{ targetSegment.coordinates ? 'Edit the shape for' : 'Draw the shape for' }} "{{ targetSegment.name }}"</span>
+          @if (isNewSegment) {
+            <strong>Creating new segment</strong>
+            <span>
+              @if (targetSegment.coordinates) {
+                Adjust the shape and color, then save in the table
+              } @else {
+                Draw the shape for your new segment
+              }
+            </span>
+          } @else {
+            <strong>{{ targetSegment.coordinates ? 'Editing' : 'Drawing' }} mode active</strong>
+            <span>
+              @if (targetSegment.coordinates) {
+                Edit the shape for "{{ targetSegment.name }}"
+              } @else {
+                Draw the shape for "{{ targetSegment.name }}"
+              }
+            </span>
+          }
         </div>
       </div>
       @if (!targetSegment.coordinates) {

@@ -45,7 +45,7 @@ export class LawnMapComponent implements OnInit, OnDestroy {
   private _throwSuccessToast = injectSuccessToast();
 
   public lawnSegments = model.required<LawnSegment[] | undefined>();
-  public segmentToFocus = model<number | null>(null);
+  public segmentToFocus = model<LawnSegment | null>(null);
   public editingCanceled = output<LawnSegment>();
   public isMobile = this._globalUiService.isMobile;
   public currentSettings = this._settingsService.currentSettings;
@@ -55,6 +55,7 @@ export class LawnMapComponent implements OnInit, OnDestroy {
   private drawnItems = new L.FeatureGroup();
   private segmentLayers = new Map<number, L.Rectangle | L.Polygon>();
   private tempLayer: L.Rectangle | L.Polygon | null = null;
+  private locationMarker: L.Marker | null = null;
   private unsavedLayers = new Map<
     L.Rectangle | L.Polygon,
     { coordinates: number[][]; size: number }
@@ -80,25 +81,21 @@ export class LawnMapComponent implements OnInit, OnDestroy {
     const isMapReady = this.mapReady();
     if (location && isMapReady && this.map) {
       this.map.setView([location.lat, location.long], 20);
+      this.updateLocationMarker(location.lat, location.long, location.address);
     }
   });
 
   _segmentFocusWatcher = effect(() => {
-    const segmentId = this.segmentToFocus();
+    const segment = this.segmentToFocus();
     const isMapReady = this.mapReady();
-    if (segmentId && isMapReady && this.map) {
-      const segments = this.lawnSegments();
-      const segment = segments?.find((s) => s.id === segmentId);
-
-      if (segment) {
-        if (segment.coordinates) {
-          // Segment already has coordinates - zoom to it and enable editing
-          this.focusOnSegment(segmentId);
-          this.enableEditingForSegment(segmentId, segment);
-        } else {
-          // Segment doesn't have coordinates - enter drawing mode
-          this.targetSegmentForDrawing.set(segment);
-        }
+    if (segment && isMapReady && this.map) {
+      if (segment.coordinates) {
+        // Segment already has coordinates - zoom to it and enable editing
+        this.focusOnSegment(segment.id);
+        this.enableEditingForSegment(segment.id, segment);
+      } else {
+        // Segment doesn't have coordinates - enter drawing mode
+        this.targetSegmentForDrawing.set(segment);
       }
 
       this.segmentToFocus.set(null);
@@ -230,8 +227,41 @@ export class LawnMapComponent implements OnInit, OnDestroy {
       this.renderSegments(currentSegments);
     }
 
+    // Add location marker if location exists
+    if (location) {
+      this.updateLocationMarker(location.lat, location.long, location.address);
+    }
+
     // Signal that map is ready - this will trigger effects that depend on mapReady
     this.mapReady.set(true);
+  }
+
+  private updateLocationMarker(lat: number, lng: number, address?: string): void {
+    if (!this.map) return;
+
+    // Remove existing marker if any
+    if (this.locationMarker) {
+      this.map.removeLayer(this.locationMarker);
+    }
+
+    // Create an SVG-based marker icon
+    const svgIcon = `
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="32" height="32">
+        <path fill="#e74c3c" stroke="#fff" stroke-width="1" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+        <circle fill="#fff" cx="12" cy="9" r="2.5"/>
+      </svg>
+    `;
+
+    const markerIcon = L.divIcon({
+      className: 'location-marker',
+      html: svgIcon,
+      iconSize: [32, 32],
+      iconAnchor: [16, 32]
+    });
+
+    this.locationMarker = L.marker([lat, lng], { icon: markerIcon })
+      .addTo(this.map)
+      .bindPopup(address || 'Your location');
   }
 
   private onShapeCreated(event: any): void {
@@ -257,11 +287,9 @@ export class LawnMapComponent implements OnInit, OnDestroy {
     const targetSegment = this.targetSegmentForDrawing();
 
     if (targetSegment) {
-      // Validate segment has required fields
-      if (!targetSegment.name || !targetSegment.id || targetSegment.id < 1) {
-        this._throwErrorToast(
-          'Invalid segment. Please save the segment first before mapping.'
-        );
+      // Validate segment has an id (can be < 1 for new segments)
+      if (!targetSegment.id) {
+        this._throwErrorToast('Invalid segment. Please try again.');
         return;
       }
 

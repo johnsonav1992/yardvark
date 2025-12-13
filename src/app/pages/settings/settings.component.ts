@@ -50,20 +50,20 @@ export class SettingsComponent implements UnsavedChanges {
   private _lawnSegmentsService = inject(LawnSegmentsService);
   private _globalUiService = inject(GlobalUiService);
 
+  private _lawnMapComponent = viewChild(LawnMapComponent);
+  private _lawnSegmentsTableComponent = viewChild(LawnSegmentsTableComponent);
+
   public isMobile = this._globalUiService.isMobile;
   public currentSettings = this._settingsService.currentSettings;
   public settingsAreLoading = this._settingsService.settings.isLoading;
   public lawnSegments = this._lawnSegmentsService.lawnSegments;
+  public updateSetting = this._settingsService.updateSetting;
 
   public lawnSize = linkedSignal(() => this.currentSettings()?.lawnSize);
-
   public hasUnsavedChanges = signal(false);
   public locationSearchText = signal<string>('');
   public debouncedSearchText = debouncedSignal(this.locationSearchText, 700);
   public segmentToFocusOnMap = signal<LawnSegment | null>(null);
-
-  private lawnMapComponent = viewChild(LawnMapComponent);
-  private lawnSegmentsTableComponent = viewChild(LawnSegmentsTableComponent);
 
   public foundLocations = rxResource({
     params: () =>
@@ -74,10 +74,18 @@ export class SettingsComponent implements UnsavedChanges {
       this._locationService.searchForLocation(params?.query || '')
   });
 
-  public updateSetting = this._settingsService.updateSetting;
+  private _debouncedLawnSizeSetter = debounce(
+    (newVal: number) => this.updateSetting('lawnSize', newVal),
+    1500
+  );
+
+  private _debouncedGddTargetSetter = debounce(
+    (newVal: number | undefined) => this.updateSetting('customGddTarget', newVal),
+    1500
+  );
 
   public setLawnSize(newVal: number): void {
-    this.debouncedLawnSizeSetter(newVal);
+    this._debouncedLawnSizeSetter(newVal);
   }
 
   public searchLocations(e: AutoCompleteCompleteEvent): void {
@@ -86,29 +94,20 @@ export class SettingsComponent implements UnsavedChanges {
 
   public updateLocationSetting(e: AutoCompleteSelectEvent): void {
     const locationFeature = e.value as Feature;
-    const lat = locationFeature.geometry.coordinates[1];
-    const long = locationFeature.geometry.coordinates[0];
-
     this.updateSetting('location', {
-      lat,
-      long,
+      lat: locationFeature.geometry.coordinates[1],
+      long: locationFeature.geometry.coordinates[0],
       address: locationFeature.properties.full_address
     });
   }
 
   public onEditOnMap(segment: LawnSegment): void {
     this.segmentToFocusOnMap.set(segment);
-
-    // Scroll to map
-    const mapElement = document.querySelector('lawn-map');
-    if (mapElement) {
-      mapElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+    document.querySelector('lawn-map')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
   public onSegmentSave(segment: LawnSegment): void {
-    // Get any pending map edits
-    const mapEdits = this.lawnMapComponent()?.saveCurrentEdit();
+    const mapEdits = this._lawnMapComponent()?.saveCurrentEdit();
     if (mapEdits) {
       segment.coordinates = [mapEdits.coordinates];
       segment.size = mapEdits.size;
@@ -117,25 +116,12 @@ export class SettingsComponent implements UnsavedChanges {
   }
 
   public onMapEditingCanceled(segment: LawnSegment): void {
-    // Pass false to avoid emitting event back (prevent loop)
-    this.lawnSegmentsTableComponent()?.cancelRowEdit(segment, false);
+    this._lawnSegmentsTableComponent()?.cancelRowEdit(segment, false);
   }
 
   public onSegmentEditCanceled(): void {
-    // Pass false to avoid emitting event back (prevent loop)
-    this.lawnMapComponent()?.cancelEditing(false);
+    this._lawnMapComponent()?.cancelEditing(false);
   }
-
-  private debouncedLawnSizeSetter = debounce(
-    (newVal: number) => this.updateSetting('lawnSize', newVal),
-    1500
-  );
-
-  private debouncedGddTargetSetter = debounce(
-    (newVal: number | undefined) =>
-      this.updateSetting('customGddTarget', newVal),
-    1500
-  );
 
   public getDefaultGddTarget(): number {
     const grassType = this.currentSettings()?.grassType ?? 'cool';
@@ -143,7 +129,7 @@ export class SettingsComponent implements UnsavedChanges {
   }
 
   public setCustomGddTarget(value: number | null): void {
-    this.debouncedGddTargetSetter(value ?? undefined);
+    this._debouncedGddTargetSetter(value ?? undefined);
   }
 
   public clearCustomGddTarget(): void {

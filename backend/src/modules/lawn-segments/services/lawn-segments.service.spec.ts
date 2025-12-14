@@ -13,6 +13,7 @@ describe('LawnSegmentsService', () => {
 
   const mockRepository = {
     findBy: jest.fn(),
+    findOneBy: jest.fn(),
     create: jest.fn(),
     save: jest.fn(),
     delete: jest.fn(),
@@ -310,81 +311,101 @@ describe('LawnSegmentsService', () => {
 
   describe('updateLawnSegment', () => {
     it('should update an existing lawn segment successfully', async () => {
-      const updatedSegment = {
-        ...mockLawnSegment,
-        name: 'Updated Front Yard',
-        size: 2800.75,
-      };
+      const updateData = { name: 'Updated Front Yard', size: 2800.75 };
+      const updatedSegment = { ...mockLawnSegment, ...updateData };
 
+      mockRepository.findOneBy.mockResolvedValue(mockLawnSegment);
       mockRepository.save.mockResolvedValue(updatedSegment);
 
-      const result = await service.updateLawnSegment(updatedSegment);
+      const result = await service.updateLawnSegment(
+        mockLawnSegment.id,
+        updateData,
+      );
 
-      expect(mockRepository.save).toHaveBeenCalledWith(updatedSegment);
+      expect(mockRepository.findOneBy).toHaveBeenCalledWith({
+        id: mockLawnSegment.id,
+      });
       expect(result).toEqual(updatedSegment);
     });
 
     it('should handle updating different properties', async () => {
-      const sizeOnlyUpdate = {
-        ...mockLawnSegment,
-        size: 3000.0,
-      };
+      const updateData = { size: 3000.0 };
+      const updatedSegment = { ...mockLawnSegment, ...updateData };
 
-      mockRepository.save.mockResolvedValue(sizeOnlyUpdate);
+      mockRepository.findOneBy.mockResolvedValue(mockLawnSegment);
+      mockRepository.save.mockResolvedValue(updatedSegment);
 
-      const result = await service.updateLawnSegment(sizeOnlyUpdate);
+      const result = await service.updateLawnSegment(
+        mockLawnSegment.id,
+        updateData,
+      );
 
       expect(result.size).toBe(3000.0);
       expect(result.name).toBe(mockLawnSegment.name);
     });
 
     it('should handle name-only updates', async () => {
-      const nameOnlyUpdate = {
-        ...mockLawnSegment,
-        name: 'Renamed Segment',
-      };
+      const updateData = { name: 'Renamed Segment' };
+      const updatedSegment = { ...mockLawnSegment, ...updateData };
 
-      mockRepository.save.mockResolvedValue(nameOnlyUpdate);
+      mockRepository.findOneBy.mockResolvedValue(mockLawnSegment);
+      mockRepository.save.mockResolvedValue(updatedSegment);
 
-      const result = await service.updateLawnSegment(nameOnlyUpdate);
+      const result = await service.updateLawnSegment(
+        mockLawnSegment.id,
+        updateData,
+      );
 
       expect(result.name).toBe('Renamed Segment');
       expect(result.size).toBe(mockLawnSegment.size);
     });
 
     it('should preserve userId and id during updates', async () => {
-      const updatedSegment = {
-        ...mockLawnSegment,
-        name: 'New Name',
-        size: 4000.5,
-      };
+      const updateData = { name: 'New Name', size: 4000.5 };
+      const updatedSegment = { ...mockLawnSegment, ...updateData };
 
+      mockRepository.findOneBy.mockResolvedValue(mockLawnSegment);
       mockRepository.save.mockResolvedValue(updatedSegment);
 
-      const result = await service.updateLawnSegment(updatedSegment);
+      const result = await service.updateLawnSegment(
+        mockLawnSegment.id,
+        updateData,
+      );
 
       expect(result.id).toBe(mockLawnSegment.id);
       expect(result.userId).toBe(mockLawnSegment.userId);
     });
 
+    it('should throw error when segment not found', async () => {
+      mockRepository.findOneBy.mockResolvedValue(null);
+
+      await expect(
+        service.updateLawnSegment(999, { name: 'Test' }),
+      ).rejects.toThrow('Lawn segment not found');
+    });
+
     it('should handle repository save errors during update', async () => {
       const error = new Error('Update operation failed');
+
+      mockRepository.findOneBy.mockResolvedValue(mockLawnSegment);
       mockRepository.save.mockRejectedValue(error);
 
-      await expect(service.updateLawnSegment(mockLawnSegment)).rejects.toThrow(
-        'Update operation failed',
-      );
+      await expect(
+        service.updateLawnSegment(mockLawnSegment.id, { name: 'Test' }),
+      ).rejects.toThrow('Update operation failed');
     });
 
     it('should handle updating with zero size', async () => {
-      const zeroSizeSegment = {
-        ...mockLawnSegment,
-        size: 0,
-      };
+      const updateData = { size: 0 };
+      const updatedSegment = { ...mockLawnSegment, ...updateData };
 
-      mockRepository.save.mockResolvedValue(zeroSizeSegment);
+      mockRepository.findOneBy.mockResolvedValue(mockLawnSegment);
+      mockRepository.save.mockResolvedValue(updatedSegment);
 
-      const result = await service.updateLawnSegment(zeroSizeSegment);
+      const result = await service.updateLawnSegment(
+        mockLawnSegment.id,
+        updateData,
+      );
 
       expect(result.size).toBe(0);
     });

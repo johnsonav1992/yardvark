@@ -3,6 +3,7 @@ import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
 import { of } from 'rxjs';
 import { UsersService } from '../services/users.service';
+import { S3Service } from 'src/modules/s3/s3.service';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -26,6 +27,11 @@ describe('UsersService', () => {
     }),
   };
 
+  const mockS3Service = {
+    uploadFile: jest.fn(),
+    uploadFiles: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -37,6 +43,10 @@ describe('UsersService', () => {
         {
           provide: ConfigService,
           useValue: mockConfigService,
+        },
+        {
+          provide: S3Service,
+          useValue: mockS3Service,
         },
       ],
     }).compile();
@@ -108,6 +118,65 @@ describe('UsersService', () => {
 
       expect(mockHttpService.post).toHaveBeenCalledTimes(1);
       expect(mockHttpService.patch).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('updateProfilePicture', () => {
+    const mockFile = {
+      buffer: Buffer.from('test-image'),
+      originalname: 'test-image.jpg',
+      mimetype: 'image/jpeg',
+    } as Express.Multer.File;
+
+    it('should upload image to S3 and update Auth0 user picture', async () => {
+      const userId = 'auth0|user123';
+      const mockS3Url = 'https://bucket.s3.amazonaws.com/profile/test.jpg';
+      const mockToken = 'mock-access-token';
+
+      mockS3Service.uploadFile.mockResolvedValue(mockS3Url);
+      mockHttpService.post.mockReturnValue(
+        of({ data: { access_token: mockToken } }),
+      );
+      mockHttpService.patch.mockReturnValue(
+        of({ data: { picture: mockS3Url } }),
+      );
+
+      const result = await service.updateProfilePicture(userId, mockFile);
+
+      expect(mockS3Service.uploadFile).toHaveBeenCalledWith(
+        expect.objectContaining({
+          buffer: mockFile.buffer,
+          mimetype: mockFile.mimetype,
+        }),
+        `${userId}/profile`,
+      );
+      expect(mockHttpService.patch).toHaveBeenCalledWith(
+        `https://test.auth0.com/api/v2/users/${userId}`,
+        { picture: mockS3Url },
+        expect.objectContaining({
+          headers: { Authorization: `Bearer ${mockToken}` },
+        }),
+      );
+      expect(result).toEqual({ picture: mockS3Url });
+    });
+
+    it('should generate unique filename with timestamp', async () => {
+      const userId = 'auth0|user123';
+      const mockS3Url = 'https://bucket.s3.amazonaws.com/profile/test.jpg';
+      const mockToken = 'mock-access-token';
+
+      mockS3Service.uploadFile.mockResolvedValue(mockS3Url);
+      mockHttpService.post.mockReturnValue(
+        of({ data: { access_token: mockToken } }),
+      );
+      mockHttpService.patch.mockReturnValue(
+        of({ data: { picture: mockS3Url } }),
+      );
+
+      await service.updateProfilePicture(userId, mockFile);
+
+      const uploadedFile = mockS3Service.uploadFile.mock.calls[0][0];
+      expect(uploadedFile.originalname).toMatch(/^profile-picture-\d+\.jpg$/);
     });
   });
 });

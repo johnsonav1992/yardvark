@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import { User } from '../Models/user.model';
+import { S3Service } from 'src/modules/s3/s3.service';
 
 @Injectable()
 export class UsersService {
@@ -14,6 +15,7 @@ export class UsersService {
   constructor(
     private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly s3Service: S3Service,
   ) {
     this.auth0Domain = this.configService.get<string>('AUTH0_DOMAIN')!;
     this.clientId = this.configService.get<string>('AUTH0_BACKEND_CLIENT_ID')!;
@@ -51,5 +53,24 @@ export class UsersService {
     );
 
     return response.data;
+  }
+
+  async updateProfilePicture(
+    userId: string,
+    file: Express.Multer.File,
+  ): Promise<{ picture: string }> {
+    const profilePictureFile = {
+      ...file,
+      originalname: `profile-picture-${Date.now()}.${file.originalname.split('.').pop()}`,
+    };
+
+    const pictureUrl = await this.s3Service.uploadFile(
+      profilePictureFile,
+      `${userId}/profile`,
+    );
+
+    await this.updateUser(userId, { picture: pictureUrl } as Partial<User>);
+
+    return { picture: pictureUrl };
   }
 }

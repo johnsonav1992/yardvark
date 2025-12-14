@@ -33,7 +33,7 @@ type LawnSegmentsRoutes = 'lawn-segments';
 
 type ProductsRoutes = 'products' | 'products/hide' | 'products/unhide';
 
-type UsersRoutes = 'users';
+type UsersRoutes = 'users' | 'users/profile-picture';
 
 type EquipmentRoutes =
   | 'equipment'

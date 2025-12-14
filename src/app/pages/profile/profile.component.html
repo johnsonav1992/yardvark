@@ -83,16 +83,29 @@
       }
     </div>
   </div>
-  <img class="section-wrapper" />
-  <h4>Profile picture:</h4>
-  @let picture =
-    user()?.picture?.includes("gravatar") ? undefined : user()?.picture;
+  <div class="section-wrapper">
+    <h4>Profile picture:</h4>
+    @let picture =
+      user()?.picture?.includes("gravatar") ? undefined : user()?.picture;
 
-  <p-avatar
-    [label]="picture ? undefined : userInitials()"
-    [dt]="avatarDt"
-    [shape]="'circle'"
-    [image]="picture"
-    [style]="{ color: 'var(--p-surface-400)' }"
-  />
+    <div
+      class="avatar-wrapper"
+      [class.clickable]="!isGoogleUser()"
+      (click)="openProfilePictureDialog()"
+    >
+      <p-avatar
+        [label]="picture ? undefined : userInitials()"
+        [dt]="avatarDt"
+        [shape]="'circle'"
+        [image]="picture"
+        [style]="{ color: 'var(--p-surface-400)' }"
+      />
+      @if (!isGoogleUser()) {
+        <div class="avatar-overlay">
+          <i class="ti ti-camera"></i>
+          <span>Change</span>
+        </div>
+      }
+    </div>
+  </div>
 </page-container>

@@ -3,7 +3,6 @@ import {
   effect,
   inject,
   model,
-  OnDestroy,
   output,
   signal,
   viewChild
@@ -35,7 +34,7 @@ import { TooltipModule } from 'primeng/tooltip';
   templateUrl: './lawn-segments-table.component.html',
   styleUrl: './lawn-segments-table.component.scss'
 })
-export class LawnSegmentsTableComponent implements OnDestroy {
+export class LawnSegmentsTableComponent {
   private _lawnSegmentsService = inject(LawnSegmentsService);
   private _throwErrorToast = injectErrorToast();
 
@@ -58,9 +57,6 @@ export class LawnSegmentsTableComponent implements OnDestroy {
     this.hasUnsavedChanges.set(!!this.currentlyEditingLawnSegmentIds()?.length);
   });
 
-  public ngOnDestroy(): void {
-    this._lawnSegmentsService.lawnSegments.reload();
-  }
 
   public editLawnSegment(segment: LawnSegment): void {
     this.currentlyEditingLawnSegmentIds.update((prev) =>
@@ -116,7 +112,11 @@ export class LawnSegmentsTableComponent implements OnDestroy {
 
   public deleteSegment(segmentId: number): void {
     this._lawnSegmentsService.deleteLawnSegment(segmentId).subscribe({
-      next: () => this._lawnSegmentsService.lawnSegments.reload(),
+      next: () => {
+        this._lawnSegmentsService.lawnSegments.update(segments =>
+          segments?.filter(seg => seg.id !== segmentId)
+        );
+      },
       error: () => this._throwErrorToast('Error deleting lawn segment')
     });
   }

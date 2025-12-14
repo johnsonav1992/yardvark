@@ -1,3 +1,4 @@
+import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
 import {
   Entity,
   Column,
@@ -14,26 +15,34 @@ import { LawnSegment } from '../../lawn-segments/models/lawn-segments.model';
 import { Activity } from '../../activities/models/activities.model';
 import { Product } from '../../products/models/products.model';
 
+@ObjectType()
 @Entity('entries')
 export class Entry {
+  @Field(() => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Field()
   @Column()
   userId: string;
 
+  @Field()
   @Column('timestamptz')
   date: Date;
 
+  @Field({ nullable: true })
   @Column('time', { nullable: true })
   time?: string;
 
+  @Field({ nullable: true })
   @Column({ nullable: true })
   title?: string;
 
+  @Field({ nullable: true })
   @Column({ nullable: true })
   notes: string;
 
+  @Field(() => Float, { nullable: true })
   @Column('decimal', {
     transformer: {
       to: (value: number) => value,
@@ -43,9 +52,11 @@ export class Entry {
   })
   soilTemperature: number;
 
+  @Field()
   @Column()
   soilTemperatureUnit: string;
 
+  @Field(() => Float, { nullable: true })
   @Column('decimal', {
     transformer: {
       to: (value: number) => value,
@@ -55,9 +66,11 @@ export class Entry {
   })
   mowingHeight?: number;
 
+  @Field({ nullable: true })
   @Column({ nullable: true })
   mowingHeightUnit?: string;
 
+  @Field(() => [Activity], { nullable: true })
   @ManyToMany(() => Activity, (activity) => activity.entries)
   @JoinTable({
     name: 'entry_activities',
@@ -66,6 +79,7 @@ export class Entry {
   })
   activities: Activity[];
 
+  @Field(() => [LawnSegment], { nullable: true })
   @ManyToMany(() => LawnSegment, (lawnSegment) => lawnSegment.entries)
   @JoinTable({
     name: 'entry_lawn_segments',
@@ -74,11 +88,13 @@ export class Entry {
   })
   lawnSegments: LawnSegment[];
 
+  @Field(() => [EntryProduct], { nullable: true })
   @OneToMany(() => EntryProduct, (entryProduct) => entryProduct.entry, {
     cascade: true,
   })
   entryProducts: EntryProduct[];
 
+  @Field(() => [EntryImage], { nullable: true })
   @OneToMany(() => EntryImage, (entryImage) => entryImage.entry, {
     cascade: true,
   })
@@ -91,11 +107,14 @@ export class Entry {
   deletedAt?: Date;
 }
 
+@ObjectType()
 @Entity({ name: 'entry_products' })
 export class EntryProduct {
+  @Field(() => ID)
   @PrimaryColumn()
   entryId: number;
 
+  @Field(() => ID)
   @PrimaryColumn()
   productId: number;
 
@@ -106,6 +125,7 @@ export class EntryProduct {
   @JoinColumn({ name: 'entry_id' })
   entry: Entry;
 
+  @Field(() => Product)
   @ManyToOne(() => Product, (product) => product, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
@@ -113,6 +133,7 @@ export class EntryProduct {
   @JoinColumn({ name: 'product_id' })
   product: Product;
 
+  @Field(() => Float)
   @Column('decimal', {
     transformer: {
       to: (value: number) => value,
@@ -121,15 +142,19 @@ export class EntryProduct {
   })
   productQuantity: number;
 
+  @Field()
   @Column()
   productQuantityUnit: string;
 }
 
+@ObjectType()
 @Entity({ name: 'entry_images' })
 export class EntryImage {
+  @Field(() => ID)
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Field()
   @Column()
   imageUrl: string;
 

@@ -8,7 +8,39 @@ import helmet from 'helmet';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy:
+        process.env.NODE_ENV === 'production'
+          ? undefined
+          : {
+              directives: {
+                defaultSrc: ["'self'"],
+                styleSrc: [
+                  "'self'",
+                  "'unsafe-inline'",
+                  'https://cdn.jsdelivr.net',
+                ],
+                scriptSrc: [
+                  "'self'",
+                  "'unsafe-inline'",
+                  "'unsafe-eval'",
+                  'https://cdn.jsdelivr.net',
+                  'https://embeddable-sandbox.cdn.apollographql.com',
+                ],
+                imgSrc: [
+                  "'self'",
+                  'data:',
+                  'https://cdn.jsdelivr.net',
+                  'https://apollo-server-landing-page.cdn.apollographql.com',
+                ],
+                connectSrc: ["'self'", 'https://*'],
+                frameSrc: ["'self'", 'https://sandbox.embed.apollographql.com'],
+                fontSrc: ["'self'", 'https://cdn.jsdelivr.net'],
+              },
+            },
+    }),
+  );
 
   app.useGlobalInterceptors(new LoggingInterceptor());
 

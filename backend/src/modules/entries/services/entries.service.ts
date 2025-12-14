@@ -29,7 +29,12 @@ export class EntriesService {
     private _entryImagesRepo: Repository<EntryImage>,
   ) {}
 
-  async getEntries(userId: string, startDate?: string, endDate?: string) {
+  async getEntries(
+    userId: string,
+    startDate?: string,
+    endDate?: string,
+    options?: { raw?: boolean },
+  ) {
     const entries = await this._entriesRepo.find({
       where: {
         userId,
@@ -52,10 +57,14 @@ export class EntriesService {
       throw new HttpException('Entries not found', HttpStatus.NOT_FOUND);
     }
 
+    if (options?.raw) {
+      return entries;
+    }
+
     return entries.map((entry) => getEntryResponseMapping(entry));
   }
 
-  async getEntry(entryId: number) {
+  async getEntry(entryId: number, options?: { raw?: boolean }) {
     const entry = await this._entriesRepo.findOne({
       where: { id: entryId },
       relations: {
@@ -72,10 +81,18 @@ export class EntriesService {
       throw new HttpException('Entry not found', HttpStatus.NOT_FOUND);
     }
 
+    if (options?.raw) {
+      return entry;
+    }
+
     return getEntryResponseMapping(entry);
   }
 
-  async getEntryByDate(userId: string, date: string) {
+  async getEntryByDate(
+    userId: string,
+    date: string,
+    options?: { raw?: boolean },
+  ) {
     const entry = await this._entriesRepo.findOne({
       where: { userId, date: new Date(date) },
       relations: {
@@ -92,10 +109,14 @@ export class EntriesService {
       throw new HttpException('Entry not found', HttpStatus.NOT_FOUND);
     }
 
+    if (options?.raw) {
+      return entry;
+    }
+
     return getEntryResponseMapping(entry);
   }
 
-  async getMostRecentEntry(userId: string) {
+  async getMostRecentEntry(userId: string, options?: { raw?: boolean }) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -120,6 +141,10 @@ export class EntriesService {
     });
 
     if (!entry) return null;
+
+    if (options?.raw) {
+      return entry;
+    }
 
     return getEntryResponseMapping(entry);
   }
@@ -296,7 +321,11 @@ export class EntriesService {
     await this._entriesRepo.restore(entryId);
   }
 
-  async searchEntries(userId: string, searchCriteria: EntriesSearchRequest) {
+  async searchEntries(
+    userId: string,
+    searchCriteria: EntriesSearchRequest,
+    options?: { raw?: boolean },
+  ) {
     const today = new Date();
     const startOfYear = new Date(today.getFullYear(), 0, 1);
 
@@ -344,12 +373,17 @@ export class EntriesService {
         activities: true,
         lawnSegments: true,
         entryProducts: { product: true },
+        entryImages: true,
       },
       order: {
         date: 'DESC',
         time: 'DESC',
       },
     });
+
+    if (options?.raw) {
+      return entries;
+    }
 
     return entries.map((entry) => getEntryResponseMapping(entry));
   }

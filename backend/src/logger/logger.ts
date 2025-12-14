@@ -7,8 +7,10 @@ import {
   NestInterceptor,
   Scope,
 } from '@nestjs/common';
+import { GqlExecutionContext } from '@nestjs/graphql';
 import { Request, Response } from 'express';
 import { Observable, throwError } from 'rxjs';
+import { GqlContext } from '../types/gql-context';
 import { catchError, tap } from 'rxjs/operators';
 
 @Injectable({ scope: Scope.REQUEST })
@@ -16,16 +18,31 @@ export class LoggingInterceptor implements NestInterceptor {
   private logger = new Logger('HTTP');
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
-    const httpContext = context.switchToHttp();
-    const request = httpContext.getRequest<Request>();
-    const response = httpContext.getResponse<Response>();
+    let request: Request;
+    let response: Response | undefined;
+
+    if (context.getType() === 'http') {
+      const httpContext = context.switchToHttp();
+      request = httpContext.getRequest<Request>();
+      response = httpContext.getResponse<Response>();
+    } else {
+      const gqlContext = GqlExecutionContext.create(context);
+      const ctx = gqlContext.getContext<GqlContext>();
+
+      request = ctx.req;
+      response = ctx.req?.res;
+    }
+
+    if (!request) {
+      return next.handle();
+    }
 
     const start = Date.now();
 
     return next.handle().pipe(
       tap(() => {
         const duration = Date.now() - start;
-        const statusCode = response.statusCode;
+        const statusCode = response?.statusCode ?? 200;
 
         this.logSuccess({ statusCode, duration, request });
       }),
@@ -100,11 +117,11 @@ export class LoggingInterceptor implements NestInterceptor {
   }
 
   private getErrorStatusCode(
-    response: { statusCode: number },
+    response: { statusCode: number } | undefined,
     err: unknown,
   ): number {
     return (
-      response.statusCode ??
+      response?.statusCode ??
       (err instanceof HttpException ? err.getStatus() : 500)
     );
   }

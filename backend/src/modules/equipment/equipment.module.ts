@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { EquipmentController } from './controllers/equipment.controller';
 import { EquipmentService } from './services/equipment.service';
+import { EquipmentResolver } from './resolvers/equipment.resolver';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Equipment } from './models/equipment.model';
 import { EquipmentMaintenance } from './models/equipmentMaintenance.model';
@@ -14,6 +15,6 @@ import { HttpModule } from '@nestjs/axios';
     HttpModule,
   ],
   controllers: [EquipmentController],
-  providers: [EquipmentService, S3Service, ConfigService],
+  providers: [EquipmentService, EquipmentResolver, S3Service, ConfigService],
 })
 export class EquipmentModule {}

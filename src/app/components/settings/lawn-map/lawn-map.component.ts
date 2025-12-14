@@ -108,10 +108,7 @@ export class LawnMapComponent implements OnDestroy {
   });
 
   public constructor() {
-    afterNextRender(() => {
-      console.log('initing');
-      this.initializeMap();
-    });
+    afterNextRender({ write: () => this.initializeMap() });
   }
 
   ngOnDestroy(): void {
@@ -199,18 +196,20 @@ export class LawnMapComponent implements OnDestroy {
       center: defaultCenter,
       zoom: defaultZoom,
       zoomControl: true,
-      maxZoom: MAP_CONSTANTS.LOCATION_ZOOM,
+      maxZoom: MAP_CONSTANTS.MAX_ZOOM,
       attributionControl: false
     });
 
     this._map.set(map);
 
     const satelliteLayer = L.tileLayer(MAP_CONSTANTS.SATELLITE_TILE_URL, {
-      maxZoom: MAP_CONSTANTS.LOCATION_ZOOM
+      maxZoom: MAP_CONSTANTS.MAX_ZOOM,
+      maxNativeZoom: MAP_CONSTANTS.MAX_NATIVE_ZOOM
     });
 
     const streetLayer = L.tileLayer(MAP_CONSTANTS.STREET_TILE_URL, {
-      maxZoom: MAP_CONSTANTS.LOCATION_ZOOM
+      maxZoom: MAP_CONSTANTS.MAX_ZOOM,
+      maxNativeZoom: MAP_CONSTANTS.MAX_NATIVE_ZOOM
     });
 
     satelliteLayer.addTo(map);

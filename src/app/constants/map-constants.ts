@@ -3,6 +3,8 @@ import * as L from 'leaflet';
 export const MAP_CONSTANTS = {
   DEFAULT_US_CENTER: [39.8283, -98.5795] as L.LatLngTuple,
   LOCATION_ZOOM: 20,
+  MAX_ZOOM: 22,
+  MAX_NATIVE_ZOOM: 20,
   OVERVIEW_ZOOM: 4,
   SATELLITE_TILE_URL:
     'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',

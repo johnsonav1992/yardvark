@@ -32,7 +32,7 @@
               @if (targetSegment.coordinates) {
                 Adjust the shape and color, then save in the table
               } @else {
-                Draw the shape for your new segment
+                Click the polygon icon on the map to start drawing
               }
             </span>
           } @else {
@@ -41,7 +41,7 @@
               @if (targetSegment.coordinates) {
                 Edit the shape for "{{ targetSegment.name }}"
               } @else {
-                Draw the shape for "{{ targetSegment.name }}"
+                Click the polygon icon to draw "{{ targetSegment.name }}"
               }
             </span>
           }

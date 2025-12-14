@@ -63,7 +63,6 @@ export class SettingsComponent implements UnsavedChanges {
   public hasUnsavedChanges = signal(false);
   public locationSearchText = signal<string>('');
   public debouncedSearchText = debouncedSignal(this.locationSearchText, 700);
-  public segmentToFocusOnMap = signal<LawnSegment | null>(null);
 
   public foundLocations = rxResource({
     params: () =>
@@ -102,8 +101,8 @@ export class SettingsComponent implements UnsavedChanges {
   }
 
   public onEditOnMap(segment: LawnSegment): void {
-    this.segmentToFocusOnMap.set(segment);
     document.querySelector('lawn-map')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    this._lawnMapComponent()?.startEditing(segment);
   }
 
   public onSegmentSave(segment: LawnSegment): void {

@@ -3,24 +3,12 @@ import * as L from 'leaflet';
 const EARTH_RADIUS_METERS = 6371000;
 const SQ_METERS_TO_SQ_FEET = 10.7639;
 
-export function degreesToRadians(degrees: number): number {
+function degreesToRadians(degrees: number): number {
   return (degrees * Math.PI) / 180;
 }
 
-export function roundToTwoDecimals(value: number): number {
+function roundToTwoDecimals(value: number): number {
   return Math.round(value * 100) / 100;
-}
-
-export function boundsToCoordinates(bounds: L.LatLngBounds): number[][] {
-  const sw = bounds.getSouthWest();
-  const ne = bounds.getNorthEast();
-  return [
-    [sw.lng, sw.lat],
-    [ne.lng, sw.lat],
-    [ne.lng, ne.lat],
-    [sw.lng, ne.lat],
-    [sw.lng, sw.lat]
-  ];
 }
 
 export function polygonToCoordinates(polygon: L.Polygon): number[][] {
@@ -30,25 +18,6 @@ export function polygonToCoordinates(polygon: L.Polygon): number[][] {
     coords.push([...coords[0]]);
   }
   return coords;
-}
-
-export function calculateRectangleArea(bounds: L.LatLngBounds): number {
-  const sw = bounds.getSouthWest();
-  const ne = bounds.getNorthEast();
-
-  const lat1 = degreesToRadians(sw.lat);
-  const lat2 = degreesToRadians(ne.lat);
-  const lng1 = degreesToRadians(sw.lng);
-  const lng2 = degreesToRadians(ne.lng);
-
-  const x = (lng2 - lng1) * Math.cos((lat1 + lat2) / 2);
-  const y = lat2 - lat1;
-
-  const widthMeters = x * EARTH_RADIUS_METERS;
-  const heightMeters = y * EARTH_RADIUS_METERS;
-  const areaSquareMeters = Math.abs(widthMeters * heightMeters);
-
-  return roundToTwoDecimals(areaSquareMeters * SQ_METERS_TO_SQ_FEET);
 }
 
 export function calculatePolygonArea(polygon: L.Polygon): number {

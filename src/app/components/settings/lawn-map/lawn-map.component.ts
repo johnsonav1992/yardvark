@@ -1,34 +1,27 @@
 import {
+  afterNextRender,
   Component,
   effect,
   inject,
-  model,
+  input,
   OnDestroy,
-  OnInit,
   output,
-  signal
+  signal,
+  untracked
 } from '@angular/core';
 import * as L from 'leaflet';
 import 'leaflet-draw';
 import { LawnSegment } from '../../../types/lawnSegments.types';
-import { LawnSegmentsService } from '../../../services/lawn-segments.service';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
 import { GlobalUiService } from '../../../services/global-ui.service';
-import {
-  injectErrorToast,
-  injectSuccessToast
-} from '../../../utils/toastUtils';
+import { injectErrorToast } from '../../../utils/toastUtils';
 import { injectSettingsService } from '../../../services/settings.service';
 import { DEFAULT_LAWN_SEGMENT_COLOR } from '../../../constants/lawn-segment-constants';
 import { MAP_CONSTANTS } from '../../../constants/map-constants';
 import {
-  boundsToCoordinates,
   polygonToCoordinates,
-  calculateRectangleArea,
   calculatePolygonArea,
   isRectangleCoordinates
 } from '../../../utils/mapUtils';
@@ -36,67 +29,55 @@ import { EditableLayer, ShapeData } from '../../../types/map.types';
 
 @Component({
   selector: 'lawn-map',
-  imports: [
-    CardModule,
-    ButtonModule,
-    FormsModule,
-    DialogModule,
-    InputTextModule
-  ],
+  imports: [CardModule, ButtonModule, FormsModule],
   templateUrl: './lawn-map.component.html',
   styleUrl: './lawn-map.component.scss'
 })
-export class LawnMapComponent implements OnInit, OnDestroy {
-  private _lawnSegmentsService = inject(LawnSegmentsService);
+export class LawnMapComponent implements OnDestroy {
   private _globalUiService = inject(GlobalUiService);
   private _settingsService = injectSettingsService();
   private _throwErrorToast = injectErrorToast();
-  private _throwSuccessToast = injectSuccessToast();
 
-  public lawnSegments = model.required<LawnSegment[] | undefined>();
-  public segmentToFocus = model<LawnSegment | null>(null);
+  public lawnSegments = input.required<LawnSegment[] | undefined>();
   public editingCanceled = output<LawnSegment>();
 
   public isMobile = this._globalUiService.isMobile;
   public currentSettings = this._settingsService.currentSettings;
   public targetSegmentForDrawing = signal<LawnSegment | null>(null);
-  public showSegmentDialog = signal(false);
-  public currentSegment = signal<Partial<LawnSegment> | null>(null);
   public selectedColor = signal(DEFAULT_LAWN_SEGMENT_COLOR);
 
   private _map = signal<L.Map | null>(null);
   private _drawnItems = signal<L.FeatureGroup>(new L.FeatureGroup());
   private _segmentLayers = signal<Map<number, EditableLayer>>(new Map());
-  private _tempLayer = signal<EditableLayer | null>(null);
   private _locationMarker = signal<L.Marker | null>(null);
   private _drawControl = signal<L.Control.Draw | null>(null);
   private _mapReady = signal(false);
 
   _segmentsWatcher = effect(() => {
     const segments = this.lawnSegments();
-    if (segments && this._mapReady() && this._map()) {
-      this.renderSegments(segments);
+    const mapReady = this._mapReady();
+    const map = this._map();
+
+    if (segments && mapReady && map) {
+      untracked(() => this.renderSegments(segments));
     }
   });
 
   _locationWatcher = effect(() => {
     const location = this.currentSettings()?.location;
-    if (location && this._mapReady() && this._map()) {
-      this._map()!.setView([location.lat, location.long], MAP_CONSTANTS.LOCATION_ZOOM);
-      this.updateLocationMarker(location.lat, location.long, location.address);
-    }
-  });
+    const mapReady = this._mapReady();
+    const map = this._map();
 
-  _segmentFocusWatcher = effect(() => {
-    const segment = this.segmentToFocus();
-    if (segment && this._mapReady() && this._map()) {
-      if (segment.coordinates) {
-        this.focusOnSegment(segment.id);
-        this.enableEditingForSegment(segment.id, segment);
-      } else {
-        this.targetSegmentForDrawing.set(segment);
-      }
-      this.segmentToFocus.set(null);
+    if (location && mapReady && map) {
+      untracked(() => {
+        map.setView([location.lat, location.long], MAP_CONSTANTS.LOCATION_ZOOM);
+
+        this.updateLocationMarker(
+          location.lat,
+          location.long,
+          location.address
+        );
+      });
     }
   });
 
@@ -107,27 +88,38 @@ export class LawnMapComponent implements OnInit, OnDestroy {
 
     if (!this._mapReady() || !map) return;
 
-    const existingControl = this._drawControl();
-    if (existingControl) {
-      map.removeControl(existingControl);
-      this._drawControl.set(null);
-    }
+    untracked(() => {
+      const existingControl = this._drawControl();
 
-    if (targetSegment && !targetSegment.coordinates) {
-      const newControl = this.createDrawControl(color);
-      this._drawControl.set(newControl);
-      map.addControl(newControl);
-    }
+      if (existingControl) {
+        map.removeControl(existingControl);
+      }
+
+      if (targetSegment && !targetSegment.coordinates) {
+        const newControl = this.createDrawControl(color);
+
+        this._drawControl.set(newControl);
+
+        map.addControl(newControl);
+      } else {
+        this._drawControl.set(null);
+      }
+    });
   });
 
-  ngOnInit(): void {
-    setTimeout(() => this.initializeMap(), 100);
+  public constructor() {
+    afterNextRender(() => {
+      console.log('initing');
+      this.initializeMap();
+    });
   }
 
   ngOnDestroy(): void {
     const map = this._map();
+
     if (map) {
       map.remove();
+
       this._map.set(null);
     }
   }
@@ -136,93 +128,72 @@ export class LawnMapComponent implements OnInit, OnDestroy {
     this.selectedColor.set(color);
 
     const targetSegment = this.targetSegmentForDrawing();
+
     if (targetSegment?.id != null) {
       const layer = this._segmentLayers().get(targetSegment.id);
+
       if (layer) {
         layer.setStyle({ color, fillOpacity: 0.3 });
       }
     }
+  }
 
-    const tempLayer = this._tempLayer();
-    if (tempLayer) {
-      tempLayer.setStyle({ color, fillOpacity: 0.3, dashArray: '5, 5' });
+  public startEditing(segment: LawnSegment): void {
+    if (!this._mapReady() || !this._map()) return;
+
+    if (segment.coordinates) {
+      this.focusOnSegment(segment.id);
+      this.enableEditingForSegment(segment.id, segment);
+    } else {
+      this.targetSegmentForDrawing.set(segment);
     }
   }
 
   public cancelEditing(emitEvent = true): void {
     const targetSegment = this.targetSegmentForDrawing();
+
     if (targetSegment) {
       if (targetSegment.id) {
         this.disableLayerEditing(targetSegment.id);
       }
+
       if (emitEvent) {
         this.editingCanceled.emit(targetSegment);
       }
     }
+
     this.targetSegmentForDrawing.set(null);
   }
 
-  public saveCurrentEdit(): ShapeData & { color: string } | null {
+  public saveCurrentEdit(): (ShapeData & { color: string }) | null {
     const targetSegment = this.targetSegmentForDrawing();
+    this.targetSegmentForDrawing.set(null);
+
     if (!targetSegment?.id) return null;
 
     const layer = this._segmentLayers().get(targetSegment.id);
+
     if (!layer) return null;
 
     const shapeData = this.getPolygonData(layer as L.Polygon);
+
     if (!shapeData) return null;
 
     this.disableLayerEditing(targetSegment.id);
 
-    const color = this.selectedColor();
-    this.targetSegmentForDrawing.set(null);
-
-    return { ...shapeData, color };
-  }
-
-  public updateNewSegmentColor(color: string): void {
-    const segment = this.currentSegment();
-    if (!segment) return;
-
-    this.currentSegment.set({ ...segment, color });
-
-    const tempLayer = this._tempLayer();
-    if (tempLayer) {
-      tempLayer.setStyle({ color, fillOpacity: 0.3, dashArray: '5, 5' });
-    }
-  }
-
-  public saveNewSegment(): void {
-    const segment = this.currentSegment();
-    if (!segment?.name || !segment?.size) return;
-
-    this._lawnSegmentsService.addLawnSegment(segment as LawnSegment).subscribe({
-      next: () => {
-        this._throwSuccessToast('Lawn segment created');
-        this.cleanupTempLayer();
-        this._lawnSegmentsService.lawnSegments.reload();
-        this.showSegmentDialog.set(false);
-        this.currentSegment.set(null);
-      },
-      error: () => {
-        this._throwErrorToast('Error creating lawn segment');
-        this.cleanupTempLayer();
-      }
-    });
-  }
-
-  public cancelNewSegment(): void {
-    this.cleanupTempLayer();
-    this.showSegmentDialog.set(false);
-    this.currentSegment.set(null);
+    return { ...shapeData, color: this.selectedColor() };
   }
 
   private initializeMap(): void {
     const location = this.currentSettings()?.location;
+
     const defaultCenter: L.LatLngTuple = location
       ? [location.lat, location.long]
       : MAP_CONSTANTS.DEFAULT_US_CENTER;
-    const defaultZoom = location ? MAP_CONSTANTS.LOCATION_ZOOM : MAP_CONSTANTS.OVERVIEW_ZOOM;
+
+    const defaultZoom = location
+      ? MAP_CONSTANTS.LOCATION_ZOOM
+      : MAP_CONSTANTS.OVERVIEW_ZOOM;
 
     const map = L.map('lawn-map', {
       center: defaultCenter,
@@ -234,26 +205,28 @@ export class LawnMapComponent implements OnInit, OnDestroy {
 
     this._map.set(map);
 
-    const satelliteLayer = L.tileLayer(
-      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      { maxZoom: MAP_CONSTANTS.LOCATION_ZOOM }
-    );
+    const satelliteLayer = L.tileLayer(MAP_CONSTANTS.SATELLITE_TILE_URL, {
+      maxZoom: MAP_CONSTANTS.LOCATION_ZOOM
+    });
 
-    const streetLayer = L.tileLayer(
-      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-      { maxZoom: MAP_CONSTANTS.LOCATION_ZOOM }
-    );
+    const streetLayer = L.tileLayer(MAP_CONSTANTS.STREET_TILE_URL, {
+      maxZoom: MAP_CONSTANTS.LOCATION_ZOOM
+    });
 
     satelliteLayer.addTo(map);
-    L.control.layers({ Satellite: satelliteLayer, Street: streetLayer }).addTo(map);
+
+    L.control
+      .layers({ Satellite: satelliteLayer, Street: streetLayer })
+      .addTo(map);
 
     map.addLayer(this._drawnItems());
 
-    map.on(L.Draw.Event.CREATED, (e) => this.onShapeCreated(e as L.DrawEvents.Created));
-    map.on(L.Draw.Event.EDITED, (e) => this.onShapeEdited(e as L.DrawEvents.Edited));
-    map.on(L.Draw.Event.DELETED, (e) => this.onShapeDeleted(e as L.DrawEvents.Deleted));
+    map.on(L.Draw.Event.CREATED, (e) =>
+      this.onShapeCreated(e as L.DrawEvents.Created)
+    );
 
     const currentSegments = this.lawnSegments();
+
     if (currentSegments?.length) {
       this.renderSegments(currentSegments);
     }
@@ -289,11 +262,17 @@ export class LawnMapComponent implements OnInit, OnDestroy {
     });
   }
 
-  private updateLocationMarker(lat: number, lng: number, address?: string): void {
+  private updateLocationMarker(
+    lat: number,
+    lng: number,
+    address?: string
+  ): void {
     const map = this._map();
+
     if (!map) return;
 
     const existingMarker = this._locationMarker();
+
     if (existingMarker) {
       map.removeLayer(existingMarker);
     }
@@ -314,108 +293,50 @@ export class LawnMapComponent implements OnInit, OnDestroy {
 
   private onShapeCreated(event: L.DrawEvents.Created): void {
     const layer = event.layer as EditableLayer;
-    const layerType = event.layerType;
-
-    const shapeData = layerType === 'rectangle'
-      ? this.getRectangleData(layer as L.Rectangle)
-      : layerType === 'polygon'
-        ? this.getPolygonData(layer as L.Polygon)
-        : null;
+    const shapeData = this.getPolygonData(layer as L.Polygon);
 
     if (!shapeData) return;
 
     const targetSegment = this.targetSegmentForDrawing();
 
-    if (targetSegment) {
-      if (!targetSegment.id) {
-        this._throwErrorToast('Invalid segment. Please try again.');
-        return;
-      }
-
-      const color = this.selectedColor();
-      this.applyShapeStyle(layer, color);
-      this._drawnItems().addLayer(layer);
-
-      const layers = this._segmentLayers();
-      layers.set(targetSegment.id, layer);
-      this._segmentLayers.set(new Map(layers));
-
-      layer.editing?.enable();
-
-      this.targetSegmentForDrawing.set({
-        ...targetSegment,
-        coordinates: [shapeData.coordinates],
-        size: shapeData.size,
-        color
-      });
-    } else {
-      this.applyShapeStyle(layer, this.selectedColor(), true);
-      this._drawnItems().addLayer(layer);
-      this._tempLayer.set(layer);
-
-      this.currentSegment.set({
-        name: '',
-        size: shapeData.size,
-        coordinates: [shapeData.coordinates],
-        color: this.selectedColor()
-      });
-      this.showSegmentDialog.set(true);
+    if (!targetSegment?.id) {
+      return this._throwErrorToast('Invalid segment. Please try again.');
     }
-  }
 
-  private onShapeEdited(event: L.DrawEvents.Edited): void {
-    event.layers.eachLayer((layer: L.Layer) => {
-      const editableLayer = layer as EditableLayer;
-      const segmentId = this.getSegmentIdForLayer(editableLayer);
-      if (!segmentId) return;
+    const color = this.selectedColor();
 
-      const segment = this.lawnSegments()?.find((s) => s.id === segmentId);
-      if (!segment) return;
+    this.applyShapeStyle(layer, color);
+    this._drawnItems().addLayer(layer);
 
-      const shapeData = this.getPolygonData(editableLayer as L.Polygon);
-      if (!shapeData) return;
+    const layers = this._segmentLayers();
 
-      segment.coordinates = [shapeData.coordinates];
-      segment.size = shapeData.size;
+    layers.set(targetSegment.id, layer);
+    this._segmentLayers.set(new Map(layers));
 
-      this.updateSegment(segment);
-      editableLayer.editing?.disable();
-      this.targetSegmentForDrawing.set(null);
-    });
-  }
+    layer.editing?.enable();
 
-  private onShapeDeleted(event: L.DrawEvents.Deleted): void {
-    event.layers.eachLayer((layer: L.Layer) => {
-      const segmentId = this.getSegmentIdForLayer(layer as EditableLayer);
-      if (!segmentId) return;
-
-      this._lawnSegmentsService.deleteLawnSegment(segmentId).subscribe({
-        next: () => {
-          this._throwSuccessToast('Lawn segment deleted');
-          this._lawnSegmentsService.lawnSegments.reload();
-          const layers = this._segmentLayers();
-          layers.delete(segmentId);
-          this._segmentLayers.set(new Map(layers));
-        },
-        error: () => {
-          this._throwErrorToast('Error deleting lawn segment');
-          this.renderSegments(this.lawnSegments() || []);
-        }
-      });
+    this.targetSegmentForDrawing.set({
+      ...targetSegment,
+      coordinates: [shapeData.coordinates],
+      size: shapeData.size,
+      color
     });
   }
 
   private renderSegments(segments: LawnSegment[]): void {
     const map = this._map();
+
     if (!map) return;
 
     const targetSegment = this.targetSegmentForDrawing();
+
     if (targetSegment?.coordinates) return;
 
     const drawnItems = this._drawnItems();
     const currentLayers = this._segmentLayers();
 
     currentLayers.forEach((layer) => drawnItems.removeLayer(layer));
+
     const newLayers = new Map<number, EditableLayer>();
 
     segments.forEach((segment) => {
@@ -425,12 +346,9 @@ export class LawnMapComponent implements OnInit, OnDestroy {
       const color = segment.color || DEFAULT_LAWN_SEGMENT_COLOR;
       const shape = this.createShapeFromCoordinates(coords, color);
 
-      shape.bindPopup(`
-        <div style="text-align: center;">
-          <strong>${segment.name}</strong><br/>
-          ${(+segment.size).toFixed(2)} ft²
-        </div>
-      `);
+      shape.bindPopup(
+        MAP_CONSTANTS.SEGMENT_POPUP_HTML(segment.name, +segment.size)
+      );
 
       drawnItems.addLayer(shape);
       newLayers.set(segment.id, shape);
@@ -440,16 +358,21 @@ export class LawnMapComponent implements OnInit, OnDestroy {
 
     if (segments.some((s) => s.coordinates)) {
       const group = new L.FeatureGroup(Array.from(newLayers.values()));
+
       map.fitBounds(group.getBounds().pad(0.1));
     }
   }
 
-  private createShapeFromCoordinates(coords: number[][], color: string): EditableLayer {
+  private createShapeFromCoordinates(
+    coords: number[][],
+    color: string
+  ): EditableLayer {
     if (isRectangleCoordinates(coords)) {
       const bounds = L.latLngBounds(
         [coords[0][1], coords[0][0]],
         [coords[2][1], coords[2][0]]
       );
+
       return L.rectangle(bounds, { color, fillOpacity: 0.3 }) as EditableLayer;
     }
 
@@ -469,6 +392,7 @@ export class LawnMapComponent implements OnInit, OnDestroy {
       layer.openPopup();
     } else {
       const segment = this.lawnSegments()?.find((s) => s.id === segmentId);
+
       if (segment && !segment.coordinates) {
         this._throwErrorToast(
           'This segment has not been mapped yet. Draw it on the map to add coordinates.'
@@ -477,8 +401,12 @@ export class LawnMapComponent implements OnInit, OnDestroy {
     }
   }
 
-  private enableEditingForSegment(segmentId: number, segment: LawnSegment): void {
+  private enableEditingForSegment(
+    segmentId: number,
+    segment: LawnSegment
+  ): void {
     const layer = this._segmentLayers().get(segmentId);
+
     if (!layer?.editing) return;
 
     layer.editing.enable();
@@ -489,54 +417,17 @@ export class LawnMapComponent implements OnInit, OnDestroy {
 
   private disableLayerEditing(segmentId: number): void {
     const layer = this._segmentLayers().get(segmentId);
+
     layer?.editing?.disable();
   }
 
-  private updateSegment(segment: LawnSegment): void {
-    this._lawnSegmentsService.updateLawnSegment(segment).subscribe({
-      next: () => {
-        this._throwSuccessToast('Lawn segment updated');
-        this._lawnSegmentsService.lawnSegments.reload();
-      },
-      error: () => {
-        this._throwErrorToast('Error updating lawn segment');
-      }
-    });
-  }
-
-  private cleanupTempLayer(): void {
-    const tempLayer = this._tempLayer();
-    if (tempLayer) {
-      this._drawnItems().removeLayer(tempLayer);
-      this._tempLayer.set(null);
-    }
-  }
-
-  private applyShapeStyle(layer: EditableLayer, color: string, isDashed = false): void {
-    layer.setStyle({
-      color,
-      fillOpacity: 0.3,
-      ...(isDashed && { dashArray: '5, 5' })
-    });
-  }
-
-  private getSegmentIdForLayer(layer: EditableLayer): number | null {
-    for (const [id, storedLayer] of this._segmentLayers().entries()) {
-      if (storedLayer === layer) return id;
-    }
-    return null;
-  }
-
-  private getRectangleData(rectangle: L.Rectangle): ShapeData {
-    const bounds = rectangle.getBounds();
-    return {
-      coordinates: boundsToCoordinates(bounds),
-      size: calculateRectangleArea(bounds)
-    };
+  private applyShapeStyle(layer: EditableLayer, color: string): void {
+    layer.setStyle({ color, fillOpacity: 0.3 });
   }
 
   private getPolygonData(polygon: L.Polygon): ShapeData | null {
     const latlngs = polygon.getLatLngs()[0] as L.LatLng[];
+
     if (latlngs.length < 3) return null;
 
     return {

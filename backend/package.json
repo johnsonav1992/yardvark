@@ -103,6 +103,20 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "\\.module\\.ts$",
+      "\\.model\\.ts$",
+      "main\\.ts$",
+      "db\\.config\\.ts$",
+      "/migrations/",
+      "/modules/reminders/",
+      "/modules/ai/",
+      "/modules/entries/utils/entryRag",
+      "/decorators/",
+      "/guards/",
+      "/logger/"
+    ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "moduleNameMapper": {

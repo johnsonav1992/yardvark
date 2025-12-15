@@ -20,12 +20,12 @@ export class SwipeDirective {
   private readonly minSwipeDistance = 50; // minimum distance in px to count as a swipe
 
   @HostListener('touchstart', ['$event'])
-  onTouchStart(event: TouchEvent) {
+  public onTouchStart(event: TouchEvent) {
     this.touchStartX.set(event.changedTouches[0].screenX);
   }
 
   @HostListener('touchend', ['$event'])
-  onTouchEnd(event: TouchEvent) {
+  public onTouchEnd(event: TouchEvent) {
     this.touchEndX.set(event.changedTouches[0].screenX);
     this.handleSwipeGesture();
   }

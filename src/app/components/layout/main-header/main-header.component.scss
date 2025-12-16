@@ -12,6 +12,7 @@
   padding-left: 1rem;
   z-index: 1200;
   background-color: rgba(255, 255, 255, 0.7);
+  -webkit-backdrop-filter: blur(8px);
   backdrop-filter: blur(8px);
 
   &.dark-mode {
@@ -26,9 +27,8 @@
     gap: 0.75rem;
   }
 
-  // Use absolute positioning on mobile for better compatibility
   @media (max-width: 768px) {
-    position: absolute;
+    z-index: 100;
   }
 }
 

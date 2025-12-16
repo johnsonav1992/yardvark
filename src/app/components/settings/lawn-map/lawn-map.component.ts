@@ -1,6 +1,7 @@
 import {
   afterNextRender,
   Component,
+  computed,
   effect,
   inject,
   input,
@@ -45,6 +46,17 @@ export class LawnMapComponent implements OnDestroy {
   public currentSettings = this._settingsService.currentSettings;
   public targetSegmentForDrawing = signal<LawnSegment | null>(null);
   public selectedColor = signal(DEFAULT_LAWN_SEGMENT_COLOR);
+  public hasStartedEditing = signal(false);
+  public hasAnySegments = computed(() => {
+    const segments = this.lawnSegments();
+    return segments && segments.length > 0;
+  });
+  public showEmptyOverlay = computed(
+    () =>
+      !this.hasAnySegments() &&
+      !this.targetSegmentForDrawing() &&
+      !this.hasStartedEditing()
+  );
 
   private _map = signal<L.Map | null>(null);
   private _drawnItems = signal<L.FeatureGroup>(new L.FeatureGroup());
@@ -136,11 +148,15 @@ export class LawnMapComponent implements OnDestroy {
   }
 
   public startEditing(segment: LawnSegment): void {
-    if (!this._mapReady() || !this._map()) return;
+    this.hasStartedEditing.set(true);
 
     if (segment.coordinates) {
-      this.focusOnSegment(segment.id);
-      this.enableEditingForSegment(segment.id, segment);
+      if (this._mapReady() && this._map()) {
+        this.focusOnSegment(segment.id);
+        this.enableEditingForSegment(segment.id, segment);
+      } else {
+        this.targetSegmentForDrawing.set(segment);
+      }
     } else {
       this.targetSegmentForDrawing.set(segment);
     }

@@ -1,5 +1,6 @@
 import {
   Component,
+  computed,
   effect,
   inject,
   model,
@@ -10,6 +11,7 @@ import {
 import { ButtonModule } from 'primeng/button';
 import { Table, TableModule } from 'primeng/table';
 import { LawnSegment } from '../../../types/lawnSegments.types';
+import { DecimalPipe } from '@angular/common';
 import { DataTableDesignTokens } from '@primeuix/themes/types/datatable';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
@@ -29,7 +31,8 @@ import { TooltipModule } from 'primeng/tooltip';
     InputTextModule,
     CardModule,
     LoadingSpinnerComponent,
-    TooltipModule
+    TooltipModule,
+    DecimalPipe
   ],
   templateUrl: './lawn-segments-table.component.html',
   styleUrl: './lawn-segments-table.component.scss'
@@ -46,17 +49,25 @@ export class LawnSegmentsTableComponent {
   public segmentEditCanceled = output<LawnSegment>();
 
   public lawnSegmentTable = viewChild(Table);
-  public lawnSegmentsAreLoading = this._lawnSegmentsService.lawnSegments.isLoading;
+  public lawnSegmentsAreLoading =
+    this._lawnSegmentsService.lawnSegments.isLoading;
 
   public lawnSegsTableDt: DataTableDesignTokens = {
     bodyCell: { padding: '.25rem' },
     headerCell: { padding: '.25rem' }
   };
 
+  public totalLawnSize = computed(() => {
+    const segments = this.lawnSegments();
+
+    if (!segments?.length) return 0;
+
+    return segments.reduce((sum, seg) => sum + (+seg.size || 0), 0);
+  });
+
   _unsavedChangesListener = effect(() => {
     this.hasUnsavedChanges.set(!!this.currentlyEditingLawnSegmentIds()?.length);
   });
-
 
   public editLawnSegment(segment: LawnSegment): void {
     this.currentlyEditingLawnSegmentIds.update((prev) =>
@@ -113,8 +124,8 @@ export class LawnSegmentsTableComponent {
   public deleteSegment(segmentId: number): void {
     this._lawnSegmentsService.deleteLawnSegment(segmentId).subscribe({
       next: () => {
-        this._lawnSegmentsService.lawnSegments.update(segments =>
-          segments?.filter(seg => seg.id !== segmentId)
+        this._lawnSegmentsService.lawnSegments.update((segments) =>
+          segments?.filter((seg) => seg.id !== segmentId)
         );
       },
       error: () => this._throwErrorToast('Error deleting lawn segment')

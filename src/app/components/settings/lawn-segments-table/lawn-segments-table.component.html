@@ -125,13 +125,17 @@
     </ng-template>
     @if (lawnSegments()?.length) {
       <ng-template #footer>
-        <div [style]="{ marginTop: '1rem' }">
+        <div class="table-footer">
           <p-button
             [icon]="'ti ti-plus'"
             rounded
             pTooltip="Add lawn segment"
             (onClick)="addLawnSegmentRow()"
           />
+          <div class="total-size">
+            <span class="total-label">Total:</span>
+            <span class="total-value">{{ totalLawnSize() | number:'1.0-0' }} ft²</span>
+          </div>
         </div>
       </ng-template>
     }

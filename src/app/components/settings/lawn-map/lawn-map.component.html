@@ -19,7 +19,6 @@
       </div>
     }
   </div>
-
   @if (targetSegmentForDrawing(); as targetSegment) {
     @let isNewSegment = targetSegment.id < 1;
     <div class="drawing-mode-banner">
@@ -36,7 +35,10 @@
               }
             </span>
           } @else {
-            <strong>{{ targetSegment.coordinates ? 'Editing' : 'Drawing' }} mode active</strong>
+            <strong
+              >{{ targetSegment.coordinates ? "Editing" : "Drawing" }} mode
+              active</strong
+            >
             <span>
               @if (targetSegment.coordinates) {
                 Edit the shape for "{{ targetSegment.name }}"
@@ -57,14 +59,70 @@
         />
       }
     </div>
+  } @else if (hasAnySegments()) {
+    <div class="map-instructions">
+      <small>
+        <i class="ti ti-info-circle"></i>
+        Click <strong>an edit icon</strong> in the table above to draw or modify
+        a segment. For new shapes, use the polygon tool and click the first
+        point to finish. Use the color picker to change segment colors. Save
+        your changes via the <strong>checkmark</strong> in the table.
+      </small>
+    </div>
   }
-
-  <div class="map-instructions">
-    <small>
-      <i class="ti ti-info-circle"></i>
-      Click <strong>edit</strong> in the table above to draw or modify a segment. For new shapes, use the polygon tool and click the first point to finish.
-      Use the color picker to change segment colors. Save your changes via the <strong>checkmark</strong> in the table.
-    </small>
+  <div
+    class="map-container"
+    [style]="{ height: isMobile() ? '400px' : '600px' }"
+  >
+    <div id="lawn-map" [style]="{ height: '100%' }"></div>
+    @if (showEmptyOverlay()) {
+      <div class="empty-map-overlay">
+        <div class="empty-map-content">
+          <div class="empty-map-icon">
+            <i class="ti ti-map-2"></i>
+          </div>
+          <h3>Map Your Lawn Segments</h3>
+          <p class="empty-map-description">
+            Draw your lawn segments on the map to track their size and visualize
+            your property.
+          </p>
+          <div class="getting-started-steps">
+            <div class="step">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <strong>Add a segment in the table above</strong>
+                <span
+                  >Click the "Add Lawn Segment" button to create your first
+                  segment</span
+                >
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <strong>Draw on the map</strong>
+                <span
+                  >Use the polygon tool to outline the segment on your
+                  property</span
+                >
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <strong>Save your changes</strong>
+                <span
+                  >Click the checkmark in the table to save your segment</span
+                >
+              </div>
+            </div>
+          </div>
+          <div class="empty-map-preview">
+            <i class="ti ti-arrow-up"></i>
+            <span>Start by adding a segment in the table above</span>
+          </div>
+        </div>
+      </div>
+    }
   </div>
-  <div id="lawn-map" [style]="{ height: isMobile() ? '400px' : '600px' }"></div>
 </p-card>

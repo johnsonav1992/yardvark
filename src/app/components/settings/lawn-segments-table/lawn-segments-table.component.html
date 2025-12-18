@@ -36,6 +36,7 @@
                 pInputText
                 [style]="{ width: '75%' }"
                 [(ngModel)]="segment.name"
+                (ngModelChange)="onSegmentNameChange(segment)"
               />
             </ng-template>
             <ng-template #output>

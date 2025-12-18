@@ -47,6 +47,11 @@ export class LawnSegmentsTableComponent {
   public editOnMapClicked = output<LawnSegment>();
   public segmentSaveClicked = output<LawnSegment>();
   public segmentEditCanceled = output<LawnSegment>();
+  public segmentNameChanged = output<LawnSegment>();
+
+  public onSegmentNameChange(segment: LawnSegment): void {
+    this.segmentNameChanged.emit(segment);
+  }
 
   public lawnSegmentTable = viewChild(Table);
   public lawnSegmentsAreLoading =
@@ -99,10 +104,16 @@ export class LawnSegmentsTableComponent {
     const isNewSegment = segment.id < 1;
     this.segmentSaveClicked.emit(segment);
 
+    const tableSegment = this.lawnSegments()?.find((s) => s.id === segment.id);
+
     const saveMethod = isNewSegment ? 'addLawnSegment' : 'updateLawnSegment';
     this._lawnSegmentsService[saveMethod](segment).subscribe({
       next: (newSeg) => {
         this.removeSegmentFromEditingList(segment.id);
+
+        if (tableSegment) {
+          this.lawnSegmentTable()?.cancelRowEdit(tableSegment);
+        }
         this.lawnSegments.update((prev) =>
           prev?.map((seg) =>
             seg.name.toLowerCase() === newSeg.name.toLowerCase() ? newSeg : seg

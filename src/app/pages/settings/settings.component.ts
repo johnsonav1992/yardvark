@@ -1,4 +1,10 @@
-import { Component, inject, linkedSignal, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  inject,
+  linkedSignal,
+  signal,
+  viewChild
+} from '@angular/core';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
@@ -79,7 +85,8 @@ export class SettingsComponent implements UnsavedChanges {
   );
 
   private _debouncedGddTargetSetter = debounce(
-    (newVal: number | undefined) => this.updateSetting('customGddTarget', newVal),
+    (newVal: number | undefined) =>
+      this.updateSetting('customGddTarget', newVal),
     1500
   );
 
@@ -101,7 +108,9 @@ export class SettingsComponent implements UnsavedChanges {
   }
 
   public onEditOnMap(segment: LawnSegment): void {
-    document.querySelector('lawn-map')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document
+      .querySelector('lawn-map')
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     this._lawnMapComponent()?.startEditing(segment);
   }
 
@@ -120,6 +129,22 @@ export class SettingsComponent implements UnsavedChanges {
 
   public onSegmentEditCanceled(): void {
     this._lawnMapComponent()?.cancelEditing(false);
+  }
+
+  public onSegmentNameChanged(segment: LawnSegment): void {
+    this._lawnMapComponent()?.updateTargetSegmentName(segment.name);
+  }
+
+  public onMapSaveRequested(segment: LawnSegment): void {
+    const mapEdits = this._lawnMapComponent()?.saveCurrentEdit();
+
+    if (mapEdits) {
+      segment.coordinates = [mapEdits.coordinates];
+      segment.size = mapEdits.size;
+      segment.color = mapEdits.color;
+    }
+
+    this._lawnSegmentsTableComponent()?.onRowSave(segment);
   }
 
   public getDefaultGddTarget(): number {

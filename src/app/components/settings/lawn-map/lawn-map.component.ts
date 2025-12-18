@@ -16,6 +16,7 @@ import { LawnSegment } from '../../../types/lawnSegments.types';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
+import { TooltipModule } from 'primeng/tooltip';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { injectErrorToast } from '../../../utils/toastUtils';
 import { injectSettingsService } from '../../../services/settings.service';
@@ -28,9 +29,11 @@ import {
 } from '../../../utils/mapUtils';
 import { EditableLayer, ShapeData } from '../../../types/map.types';
 
+export type EditMode = 'move' | 'add' | 'remove';
+
 @Component({
   selector: 'lawn-map',
-  imports: [CardModule, ButtonModule, FormsModule],
+  imports: [CardModule, ButtonModule, FormsModule, TooltipModule],
   templateUrl: './lawn-map.component.html',
   styleUrl: './lawn-map.component.scss'
 })
@@ -41,12 +44,17 @@ export class LawnMapComponent implements OnDestroy {
 
   public lawnSegments = input.required<LawnSegment[] | undefined>();
   public editingCanceled = output<LawnSegment>();
+  public saveRequested = output<LawnSegment>();
 
   public isMobile = this._globalUiService.isMobile;
   public currentSettings = this._settingsService.currentSettings;
   public targetSegmentForDrawing = signal<LawnSegment | null>(null);
   public selectedColor = signal(DEFAULT_LAWN_SEGMENT_COLOR);
   public hasStartedEditing = signal(false);
+  public editMode = signal<EditMode>('move');
+
+  private _vertexMarkers = signal<L.Marker[]>([]);
+  private _midpointMarkers = signal<L.Marker[]>([]);
   public hasAnySegments = computed(() => {
     const segments = this.lawnSegments();
     return segments && segments.length > 0;
@@ -57,6 +65,16 @@ export class LawnMapComponent implements OnDestroy {
       !this.targetSegmentForDrawing() &&
       !this.hasStartedEditing()
   );
+
+  public showEditToolbar = computed(() => {
+    const target = this.targetSegmentForDrawing();
+    return target?.coordinates != null;
+  });
+
+  public canSave = computed(() => {
+    const target = this.targetSegmentForDrawing();
+    return !!target?.name?.trim();
+  });
 
   private _map = signal<L.Map | null>(null);
   private _drawnItems = signal<L.FeatureGroup>(new L.FeatureGroup());
@@ -147,6 +165,23 @@ export class LawnMapComponent implements OnDestroy {
     }
   }
 
+  public setEditMode(mode: EditMode): void {
+    this.editMode.set(mode);
+
+    const targetSegment = this.targetSegmentForDrawing();
+
+    if (!targetSegment?.id) return;
+
+    const layer = this._segmentLayers().get(targetSegment.id);
+
+    if (!layer) return;
+
+    layer.editing?.disable();
+
+    this.clearCustomMarkers();
+    this.createCustomMarkers(layer as L.Polygon);
+  }
+
   public startEditing(segment: LawnSegment): void {
     this.hasStartedEditing.set(true);
 
@@ -175,12 +210,29 @@ export class LawnMapComponent implements OnDestroy {
       }
     }
 
+    this.clearCustomMarkers();
+    this.editMode.set('move');
     this.targetSegmentForDrawing.set(null);
+  }
+
+  public requestSave(): void {
+    const targetSegment = this.targetSegmentForDrawing();
+
+    if (targetSegment) {
+      this.saveRequested.emit(targetSegment);
+    }
+  }
+
+  public updateTargetSegmentName(name: string): void {
+    const target = this.targetSegmentForDrawing();
+
+    if (target) {
+      this.targetSegmentForDrawing.set({ ...target, name });
+    }
   }
 
   public saveCurrentEdit(): (ShapeData & { color: string }) | null {
     const targetSegment = this.targetSegmentForDrawing();
-    this.targetSegmentForDrawing.set(null);
 
     if (!targetSegment?.id) return null;
 
@@ -193,6 +245,9 @@ export class LawnMapComponent implements OnDestroy {
     if (!shapeData) return null;
 
     this.disableLayerEditing(targetSegment.id);
+    this.clearCustomMarkers();
+    this.editMode.set('move');
+    this.targetSegmentForDrawing.set(null);
 
     return { ...shapeData, color: this.selectedColor() };
   }
@@ -328,14 +383,15 @@ export class LawnMapComponent implements OnDestroy {
     layers.set(targetSegment.id, layer);
     this._segmentLayers.set(new Map(layers));
 
-    layer.editing?.enable();
-
     this.targetSegmentForDrawing.set({
       ...targetSegment,
       coordinates: [shapeData.coordinates],
       size: shapeData.size,
       color
     });
+
+    this.editMode.set('move');
+    this.createCustomMarkers(layer as L.Polygon);
   }
 
   private renderSegments(segments: LawnSegment[]): void {
@@ -422,12 +478,14 @@ export class LawnMapComponent implements OnDestroy {
   ): void {
     const layer = this._segmentLayers().get(segmentId);
 
-    if (!layer?.editing) return;
+    if (!layer) return;
 
-    layer.editing.enable();
     this.selectedColor.set(segment.color || DEFAULT_LAWN_SEGMENT_COLOR);
     this.targetSegmentForDrawing.set(segment);
+    this.editMode.set('move');
     layer.closePopup();
+
+    this.createCustomMarkers(layer as L.Polygon);
   }
 
   private disableLayerEditing(segmentId: number): void {
@@ -449,5 +507,163 @@ export class LawnMapComponent implements OnDestroy {
       coordinates: polygonToCoordinates(polygon),
       size: calculatePolygonArea(polygon)
     };
+  }
+
+  private clearCustomMarkers(): void {
+    const map = this._map();
+    if (!map) return;
+
+    this._vertexMarkers().forEach((marker) => map.removeLayer(marker));
+    this._midpointMarkers().forEach((marker) => map.removeLayer(marker));
+
+    this._vertexMarkers.set([]);
+    this._midpointMarkers.set([]);
+  }
+
+  private createCustomMarkers(polygon: L.Polygon): void {
+    const map = this._map();
+    if (!map) return;
+
+    const latlngs = polygon.getLatLngs()[0] as L.LatLng[];
+    const mode = this.editMode();
+
+    const vertexMarkers: L.Marker[] = [];
+    const midpointMarkers: L.Marker[] = [];
+
+    latlngs.forEach((latlng, index) => {
+      const marker = this.createVertexMarker(latlng, index, polygon);
+
+      marker.addTo(map);
+      vertexMarkers.push(marker);
+    });
+
+    if (mode === 'add') {
+      latlngs.forEach((latlng, index) => {
+        const nextIndex = (index + 1) % latlngs.length;
+        const nextLatLng = latlngs[nextIndex];
+
+        const midpoint = L.latLng(
+          (latlng.lat + nextLatLng.lat) / 2,
+          (latlng.lng + nextLatLng.lng) / 2
+        );
+
+        const marker = this.createMidpointMarker(midpoint, index, polygon);
+
+        marker.addTo(map);
+        midpointMarkers.push(marker);
+      });
+    }
+
+    this._vertexMarkers.set(vertexMarkers);
+    this._midpointMarkers.set(midpointMarkers);
+  }
+
+  private createVertexMarker(
+    latlng: L.LatLng,
+    index: number,
+    polygon: L.Polygon
+  ): L.Marker {
+    const mode = this.editMode();
+    const isMobile = this.isMobile();
+    const isMoveMode = mode === 'move';
+    const isRemoveMode = mode === 'remove';
+    const latlngs = polygon.getLatLngs()[0] as L.LatLng[];
+    const canRemove = latlngs.length > 3;
+
+    let className = 'vertex-marker';
+    let html = '';
+    let iconSize: [number, number] = isMobile ? [36, 36] : [14, 14];
+    let iconAnchor: [number, number] = isMobile ? [18, 18] : [7, 7];
+
+    if (isMoveMode) {
+      className = 'vertex-marker move-mode';
+      iconSize = isMobile ? [40, 40] : [16, 16];
+      iconAnchor = isMobile ? [20, 20] : [8, 8];
+    } else if (isRemoveMode && canRemove) {
+      className = 'vertex-marker remove-mode';
+      html = '<i class="ti ti-x"></i>';
+      iconSize = isMobile ? [44, 44] : [24, 24];
+      iconAnchor = isMobile ? [22, 22] : [12, 12];
+    }
+
+    const icon = L.divIcon({
+      className,
+      html,
+      iconSize,
+      iconAnchor
+    });
+
+    const marker = L.marker(latlng, {
+      icon,
+      draggable: isMoveMode
+    });
+
+    if (isMoveMode) {
+      marker.on('drag', (e) => {
+        const newLatLng = (e.target as L.Marker).getLatLng();
+
+        latlngs[index] = newLatLng;
+        polygon.setLatLngs([latlngs]);
+      });
+    } else if (isRemoveMode && canRemove) {
+      marker.on('click', () => this.removeVertex(index, polygon));
+    }
+
+    return marker;
+  }
+
+  private createMidpointMarker(
+    latlng: L.LatLng,
+    afterIndex: number,
+    polygon: L.Polygon
+  ): L.Marker {
+    const isMobile = this.isMobile();
+    const size = isMobile ? 40 : 20;
+    const anchor = size / 2;
+
+    const icon = L.divIcon({
+      className: 'midpoint-marker',
+      html: '<i class="ti ti-plus"></i>',
+      iconSize: [size, size],
+      iconAnchor: [anchor, anchor]
+    });
+
+    const marker = L.marker(latlng, {
+      icon,
+      draggable: false
+    });
+
+    marker.on('click', () => this.addVertex(afterIndex, latlng, polygon));
+
+    return marker;
+  }
+
+  private removeVertex(index: number, polygon: L.Polygon): void {
+    const latlngs = polygon.getLatLngs()[0] as L.LatLng[];
+
+    if (latlngs.length <= 3) {
+      this._throwErrorToast('A polygon must have at least 3 points');
+      return;
+    }
+
+    latlngs.splice(index, 1);
+    polygon.setLatLngs([latlngs]);
+
+    this.clearCustomMarkers();
+    this.createCustomMarkers(polygon);
+  }
+
+  private addVertex(
+    afterIndex: number,
+    latlng: L.LatLng,
+    polygon: L.Polygon
+  ): void {
+    const latlngs = polygon.getLatLngs()[0] as L.LatLng[];
+
+    latlngs.splice(afterIndex + 1, 0, latlng);
+    polygon.setLatLngs([latlngs]);
+
+    this.clearCustomMarkers();
+    this.createCustomMarkers(polygon);
   }
 }

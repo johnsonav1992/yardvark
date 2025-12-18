@@ -34,16 +34,22 @@
                 Click the polygon icon on the map to start drawing
               }
             </span>
+          } @else if (!targetSegment.coordinates) {
+            <strong>Drawing mode active</strong>
+            <span>Click the polygon icon to draw "{{ targetSegment.name }}"</span>
           } @else {
-            <strong
-              >{{ targetSegment.coordinates ? "Editing" : "Drawing" }} mode
-              active</strong
-            >
+            <strong>Editing "{{ targetSegment.name }}"</strong>
             <span>
-              @if (targetSegment.coordinates) {
-                Edit the shape for "{{ targetSegment.name }}"
-              } @else {
-                Click the polygon icon to draw "{{ targetSegment.name }}"
+              @switch (editMode()) {
+                @case ('move') {
+                  Drag points to reposition them
+                }
+                @case ('add') {
+                  Tap a <strong>+</strong> marker to add a new point
+                }
+                @case ('remove') {
+                  Tap a point to remove it
+                }
               }
             </span>
           }
@@ -57,6 +63,46 @@
           size="small"
           (onClick)="cancelEditing()"
         />
+      }
+      @if (showEditToolbar()) {
+        <div class="edit-toolbar">
+          <div class="mode-buttons">
+            <p-button
+              [icon]="'ti ti-arrows-move'"
+              [outlined]="editMode() !== 'move'"
+              [severity]="editMode() === 'move' ? 'primary' : 'secondary'"
+              (onClick)="setEditMode('move')"
+              pTooltip="Move points"
+              [tooltipPosition]="'bottom'"
+            />
+            <p-button
+              [icon]="'ti ti-plus'"
+              [outlined]="editMode() !== 'add'"
+              [severity]="editMode() === 'add' ? 'primary' : 'secondary'"
+              (onClick)="setEditMode('add')"
+              pTooltip="Add points"
+              [tooltipPosition]="'bottom'"
+            />
+            <p-button
+              [icon]="'ti ti-trash'"
+              [outlined]="editMode() !== 'remove'"
+              [severity]="editMode() === 'remove' ? 'primary' : 'secondary'"
+              (onClick)="setEditMode('remove')"
+              pTooltip="Remove points"
+              [tooltipPosition]="'bottom'"
+            />
+          </div>
+          <p-button
+            [icon]="'ti ti-check'"
+            [label]="isMobile() ? 'Save' : ''"
+            [disabled]="!canSave()"
+            (onClick)="requestSave()"
+            [pTooltip]="!canSave() ? 'Enter a name to save' : 'Save changes'"
+            [tooltipPosition]="'bottom'"
+            severity="success"
+            [styleClass]="isMobile() ? 'mobile-save' : ''"
+          />
+        </div>
       }
     </div>
   } @else if (hasAnySegments()) {

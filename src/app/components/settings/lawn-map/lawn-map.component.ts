@@ -265,12 +265,15 @@ export class LawnMapComponent implements OnDestroy {
       ? MAP_CONSTANTS.LOCATION_ZOOM
       : MAP_CONSTANTS.OVERVIEW_ZOOM;
 
+    const isMobile = this.isMobile();
+
     const map = L.map('lawn-map', {
       center: defaultCenter,
       zoom: defaultZoom,
       zoomControl: true,
       maxZoom: MAP_CONSTANTS.MAX_ZOOM,
-      attributionControl: false
+      attributionControl: false,
+      preferCanvas: isMobile
     });
 
     this._map.set(map);
@@ -310,7 +313,6 @@ export class LawnMapComponent implements OnDestroy {
     this._mapReady.set(true);
   }
 
-  
   private updateLocationMarker(
     lat: number,
     lng: number,

@@ -55,14 +55,6 @@
   position: relative;
   border-radius: 4px;
   overflow: hidden;
-
-  @media (max-width: 768px) {
-    overflow: visible;
-
-    #lawn-map {
-      overflow: visible;
-    }
-  }
 }
 
 #lawn-map {
@@ -466,50 +458,6 @@
 }
 
 :host ::ng-deep {
-  .leaflet-container {
-    isolation: isolate;
-    -webkit-transform: translate3d(0, 0, 0);
-    transform: translate3d(0, 0, 0);
-    position: relative;
-    z-index: 1;
-  }
-
-  @media (max-width: 768px) {
-    .leaflet-container {
-      contain: layout style;
-      -webkit-backface-visibility: hidden;
-      backface-visibility: hidden;
-    }
-
-    .leaflet-pane {
-      -webkit-backface-visibility: hidden;
-      backface-visibility: hidden;
-    }
-
-    .leaflet-overlay-pane {
-      visibility: visible !important;
-      opacity: 1 !important;
-
-      svg {
-        position: absolute;
-        top: 0;
-        left: 0;
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        overflow: visible !important;
-        -webkit-transform: translateZ(0);
-        transform: translateZ(0);
-      }
-    }
-
-    .leaflet-overlay-pane svg path {
-      pointer-events: auto;
-      visibility: visible !important;
-      opacity: 1 !important;
-    }
-  }
-
   .leaflet-editing-icon {
     width: 8px !important;
     height: 8px !important;

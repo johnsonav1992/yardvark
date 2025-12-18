@@ -9,7 +9,7 @@
     }
     @if (targetSegmentForDrawing()) {
       <div class="color-picker-wrapper">
-        <label>Segment Color:</label>
+        <label>Drawing Color:</label>
         <input
           type="color"
           [ngModel]="selectedColor()"
@@ -36,18 +36,20 @@
             </span>
           } @else if (!targetSegment.coordinates) {
             <strong>Drawing mode active</strong>
-            <span>Click the polygon icon to draw "{{ targetSegment.name }}"</span>
+            <span
+              >Click the polygon icon to draw "{{ targetSegment.name }}"</span
+            >
           } @else {
             <strong>Editing "{{ targetSegment.name }}"</strong>
             <span>
               @switch (editMode()) {
-                @case ('move') {
+                @case ("move") {
                   Drag points to reposition them
                 }
-                @case ('add') {
+                @case ("add") {
                   Tap a <strong>+</strong> marker to add a new point
                 }
-                @case ('remove') {
+                @case ("remove") {
                   Tap a point to remove it
                 }
               }

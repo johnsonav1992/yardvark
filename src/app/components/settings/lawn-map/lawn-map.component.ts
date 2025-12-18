@@ -23,13 +23,15 @@ import { injectSettingsService } from '../../../services/settings.service';
 import { DEFAULT_LAWN_SEGMENT_COLOR } from '../../../constants/lawn-segment-constants';
 import { MAP_CONSTANTS } from '../../../constants/map-constants';
 import {
-  polygonToCoordinates,
-  calculatePolygonArea,
-  isRectangleCoordinates
+  createShapeFromCoordinates,
+  createDrawControl,
+  createLocationMarkerIcon,
+  createVertexMarkerIcon,
+  createMidpointMarkerIcon,
+  getPolygonData,
+  EditMode
 } from '../../../utils/mapUtils';
 import { EditableLayer, ShapeData } from '../../../types/map.types';
-
-export type EditMode = 'move' | 'add' | 'remove';
 
 @Component({
   selector: 'lawn-map',
@@ -126,7 +128,7 @@ export class LawnMapComponent implements OnDestroy {
       }
 
       if (targetSegment && !targetSegment.coordinates) {
-        const newControl = this.createDrawControl(color);
+        const newControl = createDrawControl(color, this._drawnItems());
 
         this._drawControl.set(newControl);
 
@@ -240,7 +242,7 @@ export class LawnMapComponent implements OnDestroy {
 
     if (!layer) return null;
 
-    const shapeData = this.getPolygonData(layer as L.Polygon);
+    const shapeData = getPolygonData(layer as L.Polygon);
 
     if (!shapeData) return null;
 
@@ -308,30 +310,7 @@ export class LawnMapComponent implements OnDestroy {
     this._mapReady.set(true);
   }
 
-  private createDrawControl(color: string): L.Control.Draw {
-    return new L.Control.Draw({
-      draw: {
-        rectangle: false,
-        polygon: {
-          shapeOptions: { color, fillOpacity: 0.3 },
-          repeatMode: false,
-          showArea: false,
-          allowIntersection: false,
-          drawError: { color: '#e74c3c', message: 'Polygon edges cannot cross' }
-        },
-        circle: false,
-        marker: false,
-        polyline: false,
-        circlemarker: false
-      },
-      edit: {
-        featureGroup: this._drawnItems(),
-        edit: false,
-        remove: false
-      }
-    });
-  }
-
+  
   private updateLocationMarker(
     lat: number,
     lng: number,
@@ -347,14 +326,7 @@ export class LawnMapComponent implements OnDestroy {
       map.removeLayer(existingMarker);
     }
 
-    const markerIcon = L.divIcon({
-      className: 'location-marker',
-      html: MAP_CONSTANTS.LOCATION_MARKER_SVG,
-      iconSize: [32, 32],
-      iconAnchor: [16, 32]
-    });
-
-    const marker = L.marker([lat, lng], { icon: markerIcon })
+    const marker = L.marker([lat, lng], { icon: createLocationMarkerIcon() })
       .addTo(map)
       .bindPopup(address || 'Your location');
 
@@ -363,7 +335,7 @@ export class LawnMapComponent implements OnDestroy {
 
   private onShapeCreated(event: L.DrawEvents.Created): void {
     const layer = event.layer as EditableLayer;
-    const shapeData = this.getPolygonData(layer as L.Polygon);
+    const shapeData = getPolygonData(layer as L.Polygon);
 
     if (!shapeData) return;
 
@@ -415,7 +387,7 @@ export class LawnMapComponent implements OnDestroy {
 
       const coords = segment.coordinates[0];
       const color = segment.color || DEFAULT_LAWN_SEGMENT_COLOR;
-      const shape = this.createShapeFromCoordinates(coords, color);
+      const shape = createShapeFromCoordinates(coords, color);
 
       shape.bindPopup(
         MAP_CONSTANTS.SEGMENT_POPUP_HTML(segment.name, +segment.size)
@@ -432,26 +404,6 @@ export class LawnMapComponent implements OnDestroy {
 
       map.fitBounds(group.getBounds().pad(0.1));
     }
-  }
-
-  private createShapeFromCoordinates(
-    coords: number[][],
-    color: string
-  ): EditableLayer {
-    if (isRectangleCoordinates(coords)) {
-      const bounds = L.latLngBounds(
-        [coords[0][1], coords[0][0]],
-        [coords[2][1], coords[2][0]]
-      );
-
-      return L.rectangle(bounds, { color, fillOpacity: 0.3 }) as EditableLayer;
-    }
-
-    const latlngs = coords
-      .slice(0, -1)
-      .map((coord): L.LatLngTuple => [coord[1], coord[0]]);
-
-    return L.polygon(latlngs, { color, fillOpacity: 0.3 }) as EditableLayer;
   }
 
   private focusOnSegment(segmentId: number): void {
@@ -496,17 +448,6 @@ export class LawnMapComponent implements OnDestroy {
 
   private applyShapeStyle(layer: EditableLayer, color: string): void {
     layer.setStyle({ color, fillOpacity: 0.3 });
-  }
-
-  private getPolygonData(polygon: L.Polygon): ShapeData | null {
-    const latlngs = polygon.getLatLngs()[0] as L.LatLng[];
-
-    if (latlngs.length < 3) return null;
-
-    return {
-      coordinates: polygonToCoordinates(polygon),
-      size: calculatePolygonArea(polygon)
-    };
   }
 
   private clearCustomMarkers(): void {
@@ -565,47 +506,19 @@ export class LawnMapComponent implements OnDestroy {
   ): L.Marker {
     const mode = this.editMode();
     const isMobile = this.isMobile();
-    const isMoveMode = mode === 'move';
-    const isRemoveMode = mode === 'remove';
     const latlngs = polygon.getLatLngs()[0] as L.LatLng[];
     const canRemove = latlngs.length > 3;
 
-    let className = 'vertex-marker';
-    let html = '';
-    let iconSize: [number, number] = isMobile ? [36, 36] : [14, 14];
-    let iconAnchor: [number, number] = isMobile ? [18, 18] : [7, 7];
+    const icon = createVertexMarkerIcon({ mode, isMobile, canRemove });
+    const marker = L.marker(latlng, { icon, draggable: mode === 'move' });
 
-    if (isMoveMode) {
-      className = 'vertex-marker move-mode';
-      iconSize = isMobile ? [40, 40] : [16, 16];
-      iconAnchor = isMobile ? [20, 20] : [8, 8];
-    } else if (isRemoveMode && canRemove) {
-      className = 'vertex-marker remove-mode';
-      html = '<i class="ti ti-x"></i>';
-      iconSize = isMobile ? [44, 44] : [24, 24];
-      iconAnchor = isMobile ? [22, 22] : [12, 12];
-    }
-
-    const icon = L.divIcon({
-      className,
-      html,
-      iconSize,
-      iconAnchor
-    });
-
-    const marker = L.marker(latlng, {
-      icon,
-      draggable: isMoveMode
-    });
-
-    if (isMoveMode) {
+    if (mode === 'move') {
       marker.on('drag', (e) => {
         const newLatLng = (e.target as L.Marker).getLatLng();
-
         latlngs[index] = newLatLng;
         polygon.setLatLngs([latlngs]);
       });
-    } else if (isRemoveMode && canRemove) {
+    } else if (mode === 'remove' && canRemove) {
       marker.on('click', () => this.removeVertex(index, polygon));
     }
 
@@ -617,21 +530,8 @@ export class LawnMapComponent implements OnDestroy {
     afterIndex: number,
     polygon: L.Polygon
   ): L.Marker {
-    const isMobile = this.isMobile();
-    const size = isMobile ? 40 : 20;
-    const anchor = size / 2;
-
-    const icon = L.divIcon({
-      className: 'midpoint-marker',
-      html: '<i class="ti ti-plus"></i>',
-      iconSize: [size, size],
-      iconAnchor: [anchor, anchor]
-    });
-
-    const marker = L.marker(latlng, {
-      icon,
-      draggable: false
-    });
+    const icon = createMidpointMarkerIcon(this.isMobile());
+    const marker = L.marker(latlng, { icon, draggable: false });
 
     marker.on('click', () => this.addVertex(afterIndex, latlng, polygon));
 

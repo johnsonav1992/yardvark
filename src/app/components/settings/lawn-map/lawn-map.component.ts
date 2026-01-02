@@ -84,6 +84,7 @@ export class LawnMapComponent implements OnDestroy {
   private _locationMarker = signal<L.Marker | null>(null);
   private _drawControl = signal<L.Control.Draw | null>(null);
   private _mapReady = signal(false);
+  private _canvasRenderer: L.Canvas | null = null;
 
   _segmentsWatcher = effect(() => {
     const segments = this.lawnSegments();
@@ -270,13 +271,15 @@ export class LawnMapComponent implements OnDestroy {
       zoom: defaultZoom,
       zoomControl: true,
       maxZoom: MAP_CONSTANTS.MAX_ZOOM,
-      attributionControl: false,
-      // Use Canvas renderer on mobile to avoid SVG clipping issues
-      // caused by position:fixed and overflow:hidden on html/body
-      preferCanvas: this.isMobile()
+      attributionControl: false
     });
 
     this._map.set(map);
+
+    // Create canvas renderer for mobile to avoid SVG rendering issues
+    if (this.isMobile()) {
+      this._canvasRenderer = L.canvas();
+    }
 
     const satelliteLayer = L.tileLayer(MAP_CONSTANTS.SATELLITE_TILE_URL, {
       maxZoom: MAP_CONSTANTS.MAX_ZOOM,
@@ -390,7 +393,11 @@ export class LawnMapComponent implements OnDestroy {
 
       const coords = segment.coordinates[0];
       const color = segment.color || DEFAULT_LAWN_SEGMENT_COLOR;
-      const shape = createShapeFromCoordinates(coords, color);
+      const shape = createShapeFromCoordinates(
+        coords,
+        color,
+        this._canvasRenderer ?? undefined
+      );
 
       shape.bindPopup(
         MAP_CONSTANTS.SEGMENT_POPUP_HTML(segment.name, +segment.size)
@@ -406,6 +413,11 @@ export class LawnMapComponent implements OnDestroy {
       const group = new L.FeatureGroup(Array.from(newLayers.values()));
 
       map.fitBounds(group.getBounds().pad(0.1));
+    }
+
+    // Force map redraw on mobile to ensure layers render correctly
+    if (this.isMobile()) {
+      setTimeout(() => map.invalidateSize(), 100);
     }
   }
 

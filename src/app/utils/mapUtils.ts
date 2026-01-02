@@ -65,22 +65,29 @@ export const getPolygonData = (polygon: L.Polygon): ShapeData | null => {
 
 export const createShapeFromCoordinates = (
   coords: number[][],
-  color: string
+  color: string,
+  renderer?: L.Renderer
 ): EditableLayer => {
+  const options: L.PolylineOptions = { color, fillOpacity: 0.3 };
+
+  if (renderer) {
+    options.renderer = renderer;
+  }
+
   if (isRectangleCoordinates(coords)) {
     const bounds = L.latLngBounds(
       [coords[0][1], coords[0][0]],
       [coords[2][1], coords[2][0]]
     );
 
-    return L.rectangle(bounds, { color, fillOpacity: 0.3 }) as EditableLayer;
+    return L.rectangle(bounds, options) as EditableLayer;
   }
 
   const latlngs = coords
     .slice(0, -1)
     .map((coord): L.LatLngTuple => [coord[1], coord[0]]);
 
-  return L.polygon(latlngs, { color, fillOpacity: 0.3 }) as EditableLayer;
+  return L.polygon(latlngs, options) as EditableLayer;
 };
 
 export const createDrawControl = (

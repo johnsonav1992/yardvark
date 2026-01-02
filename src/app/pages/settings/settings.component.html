@@ -126,17 +126,20 @@
     <lawn-segments-table
       [lawnSegments]="lawnSegments.value()"
       [(hasUnsavedChanges)]="hasUnsavedChanges"
+      [isMobile]="isMobile()"
       (editOnMapClicked)="onEditOnMap($event)"
       (segmentSaveClicked)="onSegmentSave($event)"
       (segmentEditCanceled)="onSegmentEditCanceled()"
       (segmentNameChanged)="onSegmentNameChanged($event)"
     />
   </div>
-  <div class="section-wrapper">
-    <lawn-map
-      [lawnSegments]="lawnSegments.value()"
-      (editingCanceled)="onMapEditingCanceled($event)"
-      (saveRequested)="onMapSaveRequested($event)"
-    />
-  </div>
+  @if (!isMobile()) {
+    <div class="section-wrapper">
+      <lawn-map
+        [lawnSegments]="lawnSegments.value()"
+        (editingCanceled)="onMapEditingCanceled($event)"
+        (saveRequested)="onMapSaveRequested($event)"
+      />
+    </div>
+  }
 </page-container>

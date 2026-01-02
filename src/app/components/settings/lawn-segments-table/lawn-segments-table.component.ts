@@ -3,6 +3,7 @@ import {
   computed,
   effect,
   inject,
+  input,
   model,
   output,
   signal,
@@ -15,6 +16,7 @@ import { DecimalPipe } from '@angular/common';
 import { DataTableDesignTokens } from '@primeuix/themes/types/datatable';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { LawnSegmentsService } from '../../../services/lawn-segments.service';
 import { injectErrorToast } from '../../../utils/toastUtils';
 import { CardModule } from 'primeng/card';
@@ -29,6 +31,7 @@ import { TooltipModule } from 'primeng/tooltip';
     ButtonModule,
     FormsModule,
     InputTextModule,
+    InputNumberModule,
     CardModule,
     LoadingSpinnerComponent,
     TooltipModule,
@@ -43,6 +46,7 @@ export class LawnSegmentsTableComponent {
 
   public lawnSegments = model.required<LawnSegment[] | undefined>();
   public hasUnsavedChanges = model.required<boolean>();
+  public isMobile = input<boolean>(false);
   public currentlyEditingLawnSegmentIds = signal<number[] | null>(null);
   public editOnMapClicked = output<LawnSegment>();
   public segmentSaveClicked = output<LawnSegment>();
@@ -78,7 +82,11 @@ export class LawnSegmentsTableComponent {
     this.currentlyEditingLawnSegmentIds.update((prev) =>
       prev ? [...prev, segment.id] : [segment.id]
     );
-    this.editOnMapClicked.emit(segment);
+
+    // Only emit map event on desktop
+    if (!this.isMobile()) {
+      this.editOnMapClicked.emit(segment);
+    }
   }
 
   public addLawnSegmentRow(): void {
@@ -97,7 +105,11 @@ export class LawnSegmentsTableComponent {
       prev ? [...prev, newId] : [newId]
     );
     this.lawnSegmentTable()?.initRowEdit(newRow);
-    this.editOnMapClicked.emit(newRow);
+
+    // Only emit map event on desktop
+    if (!this.isMobile()) {
+      this.editOnMapClicked.emit(newRow);
+    }
   }
 
   public onRowSave(segment: LawnSegment): void {

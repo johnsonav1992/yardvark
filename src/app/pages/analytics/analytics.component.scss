@@ -5,6 +5,18 @@
   flex-wrap: wrap;
 }
 
+.empty-state-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 200px;
+
+  @media (min-width: 768px) {
+    min-height: 350px;
+  }
+}
+
 ::ng-deep.info-overlay {
   width: 300px;
 }

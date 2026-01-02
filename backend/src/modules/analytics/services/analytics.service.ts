@@ -8,10 +8,11 @@ export class AnalyticsService {
 
   async getAnalytics(
     userId: string,
+    year?: number,
   ): Promise<AnalyticsRes[0]['get_user_analytics_v2']> {
     const result = await this.dataSource.query<AnalyticsRes>(
-      `SELECT * FROM get_user_analytics_v2($1)`,
-      [userId],
+      `SELECT * FROM get_user_analytics_v2($1, $2)`,
+      [userId, year ?? new Date().getFullYear()],
     );
 
     return result[0].get_user_analytics_v2;

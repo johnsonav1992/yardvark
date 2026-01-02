@@ -29,6 +29,7 @@ async function bootstrap() {
       'http://localhost:4200',
       /^https:\/\/deploy-preview-\d+--yardvark\.netlify\.app$/,
       /^https:\/\/[a-zA-Z0-9-]+--yardvark\.netlify\.app$/,
+      'https://t8x2587c-4200.usw3.devtunnels.ms',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],

@@ -338,7 +338,8 @@
     gap: 0.5rem;
 
     .banner-content {
-      flex: 1 1 100%;
+      flex: 1;
+      min-width: 0;
 
       > i {
         display: none;

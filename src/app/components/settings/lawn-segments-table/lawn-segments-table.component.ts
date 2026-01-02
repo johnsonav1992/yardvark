@@ -53,6 +53,8 @@ export class LawnSegmentsTableComponent {
   public segmentEditCanceled = output<LawnSegment>();
   public segmentNameChanged = output<LawnSegment>();
 
+  private _originalSegmentNames = new Map<number, string>();
+
   public onSegmentNameChange(segment: LawnSegment): void {
     this.segmentNameChanged.emit(segment);
   }
@@ -79,6 +81,8 @@ export class LawnSegmentsTableComponent {
   });
 
   public editLawnSegment(segment: LawnSegment): void {
+    this._originalSegmentNames.set(segment.id, segment.name);
+
     this.currentlyEditingLawnSegmentIds.update((prev) =>
       prev ? [...prev, segment.id] : [segment.id]
     );
@@ -115,6 +119,7 @@ export class LawnSegmentsTableComponent {
     const saveMethod = isNewSegment ? 'addLawnSegment' : 'updateLawnSegment';
     this._lawnSegmentsService[saveMethod](segment).subscribe({
       next: (newSeg) => {
+        this._originalSegmentNames.delete(segment.id);
         this.removeSegmentFromEditingList(segment.id);
 
         if (tableSegment) {
@@ -154,8 +159,18 @@ export class LawnSegmentsTableComponent {
       this.lawnSegments.update((prev) =>
         prev?.filter((seg) => seg.id !== segment.id)
       );
+    } else {
+      const originalName = this._originalSegmentNames.get(segment.id);
+      if (originalName !== undefined) {
+        this.lawnSegments.update((prev) =>
+          prev?.map((seg) =>
+            seg.id === segment.id ? { ...seg, name: originalName } : seg
+          )
+        );
+      }
     }
 
+    this._originalSegmentNames.delete(segment.id);
     this.removeSegmentFromEditingList(segment.id);
 
     if (emitEvent) {

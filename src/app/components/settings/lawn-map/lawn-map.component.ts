@@ -83,6 +83,7 @@ export class LawnMapComponent implements OnDestroy {
   private _locationMarker = signal<L.Marker | null>(null);
   private _mapReady = signal(false);
   private _drawingEnabled = signal(false);
+  private _originalCoordinates = signal<L.LatLng[] | null>(null);
 
   _segmentsWatcher = effect(() => {
     const segments = this.lawnSegments();
@@ -120,13 +121,11 @@ export class LawnMapComponent implements OnDestroy {
     if (!this._mapReady() || !map) return;
 
     untracked(() => {
-      // Disable any current drawing mode first
       if (this._drawingEnabled()) {
         map.pm.disableDraw();
         this._drawingEnabled.set(false);
       }
 
-      // Enable polygon drawing if we have a target segment without coordinates
       if (targetSegment && !targetSegment.coordinates) {
         map.pm.setPathOptions({
           color,
@@ -208,10 +207,17 @@ export class LawnMapComponent implements OnDestroy {
     const targetSegment = this.targetSegmentForDrawing();
     const map = this._map();
 
-    // Disable Geoman drawing mode if active
     if (map && this._drawingEnabled()) {
       map.pm.disableDraw();
       this._drawingEnabled.set(false);
+    }
+
+    const originalCoords = this._originalCoordinates();
+    if (targetSegment?.id && originalCoords) {
+      const layer = this._segmentLayers().get(targetSegment.id);
+      if (layer) {
+        (layer as L.Polygon).setLatLngs([originalCoords]);
+      }
     }
 
     if (targetSegment) {
@@ -227,6 +233,7 @@ export class LawnMapComponent implements OnDestroy {
     this.clearCustomMarkers();
     this.editMode.set('move');
     this.targetSegmentForDrawing.set(null);
+    this._originalCoordinates.set(null);
   }
 
   public requestSave(): void {
@@ -262,6 +269,7 @@ export class LawnMapComponent implements OnDestroy {
     this.clearCustomMarkers();
     this.editMode.set('move');
     this.targetSegmentForDrawing.set(null);
+    this._originalCoordinates.set(null);
 
     return { ...shapeData, color: this.selectedColor() };
   }
@@ -304,8 +312,6 @@ export class LawnMapComponent implements OnDestroy {
       .addTo(map);
 
     map.addLayer(this._drawnItems());
-
-    // Listen for Geoman polygon creation
     map.on('pm:create', (e) => this.onShapeCreated(e));
 
     const currentSegments = this.lawnSegments();
@@ -321,7 +327,6 @@ export class LawnMapComponent implements OnDestroy {
     this._mapReady.set(true);
   }
 
-  
   private updateLocationMarker(
     lat: number,
     lng: number,
@@ -359,7 +364,6 @@ export class LawnMapComponent implements OnDestroy {
     const color = this.selectedColor();
     const map = this._map();
 
-    // Disable drawing mode after shape is created
     if (map) {
       map.pm.disableDraw();
       this._drawingEnabled.set(false);
@@ -450,12 +454,18 @@ export class LawnMapComponent implements OnDestroy {
 
     if (!layer) return;
 
+    const polygon = layer as L.Polygon;
+    const originalLatLngs = (polygon.getLatLngs()[0] as L.LatLng[]).map(
+      (ll) => L.latLng(ll.lat, ll.lng)
+    );
+    this._originalCoordinates.set(originalLatLngs);
+
     this.selectedColor.set(segment.color || DEFAULT_LAWN_SEGMENT_COLOR);
     this.targetSegmentForDrawing.set(segment);
     this.editMode.set('move');
     layer.closePopup();
 
-    this.createCustomMarkers(layer as L.Polygon);
+    this.createCustomMarkers(polygon);
   }
 
   private disableLayerEditing(segmentId: number): void {

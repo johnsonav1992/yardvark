@@ -9,7 +9,7 @@
     }
     @if (targetSegmentForDrawing()) {
       <div class="color-picker-wrapper">
-        <label>Drawing Color:</label>
+        <label>Segment Color:</label>
         <input
           type="color"
           [ngModel]="selectedColor()"
@@ -29,15 +29,15 @@
             <strong>Creating new segment</strong>
             <span>
               @if (targetSegment.coordinates) {
-                Adjust the shape and color, then save in the table
+                Adjust the shape and color, then click Save
               } @else {
-                Click the polygon icon on the map to start drawing
+                Click on the map to place points, click the first point to close
               }
             </span>
           } @else if (!targetSegment.coordinates) {
-            <strong>Drawing mode active</strong>
+            <strong>Drawing "{{ targetSegment.name }}"</strong>
             <span
-              >Click the polygon icon to draw "{{ targetSegment.name }}"</span
+              >Click on the map to place points, click the first point to close</span
             >
           } @else {
             <strong>Editing "{{ targetSegment.name }}"</strong>
@@ -111,10 +111,8 @@
     <div class="map-instructions">
       <small>
         <i class="ti ti-info-circle"></i>
-        Click <strong>an edit icon</strong> in the table above to draw or modify
-        a segment. For new shapes, use the polygon tool and click the first
-        point to finish. Use the color picker to change segment colors. Save
-        your changes via the <strong>checkmark</strong> in the table.
+        Click the <strong>edit icon</strong> in the table to draw or modify a
+        segment on the map.
       </small>
     </div>
   }
@@ -138,11 +136,8 @@
             <div class="step">
               <div class="step-number">1</div>
               <div class="step-content">
-                <strong>Add a segment in the table above</strong>
-                <span
-                  >Click the "Add Lawn Segment" button to create your first
-                  segment</span
-                >
+                <strong>Add a segment</strong>
+                <span>Click "Add Lawn Segment" in the table above</span>
               </div>
             </div>
             <div class="step">
@@ -150,18 +145,16 @@
               <div class="step-content">
                 <strong>Draw on the map</strong>
                 <span
-                  >Use the polygon tool to outline the segment on your
-                  property</span
+                  >Click to place points, click the first point to close the
+                  shape</span
                 >
               </div>
             </div>
             <div class="step">
               <div class="step-number">3</div>
               <div class="step-content">
-                <strong>Save your changes</strong>
-                <span
-                  >Click the checkmark in the table to save your segment</span
-                >
+                <strong>Save your segment</strong>
+                <span>Give it a name and click Save</span>
               </div>
             </div>
           </div>

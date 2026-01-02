@@ -84,7 +84,7 @@ export class LawnMapComponent implements OnDestroy {
   private _locationMarker = signal<L.Marker | null>(null);
   private _drawControl = signal<L.Control.Draw | null>(null);
   private _mapReady = signal(false);
-  private _canvasRenderer: L.Canvas | null = null;
+  private _initialViewSet = false;
 
   _segmentsWatcher = effect(() => {
     const segments = this.lawnSegments();
@@ -103,7 +103,15 @@ export class LawnMapComponent implements OnDestroy {
 
     if (location && mapReady && map) {
       untracked(() => {
-        map.setView([location.lat, location.long], MAP_CONSTANTS.LOCATION_ZOOM);
+        // Only set view to location if no segments exist (fitBounds handles view when segments exist)
+        const hasSegmentsWithCoords = this.lawnSegments()?.some(
+          (s) => s.coordinates
+        );
+
+        if (!hasSegmentsWithCoords && !this._initialViewSet) {
+          map.setView([location.lat, location.long], MAP_CONSTANTS.LOCATION_ZOOM);
+          this._initialViewSet = true;
+        }
 
         this.updateLocationMarker(
           location.lat,
@@ -271,15 +279,12 @@ export class LawnMapComponent implements OnDestroy {
       zoom: defaultZoom,
       zoomControl: true,
       maxZoom: MAP_CONSTANTS.MAX_ZOOM,
-      attributionControl: false
+      attributionControl: false,
+      // Use canvas renderer on mobile to avoid SVG rendering issues
+      preferCanvas: this.isMobile()
     });
 
     this._map.set(map);
-
-    // Create canvas renderer for mobile to avoid SVG rendering issues
-    if (this.isMobile()) {
-      this._canvasRenderer = L.canvas();
-    }
 
     const satelliteLayer = L.tileLayer(MAP_CONSTANTS.SATELLITE_TILE_URL, {
       maxZoom: MAP_CONSTANTS.MAX_ZOOM,
@@ -393,11 +398,7 @@ export class LawnMapComponent implements OnDestroy {
 
       const coords = segment.coordinates[0];
       const color = segment.color || DEFAULT_LAWN_SEGMENT_COLOR;
-      const shape = createShapeFromCoordinates(
-        coords,
-        color,
-        this._canvasRenderer ?? undefined
-      );
+      const shape = createShapeFromCoordinates(coords, color);
 
       shape.bindPopup(
         MAP_CONSTANTS.SEGMENT_POPUP_HTML(segment.name, +segment.size)

@@ -83,32 +83,6 @@ export const createShapeFromCoordinates = (
   return L.polygon(latlngs, { color, fillOpacity: 0.3 }) as EditableLayer;
 };
 
-export const createDrawControl = (
-  color: string,
-  featureGroup: L.FeatureGroup
-): L.Control.Draw =>
-  new L.Control.Draw({
-    draw: {
-      rectangle: false,
-      polygon: {
-        shapeOptions: { color, fillOpacity: 0.3 },
-        repeatMode: false,
-        showArea: false,
-        allowIntersection: false,
-        drawError: { color: '#e74c3c', message: 'Polygon edges cannot cross' }
-      },
-      circle: false,
-      marker: false,
-      polyline: false,
-      circlemarker: false
-    },
-    edit: {
-      featureGroup,
-      edit: false,
-      remove: false
-    }
-  });
-
 export const createLocationMarkerIcon = (): L.DivIcon =>
   L.divIcon({
     className: 'location-marker',

@@ -42,7 +42,7 @@
               "src/assets/lawn-icons/css/lawn-icons.css",
               "node_modules/@tabler/icons-webfont/dist/tabler-icons-outline.min.css",
               "node_modules/leaflet/dist/leaflet.css",
-              "node_modules/leaflet-draw/dist/leaflet.draw.css"
+              "node_modules/@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css"
             ],
             "scripts": []
           },

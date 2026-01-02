@@ -11,7 +11,7 @@ import {
   untracked
 } from '@angular/core';
 import * as L from 'leaflet';
-import 'leaflet-draw';
+import '@geoman-io/leaflet-geoman-free';
 import { LawnSegment } from '../../../types/lawnSegments.types';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -24,7 +24,6 @@ import { DEFAULT_LAWN_SEGMENT_COLOR } from '../../../constants/lawn-segment-cons
 import { MAP_CONSTANTS } from '../../../constants/map-constants';
 import {
   createShapeFromCoordinates,
-  createDrawControl,
   createLocationMarkerIcon,
   createVertexMarkerIcon,
   createMidpointMarkerIcon,
@@ -82,8 +81,8 @@ export class LawnMapComponent implements OnDestroy {
   private _drawnItems = signal<L.FeatureGroup>(new L.FeatureGroup());
   private _segmentLayers = signal<Map<number, EditableLayer>>(new Map());
   private _locationMarker = signal<L.Marker | null>(null);
-  private _drawControl = signal<L.Control.Draw | null>(null);
   private _mapReady = signal(false);
+  private _drawingEnabled = signal(false);
 
   _segmentsWatcher = effect(() => {
     const segments = this.lawnSegments();
@@ -121,20 +120,26 @@ export class LawnMapComponent implements OnDestroy {
     if (!this._mapReady() || !map) return;
 
     untracked(() => {
-      const existingControl = this._drawControl();
-
-      if (existingControl) {
-        map.removeControl(existingControl);
+      // Disable any current drawing mode first
+      if (this._drawingEnabled()) {
+        map.pm.disableDraw();
+        this._drawingEnabled.set(false);
       }
 
+      // Enable polygon drawing if we have a target segment without coordinates
       if (targetSegment && !targetSegment.coordinates) {
-        const newControl = createDrawControl(color, this._drawnItems());
+        map.pm.setPathOptions({
+          color,
+          fillOpacity: 0.3
+        });
 
-        this._drawControl.set(newControl);
+        map.pm.enableDraw('Polygon', {
+          allowSelfIntersection: false,
+          tooltips: true,
+          snappable: true
+        });
 
-        map.addControl(newControl);
-      } else {
-        this._drawControl.set(null);
+        this._drawingEnabled.set(true);
       }
     });
   });
@@ -201,6 +206,13 @@ export class LawnMapComponent implements OnDestroy {
 
   public cancelEditing(emitEvent = true): void {
     const targetSegment = this.targetSegmentForDrawing();
+    const map = this._map();
+
+    // Disable Geoman drawing mode if active
+    if (map && this._drawingEnabled()) {
+      map.pm.disableDraw();
+      this._drawingEnabled.set(false);
+    }
 
     if (targetSegment) {
       if (targetSegment.id) {
@@ -293,9 +305,8 @@ export class LawnMapComponent implements OnDestroy {
 
     map.addLayer(this._drawnItems());
 
-    map.on(L.Draw.Event.CREATED, (e) =>
-      this.onShapeCreated(e as L.DrawEvents.Created)
-    );
+    // Listen for Geoman polygon creation
+    map.on('pm:create', (e) => this.onShapeCreated(e));
 
     const currentSegments = this.lawnSegments();
 
@@ -333,7 +344,7 @@ export class LawnMapComponent implements OnDestroy {
     this._locationMarker.set(marker);
   }
 
-  private onShapeCreated(event: L.DrawEvents.Created): void {
+  private onShapeCreated(event: { shape: string; layer: L.Layer }): void {
     const layer = event.layer as EditableLayer;
     const shapeData = getPolygonData(layer as L.Polygon);
 
@@ -346,6 +357,13 @@ export class LawnMapComponent implements OnDestroy {
     }
 
     const color = this.selectedColor();
+    const map = this._map();
+
+    // Disable drawing mode after shape is created
+    if (map) {
+      map.pm.disableDraw();
+      this._drawingEnabled.set(false);
+    }
 
     this.applyShapeStyle(layer, color);
     this._drawnItems().addLayer(layer);

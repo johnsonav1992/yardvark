@@ -55,12 +55,24 @@
   position: relative;
   border-radius: 4px;
   overflow: hidden;
+
+  // Mobile: create new stacking context to isolate from position:fixed parents
+  @media (max-width: 768px) {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
 }
 
 #lawn-map {
   width: 100%;
   border-radius: 4px;
   z-index: 1;
+
+  // Mobile: ensure map creates its own compositing layer
+  @media (max-width: 768px) {
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+  }
 }
 
 .empty-map-overlay {
@@ -458,6 +470,28 @@
 }
 
 :host ::ng-deep {
+  // Mobile fix for polygon/canvas rendering with position:fixed parents
+  @media (max-width: 768px) {
+    .leaflet-pane {
+      transform: translate3d(0, 0, 0);
+    }
+
+    .leaflet-overlay-pane {
+      transform: translate3d(0, 0, 0);
+
+      svg,
+      canvas {
+        display: block !important;
+        visibility: visible !important;
+      }
+    }
+
+    .leaflet-canvas-container,
+    .leaflet-zoom-animated {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
   .leaflet-editing-icon {
     width: 8px !important;
     height: 8px !important;

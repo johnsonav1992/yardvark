@@ -270,7 +270,10 @@ export class LawnMapComponent implements OnDestroy {
       zoom: defaultZoom,
       zoomControl: true,
       maxZoom: MAP_CONSTANTS.MAX_ZOOM,
-      attributionControl: false
+      attributionControl: false,
+      // Use Canvas renderer on mobile to avoid SVG clipping issues
+      // caused by position:fixed and overflow:hidden on html/body
+      preferCanvas: this.isMobile()
     });
 
     this._map.set(map);

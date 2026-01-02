@@ -24,7 +24,6 @@
         </div>
       }
     </ng-template>
-
     <ng-template #weatherMarker let-weatherMarkers>
       @for (marker of weatherMarkers; track marker.id) {
         <weather-day-marker [marker]="marker" />
@@ -34,7 +33,7 @@
   @if (isMobile() || viewMode() === "list") {
     <p-divider />
     @if (viewMode() === "list") {
-      <div 
+      <div
         class="list-sort-controls"
         [style]="{
           padding: isMobile() ? '0.5rem 0.75rem 0.25rem 0.75rem' : '0.75rem 1rem 0.5rem 1rem',
@@ -55,9 +54,9 @@
           [showDelay]="1500"
         />
       </div>
-      <div 
-        class="list-entries-container" 
-[style.paddingBottom]="isMobile() ? '6rem' : '7rem'"
+      <div
+        class="list-entries-container"
+        [style.paddingBottom]="isMobile() ? '6rem' : '7rem'"
       >
         @for (entry of listViewEntries(); track entry.id) {
           <mobile-entry-preview-card [entry]="entry" />

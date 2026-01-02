@@ -9,9 +9,11 @@ import {
   Req,
 } from '@nestjs/common';
 import { LawnSegmentsService } from '../services/lawn-segments.service';
-import { LawnSegmentCreationRequest } from '../models/lawn-segments.types';
+import {
+  LawnSegmentCreationRequest,
+  LawnSegmentUpdateRequest,
+} from '../models/lawn-segments.types';
 import { Request } from 'express';
-import { LawnSegment } from '../models/lawn-segments.model';
 
 @Controller('lawn-segments')
 export class LawnSegmentsController {
@@ -34,8 +36,11 @@ export class LawnSegmentsController {
   }
 
   @Put(':id')
-  updateLawnSegment(@Body() lawnSegment: LawnSegment) {
-    return this._lawnSegmentService.updateLawnSegment(lawnSegment);
+  updateLawnSegment(
+    @Param('id') id: number,
+    @Body() updateData: LawnSegmentUpdateRequest,
+  ) {
+    return this._lawnSegmentService.updateLawnSegment(id, updateData);
   }
 
   @Delete(':id')

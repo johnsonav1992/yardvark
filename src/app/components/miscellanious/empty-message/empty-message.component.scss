@@ -1,12 +1,129 @@
 :host {
   width: 100%;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 1rem;
-  font-size: 2rem;
-  color: var(--p-surface-400);
-  margin: 0 auto;
-  margin-top: 1rem;
+  padding: 1.5rem 1rem;
+}
+
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 280px;
+
+  .icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--p-surface-100);
+    margin-bottom: 0.75rem;
+
+    i {
+      color: var(--p-surface-400);
+    }
+  }
+
+  .text-content {
+    h4 {
+      margin: 0;
+      color: var(--p-surface-700);
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0.35rem 0 0;
+      color: var(--p-surface-500);
+      line-height: 1.4;
+    }
+  }
+
+  // Size variants
+  &[data-size='sm'] {
+    .icon-wrapper {
+      width: 40px;
+      height: 40px;
+
+      i {
+        font-size: 1.25rem;
+      }
+    }
+
+    .text-content {
+      h4 {
+        font-size: 0.875rem;
+      }
+
+      p {
+        font-size: 0.75rem;
+      }
+    }
+  }
+
+  &[data-size='md'] {
+    .icon-wrapper {
+      width: 56px;
+      height: 56px;
+
+      i {
+        font-size: 1.5rem;
+      }
+    }
+
+    .text-content {
+      h4 {
+        font-size: 1rem;
+      }
+
+      p {
+        font-size: 0.85rem;
+      }
+    }
+  }
+
+  &[data-size='lg'] {
+    .icon-wrapper {
+      width: 72px;
+      height: 72px;
+
+      i {
+        font-size: 2rem;
+      }
+    }
+
+    .text-content {
+      h4 {
+        font-size: 1.125rem;
+      }
+
+      p {
+        font-size: 0.9rem;
+      }
+    }
+  }
+}
+
+// Dark mode adjustments
+:host-context(.yv-dark-mode) {
+  .empty-container {
+    .icon-wrapper {
+      background: var(--p-surface-800);
+
+      i {
+        color: var(--p-surface-500);
+      }
+    }
+
+    .text-content {
+      h4 {
+        color: var(--p-surface-300);
+      }
+
+      p {
+        color: var(--p-surface-400);
+      }
+    }
+  }
 }

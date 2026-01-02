@@ -24,9 +24,7 @@
       }
     </ng-template>
   </p-multiSelect>
-
   @let selectedProducts = productsControl().value;
-
   @if (selectedProductNitrogen()) {
     <div class="nitrogen-display">
       <p-message
@@ -35,7 +33,6 @@
       />
     </div>
   }
-
   @if (selectedProducts?.length) {
     <div
       class="products-wrapper"

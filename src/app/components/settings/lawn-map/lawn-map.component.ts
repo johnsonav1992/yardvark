@@ -102,7 +102,8 @@ export class LawnMapComponent implements OnDestroy {
 
     if (location && mapReady && map) {
       untracked(() => {
-        // Only update the marker - view is handled by initializeMap and renderSegments
+        map.setView([location.lat, location.long], MAP_CONSTANTS.LOCATION_ZOOM);
+
         this.updateLocationMarker(
           location.lat,
           location.long,
@@ -269,9 +270,7 @@ export class LawnMapComponent implements OnDestroy {
       zoom: defaultZoom,
       zoomControl: true,
       maxZoom: MAP_CONSTANTS.MAX_ZOOM,
-      attributionControl: false,
-      // Use canvas renderer on mobile to avoid SVG rendering issues
-      preferCanvas: this.isMobile()
+      attributionControl: false
     });
 
     this._map.set(map);
@@ -404,11 +403,6 @@ export class LawnMapComponent implements OnDestroy {
       const group = new L.FeatureGroup(Array.from(newLayers.values()));
 
       map.fitBounds(group.getBounds().pad(0.1));
-    }
-
-    // Force map redraw on mobile to ensure layers render correctly
-    if (this.isMobile()) {
-      setTimeout(() => map.invalidateSize(), 100);
     }
   }
 

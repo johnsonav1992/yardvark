@@ -83,10 +83,7 @@ export class LawnSegmentsTableComponent {
       prev ? [...prev, segment.id] : [segment.id]
     );
 
-    // Only emit map event on desktop
-    if (!this.isMobile()) {
-      this.editOnMapClicked.emit(segment);
-    }
+    this.editOnMapClicked.emit(segment);
   }
 
   public addLawnSegmentRow(): void {
@@ -106,10 +103,7 @@ export class LawnSegmentsTableComponent {
     );
     this.lawnSegmentTable()?.initRowEdit(newRow);
 
-    // Only emit map event on desktop
-    if (!this.isMobile()) {
-      this.editOnMapClicked.emit(newRow);
-    }
+    this.editOnMapClicked.emit(newRow);
   }
 
   public onRowSave(segment: LawnSegment): void {

@@ -133,13 +133,11 @@
       (segmentNameChanged)="onSegmentNameChanged($event)"
     />
   </div>
-  @if (!isMobile()) {
-    <div class="section-wrapper">
-      <lawn-map
-        [lawnSegments]="lawnSegments.value()"
-        (editingCanceled)="onMapEditingCanceled($event)"
-        (saveRequested)="onMapSaveRequested($event)"
-      />
-    </div>
-  }
+  <div class="section-wrapper">
+    <lawn-map
+      [lawnSegments]="lawnSegments.value()"
+      (editingCanceled)="onMapEditingCanceled($event)"
+      (saveRequested)="onMapSaveRequested($event)"
+    />
+  </div>
 </page-container>

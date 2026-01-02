@@ -84,7 +84,6 @@ export class LawnMapComponent implements OnDestroy {
   private _locationMarker = signal<L.Marker | null>(null);
   private _drawControl = signal<L.Control.Draw | null>(null);
   private _mapReady = signal(false);
-  private _initialViewSet = false;
 
   _segmentsWatcher = effect(() => {
     const segments = this.lawnSegments();
@@ -103,16 +102,7 @@ export class LawnMapComponent implements OnDestroy {
 
     if (location && mapReady && map) {
       untracked(() => {
-        // Only set view to location if no segments exist (fitBounds handles view when segments exist)
-        const hasSegmentsWithCoords = this.lawnSegments()?.some(
-          (s) => s.coordinates
-        );
-
-        if (!hasSegmentsWithCoords && !this._initialViewSet) {
-          map.setView([location.lat, location.long], MAP_CONSTANTS.LOCATION_ZOOM);
-          this._initialViewSet = true;
-        }
-
+        // Only update the marker - view is handled by initializeMap and renderSegments
         this.updateLocationMarker(
           location.lat,
           location.long,

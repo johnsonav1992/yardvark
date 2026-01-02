@@ -462,6 +462,52 @@
   overflow: auto !important;
 }
 
+// Mobile-specific fixes for Leaflet rendering issues
+@media (max-width: 767px) {
+  .map-container {
+    // Create new stacking context to isolate from parent fixed positioning
+    isolation: isolate;
+    z-index: 1;
+  }
+
+  :host ::ng-deep {
+    .leaflet-pane {
+      z-index: 400 !important;
+    }
+
+    .leaflet-tile-pane {
+      z-index: 200 !important;
+    }
+
+    .leaflet-overlay-pane {
+      z-index: 400 !important;
+    }
+
+    .leaflet-marker-pane {
+      z-index: 600 !important;
+    }
+
+    .leaflet-tooltip-pane {
+      z-index: 650 !important;
+    }
+
+    .leaflet-popup-pane {
+      z-index: 700 !important;
+    }
+
+    .leaflet-top,
+    .leaflet-bottom {
+      z-index: 1000 !important;
+    }
+
+    // Ensure SVG/Canvas layers are visible
+    .leaflet-overlay-pane svg,
+    .leaflet-overlay-pane canvas {
+      position: absolute !important;
+    }
+  }
+}
+
 :host ::ng-deep {
   .leaflet-editing-icon {
     width: 8px !important;

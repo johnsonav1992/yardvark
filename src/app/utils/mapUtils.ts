@@ -106,25 +106,25 @@ export const createVertexMarkerIcon = ({
 }: VertexMarkerConfig): L.DivIcon => {
   let className = 'vertex-marker';
   let html = '';
-  let iconSize: [number, number] = isMobile ? [36, 36] : [14, 14];
-  let iconAnchor: [number, number] = isMobile ? [18, 18] : [7, 7];
+  let iconSize: [number, number] = isMobile ? [16, 16] : [14, 14];
+  let iconAnchor: [number, number] = isMobile ? [8, 8] : [7, 7];
 
   if (mode === 'move') {
     className = 'vertex-marker move-mode';
-    iconSize = isMobile ? [40, 40] : [16, 16];
-    iconAnchor = isMobile ? [20, 20] : [8, 8];
+    iconSize = isMobile ? [18, 18] : [16, 16];
+    iconAnchor = isMobile ? [9, 9] : [8, 8];
   } else if (mode === 'remove' && canRemove) {
     className = 'vertex-marker remove-mode';
     html = '<i class="ti ti-x"></i>';
-    iconSize = isMobile ? [44, 44] : [24, 24];
-    iconAnchor = isMobile ? [22, 22] : [12, 12];
+    iconSize = isMobile ? [22, 22] : [24, 24];
+    iconAnchor = isMobile ? [11, 11] : [12, 12];
   }
 
   return L.divIcon({ className, html, iconSize, iconAnchor });
 };
 
 export const createMidpointMarkerIcon = (isMobile: boolean): L.DivIcon => {
-  const size = isMobile ? 40 : 20;
+  const size = isMobile ? 18 : 20;
   const anchor = size / 2;
 
   return L.divIcon({

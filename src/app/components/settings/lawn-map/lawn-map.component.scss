@@ -552,29 +552,5 @@
     }
   }
 
-  @media (max-width: 767px) {
-    .vertex-marker {
-      border-width: 3px;
-
-      &.move-mode {
-        border-width: 3px;
-      }
-
-      &.remove-mode {
-        border-width: 3px;
-
-        i {
-          font-size: 22px;
-        }
-      }
-    }
-
-    .midpoint-marker {
-      border-width: 3px;
-
-      i {
-        font-size: 20px;
-      }
-    }
-  }
 }
+

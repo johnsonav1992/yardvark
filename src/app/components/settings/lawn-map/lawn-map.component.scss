@@ -457,6 +457,11 @@
   }
 }
 
+// Fix for iOS Safari where controls/layers disappear under tiles on scrollable pages
+:host ::ng-deep .leaflet-container {
+  overflow: auto !important;
+}
+
 :host ::ng-deep {
   .leaflet-editing-icon {
     width: 8px !important;

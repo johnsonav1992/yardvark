@@ -4,7 +4,11 @@
     <meta charset="utf-8" />
     <title>Yardvark</title>
     <base href="/" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <script>
+      // Disable Leaflet 3D transforms to fix mobile Safari rendering issues
+      window.L_DISABLE_3D = true;
+    </script>
     <link rel="icon" type="image/x-icon" href="favicon.png" />
     <link rel="manifest" href="manifest.webmanifest" id="app-manifest" />
     <meta name="theme-color" content="#64a40b" id="theme-color" />

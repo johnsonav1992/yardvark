@@ -10,15 +10,77 @@ import {
 import { Request, Response } from 'express';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
+import { randomUUID } from 'crypto';
+
+/**
+ * Wide Event Logging Interceptor
+ *
+ * Implements the "wide events" or "canonical log lines" pattern from loggingsucks.com
+ *
+ * Key principles:
+ * - One rich, structured log entry per request
+ * - Contains comprehensive context for debugging and analytics
+ * - Machine-readable JSON format for easy querying
+ * - Includes correlation IDs for distributed tracing
+ * - Captures business-relevant metadata alongside technical details
+ */
+
+interface WideEventLog {
+  // Correlation & Timing
+  timestamp: string;
+  traceId: string;
+  requestId: string;
+  durationMs: number;
+
+  // HTTP Context
+  method: string;
+  url: string;
+  path: string;
+  statusCode: number;
+  statusCategory: 'success' | 'redirect' | 'client_error' | 'server_error';
+
+  // User Context
+  user: {
+    id: string | null;
+    email: string | null;
+    name: string | null;
+  };
+
+  // Request Details
+  userAgent?: string;
+  ip?: string;
+  query?: Record<string, unknown>;
+  params?: Record<string, unknown>;
+
+  // Response & Error Context
+  success: boolean;
+  error?: {
+    message: string;
+    type: string;
+    code?: string;
+  };
+
+  // Business Context
+  eventType: 'http_request';
+  environment: string;
+}
 
 @Injectable({ scope: Scope.REQUEST })
 export class LoggingInterceptor implements NestInterceptor {
-  private logger = new Logger('HTTP');
+  private logger = new Logger('WideEvents');
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const httpContext = context.switchToHttp();
     const request = httpContext.getRequest<Request>();
     const response = httpContext.getResponse<Response>();
+
+    // Generate correlation IDs for tracking
+    const traceId = this.getOrCreateTraceId(request);
+    const requestId = randomUUID();
+
+    // Attach IDs to request for downstream use
+    (request as any).traceId = traceId;
+    (request as any).requestId = requestId;
 
     const start = Date.now();
 
@@ -27,65 +89,130 @@ export class LoggingInterceptor implements NestInterceptor {
         const duration = Date.now() - start;
         const statusCode = response.statusCode;
 
-        this.logSuccess({ statusCode, duration, request });
+        this.logWideEvent({
+          request,
+          statusCode,
+          duration,
+          traceId,
+          requestId,
+          success: true,
+        });
       }),
       catchError((error: unknown) => {
         const duration = Date.now() - start;
         const statusCode = this.getErrorStatusCode(response, error);
 
-        this.logError({ statusCode, duration, request, error });
+        this.logWideEvent({
+          request,
+          statusCode,
+          duration,
+          traceId,
+          requestId,
+          success: false,
+          error,
+        });
 
         return throwError(() => error);
       }),
     );
   }
 
-  private logSuccess(params: {
+  /**
+   * Emit a single, rich structured log event with all relevant context
+   */
+  private logWideEvent(params: {
     request: Request;
     statusCode: number;
     duration: number;
+    traceId: string;
+    requestId: string;
+    success: boolean;
+    error?: unknown;
   }): void {
-    const statusEmoji = this.getStatusEmoji(params.statusCode);
-    const userName = params.request.user?.name || 'Unknown';
+    const {
+      request,
+      statusCode,
+      duration,
+      traceId,
+      requestId,
+      success,
+      error,
+    } = params;
 
-    let logMessage =
-      `${statusEmoji} ` +
-      `[${params.request.method}] ` +
-      `${params.request.url} ` +
-      `${params.statusCode} - ${params.duration}ms ` +
-      `- 👤 ${userName}`;
+    // Build the wide event with comprehensive context
+    const wideEvent: WideEventLog = {
+      // Correlation & Timing
+      timestamp: new Date().toISOString(),
+      traceId,
+      requestId,
+      durationMs: duration,
 
-    if (this.hasBody(params.request.body))
-      logMessage += `\n📦 Body: ${JSON.stringify(params.request.body, null, 2)}`;
+      // HTTP Context
+      method: request.method,
+      url: request.url,
+      path: request.path,
+      statusCode,
+      statusCategory: this.getStatusCategory(statusCode),
 
-    this.logger.log(logMessage);
+      // User Context (sanitized)
+      user: {
+        id: request.user?.userId || null,
+        email: request.user?.email || null,
+        name: request.user?.name || null,
+      },
+
+      // Request Details (sanitized)
+      userAgent: request.headers['user-agent'],
+      ip: this.getClientIp(request),
+      query: Object.keys(request.query).length > 0 ? request.query : undefined,
+      params:
+        Object.keys(request.params).length > 0 ? request.params : undefined,
+
+      // Response & Error Context
+      success,
+      error: error ? this.sanitizeError(error) : undefined,
+
+      // Business Context
+      eventType: 'http_request',
+      environment: process.env.NODE_ENV || 'development',
+    };
+
+    // Emit structured log
+    const logMethod = success ? 'log' : 'error';
+    const emoji = this.getStatusEmoji(statusCode);
+
+    // Human-readable summary + machine-readable JSON
+    const summary = `${emoji} ${request.method} ${request.path} ${statusCode} ${duration}ms [${request.user?.name || 'anonymous'}]`;
+
+    this.logger[logMethod](`${summary}\n${JSON.stringify(wideEvent, null, 2)}`);
   }
 
-  private logError(params: {
-    request: Request;
-    statusCode: number;
-    duration: number;
-    error: unknown;
-  }): void {
-    const { errorMessage, stack } = this.extractErrorDetails(params.error);
-    const statusEmoji = this.getStatusEmoji(params.statusCode);
-    const userName = params.request.user?.name || 'Unknown';
+  private getOrCreateTraceId(request: Request): string {
+    // Check for existing trace ID from headers (e.g., from API gateway or load balancer)
+    const existingTraceId =
+      request.headers['x-trace-id'] ||
+      request.headers['x-request-id'] ||
+      request.headers['x-correlation-id'];
 
-    let errorLog =
-      `${statusEmoji} ` +
-      `[${params.request.method}] ` +
-      `${params.request.url} ` +
-      `${params.statusCode} - ${params.duration}ms ` +
-      `- 👤 ${userName}\n`;
+    return (existingTraceId as string) || randomUUID();
+  }
 
-    if (this.hasBody(params.request.body))
-      errorLog += `📦 Body: ${JSON.stringify(params.request.body, null, 2)}\n`;
+  private getClientIp(request: Request): string | undefined {
+    // Handle various proxy scenarios
+    const forwarded = request.headers['x-forwarded-for'];
+    if (forwarded) {
+      return (forwarded as string).split(',')[0].trim();
+    }
+    return request.ip || request.socket.remoteAddress;
+  }
 
-    errorLog += `🚫 Error Message: ${errorMessage}\n`;
-
-    if (stack) errorLog += `🔍 Stack Trace:\n${stack}`;
-
-    this.logger.error(errorLog);
+  private getStatusCategory(
+    statusCode: number,
+  ): WideEventLog['statusCategory'] {
+    if (statusCode >= 500) return 'server_error';
+    if (statusCode >= 400) return 'client_error';
+    if (statusCode >= 300) return 'redirect';
+    return 'success';
   }
 
   private getStatusEmoji(statusCode: number): string {
@@ -93,10 +220,6 @@ export class LoggingInterceptor implements NestInterceptor {
     if (statusCode >= 400) return '⚠️';
     if (statusCode >= 300) return '↪️';
     return '✅';
-  }
-
-  private hasBody(body: unknown): boolean {
-    return !!body && Object.keys(body as object).length > 0;
   }
 
   private getErrorStatusCode(
@@ -109,20 +232,26 @@ export class LoggingInterceptor implements NestInterceptor {
     );
   }
 
-  private extractErrorDetails(err: unknown): {
-    errorMessage: string;
-    stack: string;
-  } {
-    let errorMessage = 'Unknown error';
-    let stack = '';
+  /**
+   * Sanitize error information to avoid leaking sensitive internal details
+   * Only expose what's necessary for debugging
+   */
+  private sanitizeError(err: unknown): WideEventLog['error'] {
+    let message = 'Unknown error';
+    let type = 'Error';
+    let code: string | undefined;
 
-    if (err instanceof Error) {
-      errorMessage = err.message;
-      stack = err.stack ?? '';
+    if (err instanceof HttpException) {
+      message = err.message;
+      type = err.constructor.name;
+      code = String(err.getStatus());
+    } else if (err instanceof Error) {
+      message = err.message;
+      type = err.constructor.name;
     } else if (typeof err === 'string') {
-      errorMessage = err;
+      message = err;
     }
 
-    return { errorMessage, stack };
+    return { message, type, code };
   }
 }

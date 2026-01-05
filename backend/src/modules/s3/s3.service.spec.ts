@@ -84,7 +84,9 @@ describe('S3Service', () => {
     it('should upload a file successfully and return URL', async () => {
       const result = await service.uploadFile(mockFile, 'user-123');
 
-      expect(result).toContain('https://test-bucket.s3.us-east-1.amazonaws.com/');
+      expect(result).toContain(
+        'https://test-bucket.s3.us-east-1.amazonaws.com/',
+      );
       expect(result).toContain('user-123');
       expect(result).toContain('test-image.jpg');
     });
@@ -134,7 +136,9 @@ describe('S3Service', () => {
 
       const result = await service.uploadFile(fileWithSpaces, 'user-123');
 
-      expect(result).toContain(encodeURIComponent('test image with spaces.jpg'));
+      expect(result).toContain(
+        encodeURIComponent('test image with spaces.jpg'),
+      );
     });
 
     it('should handle special characters in filename', async () => {
@@ -229,9 +233,9 @@ describe('S3Service', () => {
         .mockRejectedValueOnce(new Error('Upload failed'))
         .mockResolvedValueOnce({});
 
-      await expect(
-        service.uploadFiles(mockFiles, 'user-123'),
-      ).rejects.toThrow('Upload failed');
+      await expect(service.uploadFiles(mockFiles, 'user-123')).rejects.toThrow(
+        'Upload failed',
+      );
     });
   });
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Yardvark's backend implements the **"Wide Events"** or **"Canonical Log Lines"** logging pattern, as advocated by [loggingsucks.com](https://loggingsucks.com/). This modern approach to logging emits **one rich, structured log entry per request** instead of multiple fragmented log messages.
+Yardvark's backend implements the **"Wide Events"** or **"Canonical Log Lines"** logging pattern, as advocated by [loggingsucks.com](https://loggingsucks.com/). This modern approach to logging emits **one rich, structured log entry per request** that accumulates comprehensive telemetry throughout the request lifecycle.
 
 ## Why Wide Events?
 
@@ -11,12 +11,15 @@ Traditional logging practices produce fragmented diary-style logs that are:
 - ❌ Missing vital context when debugging
 - ❌ Difficult to analyze and query
 - ❌ Optimized for writing, not reading
+- ❌ Don't capture application-level telemetry (DB calls, cache, etc.)
 
 Wide events solve these problems by:
 - ✅ Emitting a single structured log with ALL relevant context
 - ✅ Including correlation IDs for distributed tracing
 - ✅ Using machine-readable JSON format
 - ✅ Capturing business-relevant metadata alongside technical details
+- ✅ Accumulating application telemetry (database, cache, external APIs)
+- ✅ Including response data (sanitized) for complete request picture
 - ✅ Sanitizing sensitive data to prevent security leaks
 
 ## Log Structure
@@ -51,23 +54,56 @@ interface WideEventLog {
   query?: Record<string, unknown>; // Query parameters
   params?: Record<string, unknown>; // URL parameters
   
+  // Response Context
+  response?: {
+    body?: unknown;              // Response body (sanitized, truncated if large)
+    contentType?: string;        // Response content type
+    size?: number;               // Response size in bytes
+  };
+  
   // Response & Error Context
   success: boolean;              // Whether request succeeded
   error?: {                      // Only present on errors
     message: string;             // Sanitized error message
     type: string;                // Error type/class
     code?: string;               // Error code (if applicable)
+    stack?: string;              // Stack trace (non-production only)
   };
   
-  // Business Context
-  eventType: 'http_request';     // Type of event (always http_request for now)
+  // Application Telemetry (accumulated during request)
+  database?: {
+    numCalls: number;            // Total database queries
+    numFailures: number;         // Failed queries
+    totalDurationMs?: number;    // Total time spent in DB
+    slowestQueryMs?: number;     // Slowest query duration
+  };
+  
+  cache?: {
+    hits: number;                // Cache hits
+    misses: number;              // Cache misses
+  };
+  
+  externalCalls?: Array<{        // External API calls
+    service: string;             // Service name
+    durationMs: number;          // Call duration
+    success: boolean;            // Whether call succeeded
+    statusCode?: number;         // HTTP status code
+  }>;
+  
+  business?: Record<string, unknown>;     // Business/domain context
+  featureFlags?: Record<string, boolean>; // Feature flags in use
+  metadata?: Record<string, unknown>;     // Custom metadata
+  
+  // Infrastructure Context
+  eventType: 'http_request';     // Type of event
   environment: string;           // Runtime environment
+  service: string;               // Service name
 }
 ```
 
 ## Example Logs
 
-### Successful Request
+### Successful Request with Full Telemetry
 ```
 ✅ POST /entries 201 145ms [John Gardener]
 {
@@ -85,9 +121,33 @@ interface WideEventLog {
     "email": "john@example.com",
     "name": "John Gardener"
   },
+  "response": {
+    "body": {
+      "id": "entry-789",
+      "activity": "mowing",
+      "success": true
+    },
+    "contentType": "application/json",
+    "size": 145
+  },
+  "database": {
+    "numCalls": 3,
+    "numFailures": 0,
+    "totalDurationMs": 67,
+    "slowestQueryMs": 34
+  },
+  "cache": {
+    "hits": 2,
+    "misses": 1
+  },
+  "business": {
+    "lawnSegmentId": "segment-456",
+    "activityType": "maintenance"
+  },
   "success": true,
   "eventType": "http_request",
-  "environment": "production"
+  "environment": "production",
+  "service": "yardvark-api"
 }
 ```
 
@@ -136,12 +196,16 @@ For quick visual identification in logs:
 
 ## Security
 
-The logger sanitizes error information to prevent leaking sensitive internal details:
-- Stack traces are NOT included in log output
-- Only error message, type, and code are logged
-- Sensitive data in error messages should be avoided at the source
+The logger sanitizes error information and response bodies to prevent leaking sensitive internal details:
+- **Stack traces**: Only included in non-production environments
+- **Response bodies**: Truncated if large, sensitive fields redacted
+- **Sensitive field detection**: Automatic redaction of fields containing password, token, secret, apiKey, creditCard, ssn
+- **Error sanitization**: Only error message, type, and code are logged
+- **Sensitive data**: Should be avoided at the source
 
 ## Implementation
+
+### Basic Setup
 
 The `LoggingInterceptor` is automatically applied to all HTTP requests via NestJS interceptor pattern. No code changes are needed in individual controllers.
 
@@ -149,6 +213,63 @@ The `LoggingInterceptor` is automatically applied to all HTTP requests via NestJ
 // Automatically configured in main.ts
 app.useGlobalInterceptors(new LoggingInterceptor());
 ```
+
+### Enriching Wide Event Context
+
+Services can enrich the wide event with application telemetry using the `WideEventHelpers`:
+
+```typescript
+import { WideEventHelpers } from 'src/logger/wide-event.helpers';
+
+// In your service
+@Injectable()
+export class EntriesService {
+  async createEntry(userId: string, data: EntryData, request: Request) {
+    // Add business context
+    WideEventHelpers.addBusinessContext(request, 'activityType', data.activity);
+    
+    // Database operation with automatic telemetry
+    const entry = await WideEventHelpers.withDatabaseTelemetry(
+      request,
+      () => this.repository.save(data)
+    );
+    
+    // Record cache operations
+    const cached = await this.cache.get(key);
+    if (cached) {
+      WideEventHelpers.recordCacheHit(request);
+    } else {
+      WideEventHelpers.recordCacheMiss(request);
+    }
+    
+    // External API call with telemetry
+    await WideEventHelpers.withExternalCallTelemetry(
+      request,
+      'weather-api',
+      () => this.weatherService.getForecast(location)
+    );
+    
+    // Feature flags
+    if (this.featureService.isEnabled('new-entry-flow')) {
+      WideEventHelpers.recordFeatureFlag(request, 'new-entry-flow', true);
+    }
+    
+    return entry;
+  }
+}
+```
+
+### Available Helper Methods
+
+- `recordDatabaseCall(request, durationMs, failed)` - Track database queries
+- `recordCacheHit(request)` - Record cache hit
+- `recordCacheMiss(request)` - Record cache miss
+- `recordExternalCall(request, service, durationMs, success, statusCode)` - Track external API calls
+- `addBusinessContext(request, key, value)` - Add domain-specific data
+- `recordFeatureFlag(request, flagName, enabled)` - Track feature flag usage
+- `addMetadata(request, key, value)` - Add custom metadata
+- `withDatabaseTelemetry(request, operation)` - Wrap DB operation with auto-telemetry
+- `withExternalCallTelemetry(request, serviceName, operation)` - Wrap API call with auto-telemetry
 
 ## Querying Logs
 

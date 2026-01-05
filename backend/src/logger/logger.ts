@@ -130,14 +130,26 @@ const MAX_RESPONSE_BODY_SIZE = parseInt(
 const TAIL_SAMPLING_ENABLED = 
   process.env.LOG_TAIL_SAMPLING_ENABLED !== 'false'; // Default enabled
 
-const TAIL_SAMPLING_SUCCESS_RATE = parseFloat(
-  process.env.LOG_TAIL_SAMPLING_SUCCESS_RATE || '0.1',
-); // Default 10% of successful requests
+const TAIL_SAMPLING_SUCCESS_RATE = (() => {
+  const rate = parseFloat(process.env.LOG_TAIL_SAMPLING_SUCCESS_RATE || '0.1');
+  // Validate: must be between 0 and 1
+  if (isNaN(rate) || rate < 0 || rate > 1) {
+    return 0.1; // Default 10%
+  }
+  return rate;
+})();
 
-const TAIL_SAMPLING_SLOW_THRESHOLD_MS = parseInt(
-  process.env.LOG_TAIL_SAMPLING_SLOW_THRESHOLD_MS || '1000',
-  10,
-); // Default 1000ms (1 second)
+const TAIL_SAMPLING_SLOW_THRESHOLD_MS = (() => {
+  const threshold = parseInt(
+    process.env.LOG_TAIL_SAMPLING_SLOW_THRESHOLD_MS || '1000',
+    10,
+  );
+  // Validate: must be a positive number
+  if (isNaN(threshold) || threshold < 0) {
+    return 1000; // Default 1000ms (1 second)
+  }
+  return threshold;
+})();
 
 @Injectable({ scope: Scope.REQUEST })
 export class LoggingInterceptor implements NestInterceptor {

@@ -1,6 +1,17 @@
 import { Request } from 'express';
 import { WideEventContext } from './logger';
 
+// Extend Express Request type to include wide event context
+declare global {
+  namespace Express {
+    interface Request {
+      traceId?: string;
+      requestId?: string;
+      wideEventContext?: WideEventContext;
+    }
+  }
+}
+
 /**
  * Helper utilities for enriching wide event context during request processing
  *
@@ -30,7 +41,7 @@ export class WideEventHelpers {
    * Get the wide event context from the request
    */
   private static getContext(request: Request): WideEventContext | undefined {
-    return (request as any).wideEventContext;
+    return request.wideEventContext;
   }
 
   /**
@@ -182,13 +193,17 @@ export class WideEventHelpers {
         200,
       );
       return result;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const statusCode = 
+        error && typeof error === 'object' && 'response' in error
+          ? (error.response as any)?.status || 500
+          : 500;
       this.recordExternalCall(
         request,
         serviceName,
         Date.now() - start,
         false,
-        error?.response?.status || 500,
+        statusCode,
       );
       throw error;
     }

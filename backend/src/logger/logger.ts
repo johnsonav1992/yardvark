@@ -120,6 +120,12 @@ interface WideEventLog {
   service: string;
 }
 
+// Configuration constants
+const MAX_RESPONSE_BODY_SIZE = parseInt(
+  process.env.LOG_MAX_RESPONSE_BODY_SIZE || '10000',
+  10,
+); // Default 10KB
+
 @Injectable({ scope: Scope.REQUEST })
 export class LoggingInterceptor implements NestInterceptor {
   private logger = new Logger('WideEvents');
@@ -141,9 +147,9 @@ export class LoggingInterceptor implements NestInterceptor {
     };
 
     // Attach IDs and context to request for downstream use
-    (request as any).traceId = traceId;
-    (request as any).requestId = requestId;
-    (request as any).wideEventContext = wideEventContext;
+    request.traceId = traceId;
+    request.requestId = requestId;
+    request.wideEventContext = wideEventContext;
 
     const start = Date.now();
     let responseBody: unknown;
@@ -372,13 +378,11 @@ export class LoggingInterceptor implements NestInterceptor {
     const contentType = response.getHeader('content-type') as string;
     const contentLength = response.getHeader('content-length');
 
-    // Don't log large responses
-    const MAX_BODY_SIZE = 10000; // 10KB
     let sanitizedBody: unknown;
 
     try {
       const bodyStr = JSON.stringify(body);
-      if (bodyStr.length > MAX_BODY_SIZE) {
+      if (bodyStr.length > MAX_RESPONSE_BODY_SIZE) {
         sanitizedBody = { _truncated: true, _size: bodyStr.length };
       } else {
         // For arrays, just include count and first few items
@@ -418,19 +422,21 @@ export class LoggingInterceptor implements NestInterceptor {
   /**
    * Recursively redact sensitive fields from an object
    */
-  private redactSensitiveFields(
-    obj: any,
+  private redactSensitiveFields<T>(
+    obj: T,
     sensitiveFields: string[],
-  ): unknown {
+  ): T {
     if (typeof obj !== 'object' || obj === null) {
       return obj;
     }
 
     if (Array.isArray(obj)) {
-      return obj.map((item) => this.redactSensitiveFields(item, sensitiveFields));
+      return obj.map((item) => 
+        this.redactSensitiveFields(item, sensitiveFields)
+      ) as T;
     }
 
-    const result: any = {};
+    const result: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(obj)) {
       const lowerKey = key.toLowerCase();
       if (sensitiveFields.some((field) => lowerKey.includes(field.toLowerCase()))) {
@@ -441,7 +447,7 @@ export class LoggingInterceptor implements NestInterceptor {
         result[key] = value;
       }
     }
-    return result;
+    return result as T;
   }
 
   /**

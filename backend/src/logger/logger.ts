@@ -126,6 +126,19 @@ const MAX_RESPONSE_BODY_SIZE = parseInt(
   10,
 ); // Default 10KB
 
+// Tail sampling configuration
+const TAIL_SAMPLING_ENABLED = 
+  process.env.LOG_TAIL_SAMPLING_ENABLED !== 'false'; // Default enabled
+
+const TAIL_SAMPLING_SUCCESS_RATE = parseFloat(
+  process.env.LOG_TAIL_SAMPLING_SUCCESS_RATE || '0.1',
+); // Default 10% of successful requests
+
+const TAIL_SAMPLING_SLOW_THRESHOLD_MS = parseInt(
+  process.env.LOG_TAIL_SAMPLING_SLOW_THRESHOLD_MS || '1000',
+  10,
+); // Default 1000ms (1 second)
+
 @Injectable({ scope: Scope.REQUEST })
 export class LoggingInterceptor implements NestInterceptor {
   private logger = new Logger('WideEvents');
@@ -162,22 +175,26 @@ export class LoggingInterceptor implements NestInterceptor {
         // Capture response body for logging (will be sanitized)
         responseBody = body;
 
-        this.logWideEvent({
-          request,
-          response,
-          responseBody,
-          statusCode,
-          duration,
-          traceId,
-          requestId,
-          success: true,
-          wideEventContext,
-        });
+        // Tail sampling decision for successful requests
+        if (this.shouldLogRequest(statusCode, duration, true)) {
+          this.logWideEvent({
+            request,
+            response,
+            responseBody,
+            statusCode,
+            duration,
+            traceId,
+            requestId,
+            success: true,
+            wideEventContext,
+          });
+        }
       }),
       catchError((error: unknown) => {
         const duration = Date.now() - start;
         const statusCode = this.getErrorStatusCode(response, error);
 
+        // Always log errors (no sampling)
         this.logWideEvent({
           request,
           response,
@@ -194,6 +211,40 @@ export class LoggingInterceptor implements NestInterceptor {
         return throwError(() => error);
       }),
     );
+  }
+
+  /**
+   * Tail sampling: Decide whether to log this request
+   * 
+   * Always log:
+   * - Errors (4xx, 5xx)
+   * - Slow requests (above threshold)
+   * 
+   * Sample:
+   * - Fast, successful requests (configurable rate)
+   */
+  private shouldLogRequest(
+    statusCode: number,
+    durationMs: number,
+    success: boolean,
+  ): boolean {
+    // If tail sampling is disabled, always log
+    if (!TAIL_SAMPLING_ENABLED) {
+      return true;
+    }
+
+    // Always log errors
+    if (!success || statusCode >= 400) {
+      return true;
+    }
+
+    // Always log slow requests
+    if (durationMs >= TAIL_SAMPLING_SLOW_THRESHOLD_MS) {
+      return true;
+    }
+
+    // Sample successful, fast requests
+    return Math.random() < TAIL_SAMPLING_SUCCESS_RATE;
   }
 
   /**

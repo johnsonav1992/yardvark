@@ -203,6 +203,67 @@ The logger sanitizes error information and response bodies to prevent leaking se
 - **Error sanitization**: Only error message, type, and code are logged
 - **Sensitive data**: Should be avoided at the source
 
+## Tail Sampling
+
+To manage log volume at scale while maintaining high observability value, the logger implements **tail sampling**:
+
+### What is Tail Sampling?
+
+Tail sampling is an intelligent filtering technique that:
+- **Always logs** important events (errors, slow requests)
+- **Samples** routine successful requests to reduce volume
+
+This ensures you capture all critical information while keeping log costs manageable.
+
+### Sampling Rules
+
+The logger applies these rules by default:
+
+1. **Always log** (100%):
+   - ❌ Errors (4xx, 5xx status codes)
+   - 🐌 Slow requests (> 1000ms by default)
+   - 🚨 Any request that throws an exception
+
+2. **Sample** (10% by default):
+   - ✅ Fast, successful requests (2xx, 3xx)
+
+### Configuration
+
+Control tail sampling via environment variables:
+
+```bash
+# Enable/disable tail sampling (default: enabled)
+LOG_TAIL_SAMPLING_ENABLED=true
+
+# Sample rate for successful requests (default: 0.1 = 10%)
+LOG_TAIL_SAMPLING_SUCCESS_RATE=0.1
+
+# Threshold for "slow" requests in milliseconds (default: 1000)
+LOG_TAIL_SAMPLING_SLOW_THRESHOLD_MS=1000
+```
+
+### Examples
+
+```bash
+# Log all requests (disable sampling) - useful for development
+LOG_TAIL_SAMPLING_ENABLED=false
+
+# Sample only 1% of successful requests - for high-traffic production
+LOG_TAIL_SAMPLING_SUCCESS_RATE=0.01
+
+# Lower threshold for slow requests to 500ms
+LOG_TAIL_SAMPLING_SLOW_THRESHOLD_MS=500
+```
+
+### Why Tail Sampling?
+
+- **Cost reduction**: Logs less routine data while keeping full error/anomaly visibility
+- **Signal over noise**: Focus on actionable events
+- **Statistical fidelity**: 10% sample maintains statistical validity for metrics
+- **Scalability**: Enables canonical logs even at high request volumes
+
+**Note**: Even when sampled out, the request still processes normally - only the log emission is skipped.
+
 ## Implementation
 
 ### Basic Setup

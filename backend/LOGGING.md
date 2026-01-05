@@ -178,6 +178,7 @@ logs.filter(log => log.statusCategory === 'server_error')
 
 ## References
 
-- [Logging Sucks - Your Logs Are Lying To You](https://loggingsucks.com/)
-- [Wide Events Pattern](https://www.honeycomb.io/blog/engineers-checklist-logging-best-practices)
-- [Structured Logging Best Practices](https://betterstack.com/community/guides/logging/logging-best-practices/)
+- [Logging Sucks - Your Logs Are Lying To You](https://loggingsucks.com/) - Original article advocating for wide events
+- [Wide Events Logging Best Practices - Honeycomb](https://www.honeycomb.io/blog/engineers-checklist-logging-best-practices) - Engineering guide to structured logging
+- [Structured Logging Best Practices - Better Stack](https://betterstack.com/community/guides/logging/logging-best-practices/) - Comprehensive guide to modern logging
+- [Observability Engineering - O'Reilly](https://www.oreilly.com/library/view/observability-engineering/9781492076438/) - Deep dive into observability patterns

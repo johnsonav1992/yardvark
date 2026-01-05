@@ -16,7 +16,8 @@ describe('LoggingInterceptor - Wide Events', () => {
       providers: [LoggingInterceptor],
     }).compile();
 
-    // Use resolve() for REQUEST-scoped providers
+    // Use resolve() for REQUEST-scoped providers instead of get()
+    // REQUEST-scoped providers need to be instantiated per request context
     interceptor = await module.resolve<LoggingInterceptor>(LoggingInterceptor);
 
     mockRequest = {
@@ -63,7 +64,7 @@ describe('LoggingInterceptor - Wide Events', () => {
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
           expect(logSpy).toHaveBeenCalled();
-          const logCall = logSpy.mock.calls[0][0];
+          const logCall = logSpy.mock.calls[0][0] as string;
 
           // Should contain human-readable summary
           expect(logCall).toContain('✅');
@@ -87,11 +88,11 @@ describe('LoggingInterceptor - Wide Events', () => {
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logCall = logSpy.mock.calls[0][0];
+          const logCall = logSpy.mock.calls[0][0] as string;
           const jsonMatch = logCall.match(/\{[\s\S]*\}/);
 
           expect(jsonMatch).toBeTruthy();
-          const logData = JSON.parse(jsonMatch![0]);
+          const logData = JSON.parse(jsonMatch![0]) as any;
 
           expect(logData.traceId).toBeDefined();
           expect(logData.requestId).toBeDefined();
@@ -108,9 +109,9 @@ describe('LoggingInterceptor - Wide Events', () => {
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logCall = logSpy.mock.calls[0][0];
+          const logCall = logSpy.mock.calls[0][0] as string;
           const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]);
+          const logData = JSON.parse(jsonMatch![0]) as any;
 
           expect(logData.method).toBe('GET');
           expect(logData.url).toBe('/test?query=value');
@@ -129,9 +130,9 @@ describe('LoggingInterceptor - Wide Events', () => {
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logCall = logSpy.mock.calls[0][0];
+          const logCall = logSpy.mock.calls[0][0] as string;
           const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]);
+          const logData = JSON.parse(jsonMatch![0]) as any;
 
           expect(logData.user).toEqual({
             id: 'user-123',
@@ -150,9 +151,9 @@ describe('LoggingInterceptor - Wide Events', () => {
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logCall = logSpy.mock.calls[0][0];
+          const logCall = logSpy.mock.calls[0][0] as string;
           const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]);
+          const logData = JSON.parse(jsonMatch![0]) as any;
 
           expect(logData.user).toEqual({
             id: null,
@@ -171,9 +172,9 @@ describe('LoggingInterceptor - Wide Events', () => {
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logCall = logSpy.mock.calls[0][0];
+          const logCall = logSpy.mock.calls[0][0] as string;
           const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]);
+          const logData = JSON.parse(jsonMatch![0]) as any;
 
           expect(logData.query).toEqual({ query: 'value' });
           expect(logData.params).toEqual({ id: '123' });
@@ -190,9 +191,9 @@ describe('LoggingInterceptor - Wide Events', () => {
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logCall = logSpy.mock.calls[0][0];
+          const logCall = logSpy.mock.calls[0][0] as string;
           const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]);
+          const logData = JSON.parse(jsonMatch![0]) as any;
 
           expect(logData.durationMs).toBeDefined();
           expect(typeof logData.durationMs).toBe('number');
@@ -219,7 +220,7 @@ describe('LoggingInterceptor - Wide Events', () => {
           expect(errorSpy).toHaveBeenCalled();
           const logCall = errorSpy.mock.calls[0][0] as string;
           const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]);
+          const logData = JSON.parse(jsonMatch![0]) as any;
 
           expect(logData.success).toBe(false);
           expect(logData.error).toBeDefined();
@@ -246,7 +247,7 @@ describe('LoggingInterceptor - Wide Events', () => {
         error: () => {
           const logCall = errorSpy.mock.calls[0][0] as string;
           const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]);
+          const logData = JSON.parse(jsonMatch![0]) as any;
 
           // Should have error info but sanitized (no stack trace in public log)
           expect(logData.error).toBeDefined();
@@ -270,9 +271,9 @@ describe('LoggingInterceptor - Wide Events', () => {
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logCall = logSpy.mock.calls[0][0];
+          const logCall = logSpy.mock.calls[0][0] as string;
           const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]);
+          const logData = JSON.parse(jsonMatch![0]) as any;
 
           expect(logData.traceId).toBe('existing-trace-123');
 
@@ -286,9 +287,9 @@ describe('LoggingInterceptor - Wide Events', () => {
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logCall = logSpy.mock.calls[0][0];
+          const logCall = logSpy.mock.calls[0][0] as string;
           const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]);
+          const logData = JSON.parse(jsonMatch![0]) as any;
 
           expect(logData.traceId).toBeDefined();
           expect(typeof logData.traceId).toBe('string');
@@ -309,7 +310,7 @@ describe('LoggingInterceptor - Wide Events', () => {
         complete: () => {
           const logCall = logSpy.mock.calls[0][0] as string;
           const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]);
+          const logData = JSON.parse(jsonMatch![0]) as any;
 
           expect(logData.statusCategory).toBe('success');
           expect(logCall).toContain('✅');
@@ -327,7 +328,7 @@ describe('LoggingInterceptor - Wide Events', () => {
         complete: () => {
           const logCall = logSpy.mock.calls[0][0] as string;
           const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]);
+          const logData = JSON.parse(jsonMatch![0]) as any;
 
           expect(logData.statusCategory).toBe('redirect');
           expect(logCall).toContain('↪️');

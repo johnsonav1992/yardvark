@@ -180,11 +180,33 @@ export class LoggingInterceptor implements NestInterceptor {
     // Emit structured log
     const logMethod = success ? 'log' : 'error';
     const emoji = this.getStatusEmoji(statusCode);
+    const userName = request.user?.name || 'anonymous';
 
     // Human-readable summary + machine-readable JSON
-    const summary = `${emoji} ${request.method} ${request.path} ${statusCode} ${duration}ms [${request.user?.name || 'anonymous'}]`;
+    const summary = this.formatLogSummary(
+      emoji,
+      request.method,
+      request.path,
+      statusCode,
+      duration,
+      userName,
+    );
 
     this.logger[logMethod](`${summary}\n${JSON.stringify(wideEvent, null, 2)}`);
+  }
+
+  /**
+   * Format a human-readable log summary line
+   */
+  private formatLogSummary(
+    emoji: string,
+    method: string,
+    path: string,
+    statusCode: number,
+    durationMs: number,
+    userName: string,
+  ): string {
+    return `${emoji} ${method} ${path} ${statusCode} ${durationMs}ms [${userName}]`;
   }
 
   private getOrCreateTraceId(request: Request): string {

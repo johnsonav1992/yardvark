@@ -56,10 +56,12 @@ export class LawnMapComponent implements OnDestroy {
 
   private _vertexMarkers = signal<L.Marker[]>([]);
   private _midpointMarkers = signal<L.Marker[]>([]);
+
   public hasAnySegments = computed(() => {
     const segments = this.lawnSegments();
     return segments && segments.length > 0;
   });
+
   public showEmptyOverlay = computed(
     () =>
       !this.hasAnySegments() &&
@@ -123,6 +125,7 @@ export class LawnMapComponent implements OnDestroy {
     untracked(() => {
       if (this._drawingEnabled()) {
         map.pm.disableDraw();
+
         this._drawingEnabled.set(false);
       }
 
@@ -215,6 +218,7 @@ export class LawnMapComponent implements OnDestroy {
     const originalCoords = this._originalCoordinates();
     if (targetSegment?.id && originalCoords) {
       const layer = this._segmentLayers().get(targetSegment.id);
+
       if (layer) {
         (layer as L.Polygon).setLatLngs([originalCoords]);
       }
@@ -455,8 +459,8 @@ export class LawnMapComponent implements OnDestroy {
     if (!layer) return;
 
     const polygon = layer as L.Polygon;
-    const originalLatLngs = (polygon.getLatLngs()[0] as L.LatLng[]).map(
-      (ll) => L.latLng(ll.lat, ll.lng)
+    const originalLatLngs = (polygon.getLatLngs()[0] as L.LatLng[]).map((ll) =>
+      L.latLng(ll.lat, ll.lng)
     );
     this._originalCoordinates.set(originalLatLngs);
 

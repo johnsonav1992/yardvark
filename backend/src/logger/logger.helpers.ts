@@ -1,52 +1,22 @@
 import { Request } from 'express';
-import { WideEventContext } from './logger';
+import { LogContext } from './logger.types';
 
-// Extend Express Request type to include wide event context
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
       traceId?: string;
       requestId?: string;
-      wideEventContext?: WideEventContext;
+      logContext?: LogContext;
     }
   }
 }
 
-/**
- * Helper utilities for enriching wide event context during request processing
- *
- * Services and controllers can use these to add telemetry to the canonical log line
- * that will be emitted at the end of the request.
- *
- * Example usage in a service:
- *
- * ```typescript
- * import { WideEventHelpers } from 'src/logger/wide-event.helpers';
- *
- * async getUserData(userId: string, request: Request) {
- *   const start = Date.now();
- *   try {
- *     const result = await this.repository.find({ userId });
- *     WideEventHelpers.recordDatabaseCall(request, Date.now() - start, false);
- *     return result;
- *   } catch (error) {
- *     WideEventHelpers.recordDatabaseCall(request, Date.now() - start, true);
- *     throw error;
- *   }
- * }
- * ```
- */
-export class WideEventHelpers {
-  /**
-   * Get the wide event context from the request
-   */
-  private static getContext(request: Request): WideEventContext | undefined {
-    return request.wideEventContext;
+export class LogHelpers {
+  private static getContext(request: Request): LogContext | undefined {
+    return request.logContext;
   }
 
-  /**
-   * Record a database call for telemetry
-   */
   static recordDatabaseCall(
     request: Request,
     durationMs: number,
@@ -70,27 +40,18 @@ export class WideEventHelpers {
     }
   }
 
-  /**
-   * Record a cache hit
-   */
   static recordCacheHit(request: Request): void {
     const context = this.getContext(request);
     if (!context?.cache) return;
     context.cache.hits++;
   }
 
-  /**
-   * Record a cache miss
-   */
   static recordCacheMiss(request: Request): void {
     const context = this.getContext(request);
     if (!context?.cache) return;
     context.cache.misses++;
   }
 
-  /**
-   * Record an external API call
-   */
   static recordExternalCall(
     request: Request,
     service: string,
@@ -109,9 +70,6 @@ export class WideEventHelpers {
     });
   }
 
-  /**
-   * Add business context to the wide event
-   */
   static addBusinessContext(
     request: Request,
     key: string,
@@ -126,9 +84,6 @@ export class WideEventHelpers {
     context.business[key] = value;
   }
 
-  /**
-   * Record feature flag usage
-   */
   static recordFeatureFlag(
     request: Request,
     flagName: string,
@@ -143,9 +98,6 @@ export class WideEventHelpers {
     context.featureFlags[flagName] = enabled;
   }
 
-  /**
-   * Add custom metadata
-   */
   static addMetadata(request: Request, key: string, value: unknown): void {
     const context = this.getContext(request);
     if (!context) return;
@@ -156,9 +108,6 @@ export class WideEventHelpers {
     context.metadata[key] = value;
   }
 
-  /**
-   * Convenience method to wrap a database operation with automatic telemetry
-   */
   static async withDatabaseTelemetry<T>(
     request: Request,
     operation: () => Promise<T>,
@@ -174,9 +123,6 @@ export class WideEventHelpers {
     }
   }
 
-  /**
-   * Convenience method to wrap an external API call with automatic telemetry
-   */
   static async withExternalCallTelemetry<T>(
     request: Request,
     serviceName: string,
@@ -185,19 +131,10 @@ export class WideEventHelpers {
     const start = Date.now();
     try {
       const result = await operation();
-      this.recordExternalCall(
-        request,
-        serviceName,
-        Date.now() - start,
-        true,
-        200,
-      );
+      this.recordExternalCall(request, serviceName, Date.now() - start, true);
       return result;
     } catch (error: unknown) {
-      const statusCode = 
-        error && typeof error === 'object' && 'response' in error
-          ? (error.response as any)?.status || 500
-          : 500;
+      const statusCode = this.extractStatusCode(error);
       this.recordExternalCall(
         request,
         serviceName,
@@ -207,5 +144,20 @@ export class WideEventHelpers {
       );
       throw error;
     }
+  }
+
+  private static extractStatusCode(error: unknown): number {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'response' in error &&
+      error.response &&
+      typeof error.response === 'object' &&
+      'status' in error.response &&
+      typeof error.response.status === 'number'
+    ) {
+      return error.response.status;
+    }
+    return 500;
   }
 }

@@ -11,130 +11,21 @@ import { Request, Response } from 'express';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { randomUUID } from 'crypto';
+import { LogContext, HttpLogEntry } from './logger.types';
 
-/**
- * Wide Event Logging Interceptor
- *
- * Implements the "wide events" or "canonical log lines" pattern from loggingsucks.com
- *
- * Key principles:
- * - One rich, structured log entry per request
- * - Contains comprehensive context for debugging and analytics
- * - Machine-readable JSON format for easy querying
- * - Includes correlation IDs for distributed tracing
- * - Captures business-relevant metadata alongside technical details
- * - Accumulates application telemetry (DB calls, cache, external APIs)
- */
+export { LogContext, WideEventContext } from './logger.types';
 
-/**
- * Context object for accumulating telemetry throughout request lifecycle
- * Can be enriched by services/controllers during request processing
- */
-export interface WideEventContext {
-  // Database telemetry
-  database?: {
-    numCalls: number;
-    numFailures: number;
-    totalDurationMs?: number;
-    slowestQueryMs?: number;
-  };
-
-  // Cache telemetry
-  cache?: {
-    hits: number;
-    misses: number;
-  };
-
-  // External API calls
-  externalCalls?: Array<{
-    service: string;
-    durationMs: number;
-    success: boolean;
-    statusCode?: number;
-  }>;
-
-  // Business/domain context
-  business?: Record<string, unknown>;
-
-  // Feature flags
-  featureFlags?: Record<string, boolean>;
-
-  // Custom metadata
-  metadata?: Record<string, unknown>;
-}
-
-interface WideEventLog {
-  // Correlation & Timing
-  timestamp: string;
-  traceId: string;
-  requestId: string;
-  durationMs: number;
-
-  // HTTP Context
-  method: string;
-  url: string;
-  path: string;
-  statusCode: number;
-  statusCategory: 'success' | 'redirect' | 'client_error' | 'server_error';
-
-  // User Context
-  user: {
-    id: string | null;
-    email: string | null;
-    name: string | null;
-  };
-
-  // Request Details
-  userAgent?: string;
-  ip?: string;
-  query?: Record<string, unknown>;
-  params?: Record<string, unknown>;
-
-  // Response Context
-  response?: {
-    body?: unknown;
-    contentType?: string;
-    size?: number;
-  };
-
-  // Response & Error Context
-  success: boolean;
-  error?: {
-    message: string;
-    type: string;
-    code?: string;
-    stack?: string; // Only in non-production
-  };
-
-  // Application Telemetry (from WideEventContext)
-  database?: WideEventContext['database'];
-  cache?: WideEventContext['cache'];
-  externalCalls?: WideEventContext['externalCalls'];
-  business?: WideEventContext['business'];
-  featureFlags?: WideEventContext['featureFlags'];
-  metadata?: WideEventContext['metadata'];
-
-  // Infrastructure Context
-  eventType: 'http_request';
-  environment: string;
-  service: string;
-}
-
-// Configuration constants
 const MAX_RESPONSE_BODY_SIZE = parseInt(
   process.env.LOG_MAX_RESPONSE_BODY_SIZE || '10000',
   10,
-); // Default 10KB
+);
 
-// Tail sampling configuration
-const TAIL_SAMPLING_ENABLED = 
-  process.env.LOG_TAIL_SAMPLING_ENABLED !== 'false'; // Default enabled
+const TAIL_SAMPLING_ENABLED = process.env.LOG_TAIL_SAMPLING_ENABLED !== 'false';
 
 const TAIL_SAMPLING_SUCCESS_RATE = (() => {
   const rate = parseFloat(process.env.LOG_TAIL_SAMPLING_SUCCESS_RATE || '0.1');
-  // Validate: must be between 0 and 1
   if (isNaN(rate) || rate < 0 || rate > 1) {
-    return 0.1; // Default 10%
+    return 0.1;
   }
   return rate;
 })();
@@ -144,37 +35,33 @@ const TAIL_SAMPLING_SLOW_THRESHOLD_MS = (() => {
     process.env.LOG_TAIL_SAMPLING_SLOW_THRESHOLD_MS || '1000',
     10,
   );
-  // Validate: must be a positive number
   if (isNaN(threshold) || threshold < 0) {
-    return 1000; // Default 1000ms (1 second)
+    return 1000;
   }
   return threshold;
 })();
 
 @Injectable({ scope: Scope.REQUEST })
 export class LoggingInterceptor implements NestInterceptor {
-  private logger = new Logger('WideEvents');
+  private logger = new Logger('HTTP');
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const httpContext = context.switchToHttp();
     const request = httpContext.getRequest<Request>();
     const response = httpContext.getResponse<Response>();
 
-    // Generate correlation IDs for tracking
     const traceId = this.getOrCreateTraceId(request);
     const requestId = randomUUID();
 
-    // Initialize wide event context for accumulating telemetry
-    const wideEventContext: WideEventContext = {
+    const logContext: LogContext = {
       database: { numCalls: 0, numFailures: 0 },
       cache: { hits: 0, misses: 0 },
       externalCalls: [],
     };
 
-    // Attach IDs and context to request for downstream use
     request.traceId = traceId;
     request.requestId = requestId;
-    request.wideEventContext = wideEventContext;
+    request.logContext = logContext;
 
     const start = Date.now();
     let responseBody: unknown;
@@ -183,13 +70,10 @@ export class LoggingInterceptor implements NestInterceptor {
       tap((body) => {
         const duration = Date.now() - start;
         const statusCode = response.statusCode;
-
-        // Capture response body for logging (will be sanitized)
         responseBody = body;
 
-        // Tail sampling decision for successful requests
         if (this.shouldLogRequest(statusCode, duration, true)) {
-          this.logWideEvent({
+          this.logHttpRequest({
             request,
             response,
             responseBody,
@@ -198,7 +82,7 @@ export class LoggingInterceptor implements NestInterceptor {
             traceId,
             requestId,
             success: true,
-            wideEventContext,
+            logContext,
           });
         }
       }),
@@ -206,8 +90,7 @@ export class LoggingInterceptor implements NestInterceptor {
         const duration = Date.now() - start;
         const statusCode = this.getErrorStatusCode(response, error);
 
-        // Always log errors (no sampling)
-        this.logWideEvent({
+        this.logHttpRequest({
           request,
           response,
           responseBody: undefined,
@@ -217,7 +100,7 @@ export class LoggingInterceptor implements NestInterceptor {
           requestId,
           success: false,
           error,
-          wideEventContext,
+          logContext,
         });
 
         return throwError(() => error);
@@ -225,44 +108,27 @@ export class LoggingInterceptor implements NestInterceptor {
     );
   }
 
-  /**
-   * Tail sampling: Decide whether to log this request
-   * 
-   * Always log:
-   * - Errors (4xx, 5xx)
-   * - Slow requests (above threshold)
-   * 
-   * Sample:
-   * - Fast, successful requests (configurable rate)
-   */
   private shouldLogRequest(
     statusCode: number,
     durationMs: number,
     success: boolean,
   ): boolean {
-    // If tail sampling is disabled, always log
     if (!TAIL_SAMPLING_ENABLED) {
       return true;
     }
 
-    // Always log errors
     if (!success || statusCode >= 400) {
       return true;
     }
 
-    // Always log slow requests
     if (durationMs >= TAIL_SAMPLING_SLOW_THRESHOLD_MS) {
       return true;
     }
 
-    // Sample successful, fast requests
     return Math.random() < TAIL_SAMPLING_SUCCESS_RATE;
   }
 
-  /**
-   * Emit a single, rich structured log event with all relevant context
-   */
-  private logWideEvent(params: {
+  private logHttpRequest(params: {
     request: Request;
     response: Response;
     responseBody: unknown;
@@ -272,7 +138,7 @@ export class LoggingInterceptor implements NestInterceptor {
     requestId: string;
     success: boolean;
     error?: unknown;
-    wideEventContext: WideEventContext;
+    logContext: LogContext;
   }): void {
     const {
       request,
@@ -284,105 +150,63 @@ export class LoggingInterceptor implements NestInterceptor {
       requestId,
       success,
       error,
-      wideEventContext,
+      logContext,
     } = params;
 
-    // Build the wide event with comprehensive context
-    const wideEvent: WideEventLog = {
-      // Correlation & Timing
+    const logEntry: HttpLogEntry = {
       timestamp: new Date().toISOString(),
       traceId,
       requestId,
       durationMs: duration,
-
-      // HTTP Context
       method: request.method,
       url: request.url,
       path: request.path,
       statusCode,
       statusCategory: this.getStatusCategory(statusCode),
-
-      // User Context (sanitized)
       user: {
         id: request.user?.userId || null,
         email: request.user?.email || null,
         name: request.user?.name || null,
       },
-
-      // Request Details (sanitized)
       userAgent: request.headers['user-agent'],
       ip: this.getClientIp(request),
       query: Object.keys(request.query).length > 0 ? request.query : undefined,
       params:
         Object.keys(request.params).length > 0 ? request.params : undefined,
-
-      // Response Context (sanitized)
       response: this.sanitizeResponse(responseBody, response),
-
-      // Success & Error Context
       success,
       error: error ? this.sanitizeError(error) : undefined,
-
-      // Application Telemetry (accumulated during request)
       database:
-        wideEventContext.database &&
-        wideEventContext.database.numCalls > 0
-          ? wideEventContext.database
+        logContext.database && logContext.database.numCalls > 0
+          ? logContext.database
           : undefined,
       cache:
-        wideEventContext.cache &&
-        (wideEventContext.cache.hits > 0 || wideEventContext.cache.misses > 0)
-          ? wideEventContext.cache
+        logContext.cache &&
+        (logContext.cache.hits > 0 || logContext.cache.misses > 0)
+          ? logContext.cache
           : undefined,
       externalCalls:
-        wideEventContext.externalCalls &&
-        wideEventContext.externalCalls.length > 0
-          ? wideEventContext.externalCalls
+        logContext.externalCalls && logContext.externalCalls.length > 0
+          ? logContext.externalCalls
           : undefined,
-      business: wideEventContext.business,
-      featureFlags: wideEventContext.featureFlags,
-      metadata: wideEventContext.metadata,
-
-      // Infrastructure Context
+      business: logContext.business,
+      featureFlags: logContext.featureFlags,
+      metadata: logContext.metadata,
       eventType: 'http_request',
       environment: process.env.NODE_ENV || 'development',
       service: 'yardvark-api',
     };
 
-    // Emit structured log
     const logMethod = success ? 'log' : 'error';
     const emoji = this.getStatusEmoji(statusCode);
     const userName = request.user?.name || 'anonymous';
 
-    // Human-readable summary + machine-readable JSON
-    const summary = this.formatLogSummary(
-      emoji,
-      request.method,
-      request.path,
-      statusCode,
-      duration,
-      userName,
-    );
+    const summary = `${emoji} ${request.method} ${request.path} ${statusCode} ${duration}ms [${userName}]`;
 
-    this.logger[logMethod](`${summary}\n${JSON.stringify(wideEvent, null, 2)}`);
-  }
-
-  /**
-   * Format a human-readable log summary line
-   */
-  private formatLogSummary(
-    emoji: string,
-    method: string,
-    path: string,
-    statusCode: number,
-    durationMs: number,
-    userName: string,
-  ): string {
-    return `${emoji} ${method} ${path} ${statusCode} ${durationMs}ms [${userName}]`;
+    this.logger[logMethod](`${summary}\n${JSON.stringify(logEntry, null, 2)}`);
   }
 
   private getOrCreateTraceId(request: Request): string {
-    // Check for existing trace ID from headers (e.g., from API gateway or load balancer)
     const existingTraceId =
       request.headers['x-trace-id'] ||
       request.headers['x-request-id'] ||
@@ -392,7 +216,6 @@ export class LoggingInterceptor implements NestInterceptor {
   }
 
   private getClientIp(request: Request): string | undefined {
-    // Handle various proxy scenarios
     const forwarded = request.headers['x-forwarded-for'];
     if (forwarded) {
       return (forwarded as string).split(',')[0].trim();
@@ -402,7 +225,7 @@ export class LoggingInterceptor implements NestInterceptor {
 
   private getStatusCategory(
     statusCode: number,
-  ): WideEventLog['statusCategory'] {
+  ): HttpLogEntry['statusCategory'] {
     if (statusCode >= 500) return 'server_error';
     if (statusCode >= 400) return 'client_error';
     if (statusCode >= 300) return 'redirect';
@@ -426,14 +249,10 @@ export class LoggingInterceptor implements NestInterceptor {
     );
   }
 
-  /**
-   * Sanitize response data for logging
-   * Prevents logging of sensitive information while keeping useful debugging data
-   */
   private sanitizeResponse(
     body: unknown,
     response: Response,
-  ): WideEventLog['response'] {
+  ): HttpLogEntry['response'] {
     if (!body) {
       return undefined;
     }
@@ -447,29 +266,24 @@ export class LoggingInterceptor implements NestInterceptor {
       const bodyStr = JSON.stringify(body);
       if (bodyStr.length > MAX_RESPONSE_BODY_SIZE) {
         sanitizedBody = { _truncated: true, _size: bodyStr.length };
+      } else if (Array.isArray(body)) {
+        sanitizedBody = {
+          _type: 'array',
+          count: body.length,
+          sample: body.slice(0, 3),
+        };
+      } else if (typeof body === 'object' && body !== null) {
+        const sensitiveFields = [
+          'password',
+          'token',
+          'secret',
+          'apiKey',
+          'creditCard',
+          'ssn',
+        ];
+        sanitizedBody = this.redactSensitiveFields(body, sensitiveFields);
       } else {
-        // For arrays, just include count and first few items
-        if (Array.isArray(body)) {
-          sanitizedBody = {
-            _type: 'array',
-            count: body.length,
-            sample: body.slice(0, 3),
-          };
-        } else if (typeof body === 'object' && body !== null) {
-          // For objects, include but mark as redacted if contains common sensitive field names
-          const sensitiveFields = [
-            'password',
-            'token',
-            'secret',
-            'apiKey',
-            'creditCard',
-            'ssn',
-          ];
-          const redacted = this.redactSensitiveFields(body, sensitiveFields);
-          sanitizedBody = redacted;
-        } else {
-          sanitizedBody = body;
-        }
+        sanitizedBody = body;
       }
     } catch {
       sanitizedBody = { _error: 'Failed to serialize response body' };
@@ -482,27 +296,23 @@ export class LoggingInterceptor implements NestInterceptor {
     };
   }
 
-  /**
-   * Recursively redact sensitive fields from an object
-   */
-  private redactSensitiveFields<T>(
-    obj: T,
-    sensitiveFields: string[],
-  ): T {
+  private redactSensitiveFields<T>(obj: T, sensitiveFields: string[]): T {
     if (typeof obj !== 'object' || obj === null) {
       return obj;
     }
 
     if (Array.isArray(obj)) {
-      return obj.map((item) => 
-        this.redactSensitiveFields(item, sensitiveFields)
+      return obj.map((item: unknown) =>
+        this.redactSensitiveFields(item, sensitiveFields),
       ) as T;
     }
 
     const result: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(obj)) {
       const lowerKey = key.toLowerCase();
-      if (sensitiveFields.some((field) => lowerKey.includes(field.toLowerCase()))) {
+      if (
+        sensitiveFields.some((field) => lowerKey.includes(field.toLowerCase()))
+      ) {
         result[key] = '[REDACTED]';
       } else if (typeof value === 'object' && value !== null) {
         result[key] = this.redactSensitiveFields(value, sensitiveFields);
@@ -513,11 +323,7 @@ export class LoggingInterceptor implements NestInterceptor {
     return result as T;
   }
 
-  /**
-   * Sanitize error information to avoid leaking sensitive internal details
-   * Only expose what's necessary for debugging
-   */
-  private sanitizeError(err: unknown): WideEventLog['error'] {
+  private sanitizeError(err: unknown): HttpLogEntry['error'] {
     let message = 'Unknown error';
     let type = 'Error';
     let code: string | undefined;
@@ -527,7 +333,6 @@ export class LoggingInterceptor implements NestInterceptor {
       message = err.message;
       type = err.constructor.name;
       code = String(err.getStatus());
-      // Include stack trace only in non-production
       if (process.env.NODE_ENV !== 'production') {
         stack = err.stack;
       }

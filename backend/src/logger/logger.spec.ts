@@ -4,6 +4,31 @@ import { ExecutionContext, CallHandler, HttpException } from '@nestjs/common';
 import { of, throwError } from 'rxjs';
 import { Request, Response } from 'express';
 
+interface ParsedLogData {
+  timestamp: string;
+  traceId: string;
+  requestId: string;
+  durationMs: number;
+  method: string;
+  url: string;
+  path: string;
+  statusCode: number;
+  statusCategory: string;
+  eventType: string;
+  user: { id: string | null; email: string | null; name: string | null };
+  userAgent?: string;
+  ip?: string;
+  query?: Record<string, unknown>;
+  params?: Record<string, unknown>;
+  success: boolean;
+  error?: { message: string; type: string; code?: string };
+}
+
+const parseLogData = (logCall: string): ParsedLogData => {
+  const jsonMatch = logCall.match(/\{[\s\S]*\}/);
+  return JSON.parse(jsonMatch![0]) as ParsedLogData;
+};
+
 describe('LoggingInterceptor - Wide Events', () => {
   let interceptor: LoggingInterceptor;
   let mockExecutionContext: ExecutionContext;
@@ -16,17 +41,14 @@ describe('LoggingInterceptor - Wide Events', () => {
       providers: [LoggingInterceptor],
     }).compile();
 
-    // Use resolve() for REQUEST-scoped providers instead of get()
-    // REQUEST-scoped providers need to be instantiated per request context
     interceptor = await module.resolve<LoggingInterceptor>(LoggingInterceptor);
+    jest.spyOn(global.Math, 'random').mockReturnValue(0);
 
     mockRequest = {
       method: 'GET',
       url: '/test?query=value',
       path: '/test',
-      headers: {
-        'user-agent': 'test-agent',
-      },
+      headers: { 'user-agent': 'test-agent' },
       user: {
         userId: 'user-123',
         email: 'test@example.com',
@@ -35,13 +57,12 @@ describe('LoggingInterceptor - Wide Events', () => {
       query: { query: 'value' },
       params: {},
       ip: '127.0.0.1',
-      socket: {
-        remoteAddress: '127.0.0.1',
-      } as any,
+      socket: { remoteAddress: '127.0.0.1' } as Request['socket'],
     };
 
     mockResponse = {
       statusCode: 200,
+      getHeader: jest.fn().mockReturnValue(undefined),
     };
 
     mockExecutionContext = {
@@ -49,12 +70,15 @@ describe('LoggingInterceptor - Wide Events', () => {
         getRequest: () => mockRequest,
         getResponse: () => mockResponse,
       }),
-    } as any;
+    } as unknown as ExecutionContext;
 
-    // Reset mockCallHandler to default success response each time
     mockCallHandler = {
       handle: jest.fn().mockReturnValue(of({})),
     };
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   describe('Wide Event Structure', () => {
@@ -66,13 +90,10 @@ describe('LoggingInterceptor - Wide Events', () => {
           expect(logSpy).toHaveBeenCalled();
           const logCall = logSpy.mock.calls[0][0] as string;
 
-          // Should contain human-readable summary
           expect(logCall).toContain('✅');
           expect(logCall).toContain('GET');
           expect(logCall).toContain('/test');
           expect(logCall).toContain('Test User');
-
-          // Should contain structured JSON
           expect(logCall).toContain('timestamp');
           expect(logCall).toContain('traceId');
           expect(logCall).toContain('requestId');
@@ -88,11 +109,7 @@ describe('LoggingInterceptor - Wide Events', () => {
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logCall = logSpy.mock.calls[0][0] as string;
-          const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-
-          expect(jsonMatch).toBeTruthy();
-          const logData = JSON.parse(jsonMatch![0]) as any;
+          const logData = parseLogData(logSpy.mock.calls[0][0] as string);
 
           expect(logData.traceId).toBeDefined();
           expect(logData.requestId).toBeDefined();
@@ -109,9 +126,7 @@ describe('LoggingInterceptor - Wide Events', () => {
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logCall = logSpy.mock.calls[0][0] as string;
-          const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]) as any;
+          const logData = parseLogData(logSpy.mock.calls[0][0] as string);
 
           expect(logData.method).toBe('GET');
           expect(logData.url).toBe('/test?query=value');
@@ -130,9 +145,7 @@ describe('LoggingInterceptor - Wide Events', () => {
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logCall = logSpy.mock.calls[0][0] as string;
-          const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]) as any;
+          const logData = parseLogData(logSpy.mock.calls[0][0] as string);
 
           expect(logData.user).toEqual({
             id: 'user-123',
@@ -151,9 +164,7 @@ describe('LoggingInterceptor - Wide Events', () => {
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logCall = logSpy.mock.calls[0][0] as string;
-          const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]) as any;
+          const logData = parseLogData(logSpy.mock.calls[0][0] as string);
 
           expect(logData.user).toEqual({
             id: null,
@@ -166,15 +177,13 @@ describe('LoggingInterceptor - Wide Events', () => {
       });
     });
 
-    it('should include request metadata (query, params, user agent)', (done) => {
+    it('should include request metadata', (done) => {
       mockRequest.params = { id: '123' };
       const logSpy = jest.spyOn(interceptor['logger'], 'log');
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logCall = logSpy.mock.calls[0][0] as string;
-          const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]) as any;
+          const logData = parseLogData(logSpy.mock.calls[0][0] as string);
 
           expect(logData.query).toEqual({ query: 'value' });
           expect(logData.params).toEqual({ id: '123' });
@@ -191,9 +200,7 @@ describe('LoggingInterceptor - Wide Events', () => {
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logCall = logSpy.mock.calls[0][0] as string;
-          const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]) as any;
+          const logData = parseLogData(logSpy.mock.calls[0][0] as string);
 
           expect(logData.durationMs).toBeDefined();
           expect(typeof logData.durationMs).toBe('number');
@@ -208,7 +215,8 @@ describe('LoggingInterceptor - Wide Events', () => {
   describe('Error Handling', () => {
     it('should emit structured error log with sanitized error details', (done) => {
       const error = new HttpException('Bad Request', 400);
-      // Create fresh mock handler for this test
+      mockResponse.statusCode = 400;
+
       const localCallHandler = {
         handle: jest.fn().mockReturnValue(throwError(() => error)),
       };
@@ -218,15 +226,13 @@ describe('LoggingInterceptor - Wide Events', () => {
       interceptor.intercept(mockExecutionContext, localCallHandler).subscribe({
         error: () => {
           expect(errorSpy).toHaveBeenCalled();
-          const logCall = errorSpy.mock.calls[0][0] as string;
-          const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]) as any;
+          const logData = parseLogData(errorSpy.mock.calls[0][0] as string);
 
           expect(logData.success).toBe(false);
           expect(logData.error).toBeDefined();
-          expect(logData.error.message).toBe('Bad Request');
-          expect(logData.error.type).toBe('HttpException');
-          expect(logData.error.code).toBe('400');
+          expect(logData.error?.message).toBe('Bad Request');
+          expect(logData.error?.type).toBe('HttpException');
+          expect(logData.error?.code).toBe('400');
           expect(logData.statusCategory).toBe('client_error');
 
           done();
@@ -236,7 +242,8 @@ describe('LoggingInterceptor - Wide Events', () => {
 
     it('should sanitize error to avoid leaking internal details', (done) => {
       const error = new Error('Database connection failed: password=secret123');
-      // Create fresh mock handler for this test
+      mockResponse.statusCode = 500;
+
       const localCallHandler = {
         handle: jest.fn().mockReturnValue(throwError(() => error)),
       };
@@ -245,14 +252,11 @@ describe('LoggingInterceptor - Wide Events', () => {
 
       interceptor.intercept(mockExecutionContext, localCallHandler).subscribe({
         error: () => {
-          const logCall = errorSpy.mock.calls[0][0] as string;
-          const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]) as any;
+          const logData = parseLogData(errorSpy.mock.calls[0][0] as string);
 
-          // Should have error info but sanitized (no stack trace in public log)
           expect(logData.error).toBeDefined();
-          expect(logData.error.message).toBeDefined();
-          expect(logData.error.type).toBe('Error');
+          expect(logData.error?.message).toBeDefined();
+          expect(logData.error?.type).toBe('Error');
 
           done();
         },
@@ -271,9 +275,7 @@ describe('LoggingInterceptor - Wide Events', () => {
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logCall = logSpy.mock.calls[0][0] as string;
-          const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]) as any;
+          const logData = parseLogData(logSpy.mock.calls[0][0] as string);
 
           expect(logData.traceId).toBe('existing-trace-123');
 
@@ -287,9 +289,7 @@ describe('LoggingInterceptor - Wide Events', () => {
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logCall = logSpy.mock.calls[0][0] as string;
-          const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]) as any;
+          const logData = parseLogData(logSpy.mock.calls[0][0] as string);
 
           expect(logData.traceId).toBeDefined();
           expect(typeof logData.traceId).toBe('string');
@@ -309,8 +309,7 @@ describe('LoggingInterceptor - Wide Events', () => {
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
           const logCall = logSpy.mock.calls[0][0] as string;
-          const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]) as any;
+          const logData = parseLogData(logCall);
 
           expect(logData.statusCategory).toBe('success');
           expect(logCall).toContain('✅');
@@ -327,8 +326,7 @@ describe('LoggingInterceptor - Wide Events', () => {
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
           const logCall = logSpy.mock.calls[0][0] as string;
-          const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-          const logData = JSON.parse(jsonMatch![0]) as any;
+          const logData = parseLogData(logCall);
 
           expect(logData.statusCategory).toBe('redirect');
           expect(logCall).toContain('↪️');

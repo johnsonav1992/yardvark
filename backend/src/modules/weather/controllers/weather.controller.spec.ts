@@ -5,7 +5,6 @@ import { WeatherService } from '../services/weather.service';
 
 describe('WeatherController', () => {
   let controller: WeatherController;
-  let weatherService: WeatherService;
 
   const mockWeatherData = {
     current: {

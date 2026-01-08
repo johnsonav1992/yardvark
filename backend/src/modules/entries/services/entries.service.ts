@@ -15,8 +15,10 @@ import {
 } from 'typeorm';
 import { Entry, EntryImage, EntryProduct } from '../models/entries.model';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Request } from 'express';
 import { getEntryResponseMapping } from '../utils/entryUtils';
 import { ACTIVITY_IDS } from 'src/constants/activities.constants';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Injectable()
 export class EntriesService {
@@ -29,24 +31,31 @@ export class EntriesService {
     private _entryImagesRepo: Repository<EntryImage>,
   ) {}
 
-  async getEntries(userId: string, startDate?: string, endDate?: string) {
-    const entries = await this._entriesRepo.find({
-      where: {
-        userId,
-        date:
-          startDate && endDate
-            ? Between(new Date(startDate), new Date(endDate))
-            : undefined,
-      },
-      relations: {
-        activities: true,
-        lawnSegments: true,
-        entryProducts: {
-          product: true,
+  async getEntries(
+    userId: string,
+    startDate?: string,
+    endDate?: string,
+    request?: Request,
+  ) {
+    const entries = await LogHelpers.withDatabaseTelemetry(request, () =>
+      this._entriesRepo.find({
+        where: {
+          userId,
+          date:
+            startDate && endDate
+              ? Between(new Date(startDate), new Date(endDate))
+              : undefined,
         },
-        entryImages: true,
-      },
-    });
+        relations: {
+          activities: true,
+          lawnSegments: true,
+          entryProducts: {
+            product: true,
+          },
+          entryImages: true,
+        },
+      }),
+    );
 
     if (!entries) {
       throw new HttpException('Entries not found', HttpStatus.NOT_FOUND);
@@ -55,18 +64,20 @@ export class EntriesService {
     return entries.map((entry) => getEntryResponseMapping(entry));
   }
 
-  async getEntry(entryId: number) {
-    const entry = await this._entriesRepo.findOne({
-      where: { id: entryId },
-      relations: {
-        activities: true,
-        lawnSegments: true,
-        entryProducts: {
-          product: true,
+  async getEntry(entryId: number, request?: Request) {
+    const entry = await LogHelpers.withDatabaseTelemetry(request, () =>
+      this._entriesRepo.findOne({
+        where: { id: entryId },
+        relations: {
+          activities: true,
+          lawnSegments: true,
+          entryProducts: {
+            product: true,
+          },
+          entryImages: true,
         },
-        entryImages: true,
-      },
-    });
+      }),
+    );
 
     if (!entry) {
       throw new HttpException('Entry not found', HttpStatus.NOT_FOUND);
@@ -180,7 +191,11 @@ export class EntriesService {
     return entry?.date || null;
   }
 
-  async createEntry(userId: string, entry: EntryCreationRequest) {
+  async createEntry(
+    userId: string,
+    entry: EntryCreationRequest,
+    request?: Request,
+  ) {
     const newEntry = this._entriesRepo.create({
       ...entry,
       userId,
@@ -197,7 +212,9 @@ export class EntriesService {
         })) || [],
     });
 
-    await this._entriesRepo.save(newEntry);
+    await LogHelpers.withDatabaseTelemetry(request, () =>
+      this._entriesRepo.save(newEntry),
+    );
 
     return newEntry;
   }
@@ -296,7 +313,11 @@ export class EntriesService {
     await this._entriesRepo.restore(entryId);
   }
 
-  async searchEntries(userId: string, searchCriteria: EntriesSearchRequest) {
+  async searchEntries(
+    userId: string,
+    searchCriteria: EntriesSearchRequest,
+    request?: Request,
+  ) {
     const today = new Date();
     const startOfYear = new Date(today.getFullYear(), 0, 1);
 
@@ -338,18 +359,20 @@ export class EntriesService {
       ];
     }
 
-    const entries = await this._entriesRepo.find({
-      where,
-      relations: {
-        activities: true,
-        lawnSegments: true,
-        entryProducts: { product: true },
-      },
-      order: {
-        date: 'DESC',
-        time: 'DESC',
-      },
-    });
+    const entries = await LogHelpers.withDatabaseTelemetry(request, () =>
+      this._entriesRepo.find({
+        where,
+        relations: {
+          activities: true,
+          lawnSegments: true,
+          entryProducts: { product: true },
+        },
+        order: {
+          date: 'DESC',
+          time: 'DESC',
+        },
+      }),
+    );
 
     return entries.map((entry) => getEntryResponseMapping(entry));
   }

@@ -5,10 +5,12 @@ import {
   PutObjectCommandInput,
 } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
+import { Request } from 'express';
 import { randomUUID } from 'crypto';
 import * as convert from 'heic-convert';
 import * as path from 'path';
 import { tryCatch } from 'src/utils/tryCatch';
+import { LogHelpers } from '../../logger/logger.helpers';
 
 @Injectable()
 export class S3Service {
@@ -30,6 +32,7 @@ export class S3Service {
   public async uploadFile(
     file: Express.Multer.File,
     userId: string,
+    request?: Request,
   ): Promise<string> {
     const { buffer, originalname, mimetype } =
       await this.checkForHeicAndConvert(file);
@@ -44,7 +47,24 @@ export class S3Service {
       ACL: 'public-read',
     };
 
-    await this.s3.send(new PutObjectCommand(uploadParams));
+    const start = Date.now();
+    let success = true;
+
+    try {
+      await this.s3.send(new PutObjectCommand(uploadParams));
+    } catch (error) {
+      success = false;
+      throw error;
+    } finally {
+      if (request) {
+        LogHelpers.recordExternalCall(
+          request,
+          'aws-s3',
+          Date.now() - start,
+          success,
+        );
+      }
+    }
 
     return `https://${this.bucketName}.s3.${process.env.AWS_REGION_YARDVARK}.amazonaws.com/${encodeURIComponent(key)}`;
   }
@@ -53,6 +73,7 @@ export class S3Service {
     files: Express.Multer.File[],
     userId: string,
     concurrency = 5,
+    request?: Request,
   ): Promise<string[]> {
     const results: string[] = [];
 
@@ -60,7 +81,7 @@ export class S3Service {
       const batch = files.slice(i, i + concurrency);
 
       const batchResults = await Promise.all(
-        batch.map((file) => this.uploadFile(file, userId)),
+        batch.map((file) => this.uploadFile(file, userId, request)),
       );
 
       results.push(...batchResults);

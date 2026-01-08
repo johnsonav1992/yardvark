@@ -12,34 +12,15 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { randomUUID } from 'crypto';
 import { LogContext, HttpLogEntry } from './logger.types';
+import {
+  MAX_RESPONSE_BODY_SIZE,
+  TAIL_SAMPLING_ENABLED,
+  TAIL_SAMPLING_SUCCESS_RATE,
+  TAIL_SAMPLING_SLOW_THRESHOLD_MS,
+  SENSITIVE_FIELDS,
+} from './logger.constants';
 
 export { LogContext, WideEventContext } from './logger.types';
-
-const MAX_RESPONSE_BODY_SIZE = parseInt(
-  process.env.LOG_MAX_RESPONSE_BODY_SIZE || '10000',
-  10,
-);
-
-const TAIL_SAMPLING_ENABLED = process.env.LOG_TAIL_SAMPLING_ENABLED !== 'false';
-
-const TAIL_SAMPLING_SUCCESS_RATE = (() => {
-  const rate = parseFloat(process.env.LOG_TAIL_SAMPLING_SUCCESS_RATE || '0.1');
-  if (isNaN(rate) || rate < 0 || rate > 1) {
-    return 0.1;
-  }
-  return rate;
-})();
-
-const TAIL_SAMPLING_SLOW_THRESHOLD_MS = (() => {
-  const threshold = parseInt(
-    process.env.LOG_TAIL_SAMPLING_SLOW_THRESHOLD_MS || '1000',
-    10,
-  );
-  if (isNaN(threshold) || threshold < 0) {
-    return 1000;
-  }
-  return threshold;
-})();
 
 @Injectable({ scope: Scope.REQUEST })
 export class LoggingInterceptor implements NestInterceptor {
@@ -217,9 +198,11 @@ export class LoggingInterceptor implements NestInterceptor {
 
   private getClientIp(request: Request): string | undefined {
     const forwarded = request.headers['x-forwarded-for'];
+
     if (forwarded) {
       return (forwarded as string).split(',')[0].trim();
     }
+
     return request.ip || request.socket.remoteAddress;
   }
 
@@ -229,6 +212,7 @@ export class LoggingInterceptor implements NestInterceptor {
     if (statusCode >= 500) return 'server_error';
     if (statusCode >= 400) return 'client_error';
     if (statusCode >= 300) return 'redirect';
+
     return 'success';
   }
 
@@ -236,6 +220,7 @@ export class LoggingInterceptor implements NestInterceptor {
     if (statusCode >= 500) return '🔥';
     if (statusCode >= 400) return '⚠️';
     if (statusCode >= 300) return '↪️';
+
     return '✅';
   }
 
@@ -264,6 +249,7 @@ export class LoggingInterceptor implements NestInterceptor {
 
     try {
       const bodyStr = JSON.stringify(body);
+
       if (bodyStr.length > MAX_RESPONSE_BODY_SIZE) {
         sanitizedBody = { _truncated: true, _size: bodyStr.length };
       } else if (Array.isArray(body)) {
@@ -273,15 +259,7 @@ export class LoggingInterceptor implements NestInterceptor {
           sample: body.slice(0, 3),
         };
       } else if (typeof body === 'object' && body !== null) {
-        const sensitiveFields = [
-          'password',
-          'token',
-          'secret',
-          'apiKey',
-          'creditCard',
-          'ssn',
-        ];
-        sanitizedBody = this.redactSensitiveFields(body, sensitiveFields);
+        sanitizedBody = this.redactSensitiveFields(body, SENSITIVE_FIELDS);
       } else {
         sanitizedBody = body;
       }
@@ -297,9 +275,7 @@ export class LoggingInterceptor implements NestInterceptor {
   }
 
   private redactSensitiveFields<T>(obj: T, sensitiveFields: string[]): T {
-    if (typeof obj !== 'object' || obj === null) {
-      return obj;
-    }
+    if (typeof obj !== 'object' || obj === null) return obj;
 
     if (Array.isArray(obj)) {
       return obj.map((item: unknown) =>
@@ -333,12 +309,14 @@ export class LoggingInterceptor implements NestInterceptor {
       message = err.message;
       type = err.constructor.name;
       code = String(err.getStatus());
+
       if (process.env.NODE_ENV !== 'production') {
         stack = err.stack;
       }
     } else if (err instanceof Error) {
       message = err.message;
       type = err.constructor.name;
+
       if (process.env.NODE_ENV !== 'production') {
         stack = err.stack;
       }

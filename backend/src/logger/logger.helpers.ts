@@ -23,9 +23,11 @@ export class LogHelpers {
     failed = false,
   ): void {
     const context = this.getContext(request);
+
     if (!context?.database) return;
 
     context.database.numCalls++;
+
     if (failed) {
       context.database.numFailures++;
     }
@@ -33,6 +35,7 @@ export class LogHelpers {
     if (durationMs) {
       context.database.totalDurationMs =
         (context.database.totalDurationMs || 0) + durationMs;
+
       context.database.slowestQueryMs = Math.max(
         context.database.slowestQueryMs || 0,
         durationMs,
@@ -42,13 +45,17 @@ export class LogHelpers {
 
   static recordCacheHit(request: Request): void {
     const context = this.getContext(request);
+
     if (!context?.cache) return;
+
     context.cache.hits++;
   }
 
   static recordCacheMiss(request: Request): void {
     const context = this.getContext(request);
+
     if (!context?.cache) return;
+
     context.cache.misses++;
   }
 
@@ -60,6 +67,7 @@ export class LogHelpers {
     statusCode?: number,
   ): void {
     const context = this.getContext(request);
+
     if (!context?.externalCalls) return;
 
     context.externalCalls.push({
@@ -76,11 +84,13 @@ export class LogHelpers {
     value: unknown,
   ): void {
     const context = this.getContext(request);
+
     if (!context) return;
 
     if (!context.business) {
       context.business = {};
     }
+
     context.business[key] = value;
   }
 
@@ -90,35 +100,47 @@ export class LogHelpers {
     enabled: boolean,
   ): void {
     const context = this.getContext(request);
+
     if (!context) return;
 
     if (!context.featureFlags) {
       context.featureFlags = {};
     }
+
     context.featureFlags[flagName] = enabled;
   }
 
   static addMetadata(request: Request, key: string, value: unknown): void {
     const context = this.getContext(request);
+
     if (!context) return;
 
     if (!context.metadata) {
       context.metadata = {};
     }
+
     context.metadata[key] = value;
   }
 
   static async withDatabaseTelemetry<T>(
-    request: Request,
+    request: Request | undefined,
     operation: () => Promise<T>,
   ): Promise<T> {
+    if (!request) {
+      return operation();
+    }
+
     const start = Date.now();
+
     try {
       const result = await operation();
+
       this.recordDatabaseCall(request, Date.now() - start, false);
+
       return result;
     } catch (error) {
       this.recordDatabaseCall(request, Date.now() - start, true);
+
       throw error;
     }
   }
@@ -129,12 +151,16 @@ export class LogHelpers {
     operation: () => Promise<T>,
   ): Promise<T> {
     const start = Date.now();
+
     try {
       const result = await operation();
+
       this.recordExternalCall(request, serviceName, Date.now() - start, true);
+
       return result;
     } catch (error: unknown) {
       const statusCode = this.extractStatusCode(error);
+
       this.recordExternalCall(
         request,
         serviceName,
@@ -142,6 +168,7 @@ export class LogHelpers {
         false,
         statusCode,
       );
+
       throw error;
     }
   }

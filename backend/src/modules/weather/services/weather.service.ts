@@ -2,6 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { HttpService } from '@nestjs/axios';
+import { Request } from 'express';
 import { firstValueFrom } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
 import {
@@ -10,6 +11,7 @@ import {
   WeatherDotGovPointsResponse,
 } from '../models/weather.types';
 import { tryCatch } from '../../../utils/tryCatch';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Injectable()
 export class WeatherService {
@@ -28,6 +30,7 @@ export class WeatherService {
   async getWeatherData(
     lat: string,
     long: string,
+    request?: Request,
   ): Promise<WeatherDotGovForecastResponse> {
     const cacheKey = this.getCacheKey('forecast', { lat, long });
 
@@ -36,11 +39,14 @@ export class WeatherService {
 
     if (cached) {
       this._logger.debug(`Cache hit for forecast: ${cacheKey}`);
+      if (request) LogHelpers.recordCacheHit(request);
       return cached;
     }
 
     this._logger.debug(`Cache miss for forecast: ${cacheKey}`);
+    if (request) LogHelpers.recordCacheMiss(request);
 
+    const start = Date.now();
     const result = await tryCatch(() =>
       firstValueFrom(
         this.httpService
@@ -65,6 +71,15 @@ export class WeatherService {
       ),
     );
 
+    if (request) {
+      LogHelpers.recordExternalCall(
+        request,
+        'weather.gov',
+        Date.now() - start,
+        result.success,
+      );
+    }
+
     if (!result.success) {
       throw new Error(`Failed to fetch weather data: ${result.error.message}`);
     }
@@ -80,12 +95,14 @@ export class WeatherService {
     startDate,
     endDate,
     temperatureUnit = 'fahrenheit',
+    request,
   }: {
     lat: number;
     long: number;
     startDate: string;
     endDate: string;
     temperatureUnit?: 'fahrenheit' | 'celsius';
+    request?: Request;
   }): Promise<Array<{ date: string; maxTemp: number; minTemp: number }>> {
     const cacheKey = this.getCacheKey('historical', {
       lat,
@@ -105,10 +122,12 @@ export class WeatherService {
 
     if (cached) {
       this._logger.debug(`Cache hit for historical temps: ${cacheKey}`);
+      if (request) LogHelpers.recordCacheHit(request);
       return cached;
     }
 
     this._logger.debug(`Cache miss for historical temps: ${cacheKey}`);
+    if (request) LogHelpers.recordCacheMiss(request);
 
     const params = new URLSearchParams({
       latitude: String(lat),
@@ -120,6 +139,7 @@ export class WeatherService {
       timezone: 'auto',
     });
 
+    const start = Date.now();
     const result = await tryCatch(() =>
       firstValueFrom(
         this.httpService
@@ -129,6 +149,15 @@ export class WeatherService {
           .pipe(map((res) => res.data)),
       ),
     );
+
+    if (request) {
+      LogHelpers.recordExternalCall(
+        request,
+        'open-meteo',
+        Date.now() - start,
+        result.success,
+      );
+    }
 
     if (!result.success) {
       throw new Error(

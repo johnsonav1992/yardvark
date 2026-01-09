@@ -2,14 +2,22 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Activity } from '../models/activities.model';
 import { Repository } from 'typeorm';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Injectable()
 export class ActivitiesService {
   constructor(
-    @InjectRepository(Activity) private _activitiesRepo: Repository<Activity>,
+    @InjectRepository(Activity)
+    private readonly _activitiesRepo: Repository<Activity>,
   ) {}
 
-  async getActivities() {
-    return this._activitiesRepo.find();
+  public async getActivities() {
+    const activities = await LogHelpers.withDatabaseTelemetry(() =>
+      this._activitiesRepo.find(),
+    );
+
+    LogHelpers.addBusinessContext('activitiesCount', activities.length);
+
+    return activities;
   }
 }

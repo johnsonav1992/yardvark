@@ -8,7 +8,10 @@ export class WeatherController {
   constructor(private readonly weatherService: WeatherService) {}
 
   @Get('forecast')
-  async getForecast(@Query('lat') lat: string, @Query('long') long: string) {
+  public async getForecast(
+    @Query('lat') lat: string,
+    @Query('long') long: string,
+  ) {
     const { data, error } = await tryCatch(() =>
       this.weatherService.getWeatherData(lat, long),
     );

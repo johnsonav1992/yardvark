@@ -4,6 +4,7 @@ import { ConfigService } from '@nestjs/config';
 import { firstValueFrom } from 'rxjs';
 import { User } from '../Models/user.model';
 import { S3Service } from 'src/modules/s3/s3.service';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Injectable()
 export class UsersService {
@@ -25,40 +26,70 @@ export class UsersService {
     this.usersUrl = `https://${this.auth0Domain}/api/v2/users`;
   }
 
-  async getManagementToken(): Promise<string> {
-    const response = await firstValueFrom(
-      this.httpService.post<{ access_token: string }>(
-        `https://${this.auth0Domain}/oauth/token`,
-        {
-          client_id: this.clientId,
-          client_secret: this.clientSecret,
-          audience: 'https://dev-w4uj6ulyqeacwtfi.us.auth0.com/api/v2/',
-          grant_type: 'client_credentials',
-        },
-      ),
-    );
+  public async getManagementToken(): Promise<string> {
+    const start = Date.now();
+    let success = true;
 
-    return response.data.access_token;
+    try {
+      const response = await firstValueFrom(
+        this.httpService.post<{ access_token: string }>(
+          `https://${this.auth0Domain}/oauth/token`,
+          {
+            client_id: this.clientId,
+            client_secret: this.clientSecret,
+            audience: 'https://dev-w4uj6ulyqeacwtfi.us.auth0.com/api/v2/',
+            grant_type: 'client_credentials',
+          },
+        ),
+      );
+
+      return response.data.access_token;
+    } catch (error) {
+      success = false;
+      throw error;
+    } finally {
+      LogHelpers.recordExternalCall('auth0-token', Date.now() - start, success);
+    }
   }
 
-  async updateUser(userId: string, userData: Partial<User>): Promise<any> {
+  public async updateUser(
+    userId: string,
+    userData: Partial<User>,
+  ): Promise<any> {
     const token = await this.getManagementToken();
 
-    const response = await firstValueFrom(
-      this.httpService.patch(`${this.usersUrl}/${userId}`, userData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }),
-    );
+    const start = Date.now();
+    let success = true;
 
-    return response.data;
+    try {
+      const response = await firstValueFrom(
+        this.httpService.patch(`${this.usersUrl}/${userId}`, userData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }),
+      );
+
+      return response.data;
+    } catch (error) {
+      success = false;
+      throw error;
+    } finally {
+      LogHelpers.recordExternalCall(
+        'auth0-update',
+        Date.now() - start,
+        success,
+      );
+    }
   }
 
-  async updateProfilePicture(
+  public async updateProfilePicture(
     userId: string,
     file: Express.Multer.File,
   ): Promise<{ picture: string }> {
+    LogHelpers.addBusinessContext('profilePictureUpdate', true);
+    LogHelpers.addBusinessContext('fileSize', file.size);
+
     const profilePictureFile = {
       ...file,
       originalname: `profile-picture-${Date.now()}.${file.originalname.split('.').pop()}`,

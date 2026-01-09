@@ -6,29 +6,49 @@ import {
   LawnSegmentCreationRequest,
   LawnSegmentUpdateRequest,
 } from '../models/lawn-segments.types';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Injectable()
 export class LawnSegmentsService {
   constructor(
     @InjectRepository(LawnSegment)
-    private _lawnSegmentRepo: Repository<LawnSegment>,
+    private readonly _lawnSegmentRepo: Repository<LawnSegment>,
   ) {}
 
-  async getLawnSegments(userId: string) {
-    return this._lawnSegmentRepo.findBy({ userId });
+  public async getLawnSegments(userId: string) {
+    const segments = await LogHelpers.withDatabaseTelemetry(() =>
+      this._lawnSegmentRepo.findBy({ userId }),
+    );
+
+    LogHelpers.addBusinessContext('lawnSegmentsCount', segments.length);
+
+    return segments;
   }
 
-  async createLawnSegment(
+  public async createLawnSegment(
     userId: string,
     lawnSegment: LawnSegmentCreationRequest,
   ) {
     const lawnSeg = this._lawnSegmentRepo.create({ ...lawnSegment, userId });
 
-    return this._lawnSegmentRepo.save(lawnSeg);
+    const saved = await LogHelpers.withDatabaseTelemetry(() =>
+      this._lawnSegmentRepo.save(lawnSeg),
+    );
+
+    LogHelpers.addBusinessContext('lawnSegmentCreated', saved.id);
+
+    return saved;
   }
 
-  async updateLawnSegment(id: number, updateData: LawnSegmentUpdateRequest) {
-    const segment = await this._lawnSegmentRepo.findOneBy({ id });
+  public async updateLawnSegment(
+    id: number,
+    updateData: LawnSegmentUpdateRequest,
+  ) {
+    LogHelpers.addBusinessContext('lawnSegmentId', id);
+
+    const segment = await LogHelpers.withDatabaseTelemetry(() =>
+      this._lawnSegmentRepo.findOneBy({ id }),
+    );
 
     if (!segment) {
       throw new Error('Lawn segment not found');
@@ -36,10 +56,24 @@ export class LawnSegmentsService {
 
     Object.assign(segment, updateData);
 
-    return this._lawnSegmentRepo.save(segment);
+    const saved = await LogHelpers.withDatabaseTelemetry(() =>
+      this._lawnSegmentRepo.save(segment),
+    );
+
+    LogHelpers.addBusinessContext('lawnSegmentUpdated', true);
+
+    return saved;
   }
 
-  async deleteLawnSegment(id: number) {
-    return this._lawnSegmentRepo.delete({ id });
+  public async deleteLawnSegment(id: number) {
+    LogHelpers.addBusinessContext('lawnSegmentId', id);
+
+    const result = await LogHelpers.withDatabaseTelemetry(() =>
+      this._lawnSegmentRepo.delete({ id }),
+    );
+
+    LogHelpers.addBusinessContext('lawnSegmentDeleted', true);
+
+    return result;
   }
 }

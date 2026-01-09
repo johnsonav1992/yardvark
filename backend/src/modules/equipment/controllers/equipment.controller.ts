@@ -30,7 +30,7 @@ export class EquipmentController {
   ) {}
 
   @Get()
-  getAllUserEquipment(@Req() req: Request) {
+  public getAllUserEquipment(@Req() req: Request) {
     const userId = req.user.userId;
 
     return this._equipmentService.getAllUserEquipment(userId);
@@ -38,7 +38,7 @@ export class EquipmentController {
 
   @Post()
   @UseInterceptors(FileInterceptor('equipment-image'))
-  async createEquipment(
+  public async createEquipment(
     @Req() req: Request,
     @UploadedFile(imageFileValidator()) file: Express.Multer.File,
     @Body() equipmentData: Partial<Equipment>,
@@ -70,7 +70,7 @@ export class EquipmentController {
 
   @Put(':equipmentId')
   @UseInterceptors(FileInterceptor('equipment-image'))
-  async updateEquipment(
+  public async updateEquipment(
     @Req() req: Request,
     @Param('equipmentId') equipmentId: number,
     @UploadedFile(imageFileValidator()) file: Express.Multer.File,
@@ -100,7 +100,7 @@ export class EquipmentController {
   }
 
   @Put(':equipmentId')
-  toggleEquipmentArchiveStatus(
+  public toggleEquipmentArchiveStatus(
     @Param('equipmentId') equipmentId: number,
     @Query('isActive') isActive: boolean,
   ) {
@@ -111,7 +111,7 @@ export class EquipmentController {
   }
 
   @Post(':equipmentId/maintenance')
-  createMaintenanceRecord(
+  public createMaintenanceRecord(
     @Param('equipmentId') equipmentId: number,
     @Body() maintenanceData: Partial<EquipmentMaintenance>,
   ) {
@@ -122,7 +122,7 @@ export class EquipmentController {
   }
 
   @Put('maintenance/:maintenanceId')
-  updateMaintenanceRecord(
+  public updateMaintenanceRecord(
     @Param('maintenanceId') maintenanceId: number,
     @Body() maintenanceData: Partial<EquipmentMaintenance>,
   ) {
@@ -133,12 +133,14 @@ export class EquipmentController {
   }
 
   @Delete(':equipmentId')
-  deleteEquipment(@Param('equipmentId') equipmentId: number) {
+  public deleteEquipment(@Param('equipmentId') equipmentId: number) {
     return this._equipmentService.deleteEquipment(equipmentId);
   }
 
   @Delete('maintenance/:maintenanceId')
-  deleteMaintenanceRecord(@Param('maintenanceId') maintenanceId: number) {
+  public deleteMaintenanceRecord(
+    @Param('maintenanceId') maintenanceId: number,
+  ) {
     return this._equipmentService.deleteMaintenanceRecord(maintenanceId);
   }
 }

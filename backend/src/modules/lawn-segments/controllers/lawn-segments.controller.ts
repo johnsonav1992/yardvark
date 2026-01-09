@@ -17,15 +17,15 @@ import { Request } from 'express';
 
 @Controller('lawn-segments')
 export class LawnSegmentsController {
-  constructor(private _lawnSegmentService: LawnSegmentsService) {}
+  constructor(private readonly _lawnSegmentService: LawnSegmentsService) {}
 
   @Get()
-  getLawnSegments(@Req() req: Request) {
+  public getLawnSegments(@Req() req: Request) {
     return this._lawnSegmentService.getLawnSegments(req.user.userId);
   }
 
   @Post()
-  createLawnSegment(
+  public createLawnSegment(
     @Req() req: Request,
     @Body() lawnSegment: LawnSegmentCreationRequest,
   ) {
@@ -36,7 +36,7 @@ export class LawnSegmentsController {
   }
 
   @Put(':id')
-  updateLawnSegment(
+  public updateLawnSegment(
     @Param('id') id: number,
     @Body() updateData: LawnSegmentUpdateRequest,
   ) {
@@ -44,7 +44,7 @@ export class LawnSegmentsController {
   }
 
   @Delete(':id')
-  deleteLawnSegment(@Param('id') id: number) {
+  public deleteLawnSegment(@Param('id') id: number) {
     return this._lawnSegmentService.deleteLawnSegment(id);
   }
 }

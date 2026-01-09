@@ -3,6 +3,7 @@ import { Equipment } from '../models/equipment.model';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EquipmentMaintenance } from '../models/equipmentMaintenance.model';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Injectable()
 export class EquipmentService {
@@ -13,19 +14,25 @@ export class EquipmentService {
     private readonly _equipmentMaintenanceRepo: Repository<EquipmentMaintenance>,
   ) {}
 
-  async getAllUserEquipment(userId: string): Promise<Equipment[]> {
-    return this._equipmentRepo.find({
-      where: { userId },
-      relations: { maintenanceRecords: true },
-      order: {
-        maintenanceRecords: {
-          maintenanceDate: 'DESC',
+  public async getAllUserEquipment(userId: string): Promise<Equipment[]> {
+    const equipment = await LogHelpers.withDatabaseTelemetry(() =>
+      this._equipmentRepo.find({
+        where: { userId },
+        relations: { maintenanceRecords: true },
+        order: {
+          maintenanceRecords: {
+            maintenanceDate: 'DESC',
+          },
         },
-      },
-    });
+      }),
+    );
+
+    LogHelpers.addBusinessContext('equipmentCount', equipment.length);
+
+    return equipment;
   }
 
-  async createEquipment(
+  public async createEquipment(
     userId: string,
     equipmentData: Partial<Equipment>,
   ): Promise<Equipment> {
@@ -35,10 +42,16 @@ export class EquipmentService {
       userId,
     });
 
-    return this._equipmentRepo.save(newEquipment);
+    const saved = await LogHelpers.withDatabaseTelemetry(() =>
+      this._equipmentRepo.save(newEquipment),
+    );
+
+    LogHelpers.addBusinessContext('equipmentCreated', saved.id);
+
+    return saved;
   }
 
-  async updateEquipment(
+  public async updateEquipment(
     equipmentId: number,
     equipmentData: Partial<Equipment>,
   ): Promise<Equipment> {
@@ -57,7 +70,7 @@ export class EquipmentService {
     return this._equipmentRepo.save(updatedEquipment);
   }
 
-  async toggleEquipmentArchiveStatus(
+  public async toggleEquipmentArchiveStatus(
     equipmentId: number,
     isActive: boolean,
   ): Promise<void> {
@@ -72,10 +85,12 @@ export class EquipmentService {
     await this._equipmentRepo.save(equipment);
   }
 
-  async createMaintenanceRecord(
+  public async createMaintenanceRecord(
     equipmentId: number,
     maintenanceData: Partial<EquipmentMaintenance>,
   ): Promise<EquipmentMaintenance> {
+    LogHelpers.addBusinessContext('equipmentId', equipmentId);
+
     const equipment = await this.findEquipmentById(equipmentId);
 
     if (!equipment) {
@@ -89,12 +104,19 @@ export class EquipmentService {
       },
     });
 
-    await this._equipmentMaintenanceRepo.save(newMaintenanceRecord);
+    await LogHelpers.withDatabaseTelemetry(() =>
+      this._equipmentMaintenanceRepo.save(newMaintenanceRecord),
+    );
+
+    LogHelpers.addBusinessContext(
+      'maintenanceRecordCreated',
+      newMaintenanceRecord.id,
+    );
 
     return newMaintenanceRecord;
   }
 
-  async updateMaintenanceRecord(
+  public async updateMaintenanceRecord(
     maintenanceId: number,
     maintenanceData: Partial<EquipmentMaintenance>,
   ): Promise<EquipmentMaintenance> {
@@ -118,17 +140,23 @@ export class EquipmentService {
     return this._equipmentMaintenanceRepo.save(updated);
   }
 
-  async deleteEquipment(equipmentId: number): Promise<void> {
+  public async deleteEquipment(equipmentId: number): Promise<void> {
+    LogHelpers.addBusinessContext('equipmentId', equipmentId);
+
     const equipment = await this.findEquipmentById(equipmentId);
 
     if (!equipment) {
       throw new HttpException('Equipment not found', HttpStatus.NOT_FOUND);
     }
 
-    await this._equipmentRepo.softDelete(equipmentId);
+    await LogHelpers.withDatabaseTelemetry(() =>
+      this._equipmentRepo.softDelete(equipmentId),
+    );
+
+    LogHelpers.addBusinessContext('equipmentDeleted', true);
   }
 
-  async deleteMaintenanceRecord(maintenanceId: number): Promise<void> {
+  public async deleteMaintenanceRecord(maintenanceId: number): Promise<void> {
     const maintenanceRecord = await this._equipmentMaintenanceRepo.findOne({
       where: { id: maintenanceId },
     });

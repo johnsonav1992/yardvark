@@ -190,7 +190,8 @@ describe('EmailService', () => {
     it('should handle feedback with special characters in message', async () => {
       const specialCharsFeedback: FeedbackEmailData = {
         ...mockFeedbackData,
-        message: 'Test message with special chars: <script>alert("xss")</script>',
+        message:
+          'Test message with special chars: <script>alert("xss")</script>',
       };
 
       const result = await service.sendFeedbackEmail(specialCharsFeedback);

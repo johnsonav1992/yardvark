@@ -20,7 +20,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Put()
-  updateUser(@Req() req: Request, @Body() data: Partial<User>) {
+  public updateUser(@Req() req: Request, @Body() data: Partial<User>) {
     const userId = req.user.userId;
 
     return this.usersService.updateUser(userId, data);
@@ -28,7 +28,7 @@ export class UsersController {
 
   @Post('profile-picture')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadProfilePicture(
+  public async uploadProfilePicture(
     @UploadedFile(imageFileValidator(MAX_PROFILE_PICTURE_SIZE))
     file: Express.Multer.File,
     @Req() req: Request,

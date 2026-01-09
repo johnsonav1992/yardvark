@@ -63,13 +63,10 @@ export function initializeOTelLogger(
     headers: config.headers,
   });
 
-  const processors = [new SimpleLogRecordProcessor(otlpExporter)];
-
-  if (process.env.NODE_ENV !== 'production') {
-    processors.push(
-      new SimpleLogRecordProcessor(new ConsoleLogRecordExporter()),
-    );
-  }
+  const processors = [
+    new SimpleLogRecordProcessor(otlpExporter),
+    new SimpleLogRecordProcessor(new ConsoleLogRecordExporter()),
+  ];
 
   loggerProvider = new LoggerProvider({
     resource,

@@ -3,7 +3,6 @@ import {
   ExecutionContext,
   HttpException,
   Injectable,
-  Logger,
   NestInterceptor,
   Scope,
 } from '@nestjs/common';
@@ -25,8 +24,6 @@ export { getLogContext, getRequestContext } from './logger.context';
 
 @Injectable({ scope: Scope.REQUEST })
 export class LoggingInterceptor implements NestInterceptor {
-  private logger = new Logger('HTTP');
-
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const httpContext = context.switchToHttp();
     const request = httpContext.getRequest<Request>();
@@ -173,13 +170,10 @@ export class LoggingInterceptor implements NestInterceptor {
       service: 'yardvark-api',
     };
 
-    const logMethod = success ? 'log' : 'error';
     const emoji = this.getStatusEmoji(statusCode);
     const userName = request.user?.name || 'anonymous';
 
     const summary = `${emoji} ${request.method} ${request.path} ${statusCode} ${duration}ms [${userName}]`;
-
-    this.logger[logMethod](`${summary}\n${JSON.stringify(logEntry, null, 2)}`);
 
     logToOTel(
       success ? 'info' : 'error',

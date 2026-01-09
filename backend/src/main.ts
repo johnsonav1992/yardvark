@@ -4,8 +4,18 @@ import { AppModule } from './app.module';
 import { LoggingInterceptor } from './logger/logger';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
+import {
+  initializeOTelLogger,
+  parseOTelHeaders,
+} from './logger/otel.transport';
 
 async function bootstrap() {
+  initializeOTelLogger({
+    endpoint: process.env.OTEL_EXPORTER_OTLP_ENDPOINT || '',
+    headers: parseOTelHeaders(process.env.OTEL_EXPORTER_OTLP_HEADERS),
+    enabled: process.env.OTEL_ENABLED === 'true',
+  });
+
   const app = await NestFactory.create(AppModule);
 
   app.use(helmet());

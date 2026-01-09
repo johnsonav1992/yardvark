@@ -18,6 +18,7 @@ import {
   TAIL_SAMPLING_SLOW_THRESHOLD_MS,
 } from './logger.constants';
 import { requestContext, RequestContext } from './logger.context';
+import { logToOTel } from './otel.transport';
 
 export { LogContext, WideEventContext } from './logger.types';
 export { getLogContext, getRequestContext } from './logger.context';
@@ -179,6 +180,12 @@ export class LoggingInterceptor implements NestInterceptor {
     const summary = `${emoji} ${request.method} ${request.path} ${statusCode} ${duration}ms [${userName}]`;
 
     this.logger[logMethod](`${summary}\n${JSON.stringify(logEntry, null, 2)}`);
+
+    logToOTel(
+      success ? 'info' : 'error',
+      summary,
+      logEntry as unknown as Record<string, unknown>,
+    );
   }
 
   private getOrCreateTraceId(request: Request): string {

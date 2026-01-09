@@ -12,6 +12,7 @@ import { format, differenceInDays } from 'date-fns';
 import { EntriesService } from '../../entries/services/entries.service';
 import { SettingsService } from '../../settings/services/settings.service';
 import { WeatherService } from '../../weather/services/weather.service';
+import { LogHelpers } from '../../../logger/logger.helpers';
 import {
   getDailyGDDCalculation,
   calculateAccumulatedGDD,
@@ -38,18 +39,23 @@ export class GddService {
   private readonly _logger = new Logger(GddService.name);
 
   constructor(
-    @Inject(CACHE_MANAGER) private _cacheManager: Cache,
-    private _entriesService: EntriesService,
-    private _settingsService: SettingsService,
-    private _weatherService: WeatherService,
+    @Inject(CACHE_MANAGER) private readonly _cacheManager: Cache,
+    private readonly _entriesService: EntriesService,
+    private readonly _settingsService: SettingsService,
+    private readonly _weatherService: WeatherService,
   ) {}
 
-  async getCurrentGdd(userId: string): Promise<CurrentGddResponse> {
+  public async getCurrentGdd(userId: string): Promise<CurrentGddResponse> {
     const cacheKey = this.getCacheKey(userId, 'current');
 
     const cached = await this._cacheManager.get<CurrentGddResponse>(cacheKey);
 
-    if (cached) return cached;
+    if (cached) {
+      LogHelpers.recordCacheHit();
+      return cached;
+    }
+
+    LogHelpers.recordCacheMiss();
 
     const settings = await this._settingsService.getUserSettings(userId);
 
@@ -125,6 +131,13 @@ export class GddService {
       baseTemperature,
     });
 
+    LogHelpers.addBusinessContext(
+      'gddAccumulated',
+      Math.round(accumulatedGdd * 10) / 10,
+    );
+    LogHelpers.addBusinessContext('gddTarget', targetGdd);
+    LogHelpers.addBusinessContext('gddCycleStatus', cycleStatus);
+
     this._logger.log(
       `GDD calculated for user ${userId}: ${accumulatedGdd.toFixed(1)}/${targetGdd} GDD, status=${cycleStatus}, days=${daysSinceLastApp}`,
     );
@@ -146,7 +159,7 @@ export class GddService {
     return result;
   }
 
-  async getHistoricalGdd(
+  public async getHistoricalGdd(
     userId: string,
     startDate: string,
     endDate: string,
@@ -158,7 +171,13 @@ export class GddService {
 
     const cached =
       await this._cacheManager.get<HistoricalGddResponse>(cacheKey);
-    if (cached) return cached;
+
+    if (cached) {
+      LogHelpers.recordCacheHit();
+      return cached;
+    }
+
+    LogHelpers.recordCacheMiss();
 
     const settings = await this._settingsService.getUserSettings(userId);
     if (!settings || Array.isArray(settings)) {
@@ -218,11 +237,17 @@ export class GddService {
     return result;
   }
 
-  async getGddForecast(userId: string): Promise<GddForecastResponse> {
+  public async getGddForecast(userId: string): Promise<GddForecastResponse> {
     const cacheKey = this.getCacheKey(userId, 'forecast');
 
     const cached = await this._cacheManager.get<GddForecastResponse>(cacheKey);
-    if (cached) return cached;
+
+    if (cached) {
+      LogHelpers.recordCacheHit();
+      return cached;
+    }
+
+    LogHelpers.recordCacheMiss();
 
     const settings = await this._settingsService.getUserSettings(userId);
     if (!settings || Array.isArray(settings)) {
@@ -300,7 +325,7 @@ export class GddService {
     return result;
   }
 
-  async invalidateCache(userId: string): Promise<void> {
+  public async invalidateCache(userId: string): Promise<void> {
     await this._cacheManager.del(this.getCacheKey(userId, 'current'));
     await this._cacheManager.del(this.getCacheKey(userId, 'forecast'));
   }

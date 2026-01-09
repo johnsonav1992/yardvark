@@ -22,13 +22,13 @@ import { Product } from '../models/products.model';
 @Controller('products')
 export class ProductsController {
   constructor(
-    private _s3Service: S3Service,
-    private _productsService: ProductsService,
+    private readonly _s3Service: S3Service,
+    private readonly _productsService: ProductsService,
   ) {}
 
   @Post()
   @UseInterceptors(FileInterceptor('product-image'))
-  async addProduct(
+  public async addProduct(
     @Req() req: Request,
     @UploadedFile(imageFileValidator()) file: Express.Multer.File,
     @Body() body: Product & { systemProduct?: string | boolean },
@@ -60,24 +60,30 @@ export class ProductsController {
   }
 
   @Get()
-  getProducts(@Req() req: Request) {
+  public getProducts(@Req() req: Request) {
     return this._productsService.getProducts(req.user.userId);
   }
 
   @Get('user-only')
-  getUserProducts(@Req() req: Request) {
+  public getUserProducts(@Req() req: Request) {
     return this._productsService.getProducts(req.user.userId, {
       userOnly: true,
     });
   }
 
   @Put('hide/:productId')
-  hideProduct(@Req() req: Request, @Param('productId') productId: number) {
+  public hideProduct(
+    @Req() req: Request,
+    @Param('productId') productId: number,
+  ) {
     return this._productsService.hideProduct(req.user.userId, productId);
   }
 
   @Put('unhide/:productId')
-  unhideProduct(@Req() req: Request, @Param('productId') productId: number) {
+  public unhideProduct(
+    @Req() req: Request,
+    @Param('productId') productId: number,
+  ) {
     return this._productsService.unhideProduct(req.user.userId, productId);
   }
 }

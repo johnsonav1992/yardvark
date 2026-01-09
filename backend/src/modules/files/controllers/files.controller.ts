@@ -23,13 +23,13 @@ import { Readable } from 'stream';
 @Controller('files')
 export class FilesController {
   constructor(
-    private _s3Service: S3Service,
+    private readonly _s3Service: S3Service,
     private readonly http: HttpService,
   ) {}
 
   @Post('upload')
   @UseInterceptors(FilesInterceptor('file', 10))
-  uploadFiles(
+  public uploadFiles(
     @UploadedFiles(imageFileValidator(MAX_FILE_LARGE_UPLOAD_SIZE))
     files: Express.Multer.File[],
     @Req() req: Request,
@@ -38,7 +38,10 @@ export class FilesController {
   }
 
   @Get('download')
-  async downloadFile(@Query('url') fileUrl: string, @Res() res: Response) {
+  public async downloadFile(
+    @Query('url') fileUrl: string,
+    @Res() res: Response,
+  ) {
     const { data: fileRes, error } = await tryCatch(() =>
       firstValueFrom(
         this.http

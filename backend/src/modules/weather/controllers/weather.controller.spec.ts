@@ -5,7 +5,6 @@ import { WeatherService } from '../services/weather.service';
 
 describe('WeatherController', () => {
   let controller: WeatherController;
-  let weatherService: WeatherService;
 
   const mockWeatherData = {
     current: {
@@ -35,7 +34,6 @@ describe('WeatherController', () => {
     }).compile();
 
     controller = module.get<WeatherController>(WeatherController);
-    weatherService = module.get<WeatherService>(WeatherService);
     jest.clearAllMocks();
   });
 
@@ -49,17 +47,24 @@ describe('WeatherController', () => {
 
       const result = await controller.getForecast('40.7128', '-74.0060');
 
-      expect(weatherService.getWeatherData).toHaveBeenCalledWith('40.7128', '-74.0060');
+      expect(mockWeatherService.getWeatherData).toHaveBeenCalledWith(
+        '40.7128',
+        '-74.0060',
+      );
       expect(result).toEqual(mockWeatherData);
     });
 
     it('should return HttpException when weather service fails', async () => {
-      mockWeatherService.getWeatherData.mockRejectedValue(new Error('API error'));
+      mockWeatherService.getWeatherData.mockRejectedValue(
+        new Error('API error'),
+      );
 
       const result = await controller.getForecast('40.7128', '-74.0060');
 
       expect(result).toBeInstanceOf(HttpException);
-      expect((result as HttpException).message).toBe('Failed to fetch weather data');
+      expect((result as HttpException).message).toBe(
+        'Failed to fetch weather data',
+      );
     });
 
     it('should handle different coordinate formats', async () => {
@@ -67,7 +72,10 @@ describe('WeatherController', () => {
 
       await controller.getForecast('51.5074', '0.1278');
 
-      expect(weatherService.getWeatherData).toHaveBeenCalledWith('51.5074', '0.1278');
+      expect(mockWeatherService.getWeatherData).toHaveBeenCalledWith(
+        '51.5074',
+        '0.1278',
+      );
     });
   });
 });

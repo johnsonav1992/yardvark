@@ -20,7 +20,9 @@ export class AiController {
   constructor(private readonly aiService: AiService) {}
 
   @Post('chat')
-  async chat(@Body() chatRequest: AiChatRequest): Promise<AiChatResponse> {
+  public async chat(
+    @Body() chatRequest: AiChatRequest,
+  ): Promise<AiChatResponse> {
     if (!chatRequest.prompt || chatRequest.prompt.trim().length === 0) {
       throw new HttpException('Prompt is required', HttpStatus.BAD_REQUEST);
     }
@@ -42,7 +44,7 @@ export class AiController {
   @FeatureFlag('ENABLE_ENTRY_QUERY')
   // @Public()
   @Post('query-entries')
-  async queryEntries(
+  public async queryEntries(
     @Req() req: Request,
     @Body() body: { query: string; userId?: string },
   ): Promise<AiChatResponse> {
@@ -69,7 +71,7 @@ export class AiController {
   @FeatureFlag('ENABLE_ENTRY_QUERY')
   // @Public()
   @Post('initialize-embeddings')
-  async initializeEmbeddings(
+  public async initializeEmbeddings(
     @Req() req: Request,
     @Body() body?: { userId?: string },
   ): Promise<{ processed: number; errors: number }> {
@@ -92,7 +94,7 @@ export class AiController {
   @FeatureFlag('ENABLE_ENTRY_QUERY')
   // @Public()
   @Post('stream-query-entries')
-  async streamQueryEntries(
+  public async streamQueryEntries(
     @Req() req: Request,
     @Res() res: Response,
     @Body() body: { query: string; userId?: string },

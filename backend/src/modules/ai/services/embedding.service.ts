@@ -4,14 +4,15 @@ import { FeatureExtractionPipeline, pipeline } from '@huggingface/transformers';
 import { createEntryEmbeddingText } from '../../entries/utils/entryRagUtils';
 import { tryCatch } from '../../../utils/tryCatch';
 import { ConfigService } from '@nestjs/config';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Injectable()
 export class EmbeddingService implements OnModuleInit {
   private embedder: FeatureExtractionPipeline | null = null;
 
-  constructor(private configService: ConfigService) {}
+  constructor(private readonly configService: ConfigService) {}
 
-  async onModuleInit() {
+  public async onModuleInit() {
     const enableEntryQuery =
       this.configService.get<string>('ENABLE_ENTRY_QUERY') === 'true';
 
@@ -35,18 +36,25 @@ export class EmbeddingService implements OnModuleInit {
     this.embedder = result.data;
   }
 
-  async generateEmbedding(text: string): Promise<number[]> {
+  public async generateEmbedding(text: string): Promise<number[]> {
     const embedder = this.embedder;
 
     if (!embedder) {
       throw new Error('Embedding model not initialized');
     }
 
+    const start = Date.now();
     const result = await tryCatch(() =>
       embedder(text, {
         pooling: 'mean',
         normalize: true,
       }),
+    );
+
+    LogHelpers.recordExternalCall(
+      'embedding-model',
+      Date.now() - start,
+      result.success,
     );
 
     if (!result.success) {
@@ -64,7 +72,7 @@ export class EmbeddingService implements OnModuleInit {
     throw new Error('Invalid embedding result format');
   }
 
-  async embedEntry(entry: Entry): Promise<number[]> {
+  public async embedEntry(entry: Entry): Promise<number[]> {
     const text = createEntryEmbeddingText(entry);
 
     return this.generateEmbedding(text);

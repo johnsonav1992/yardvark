@@ -21,7 +21,17 @@ describe('EntriesService', () => {
     soilTemperature: null,
     soilTemperatureUnit: 'F',
     activities: [{ id: ACTIVITY_IDS.MOW, name: 'Mow' }],
-    lawnSegments: [{ id: 1, userId: mockUserId, name: 'Front Yard', size: 2500, coordinates: null, color: '#4CAF50', entries: [] }],
+    lawnSegments: [
+      {
+        id: 1,
+        userId: mockUserId,
+        name: 'Front Yard',
+        size: 2500,
+        coordinates: null,
+        color: '#4CAF50',
+        entries: [],
+      },
+    ],
     entryProducts: [],
     entryImages: [],
   } as unknown as Entry;
@@ -29,7 +39,9 @@ describe('EntriesService', () => {
   const mockEntryWithProducts = {
     ...mockEntry,
     id: 2,
-    activities: [{ id: ACTIVITY_IDS.PRODUCT_APPLICATION, name: 'Product Application' }],
+    activities: [
+      { id: ACTIVITY_IDS.PRODUCT_APPLICATION, name: 'Product Application' },
+    ],
     entryProducts: [
       {
         entryId: 2,
@@ -121,7 +133,11 @@ describe('EntriesService', () => {
     it('should return entries within date range', async () => {
       mockEntryRepository.find.mockResolvedValue([mockEntry]);
 
-      const result = await service.getEntries(mockUserId, '2024-06-01', '2024-06-30');
+      const result = await service.getEntries(
+        mockUserId,
+        '2024-06-01',
+        '2024-06-30',
+      );
 
       expect(mockEntryRepository.find).toHaveBeenCalled();
       expect(result).toHaveLength(1);
@@ -270,9 +286,11 @@ describe('EntriesService', () => {
     it('should return the last PGR application date', async () => {
       const pgrEntry = {
         ...mockEntry,
-        entryProducts: [{
-          product: { category: 'pgr' },
-        }],
+        entryProducts: [
+          {
+            product: { category: 'pgr' },
+          },
+        ],
       };
       const mockQueryBuilder = {
         innerJoin: jest.fn().mockReturnThis(),
@@ -346,7 +364,9 @@ describe('EntriesService', () => {
         entryImages: [],
         activityIds: [ACTIVITY_IDS.PRODUCT_APPLICATION],
         lawnSegmentIds: [1],
-        products: [{ productId: 1, productQuantity: 2, productQuantityUnit: 'lbs' }],
+        products: [
+          { productId: 1, productQuantity: 2, productQuantityUnit: 'lbs' },
+        ],
         imageUrls: [],
       };
 
@@ -425,14 +445,20 @@ describe('EntriesService', () => {
       const batchRequest = {
         entries: [
           createMockEntryRequest({ title: 'Entry 1' }),
-          createMockEntryRequest({ title: 'Entry 2', date: new Date('2024-06-16') }),
+          createMockEntryRequest({
+            title: 'Entry 2',
+            date: new Date('2024-06-16'),
+          }),
         ],
       };
 
       mockEntryRepository.create.mockReturnValue(mockEntry);
       mockEntryRepository.save.mockResolvedValue(mockEntry);
 
-      const result = await service.createEntriesBatch(mockUserId, batchRequest as any);
+      const result = await service.createEntriesBatch(
+        mockUserId,
+        batchRequest as any,
+      );
 
       expect(result.created).toBe(2);
       expect(result.failed).toBe(0);
@@ -455,7 +481,10 @@ describe('EntriesService', () => {
         });
       mockEntryRepository.save.mockResolvedValue(mockEntry);
 
-      const result = await service.createEntriesBatch(mockUserId, batchRequest as any);
+      const result = await service.createEntriesBatch(
+        mockUserId,
+        batchRequest as any,
+      );
 
       expect(result.created).toBe(1);
       expect(result.failed).toBe(1);
@@ -474,10 +503,20 @@ describe('EntriesService', () => {
         products: [],
       };
 
-      const existingEntry = { ...mockEntry, entryProducts: [], entryImages: [] };
+      const existingEntry = {
+        ...mockEntry,
+        entryProducts: [],
+        entryImages: [],
+      };
       mockEntryRepository.findOne.mockResolvedValue(existingEntry);
-      mockEntryRepository.merge.mockReturnValue({ ...existingEntry, ...updateData });
-      mockEntryRepository.save.mockResolvedValue({ ...existingEntry, ...updateData });
+      mockEntryRepository.merge.mockReturnValue({
+        ...existingEntry,
+        ...updateData,
+      });
+      mockEntryRepository.save.mockResolvedValue({
+        ...existingEntry,
+        ...updateData,
+      });
 
       const result = await service.updateEntry(1, updateData);
 
@@ -497,9 +536,7 @@ describe('EntriesService', () => {
     it('should throw NOT_FOUND when entry does not exist', async () => {
       mockEntryRepository.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.updateEntry(999, { title: 'Test' }),
-      ).rejects.toThrow(
+      await expect(service.updateEntry(999, { title: 'Test' })).rejects.toThrow(
         new HttpException('Entry not found', HttpStatus.NOT_FOUND),
       );
     });
@@ -565,7 +602,10 @@ describe('EntriesService', () => {
     it('should search entries with default date range', async () => {
       mockEntryRepository.find.mockResolvedValue([mockEntry]);
 
-      const result = await service.searchEntries(mockUserId, createSearchRequest());
+      const result = await service.searchEntries(
+        mockUserId,
+        createSearchRequest(),
+      );
 
       expect(mockEntryRepository.find).toHaveBeenCalled();
       expect(result).toHaveLength(1);
@@ -574,9 +614,12 @@ describe('EntriesService', () => {
     it('should search entries with custom date range', async () => {
       mockEntryRepository.find.mockResolvedValue([mockEntry]);
 
-      const result = await service.searchEntries(mockUserId, createSearchRequest({
-        dateRange: ['2024-06-01', '2024-06-30'],
-      }));
+      const result = await service.searchEntries(
+        mockUserId,
+        createSearchRequest({
+          dateRange: ['2024-06-01', '2024-06-30'],
+        }),
+      );
 
       expect(mockEntryRepository.find).toHaveBeenCalled();
       expect(result).toHaveLength(1);
@@ -585,9 +628,12 @@ describe('EntriesService', () => {
     it('should search entries by activities', async () => {
       mockEntryRepository.find.mockResolvedValue([mockEntry]);
 
-      const result = await service.searchEntries(mockUserId, createSearchRequest({
-        activities: [ACTIVITY_IDS.MOW],
-      }));
+      const result = await service.searchEntries(
+        mockUserId,
+        createSearchRequest({
+          activities: [ACTIVITY_IDS.MOW],
+        }),
+      );
 
       expect(mockEntryRepository.find).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -602,9 +648,12 @@ describe('EntriesService', () => {
     it('should search entries by lawn segments', async () => {
       mockEntryRepository.find.mockResolvedValue([mockEntry]);
 
-      const result = await service.searchEntries(mockUserId, createSearchRequest({
-        lawnSegments: [1],
-      }));
+      const result = await service.searchEntries(
+        mockUserId,
+        createSearchRequest({
+          lawnSegments: [1],
+        }),
+      );
 
       expect(mockEntryRepository.find).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -619,9 +668,12 @@ describe('EntriesService', () => {
     it('should search entries by products', async () => {
       mockEntryRepository.find.mockResolvedValue([mockEntryWithProducts]);
 
-      const result = await service.searchEntries(mockUserId, createSearchRequest({
-        products: [1],
-      }));
+      const result = await service.searchEntries(
+        mockUserId,
+        createSearchRequest({
+          products: [1],
+        }),
+      );
 
       expect(mockEntryRepository.find).toHaveBeenCalled();
       expect(result).toHaveLength(1);
@@ -630,9 +682,12 @@ describe('EntriesService', () => {
     it('should search entries by title or notes', async () => {
       mockEntryRepository.find.mockResolvedValue([mockEntry]);
 
-      const result = await service.searchEntries(mockUserId, createSearchRequest({
-        titleOrNotes: 'mow',
-      }));
+      const result = await service.searchEntries(
+        mockUserId,
+        createSearchRequest({
+          titleOrNotes: 'mow',
+        }),
+      );
 
       expect(mockEntryRepository.find).toHaveBeenCalledWith(
         expect.objectContaining({

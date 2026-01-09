@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Request } from 'express';
 import { MailerSend, EmailParams, Sender, Recipient } from 'mailersend';
 import { tryCatch } from '../../../utils/tryCatch';
 import { generateFeedbackEmailHtml } from '../helpers/email.helpers';
@@ -43,10 +42,7 @@ export class EmailService {
     this.isInitialized = true;
   }
 
-  async sendFeedbackEmail(
-    feedbackData: FeedbackEmailData,
-    request?: Request,
-  ): Promise<boolean> {
+  async sendFeedbackEmail(feedbackData: FeedbackEmailData): Promise<boolean> {
     if (!this.isInitialized) {
       this.logger.error('MailerSend not initialized. Check API key.');
 
@@ -73,14 +69,11 @@ export class EmailService {
       return await this.mailerSend.email.send(emailParams);
     });
 
-    if (request) {
-      LogHelpers.recordExternalCall(
-        request,
-        'mailersend',
-        Date.now() - start,
-        result.success,
-      );
-    }
+    LogHelpers.recordExternalCall(
+      'mailersend',
+      Date.now() - start,
+      result.success,
+    );
 
     if (result.success) {
       this.logger.log('Feedback email sent successfully');

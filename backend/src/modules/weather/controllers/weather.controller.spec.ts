@@ -34,7 +34,6 @@ describe('WeatherController', () => {
     }).compile();
 
     controller = module.get<WeatherController>(WeatherController);
-    weatherService = module.get<WeatherService>(WeatherService);
     jest.clearAllMocks();
   });
 
@@ -48,7 +47,7 @@ describe('WeatherController', () => {
 
       const result = await controller.getForecast('40.7128', '-74.0060');
 
-      expect(weatherService.getWeatherData).toHaveBeenCalledWith(
+      expect(mockWeatherService.getWeatherData).toHaveBeenCalledWith(
         '40.7128',
         '-74.0060',
       );
@@ -73,7 +72,7 @@ describe('WeatherController', () => {
 
       await controller.getForecast('51.5074', '0.1278');
 
-      expect(weatherService.getWeatherData).toHaveBeenCalledWith(
+      expect(mockWeatherService.getWeatherData).toHaveBeenCalledWith(
         '51.5074',
         '0.1278',
       );

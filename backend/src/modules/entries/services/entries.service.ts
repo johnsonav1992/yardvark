@@ -15,7 +15,6 @@ import {
 } from 'typeorm';
 import { Entry, EntryImage, EntryProduct } from '../models/entries.model';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Request } from 'express';
 import { getEntryResponseMapping } from '../utils/entryUtils';
 import { ACTIVITY_IDS } from 'src/constants/activities.constants';
 import { LogHelpers } from '../../../logger/logger.helpers';
@@ -31,13 +30,8 @@ export class EntriesService {
     private _entryImagesRepo: Repository<EntryImage>,
   ) {}
 
-  async getEntries(
-    userId: string,
-    startDate?: string,
-    endDate?: string,
-    request?: Request,
-  ) {
-    const entries = await LogHelpers.withDatabaseTelemetry(request, () =>
+  async getEntries(userId: string, startDate?: string, endDate?: string) {
+    const entries = await LogHelpers.withDatabaseTelemetry(() =>
       this._entriesRepo.find({
         where: {
           userId,
@@ -64,8 +58,8 @@ export class EntriesService {
     return entries.map((entry) => getEntryResponseMapping(entry));
   }
 
-  async getEntry(entryId: number, request?: Request) {
-    const entry = await LogHelpers.withDatabaseTelemetry(request, () =>
+  async getEntry(entryId: number) {
+    const entry = await LogHelpers.withDatabaseTelemetry(() =>
       this._entriesRepo.findOne({
         where: { id: entryId },
         relations: {
@@ -191,11 +185,7 @@ export class EntriesService {
     return entry?.date || null;
   }
 
-  async createEntry(
-    userId: string,
-    entry: EntryCreationRequest,
-    request?: Request,
-  ) {
+  async createEntry(userId: string, entry: EntryCreationRequest) {
     const newEntry = this._entriesRepo.create({
       ...entry,
       userId,
@@ -212,7 +202,7 @@ export class EntriesService {
         })) || [],
     });
 
-    await LogHelpers.withDatabaseTelemetry(request, () =>
+    await LogHelpers.withDatabaseTelemetry(() =>
       this._entriesRepo.save(newEntry),
     );
 
@@ -313,11 +303,7 @@ export class EntriesService {
     await this._entriesRepo.restore(entryId);
   }
 
-  async searchEntries(
-    userId: string,
-    searchCriteria: EntriesSearchRequest,
-    request?: Request,
-  ) {
+  async searchEntries(userId: string, searchCriteria: EntriesSearchRequest) {
     const today = new Date();
     const startOfYear = new Date(today.getFullYear(), 0, 1);
 
@@ -359,7 +345,7 @@ export class EntriesService {
       ];
     }
 
-    const entries = await LogHelpers.withDatabaseTelemetry(request, () =>
+    const entries = await LogHelpers.withDatabaseTelemetry(() =>
       this._entriesRepo.find({
         where,
         relations: {

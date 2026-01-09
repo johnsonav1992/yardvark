@@ -5,7 +5,6 @@ import {
   PutObjectCommandInput,
 } from '@aws-sdk/client-s3';
 import { ConfigService } from '@nestjs/config';
-import { Request } from 'express';
 import { randomUUID } from 'crypto';
 import * as convert from 'heic-convert';
 import * as path from 'path';
@@ -32,7 +31,6 @@ export class S3Service {
   public async uploadFile(
     file: Express.Multer.File,
     userId: string,
-    request?: Request,
   ): Promise<string> {
     const { buffer, originalname, mimetype } =
       await this.checkForHeicAndConvert(file);
@@ -56,14 +54,7 @@ export class S3Service {
       success = false;
       throw error;
     } finally {
-      if (request) {
-        LogHelpers.recordExternalCall(
-          request,
-          'aws-s3',
-          Date.now() - start,
-          success,
-        );
-      }
+      LogHelpers.recordExternalCall('aws-s3', Date.now() - start, success);
     }
 
     return `https://${this.bucketName}.s3.${process.env.AWS_REGION_YARDVARK}.amazonaws.com/${encodeURIComponent(key)}`;
@@ -73,7 +64,6 @@ export class S3Service {
     files: Express.Multer.File[],
     userId: string,
     concurrency = 5,
-    request?: Request,
   ): Promise<string[]> {
     const results: string[] = [];
 
@@ -81,7 +71,7 @@ export class S3Service {
       const batch = files.slice(i, i + concurrency);
 
       const batchResults = await Promise.all(
-        batch.map((file) => this.uploadFile(file, userId, request)),
+        batch.map((file) => this.uploadFile(file, userId)),
       );
 
       results.push(...batchResults);

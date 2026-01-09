@@ -28,12 +28,7 @@ export class EntriesController {
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {
-    return this._entriesService.getEntries(
-      req.user.userId,
-      startDate,
-      endDate,
-      req,
-    );
+    return this._entriesService.getEntries(req.user.userId, startDate, endDate);
   }
 
   @Get('single/most-recent')
@@ -73,13 +68,13 @@ export class EntriesController {
   }
 
   @Get('single/:entryId')
-  getEntry(@Req() req: Request, @Param('entryId') entryId: number) {
-    return this._entriesService.getEntry(entryId, req);
+  getEntry(@Param('entryId') entryId: number) {
+    return this._entriesService.getEntry(entryId);
   }
 
   @Post()
   async createEntry(@Req() req: Request, @Body() entry: EntryCreationRequest) {
-    return this._entriesService.createEntry(req.user.userId, entry, req);
+    return this._entriesService.createEntry(req.user.userId, entry);
   }
 
   @Post('batch')
@@ -113,11 +108,7 @@ export class EntriesController {
     @Req() req: Request,
     @Body() searchCriteria: EntriesSearchRequest,
   ) {
-    return this._entriesService.searchEntries(
-      req.user.userId,
-      searchCriteria,
-      req,
-    );
+    return this._entriesService.searchEntries(req.user.userId, searchCriteria);
   }
 
   @Delete('entry-image/:entryImageId')

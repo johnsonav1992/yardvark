@@ -19,8 +19,10 @@ import {
   TAIL_SAMPLING_SLOW_THRESHOLD_MS,
   SENSITIVE_FIELDS,
 } from './logger.constants';
+import { requestContext, RequestContext } from './logger.context';
 
 export { LogContext, WideEventContext } from './logger.types';
+export { getLogContext, getRequestContext } from './logger.context';
 
 @Injectable({ scope: Scope.REQUEST })
 export class LoggingInterceptor implements NestInterceptor {
@@ -40,53 +42,58 @@ export class LoggingInterceptor implements NestInterceptor {
       externalCalls: [],
     };
 
-    request.traceId = traceId;
-    request.requestId = requestId;
-    request.logContext = logContext;
+    const reqContext: RequestContext = { traceId, requestId, logContext };
 
     const start = Date.now();
     let responseBody: unknown;
 
-    return next.handle().pipe(
-      tap((body) => {
-        const duration = Date.now() - start;
-        const statusCode = response.statusCode;
-        responseBody = body;
+    return new Observable((subscriber) => {
+      requestContext.run(reqContext, () => {
+        next
+          .handle()
+          .pipe(
+            tap((body) => {
+              const duration = Date.now() - start;
+              const statusCode = response.statusCode;
+              responseBody = body;
 
-        if (this.shouldLogRequest(statusCode, duration, true)) {
-          this.logHttpRequest({
-            request,
-            response,
-            responseBody,
-            statusCode,
-            duration,
-            traceId,
-            requestId,
-            success: true,
-            logContext,
-          });
-        }
-      }),
-      catchError((error: unknown) => {
-        const duration = Date.now() - start;
-        const statusCode = this.getErrorStatusCode(response, error);
+              if (this.shouldLogRequest(statusCode, duration, true)) {
+                this.logHttpRequest({
+                  request,
+                  response,
+                  responseBody,
+                  statusCode,
+                  duration,
+                  traceId,
+                  requestId,
+                  success: true,
+                  logContext,
+                });
+              }
+            }),
+            catchError((error: unknown) => {
+              const duration = Date.now() - start;
+              const statusCode = this.getErrorStatusCode(response, error);
 
-        this.logHttpRequest({
-          request,
-          response,
-          responseBody: undefined,
-          statusCode,
-          duration,
-          traceId,
-          requestId,
-          success: false,
-          error,
-          logContext,
-        });
+              this.logHttpRequest({
+                request,
+                response,
+                responseBody: undefined,
+                statusCode,
+                duration,
+                traceId,
+                requestId,
+                success: false,
+                error,
+                logContext,
+              });
 
-        return throwError(() => error);
-      }),
-    );
+              return throwError(() => error);
+            }),
+          )
+          .subscribe(subscriber);
+      });
+    });
   }
 
   private shouldLogRequest(

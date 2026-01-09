@@ -39,13 +39,13 @@ export class GddService {
   private readonly _logger = new Logger(GddService.name);
 
   constructor(
-    @Inject(CACHE_MANAGER) private _cacheManager: Cache,
-    private _entriesService: EntriesService,
-    private _settingsService: SettingsService,
-    private _weatherService: WeatherService,
+    @Inject(CACHE_MANAGER) private readonly _cacheManager: Cache,
+    private readonly _entriesService: EntriesService,
+    private readonly _settingsService: SettingsService,
+    private readonly _weatherService: WeatherService,
   ) {}
 
-  async getCurrentGdd(userId: string): Promise<CurrentGddResponse> {
+  public async getCurrentGdd(userId: string): Promise<CurrentGddResponse> {
     const cacheKey = this.getCacheKey(userId, 'current');
 
     const cached = await this._cacheManager.get<CurrentGddResponse>(cacheKey);
@@ -131,7 +131,10 @@ export class GddService {
       baseTemperature,
     });
 
-    LogHelpers.addBusinessContext('gddAccumulated', Math.round(accumulatedGdd * 10) / 10);
+    LogHelpers.addBusinessContext(
+      'gddAccumulated',
+      Math.round(accumulatedGdd * 10) / 10,
+    );
     LogHelpers.addBusinessContext('gddTarget', targetGdd);
     LogHelpers.addBusinessContext('gddCycleStatus', cycleStatus);
 
@@ -156,7 +159,7 @@ export class GddService {
     return result;
   }
 
-  async getHistoricalGdd(
+  public async getHistoricalGdd(
     userId: string,
     startDate: string,
     endDate: string,
@@ -234,7 +237,7 @@ export class GddService {
     return result;
   }
 
-  async getGddForecast(userId: string): Promise<GddForecastResponse> {
+  public async getGddForecast(userId: string): Promise<GddForecastResponse> {
     const cacheKey = this.getCacheKey(userId, 'forecast');
 
     const cached = await this._cacheManager.get<GddForecastResponse>(cacheKey);
@@ -322,7 +325,7 @@ export class GddService {
     return result;
   }
 
-  async invalidateCache(userId: string): Promise<void> {
+  public async invalidateCache(userId: string): Promise<void> {
     await this._cacheManager.del(this.getCacheKey(userId, 'current'));
     await this._cacheManager.del(this.getCacheKey(userId, 'forecast'));
   }

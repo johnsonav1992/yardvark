@@ -7,7 +7,7 @@ export class EmailController {
   constructor(private readonly emailService: EmailService) {}
 
   @Post('feedback')
-  async sendFeedback(@Body() feedbackData: FeedbackRequest) {
+  public async sendFeedback(@Body() feedbackData: FeedbackRequest) {
     const emailData: FeedbackEmailData = feedbackData;
 
     const success = await this.emailService.sendFeedbackEmail(emailData);

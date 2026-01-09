@@ -23,7 +23,7 @@ export class GeminiService {
   private readonly genAI: GoogleGenAI;
   private readonly defaultModel: string;
 
-  constructor(private configService: ConfigService) {
+  constructor(private readonly configService: ConfigService) {
     const apiKey = this.configService.get<string>('GEMINI_API_KEY');
 
     if (!apiKey) {
@@ -37,11 +37,11 @@ export class GeminiService {
       'gemini-2.0-flash';
   }
 
-  get genAIInstance(): GoogleGenAI {
+  public get genAIInstance(): GoogleGenAI {
     return this.genAI;
   }
 
-  async chat(
+  public async chat(
     messages: GeminiChatMessage[],
     options?: GeminiChatOptions,
   ): Promise<AiChatResponse> {
@@ -119,14 +119,14 @@ export class GeminiService {
       .join('\n\n');
   }
 
-  async simpleChat(
+  public async simpleChat(
     prompt: string,
     options?: GeminiChatOptions,
   ): Promise<AiChatResponse> {
     return this.chat([{ role: 'user', content: prompt }], options);
   }
 
-  async chatWithSystem(
+  public async chatWithSystem(
     systemPrompt: string,
     userPrompt: string,
     options?: GeminiChatOptions,
@@ -140,7 +140,7 @@ export class GeminiService {
     );
   }
 
-  async *streamChat(
+  public async *streamChat(
     messages: GeminiChatMessage[],
     options?: GeminiChatOptions,
   ): AsyncGenerator<{ content: string; done: boolean }, void, unknown> {
@@ -180,11 +180,15 @@ export class GeminiService {
       const message = error instanceof Error ? error.message : 'Unknown error';
       throw new Error(`Gemini streaming error: ${message}`);
     } finally {
-      LogHelpers.recordExternalCall('gemini-stream', Date.now() - start, success);
+      LogHelpers.recordExternalCall(
+        'gemini-stream',
+        Date.now() - start,
+        success,
+      );
     }
   }
 
-  async *streamChatWithSystem(
+  public async *streamChatWithSystem(
     systemPrompt: string,
     userPrompt: string,
     options?: GeminiChatOptions,

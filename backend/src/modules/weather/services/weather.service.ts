@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { HttpService } from '@nestjs/axios';
@@ -14,19 +14,19 @@ import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Injectable()
 export class WeatherService {
-  private readonly _logger = new Logger(WeatherService.name);
   private readonly weatherDotGovBaseUrl = 'https://api.weather.gov';
   private readonly openMeteoHistoricalUrl =
     'https://historical-forecast-api.open-meteo.com/v1/forecast';
 
   constructor(
     private readonly httpService: HttpService,
-    @Inject(CACHE_MANAGER) private _cacheManager: Cache,
-    @Inject('FORECAST_CACHE_TTL') private _forecastCacheTtl: number,
-    @Inject('HISTORICAL_CACHE_TTL') private _historicalCacheTtl: number,
+    @Inject(CACHE_MANAGER) private readonly _cacheManager: Cache,
+    @Inject('FORECAST_CACHE_TTL') private readonly _forecastCacheTtl: number,
+    @Inject('HISTORICAL_CACHE_TTL')
+    private readonly _historicalCacheTtl: number,
   ) {}
 
-  async getWeatherData(
+  public async getWeatherData(
     lat: string,
     long: string,
   ): Promise<WeatherDotGovForecastResponse> {
@@ -36,12 +36,10 @@ export class WeatherService {
       await this._cacheManager.get<WeatherDotGovForecastResponse>(cacheKey);
 
     if (cached) {
-      this._logger.debug(`Cache hit for forecast: ${cacheKey}`);
       LogHelpers.recordCacheHit();
       return cached;
     }
 
-    this._logger.debug(`Cache miss for forecast: ${cacheKey}`);
     LogHelpers.recordCacheMiss();
 
     const start = Date.now();
@@ -84,7 +82,7 @@ export class WeatherService {
     return result.data;
   }
 
-  async getHistoricalAirTemperatures({
+  public async getHistoricalAirTemperatures({
     lat,
     long,
     startDate,
@@ -114,12 +112,10 @@ export class WeatherService {
     const cached = await this._cacheManager.get<HistoricalTempResult>(cacheKey);
 
     if (cached) {
-      this._logger.debug(`Cache hit for historical temps: ${cacheKey}`);
       LogHelpers.recordCacheHit();
       return cached;
     }
 
-    this._logger.debug(`Cache miss for historical temps: ${cacheKey}`);
     LogHelpers.recordCacheMiss();
 
     const params = new URLSearchParams({

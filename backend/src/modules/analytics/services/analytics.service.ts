@@ -7,7 +7,7 @@ import { LogHelpers } from '../../../logger/logger.helpers';
 export class AnalyticsService {
   public constructor(private readonly dataSource: DataSource) {}
 
-  async getAnalytics(
+  public async getAnalytics(
     userId: string,
     year?: number,
   ): Promise<AnalyticsRes[0]['get_user_analytics_v2']> {

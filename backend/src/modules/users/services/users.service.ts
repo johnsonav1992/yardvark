@@ -26,7 +26,7 @@ export class UsersService {
     this.usersUrl = `https://${this.auth0Domain}/api/v2/users`;
   }
 
-  async getManagementToken(): Promise<string> {
+  public async getManagementToken(): Promise<string> {
     const start = Date.now();
     let success = true;
 
@@ -52,7 +52,10 @@ export class UsersService {
     }
   }
 
-  async updateUser(userId: string, userData: Partial<User>): Promise<any> {
+  public async updateUser(
+    userId: string,
+    userData: Partial<User>,
+  ): Promise<any> {
     const token = await this.getManagementToken();
 
     const start = Date.now();
@@ -72,11 +75,15 @@ export class UsersService {
       success = false;
       throw error;
     } finally {
-      LogHelpers.recordExternalCall('auth0-update', Date.now() - start, success);
+      LogHelpers.recordExternalCall(
+        'auth0-update',
+        Date.now() - start,
+        success,
+      );
     }
   }
 
-  async updateProfilePicture(
+  public async updateProfilePicture(
     userId: string,
     file: Express.Multer.File,
   ): Promise<{ picture: string }> {

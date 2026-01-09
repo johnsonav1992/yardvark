@@ -4,15 +4,15 @@ import { GddService } from '../services/gdd.service';
 
 @Controller('gdd')
 export class GddController {
-  constructor(private _gddService: GddService) {}
+  constructor(private readonly _gddService: GddService) {}
 
   @Get('current')
-  getCurrentGdd(@Req() req: Request) {
+  public getCurrentGdd(@Req() req: Request) {
     return this._gddService.getCurrentGdd(req.user.userId);
   }
 
   @Get('historical')
-  getHistoricalGdd(
+  public getHistoricalGdd(
     @Req() req: Request,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
@@ -25,7 +25,7 @@ export class GddController {
   }
 
   @Get('forecast')
-  getGddForecast(@Req() req: Request) {
+  public getGddForecast(@Req() req: Request) {
     return this._gddService.getGddForecast(req.user.userId);
   }
 }

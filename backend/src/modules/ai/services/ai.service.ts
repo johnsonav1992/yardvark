@@ -14,13 +14,13 @@ import { LogHelpers } from '../../../logger/logger.helpers';
 @Injectable()
 export class AiService {
   constructor(
-    private geminiService: GeminiService,
-    private embeddingService: EmbeddingService,
+    private readonly geminiService: GeminiService,
+    private readonly embeddingService: EmbeddingService,
     @Inject(forwardRef(() => EntriesService))
-    private entriesService: EntriesService,
+    private readonly entriesService: EntriesService,
   ) {}
 
-  async chat(prompt: string): Promise<AiChatResponse> {
+  public async chat(prompt: string): Promise<AiChatResponse> {
     const result = await tryCatch(() => this.geminiService.simpleChat(prompt));
 
     if (!result.success) {
@@ -32,7 +32,7 @@ export class AiService {
     return result.data;
   }
 
-  async chatWithSystem(
+  public async chatWithSystem(
     systemPrompt: string,
     userPrompt: string,
   ): Promise<AiChatResponse> {
@@ -49,7 +49,7 @@ export class AiService {
     return result.data;
   }
 
-  async queryEntries(
+  public async queryEntries(
     userId: string,
     naturalQuery: string,
   ): Promise<AiChatResponse> {
@@ -82,7 +82,7 @@ export class AiService {
     }
   }
 
-  async *streamQueryEntries(
+  public async *streamQueryEntries(
     userId: string,
     naturalQuery: string,
   ): AsyncGenerator<{ content: string; done: boolean }, void, unknown> {
@@ -120,7 +120,7 @@ export class AiService {
     }
   }
 
-  async initializeEmbeddings(
+  public async initializeEmbeddings(
     userId: string,
   ): Promise<{ processed: number; errors: number }> {
     const entriesWithoutEmbeddings =

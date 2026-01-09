@@ -10,10 +10,10 @@ import { LogHelpers } from '../../../logger/logger.helpers';
 export class SettingsService {
   constructor(
     @InjectRepository(Settings)
-    private _settingsRepo: Repository<Settings>,
+    private readonly _settingsRepo: Repository<Settings>,
   ) {}
 
-  async getUserSettings(userId: string): Promise<SettingsResponse | []> {
+  public async getUserSettings(userId: string): Promise<SettingsResponse | []> {
     const settings = await LogHelpers.withDatabaseTelemetry(() =>
       this._settingsRepo.findOneBy({ userId }),
     );
@@ -32,7 +32,7 @@ export class SettingsService {
     };
   }
 
-  async updateSettings(
+  public async updateSettings(
     userId: string,
     settings: Stringified<SettingsData>,
   ): Promise<SettingsData> {

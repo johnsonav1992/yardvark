@@ -9,12 +9,12 @@ import { LogHelpers } from '../../../logger/logger.helpers';
 export class ProductsService {
   constructor(
     @InjectRepository(Product)
-    private _productsRepo: Repository<Product>,
+    private readonly _productsRepo: Repository<Product>,
     @InjectRepository(UserHiddenProduct)
-    private _userHiddenProductsRepo: Repository<UserHiddenProduct>,
+    private readonly _userHiddenProductsRepo: Repository<UserHiddenProduct>,
   ) {}
 
-  async getProducts(
+  public async getProducts(
     userId: string,
     opts?: { userOnly?: boolean; systemOnly?: boolean },
   ) {
@@ -37,7 +37,10 @@ export class ProductsService {
     );
 
     LogHelpers.addBusinessContext('productsReturned', products.length);
-    LogHelpers.addBusinessContext('hiddenProductsCount', hiddenProductIds.length);
+    LogHelpers.addBusinessContext(
+      'hiddenProductsCount',
+      hiddenProductIds.length,
+    );
 
     return products.map((product) => {
       const isHidden = hiddenProductIds.some(
@@ -51,7 +54,7 @@ export class ProductsService {
     });
   }
 
-  async addProduct(product: Product) {
+  public async addProduct(product: Product) {
     const newProduct = this._productsRepo.create(product);
     const saved = await LogHelpers.withDatabaseTelemetry(() =>
       this._productsRepo.save(newProduct),
@@ -62,7 +65,7 @@ export class ProductsService {
     return saved;
   }
 
-  async hideProduct(userId: string, productId: number) {
+  public async hideProduct(userId: string, productId: number) {
     LogHelpers.addBusinessContext('productId', productId);
 
     await LogHelpers.withDatabaseTelemetry(() =>
@@ -72,7 +75,7 @@ export class ProductsService {
     LogHelpers.addBusinessContext('productHidden', true);
   }
 
-  async unhideProduct(userId: string, productId: number) {
+  public async unhideProduct(userId: string, productId: number) {
     LogHelpers.addBusinessContext('productId', productId);
 
     await LogHelpers.withDatabaseTelemetry(() =>

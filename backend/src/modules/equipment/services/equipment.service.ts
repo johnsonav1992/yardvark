@@ -14,7 +14,7 @@ export class EquipmentService {
     private readonly _equipmentMaintenanceRepo: Repository<EquipmentMaintenance>,
   ) {}
 
-  async getAllUserEquipment(userId: string): Promise<Equipment[]> {
+  public async getAllUserEquipment(userId: string): Promise<Equipment[]> {
     const equipment = await LogHelpers.withDatabaseTelemetry(() =>
       this._equipmentRepo.find({
         where: { userId },
@@ -32,7 +32,7 @@ export class EquipmentService {
     return equipment;
   }
 
-  async createEquipment(
+  public async createEquipment(
     userId: string,
     equipmentData: Partial<Equipment>,
   ): Promise<Equipment> {
@@ -51,7 +51,7 @@ export class EquipmentService {
     return saved;
   }
 
-  async updateEquipment(
+  public async updateEquipment(
     equipmentId: number,
     equipmentData: Partial<Equipment>,
   ): Promise<Equipment> {
@@ -70,7 +70,7 @@ export class EquipmentService {
     return this._equipmentRepo.save(updatedEquipment);
   }
 
-  async toggleEquipmentArchiveStatus(
+  public async toggleEquipmentArchiveStatus(
     equipmentId: number,
     isActive: boolean,
   ): Promise<void> {
@@ -85,7 +85,7 @@ export class EquipmentService {
     await this._equipmentRepo.save(equipment);
   }
 
-  async createMaintenanceRecord(
+  public async createMaintenanceRecord(
     equipmentId: number,
     maintenanceData: Partial<EquipmentMaintenance>,
   ): Promise<EquipmentMaintenance> {
@@ -108,12 +108,15 @@ export class EquipmentService {
       this._equipmentMaintenanceRepo.save(newMaintenanceRecord),
     );
 
-    LogHelpers.addBusinessContext('maintenanceRecordCreated', newMaintenanceRecord.id);
+    LogHelpers.addBusinessContext(
+      'maintenanceRecordCreated',
+      newMaintenanceRecord.id,
+    );
 
     return newMaintenanceRecord;
   }
 
-  async updateMaintenanceRecord(
+  public async updateMaintenanceRecord(
     maintenanceId: number,
     maintenanceData: Partial<EquipmentMaintenance>,
   ): Promise<EquipmentMaintenance> {
@@ -137,7 +140,7 @@ export class EquipmentService {
     return this._equipmentMaintenanceRepo.save(updated);
   }
 
-  async deleteEquipment(equipmentId: number): Promise<void> {
+  public async deleteEquipment(equipmentId: number): Promise<void> {
     LogHelpers.addBusinessContext('equipmentId', equipmentId);
 
     const equipment = await this.findEquipmentById(equipmentId);
@@ -153,7 +156,7 @@ export class EquipmentService {
     LogHelpers.addBusinessContext('equipmentDeleted', true);
   }
 
-  async deleteMaintenanceRecord(maintenanceId: number): Promise<void> {
+  public async deleteMaintenanceRecord(maintenanceId: number): Promise<void> {
     const maintenanceRecord = await this._equipmentMaintenanceRepo.findOne({
       where: { id: maintenanceId },
     });

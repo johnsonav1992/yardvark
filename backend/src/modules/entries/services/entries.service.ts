@@ -23,14 +23,18 @@ import { LogHelpers } from '../../../logger/logger.helpers';
 export class EntriesService {
   constructor(
     @InjectRepository(Entry)
-    private _entriesRepo: Repository<Entry>,
+    private readonly _entriesRepo: Repository<Entry>,
     @InjectRepository(EntryProduct)
-    private _entryProductsRepo: Repository<EntryProduct>,
+    private readonly _entryProductsRepo: Repository<EntryProduct>,
     @InjectRepository(EntryImage)
-    private _entryImagesRepo: Repository<EntryImage>,
+    private readonly _entryImagesRepo: Repository<EntryImage>,
   ) {}
 
-  async getEntries(userId: string, startDate?: string, endDate?: string) {
+  public async getEntries(
+    userId: string,
+    startDate?: string,
+    endDate?: string,
+  ) {
     const entries = await LogHelpers.withDatabaseTelemetry(() =>
       this._entriesRepo.find({
         where: {
@@ -60,7 +64,7 @@ export class EntriesService {
     return entries.map((entry) => getEntryResponseMapping(entry));
   }
 
-  async getEntry(entryId: number) {
+  public async getEntry(entryId: number) {
     LogHelpers.addBusinessContext('entryId', entryId);
 
     const entry = await LogHelpers.withDatabaseTelemetry(() =>
@@ -84,7 +88,7 @@ export class EntriesService {
     return getEntryResponseMapping(entry);
   }
 
-  async getEntryByDate(userId: string, date: string) {
+  public async getEntryByDate(userId: string, date: string) {
     const entry = await this._entriesRepo.findOne({
       where: { userId, date: new Date(date) },
       relations: {
@@ -104,7 +108,7 @@ export class EntriesService {
     return getEntryResponseMapping(entry);
   }
 
-  async getMostRecentEntry(userId: string) {
+  public async getMostRecentEntry(userId: string) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -133,7 +137,7 @@ export class EntriesService {
     return getEntryResponseMapping(entry);
   }
 
-  async getLastMowDate(userId: string) {
+  public async getLastMowDate(userId: string) {
     const entry = await this._entriesRepo.findOne({
       where: {
         userId,
@@ -149,7 +153,7 @@ export class EntriesService {
     return entry?.date || null;
   }
 
-  async getLastProductApplicationDate(userId: string) {
+  public async getLastProductApplicationDate(userId: string) {
     const entry = await this._entriesRepo
       .createQueryBuilder('entry')
       .leftJoin('entry.activities', 'activity')
@@ -174,7 +178,7 @@ export class EntriesService {
    * Gets the date of the most recent entry with a PGR (Plant Growth Regulator) product
    * Used for GDD (Growing Degree Days) calculation
    */
-  async getLastPgrApplicationDate(userId: string): Promise<Date | null> {
+  public async getLastPgrApplicationDate(userId: string): Promise<Date | null> {
     const entry = await this._entriesRepo
       .createQueryBuilder('entry')
       .innerJoin('entry.entryProducts', 'entryProduct')
@@ -189,7 +193,7 @@ export class EntriesService {
     return entry?.date || null;
   }
 
-  async createEntry(userId: string, entry: EntryCreationRequest) {
+  public async createEntry(userId: string, entry: EntryCreationRequest) {
     const newEntry = this._entriesRepo.create({
       ...entry,
       userId,
@@ -220,7 +224,7 @@ export class EntriesService {
     return newEntry;
   }
 
-  async createEntriesBatch(
+  public async createEntriesBatch(
     userId: string,
     body: BatchEntryCreationRequest,
   ): Promise<BatchEntryCreationResponse> {
@@ -255,7 +259,10 @@ export class EntriesService {
     };
   }
 
-  async updateEntry(entryId: number, entry: Partial<EntryCreationRequest>) {
+  public async updateEntry(
+    entryId: number,
+    entry: Partial<EntryCreationRequest>,
+  ) {
     LogHelpers.addBusinessContext('entryId', entryId);
 
     const entryToUpdate = await this._entriesRepo.findOne({
@@ -304,7 +311,7 @@ export class EntriesService {
     return updatedEntry;
   }
 
-  async softDeleteEntry(entryId: number) {
+  public async softDeleteEntry(entryId: number) {
     LogHelpers.addBusinessContext('entryId', entryId);
 
     const entry = await this._entriesRepo.findOne({
@@ -319,11 +326,14 @@ export class EntriesService {
     LogHelpers.addBusinessContext('entryDeleted', true);
   }
 
-  async recoverEntry(entryId: number) {
+  public async recoverEntry(entryId: number) {
     await this._entriesRepo.restore(entryId);
   }
 
-  async searchEntries(userId: string, searchCriteria: EntriesSearchRequest) {
+  public async searchEntries(
+    userId: string,
+    searchCriteria: EntriesSearchRequest,
+  ) {
     const today = new Date();
     const startOfYear = new Date(today.getFullYear(), 0, 1);
 
@@ -385,15 +395,15 @@ export class EntriesService {
     return entries.map((entry) => getEntryResponseMapping(entry));
   }
 
-  async softDeleteEntryImage(entryImageId: number) {
+  public async softDeleteEntryImage(entryImageId: number) {
     await this._entryImagesRepo.softDelete(entryImageId);
   }
 
-  async recoverEntryImage(entryImageId: number) {
+  public async recoverEntryImage(entryImageId: number) {
     await this._entryImagesRepo.restore(entryImageId);
   }
 
-  async searchEntriesByVector({
+  public async searchEntriesByVector({
     userId,
     queryEmbedding,
     limit = 200,
@@ -432,12 +442,12 @@ export class EntriesService {
       .getMany();
   }
 
-  async updateEntryEmbedding(entryId: number, embedding: number[]) {
+  public async updateEntryEmbedding(entryId: number, embedding: number[]) {
     const embeddingString = `[${embedding.join(',')}]`;
     await this._entriesRepo.update(entryId, { embedding: embeddingString });
   }
 
-  async getEntriesWithoutEmbeddings(userId: string): Promise<Entry[]> {
+  public async getEntriesWithoutEmbeddings(userId: string): Promise<Entry[]> {
     return this._entriesRepo
       .createQueryBuilder('entry')
       .leftJoinAndSelect('entry.activities', 'activities')

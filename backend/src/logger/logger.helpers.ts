@@ -166,6 +166,7 @@ export class LogHelpers {
     ) {
       return error.response.status;
     }
+
     return 500;
   }
 }

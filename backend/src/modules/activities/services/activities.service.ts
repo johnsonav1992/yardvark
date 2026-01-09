@@ -7,10 +7,11 @@ import { LogHelpers } from '../../../logger/logger.helpers';
 @Injectable()
 export class ActivitiesService {
   constructor(
-    @InjectRepository(Activity) private _activitiesRepo: Repository<Activity>,
+    @InjectRepository(Activity)
+    private readonly _activitiesRepo: Repository<Activity>,
   ) {}
 
-  async getActivities() {
+  public async getActivities() {
     const activities = await LogHelpers.withDatabaseTelemetry(() =>
       this._activitiesRepo.find(),
     );

@@ -17,9 +17,9 @@ interface PushSubscriptionData {
 export class RemindersService {
   constructor(
     @InjectRepository(Reminder)
-    private remindersRepo: Repository<Reminder>,
+    private readonly remindersRepo: Repository<Reminder>,
     @InjectRepository(PushSubscription)
-    private subscriptionsRepo: Repository<PushSubscription>,
+    private readonly subscriptionsRepo: Repository<PushSubscription>,
   ) {
     webpush.setVapidDetails(
       'mailto:your-email@example.com',
@@ -28,7 +28,7 @@ export class RemindersService {
     );
   }
 
-  async createReminder(userId: string, reminderData: Partial<Reminder>) {
+  public async createReminder(userId: string, reminderData: Partial<Reminder>) {
     const reminder = this.remindersRepo.create({ ...reminderData, userId });
     const saved = await LogHelpers.withDatabaseTelemetry(() =>
       this.remindersRepo.save(reminder),
@@ -39,7 +39,7 @@ export class RemindersService {
     return saved;
   }
 
-  async getUserReminders(userId: string) {
+  public async getUserReminders(userId: string) {
     const reminders = await LogHelpers.withDatabaseTelemetry(() =>
       this.remindersRepo.find({
         where: { userId, isActive: true },
@@ -52,7 +52,7 @@ export class RemindersService {
     return reminders;
   }
 
-  async savePushSubscription(
+  public async savePushSubscription(
     userId: string,
     subscription: PushSubscriptionData,
   ) {
@@ -84,7 +84,7 @@ export class RemindersService {
     return existingSubscription;
   }
 
-  async sendReminderNotification(reminderId: number) {
+  public async sendReminderNotification(reminderId: number) {
     LogHelpers.addBusinessContext('reminderId', reminderId);
 
     const reminder = await LogHelpers.withDatabaseTelemetry(() =>
@@ -101,7 +101,10 @@ export class RemindersService {
       }),
     );
 
-    LogHelpers.addBusinessContext('pushSubscriptionCount', subscriptions.length);
+    LogHelpers.addBusinessContext(
+      'pushSubscriptionCount',
+      subscriptions.length,
+    );
 
     const payload = JSON.stringify({
       title: reminder.title,

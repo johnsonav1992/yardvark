@@ -20,7 +20,7 @@ export class EmailService {
   private mailerSend: MailerSend;
   private isInitialized = false;
 
-  constructor(private configService: ConfigService) {
+  constructor(private readonly configService: ConfigService) {
     this.initializeMailerSend();
   }
 
@@ -42,7 +42,9 @@ export class EmailService {
     this.isInitialized = true;
   }
 
-  async sendFeedbackEmail(feedbackData: FeedbackEmailData): Promise<boolean> {
+  public async sendFeedbackEmail(
+    feedbackData: FeedbackEmailData,
+  ): Promise<boolean> {
     if (!this.isInitialized) {
       this.logger.error('MailerSend not initialized. Check API key.');
 

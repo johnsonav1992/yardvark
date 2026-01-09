@@ -13,7 +13,7 @@ export class GroqService {
   private readonly groq: Groq;
   private readonly defaultModel: string;
 
-  constructor(private configService: ConfigService) {
+  constructor(private readonly configService: ConfigService) {
     const apiKey = this.configService.get<string>('GROQ_API_KEY');
 
     if (!apiKey) {
@@ -26,7 +26,7 @@ export class GroqService {
       this.configService.get<string>('GROQ_DEFAULT_MODEL') || 'llama3-8b-8192';
   }
 
-  async chat(
+  public async chat(
     messages: ChatCompletionMessageParam[],
     options?: Partial<ChatCompletionCreateParamsNonStreaming>,
   ): Promise<AiChatResponse> {
@@ -103,14 +103,14 @@ export class GroqService {
     }
   }
 
-  async simpleChat(
+  public async simpleChat(
     prompt: string,
     options?: Partial<ChatCompletionCreateParamsNonStreaming>,
   ): Promise<AiChatResponse> {
     return this.chat([{ role: 'user', content: prompt }], options);
   }
 
-  async chatWithSystem(
+  public async chatWithSystem(
     systemPrompt: string,
     userPrompt: string,
     options?: Partial<ChatCompletionCreateParamsNonStreaming>,

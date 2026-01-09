@@ -7,7 +7,7 @@ export class AnalyticsController {
   constructor(private readonly _analyticsService: AnalyticsService) {}
 
   @Get()
-  async getAnalytics(@Req() req: Request, @Query('year') year?: number) {
+  public async getAnalytics(@Req() req: Request, @Query('year') year?: number) {
     const userId = req.user.userId;
 
     return this._analyticsService.getAnalytics(userId, year);

@@ -12,10 +12,10 @@ import { LogHelpers } from '../../../logger/logger.helpers';
 export class LawnSegmentsService {
   constructor(
     @InjectRepository(LawnSegment)
-    private _lawnSegmentRepo: Repository<LawnSegment>,
+    private readonly _lawnSegmentRepo: Repository<LawnSegment>,
   ) {}
 
-  async getLawnSegments(userId: string) {
+  public async getLawnSegments(userId: string) {
     const segments = await LogHelpers.withDatabaseTelemetry(() =>
       this._lawnSegmentRepo.findBy({ userId }),
     );
@@ -25,7 +25,7 @@ export class LawnSegmentsService {
     return segments;
   }
 
-  async createLawnSegment(
+  public async createLawnSegment(
     userId: string,
     lawnSegment: LawnSegmentCreationRequest,
   ) {
@@ -40,7 +40,10 @@ export class LawnSegmentsService {
     return saved;
   }
 
-  async updateLawnSegment(id: number, updateData: LawnSegmentUpdateRequest) {
+  public async updateLawnSegment(
+    id: number,
+    updateData: LawnSegmentUpdateRequest,
+  ) {
     LogHelpers.addBusinessContext('lawnSegmentId', id);
 
     const segment = await LogHelpers.withDatabaseTelemetry(() =>
@@ -62,7 +65,7 @@ export class LawnSegmentsService {
     return saved;
   }
 
-  async deleteLawnSegment(id: number) {
+  public async deleteLawnSegment(id: number) {
     LogHelpers.addBusinessContext('lawnSegmentId', id);
 
     const result = await LogHelpers.withDatabaseTelemetry(() =>

@@ -93,7 +93,6 @@ export class LoggingInterceptor implements NestInterceptor {
     durationMs: number,
     success: boolean,
   ): boolean {
-    return true;
     if (!TAIL_SAMPLING_ENABLED) {
       return true;
     }

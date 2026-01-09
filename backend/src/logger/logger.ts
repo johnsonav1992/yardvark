@@ -13,11 +13,9 @@ import { catchError, tap } from 'rxjs/operators';
 import { randomUUID } from 'crypto';
 import { LogContext, HttpLogEntry } from './logger.types';
 import {
-  MAX_RESPONSE_BODY_SIZE,
   TAIL_SAMPLING_ENABLED,
   TAIL_SAMPLING_SUCCESS_RATE,
   TAIL_SAMPLING_SLOW_THRESHOLD_MS,
-  SENSITIVE_FIELDS,
 } from './logger.constants';
 import { requestContext, RequestContext } from './logger.context';
 
@@ -45,23 +43,19 @@ export class LoggingInterceptor implements NestInterceptor {
     const reqContext: RequestContext = { traceId, requestId, logContext };
 
     const start = Date.now();
-    let responseBody: unknown;
 
     return new Observable((subscriber) => {
       requestContext.run(reqContext, () => {
         next
           .handle()
           .pipe(
-            tap((body) => {
+            tap(() => {
               const duration = Date.now() - start;
               const statusCode = response.statusCode;
-              responseBody = body;
 
               if (this.shouldLogRequest(statusCode, duration, true)) {
                 this.logHttpRequest({
                   request,
-                  response,
-                  responseBody,
                   statusCode,
                   duration,
                   traceId,
@@ -77,8 +71,6 @@ export class LoggingInterceptor implements NestInterceptor {
 
               this.logHttpRequest({
                 request,
-                response,
-                responseBody: undefined,
                 statusCode,
                 duration,
                 traceId,
@@ -101,6 +93,7 @@ export class LoggingInterceptor implements NestInterceptor {
     durationMs: number,
     success: boolean,
   ): boolean {
+    return true;
     if (!TAIL_SAMPLING_ENABLED) {
       return true;
     }
@@ -118,8 +111,6 @@ export class LoggingInterceptor implements NestInterceptor {
 
   private logHttpRequest(params: {
     request: Request;
-    response: Response;
-    responseBody: unknown;
     statusCode: number;
     duration: number;
     traceId: string;
@@ -130,8 +121,6 @@ export class LoggingInterceptor implements NestInterceptor {
   }): void {
     const {
       request,
-      response,
-      responseBody,
       statusCode,
       duration,
       traceId,
@@ -161,7 +150,6 @@ export class LoggingInterceptor implements NestInterceptor {
       query: Object.keys(request.query).length > 0 ? request.query : undefined,
       params:
         Object.keys(request.params).length > 0 ? request.params : undefined,
-      response: this.sanitizeResponse(responseBody, response),
       success,
       error: error ? this.sanitizeError(error) : undefined,
       database:
@@ -239,71 +227,6 @@ export class LoggingInterceptor implements NestInterceptor {
       response.statusCode ??
       (err instanceof HttpException ? err.getStatus() : 500)
     );
-  }
-
-  private sanitizeResponse(
-    body: unknown,
-    response: Response,
-  ): HttpLogEntry['response'] {
-    if (!body) {
-      return undefined;
-    }
-
-    const contentType = response.getHeader('content-type') as string;
-    const contentLength = response.getHeader('content-length');
-
-    let sanitizedBody: unknown;
-
-    try {
-      const bodyStr = JSON.stringify(body);
-
-      if (bodyStr.length > MAX_RESPONSE_BODY_SIZE) {
-        sanitizedBody = { _truncated: true, _size: bodyStr.length };
-      } else if (Array.isArray(body)) {
-        sanitizedBody = {
-          _type: 'array',
-          count: body.length,
-          sample: body.slice(0, 3),
-        };
-      } else if (typeof body === 'object' && body !== null) {
-        sanitizedBody = this.redactSensitiveFields(body, SENSITIVE_FIELDS);
-      } else {
-        sanitizedBody = body;
-      }
-    } catch {
-      sanitizedBody = { _error: 'Failed to serialize response body' };
-    }
-
-    return {
-      body: sanitizedBody,
-      contentType,
-      size: contentLength ? parseInt(contentLength as string, 10) : undefined,
-    };
-  }
-
-  private redactSensitiveFields<T>(obj: T, sensitiveFields: string[]): T {
-    if (typeof obj !== 'object' || obj === null) return obj;
-
-    if (Array.isArray(obj)) {
-      return obj.map((item: unknown) =>
-        this.redactSensitiveFields(item, sensitiveFields),
-      ) as T;
-    }
-
-    const result: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(obj)) {
-      const lowerKey = key.toLowerCase();
-      if (
-        sensitiveFields.some((field) => lowerKey.includes(field.toLowerCase()))
-      ) {
-        result[key] = '[REDACTED]';
-      } else if (typeof value === 'object' && value !== null) {
-        result[key] = this.redactSensitiveFields(value, sensitiveFields);
-      } else {
-        result[key] = value;
-      }
-    }
-    return result as T;
   }
 
   private sanitizeError(err: unknown): HttpLogEntry['error'] {

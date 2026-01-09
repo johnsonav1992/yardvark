@@ -3,6 +3,7 @@ import { Equipment } from '../models/equipment.model';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EquipmentMaintenance } from '../models/equipmentMaintenance.model';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Injectable()
 export class EquipmentService {
@@ -14,15 +15,21 @@ export class EquipmentService {
   ) {}
 
   async getAllUserEquipment(userId: string): Promise<Equipment[]> {
-    return this._equipmentRepo.find({
-      where: { userId },
-      relations: { maintenanceRecords: true },
-      order: {
-        maintenanceRecords: {
-          maintenanceDate: 'DESC',
+    const equipment = await LogHelpers.withDatabaseTelemetry(() =>
+      this._equipmentRepo.find({
+        where: { userId },
+        relations: { maintenanceRecords: true },
+        order: {
+          maintenanceRecords: {
+            maintenanceDate: 'DESC',
+          },
         },
-      },
-    });
+      }),
+    );
+
+    LogHelpers.addBusinessContext('equipmentCount', equipment.length);
+
+    return equipment;
   }
 
   async createEquipment(
@@ -35,7 +42,13 @@ export class EquipmentService {
       userId,
     });
 
-    return this._equipmentRepo.save(newEquipment);
+    const saved = await LogHelpers.withDatabaseTelemetry(() =>
+      this._equipmentRepo.save(newEquipment),
+    );
+
+    LogHelpers.addBusinessContext('equipmentCreated', saved.id);
+
+    return saved;
   }
 
   async updateEquipment(
@@ -76,6 +89,8 @@ export class EquipmentService {
     equipmentId: number,
     maintenanceData: Partial<EquipmentMaintenance>,
   ): Promise<EquipmentMaintenance> {
+    LogHelpers.addBusinessContext('equipmentId', equipmentId);
+
     const equipment = await this.findEquipmentById(equipmentId);
 
     if (!equipment) {
@@ -89,7 +104,11 @@ export class EquipmentService {
       },
     });
 
-    await this._equipmentMaintenanceRepo.save(newMaintenanceRecord);
+    await LogHelpers.withDatabaseTelemetry(() =>
+      this._equipmentMaintenanceRepo.save(newMaintenanceRecord),
+    );
+
+    LogHelpers.addBusinessContext('maintenanceRecordCreated', newMaintenanceRecord.id);
 
     return newMaintenanceRecord;
   }
@@ -119,13 +138,19 @@ export class EquipmentService {
   }
 
   async deleteEquipment(equipmentId: number): Promise<void> {
+    LogHelpers.addBusinessContext('equipmentId', equipmentId);
+
     const equipment = await this.findEquipmentById(equipmentId);
 
     if (!equipment) {
       throw new HttpException('Equipment not found', HttpStatus.NOT_FOUND);
     }
 
-    await this._equipmentRepo.softDelete(equipmentId);
+    await LogHelpers.withDatabaseTelemetry(() =>
+      this._equipmentRepo.softDelete(equipmentId),
+    );
+
+    LogHelpers.addBusinessContext('equipmentDeleted', true);
   }
 
   async deleteMaintenanceRecord(maintenanceId: number): Promise<void> {

@@ -4,6 +4,7 @@ import { FeatureExtractionPipeline, pipeline } from '@huggingface/transformers';
 import { createEntryEmbeddingText } from '../../entries/utils/entryRagUtils';
 import { tryCatch } from '../../../utils/tryCatch';
 import { ConfigService } from '@nestjs/config';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Injectable()
 export class EmbeddingService implements OnModuleInit {
@@ -42,11 +43,18 @@ export class EmbeddingService implements OnModuleInit {
       throw new Error('Embedding model not initialized');
     }
 
+    const start = Date.now();
     const result = await tryCatch(() =>
       embedder(text, {
         pooling: 'mean',
         normalize: true,
       }),
+    );
+
+    LogHelpers.recordExternalCall(
+      'embedding-model',
+      Date.now() - start,
+      result.success,
     );
 
     if (!result.success) {

@@ -32,6 +32,9 @@ export class S3Service {
     file: Express.Multer.File,
     userId: string,
   ): Promise<string> {
+    LogHelpers.addBusinessContext('fileSize', file.size);
+    LogHelpers.addBusinessContext('fileMimeType', file.mimetype);
+
     const { buffer, originalname, mimetype } =
       await this.checkForHeicAndConvert(file);
 
@@ -57,6 +60,8 @@ export class S3Service {
       LogHelpers.recordExternalCall('aws-s3', Date.now() - start, success);
     }
 
+    LogHelpers.addBusinessContext('s3UploadSuccess', true);
+
     return `https://${this.bucketName}.s3.${process.env.AWS_REGION_YARDVARK}.amazonaws.com/${encodeURIComponent(key)}`;
   }
 
@@ -65,6 +70,8 @@ export class S3Service {
     userId: string,
     concurrency = 5,
   ): Promise<string[]> {
+    LogHelpers.addBusinessContext('batchUploadCount', files.length);
+
     const results: string[] = [];
 
     for (let i = 0; i < files.length; i += concurrency) {
@@ -76,6 +83,8 @@ export class S3Service {
 
       results.push(...batchResults);
     }
+
+    LogHelpers.addBusinessContext('batchUploadSuccess', results.length);
 
     return results;
   }

@@ -55,10 +55,14 @@ export class EntriesService {
       throw new HttpException('Entries not found', HttpStatus.NOT_FOUND);
     }
 
+    LogHelpers.addBusinessContext('entriesReturned', entries.length);
+
     return entries.map((entry) => getEntryResponseMapping(entry));
   }
 
   async getEntry(entryId: number) {
+    LogHelpers.addBusinessContext('entryId', entryId);
+
     const entry = await LogHelpers.withDatabaseTelemetry(() =>
       this._entriesRepo.findOne({
         where: { id: entryId },
@@ -206,6 +210,13 @@ export class EntriesService {
       this._entriesRepo.save(newEntry),
     );
 
+    LogHelpers.addBusinessContext('entryCreated', newEntry.id);
+    LogHelpers.addBusinessContext(
+      'activitiesCount',
+      entry.activityIds?.length ?? 0,
+    );
+    LogHelpers.addBusinessContext('productsCount', entry.products?.length ?? 0);
+
     return newEntry;
   }
 
@@ -232,6 +243,10 @@ export class EntriesService {
       }
     });
 
+    LogHelpers.addBusinessContext('batchSize', body.entries.length);
+    LogHelpers.addBusinessContext('batchCreated', entries.length);
+    LogHelpers.addBusinessContext('batchFailed', errors.length);
+
     return {
       created: entries.length,
       failed: errors.length,
@@ -241,6 +256,8 @@ export class EntriesService {
   }
 
   async updateEntry(entryId: number, entry: Partial<EntryCreationRequest>) {
+    LogHelpers.addBusinessContext('entryId', entryId);
+
     const entryToUpdate = await this._entriesRepo.findOne({
       where: { id: entryId },
       relations: {
@@ -288,6 +305,8 @@ export class EntriesService {
   }
 
   async softDeleteEntry(entryId: number) {
+    LogHelpers.addBusinessContext('entryId', entryId);
+
     const entry = await this._entriesRepo.findOne({
       where: { id: entryId },
     });
@@ -297,6 +316,7 @@ export class EntriesService {
     }
 
     await this._entriesRepo.softDelete(entryId);
+    LogHelpers.addBusinessContext('entryDeleted', true);
   }
 
   async recoverEntry(entryId: number) {
@@ -359,6 +379,8 @@ export class EntriesService {
         },
       }),
     );
+
+    LogHelpers.addBusinessContext('searchResultsCount', entries.length);
 
     return entries.map((entry) => getEntryResponseMapping(entry));
   }

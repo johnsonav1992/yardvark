@@ -4,6 +4,7 @@ import { Settings } from '../models/settings.model';
 import { Repository } from 'typeorm';
 import { SettingsData, SettingsResponse } from '../models/settings.types';
 import { Stringified } from 'src/types/json-modified';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Injectable()
 export class SettingsService {
@@ -13,10 +14,17 @@ export class SettingsService {
   ) {}
 
   async getUserSettings(userId: string): Promise<SettingsResponse | []> {
-    const settings = await this._settingsRepo.findOneBy({ userId });
+    const settings = await LogHelpers.withDatabaseTelemetry(() =>
+      this._settingsRepo.findOneBy({ userId }),
+    );
     const settingsValue = settings?.value as Stringified<SettingsData>;
 
-    if (!settings) return [];
+    if (!settings) {
+      LogHelpers.addBusinessContext('settingsFound', false);
+      return [];
+    }
+
+    LogHelpers.addBusinessContext('settingsFound', true);
 
     return {
       ...settings,
@@ -28,13 +36,21 @@ export class SettingsService {
     userId: string,
     settings: Stringified<SettingsData>,
   ): Promise<SettingsData> {
-    const userSettings = await this._settingsRepo.findBy({ userId });
+    const userSettings = await LogHelpers.withDatabaseTelemetry(() =>
+      this._settingsRepo.findBy({ userId }),
+    );
     const newSettings = JSON.parse(settings);
 
     if (userSettings.length) {
-      await this._settingsRepo.update({ userId }, { value: settings });
+      await LogHelpers.withDatabaseTelemetry(() =>
+        this._settingsRepo.update({ userId }, { value: settings }),
+      );
+      LogHelpers.addBusinessContext('settingsUpdated', true);
     } else {
-      await this._settingsRepo.save({ value: settings, userId });
+      await LogHelpers.withDatabaseTelemetry(() =>
+        this._settingsRepo.save({ value: settings, userId }),
+      );
+      LogHelpers.addBusinessContext('settingsCreated', true);
     }
 
     return newSettings;

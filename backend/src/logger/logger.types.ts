@@ -39,11 +39,6 @@ export interface HttpLogEntry {
   ip?: string;
   query?: Record<string, unknown>;
   params?: Record<string, unknown>;
-  response?: {
-    body?: unknown;
-    contentType?: string;
-    size?: number;
-  };
   success: boolean;
   error?: {
     message: string;

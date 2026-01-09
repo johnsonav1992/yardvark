@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Reminder, PushSubscription } from '../models/reminder.model';
 import webpush, { WebPushError } from 'web-push';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 interface PushSubscriptionData {
   endpoint: string;
@@ -29,23 +30,37 @@ export class RemindersService {
 
   async createReminder(userId: string, reminderData: Partial<Reminder>) {
     const reminder = this.remindersRepo.create({ ...reminderData, userId });
-    return this.remindersRepo.save(reminder);
+    const saved = await LogHelpers.withDatabaseTelemetry(() =>
+      this.remindersRepo.save(reminder),
+    );
+
+    LogHelpers.addBusinessContext('reminderCreated', saved.id);
+
+    return saved;
   }
 
   async getUserReminders(userId: string) {
-    return this.remindersRepo.find({
-      where: { userId, isActive: true },
-      order: { scheduledDate: 'ASC' },
-    });
+    const reminders = await LogHelpers.withDatabaseTelemetry(() =>
+      this.remindersRepo.find({
+        where: { userId, isActive: true },
+        order: { scheduledDate: 'ASC' },
+      }),
+    );
+
+    LogHelpers.addBusinessContext('remindersCount', reminders.length);
+
+    return reminders;
   }
 
   async savePushSubscription(
     userId: string,
     subscription: PushSubscriptionData,
   ) {
-    const existingSubscription = await this.subscriptionsRepo.findOne({
-      where: { userId, endpoint: subscription.endpoint },
-    });
+    const existingSubscription = await LogHelpers.withDatabaseTelemetry(() =>
+      this.subscriptionsRepo.findOne({
+        where: { userId, endpoint: subscription.endpoint },
+      }),
+    );
 
     if (!existingSubscription) {
       const newSubscription = this.subscriptionsRepo.create({
@@ -55,22 +70,38 @@ export class RemindersService {
         authKey: subscription.keys.auth,
       });
 
-      return this.subscriptionsRepo.save(newSubscription);
+      const saved = await LogHelpers.withDatabaseTelemetry(() =>
+        this.subscriptionsRepo.save(newSubscription),
+      );
+
+      LogHelpers.addBusinessContext('pushSubscriptionCreated', true);
+
+      return saved;
     }
+
+    LogHelpers.addBusinessContext('pushSubscriptionExists', true);
 
     return existingSubscription;
   }
 
   async sendReminderNotification(reminderId: number) {
-    const reminder = await this.remindersRepo.findOne({
-      where: { id: reminderId },
-    });
+    LogHelpers.addBusinessContext('reminderId', reminderId);
+
+    const reminder = await LogHelpers.withDatabaseTelemetry(() =>
+      this.remindersRepo.findOne({
+        where: { id: reminderId },
+      }),
+    );
 
     if (!reminder) return;
 
-    const subscriptions = await this.subscriptionsRepo.find({
-      where: { userId: reminder.userId },
-    });
+    const subscriptions = await LogHelpers.withDatabaseTelemetry(() =>
+      this.subscriptionsRepo.find({
+        where: { userId: reminder.userId },
+      }),
+    );
+
+    LogHelpers.addBusinessContext('pushSubscriptionCount', subscriptions.length);
 
     const payload = JSON.stringify({
       title: reminder.title,
@@ -83,7 +114,10 @@ export class RemindersService {
       },
     });
 
-    const promises = subscriptions.map((sub) => {
+    let successCount = 0;
+    let failCount = 0;
+
+    const promises = subscriptions.map(async (sub) => {
       const pushSubscription = {
         endpoint: sub.endpoint,
         keys: {
@@ -92,16 +126,25 @@ export class RemindersService {
         },
       };
 
-      return webpush
-        .sendNotification(pushSubscription, payload)
-        .catch((error: WebPushError) => {
-          console.error('Error sending notification:', error);
-          if (error.statusCode === 410) {
-            void this.subscriptionsRepo.delete(sub.id);
-          }
-        });
+      const start = Date.now();
+
+      try {
+        await webpush.sendNotification(pushSubscription, payload);
+        LogHelpers.recordExternalCall('webpush', Date.now() - start, true);
+        successCount++;
+      } catch (error) {
+        LogHelpers.recordExternalCall('webpush', Date.now() - start, false);
+        failCount++;
+
+        if (error instanceof WebPushError && error.statusCode === 410) {
+          void this.subscriptionsRepo.delete(sub.id);
+        }
+      }
     });
 
     await Promise.all(promises);
+
+    LogHelpers.addBusinessContext('pushNotificationsSent', successCount);
+    LogHelpers.addBusinessContext('pushNotificationsFailed', failCount);
   }
 }

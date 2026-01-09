@@ -75,6 +75,9 @@ export class EmailService {
       result.success,
     );
 
+    LogHelpers.addBusinessContext('feedbackType', feedbackData.feedbackType);
+    LogHelpers.addBusinessContext('emailSent', result.success);
+
     if (result.success) {
       this.logger.log('Feedback email sent successfully');
       return true;

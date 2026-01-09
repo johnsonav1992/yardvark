@@ -6,6 +6,7 @@ import {
   ChatCompletionMessageParam,
 } from 'groq-sdk/resources/chat/completions';
 import { AiChatResponse } from '../../../types/ai.types';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Injectable()
 export class GroqService {
@@ -29,10 +30,17 @@ export class GroqService {
     messages: ChatCompletionMessageParam[],
     options?: Partial<ChatCompletionCreateParamsNonStreaming>,
   ): Promise<AiChatResponse> {
+    const modelName = options?.model || this.defaultModel;
+    LogHelpers.addBusinessContext('aiModel', modelName);
+    LogHelpers.addBusinessContext('aiProvider', 'groq');
+
+    const start = Date.now();
+    let success = true;
+
     try {
       const params: ChatCompletionCreateParamsNonStreaming = {
         messages,
-        model: options?.model || this.defaultModel,
+        model: modelName,
         max_completion_tokens: options?.max_completion_tokens || 150,
         temperature: options?.temperature || 0.7,
         ...(options?.top_p !== undefined && { top_p: options.top_p }),
@@ -50,6 +58,11 @@ export class GroqService {
       // Clean up the response (remove quotes, trim whitespace)
       const cleanContent = content.replace(/^["']|["']$/g, '').trim();
 
+      LogHelpers.addBusinessContext(
+        'aiTokensUsed',
+        chatCompletion.usage?.total_tokens,
+      );
+
       return {
         content: cleanContent,
         model: params.model,
@@ -66,11 +79,14 @@ export class GroqService {
         },
       };
     } catch (error) {
-      console.error('Groq API error:', error);
+      success = false;
 
       if (error && typeof error === 'object' && 'status' in error) {
         const status = (error as { status: number }).status;
+        LogHelpers.addBusinessContext('aiErrorStatus', status);
+
         if (status === 429) {
+          LogHelpers.addBusinessContext('aiRateLimited', true);
           throw new Error('Rate limit exceeded - please try again later');
         } else if (status === 401) {
           throw new Error('Invalid Groq API key');
@@ -82,6 +98,8 @@ export class GroqService {
       const message = error instanceof Error ? error.message : 'Unknown error';
 
       throw new Error(`Groq API error: ${message}`);
+    } finally {
+      LogHelpers.recordExternalCall('groq', Date.now() - start, success);
     }
   }
 

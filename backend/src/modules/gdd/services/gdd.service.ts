@@ -12,6 +12,7 @@ import { format, differenceInDays } from 'date-fns';
 import { EntriesService } from '../../entries/services/entries.service';
 import { SettingsService } from '../../settings/services/settings.service';
 import { WeatherService } from '../../weather/services/weather.service';
+import { LogHelpers } from '../../../logger/logger.helpers';
 import {
   getDailyGDDCalculation,
   calculateAccumulatedGDD,
@@ -49,7 +50,12 @@ export class GddService {
 
     const cached = await this._cacheManager.get<CurrentGddResponse>(cacheKey);
 
-    if (cached) return cached;
+    if (cached) {
+      LogHelpers.recordCacheHit();
+      return cached;
+    }
+
+    LogHelpers.recordCacheMiss();
 
     const settings = await this._settingsService.getUserSettings(userId);
 
@@ -125,6 +131,10 @@ export class GddService {
       baseTemperature,
     });
 
+    LogHelpers.addBusinessContext('gddAccumulated', Math.round(accumulatedGdd * 10) / 10);
+    LogHelpers.addBusinessContext('gddTarget', targetGdd);
+    LogHelpers.addBusinessContext('gddCycleStatus', cycleStatus);
+
     this._logger.log(
       `GDD calculated for user ${userId}: ${accumulatedGdd.toFixed(1)}/${targetGdd} GDD, status=${cycleStatus}, days=${daysSinceLastApp}`,
     );
@@ -158,7 +168,13 @@ export class GddService {
 
     const cached =
       await this._cacheManager.get<HistoricalGddResponse>(cacheKey);
-    if (cached) return cached;
+
+    if (cached) {
+      LogHelpers.recordCacheHit();
+      return cached;
+    }
+
+    LogHelpers.recordCacheMiss();
 
     const settings = await this._settingsService.getUserSettings(userId);
     if (!settings || Array.isArray(settings)) {
@@ -222,7 +238,13 @@ export class GddService {
     const cacheKey = this.getCacheKey(userId, 'forecast');
 
     const cached = await this._cacheManager.get<GddForecastResponse>(cacheKey);
-    if (cached) return cached;
+
+    if (cached) {
+      LogHelpers.recordCacheHit();
+      return cached;
+    }
+
+    LogHelpers.recordCacheMiss();
 
     const settings = await this._settingsService.getUserSettings(userId);
     if (!settings || Array.isArray(settings)) {

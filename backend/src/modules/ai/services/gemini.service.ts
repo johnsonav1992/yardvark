@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GoogleGenAI } from '@google/genai';
 import { AiChatResponse } from '../../../types/ai.types';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 interface GeminiChatMessage {
   role: 'user' | 'system' | 'assistant';
@@ -44,8 +45,14 @@ export class GeminiService {
     messages: GeminiChatMessage[],
     options?: GeminiChatOptions,
   ): Promise<AiChatResponse> {
+    const modelName = options?.model || this.defaultModel;
+    LogHelpers.addBusinessContext('aiModel', modelName);
+    LogHelpers.addBusinessContext('aiProvider', 'gemini');
+
+    const start = Date.now();
+    let success = true;
+
     try {
-      const modelName = options?.model || this.defaultModel;
       const formattedMessages = this.formatMessagesForGemini(messages);
 
       const response = await this.genAI.models.generateContent({
@@ -68,6 +75,11 @@ export class GeminiService {
 
       const cleanContent = content.replace(/^["']|["']$/g, '').trim();
 
+      LogHelpers.addBusinessContext(
+        'aiTokensUsed',
+        response.usageMetadata?.totalTokenCount,
+      );
+
       return {
         content: cleanContent,
         model: modelName,
@@ -84,11 +96,12 @@ export class GeminiService {
         },
       };
     } catch (error) {
-      console.error('Gemini API error:', error);
-
+      success = false;
       const message = error instanceof Error ? error.message : 'Unknown error';
 
       throw new Error(`Gemini API error: ${message}`);
+    } finally {
+      LogHelpers.recordExternalCall('gemini', Date.now() - start, success);
     }
   }
 
@@ -131,8 +144,15 @@ export class GeminiService {
     messages: GeminiChatMessage[],
     options?: GeminiChatOptions,
   ): AsyncGenerator<{ content: string; done: boolean }, void, unknown> {
+    const modelName = options?.model || this.defaultModel;
+    LogHelpers.addBusinessContext('aiModel', modelName);
+    LogHelpers.addBusinessContext('aiProvider', 'gemini');
+    LogHelpers.addBusinessContext('aiStreaming', true);
+
+    const start = Date.now();
+    let success = true;
+
     try {
-      const modelName = options?.model || this.defaultModel;
       const formattedMessages = this.formatMessagesForGemini(messages);
 
       const stream = await this.genAI.models.generateContentStream({
@@ -156,9 +176,11 @@ export class GeminiService {
 
       yield { content: '', done: true };
     } catch (error) {
-      console.error('Gemini streaming error:', error);
+      success = false;
       const message = error instanceof Error ? error.message : 'Unknown error';
       throw new Error(`Gemini streaming error: ${message}`);
+    } finally {
+      LogHelpers.recordExternalCall('gemini-stream', Date.now() - start, success);
     }
   }
 

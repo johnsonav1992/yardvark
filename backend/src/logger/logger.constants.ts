@@ -7,9 +7,9 @@ export const TAIL_SAMPLING_ENABLED =
   process.env.LOG_TAIL_SAMPLING_ENABLED !== 'false';
 
 export const TAIL_SAMPLING_SUCCESS_RATE = (() => {
-  const rate = parseFloat(process.env.LOG_TAIL_SAMPLING_SUCCESS_RATE || '1');
+  const rate = parseFloat(process.env.LOG_TAIL_SAMPLING_SUCCESS_RATE || '0.1');
   if (isNaN(rate) || rate < 0 || rate > 1) {
-    return 1;
+    return 0.1;
   }
   return rate;
 })();

@@ -107,7 +107,10 @@ async function importProducts(filePath: string) {
       console.log(`✅ Imported: ${productData.name}`);
       imported++;
     } catch (error) {
-      console.error(`❌ Error importing ${productData.name}:`, (error as Error).message);
+      console.error(
+        `❌ Error importing ${productData.name}:`,
+        (error as Error).message,
+      );
       errors++;
     }
   }
@@ -128,8 +131,12 @@ const args = process.argv.slice(2);
 if (args.length === 0) {
   console.error('❌ Error: Please provide a path to the db-ready JSON file');
   console.log('\nUsage:');
-  console.log('  npm run import-products -- /path/to/domyown-products-db-ready.json');
-  console.log('  npm run import-products -- ../scraper/output/domyown-products-db-ready.json\n');
+  console.log(
+    '  npm run import-products -- /path/to/domyown-products-db-ready.json',
+  );
+  console.log(
+    '  npm run import-products -- ../scraper/output/domyown-products-db-ready.json\n',
+  );
   process.exit(1);
 }
 

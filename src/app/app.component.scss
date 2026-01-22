@@ -24,6 +24,10 @@
     @media (max-width: 768px) {
       padding-bottom: 2rem;
     }
+
+    @media (display-mode: standalone) {
+      padding-bottom: 0;
+    }
   }
 }
 

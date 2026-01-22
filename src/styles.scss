@@ -158,3 +158,11 @@ body {
     }
   }
 }
+
+@media (display-mode: standalone) {
+  html,
+  body {
+    height: 100vh;
+    position: initial;
+  }
+}

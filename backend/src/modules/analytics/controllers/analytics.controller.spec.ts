@@ -4,6 +4,7 @@ import { AnalyticsService } from '../services/analytics.service';
 
 describe('AnalyticsController', () => {
   let controller: AnalyticsController;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let service: AnalyticsService;
 
   const mockAnalyticsService = {

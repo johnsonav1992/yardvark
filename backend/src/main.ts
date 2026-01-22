@@ -4,8 +4,18 @@ import { AppModule } from './app.module';
 import { LoggingInterceptor } from './logger/logger';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
+import {
+  initializeOTelLogger,
+  parseOTelHeaders,
+} from './logger/otel.transport';
 
 async function bootstrap() {
+  initializeOTelLogger({
+    endpoint: process.env.OTEL_EXPORTER_OTLP_ENDPOINT || '',
+    headers: parseOTelHeaders(process.env.OTEL_EXPORTER_OTLP_HEADERS),
+    enabled: process.env.OTEL_ENABLED === 'true',
+  });
+
   const app = await NestFactory.create(AppModule);
 
   app.use(helmet());
@@ -30,6 +40,7 @@ async function bootstrap() {
       'capacitor://localhost',
       /^https:\/\/deploy-preview-\d+--yardvark\.netlify\.app$/,
       /^https:\/\/[a-zA-Z0-9-]+--yardvark\.netlify\.app$/,
+      'https://t8x2587c-4200.usw3.devtunnels.ms',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],

@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpService } from '@nestjs/axios';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { WeatherService } from './weather.service';
 import {
   WeatherDotGovPointsResponse,
@@ -13,10 +14,16 @@ import * as tryCatchModule from '../../../utils/tryCatch';
 
 describe('WeatherService', () => {
   let service: WeatherService;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let httpService: HttpService;
 
   const mockHttpService = {
     get: jest.fn(),
+  };
+
+  const mockCacheManager = {
+    get: jest.fn(),
+    set: jest.fn(),
   };
 
   const mockProbabilityOfPrecipitation: ProbabilityOfPrecipitation = {
@@ -146,6 +153,18 @@ describe('WeatherService', () => {
           provide: HttpService,
           useValue: mockHttpService,
         },
+        {
+          provide: CACHE_MANAGER,
+          useValue: mockCacheManager,
+        },
+        {
+          provide: 'FORECAST_CACHE_TTL',
+          useValue: 3600000,
+        },
+        {
+          provide: 'HISTORICAL_CACHE_TTL',
+          useValue: 86400000,
+        },
       ],
     }).compile();
 
@@ -153,6 +172,7 @@ describe('WeatherService', () => {
     httpService = module.get<HttpService>(HttpService);
 
     jest.clearAllMocks();
+    mockCacheManager.get.mockResolvedValue(null); // Default to cache miss
   });
 
   it('should be defined', () => {
@@ -361,24 +381,26 @@ describe('WeatherService', () => {
 
     it('should handle non-Error objects in tryCatch', async () => {
       jest.spyOn(tryCatchModule, 'tryCatch').mockResolvedValueOnce({
+        success: false,
         data: null,
-        error: 'String error' as unknown as Error,
+        error: { message: undefined } as unknown as Error,
       });
 
       await expect(
         service.getWeatherData('32.7767', '-96.7970'),
-      ).rejects.toThrow('Failed to fetch weather data: Unknown error');
+      ).rejects.toThrow('Failed to fetch weather data: undefined');
     });
 
     it('should handle empty forecast data', async () => {
       jest.spyOn(tryCatchModule, 'tryCatch').mockResolvedValueOnce({
+        success: false,
         data: null,
-        error: null,
+        error: new Error('Empty forecast data'),
       });
 
       await expect(
         service.getWeatherData('32.7767', '-96.7970'),
-      ).rejects.toThrow('Failed to fetch weather data: Unknown error');
+      ).rejects.toThrow('Failed to fetch weather data: Empty forecast data');
     });
 
     it('should handle malformed points response', async () => {
@@ -475,6 +497,250 @@ describe('WeatherService', () => {
       expect(
         result.properties.periods[0].probabilityOfPrecipitation.value,
       ).toBeNull();
+    });
+
+    it('should return cached data on cache hit', async () => {
+      mockCacheManager.get.mockResolvedValueOnce(mockForecastResponse);
+
+      const result = await service.getWeatherData('32.7767', '-96.7970');
+
+      expect(mockCacheManager.get).toHaveBeenCalledWith(
+        'weather:forecast:32.7767:-96.7970',
+      );
+      expect(mockHttpService.get).not.toHaveBeenCalled();
+      expect(result).toEqual(mockForecastResponse);
+    });
+
+    it('should cache data after fetching from API', async () => {
+      const pointsAxiosResponse: AxiosResponse<WeatherDotGovPointsResponse> = {
+        data: mockPointsResponse,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {},
+      } as never;
+
+      const forecastAxiosResponse: AxiosResponse<WeatherDotGovForecastResponse> =
+        {
+          data: mockForecastResponse,
+          status: 200,
+          statusText: 'OK',
+          headers: {},
+          config: {},
+        } as never;
+
+      mockHttpService.get
+        .mockReturnValueOnce(of(pointsAxiosResponse))
+        .mockReturnValueOnce(of(forecastAxiosResponse));
+
+      await service.getWeatherData('32.7767', '-96.7970');
+
+      expect(mockCacheManager.set).toHaveBeenCalledWith(
+        'weather:forecast:32.7767:-96.7970',
+        mockForecastResponse,
+        3600000,
+      );
+    });
+  });
+
+  describe('getHistoricalAirTemperatures', () => {
+    const mockHistoricalResponse = {
+      latitude: 32.7767,
+      longitude: -96.797,
+      generationtime_ms: 0.5,
+      utc_offset_seconds: -21600,
+      timezone: 'America/Chicago',
+      timezone_abbreviation: 'CST',
+      elevation: 137.0,
+      daily_units: {
+        time: 'iso8601',
+        temperature_2m_max: '°F',
+        temperature_2m_min: '°F',
+      },
+      daily: {
+        time: ['2024-06-01', '2024-06-02', '2024-06-03'],
+        temperature_2m_max: [95.2, 92.8, 89.6],
+        temperature_2m_min: [72.5, 74.1, 71.3],
+      },
+    };
+
+    const historicalParams = {
+      lat: 32.7767,
+      long: -96.797,
+      startDate: '2024-06-01',
+      endDate: '2024-06-03',
+      temperatureUnit: 'fahrenheit' as const,
+    };
+
+    it('should successfully fetch historical temperature data', async () => {
+      const axiosResponse = {
+        data: mockHistoricalResponse,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {},
+      } as never;
+
+      mockHttpService.get.mockReturnValueOnce(of(axiosResponse));
+
+      const result =
+        await service.getHistoricalAirTemperatures(historicalParams);
+
+      expect(result).toEqual([
+        { date: '2024-06-01', maxTemp: 95.2, minTemp: 72.5 },
+        { date: '2024-06-02', maxTemp: 92.8, minTemp: 74.1 },
+        { date: '2024-06-03', maxTemp: 89.6, minTemp: 71.3 },
+      ]);
+    });
+
+    it('should call Open-Meteo API with correct parameters', async () => {
+      const axiosResponse = {
+        data: mockHistoricalResponse,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {},
+      } as never;
+
+      mockHttpService.get.mockReturnValueOnce(of(axiosResponse));
+
+      await service.getHistoricalAirTemperatures(historicalParams);
+
+      expect(mockHttpService.get).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'https://historical-forecast-api.open-meteo.com/v1/forecast',
+        ),
+      );
+      expect(mockHttpService.get).toHaveBeenCalledWith(
+        expect.stringContaining('latitude=32.7767'),
+      );
+      expect(mockHttpService.get).toHaveBeenCalledWith(
+        expect.stringContaining('longitude=-96.797'),
+      );
+      expect(mockHttpService.get).toHaveBeenCalledWith(
+        expect.stringContaining('start_date=2024-06-01'),
+      );
+      expect(mockHttpService.get).toHaveBeenCalledWith(
+        expect.stringContaining('end_date=2024-06-03'),
+      );
+      expect(mockHttpService.get).toHaveBeenCalledWith(
+        expect.stringContaining('temperature_unit=fahrenheit'),
+      );
+    });
+
+    it('should return cached data on cache hit', async () => {
+      const cachedData = [
+        { date: '2024-06-01', maxTemp: 95.2, minTemp: 72.5 },
+        { date: '2024-06-02', maxTemp: 92.8, minTemp: 74.1 },
+      ];
+
+      mockCacheManager.get.mockResolvedValueOnce(cachedData);
+
+      const result =
+        await service.getHistoricalAirTemperatures(historicalParams);
+
+      expect(mockCacheManager.get).toHaveBeenCalledWith(
+        'weather:historical:32.7767:-96.797:2024-06-01:2024-06-03:fahrenheit',
+      );
+      expect(mockHttpService.get).not.toHaveBeenCalled();
+      expect(result).toEqual(cachedData);
+    });
+
+    it('should cache data after fetching from API', async () => {
+      const axiosResponse = {
+        data: mockHistoricalResponse,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {},
+      } as never;
+
+      mockHttpService.get.mockReturnValueOnce(of(axiosResponse));
+
+      await service.getHistoricalAirTemperatures(historicalParams);
+
+      expect(mockCacheManager.set).toHaveBeenCalledWith(
+        'weather:historical:32.7767:-96.797:2024-06-01:2024-06-03:fahrenheit',
+        [
+          { date: '2024-06-01', maxTemp: 95.2, minTemp: 72.5 },
+          { date: '2024-06-02', maxTemp: 92.8, minTemp: 74.1 },
+          { date: '2024-06-03', maxTemp: 89.6, minTemp: 71.3 },
+        ],
+        86400000,
+      );
+    });
+
+    it('should throw error when API call fails', async () => {
+      mockHttpService.get.mockReturnValueOnce(
+        throwError(() => new Error('Open-Meteo API error')),
+      );
+
+      await expect(
+        service.getHistoricalAirTemperatures(historicalParams),
+      ).rejects.toThrow(
+        'Failed to fetch historical temperatures: Open-Meteo API error',
+      );
+    });
+
+    it('should handle celsius temperature unit', async () => {
+      const celsiusResponse = {
+        ...mockHistoricalResponse,
+        daily_units: {
+          time: 'iso8601',
+          temperature_2m_max: '°C',
+          temperature_2m_min: '°C',
+        },
+        daily: {
+          time: ['2024-06-01'],
+          temperature_2m_max: [35.1],
+          temperature_2m_min: [22.5],
+        },
+      };
+
+      const axiosResponse = {
+        data: celsiusResponse,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {},
+      } as never;
+
+      mockHttpService.get.mockReturnValueOnce(of(axiosResponse));
+
+      const result = await service.getHistoricalAirTemperatures({
+        ...historicalParams,
+        temperatureUnit: 'celsius',
+      });
+
+      expect(mockHttpService.get).toHaveBeenCalledWith(
+        expect.stringContaining('temperature_unit=celsius'),
+      );
+      expect(result).toEqual([
+        { date: '2024-06-01', maxTemp: 35.1, minTemp: 22.5 },
+      ]);
+    });
+
+    it('should use default fahrenheit when temperatureUnit is not provided', async () => {
+      const axiosResponse = {
+        data: mockHistoricalResponse,
+        status: 200,
+        statusText: 'OK',
+        headers: {},
+        config: {},
+      } as never;
+
+      mockHttpService.get.mockReturnValueOnce(of(axiosResponse));
+
+      await service.getHistoricalAirTemperatures({
+        lat: 32.7767,
+        long: -96.797,
+        startDate: '2024-06-01',
+        endDate: '2024-06-03',
+      });
+
+      expect(mockHttpService.get).toHaveBeenCalledWith(
+        expect.stringContaining('temperature_unit=fahrenheit'),
+      );
     });
   });
 });

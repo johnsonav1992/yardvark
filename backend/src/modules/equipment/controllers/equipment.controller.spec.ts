@@ -5,7 +5,9 @@ import { S3Service } from 'src/modules/s3/s3.service';
 
 describe('EquipmentController', () => {
   let controller: EquipmentController;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let equipmentService: EquipmentService;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let s3Service: S3Service;
 
   const mockEquipmentService = {

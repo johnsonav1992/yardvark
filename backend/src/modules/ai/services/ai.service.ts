@@ -9,17 +9,18 @@ import {
   preprocessQuery,
   buildContextFromEntries,
 } from '../../entries/utils/entryRagUtils';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Injectable()
 export class AiService {
   constructor(
-    private geminiService: GeminiService,
-    private embeddingService: EmbeddingService,
+    private readonly geminiService: GeminiService,
+    private readonly embeddingService: EmbeddingService,
     @Inject(forwardRef(() => EntriesService))
-    private entriesService: EntriesService,
+    private readonly entriesService: EntriesService,
   ) {}
 
-  async chat(prompt: string): Promise<AiChatResponse> {
+  public async chat(prompt: string): Promise<AiChatResponse> {
     const result = await tryCatch(() => this.geminiService.simpleChat(prompt));
 
     if (!result.success) {
@@ -31,7 +32,7 @@ export class AiService {
     return result.data;
   }
 
-  async chatWithSystem(
+  public async chatWithSystem(
     systemPrompt: string,
     userPrompt: string,
   ): Promise<AiChatResponse> {
@@ -48,10 +49,12 @@ export class AiService {
     return result.data;
   }
 
-  async queryEntries(
+  public async queryEntries(
     userId: string,
     naturalQuery: string,
   ): Promise<AiChatResponse> {
+    LogHelpers.addBusinessContext('aiQueryType', 'rag');
+
     try {
       const preprocessedQuery = preprocessQuery(naturalQuery);
       const queryEmbedding =
@@ -63,6 +66,9 @@ export class AiService {
         startDate: dateRange?.startDate,
         endDate: dateRange?.endDate,
       });
+
+      LogHelpers.addBusinessContext('ragEntriesFound', relevantEntries.length);
+
       const context = buildContextFromEntries(relevantEntries);
 
       const systemPrompt = `You are a lawn care expert assistant. Answer the user's question based only on the provided entry data from their lawn care history. If you cannot find relevant information in the provided entries, say so clearly. Include specific dates and details when available.
@@ -76,10 +82,12 @@ export class AiService {
     }
   }
 
-  async *streamQueryEntries(
+  public async *streamQueryEntries(
     userId: string,
     naturalQuery: string,
   ): AsyncGenerator<{ content: string; done: boolean }, void, unknown> {
+    LogHelpers.addBusinessContext('aiQueryType', 'rag-stream');
+
     try {
       const preprocessedQuery = preprocessQuery(naturalQuery);
       const queryEmbedding =
@@ -91,6 +99,9 @@ export class AiService {
         startDate: dateRange?.startDate,
         endDate: dateRange?.endDate,
       });
+
+      LogHelpers.addBusinessContext('ragEntriesFound', relevantEntries.length);
+
       const context = buildContextFromEntries(relevantEntries);
 
       const systemPrompt = `You are a lawn care expert assistant. Answer the user's question based only on the provided entry data from their lawn care history. If you cannot find relevant information in the provided entries, say so clearly. Include specific dates and details when available.
@@ -109,11 +120,16 @@ export class AiService {
     }
   }
 
-  async initializeEmbeddings(
+  public async initializeEmbeddings(
     userId: string,
   ): Promise<{ processed: number; errors: number }> {
     const entriesWithoutEmbeddings =
       await this.entriesService.getEntriesWithoutEmbeddings(userId);
+
+    LogHelpers.addBusinessContext(
+      'embeddingsToProcess',
+      entriesWithoutEmbeddings.length,
+    );
 
     let processed = 0;
     let errors = 0;
@@ -127,6 +143,9 @@ export class AiService {
         errors++;
       }
     }
+
+    LogHelpers.addBusinessContext('embeddingsProcessed', processed);
+    LogHelpers.addBusinessContext('embeddingsErrors', errors);
 
     return { processed, errors };
   }

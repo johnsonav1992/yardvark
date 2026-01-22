@@ -17,56 +17,69 @@ import { Entry, EntryImage, EntryProduct } from '../models/entries.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getEntryResponseMapping } from '../utils/entryUtils';
 import { ACTIVITY_IDS } from 'src/constants/activities.constants';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Injectable()
 export class EntriesService {
   constructor(
     @InjectRepository(Entry)
-    private _entriesRepo: Repository<Entry>,
+    private readonly _entriesRepo: Repository<Entry>,
     @InjectRepository(EntryProduct)
-    private _entryProductsRepo: Repository<EntryProduct>,
+    private readonly _entryProductsRepo: Repository<EntryProduct>,
     @InjectRepository(EntryImage)
-    private _entryImagesRepo: Repository<EntryImage>,
+    private readonly _entryImagesRepo: Repository<EntryImage>,
   ) {}
 
-  async getEntries(userId: string, startDate?: string, endDate?: string) {
-    const entries = await this._entriesRepo.find({
-      where: {
-        userId,
-        date:
-          startDate && endDate
-            ? Between(new Date(startDate), new Date(endDate))
-            : undefined,
-      },
-      relations: {
-        activities: true,
-        lawnSegments: true,
-        entryProducts: {
-          product: true,
+  public async getEntries(
+    userId: string,
+    startDate?: string,
+    endDate?: string,
+  ) {
+    const entries = await LogHelpers.withDatabaseTelemetry(() =>
+      this._entriesRepo.find({
+        where: {
+          userId,
+          date:
+            startDate && endDate
+              ? Between(new Date(startDate), new Date(endDate))
+              : undefined,
         },
-        entryImages: true,
-      },
-    });
+        relations: {
+          activities: true,
+          lawnSegments: true,
+          entryProducts: {
+            product: true,
+          },
+          entryImages: true,
+        },
+      }),
+    );
 
     if (!entries) {
       throw new HttpException('Entries not found', HttpStatus.NOT_FOUND);
     }
 
+    LogHelpers.addBusinessContext('entriesReturned', entries.length);
+
     return entries.map((entry) => getEntryResponseMapping(entry));
   }
 
-  async getEntry(entryId: number) {
-    const entry = await this._entriesRepo.findOne({
-      where: { id: entryId },
-      relations: {
-        activities: true,
-        lawnSegments: true,
-        entryProducts: {
-          product: true,
+  public async getEntry(entryId: number) {
+    LogHelpers.addBusinessContext('entryId', entryId);
+
+    const entry = await LogHelpers.withDatabaseTelemetry(() =>
+      this._entriesRepo.findOne({
+        where: { id: entryId },
+        relations: {
+          activities: true,
+          lawnSegments: true,
+          entryProducts: {
+            product: true,
+          },
+          entryImages: true,
         },
-        entryImages: true,
-      },
-    });
+      }),
+    );
 
     if (!entry) {
       throw new HttpException('Entry not found', HttpStatus.NOT_FOUND);
@@ -75,7 +88,7 @@ export class EntriesService {
     return getEntryResponseMapping(entry);
   }
 
-  async getEntryByDate(userId: string, date: string) {
+  public async getEntryByDate(userId: string, date: string) {
     const entry = await this._entriesRepo.findOne({
       where: { userId, date: new Date(date) },
       relations: {
@@ -95,7 +108,7 @@ export class EntriesService {
     return getEntryResponseMapping(entry);
   }
 
-  async getMostRecentEntry(userId: string) {
+  public async getMostRecentEntry(userId: string) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -124,7 +137,7 @@ export class EntriesService {
     return getEntryResponseMapping(entry);
   }
 
-  async getLastMowDate(userId: string) {
+  public async getLastMowDate(userId: string) {
     const entry = await this._entriesRepo.findOne({
       where: {
         userId,
@@ -140,7 +153,7 @@ export class EntriesService {
     return entry?.date || null;
   }
 
-  async getLastProductApplicationDate(userId: string) {
+  public async getLastProductApplicationDate(userId: string) {
     const entry = await this._entriesRepo
       .createQueryBuilder('entry')
       .leftJoin('entry.activities', 'activity')
@@ -161,7 +174,26 @@ export class EntriesService {
     return entry?.date || null;
   }
 
-  async createEntry(userId: string, entry: EntryCreationRequest) {
+  /**
+   * Gets the date of the most recent entry with a PGR (Plant Growth Regulator) product
+   * Used for GDD (Growing Degree Days) calculation
+   */
+  public async getLastPgrApplicationDate(userId: string): Promise<Date | null> {
+    const entry = await this._entriesRepo
+      .createQueryBuilder('entry')
+      .innerJoin('entry.entryProducts', 'entryProduct')
+      .innerJoin('entryProduct.product', 'product')
+      .where('entry.userId = :userId', { userId })
+      .andWhere('entry.date <= :today', { today: new Date() })
+      .andWhere('product.category = :category', { category: 'pgr' })
+      .orderBy('entry.date', 'DESC')
+      .addOrderBy('entry.time', 'DESC')
+      .getOne();
+
+    return entry?.date || null;
+  }
+
+  public async createEntry(userId: string, entry: EntryCreationRequest) {
     const newEntry = this._entriesRepo.create({
       ...entry,
       userId,
@@ -178,12 +210,21 @@ export class EntriesService {
         })) || [],
     });
 
-    await this._entriesRepo.save(newEntry);
+    await LogHelpers.withDatabaseTelemetry(() =>
+      this._entriesRepo.save(newEntry),
+    );
+
+    LogHelpers.addBusinessContext('entryCreated', newEntry.id);
+    LogHelpers.addBusinessContext(
+      'activitiesCount',
+      entry.activityIds?.length ?? 0,
+    );
+    LogHelpers.addBusinessContext('productsCount', entry.products?.length ?? 0);
 
     return newEntry;
   }
 
-  async createEntriesBatch(
+  public async createEntriesBatch(
     userId: string,
     body: BatchEntryCreationRequest,
   ): Promise<BatchEntryCreationResponse> {
@@ -198,12 +239,17 @@ export class EntriesService {
       if (result.status === 'fulfilled') {
         entries.push(result.value);
       } else {
+        const reason = result.reason as Error | undefined;
         errors.push({
           index,
-          error: result.reason?.message || 'Unknown error',
+          error: reason?.message || 'Unknown error',
         });
       }
     });
+
+    LogHelpers.addBusinessContext('batchSize', body.entries.length);
+    LogHelpers.addBusinessContext('batchCreated', entries.length);
+    LogHelpers.addBusinessContext('batchFailed', errors.length);
 
     return {
       created: entries.length,
@@ -213,7 +259,12 @@ export class EntriesService {
     };
   }
 
-  async updateEntry(entryId: number, entry: Partial<EntryCreationRequest>) {
+  public async updateEntry(
+    entryId: number,
+    entry: Partial<EntryCreationRequest>,
+  ) {
+    LogHelpers.addBusinessContext('entryId', entryId);
+
     const entryToUpdate = await this._entriesRepo.findOne({
       where: { id: entryId },
       relations: {
@@ -260,7 +311,9 @@ export class EntriesService {
     return updatedEntry;
   }
 
-  async softDeleteEntry(entryId: number) {
+  public async softDeleteEntry(entryId: number) {
+    LogHelpers.addBusinessContext('entryId', entryId);
+
     const entry = await this._entriesRepo.findOne({
       where: { id: entryId },
     });
@@ -270,13 +323,17 @@ export class EntriesService {
     }
 
     await this._entriesRepo.softDelete(entryId);
+    LogHelpers.addBusinessContext('entryDeleted', true);
   }
 
-  async recoverEntry(entryId: number) {
+  public async recoverEntry(entryId: number) {
     await this._entriesRepo.restore(entryId);
   }
 
-  async searchEntries(userId: string, searchCriteria: EntriesSearchRequest) {
+  public async searchEntries(
+    userId: string,
+    searchCriteria: EntriesSearchRequest,
+  ) {
     const today = new Date();
     const startOfYear = new Date(today.getFullYear(), 0, 1);
 
@@ -318,31 +375,35 @@ export class EntriesService {
       ];
     }
 
-    const entries = await this._entriesRepo.find({
-      where,
-      relations: {
-        activities: true,
-        lawnSegments: true,
-        entryProducts: { product: true },
-      },
-      order: {
-        date: 'DESC',
-        time: 'DESC',
-      },
-    });
+    const entries = await LogHelpers.withDatabaseTelemetry(() =>
+      this._entriesRepo.find({
+        where,
+        relations: {
+          activities: true,
+          lawnSegments: true,
+          entryProducts: { product: true },
+        },
+        order: {
+          date: 'DESC',
+          time: 'DESC',
+        },
+      }),
+    );
+
+    LogHelpers.addBusinessContext('searchResultsCount', entries.length);
 
     return entries.map((entry) => getEntryResponseMapping(entry));
   }
 
-  async softDeleteEntryImage(entryImageId: number) {
+  public async softDeleteEntryImage(entryImageId: number) {
     await this._entryImagesRepo.softDelete(entryImageId);
   }
 
-  async recoverEntryImage(entryImageId: number) {
+  public async recoverEntryImage(entryImageId: number) {
     await this._entryImagesRepo.restore(entryImageId);
   }
 
-  async searchEntriesByVector({
+  public async searchEntriesByVector({
     userId,
     queryEmbedding,
     limit = 200,
@@ -381,12 +442,12 @@ export class EntriesService {
       .getMany();
   }
 
-  async updateEntryEmbedding(entryId: number, embedding: number[]) {
+  public async updateEntryEmbedding(entryId: number, embedding: number[]) {
     const embeddingString = `[${embedding.join(',')}]`;
     await this._entriesRepo.update(entryId, { embedding: embeddingString });
   }
 
-  async getEntriesWithoutEmbeddings(userId: string): Promise<Entry[]> {
+  public async getEntriesWithoutEmbeddings(userId: string): Promise<Entry[]> {
     return this._entriesRepo
       .createQueryBuilder('entry')
       .leftJoinAndSelect('entry.activities', 'activities')

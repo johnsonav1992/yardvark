@@ -7,7 +7,10 @@ import {
 } from '@angular/core';
 import { TabsModule } from 'primeng/tabs';
 import { Tab } from '../../types/components.types';
-import { ProductCategories } from '../../types/products.types';
+import {
+  ProductCategories,
+  ProductCategoryValues
+} from '../../types/products.types';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import {
   ProductCardComponent,
@@ -63,11 +66,12 @@ export class ProductsComponent {
 
   public isMobile = this._globalUiService.isMobile;
 
-  public tabs: Tab<ProductCategories>[] = [
+  public tabs: Tab<ProductCategories, ProductCategoryValues>[] = [
     { title: 'Fertilizer', value: 'fertilizer' },
     { title: 'Pre-emergent', value: 'pre-emergent' },
     { title: 'Post-emergent', value: 'post-emergent' },
     { title: 'Bio-stimulant', value: 'bio-stimulant' },
+    { title: 'PGR', value: 'pgr' },
     { title: 'Plant-fertilizer', value: 'plant-fertilizer' },
     { title: 'Fungus-control', value: 'fungus-control' },
     { title: 'Insect-control', value: 'insect-control' },
@@ -78,7 +82,7 @@ export class ProductsComponent {
   public products = this._productsService.products;
   public optimisticProducts = this._productsService.optimisticProducts;
 
-  public selectedTab = signal<Uncapitalize<ProductCategories>>('fertilizer');
+  public selectedTab = signal<ProductCategoryValues>('fertilizer');
   public searchQuery = signal('');
 
   public productsToShow = linkedSignal(() => {
@@ -111,7 +115,7 @@ export class ProductsComponent {
   public onTabChange(tab: string | number | undefined): void {
     if (tab === undefined) return;
 
-    const selectedTab = tab as Uncapitalize<ProductCategories>;
+    const selectedTab = tab as ProductCategoryValues;
 
     this.selectedTab.set(selectedTab);
   }

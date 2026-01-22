@@ -4,6 +4,7 @@ import { LawnSegmentsService } from '../services/lawn-segments.service';
 
 describe('LawnSegmentsController', () => {
   let controller: LawnSegmentsController;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let service: LawnSegmentsService;
 
   const mockLawnSegmentsService = {

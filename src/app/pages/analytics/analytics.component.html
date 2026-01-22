@@ -2,23 +2,33 @@
   <ng-template #action1>
     <p-floatlabel variant="on">
       <p-datePicker
-        [(ngModel)]="year"
+        [ngModel]="yearDate()"
+        (ngModelChange)="onYearChange($event)"
         view="year"
         dateFormat="yy"
         id="year"
-        disabled
         [inputStyle]="{ width: '100px' }"
       />
       <label for="year">Year</label>
     </p-floatlabel>
   </ng-template>
-  <em [style.font-size]="'10px'">
-    {{ `${isMobile() ? 'Click on' : 'Hover over'} segments or points of charts to see more details` }}
-  </em>
-  <div class="main-container">
-    @if (analyticsData.isLoading()) {
-      <loading-spinner />
-    } @else {
+
+  @if (analyticsData.isLoading()) {
+    <loading-spinner />
+  } @else if (!hasAnyData()) {
+    <div class="empty-state-container">
+      <empty-message
+        message="No analytics data for {{ year() }}"
+        description="Start tracking entries this year to see your lawn care analytics and insights."
+        icon="ti ti-chart-bar-off"
+        [size]="isMobile() ? 'md' : 'lg'"
+      />
+    </div>
+  } @else {
+    <em [style.font-size]="'10px'">
+      {{ `${isMobile() ? 'Click on' : 'Hover over'} segments or points of charts to see more details` }}
+    </em>
+    <div class="main-container">
       @for (chart of charts(); track chart.title) {
         @let chartData = chart.chartData;
         @let hasData = chartData.datasets?.[0]?.data?.length || 0;
@@ -37,7 +47,6 @@
               </p-popover>
             }
           </ng-template>
-
           @if (hasData) {
             <p-chart
               [type]="chartData.datasets[0].type"
@@ -45,10 +54,10 @@
               [options]="chart.options"
             />
           } @else {
-            <empty-message message="No data available" />
+            <empty-message message="No data available" size="sm" />
           }
         </p-card>
       }
-    }
-  </div>
+    </div>
+  }
 </page-container>

@@ -11,7 +11,6 @@ import {
 
 import { mainRoutes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import { authHttpInterceptorFn, provideAuth0 } from '@auth0/auth0-angular';
 import { theme } from './theme/theme';
@@ -33,7 +32,6 @@ export const appConfig: ApplicationConfig = {
       withViewTransitions({ skipInitialTransition: true })
     ),
     provideHttpClient(withInterceptors([authHttpInterceptorFn])),
-    provideAnimationsAsync(),
     providePrimeNG({
       theme: {
         preset: theme,

@@ -9,21 +9,23 @@ import {
   Req,
 } from '@nestjs/common';
 import { LawnSegmentsService } from '../services/lawn-segments.service';
-import { LawnSegmentCreationRequest } from '../models/lawn-segments.types';
+import {
+  LawnSegmentCreationRequest,
+  LawnSegmentUpdateRequest,
+} from '../models/lawn-segments.types';
 import { Request } from 'express';
-import { LawnSegment } from '../models/lawn-segments.model';
 
 @Controller('lawn-segments')
 export class LawnSegmentsController {
-  constructor(private _lawnSegmentService: LawnSegmentsService) {}
+  constructor(private readonly _lawnSegmentService: LawnSegmentsService) {}
 
   @Get()
-  getLawnSegments(@Req() req: Request) {
+  public getLawnSegments(@Req() req: Request) {
     return this._lawnSegmentService.getLawnSegments(req.user.userId);
   }
 
   @Post()
-  createLawnSegment(
+  public createLawnSegment(
     @Req() req: Request,
     @Body() lawnSegment: LawnSegmentCreationRequest,
   ) {
@@ -34,12 +36,15 @@ export class LawnSegmentsController {
   }
 
   @Put(':id')
-  updateLawnSegment(@Body() lawnSegment: LawnSegment) {
-    return this._lawnSegmentService.updateLawnSegment(lawnSegment);
+  public updateLawnSegment(
+    @Param('id') id: number,
+    @Body() updateData: LawnSegmentUpdateRequest,
+  ) {
+    return this._lawnSegmentService.updateLawnSegment(id, updateData);
   }
 
   @Delete(':id')
-  deleteLawnSegment(@Param('id') id: number) {
+  public deleteLawnSegment(@Param('id') id: number) {
     return this._lawnSegmentService.deleteLawnSegment(id);
   }
 }

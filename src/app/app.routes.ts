@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { SoilDataComponent } from './pages/soil-data/soil-data.component';
+import { GddDataComponent } from './pages/gdd-data/gdd-data.component';
 import { EntryLogComponent } from './pages/entry-log/entry-log.component';
 import { SettingsComponent } from './pages/settings/settings.component';
 import { ProductsComponent } from './pages/products/products.component';
@@ -52,6 +53,11 @@ export const mainRoutes: Routes = [
     path: 'soil-data',
     component: SoilDataComponent,
     canActivate: [hybridAuthGuard]
+  },
+  {
+    path: 'gdd-tracking',
+    component: GddDataComponent,
+    canActivate: [authGuardFn]
   },
   {
     path: 'products/add',

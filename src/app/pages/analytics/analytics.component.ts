@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import { CardModule } from 'primeng/card';
 import { ChartModule } from 'primeng/chart';
@@ -42,7 +42,8 @@ export class AnalyticsComponent {
   public isDarkMode = this._globalUiService.isDarkMode;
   public isMobile = this._globalUiService.isMobile;
 
-  public year = signal(new Date());
+  public year = this._analyticsService.year;
+  public yearDate = computed(() => new Date(this.year(), 0, 1));
 
   public charts = computed(() => {
     const uiOptions = {
@@ -57,4 +58,14 @@ export class AnalyticsComponent {
       getProductTypeDistributionChartConfig(this.analyticsData.value())
     ];
   });
+
+  public hasAnyData = computed(() => {
+    return this.charts().some(
+      (chart) => (chart.chartData.datasets?.[0]?.data?.length ?? 0) > 0
+    );
+  });
+
+  public onYearChange(date: Date): void {
+    this._analyticsService.year.set(date.getFullYear());
+  }
 }

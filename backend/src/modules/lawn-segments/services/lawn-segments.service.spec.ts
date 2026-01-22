@@ -4,13 +4,16 @@ import { Repository, DeleteResult } from 'typeorm';
 import { LawnSegmentsService } from '../services/lawn-segments.service';
 import { LawnSegment } from '../models/lawn-segments.model';
 import { LawnSegmentCreationRequest } from '../models/lawn-segments.types';
+import { DEFAULT_LAWN_SEGMENT_COLOR } from '../../../constants/lawn-segments.constants';
 
 describe('LawnSegmentsService', () => {
   let service: LawnSegmentsService;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let repository: Repository<LawnSegment>;
 
   const mockRepository = {
     findBy: jest.fn(),
+    findOneBy: jest.fn(),
     create: jest.fn(),
     save: jest.fn(),
     delete: jest.fn(),
@@ -19,6 +22,8 @@ describe('LawnSegmentsService', () => {
   const mockLawnSegmentCreationRequest: LawnSegmentCreationRequest = {
     name: 'Front Yard',
     size: 2500.5,
+    coordinates: null,
+    color: DEFAULT_LAWN_SEGMENT_COLOR,
   };
 
   const mockLawnSegment: LawnSegment = {
@@ -26,6 +31,8 @@ describe('LawnSegmentsService', () => {
     userId: 'user-123',
     name: 'Front Yard',
     size: 2500.5,
+    coordinates: null,
+    color: DEFAULT_LAWN_SEGMENT_COLOR,
     entries: [],
   };
 
@@ -36,6 +43,8 @@ describe('LawnSegmentsService', () => {
       userId: 'user-123',
       name: 'Back Yard',
       size: 3200.75,
+      coordinates: null,
+      color: DEFAULT_LAWN_SEGMENT_COLOR,
       entries: [],
     },
     {
@@ -43,6 +52,8 @@ describe('LawnSegmentsService', () => {
       userId: 'user-123',
       name: 'Side Yard',
       size: 800.25,
+      coordinates: null,
+      color: DEFAULT_LAWN_SEGMENT_COLOR,
       entries: [],
     },
   ];
@@ -151,6 +162,8 @@ describe('LawnSegmentsService', () => {
       const differentSegmentRequest: LawnSegmentCreationRequest = {
         name: 'Pool Area',
         size: 750.25,
+        coordinates: null,
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
       };
 
       const expectedCreated = {
@@ -162,6 +175,8 @@ describe('LawnSegmentsService', () => {
         userId: 'user-456',
         name: 'Pool Area',
         size: 750.25,
+        coordinates: null,
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
         entries: [],
       };
 
@@ -181,6 +196,8 @@ describe('LawnSegmentsService', () => {
       const largeSegmentRequest: LawnSegmentCreationRequest = {
         name: 'Main Lawn',
         size: 50000.99,
+        coordinates: null,
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
       };
 
       const createdSegment = { ...largeSegmentRequest, userId: 'user-123' };
@@ -189,6 +206,8 @@ describe('LawnSegmentsService', () => {
         userId: 'user-123',
         name: 'Main Lawn',
         size: 50000.99,
+        coordinates: null,
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
         entries: [],
       };
 
@@ -207,6 +226,8 @@ describe('LawnSegmentsService', () => {
       const smallSegmentRequest: LawnSegmentCreationRequest = {
         name: 'Flower Bed',
         size: 25.75,
+        coordinates: null,
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
       };
 
       const createdSegment = { ...smallSegmentRequest, userId: 'user-123' };
@@ -215,6 +236,8 @@ describe('LawnSegmentsService', () => {
         userId: 'user-123',
         name: 'Flower Bed',
         size: 25.75,
+        coordinates: null,
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
         entries: [],
       };
 
@@ -233,6 +256,8 @@ describe('LawnSegmentsService', () => {
       const specialNameRequest: LawnSegmentCreationRequest = {
         name: "Bob's Corner Lot #1",
         size: 1200.5,
+        coordinates: null,
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
       };
 
       const createdSegment = { ...specialNameRequest, userId: 'user-123' };
@@ -241,6 +266,8 @@ describe('LawnSegmentsService', () => {
         userId: 'user-123',
         name: "Bob's Corner Lot #1",
         size: 1200.5,
+        coordinates: null,
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
         entries: [],
       };
 
@@ -284,81 +311,101 @@ describe('LawnSegmentsService', () => {
 
   describe('updateLawnSegment', () => {
     it('should update an existing lawn segment successfully', async () => {
-      const updatedSegment = {
-        ...mockLawnSegment,
-        name: 'Updated Front Yard',
-        size: 2800.75,
-      };
+      const updateData = { name: 'Updated Front Yard', size: 2800.75 };
+      const updatedSegment = { ...mockLawnSegment, ...updateData };
 
+      mockRepository.findOneBy.mockResolvedValue(mockLawnSegment);
       mockRepository.save.mockResolvedValue(updatedSegment);
 
-      const result = await service.updateLawnSegment(updatedSegment);
+      const result = await service.updateLawnSegment(
+        mockLawnSegment.id,
+        updateData,
+      );
 
-      expect(mockRepository.save).toHaveBeenCalledWith(updatedSegment);
+      expect(mockRepository.findOneBy).toHaveBeenCalledWith({
+        id: mockLawnSegment.id,
+      });
       expect(result).toEqual(updatedSegment);
     });
 
     it('should handle updating different properties', async () => {
-      const sizeOnlyUpdate = {
-        ...mockLawnSegment,
-        size: 3000.0,
-      };
+      const updateData = { size: 3000.0 };
+      const updatedSegment = { ...mockLawnSegment, ...updateData };
 
-      mockRepository.save.mockResolvedValue(sizeOnlyUpdate);
+      mockRepository.findOneBy.mockResolvedValue(mockLawnSegment);
+      mockRepository.save.mockResolvedValue(updatedSegment);
 
-      const result = await service.updateLawnSegment(sizeOnlyUpdate);
+      const result = await service.updateLawnSegment(
+        mockLawnSegment.id,
+        updateData,
+      );
 
       expect(result.size).toBe(3000.0);
       expect(result.name).toBe(mockLawnSegment.name);
     });
 
     it('should handle name-only updates', async () => {
-      const nameOnlyUpdate = {
-        ...mockLawnSegment,
-        name: 'Renamed Segment',
-      };
+      const updateData = { name: 'Renamed Segment' };
+      const updatedSegment = { ...mockLawnSegment, ...updateData };
 
-      mockRepository.save.mockResolvedValue(nameOnlyUpdate);
+      mockRepository.findOneBy.mockResolvedValue(mockLawnSegment);
+      mockRepository.save.mockResolvedValue(updatedSegment);
 
-      const result = await service.updateLawnSegment(nameOnlyUpdate);
+      const result = await service.updateLawnSegment(
+        mockLawnSegment.id,
+        updateData,
+      );
 
       expect(result.name).toBe('Renamed Segment');
       expect(result.size).toBe(mockLawnSegment.size);
     });
 
     it('should preserve userId and id during updates', async () => {
-      const updatedSegment = {
-        ...mockLawnSegment,
-        name: 'New Name',
-        size: 4000.5,
-      };
+      const updateData = { name: 'New Name', size: 4000.5 };
+      const updatedSegment = { ...mockLawnSegment, ...updateData };
 
+      mockRepository.findOneBy.mockResolvedValue(mockLawnSegment);
       mockRepository.save.mockResolvedValue(updatedSegment);
 
-      const result = await service.updateLawnSegment(updatedSegment);
+      const result = await service.updateLawnSegment(
+        mockLawnSegment.id,
+        updateData,
+      );
 
       expect(result.id).toBe(mockLawnSegment.id);
       expect(result.userId).toBe(mockLawnSegment.userId);
     });
 
+    it('should throw error when segment not found', async () => {
+      mockRepository.findOneBy.mockResolvedValue(null);
+
+      await expect(
+        service.updateLawnSegment(999, { name: 'Test' }),
+      ).rejects.toThrow('Lawn segment not found');
+    });
+
     it('should handle repository save errors during update', async () => {
       const error = new Error('Update operation failed');
+
+      mockRepository.findOneBy.mockResolvedValue(mockLawnSegment);
       mockRepository.save.mockRejectedValue(error);
 
-      await expect(service.updateLawnSegment(mockLawnSegment)).rejects.toThrow(
-        'Update operation failed',
-      );
+      await expect(
+        service.updateLawnSegment(mockLawnSegment.id, { name: 'Test' }),
+      ).rejects.toThrow('Update operation failed');
     });
 
     it('should handle updating with zero size', async () => {
-      const zeroSizeSegment = {
-        ...mockLawnSegment,
-        size: 0,
-      };
+      const updateData = { size: 0 };
+      const updatedSegment = { ...mockLawnSegment, ...updateData };
 
-      mockRepository.save.mockResolvedValue(zeroSizeSegment);
+      mockRepository.findOneBy.mockResolvedValue(mockLawnSegment);
+      mockRepository.save.mockResolvedValue(updatedSegment);
 
-      const result = await service.updateLawnSegment(zeroSizeSegment);
+      const result = await service.updateLawnSegment(
+        mockLawnSegment.id,
+        updateData,
+      );
 
       expect(result.size).toBe(0);
     });
@@ -454,6 +501,8 @@ describe('LawnSegmentsService', () => {
       const emptyNameRequest: LawnSegmentCreationRequest = {
         name: '',
         size: 100.0,
+        coordinates: null,
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
       };
 
       const createdSegment = { ...emptyNameRequest, userId: 'user-123' };
@@ -462,6 +511,8 @@ describe('LawnSegmentsService', () => {
         userId: 'user-123',
         name: '',
         size: 100.0,
+        coordinates: null,
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
         entries: [],
       };
 
@@ -481,6 +532,8 @@ describe('LawnSegmentsService', () => {
       const longNameRequest: LawnSegmentCreationRequest = {
         name: longName,
         size: 500.0,
+        coordinates: null,
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
       };
 
       const createdSegment = { ...longNameRequest, userId: 'user-123' };
@@ -489,6 +542,8 @@ describe('LawnSegmentsService', () => {
         userId: 'user-123',
         name: longName,
         size: 500.0,
+        coordinates: null,
+        color: DEFAULT_LAWN_SEGMENT_COLOR,
         entries: [],
       };
 

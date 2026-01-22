@@ -5,15 +5,15 @@ import { Request } from 'express';
 
 @Controller('settings')
 export class SettingsController {
-  constructor(private _settingsService: SettingsService) {}
+  constructor(private readonly _settingsService: SettingsService) {}
 
   @Get()
-  getSettings(@Req() req: Request) {
+  public getSettings(@Req() req: Request) {
     return this._settingsService.getUserSettings(req.user.userId);
   }
 
   @Put()
-  updateSettings(@Req() req: Request, @Body() settings: SettingsData) {
+  public updateSettings(@Req() req: Request, @Body() settings: SettingsData) {
     const settingsVal = JSON.stringify(settings);
     return this._settingsService.updateSettings(req.user.userId, settingsVal);
   }

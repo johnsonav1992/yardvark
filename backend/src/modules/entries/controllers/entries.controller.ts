@@ -20,10 +20,10 @@ import { Request } from 'express';
 
 @Controller('entries')
 export class EntriesController {
-  constructor(private _entriesService: EntriesService) {}
+  constructor(private readonly _entriesService: EntriesService) {}
 
   @Get()
-  getEntries(
+  public getEntries(
     @Req() req: Request,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
@@ -32,12 +32,12 @@ export class EntriesController {
   }
 
   @Get('single/most-recent')
-  getMostRecentEntry(@Req() req: Request) {
+  public getMostRecentEntry(@Req() req: Request) {
     return this._entriesService.getMostRecentEntry(req.user.userId);
   }
 
   @Get('last-mow')
-  async getLastMowDate(@Req() req: Request) {
+  public async getLastMowDate(@Req() req: Request) {
     const lastMowDate = await this._entriesService.getLastMowDate(
       req.user.userId,
     );
@@ -46,30 +46,42 @@ export class EntriesController {
   }
 
   @Get('last-product-app')
-  async getLastProductAppDate(@Req() req: Request) {
+  public async getLastProductAppDate(@Req() req: Request) {
     const lastProductAppDate =
       await this._entriesService.getLastProductApplicationDate(req.user.userId);
 
     return { lastProductAppDate };
   }
 
+  @Get('last-pgr-app')
+  public async getLastPgrAppDate(@Req() req: Request) {
+    const lastPgrAppDate = await this._entriesService.getLastPgrApplicationDate(
+      req.user.userId,
+    );
+
+    return { lastPgrAppDate };
+  }
+
   @Get('single/by-date/:date')
-  getEntryByDate(@Req() req: Request, @Param('date') date: string) {
+  public getEntryByDate(@Req() req: Request, @Param('date') date: string) {
     return this._entriesService.getEntryByDate(req.user.userId, date);
   }
 
   @Get('single/:entryId')
-  getEntry(@Param('entryId') entryId: number) {
+  public getEntry(@Param('entryId') entryId: number) {
     return this._entriesService.getEntry(entryId);
   }
 
   @Post()
-  async createEntry(@Req() req: Request, @Body() entry: EntryCreationRequest) {
+  public async createEntry(
+    @Req() req: Request,
+    @Body() entry: EntryCreationRequest,
+  ) {
     return this._entriesService.createEntry(req.user.userId, entry);
   }
 
   @Post('batch')
-  async createEntriesBatch(
+  public async createEntriesBatch(
     @Req() req: Request,
     @Body() body: BatchEntryCreationRequest,
   ): Promise<BatchEntryCreationResponse> {
@@ -77,7 +89,7 @@ export class EntriesController {
   }
 
   @Put(':entryId')
-  updateEntry(
+  public updateEntry(
     @Param('entryId') entryId: number,
     @Body() entry: Partial<EntryCreationRequest>,
   ) {
@@ -85,17 +97,17 @@ export class EntriesController {
   }
 
   @Delete(':entryId')
-  softDeleteEntry(@Param('entryId') entryId: number) {
+  public softDeleteEntry(@Param('entryId') entryId: number) {
     return this._entriesService.softDeleteEntry(entryId);
   }
 
   @Post('recover/:entryId')
-  recoverEntry(@Param('entryId') entryId: number) {
+  public recoverEntry(@Param('entryId') entryId: number) {
     return this._entriesService.recoverEntry(entryId);
   }
 
   @Post('search')
-  searchEntries(
+  public searchEntries(
     @Req() req: Request,
     @Body() searchCriteria: EntriesSearchRequest,
   ) {
@@ -103,7 +115,7 @@ export class EntriesController {
   }
 
   @Delete('entry-image/:entryImageId')
-  deleteEntryImage(@Param('entryImageId') entryImageId: number) {
+  public deleteEntryImage(@Param('entryImageId') entryImageId: number) {
     return this._entriesService.softDeleteEntryImage(entryImageId);
   }
 }

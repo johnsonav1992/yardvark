@@ -4,6 +4,7 @@
     [options]="productsSorted()"
     dataKey="id"
     optionLabel="name"
+    filterBy="name,brand"
     [placeholder]="products.isLoading() ? 'Loading...' : 'Select Products'"
     [loading]="products.isLoading()"
     [loadingIcon]="'ti ti-loader-2'"
@@ -23,9 +24,7 @@
       }
     </ng-template>
   </p-multiSelect>
-
   @let selectedProducts = productsControl().value;
-
   @if (selectedProductNitrogen()) {
     <div class="nitrogen-display">
       <p-message
@@ -34,7 +33,6 @@
       />
     </div>
   }
-
   @if (selectedProducts?.length) {
     <div
       class="products-wrapper"

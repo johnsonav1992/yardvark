@@ -8,8 +8,7 @@ import { Component, input } from '@angular/core';
 })
 export class EmptyMessageComponent {
   public message = input.required<string>();
-
-  public icon = input<string>();
-  public iconSize = input<number | string>();
-  public messageFontSize = input<number | string>();
+  public description = input<string>();
+  public icon = input<string>('ti ti-database-off');
+  public size = input<'sm' | 'md' | 'lg'>('md');
 }

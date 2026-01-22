@@ -1,7 +1,11 @@
-<i
-  [class]="icon() || 'ti ti-info-circle'"
-  [style]="{ fontSize: iconSize() || '10rem' }"
-></i>
-<h4 [style.font-size]="messageFontSize() || ''" [style.textAlign]="'center'">
-  {{ message() }}
-</h4>
+<div class="empty-container" [attr.data-size]="size()">
+  <div class="icon-wrapper">
+    <i [class]="icon()"></i>
+  </div>
+  <div class="text-content">
+    <h4>{{ message() }}</h4>
+    @if (description()) {
+      <p>{{ description() }}</p>
+    }
+  </div>
+</div>

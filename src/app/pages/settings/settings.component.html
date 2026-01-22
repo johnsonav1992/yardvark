@@ -64,6 +64,34 @@
     />
   </div>
   <div class="section-wrapper">
+    <h4>Custom GDD Target</h4>
+    <small
+      ><em
+        >*Override the default GDD target for PGR reapplication timing (default:
+        {{ getDefaultGddTarget() }} GDD)</em
+      ></small
+    >
+    <div class="gdd-target-input">
+      <p-inputnumber
+        [ngModel]="currentSettings()?.customGddTarget ?? null"
+        [inputStyle]="{ flex: 'none', width: inputWidth }"
+        [placeholder]="'Using default (' + getDefaultGddTarget() + ')'"
+        [min]="50"
+        [max]="500"
+        (ngModelChange)="setCustomGddTarget($event)"
+      />
+      @if (currentSettings()?.customGddTarget) {
+        <p-button
+          icon="ti ti-x"
+          severity="secondary"
+          [text]="true"
+          (click)="clearCustomGddTarget()"
+          pTooltip="Reset to default"
+        />
+      }
+    </div>
+  </div>
+  <div class="section-wrapper">
     <h4>Hide system products</h4>
     <small
       ><em
@@ -77,7 +105,14 @@
     />
   </div>
   <div class="section-wrapper">
-    <h4>Lawn size</h4>
+    <h4>Lawn size (manual)</h4>
+    <small
+      ><em
+        >*If lawn segments are created below, all calculations and displays will
+        be based on these segments rather than the total lawn size entered
+        here.</em
+      ></small
+    >
     <p-inputnumber
       [(ngModel)]="lawnSize"
       [suffix]="' ft²'"
@@ -91,6 +126,18 @@
     <lawn-segments-table
       [lawnSegments]="lawnSegments.value()"
       [(hasUnsavedChanges)]="hasUnsavedChanges"
+      [isMobile]="isMobile()"
+      (editOnMapClicked)="onEditOnMap($event)"
+      (segmentSaveClicked)="onSegmentSave($event)"
+      (segmentEditCanceled)="onSegmentEditCanceled()"
+      (segmentNameChanged)="onSegmentNameChanged($event)"
+    />
+  </div>
+  <div class="section-wrapper">
+    <lawn-map
+      [lawnSegments]="lawnSegments.value()"
+      (editingCanceled)="onMapEditingCanceled($event)"
+      (saveRequested)="onMapSaveRequested($event)"
     />
   </div>
 </page-container>

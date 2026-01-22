@@ -10,6 +10,6 @@
   right: 20px;
 
   @media (max-width: 768px) {
-    bottom: 80px;
+    bottom: calc(80px + env(safe-area-inset-bottom));
   }
 }

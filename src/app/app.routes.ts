@@ -8,7 +8,6 @@ import { ProductsComponent } from './pages/products/products.component';
 import { EquipmentComponent } from './pages/equipment/equipment.component';
 import { EntryViewComponent } from './pages/entry-log/entry-view/entry-view.component';
 import { AddProductComponent } from './pages/products/add-product/add-product.component';
-import { authGuardFn } from '@auth0/auth0-angular';
 import { ProductViewComponent } from './pages/products/product-view/product-view.component';
 import { EquipmentViewComponent } from './pages/equipment/equipment-view/equipment-view.component';
 import { AddEditEquipmentComponent } from './pages/equipment/add-edit-equipment/add-edit-equipment.component';
@@ -16,6 +15,7 @@ import { AnalyticsComponent } from './pages/analytics/analytics.component';
 import { unsavedChangesGuard } from './guards/unsaved-changes-guard';
 import { CalculatorsPage } from './pages/calculators/calculators-page';
 import { AddEntryComponent } from './pages/entry-log/add-entry/add-entry.component';
+import { hybridAuthGuard } from './guards/hybrid-auth.guard';
 
 export const mainRoutes: Routes = [
   {
@@ -25,84 +25,84 @@ export const mainRoutes: Routes = [
   },
   {
     path: 'dashboard',
-    component: DashboardComponent
-    // canActivate: [authGuardFn]
+    component: DashboardComponent,
+    canActivate: [hybridAuthGuard]
   },
   {
     path: 'profile',
     component: ProfileComponent,
-    canActivate: [authGuardFn]
+    canActivate: [hybridAuthGuard]
   },
   {
     path: 'entry-log',
     component: EntryLogComponent,
-    canActivate: [authGuardFn]
+    canActivate: [hybridAuthGuard]
   },
   {
     path: 'entry-log/add',
     component: AddEntryComponent,
-    canActivate: [authGuardFn]
+    canActivate: [hybridAuthGuard]
   },
   {
     path: 'entry-log/:entryId',
     component: EntryViewComponent,
-    canActivate: [authGuardFn]
+    canActivate: [hybridAuthGuard]
   },
   {
     path: 'soil-data',
     component: SoilDataComponent,
-    canActivate: [authGuardFn]
+    canActivate: [hybridAuthGuard]
   },
   {
     path: 'products/add',
     component: AddProductComponent,
-    canActivate: [authGuardFn]
+    canActivate: [hybridAuthGuard]
   },
   {
     path: 'products/:productId',
     component: ProductViewComponent,
-    canActivate: [authGuardFn]
+    canActivate: [hybridAuthGuard]
   },
   {
     path: 'products',
     component: ProductsComponent,
-    canActivate: [authGuardFn]
+    canActivate: [hybridAuthGuard]
   },
   {
     path: 'equipment',
     component: EquipmentComponent,
-    canActivate: [authGuardFn],
+    canActivate: [hybridAuthGuard],
     pathMatch: 'full'
   },
   {
     path: 'equipment/add',
     component: AddEditEquipmentComponent,
-    canActivate: [authGuardFn]
+    canActivate: [hybridAuthGuard]
   },
   {
     path: 'equipment/edit/:equipmentId',
     component: AddEditEquipmentComponent,
-    canActivate: [authGuardFn]
+    canActivate: [hybridAuthGuard]
   },
   {
     path: 'equipment/:equipmentId',
     component: EquipmentViewComponent,
-    canActivate: [authGuardFn]
+    canActivate: [hybridAuthGuard]
   },
   {
     path: 'settings',
     component: SettingsComponent,
-    canActivate: [authGuardFn],
+    canActivate: [hybridAuthGuard],
     canDeactivate: [unsavedChangesGuard]
   },
   {
     path: 'analytics',
     component: AnalyticsComponent,
-    canActivate: [authGuardFn]
+    canActivate: [hybridAuthGuard]
   },
   {
     path: 'calculators',
     component: CalculatorsPage,
-    canActivate: [authGuardFn]
+    canActivate: [hybridAuthGuard]
   }
 ];

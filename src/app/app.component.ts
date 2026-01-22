@@ -47,36 +47,6 @@ export class AppComponent {
   public isAuthLoading = toSignal(this._auth.isLoading$);
 
   public constructor() {
-    const callbackUri = `${config.appId}://${environment.auth0Domain}/capacitor/${config.appId}/callback`;
-
-    App.addListener('appUrlOpen', ({ url }) => {
-      // Must run inside an NgZone for Angular to pick up the changes
-      // https://capacitorjs.com/docs/guides/angular
-      this._ngZone.run(() => {
-        if (url?.startsWith(callbackUri)) {
-          // If the URL is an authentication callback URL..
-          if (
-            url.includes('state=') &&
-            (url.includes('error=') || url.includes('code='))
-          ) {
-            // Call handleRedirectCallback and close the browser
-            this._auth
-              .handleRedirectCallback(url)
-              .pipe(
-                mergeMap(() => Browser.close()),
-                catchError((err) => {
-                  console.log(err);
-                  return of(null);
-                })
-              )
-              .subscribe();
-          } else {
-            Browser.close();
-          }
-        }
-      });
-    });
-
     if (this._swUpdate.isEnabled) {
       this._swUpdate.versionUpdates.subscribe((event) => {
         if (event.type === 'VERSION_READY') {
@@ -122,18 +92,33 @@ export class AppComponent {
   }
 
   public ngOnInit(): void {
+    App.addListener('appUrlOpen', ({ url }) => {
+      this._ngZone.run(() => {
+        if (
+          url?.startsWith(
+            `${config.appId}://${environment.auth0Domain}/capacitor/${config.appId}/callback`
+          ) &&
+          url.includes('state=') &&
+          (url.includes('error=') || url.includes('code='))
+        ) {
+          this._auth
+            .handleRedirectCallback(url)
+            .pipe(
+              mergeMap(() => Browser.close()),
+              catchError((err) => {
+                console.log(err);
+                return of(null);
+              })
+            )
+            .subscribe();
+        } else {
+          Browser.close();
+        }
+      });
+    });
+
     this._auth.isAuthenticated$.subscribe((isAuthenticated) => {
       this.isLoggedIn.set(isAuthenticated);
-
-      if (!isAuthenticated) {
-        this._auth.loginWithRedirect({
-          openUrl: async (url) => {
-            await Browser.open({ url, windowName: '_self' });
-          }
-        });
-      } else {
-        console.log('User is authenticated!');
-      }
     });
 
     environment.production &&

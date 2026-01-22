@@ -27,6 +27,7 @@ async function bootstrap() {
     origin: [
       'https://yardvark.netlify.app',
       'http://localhost:4200',
+      'capacitor://localhost',
       /^https:\/\/deploy-preview-\d+--yardvark\.netlify\.app$/,
       /^https:\/\/[a-zA-Z0-9-]+--yardvark\.netlify\.app$/,
     ],

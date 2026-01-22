@@ -57,7 +57,7 @@ export const mainRoutes: Routes = [
   {
     path: 'gdd-tracking',
     component: GddDataComponent,
-    canActivate: [authGuardFn]
+    canActivate: [hybridAuthGuard]
   },
   {
     path: 'products/add',

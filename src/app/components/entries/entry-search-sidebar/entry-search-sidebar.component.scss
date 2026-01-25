@@ -2,6 +2,7 @@
   z-index: 100000 !important;
   min-width: 400px;
   padding-top: env(safe-area-inset-top);
+  border: none;
 
   .p-drawer-content {
     overflow: hidden;

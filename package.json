@@ -5,6 +5,7 @@
         "ng": "ng",
         "start": "ng serve --configuration production",
         "dev": "ng serve --configuration development",
+        "be": "cd ./backend && npm run start:dev",
         "build": "ng build",
         "watch": "ng build --watch --configuration development",
         "update-packages": "npx npm-check-updates -u && npm install -f",

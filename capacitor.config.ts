@@ -4,6 +4,11 @@ const config: CapacitorConfig = {
   appId: 'com.yardvark.app',
   appName: 'Yardvark',
   webDir: 'dist/yardvark/browser',
+  plugins: {
+    SplashScreen: {
+      launchAutoHide: false,
+    },
+  },
 };
 
 export default config;

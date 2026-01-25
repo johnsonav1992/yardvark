@@ -1,6 +1,7 @@
 import {
   Component,
   computed,
+  effect,
   inject,
   signal,
   ViewEncapsulation
@@ -24,6 +25,7 @@ import {
   DEFAULT_MOBILE_NAV_ITEMS,
   NavItem
 } from '../../../config/navigation.config';
+import { SplashScreen } from '@capacitor/splash-screen';
 
 @Component({
   selector: 'mobile-bottom-navbar',
@@ -98,6 +100,14 @@ export class MobileBottomNavbarComponent {
         ...item,
         command: () => this.closeMoreMenu()
       }));
+  });
+
+  private readonly splashScreenWatcher = effect(() => {
+    const isSettingsLoaded = this.isSettingsLoaded();
+    if (isSettingsLoaded) {
+      SplashScreen.hide();
+      this.splashScreenWatcher.destroy(); // Stop watching after hiding the splash screen
+    }
   });
 
   public toggleMoreMenu = () => {

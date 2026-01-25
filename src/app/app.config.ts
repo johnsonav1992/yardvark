@@ -20,6 +20,7 @@ import { YV_DARK_MODE_SELECTOR } from './constants/style-constants';
 import { environment } from '../environments/environment';
 import { provideServiceWorker } from '@angular/service-worker';
 import { getRedirectUri } from './utils/authUtils';
+import { CustomAuth0Cache } from './config/auth0Cache.config';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -48,6 +49,7 @@ export const appConfig: ApplicationConfig = {
         redirect_uri: getRedirectUri(),
         audience: `https://${environment.auth0Domain}/api/v2/`
       },
+      cache: new CustomAuth0Cache(),
       useRefreshTokens: true,
       useRefreshTokensFallback: false,
       httpInterceptor: {

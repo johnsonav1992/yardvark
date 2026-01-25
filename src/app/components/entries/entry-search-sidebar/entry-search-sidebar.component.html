@@ -5,6 +5,7 @@
   styleClass="sidebar"
   header="Find entries"
   [fullScreen]="isMobile()"
+  appendTo="body"
   (onHide)="onCloseSidebar()"
 >
   <form class="search-container" [formGroup]="form">

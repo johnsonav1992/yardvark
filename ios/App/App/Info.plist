@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <key>CAPACITOR_DEBUG</key>
+	<string>$(CAPACITOR_DEBUG)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -48,8 +50,10 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>None</string>
 			<key>CFBundleURLName</key>
-			<string>com.yardvark.app</string>
+			<string>com.auth0</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>com.yardvark.app</string>

@@ -49,14 +49,12 @@
         "@angular/build": "^21.0.3",
         "@angular/cli": "^21.0.3",
         "@angular/compiler-cli": "^21.0.3",
-        "@capacitor/assets": "^3.0.5",
         "@capacitor/cli": "^8.0.1",
         "@types/chart.js": "^4.0.1",
         "prettier": "^3.5.3",
         "typescript": "~5.9.0"
     },
     "overrides": {
-        "tar": "^7.5.4",
         "lodash": "^4.17.23"
     }
 }

@@ -11,8 +11,7 @@
         "update-packages": "npx npm-check-updates -u && npm install -f",
         "auth0:deploy": "node auth0-actions/deploy.js",
         "auth0:deploy:single": "cd auth0-actions && auth0 actions deploy",
-        "ios:deploy": "npm run build && npx cap sync ios && npx cap open ios",
-        "ios": "npm run build && npx cap sync ios && npx cap open ios && npm run dev -- --host 0.0.0.0 --ssl true"
+        "ios": "npm run build && npx cap sync ios && npx cap open ios"
     },
     "private": true,
     "dependencies": {
@@ -32,6 +31,7 @@
         "@capacitor/browser": "^7.0.2",
         "@capacitor/core": "^7.4.3",
         "@capacitor/ios": "^7.4.3",
+        "@capacitor/preferences": "^8.0.0",
         "@capacitor/splash-screen": "^8.0.0",
         "@geoman-io/leaflet-geoman-free": "^2.19.0",
         "@primeng/themes": "^19.1.3",

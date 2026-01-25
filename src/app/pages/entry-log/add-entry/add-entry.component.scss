@@ -151,7 +151,9 @@
 
     .button-container {
       flex-direction: column;
-      bottom: 68px; // Position above mobile navbar (60px navbar + 8px padding)
+      bottom: calc(
+        60px + max(env(safe-area-inset-bottom), 8px)
+      ); // Position above mobile navbar (60px navbar + 8px padding)
       padding: 1rem;
       z-index: 99; // Below mobile navbar (which is z-index: 1000) but above content
 

@@ -24,6 +24,7 @@ html {
 body {
   height: 100%;
   overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @keyframes spin {
@@ -155,5 +156,13 @@ body {
     &::-webkit-scrollbar {
       display: none;
     }
+  }
+}
+
+@media (display-mode: standalone) {
+  html,
+  body {
+    height: 100vh;
+    position: initial;
   }
 }

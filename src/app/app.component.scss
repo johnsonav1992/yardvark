@@ -13,11 +13,20 @@
   padding-top: var(--main-header-height);
 
   @media (max-width: 768px) {
+    padding-top: calc(var(--main-header-height) + env(safe-area-inset-top));
     padding-left: 0;
   }
 
   .inner-content-wrapper {
     padding: 1rem;
+
+    @media (max-width: 768px) {
+      padding-bottom: 2rem;
+    }
+
+    @media (display-mode: standalone) {
+      padding-bottom: 0;
+    }
   }
 }
 

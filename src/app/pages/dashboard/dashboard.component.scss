@@ -46,6 +46,12 @@
   }
 }
 
+.speed-dial {
+  position: fixed;
+  right: 20px;
+  bottom: calc(80px + env(safe-area-inset-bottom));
+}
+
 .cards-container {
   display: flex;
   flex-wrap: wrap;

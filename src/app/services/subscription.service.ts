@@ -32,6 +32,10 @@ export class SubscriptionService {
       },
     ).toPromise();
 
+    if (!response?.url) {
+      throw new Error('Failed to create checkout session');
+    }
+
     return response.url;
   }
 
@@ -44,15 +48,21 @@ export class SubscriptionService {
       },
     ).toPromise();
 
+    if (!response?.url) {
+      throw new Error('Failed to create portal session');
+    }
+
     return response.url;
   }
 
   public async checkFeatureAccess(feature: string): Promise<FeatureAccess> {
     try {
-      return await postReq<FeatureAccess>(
+      const response = await postReq<FeatureAccess>(
         apiUrl('subscription/check-feature'),
         { feature },
       ).toPromise();
+
+      return response || { allowed: false };
     } catch (error) {
       console.error('Failed to check feature access:', error);
 

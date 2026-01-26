@@ -16,6 +16,7 @@ import { AnalyticsComponent } from './pages/analytics/analytics.component';
 import { unsavedChangesGuard } from './guards/unsaved-changes-guard';
 import { CalculatorsPage } from './pages/calculators/calculators-page';
 import { AddEntryComponent } from './pages/entry-log/add-entry/add-entry.component';
+import { SubscriptionComponent } from './pages/subscription/subscription.component';
 import { hybridAuthGuard } from './guards/hybrid-auth.guard';
 
 export const mainRoutes: Routes = [
@@ -109,6 +110,11 @@ export const mainRoutes: Routes = [
   {
     path: 'calculators',
     component: CalculatorsPage,
+    canActivate: [hybridAuthGuard]
+  },
+  {
+    path: 'subscription',
+    component: SubscriptionComponent,
     canActivate: [hybridAuthGuard]
   }
 ];

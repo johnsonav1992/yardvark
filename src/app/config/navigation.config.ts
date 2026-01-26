@@ -71,6 +71,14 @@ export const NAV_ITEMS: NavItem[] = [
     icon: 'ti ti-calculator',
     routerLink: '/calculators',
     routerLinkActiveOptions: { exact: true }
+  },
+  {
+    id: 'subscription',
+    label: 'Subscription',
+    shortLabel: 'Pro',
+    icon: 'ti ti-crown',
+    routerLink: '/subscription',
+    routerLinkActiveOptions: { exact: true }
   }
 ];
 

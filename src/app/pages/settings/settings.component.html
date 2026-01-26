@@ -1,6 +1,27 @@
 @let inputWidth = isMobile() ? "100%" : "300px";
 
 <page-container pageTitle="Settings">
+  <div class="section-wrapper subscription-section">
+    <h4>Subscription</h4>
+    <div class="subscription-info">
+      @if (isPro()) {
+        <div class="subscription-status">
+          <i class="ti ti-crown pro-icon"></i>
+          <span class="subscription-tier">{{ subscription.value()?.tier | titlecase }} Plan</span>
+        </div>
+      } @else {
+        <div class="subscription-status">
+          <span class="subscription-tier">Free Plan</span>
+        </div>
+      }
+      <p-button
+        [label]="isPro() ? 'Manage Subscription' : 'Upgrade to Pro'"
+        [icon]="isPro() ? 'ti ti-settings' : 'ti ti-crown'"
+        [outlined]="true"
+        (click)="goToSubscription()"
+      />
+    </div>
+  </div>
   <div class="section-wrapper">
     <h4>Location</h4>
     <small><em>*Will be used to determine soil temperature data</em></small>

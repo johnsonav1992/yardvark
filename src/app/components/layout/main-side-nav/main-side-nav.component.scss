@@ -33,8 +33,11 @@
     @include bottom-controls();
   }
 
-  .feedback-container {
-    @include bottom-control-container();
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-left: 1rem;
   }
 
   .dark-mode-container {
@@ -54,8 +57,11 @@
     @include bottom-controls();
   }
 
-  .feedback-container {
-    @include bottom-control-container();
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-left: 1rem;
   }
 
   .dark-mode-container {

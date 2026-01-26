@@ -1,202 +1,150 @@
 <page-container pageTitle="Subscription">
   <!-- Current Plan Status -->
   @if (isPro()) {
-    <div class="current-plan-card">
-      <div class="plan-status">
-        <div class="plan-badge">
-          <i class="ti ti-crown"></i>
-          <span>{{ tierDisplayName }}</span>
-        </div>
-
-        @if (subscription()?.tier === 'lifetime') {
-          <div class="plan-details">
-            <p class="plan-message">
-              You have lifetime pro access! Thank you for being an early adopter.
-            </p>
-          </div>
-        } @else {
-          <div class="plan-details">
-            <p class="plan-message">
-              Your {{ subscription()?.tier }} plan is active until
-              <strong>{{ subscriptionEndDate }}</strong>
-            </p>
-
+    <p-message severity="success" [closable]="false" class="mb-4">
+      <div class="plan-status-content">
+        <div class="plan-info">
+          <p-tag [value]="tierDisplayName" icon="ti ti-crown" severity="success" />
+          @if (subscription()?.tier === 'lifetime') {
+            <span>You have lifetime pro access! Thank you for being an early adopter.</span>
+          } @else {
+            <span>
+              Your plan is active until <strong>{{ subscriptionEndDate }}</strong>
+            </span>
             @if (willCancelAtPeriodEnd) {
-              <p class="plan-warning">
+              <small class="cancel-warning">
                 <i class="ti ti-alert-circle"></i>
-                Your subscription will cancel at the end of the billing period
-              </p>
+                Cancels at end of billing period
+              </small>
             }
-          </div>
+          }
+        </div>
+        @if (subscription()?.tier !== 'lifetime') {
+          <p-button
+            label="Manage Subscription"
+            icon="ti ti-settings"
+            (onClick)="manageSubscription()"
+            [loading]="isLoading()"
+            outlined
+            size="small"
+          />
         }
       </div>
-
-      @if (subscription()?.tier !== 'lifetime') {
-        <p-button
-          label="Manage Subscription"
-          icon="ti ti-settings"
-          (onClick)="manageSubscription()"
-          [loading]="isLoading()"
-          outlined
-        />
-      }
-    </div>
+    </p-message>
   } @else {
-    <!-- Free Plan Info -->
-    <div class="free-plan-info">
-      <div class="info-content">
-        <div class="info-icon">
-          <i class="ti ti-info-circle"></i>
-        </div>
-        <div class="info-text">
-          <h3>You're on the Free Plan</h3>
-          <p>Limited to 6 entries per month with no AI features</p>
+    <p-message severity="info" [closable]="false" class="mb-4">
+      <div class="plan-status-content">
+        <div class="plan-info">
+          <p-tag value="Free Plan" severity="secondary" />
+          <span>Limited to 6 entries per month with no AI features</span>
         </div>
       </div>
-
-      <div class="free-limitations">
-        <h4>Current Limitations</h4>
-        <div class="limitations-grid">
-          <div class="limitation-item">
-            <i class="ti ti-circle-x"></i>
-            <span>6 entries per month</span>
-          </div>
-          <div class="limitation-item">
-            <i class="ti ti-circle-x"></i>
-            <span>No AI-powered insights</span>
-          </div>
-          <div class="limitation-item">
-            <i class="ti ti-circle-x"></i>
-            <span>Basic analytics only</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    </p-message>
   }
 
   <!-- Pricing Plans -->
-  <div class="pricing-section">
-    <div class="section-header">
-      <h2>Choose Your Plan</h2>
-      <p>Unlock unlimited potential for your lawn care journey</p>
-    </div>
+  <h3 class="section-title">Choose Your Plan</h3>
 
-    <div class="pricing-grid">
-      @for (plan of plans; track plan.tier) {
-        <div
-          class="pricing-card"
-          [class.popular]="plan.popular"
-          [class.current]="isPro() && subscription()?.tier === plan.tier"
-        >
-          @if (plan.popular) {
-            <div class="popular-badge">
-              <i class="ti ti-star-filled"></i>
-              <span>Most Popular</span>
-            </div>
-          }
-
-          @if (isPro() && subscription()?.tier === plan.tier) {
-            <div class="current-badge">
-              <i class="ti ti-check"></i>
-              <span>Current Plan</span>
-            </div>
-          }
-
-          <div class="card-header">
+  <div class="pricing-grid">
+    @for (plan of plans; track plan.tier) {
+      <p-card
+        [class]="
+          'pricing-card' +
+          (plan.popular ? ' popular' : '') +
+          (isPro() && subscription()?.tier === plan.tier ? ' current' : '')
+        "
+      >
+        <ng-template #header>
+          <div class="card-header-content">
+            @if (plan.popular) {
+              <p-tag value="Most Popular" icon="ti ti-star-filled" severity="success" />
+            }
+            @if (isPro() && subscription()?.tier === plan.tier) {
+              <p-tag value="Current Plan" icon="ti ti-check" severity="info" />
+            }
             <h3 class="plan-name">{{ plan.name }}</h3>
-
             <div class="plan-pricing">
               <span class="price">${{ plan.price }}</span>
               <span class="period">/ {{ plan.period }}</span>
             </div>
-
             @if (plan.tier === 'yearly') {
-              <div class="savings-badge">Save $24/year</div>
+              <p-tag value="Save $24/year" severity="success" [rounded]="true" />
             }
           </div>
+        </ng-template>
 
-          <div class="card-divider"></div>
+        <p-divider />
 
-          <ul class="features-list">
-            @for (feature of plan.features; track feature) {
-              <li class="feature-item">
-                <i class="ti ti-circle-check"></i>
-                <span>{{ feature }}</span>
-              </li>
-            }
-          </ul>
+        <ul class="features-list">
+          @for (feature of plan.features; track feature) {
+            <li>
+              <i class="ti ti-circle-check"></i>
+              <span>{{ feature }}</span>
+            </li>
+          }
+        </ul>
 
-          <div class="card-action">
-            <p-button
-              [label]="
-                isPro() && subscription()?.tier === plan.tier
-                  ? 'Current Plan'
-                  : isPro() && subscription()?.tier === 'lifetime'
-                    ? 'Lifetime Active'
-                    : 'Get Started'
-              "
-              [disabled]="
-                isPro() &&
-                (subscription()?.tier === plan.tier ||
-                  subscription()?.tier === 'lifetime')
-              "
-              [loading]="isLoading()"
-              (onClick)="subscribe(plan.tier)"
-              styleClass="w-full"
-              [severity]="plan.popular ? 'success' : 'primary'"
-              [outlined]="!plan.popular"
-              size="large"
-            />
-          </div>
-        </div>
-      }
-    </div>
+        <ng-template #footer>
+          <p-button
+            [label]="
+              isPro() && subscription()?.tier === plan.tier
+                ? 'Current Plan'
+                : isPro() && subscription()?.tier === 'lifetime'
+                  ? 'Lifetime Active'
+                  : 'Get Started'
+            "
+            [disabled]="
+              isPro() &&
+              (subscription()?.tier === plan.tier ||
+                subscription()?.tier === 'lifetime')
+            "
+            [loading]="isLoading()"
+            (onClick)="subscribe(plan.tier)"
+            class="w-full"
+            [severity]="plan.popular ? 'success' : 'primary'"
+            [outlined]="!plan.popular"
+          />
+        </ng-template>
+      </p-card>
+    }
   </div>
 
+  <p-divider />
+
   <!-- Benefits Section -->
-  <div class="benefits-section">
-    <h3>Why Upgrade to Pro?</h3>
+  <h3 class="section-title">Why Upgrade to Pro?</h3>
 
-    <div class="benefits-grid">
-      <div class="benefit-card">
-        <div class="benefit-icon">
-          <i class="ti ti-infinity"></i>
-        </div>
+  <div class="benefits-grid">
+    <p-card class="benefit-card">
+      <div class="benefit-content">
+        <i class="ti ti-infinity benefit-icon"></i>
         <h4>Unlimited Entries</h4>
-        <p>
-          Track every lawn care activity without worrying about monthly limits
-        </p>
+        <p>Track every lawn care activity without worrying about monthly limits</p>
       </div>
+    </p-card>
 
-      <div class="benefit-card">
-        <div class="benefit-icon">
-          <i class="ti ti-sparkles"></i>
-        </div>
+    <p-card class="benefit-card">
+      <div class="benefit-content">
+        <i class="ti ti-sparkles benefit-icon"></i>
         <h4>AI-Powered Insights</h4>
-        <p>
-          Get personalized recommendations and lawn health analysis powered by
-          AI
-        </p>
+        <p>Get personalized recommendations and lawn health analysis powered by AI</p>
       </div>
+    </p-card>
 
-      <div class="benefit-card">
-        <div class="benefit-icon">
-          <i class="ti ti-chart-line"></i>
-        </div>
+    <p-card class="benefit-card">
+      <div class="benefit-content">
+        <i class="ti ti-chart-line benefit-icon"></i>
         <h4>Advanced Analytics</h4>
-        <p>
-          Access detailed analytics and insights to optimize your lawn care
-          routine
-        </p>
+        <p>Access detailed analytics and insights to optimize your lawn care routine</p>
       </div>
+    </p-card>
 
-      <div class="benefit-card">
-        <div class="benefit-icon">
-          <i class="ti ti-headset"></i>
-        </div>
+    <p-card class="benefit-card">
+      <div class="benefit-content">
+        <i class="ti ti-headset benefit-icon"></i>
         <h4>Priority Support</h4>
         <p>Get help faster with priority email support from our team</p>
       </div>
-    </div>
+    </p-card>
   </div>
 </page-container>

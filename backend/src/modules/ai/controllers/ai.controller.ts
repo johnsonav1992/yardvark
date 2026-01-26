@@ -14,12 +14,14 @@ import { AiChatResponse, AiChatRequest } from '../../../types/ai.types';
 import { Request } from 'express';
 // import { Public } from '../../../decorators/public.decorator';
 import { FeatureFlag } from '../../../decorators/feature-flag.decorator';
+import { SubscriptionFeature } from '../../../decorators/subscription-feature.decorator';
 
 @Controller('ai')
 export class AiController {
   constructor(private readonly aiService: AiService) {}
 
   @Post('chat')
+  @SubscriptionFeature('ai_chat')
   public async chat(
     @Body() chatRequest: AiChatRequest,
   ): Promise<AiChatResponse> {
@@ -42,6 +44,7 @@ export class AiController {
   }
 
   @FeatureFlag('ENABLE_ENTRY_QUERY')
+  @SubscriptionFeature('ai_query')
   // @Public()
   @Post('query-entries')
   public async queryEntries(
@@ -69,6 +72,7 @@ export class AiController {
   }
 
   @FeatureFlag('ENABLE_ENTRY_QUERY')
+  @SubscriptionFeature('ai_init')
   // @Public()
   @Post('initialize-embeddings')
   public async initializeEmbeddings(
@@ -92,6 +96,7 @@ export class AiController {
   }
 
   @FeatureFlag('ENABLE_ENTRY_QUERY')
+  @SubscriptionFeature('ai_stream')
   // @Public()
   @Post('stream-query-entries')
   public async streamQueryEntries(

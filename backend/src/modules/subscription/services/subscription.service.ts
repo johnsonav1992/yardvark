@@ -98,6 +98,13 @@ export class SubscriptionService {
       cancelUrl,
     );
 
+    if (!session.url) {
+      throw new HttpException(
+        'Failed to create checkout session',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
     return { url: session.url };
   }
 
@@ -117,6 +124,13 @@ export class SubscriptionService {
       subscription.stripeCustomerId,
       returnUrl,
     );
+
+    if (!session.url) {
+      throw new HttpException(
+        'Failed to create portal session',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
 
     return { url: session.url };
   }

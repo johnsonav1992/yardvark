@@ -27,6 +27,12 @@ export class WebhookController {
   ) {
     const signature = req.headers['stripe-signature'] as string;
 
+    if (!req.rawBody) {
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .send('Missing raw body for webhook verification');
+    }
+
     let event: Stripe.Event;
 
     try {

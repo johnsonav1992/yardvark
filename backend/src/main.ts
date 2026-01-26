@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import { LoggingInterceptor } from './logger/logger';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
+import * as express from 'express';
 import {
   initializeOTelLogger,
   parseOTelHeaders,
@@ -17,6 +18,8 @@ async function bootstrap() {
   });
 
   const app = await NestFactory.create(AppModule);
+
+  app.use('/stripe/webhook', express.raw({ type: 'application/json' }));
 
   app.use(helmet());
 

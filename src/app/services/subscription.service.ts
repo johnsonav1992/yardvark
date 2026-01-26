@@ -1,13 +1,13 @@
 import { Injectable, computed, inject } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
-import { apiUrl, getReq, postReq } from '../utils/httpUtils';
+import { httpResource } from '@angular/common/http';
+import { apiUrl, postReq } from '../utils/httpUtils';
 import { Subscription, FeatureAccess } from '../types/subscription.types';
 
 @Injectable({ providedIn: 'root' })
 export class SubscriptionService {
-  public subscription = rxResource<Subscription, void>({
-    loader: () => getReq<Subscription>(apiUrl('subscription/status')),
-  });
+  public subscription = httpResource<Subscription>(() =>
+    apiUrl('subscription/status')
+  );
 
   public currentSubscription = computed(() => this.subscription.value());
 

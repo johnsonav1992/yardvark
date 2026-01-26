@@ -16,8 +16,9 @@ export class SubscriptionController {
 
   @Get('status')
   async getStatus(@Req() req: Request) {
-    const subscription =
-      await this.subscriptionService.getOrCreateSubscription(req.user.userId);
+    const subscription = await this.subscriptionService.getOrCreateSubscription(
+      req.user.userId,
+    );
 
     return subscription;
   }
@@ -43,10 +44,7 @@ export class SubscriptionController {
   }
 
   @Post('portal')
-  async createPortal(
-    @Req() req: Request,
-    @Body() body: { returnUrl: string },
-  ) {
+  async createPortal(@Req() req: Request, @Body() body: { returnUrl: string }) {
     return this.subscriptionService.createPortalSession(
       req.user.userId,
       body.returnUrl,

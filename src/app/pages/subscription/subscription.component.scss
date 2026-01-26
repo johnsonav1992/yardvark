@@ -1,0 +1,61 @@
+.pricing-container {
+  margin-top: 2rem;
+}
+
+.card-header-content {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pricing-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.price-section {
+  text-align: center;
+
+  .price {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: var(--p-primary-500);
+  }
+
+  .period {
+    font-size: 1rem;
+    color: var(--p-text-muted-color);
+  }
+}
+
+.features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    padding: 0.5rem 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    i {
+      color: var(--p-green-500);
+      font-size: 1.2rem;
+    }
+  }
+}
+
+.free-limits {
+  ul {
+    list-style: disc;
+    padding-left: 1.5rem;
+
+    li {
+      padding: 0.25rem 0;
+    }
+  }
+}

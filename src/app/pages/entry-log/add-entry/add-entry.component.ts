@@ -49,7 +49,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ACTIVITY_IDS } from '../../../constants/activity-constants';
-import { SubscriptionService } from '../../../services/subscription.service';
 
 export type EntryFormGroup = FormGroup<{
   title: FormControl<string>;
@@ -96,7 +95,6 @@ export class AddEntryComponent implements OnInit {
   private _analyticsService = inject(AnalyticsService);
   private _globalUiService = inject(GlobalUiService);
   private _activatedRoute = inject(ActivatedRoute);
-  private _subscriptionService = inject(SubscriptionService);
 
   public activitiesResource = inject(ActivitiesService).activities;
   public lawnSegmentsResource = inject(LawnSegmentsService).lawnSegments;

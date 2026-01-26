@@ -1,0 +1,115 @@
+<page-container pageTitle="Subscription">
+  @if (isPro()) {
+    <p-message severity="success" [closable]="false">
+      <div class="flex flex-column gap-2">
+        <strong>{{ tierDisplayName }}</strong>
+
+        @if (subscription()?.tier !== 'lifetime') {
+          <span
+            >Your {{ subscription()?.tier }} plan is active until
+            {{ subscriptionEndDate }}</span
+          >
+        } @else {
+          <span
+            >You have lifetime pro access! Thank you for being an early
+            adopter.</span
+          >
+        }
+
+        @if (willCancelAtPeriodEnd) {
+          <span class="text-orange-500">Will cancel at period end</span>
+        }
+      </div>
+    </p-message>
+
+    @if (subscription()?.tier !== 'lifetime') {
+      <div class="flex justify-content-center mt-4">
+        <p-button
+          label="Manage Subscription"
+          icon="ti ti-settings"
+          (onClick)="manageSubscription()"
+          [loading]="isLoading()"
+        />
+      </div>
+    }
+
+    <p-divider />
+  } @else {
+    <p-message severity="info" [closable]="false">
+      <div class="flex flex-column gap-2">
+        <strong>Free Plan</strong>
+        <span>Upgrade to unlock unlimited entries and AI features</span>
+      </div>
+    </p-message>
+  }
+
+  @if (!isPro()) {
+    <div class="free-limits mt-4">
+      <h3>Current Limitations (Free)</h3>
+      <ul>
+        @for (limit of freeLimits; track limit) {
+          <li>{{ limit }}</li>
+        }
+      </ul>
+    </div>
+
+    <p-divider />
+  }
+
+  <div class="pricing-container">
+    <h2 class="text-center mb-4">Upgrade to Pro</h2>
+
+    <div class="grid justify-content-center">
+      @for (plan of plans; track plan.tier) {
+        <div class="col-12 md:col-6 lg:col-5">
+          <p-card>
+            <ng-template pTemplate="header">
+              <div class="card-header-content">
+                <h3>{{ plan.name }}</h3>
+
+                @if (plan.popular) {
+                  <p-tag value="Most Popular" severity="success" />
+                }
+              </div>
+            </ng-template>
+
+            <div class="pricing-content">
+              <div class="price-section">
+                <span class="price">${{ plan.price }}</span>
+                <span class="period">/ {{ plan.period }}</span>
+              </div>
+
+              <p-divider />
+
+              <ul class="features-list">
+                @for (feature of plan.features; track feature) {
+                  <li>
+                    <i class="ti ti-check"></i>
+                    <span>{{ feature }}</span>
+                  </li>
+                }
+              </ul>
+
+              <p-button
+                [label]="
+                  isPro() && subscription()?.tier === plan.tier
+                    ? 'Current Plan'
+                    : 'Subscribe'
+                "
+                [disabled]="
+                  isPro() &&
+                  (subscription()?.tier === plan.tier ||
+                    subscription()?.tier === 'lifetime')
+                "
+                [loading]="isLoading()"
+                (onClick)="subscribe(plan.tier)"
+                styleClass="w-full"
+                [severity]="plan.popular ? 'success' : 'primary'"
+              />
+            </div>
+          </p-card>
+        </div>
+      }
+    </div>
+  </div>
+</page-container>

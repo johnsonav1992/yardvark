@@ -26,6 +26,8 @@ import { AiModule } from './modules/ai/ai.module';
 import { EmailModule } from './modules/email/email.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { GddModule } from './modules/gdd/gdd.module';
+import { SubscriptionModule } from './modules/subscription/subscription.module';
+import { SubscriptionGuard } from './guards/subscription.guard';
 
 @Module({
   imports: [
@@ -53,6 +55,7 @@ import { GddModule } from './modules/gdd/gdd.module';
     AiModule,
     EmailModule,
     GddModule,
+    SubscriptionModule,
   ],
   controllers: [UsersController, FilesController],
   providers: [
@@ -68,6 +71,10 @@ import { GddModule } from './modules/gdd/gdd.module';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: SubscriptionGuard,
     },
     UsersService,
     S3Service,

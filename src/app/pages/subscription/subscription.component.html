@@ -4,7 +4,11 @@
     <p-message severity="success" [closable]="false" class="mb-4">
       <div class="plan-status-content">
         <div class="plan-info">
-          <p-tag [value]="tierDisplayName" icon="ti ti-crown" severity="success" />
+          <p-tag [value]="tierDisplayName" severity="success">
+            <ng-template #icon>
+              <i class="ti ti-crown"></i>
+            </ng-template>
+          </p-tag>
           @if (subscription()?.tier === 'lifetime') {
             <span>You have lifetime pro access! Thank you for being an early adopter.</span>
           } @else {
@@ -57,10 +61,18 @@
         <ng-template #header>
           <div class="card-header-content">
             @if (plan.popular) {
-              <p-tag value="Most Popular" icon="ti ti-star-filled" severity="success" />
+              <p-tag value="Most Popular" severity="success">
+                <ng-template #icon>
+                  <i class="ti ti-star"></i>
+                </ng-template>
+              </p-tag>
             }
             @if (isPro() && subscription()?.tier === plan.tier) {
-              <p-tag value="Current Plan" icon="ti ti-check" severity="info" />
+              <p-tag value="Current Plan" severity="info">
+                <ng-template #icon>
+                  <i class="ti ti-check"></i>
+                </ng-template>
+              </p-tag>
             }
             <h3 class="plan-name">{{ plan.name }}</h3>
             <div class="plan-pricing">
@@ -109,42 +121,44 @@
     }
   </div>
 
-  <p-divider />
+  @if (!isPro()) {
+    <p-divider />
 
-  <!-- Benefits Section -->
-  <h3 class="section-title">Why Upgrade to Pro?</h3>
+    <!-- Benefits Section -->
+    <h3 class="section-title">Why Upgrade to Pro?</h3>
 
-  <div class="benefits-grid">
-    <p-card class="benefit-card">
-      <div class="benefit-content">
-        <i class="ti ti-infinity benefit-icon"></i>
-        <h4>Unlimited Entries</h4>
-        <p>Track every lawn care activity without worrying about monthly limits</p>
-      </div>
-    </p-card>
+    <div class="benefits-grid">
+      <p-card class="benefit-card">
+        <div class="benefit-content">
+          <i class="ti ti-infinity benefit-icon"></i>
+          <h4>Unlimited Entries</h4>
+          <p>Track every lawn care activity without worrying about monthly limits</p>
+        </div>
+      </p-card>
 
-    <p-card class="benefit-card">
-      <div class="benefit-content">
-        <i class="ti ti-sparkles benefit-icon"></i>
-        <h4>AI-Powered Insights</h4>
-        <p>Get personalized recommendations and lawn health analysis powered by AI</p>
-      </div>
-    </p-card>
+      <p-card class="benefit-card">
+        <div class="benefit-content">
+          <i class="ti ti-sparkles benefit-icon"></i>
+          <h4>AI-Powered Insights</h4>
+          <p>Get personalized recommendations and lawn health analysis powered by AI</p>
+        </div>
+      </p-card>
 
-    <p-card class="benefit-card">
-      <div class="benefit-content">
-        <i class="ti ti-chart-line benefit-icon"></i>
-        <h4>Advanced Analytics</h4>
-        <p>Access detailed analytics and insights to optimize your lawn care routine</p>
-      </div>
-    </p-card>
+      <p-card class="benefit-card">
+        <div class="benefit-content">
+          <i class="ti ti-chart-line benefit-icon"></i>
+          <h4>Advanced Analytics</h4>
+          <p>Access detailed analytics and insights to optimize your lawn care routine</p>
+        </div>
+      </p-card>
 
-    <p-card class="benefit-card">
-      <div class="benefit-content">
-        <i class="ti ti-headset benefit-icon"></i>
-        <h4>Priority Support</h4>
-        <p>Get help faster with priority email support from our team</p>
-      </div>
-    </p-card>
-  </div>
+      <p-card class="benefit-card">
+        <div class="benefit-content">
+          <i class="ti ti-headset benefit-icon"></i>
+          <h4>Priority Support</h4>
+          <p>Get help faster with priority email support from our team</p>
+        </div>
+      </p-card>
+    </div>
+  }
 </page-container>

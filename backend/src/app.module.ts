@@ -7,7 +7,7 @@ import { LawnSegmentsModule } from './modules/lawn-segments/lawn-segments.module
 import { EntriesModule } from './modules/entries/entries.module';
 import { ProductsModule } from './modules/products/products.module';
 import { JwtStrategy } from './guards/jwt.strategy';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/auth.guard';
 import { FeatureFlagGuard } from './guards/feature-flag.guard';
 import { UsersController } from './modules/users/controllers/users.controller';
@@ -28,6 +28,7 @@ import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { GddModule } from './modules/gdd/gdd.module';
 import { SubscriptionModule } from './modules/subscription/subscription.module';
 import { SubscriptionGuard } from './guards/subscription.guard';
+import { LoggingInterceptor } from './logger/logger';
 
 @Module({
   imports: [
@@ -60,6 +61,10 @@ import { SubscriptionGuard } from './guards/subscription.guard';
   controllers: [UsersController, FilesController],
   providers: [
     JwtStrategy,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,

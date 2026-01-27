@@ -331,7 +331,6 @@ export class AddEntryComponent implements OnInit {
             this.throwErrorToast(
               error.error.message || 'Entry limit reached. Upgrade for unlimited entries.'
             );
-            this._router.navigate(['/subscription']);
           } else {
             this.throwErrorToast('Failed to create entry');
           }
@@ -367,7 +366,6 @@ export class AddEntryComponent implements OnInit {
             this.throwErrorToast(
               error.error.message || 'Entry limit reached. Upgrade for unlimited entries.'
             );
-            this._router.navigate(['/subscription']);
           } else {
             this.throwErrorToast('Failed to create entries');
           }

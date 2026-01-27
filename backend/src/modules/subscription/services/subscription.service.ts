@@ -20,8 +20,16 @@ export type FeatureAccessResult = {
   usage?: number;
 };
 
+type CachedSubscription = {
+  data: Subscription;
+  timestamp: number;
+};
+
 @Injectable()
 export class SubscriptionService {
+  private subscriptionCache = new Map<string, CachedSubscription>();
+  private readonly CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
   constructor(
     @InjectRepository(Subscription)
     private subscriptionRepo: Repository<Subscription>,
@@ -31,7 +39,45 @@ export class SubscriptionService {
     private configService: ConfigService,
   ) {}
 
+  private isCacheValid(cached: CachedSubscription | undefined): boolean {
+    if (!cached) return false;
+    return Date.now() - cached.timestamp < this.CACHE_TTL_MS;
+  }
+
+  private getCachedSubscription(userId: string): Subscription | null {
+    const cached = this.subscriptionCache.get(userId);
+
+    if (cached && this.isCacheValid(cached)) {
+      LogHelpers.addBusinessContext('subscription_cache_hit', true);
+      return cached.data;
+    }
+
+    if (cached) {
+      this.subscriptionCache.delete(userId);
+    }
+
+    return null;
+  }
+
+  private cacheSubscription(userId: string, subscription: Subscription): void {
+    this.subscriptionCache.set(userId, {
+      data: subscription,
+      timestamp: Date.now(),
+    });
+  }
+
+  invalidateCache(userId: string): void {
+    this.subscriptionCache.delete(userId);
+  }
+
   async getOrCreateSubscription(userId: string): Promise<Subscription> {
+    const cached = this.getCachedSubscription(userId);
+
+    if (cached) {
+      LogHelpers.addBusinessContext('subscription_tier', cached.tier);
+      return cached;
+    }
+
     let subscription = await LogHelpers.withDatabaseTelemetry(() =>
       this.subscriptionRepo.findOne({
         where: { userId },
@@ -52,6 +98,7 @@ export class SubscriptionService {
       );
     }
 
+    this.cacheSubscription(userId, subscription);
     LogHelpers.addBusinessContext('subscription_tier', subscription.tier);
 
     return subscription;
@@ -202,6 +249,8 @@ export class SubscriptionService {
       this.subscriptionRepo.save(subscription),
     );
 
+    this.invalidateCache(userId);
+
     LogHelpers.addBusinessContext('subscription_updated', true);
     LogHelpers.addBusinessContext('new_tier', tier);
     LogHelpers.addBusinessContext('new_status', subscription.status);
@@ -234,6 +283,8 @@ export class SubscriptionService {
       await LogHelpers.withDatabaseTelemetry(() =>
         this.subscriptionRepo.save(subscription),
       );
+
+      this.invalidateCache(userId);
 
       LogHelpers.addBusinessContext('subscription_canceled', true);
     }

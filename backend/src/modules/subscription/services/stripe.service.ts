@@ -1,11 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Injectable()
 export class StripeService {
   private stripe: Stripe;
-  private readonly logger = new Logger(StripeService.name);
 
   constructor(private configService: ConfigService) {
     const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
@@ -18,8 +18,6 @@ export class StripeService {
       apiVersion: '2023-10-16',
       typescript: true,
     });
-
-    this.logger.log('Stripe service initialized');
   }
 
   async createCustomer(
@@ -27,13 +25,16 @@ export class StripeService {
     email: string,
     name: string,
   ): Promise<Stripe.Customer> {
-    this.logger.log(`Creating Stripe customer for user ${userId}`);
+    LogHelpers.addBusinessContext('stripe_operation', 'create_customer');
+    LogHelpers.addBusinessContext('userId', userId);
 
-    return this.stripe.customers.create({
-      email,
-      name,
-      metadata: { userId },
-    });
+    return LogHelpers.withExternalCallTelemetry('stripe', () =>
+      this.stripe.customers.create({
+        email,
+        name,
+        metadata: { userId },
+      }),
+    );
   }
 
   async createCheckoutSession(
@@ -43,49 +44,63 @@ export class StripeService {
     successUrl: string,
     cancelUrl: string,
   ): Promise<Stripe.Checkout.Session> {
-    this.logger.log(`Creating checkout session for customer ${customerId}`);
+    LogHelpers.addBusinessContext('stripe_operation', 'create_checkout');
+    LogHelpers.addBusinessContext('userId', userId);
+    LogHelpers.addBusinessContext('priceId', priceId);
 
-    return this.stripe.checkout.sessions.create({
-      customer: customerId,
-      mode: 'subscription',
-      payment_method_types: ['card'],
-      line_items: [{ price: priceId, quantity: 1 }],
-      success_url: successUrl,
-      cancel_url: cancelUrl,
-      metadata: { userId },
-      subscription_data: { metadata: { userId } },
-    });
+    return LogHelpers.withExternalCallTelemetry('stripe', () =>
+      this.stripe.checkout.sessions.create({
+        customer: customerId,
+        mode: 'subscription',
+        payment_method_types: ['card'],
+        line_items: [{ price: priceId, quantity: 1 }],
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        metadata: { userId },
+        subscription_data: { metadata: { userId } },
+      }),
+    );
   }
 
   async createPortalSession(
     customerId: string,
     returnUrl: string,
   ): Promise<Stripe.BillingPortal.Session> {
-    this.logger.log(`Creating portal session for customer ${customerId}`);
+    LogHelpers.addBusinessContext('stripe_operation', 'create_portal');
 
-    return this.stripe.billingPortal.sessions.create({
-      customer: customerId,
-      return_url: returnUrl,
-    });
+    return LogHelpers.withExternalCallTelemetry('stripe', () =>
+      this.stripe.billingPortal.sessions.create({
+        customer: customerId,
+        return_url: returnUrl,
+      }),
+    );
   }
 
   async getSubscription(subscriptionId: string): Promise<Stripe.Subscription> {
-    return this.stripe.subscriptions.retrieve(subscriptionId);
+    LogHelpers.addBusinessContext('stripe_operation', 'get_subscription');
+
+    return LogHelpers.withExternalCallTelemetry('stripe', () =>
+      this.stripe.subscriptions.retrieve(subscriptionId),
+    );
   }
 
   async cancelSubscription(
     subscriptionId: string,
   ): Promise<Stripe.Subscription> {
-    this.logger.log(`Canceling subscription ${subscriptionId}`);
+    LogHelpers.addBusinessContext('stripe_operation', 'cancel_subscription');
+    LogHelpers.addBusinessContext('subscriptionId', subscriptionId);
 
-    return this.stripe.subscriptions.update(subscriptionId, {
-      cancel_at_period_end: true,
-    });
+    return LogHelpers.withExternalCallTelemetry('stripe', () =>
+      this.stripe.subscriptions.update(subscriptionId, {
+        cancel_at_period_end: true,
+      }),
+    );
   }
 
   constructWebhookEvent(payload: Buffer, signature: string): Stripe.Event {
-    const webhookSecret =
-      this.configService.get<string>('STRIPE_WEBHOOK_SECRET');
+    const webhookSecret = this.configService.get<string>(
+      'STRIPE_WEBHOOK_SECRET',
+    );
 
     if (!webhookSecret) {
       throw new Error('STRIPE_WEBHOOK_SECRET is not configured');
@@ -98,9 +113,7 @@ export class StripeService {
         webhookSecret,
       );
     } catch (err) {
-      this.logger.error(
-        `Webhook signature verification failed: ${err.message}`,
-      );
+      LogHelpers.addBusinessContext('webhook_verification_failed', true);
 
       throw err;
     }

@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Subscription } from '../models/subscription.model';
@@ -12,6 +12,7 @@ import { FeatureUsage } from '../models/usage.model';
 import { StripeService } from './stripe.service';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 export type FeatureAccessResult = {
   allowed: boolean;
@@ -21,8 +22,6 @@ export type FeatureAccessResult = {
 
 @Injectable()
 export class SubscriptionService {
-  private readonly logger = new Logger(SubscriptionService.name);
-
   constructor(
     @InjectRepository(Subscription)
     private subscriptionRepo: Repository<Subscription>,
@@ -33,21 +32,27 @@ export class SubscriptionService {
   ) {}
 
   async getOrCreateSubscription(userId: string): Promise<Subscription> {
-    let subscription = await this.subscriptionRepo.findOne({
-      where: { userId },
-    });
+    let subscription = await LogHelpers.withDatabaseTelemetry(() =>
+      this.subscriptionRepo.findOne({
+        where: { userId },
+      }),
+    );
 
     if (!subscription) {
-      this.logger.log(`Creating new free subscription for user ${userId}`);
+      LogHelpers.addBusinessContext('subscription_created', true);
 
-      subscription = this.subscriptionRepo.create({
+      const newSubscription = this.subscriptionRepo.create({
         userId,
         tier: SUBSCRIPTION_TIERS.FREE,
         status: SUBSCRIPTION_STATUSES.ACTIVE,
       });
 
-      await this.subscriptionRepo.save(subscription);
+      subscription = await LogHelpers.withDatabaseTelemetry(() =>
+        this.subscriptionRepo.save(newSubscription),
+      );
     }
+
+    LogHelpers.addBusinessContext('subscription_tier', subscription.tier);
 
     return subscription;
   }
@@ -60,7 +65,7 @@ export class SubscriptionService {
     successUrl: string,
     cancelUrl: string,
   ): Promise<{ url: string }> {
-    this.logger.log(`Creating checkout for user ${userId}, tier: ${tier}`);
+    LogHelpers.addBusinessContext('checkout_tier', tier);
 
     const subscription = await this.getOrCreateSubscription(userId);
 
@@ -75,7 +80,12 @@ export class SubscriptionService {
 
       customerId = customer.id;
       subscription.stripeCustomerId = customerId;
-      await this.subscriptionRepo.save(subscription);
+
+      await LogHelpers.withDatabaseTelemetry(() =>
+        this.subscriptionRepo.save(subscription),
+      );
+
+      LogHelpers.addBusinessContext('stripe_customer_created', true);
     }
 
     const priceId =
@@ -105,6 +115,8 @@ export class SubscriptionService {
       );
     }
 
+    LogHelpers.addBusinessContext('checkout_session_created', true);
+
     return { url: session.url };
   }
 
@@ -112,11 +124,16 @@ export class SubscriptionService {
     userId: string,
     returnUrl: string,
   ): Promise<{ url: string }> {
-    const subscription = await this.subscriptionRepo.findOne({
-      where: { userId },
-    });
+    const subscription = await LogHelpers.withDatabaseTelemetry(() =>
+      this.subscriptionRepo.findOne({
+        where: { userId },
+      }),
+    );
 
     if (!subscription?.stripeCustomerId) {
+      LogHelpers.addBusinessContext('portal_session_failed', true);
+      LogHelpers.addBusinessContext('reason', 'no_subscription');
+
       throw new HttpException('No subscription found', HttpStatus.NOT_FOUND);
     }
 
@@ -132,6 +149,8 @@ export class SubscriptionService {
       );
     }
 
+    LogHelpers.addBusinessContext('portal_session_created', true);
+
     return { url: session.url };
   }
 
@@ -141,19 +160,22 @@ export class SubscriptionService {
     const userId = stripeSubscription.metadata.userId;
 
     if (!userId) {
-      this.logger.error('No userId in subscription metadata');
+      LogHelpers.addBusinessContext('webhook_error', 'missing_user_id');
+
       return;
     }
 
-    this.logger.log(`Updating subscription for user ${userId}`);
+    LogHelpers.addBusinessContext('webhook_type', 'subscription_update');
 
     const subscription = await this.getOrCreateSubscription(userId);
 
     const priceId = stripeSubscription.items.data[0]?.price.id;
-    const monthlyPriceId =
-      this.configService.get<string>('STRIPE_MONTHLY_PRICE_ID');
-    const yearlyPriceId =
-      this.configService.get<string>('STRIPE_YEARLY_PRICE_ID');
+    const monthlyPriceId = this.configService.get<string>(
+      'STRIPE_MONTHLY_PRICE_ID',
+    );
+    const yearlyPriceId = this.configService.get<string>(
+      'STRIPE_YEARLY_PRICE_ID',
+    );
 
     let tier: SubscriptionTier = SUBSCRIPTION_TIERS.FREE;
 
@@ -176,11 +198,13 @@ export class SubscriptionService {
     );
     subscription.cancelAtPeriodEnd = stripeSubscription.cancel_at_period_end;
 
-    await this.subscriptionRepo.save(subscription);
-
-    this.logger.log(
-      `Subscription updated for user ${userId}: ${tier} (${subscription.status})`,
+    await LogHelpers.withDatabaseTelemetry(() =>
+      this.subscriptionRepo.save(subscription),
     );
+
+    LogHelpers.addBusinessContext('subscription_updated', true);
+    LogHelpers.addBusinessContext('new_tier', tier);
+    LogHelpers.addBusinessContext('new_status', subscription.status);
   }
 
   async handleSubscriptionDeleted(
@@ -189,24 +213,29 @@ export class SubscriptionService {
     const userId = stripeSubscription.metadata.userId;
 
     if (!userId) {
-      this.logger.error('No userId in subscription metadata');
+      LogHelpers.addBusinessContext('webhook_error', 'missing_user_id');
+
       return;
     }
 
-    this.logger.log(`Deleting subscription for user ${userId}`);
+    LogHelpers.addBusinessContext('webhook_type', 'subscription_deleted');
 
-    const subscription = await this.subscriptionRepo.findOne({
-      where: { userId },
-    });
+    const subscription = await LogHelpers.withDatabaseTelemetry(() =>
+      this.subscriptionRepo.findOne({
+        where: { userId },
+      }),
+    );
 
     if (subscription) {
       subscription.tier = SUBSCRIPTION_TIERS.FREE;
       subscription.status = SUBSCRIPTION_STATUSES.CANCELED;
       subscription.canceledAt = new Date();
 
-      await this.subscriptionRepo.save(subscription);
+      await LogHelpers.withDatabaseTelemetry(() =>
+        this.subscriptionRepo.save(subscription),
+      );
 
-      this.logger.log(`Subscription canceled for user ${userId}`);
+      LogHelpers.addBusinessContext('subscription_canceled', true);
     }
   }
 
@@ -220,6 +249,9 @@ export class SubscriptionService {
       subscription.tier === SUBSCRIPTION_TIERS.MONTHLY ||
       subscription.tier === SUBSCRIPTION_TIERS.YEARLY ||
       subscription.tier === SUBSCRIPTION_TIERS.LIFETIME;
+
+    LogHelpers.addBusinessContext('feature_check', feature);
+    LogHelpers.addBusinessContext('is_pro', isPro);
 
     if (feature.startsWith('ai_')) {
       return { allowed: isPro };
@@ -237,16 +269,21 @@ export class SubscriptionService {
       const nextMonth = new Date(currentMonth);
       nextMonth.setMonth(nextMonth.getMonth() + 1);
 
-      const usage = await this.usageRepo.findOne({
-        where: {
-          userId,
-          featureName: 'entry_creation',
-          periodStart: currentMonth,
-        },
-      });
+      const usage = await LogHelpers.withDatabaseTelemetry(() =>
+        this.usageRepo.findOne({
+          where: {
+            userId,
+            featureName: 'entry_creation',
+            periodStart: currentMonth,
+          },
+        }),
+      );
 
       const usageCount = usage?.usageCount || 0;
       const limit = 6;
+
+      LogHelpers.addBusinessContext('entry_usage', usageCount);
+      LogHelpers.addBusinessContext('entry_limit', limit);
 
       return { allowed: usageCount < limit, limit, usage: usageCount };
     }
@@ -262,9 +299,11 @@ export class SubscriptionService {
     const nextMonth = new Date(currentMonth);
     nextMonth.setMonth(nextMonth.getMonth() + 1);
 
-    let usage = await this.usageRepo.findOne({
-      where: { userId, featureName: feature, periodStart: currentMonth },
-    });
+    let usage = await LogHelpers.withDatabaseTelemetry(() =>
+      this.usageRepo.findOne({
+        where: { userId, featureName: feature, periodStart: currentMonth },
+      }),
+    );
 
     if (!usage) {
       usage = this.usageRepo.create({
@@ -278,10 +317,10 @@ export class SubscriptionService {
       usage.usageCount += 1;
     }
 
-    await this.usageRepo.save(usage);
+    await LogHelpers.withDatabaseTelemetry(() => this.usageRepo.save(usage));
 
-    this.logger.log(
-      `Incremented ${feature} usage for user ${userId}: ${usage.usageCount}`,
-    );
+    LogHelpers.addBusinessContext('usage_incremented', true);
+    LogHelpers.addBusinessContext('feature', feature);
+    LogHelpers.addBusinessContext('new_usage_count', usage.usageCount);
   }
 }

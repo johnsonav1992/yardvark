@@ -20,20 +20,6 @@ Yardvark uses Stripe for subscription management with a freemium model. Full imp
 - **Yearly**: $60/year - unlimited entries + all AI features (save $24/year)
 - **Lifetime**: Grandfathered tier for existing users (unlimited forever)
 
-### Database Schema
-Two new tables:
-- `subscriptions`: User subscription status (tier, Stripe IDs, period dates)
-- `feature_usage`: Monthly usage tracking per feature (entries, AI queries)
-
-### Backend Architecture
-
-**Module**: `/backend/src/modules/subscription/`
-- Models: `subscription.model.ts`, `usage.model.ts`
-- Services: `stripe.service.ts` (Stripe SDK wrapper), `subscription.service.ts` (business logic)
-- Controllers: `subscription.controller.ts` (status/checkout/portal), `webhook.controller.ts` (Stripe events)
-- Guards: `subscription.guard.ts` (checks `@SubscriptionFeature` decorator on endpoints)
-- Decorators: `@SubscriptionFeature('feature_name')` to gate endpoints
-
 **Feature Gating**:
 - AI endpoints: Add `@SubscriptionFeature('ai_chat')`, `@SubscriptionFeature('ai_query')`, etc.
 - Entry creation: Add `@SubscriptionFeature('entry_creation')` + call `incrementUsage()` after success

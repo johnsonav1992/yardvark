@@ -7,7 +7,7 @@ import {
   ViewEncapsulation
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { DrawerModule } from 'primeng/drawer';
 import { MenuModule } from 'primeng/menu';
@@ -47,6 +47,7 @@ export class MobileBottomNavbarComponent {
   private _globalUiService = inject(GlobalUiService);
   private _settingsService = inject(SettingsService);
   private _dialogService = inject(DialogService);
+  private _router = inject(Router);
 
   public isDarkMode = this._globalUiService.isDarkMode;
   public isMoreMenuOpen = signal(false);
@@ -156,6 +157,11 @@ export class MobileBottomNavbarComponent {
     );
 
     dialogRef?.onClose.subscribe();
+  };
+
+  public goToSubscription = () => {
+    this.closeMoreMenu();
+    this._router.navigate(['/subscription']);
   };
 
   public menuDt = computed<MenuDesignTokens>(() => ({

@@ -13,6 +13,7 @@ export class SubscriptionService {
 
   public isPro = computed(() => {
     const sub = this.currentSubscription();
+    return false;
 
     return (
       sub?.tier === 'monthly' ||
@@ -28,8 +29,8 @@ export class SubscriptionService {
       {
         tier,
         successUrl: `${baseUrl}/subscription?success=true`,
-        cancelUrl: `${baseUrl}/subscription?canceled=true`,
-      },
+        cancelUrl: `${baseUrl}/subscription?canceled=true`
+      }
     ).toPromise();
 
     if (!response?.url) {
@@ -44,8 +45,8 @@ export class SubscriptionService {
     const response = await postReq<{ url: string }>(
       apiUrl('subscription/portal'),
       {
-        returnUrl: `${baseUrl}/subscription`,
-      },
+        returnUrl: `${baseUrl}/subscription`
+      }
     ).toPromise();
 
     if (!response?.url) {
@@ -59,7 +60,7 @@ export class SubscriptionService {
     try {
       const response = await postReq<FeatureAccess>(
         apiUrl('subscription/check-feature'),
-        { feature },
+        { feature }
       ).toPromise();
 
       return response || { allowed: false };

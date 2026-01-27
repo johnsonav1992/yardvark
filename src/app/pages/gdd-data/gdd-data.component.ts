@@ -12,6 +12,8 @@ import { LocationService } from '../../services/location.service';
 import { GlobalUiService } from '../../services/global-ui.service';
 import { getGddForecastChartConfig } from '../../utils/gddChartUtils';
 import { injectSettingsService } from '../../services/settings.service';
+import { SubscriptionService } from '../../services/subscription.service';
+import { UpgradePromptComponent } from '../../components/subscription/upgrade-prompt/upgrade-prompt.component';
 
 @Component({
   selector: 'gdd-data',
@@ -22,7 +24,8 @@ import { injectSettingsService } from '../../services/settings.service';
     ButtonModule,
     ProgressBarModule,
     ChartModule,
-    PopoverModule
+    PopoverModule,
+    UpgradePromptComponent
   ],
   templateUrl: './gdd-data.component.html',
   styleUrl: './gdd-data.component.scss'
@@ -33,9 +36,11 @@ export class GddDataComponent {
   private _settingsService = injectSettingsService();
   private _router = inject(Router);
   private _globalUiService = inject(GlobalUiService);
+  private _subscriptionService = inject(SubscriptionService);
 
   public isMobile = this._globalUiService.isMobile;
   public isDarkMode = this._globalUiService.isDarkMode;
+  public isPro = this._subscriptionService.isPro;
 
   public settingsAreLoading = this._settingsService.settings.isLoading;
 

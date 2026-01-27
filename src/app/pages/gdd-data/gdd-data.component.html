@@ -8,6 +8,10 @@
 
   @if (settingsAreLoading()) {
     <loading-spinner />
+  } @else if (!isPro()) {
+    <upgrade-prompt
+      message="Upgrade to Pro to unlock GDD (Growing Degree Days) tracking for precise PGR application timing based on heat accumulation."
+    />
   } @else if (!userHasALocation()) {
     <p-card>
       <div class="no-loc-container">

@@ -46,7 +46,7 @@
         {{ daysSinceLastProductApplication() }}
       </b>
     </p>
-    @if (hasGddData()) {
+    @if (isPro() && hasGddData()) {
       <p-divider [dt]="dividerDt" />
       <div class="gdd-progress">
         @if (isGddDormant()) {

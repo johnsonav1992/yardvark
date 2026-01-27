@@ -13,7 +13,6 @@ export class SubscriptionService {
 
   public isPro = computed(() => {
     const sub = this.currentSubscription();
-    return false;
 
     return (
       sub?.tier === 'monthly' ||

@@ -14,6 +14,7 @@ import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { SoilTemperatureService } from '../../../services/soil-temperature.service';
 import { calculate24HourNumericAverage } from '../../../utils/soilTemperatureUtils';
 import { GddService } from '../../../services/gdd.service';
+import { SubscriptionService } from '../../../services/subscription.service';
 
 @Component({
   selector: 'quick-stats',
@@ -27,8 +28,10 @@ export class QuickStatsComponent {
   private _globalUiService = inject(GlobalUiService);
   private _soilTempService = inject(SoilTemperatureService);
   private _gddService = inject(GddService);
+  private _subscriptionService = inject(SubscriptionService);
 
   public isMobile = this._globalUiService.isMobile;
+  public isPro = this._subscriptionService.isPro;
 
   public onHideWidget = output<void>();
 

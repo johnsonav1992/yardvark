@@ -51,7 +51,11 @@
       </div>
     </div>
   </ng-template>
-  @if (lawnHealthScore().totalScore === 0 && !lawnHealthScore().isOffSeason) {
+  @if (!isPro()) {
+    <upgrade-prompt
+      message="Upgrade to Pro to unlock AI-powered Lawn Health Score with personalized insights and recommendations."
+    />
+  } @else if (lawnHealthScore().totalScore === 0 && !lawnHealthScore().isOffSeason) {
     <div class="empty-state">
       <i class="ti ti-seeding empty-icon"></i>
       @if (lawnHealthScore().description === 'No data available') {

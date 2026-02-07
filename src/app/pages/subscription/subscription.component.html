@@ -28,7 +28,7 @@
             label="Manage Subscription"
             icon="ti ti-settings"
             (onClick)="manageSubscription()"
-            [loading]="isLoading()"
+            [loading]="isManaging()"
             outlined
             size="small"
           />
@@ -110,7 +110,7 @@
               (subscription()?.tier === plan.tier ||
                 subscription()?.tier === 'lifetime')
             "
-            [loading]="isLoading()"
+            [loading]="loadingTier() === plan.tier"
             (onClick)="subscribe(plan.tier)"
             class="w-full"
             [severity]="plan.popular ? 'success' : 'primary'"

@@ -7,8 +7,11 @@ import {
   RawBodyRequest,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { StripeService } from '../services/stripe.service';
 import { SubscriptionService } from '../services/subscription.service';
+import { WebhookEvent } from '../models/webhook-event.model';
 import { Public } from '../../../decorators/public.decorator';
 import Stripe from 'stripe';
 import { LogHelpers } from '../../../logger/logger.helpers';
@@ -18,6 +21,8 @@ export class WebhookController {
   constructor(
     private stripeService: StripeService,
     private subscriptionService: SubscriptionService,
+    @InjectRepository(WebhookEvent)
+    private webhookEventRepo: Repository<WebhookEvent>,
   ) {}
 
   @Public()
@@ -44,10 +49,47 @@ export class WebhookController {
         .send(`Webhook Error: ${err.message}`);
     }
 
-    try {
-      LogHelpers.addBusinessContext('stripe_event_type', event.type);
+    LogHelpers.addBusinessContext('stripe_event_id', event.id);
+    LogHelpers.addBusinessContext('stripe_event_type', event.type);
 
+    const existingEvent = await LogHelpers.withDatabaseTelemetry(() =>
+      this.webhookEventRepo.findOne({
+        where: { stripeEventId: event.id },
+      }),
+    );
+
+    if (existingEvent) {
+      LogHelpers.addBusinessContext('webhook_duplicate', true);
+      return res
+        .status(HttpStatus.OK)
+        .json({ received: true, duplicate: true });
+    }
+
+    const webhookEvent = this.webhookEventRepo.create({
+      stripeEventId: event.id,
+      eventType: event.type,
+      processed: false,
+    });
+
+    await LogHelpers.withDatabaseTelemetry(() =>
+      this.webhookEventRepo.save(webhookEvent),
+    );
+
+    res.status(HttpStatus.OK).json({ received: true });
+
+    void this.processWebhookAsync(event, webhookEvent.id);
+  }
+
+  private async processWebhookAsync(
+    event: Stripe.Event,
+    webhookEventId: number,
+  ) {
+    try {
       switch (event.type) {
+        case 'checkout.session.completed':
+          await this.handleCheckoutCompleted(event.data.object);
+          break;
+
         case 'customer.subscription.created':
         case 'customer.subscription.updated':
           await this.subscriptionService.handleSubscriptionUpdate(
@@ -65,13 +107,35 @@ export class WebhookController {
           LogHelpers.addBusinessContext('unhandled_event', true);
       }
 
-      return res.status(HttpStatus.OK).json({ received: true });
-    } catch (err) {
-      LogHelpers.addBusinessContext('webhook_error', err.message);
+      await LogHelpers.withDatabaseTelemetry(() =>
+        this.webhookEventRepo.update(webhookEventId, {
+          processed: true,
+          processedAt: new Date(),
+        }),
+      );
 
-      return res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .send(`Webhook handler failed: ${err.message}`);
+      LogHelpers.addBusinessContext('webhook_processed', true);
+    } catch (err) {
+      LogHelpers.addBusinessContext('webhook_processing_error', err.message);
     }
+  }
+
+  private async handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+    if (session.mode !== 'subscription') {
+      return;
+    }
+
+    if (!session.subscription) {
+      LogHelpers.addBusinessContext('checkout_missing_subscription', true);
+      return;
+    }
+
+    const subscription = await this.stripeService.getSubscription(
+      session.subscription as string,
+    );
+
+    await this.subscriptionService.handleSubscriptionUpdate(subscription);
+
+    LogHelpers.addBusinessContext('checkout_completed', true);
   }
 }

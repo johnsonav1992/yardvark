@@ -62,3 +62,14 @@ export const injectSuccessToast = (): ((message: string) => void) => {
     });
   };
 };
+
+export const injectInfoToast = (): ((message: string) => void) => {
+  const toastService = inject(MessageService);
+
+  return (message: string) => {
+    toastService.add({
+      severity: 'info',
+      detail: message
+    });
+  };
+};

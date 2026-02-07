@@ -9,7 +9,7 @@ import { DividerModule } from 'primeng/divider';
 import { MessageModule } from 'primeng/message';
 import { SubscriptionService } from '../../services/subscription.service';
 import { PricingPlan } from '../../types/subscription.types';
-import { injectSuccessToast, injectErrorToast } from '../../utils/toastUtils';
+import { injectSuccessToast, injectErrorToast, injectInfoToast } from '../../utils/toastUtils';
 import { GlobalUiService } from '../../services/global-ui.service';
 
 @Component({
@@ -34,11 +34,13 @@ export class SubscriptionComponent implements OnInit {
   private globalUiService = inject(GlobalUiService);
   private throwSuccessToast = injectSuccessToast();
   private throwErrorToast = injectErrorToast();
+  private throwInfoToast = injectInfoToast();
 
   public subscription = this.subscriptionService.currentSubscription;
   public isPro = this.subscriptionService.isPro;
   public isMobile = this.globalUiService.isMobile;
-  public isLoading = signal(false);
+  public loadingTier = signal<'monthly' | 'yearly' | null>(null);
+  public isManaging = signal(false);
 
   public plans: PricingPlan[] = [
     {
@@ -84,33 +86,33 @@ export class SubscriptionComponent implements OnInit {
       }
 
       if (params['canceled'] === 'true') {
-        this.throwErrorToast('Subscription checkout was canceled');
+        this.throwInfoToast('Subscription checkout was canceled');
         this.router.navigate([], { queryParams: {} });
       }
     });
   }
 
   public async subscribe(tier: 'monthly' | 'yearly') {
-    this.isLoading.set(true);
+    this.loadingTier.set(tier);
 
     try {
       const checkoutUrl = await this.subscriptionService.createCheckout(tier);
       window.location.href = checkoutUrl;
     } catch (error) {
       this.throwErrorToast('Failed to start checkout');
-      this.isLoading.set(false);
+      this.loadingTier.set(null);
     }
   }
 
   public async manageSubscription() {
-    this.isLoading.set(true);
+    this.isManaging.set(true);
 
     try {
       const portalUrl = await this.subscriptionService.openPortal();
       window.location.href = portalUrl;
     } catch (error) {
       this.throwErrorToast('Failed to open billing portal');
-      this.isLoading.set(false);
+      this.isManaging.set(false);
     }
   }
 

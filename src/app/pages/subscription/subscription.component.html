@@ -1,5 +1,4 @@
 <page-container pageTitle="Subscription">
-  <!-- Current Plan Status -->
   @if (isPro()) {
     <p-message severity="success" [closable]="false" class="mb-4">
       <div class="plan-status-content">
@@ -45,10 +44,7 @@
       </div>
     </p-message>
   }
-
-  <!-- Pricing Plans -->
   <h3 class="section-title">Choose Your Plan</h3>
-
   <div class="pricing-grid">
     @for (plan of plans; track plan.tier) {
       <p-card
@@ -120,13 +116,9 @@
       </p-card>
     }
   </div>
-
   @if (!isPro()) {
     <p-divider />
-
-    <!-- Benefits Section -->
     <h3 class="section-title">Why Upgrade to Pro?</h3>
-
     <div class="benefits-grid">
       <p-card class="benefit-card">
         <div class="benefit-content">

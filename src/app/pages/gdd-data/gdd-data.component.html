@@ -5,7 +5,6 @@
       (click)="gddInfoPopover.toggle($event)"
     ></i>
   </ng-template>
-
   @if (settingsAreLoading()) {
     <loading-spinner />
   } @else if (!isPro()) {
@@ -16,12 +15,10 @@
     <p-card>
       <div class="no-loc-container">
         <h2>It looks like you haven't set your location yet!</h2>
-
         <p>
           Go to settings to set your location and start tracking Growing Degree
           Days (GDD).
         </p>
-
         <p-button
           label="Go to settings"
           icon="ti ti-settings"

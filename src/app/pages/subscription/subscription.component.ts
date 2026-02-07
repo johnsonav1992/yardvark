@@ -98,28 +98,42 @@ export class SubscriptionComponent {
     });
   }
 
-  public async subscribe(tier: PurchasableTier) {
+  public subscribe(tier: PurchasableTier) {
     this.loadingTier.set(tier);
 
-    try {
-      const checkoutUrl = await this.subscriptionService.createCheckout(tier);
-      window.location.href = checkoutUrl;
-    } catch (error) {
-      this.throwErrorToast('Failed to start checkout');
-      this.loadingTier.set(null);
-    }
+    this.subscriptionService.createCheckout(tier).subscribe({
+      next: (response) => {
+        if (response?.url) {
+          window.location.href = response.url;
+        } else {
+          this.throwErrorToast('Failed to start checkout');
+          this.loadingTier.set(null);
+        }
+      },
+      error: () => {
+        this.throwErrorToast('Failed to start checkout');
+        this.loadingTier.set(null);
+      }
+    });
   }
 
-  public async manageSubscription() {
+  public manageSubscription() {
     this.isManaging.set(true);
 
-    try {
-      const portalUrl = await this.subscriptionService.openPortal();
-      window.location.href = portalUrl;
-    } catch (error) {
-      this.throwErrorToast('Failed to open billing portal');
-      this.isManaging.set(false);
-    }
+    this.subscriptionService.openPortal().subscribe({
+      next: (response) => {
+        if (response?.url) {
+          window.location.href = response.url;
+        } else {
+          this.throwErrorToast('Failed to open billing portal');
+          this.isManaging.set(false);
+        }
+      },
+      error: () => {
+        this.throwErrorToast('Failed to open billing portal');
+        this.isManaging.set(false);
+      }
+    });
   }
 
   public get subscriptionEndDate(): string | null {

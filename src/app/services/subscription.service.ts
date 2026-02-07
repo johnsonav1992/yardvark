@@ -1,6 +1,5 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { httpResource } from '@angular/common/http';
-import { firstValueFrom } from 'rxjs';
 import { apiUrl, postReq } from '../utils/httpUtils';
 import {
   Subscription,
@@ -39,59 +38,35 @@ export class SubscriptionService {
     return sub.status === 'active' || sub.status === 'trialing';
   });
 
-  public async createCheckout(tier: PurchasableTier): Promise<string> {
+  public createCheckout(tier: PurchasableTier) {
     const baseUrl = window.location.origin;
-    const response = await firstValueFrom(
-      postReq<{ url: string }>(
-        apiUrl('subscription/checkout'),
-        {
-          tier,
-          successUrl: `${baseUrl}/subscription?success=true`,
-          cancelUrl: `${baseUrl}/subscription?canceled=true`
-        }
-      )
+
+    return postReq<{ url: string }>(
+      apiUrl('subscription/checkout'),
+      {
+        tier,
+        successUrl: `${baseUrl}/subscription?success=true`,
+        cancelUrl: `${baseUrl}/subscription?canceled=true`
+      }
     );
-
-    if (!response?.url) {
-      throw new Error('Failed to create checkout session');
-    }
-
-    return response.url;
   }
 
-  public async openPortal(): Promise<string> {
+  public openPortal() {
     const baseUrl = window.location.origin;
-    const response = await firstValueFrom(
-      postReq<{ url: string }>(
-        apiUrl('subscription/portal'),
-        {
-          returnUrl: `${baseUrl}/subscription`
-        }
-      )
+
+    return postReq<{ url: string }>(
+      apiUrl('subscription/portal'),
+      {
+        returnUrl: `${baseUrl}/subscription`
+      }
     );
-
-    if (!response?.url) {
-      throw new Error('Failed to create portal session');
-    }
-
-    return response.url;
   }
 
-  public async checkFeatureAccess(feature: string): Promise<FeatureAccess> {
-    try {
-      const response = await firstValueFrom(
-        postReq<FeatureAccess>(
-          apiUrl('subscription/check-feature'),
-          { feature }
-        )
-      );
-
-      return response || { allowed: false };
-    } catch (error) {
-      console.error('Failed to check feature access:', error);
-
-      return { allowed: false };
-    }
+  public checkFeatureAccess(feature: string) {
+    return postReq<FeatureAccess>(
+      apiUrl('subscription/check-feature'),
+      { feature }
+    );
   }
 
   public hasAiAccess(): boolean {

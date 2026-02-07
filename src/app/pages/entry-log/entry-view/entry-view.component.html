@@ -4,9 +4,7 @@
   entryData()?.soilTemperature?.toString() +
   "° " +
   (entryData()?.soilTemperatureUnit === "fahrenheit" ? "F" : "C");
-
 @let isEntryLoading = entryResource.isLoading();
-
 <page-container pageTitle="Journal Entry" [useNormalBack]="true">
   <div [formGroup]="editForm">
     <p-card>
@@ -267,7 +265,6 @@
                   </div>
                 }
               </ng-template>
-              <!-- Noop because primeng is dumb  -->
               <ng-template #file></ng-template>
             </p-fileUpload>
           </div>
@@ -299,7 +296,6 @@
       </div>
     </p-card>
     @let imgs = entryImageUrls();
-
     @if (!isInEditMode()) {
       @if (imgs?.length) {
         <p-card [style]="{ marginTop: '1rem' }">

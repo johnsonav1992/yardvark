@@ -9,6 +9,7 @@
         [src]="equipment().imageUrl || noImageUrl"
         [alt]="equipment().name"
         class="equipment-image"
+        [style.object-position]="equipment().imagePosition || 'center center'"
         loading="lazy"
       />
     </div>

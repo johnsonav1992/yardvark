@@ -1,4 +1,7 @@
-<page-container [pageTitle]="equipment()?.name || ''">
+<page-container
+  [pageTitle]="equipment()?.name || ''"
+  [titleClass]="'equipment-title'"
+>
   <ng-template #action1>
     <p-button
       icon="ti ti-pencil"
@@ -25,7 +28,44 @@
           [src]="equipment()?.imageUrl || noImageUrl"
           [alt]="equipment()?.name"
           class="hero-image"
+          [class.adjusting]="isAdjustingPosition()"
+          [style.object-position]="imagePosition()"
+          (mousedown)="onImageMouseDown($event)"
         />
+
+        @if (!isAdjustingPosition()) {
+
+          <button
+            class="adjust-position-button"
+            pButton
+            icon="ti ti-arrows-move"
+            [rounded]="true"
+            severity="secondary"
+            pTooltip="Adjust Image Position"
+            tooltipPosition="left"
+            (click)="togglePositionAdjustment()"
+          ></button>
+
+        } @else {
+
+          <div class="position-controls">
+            <p-button
+              label="Save"
+              icon="ti ti-check"
+              size="small"
+              (onClick)="saveImagePosition()"
+            />
+            <p-button
+              label="Cancel"
+              icon="ti ti-x"
+              size="small"
+              severity="secondary"
+              outlined
+              (onClick)="cancelPositionAdjustment()"
+            />
+          </div>
+
+        }
       </div>
 
       <div class="info-cards-grid">

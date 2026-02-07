@@ -30,6 +30,9 @@ export class Equipment {
   @Column({ nullable: true })
   imageUrl?: string;
 
+  @Column({ nullable: true, default: 'center center' })
+  imagePosition?: string;
+
   @Column({ nullable: true })
   serialNumber?: string;
 

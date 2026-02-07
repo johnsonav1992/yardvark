@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, effect, inject, NgZone, OnDestroy, signal } from '@angular/core';
 import { PageContainerComponent } from '../../../components/layout/page-container/page-container.component';
 import { LoadingSpinnerComponent } from '../../../components/miscellanious/loading-spinner/loading-spinner.component';
 import { DividerModule } from 'primeng/divider';
@@ -11,13 +11,13 @@ import { map } from 'rxjs';
 import {
   CurrencyPipe,
   DatePipe,
-  NgTemplateOutlet,
   TitleCasePipe
 } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { CardDesignTokens } from '@primeuix/themes/types/card';
 import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
 import { DialogService } from 'primeng/dynamicdialog';
 import { EquipmentMaintenanceAddEditModalComponent } from '../../../components/equipment/equipment-maintenance-add-edit-modal/equipment-maintenance-add-edit-modal.component';
 import { EquipmentMaintenance } from '../../../types/equipment.types';
@@ -40,25 +40,35 @@ import { differenceInDays, differenceInMonths } from 'date-fns';
     TableModule,
     CardModule,
     ButtonModule,
-    NgTemplateOutlet,
-    TagModule
+    TagModule,
+    TooltipModule
   ],
   templateUrl: './equipment-view.component.html',
   styleUrl: './equipment-view.component.scss',
   providers: [DialogService]
 })
-export class EquipmentViewComponent {
+export class EquipmentViewComponent implements OnDestroy {
   private _globalUiService = inject(GlobalUiService);
   private _equipmentService = inject(EquipmentService);
   private _route = inject(ActivatedRoute);
   private _dialogService = inject(DialogService);
   private _router = inject(Router);
   private _confirmationService = inject(ConfirmationService);
+  private _ngZone = inject(NgZone);
   public throwErrorToast = injectErrorToast();
 
   public noImageUrl = NO_IMAGE_URL;
 
   public isMobile = this._globalUiService.isMobile;
+
+  public isAdjustingPosition = signal(false);
+  public imagePosition = signal('center center');
+  private isDragging = signal(false);
+  private dragStartX = signal(0);
+  private dragStartY = signal(0);
+  private startPositionX = signal(50);
+  private startPositionY = signal(50);
+  private imageElement = signal<HTMLElement | null>(null);
 
   public equipmentId = toSignal(
     this._route.params.pipe(map((params) => parseInt(params['equipmentId'])))
@@ -73,6 +83,16 @@ export class EquipmentViewComponent {
       .value()
       ?.find((equipment) => equipment.id === this.equipmentId())
   );
+
+  constructor() {
+    effect(() => {
+      const eq = this.equipment();
+
+      if (eq?.imagePosition && !this.isAdjustingPosition()) {
+        this.imagePosition.set(eq.imagePosition);
+      }
+    });
+  }
 
   public maintenanceStatusConfig = computed(() => {
     const eq = this.equipment();
@@ -288,4 +308,95 @@ export class EquipmentViewComponent {
       iconOnlyWidth: '1.75rem'
     }
   };
+
+  public togglePositionAdjustment(): void {
+    this.isAdjustingPosition.set(!this.isAdjustingPosition());
+  }
+
+  public onImageMouseDown(event: MouseEvent): void {
+    if (!this.isAdjustingPosition()) return;
+
+    event.preventDefault();
+    this.isDragging.set(true);
+    this.dragStartX.set(event.clientX);
+    this.dragStartY.set(event.clientY);
+    this.imageElement.set(event.currentTarget as HTMLElement);
+
+    const currentPos = this.imagePosition().split(' ');
+    const x = currentPos[0] === 'center' ? 50 : parseFloat(currentPos[0]);
+    const y = currentPos[1] === 'center' ? 50 : parseFloat(currentPos[1]);
+    this.startPositionX.set(isNaN(x) ? 50 : x);
+    this.startPositionY.set(isNaN(y) ? 50 : y);
+
+    document.addEventListener('mousemove', this.onDocumentMouseMove);
+    document.addEventListener('mouseup', this.onDocumentMouseUp);
+  }
+
+  private onDocumentMouseMove = (event: MouseEvent): void => {
+    if (!this.isAdjustingPosition() || !this.isDragging() || !this.imageElement()) return;
+
+    event.preventDefault();
+
+    this._ngZone.run(() => {
+      const element = this.imageElement();
+
+      if (!element) return;
+
+      const rect = element.getBoundingClientRect();
+      const deltaX = event.clientX - this.dragStartX();
+      const deltaY = event.clientY - this.dragStartY();
+
+      const deltaPercentX = (deltaX / rect.width) * 100;
+      const deltaPercentY = (deltaY / rect.height) * 100;
+
+      const newX = this.startPositionX() - deltaPercentX;
+      const newY = this.startPositionY() - deltaPercentY;
+
+      this.imagePosition.set(`${newX.toFixed(1)}% ${newY.toFixed(1)}%`);
+    });
+  };
+
+  private onDocumentMouseUp = (): void => {
+    this._ngZone.run(() => {
+      this.isDragging.set(false);
+      this.imageElement.set(null);
+      document.removeEventListener('mousemove', this.onDocumentMouseMove);
+      document.removeEventListener('mouseup', this.onDocumentMouseUp);
+    });
+  };
+
+  public ngOnDestroy(): void {
+    document.removeEventListener('mousemove', this.onDocumentMouseMove);
+    document.removeEventListener('mouseup', this.onDocumentMouseUp);
+  }
+
+  public saveImagePosition(): void {
+    const equipmentId = this.equipmentId();
+
+    if (!equipmentId) return;
+
+    this._equipmentService
+      .updateEquipment(equipmentId, { imagePosition: this.imagePosition() })
+      .subscribe({
+        next: () => {
+          this.isAdjustingPosition.set(false);
+          this._equipmentService.equipment.reload();
+        },
+        error: () => {
+          this.throwErrorToast('Error saving image position. Please try again.');
+        }
+      });
+  }
+
+  public cancelPositionAdjustment(): void {
+    const eq = this.equipment();
+
+    if (eq?.imagePosition) {
+      this.imagePosition.set(eq.imagePosition);
+    } else {
+      this.imagePosition.set('center center');
+    }
+
+    this.isAdjustingPosition.set(false);
+  }
 }

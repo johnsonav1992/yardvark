@@ -332,6 +332,26 @@ export class EquipmentViewComponent implements OnDestroy {
     document.addEventListener('mouseup', this.onDocumentMouseUp);
   }
 
+  public onImageTouchStart(event: TouchEvent): void {
+    if (!this.isAdjustingPosition()) return;
+
+    event.preventDefault();
+    const touch = event.touches[0];
+    this.isDragging.set(true);
+    this.dragStartX.set(touch.clientX);
+    this.dragStartY.set(touch.clientY);
+    this.imageElement.set(event.currentTarget as HTMLElement);
+
+    const currentPos = this.imagePosition().split(' ');
+    const x = currentPos[0] === 'center' ? 50 : parseFloat(currentPos[0]);
+    const y = currentPos[1] === 'center' ? 50 : parseFloat(currentPos[1]);
+    this.startPositionX.set(isNaN(x) ? 50 : x);
+    this.startPositionY.set(isNaN(y) ? 50 : y);
+
+    document.addEventListener('touchmove', this.onDocumentTouchMove, { passive: false });
+    document.addEventListener('touchend', this.onDocumentTouchEnd);
+  }
+
   private onDocumentMouseMove = (event: MouseEvent): void => {
     if (!this.isAdjustingPosition() || !this.isDragging() || !this.imageElement()) return;
 
@@ -365,9 +385,45 @@ export class EquipmentViewComponent implements OnDestroy {
     });
   };
 
+  private onDocumentTouchMove = (event: TouchEvent): void => {
+    if (!this.isAdjustingPosition() || !this.isDragging() || !this.imageElement()) return;
+
+    event.preventDefault();
+    const touch = event.touches[0];
+
+    this._ngZone.run(() => {
+      const element = this.imageElement();
+
+      if (!element) return;
+
+      const rect = element.getBoundingClientRect();
+      const deltaX = touch.clientX - this.dragStartX();
+      const deltaY = touch.clientY - this.dragStartY();
+
+      const deltaPercentX = (deltaX / rect.width) * 100;
+      const deltaPercentY = (deltaY / rect.height) * 100;
+
+      const newX = this.startPositionX() - deltaPercentX;
+      const newY = this.startPositionY() - deltaPercentY;
+
+      this.imagePosition.set(`${newX.toFixed(1)}% ${newY.toFixed(1)}%`);
+    });
+  };
+
+  private onDocumentTouchEnd = (): void => {
+    this._ngZone.run(() => {
+      this.isDragging.set(false);
+      this.imageElement.set(null);
+      document.removeEventListener('touchmove', this.onDocumentTouchMove);
+      document.removeEventListener('touchend', this.onDocumentTouchEnd);
+    });
+  };
+
   public ngOnDestroy(): void {
     document.removeEventListener('mousemove', this.onDocumentMouseMove);
     document.removeEventListener('mouseup', this.onDocumentMouseUp);
+    document.removeEventListener('touchmove', this.onDocumentTouchMove);
+    document.removeEventListener('touchend', this.onDocumentTouchEnd);
   }
 
   public saveImagePosition(): void {

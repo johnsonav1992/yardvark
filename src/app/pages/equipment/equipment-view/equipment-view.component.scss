@@ -210,11 +210,16 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 0.5rem;
 
     h2 {
       margin: 0;
       font-size: 1.5rem;
       color: var(--p-surface-900);
+
+      @media (max-width: 768px) {
+        font-size: 1.25rem;
+      }
     }
   }
 }

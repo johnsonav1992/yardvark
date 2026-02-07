@@ -31,6 +31,7 @@
           [class.adjusting]="isAdjustingPosition()"
           [style.object-position]="imagePosition()"
           (mousedown)="onImageMouseDown($event)"
+          (touchstart)="onImageTouchStart($event)"
         />
 
         @if (!isAdjustingPosition()) {
@@ -244,7 +245,16 @@
       <div class="maintenance-section">
         <div class="maintenance-header">
           <h2>Maintenance History</h2>
-          @if (!isMobile()) {
+          @if (isMobile()) {
+            <p-button
+              icon="ti ti-plus"
+              [rounded]="true"
+              size="small"
+              pTooltip="Add Record"
+              tooltipPosition="left"
+              (click)="openEquipmentModal()"
+            />
+          } @else {
             <p-button
               icon="ti ti-plus"
               label="Add Record"
@@ -254,13 +264,6 @@
         </div>
 
         @if (isMobile()) {
-          <p-button
-            icon="ti ti-plus"
-            label="Add Record"
-            (click)="openEquipmentModal()"
-            [style.width]="'100%'"
-            [style.marginBottom]="'1rem'"
-          />
           @for (record of equipment()?.maintenanceRecords; track record.id) {
             <p-card class="maintenance-mobile-card">
               <div class="mobile-card-header">

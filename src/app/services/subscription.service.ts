@@ -1,7 +1,11 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { httpResource } from '@angular/common/http';
 import { apiUrl, postReq } from '../utils/httpUtils';
-import { Subscription, FeatureAccess } from '../types/subscription.types';
+import {
+  Subscription,
+  FeatureAccess,
+  PurchasableTier,
+} from '../types/subscription.types';
 
 @Injectable({ providedIn: 'root' })
 export class SubscriptionService {
@@ -34,7 +38,7 @@ export class SubscriptionService {
     return sub.status === 'active' || sub.status === 'trialing';
   });
 
-  public async createCheckout(tier: 'monthly' | 'yearly'): Promise<string> {
+  public async createCheckout(tier: PurchasableTier): Promise<string> {
     const baseUrl = window.location.origin;
     const response = await postReq<{ url: string }>(
       apiUrl('subscription/checkout'),

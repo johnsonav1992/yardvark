@@ -7,6 +7,7 @@ import {
   SUBSCRIPTION_STATUSES,
   SubscriptionTier,
   SubscriptionStatus,
+  PurchasableTier,
 } from '../models/subscription.types';
 import { FeatureUsage } from '../models/usage.model';
 import { StripeService } from './stripe.service';
@@ -29,6 +30,7 @@ type CachedSubscription = {
 export class SubscriptionService {
   private subscriptionCache = new Map<string, CachedSubscription>();
   private readonly CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+  private readonly FREE_TIER_ENTRY_LIMIT = 6;
 
   constructor(
     @InjectRepository(Subscription)
@@ -68,6 +70,44 @@ export class SubscriptionService {
 
   invalidateCache(userId: string): void {
     this.subscriptionCache.delete(userId);
+  }
+
+  private getCurrentMonthPeriod(): { start: Date; end: Date } {
+    const start = new Date();
+    start.setDate(1);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(start);
+    end.setMonth(end.getMonth() + 1);
+
+    return { start, end };
+  }
+
+  private getTierFromPriceId(priceId: string | undefined): SubscriptionTier {
+    if (!priceId) {
+      return SUBSCRIPTION_TIERS.FREE;
+    }
+
+    const monthlyPriceId = this.configService.get<string>(
+      'STRIPE_MONTHLY_PRICE_ID',
+    );
+    const yearlyPriceId = this.configService.get<string>(
+      'STRIPE_YEARLY_PRICE_ID',
+    );
+
+    if (priceId === monthlyPriceId) {
+      return SUBSCRIPTION_TIERS.MONTHLY;
+    }
+
+    if (priceId === yearlyPriceId) {
+      return SUBSCRIPTION_TIERS.YEARLY;
+    }
+
+    return SUBSCRIPTION_TIERS.FREE;
+  }
+
+  private clearStripeCustomer(subscription: Subscription): void {
+    subscription.stripeCustomerId = null as unknown as string;
   }
 
   private isActiveSubscription(subscription: Subscription): boolean {
@@ -128,7 +168,7 @@ export class SubscriptionService {
     userId: string,
     email: string,
     name: string,
-    tier: 'monthly' | 'yearly',
+    tier: PurchasableTier,
     successUrl: string,
     cancelUrl: string,
   ): Promise<{ url: string }> {
@@ -145,13 +185,13 @@ export class SubscriptionService {
         if ('deleted' in customer && customer.deleted) {
           LogHelpers.addBusinessContext('stripe_customer_deleted', true);
           customerId = null;
-          subscription.stripeCustomerId = null as unknown as string;
+          this.clearStripeCustomer(subscription);
         }
       } catch (error) {
         if (error.code === 'resource_missing') {
           LogHelpers.addBusinessContext('stripe_customer_missing', true);
           customerId = null;
-          subscription.stripeCustomerId = null as unknown as string;
+          this.clearStripeCustomer(subscription);
         } else {
           throw error;
         }
@@ -259,22 +299,7 @@ export class SubscriptionService {
     const subscription = await this.getOrCreateSubscription(userId);
 
     const priceId = stripeSubscription.items.data[0]?.price.id;
-    const monthlyPriceId = this.configService.get<string>(
-      'STRIPE_MONTHLY_PRICE_ID',
-    );
-    const yearlyPriceId = this.configService.get<string>(
-      'STRIPE_YEARLY_PRICE_ID',
-    );
-
-    let tier: SubscriptionTier = SUBSCRIPTION_TIERS.FREE;
-
-    if (priceId === monthlyPriceId) {
-      tier = SUBSCRIPTION_TIERS.MONTHLY;
-    }
-
-    if (priceId === yearlyPriceId) {
-      tier = SUBSCRIPTION_TIERS.YEARLY;
-    }
+    const tier = this.getTierFromPriceId(priceId);
 
     subscription.stripeSubscriptionId = stripeSubscription.id;
     subscription.tier = tier;
@@ -352,25 +377,20 @@ export class SubscriptionService {
         return { allowed: true };
       }
 
-      const currentMonth = new Date();
-      currentMonth.setDate(1);
-      currentMonth.setHours(0, 0, 0, 0);
-
-      const nextMonth = new Date(currentMonth);
-      nextMonth.setMonth(nextMonth.getMonth() + 1);
+      const { start: periodStart } = this.getCurrentMonthPeriod();
 
       const usage = await LogHelpers.withDatabaseTelemetry(() =>
         this.usageRepo.findOne({
           where: {
             userId,
             featureName: 'entry_creation',
-            periodStart: currentMonth,
+            periodStart,
           },
         }),
       );
 
       const usageCount = usage?.usageCount || 0;
-      const limit = 6;
+      const limit = this.FREE_TIER_ENTRY_LIMIT;
 
       LogHelpers.addBusinessContext('entry_usage', usageCount);
       LogHelpers.addBusinessContext('entry_limit', limit);
@@ -382,12 +402,7 @@ export class SubscriptionService {
   }
 
   async incrementUsage(userId: string, feature: string): Promise<void> {
-    const currentMonth = new Date();
-    currentMonth.setDate(1);
-    currentMonth.setHours(0, 0, 0, 0);
-
-    const nextMonth = new Date(currentMonth);
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    const { start: periodStart, end: periodEnd } = this.getCurrentMonthPeriod();
 
     const result = await LogHelpers.withDatabaseTelemetry(() =>
       this.usageRepo.query(
@@ -398,7 +413,7 @@ export class SubscriptionService {
         DO UPDATE SET usage_count = feature_usage.usage_count + 1, last_updated = CURRENT_TIMESTAMP
         RETURNING usage_count
       `,
-        [userId, feature, currentMonth, nextMonth],
+        [userId, feature, periodStart, periodEnd],
       ),
     );
 

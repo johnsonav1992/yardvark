@@ -9,6 +9,10 @@ import {
 } from '@nestjs/common';
 import { SubscriptionService } from '../services/subscription.service';
 import { Request } from 'express';
+import {
+  PurchasableTier,
+  PURCHASABLE_TIERS,
+} from '../models/subscription.types';
 
 @Controller('subscription')
 export class SubscriptionController {
@@ -27,9 +31,9 @@ export class SubscriptionController {
   async createCheckout(
     @Req() req: Request,
     @Body()
-    body: { tier: 'monthly' | 'yearly'; successUrl: string; cancelUrl: string },
+    body: { tier: PurchasableTier; successUrl: string; cancelUrl: string },
   ) {
-    if (!['monthly', 'yearly'].includes(body.tier)) {
+    if (!PURCHASABLE_TIERS.includes(body.tier)) {
       throw new HttpException('Invalid tier', HttpStatus.BAD_REQUEST);
     }
 

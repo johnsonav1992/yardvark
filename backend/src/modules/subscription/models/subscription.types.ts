@@ -18,3 +18,12 @@ export type SubscriptionTier =
 
 export type SubscriptionStatus =
   (typeof SUBSCRIPTION_STATUSES)[keyof typeof SUBSCRIPTION_STATUSES];
+
+export type PurchasableTier =
+  | typeof SUBSCRIPTION_TIERS.MONTHLY
+  | typeof SUBSCRIPTION_TIERS.YEARLY;
+
+export const PURCHASABLE_TIERS: PurchasableTier[] = [
+  SUBSCRIPTION_TIERS.MONTHLY,
+  SUBSCRIPTION_TIERS.YEARLY,
+];

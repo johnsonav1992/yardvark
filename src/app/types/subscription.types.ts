@@ -1,5 +1,7 @@
 export type SubscriptionTier = 'free' | 'monthly' | 'yearly' | 'lifetime';
 
+export type PurchasableTier = 'monthly' | 'yearly';
+
 export type SubscriptionStatus =
   | 'active'
   | 'canceled'
@@ -29,7 +31,7 @@ export type FeatureAccess = {
 };
 
 export type PricingPlan = {
-  tier: 'monthly' | 'yearly';
+  tier: PurchasableTier;
   name: string;
   price: number;
   period: string;

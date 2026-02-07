@@ -166,3 +166,18 @@ body {
     position: initial;
   }
 }
+
+.sidenav .action-buttons p-button,
+.mobile-nav .action-buttons p-button {
+  display: block !important;
+  width: 100% !important;
+}
+
+.sidenav .action-buttons .p-button,
+.mobile-nav .action-buttons .p-button {
+  display: flex !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  justify-content: center !important;
+}

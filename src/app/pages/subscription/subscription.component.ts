@@ -8,9 +8,10 @@ import { TagModule } from 'primeng/tag';
 import { DividerModule } from 'primeng/divider';
 import { MessageModule } from 'primeng/message';
 import { SubscriptionService } from '../../services/subscription.service';
-import { PricingPlan } from '../../types/subscription.types';
+import { PricingPlan, PurchasableTier } from '../../types/subscription.types';
 import { injectSuccessToast, injectErrorToast, injectInfoToast } from '../../utils/toastUtils';
 import { GlobalUiService } from '../../services/global-ui.service';
+import { FREE_TIER_ENTRY_LIMIT } from '../../constants/subscription.constants';
 
 @Component({
   selector: 'subscription',
@@ -39,8 +40,16 @@ export class SubscriptionComponent implements OnInit {
   public subscription = this.subscriptionService.currentSubscription;
   public isPro = this.subscriptionService.isPro;
   public isMobile = this.globalUiService.isMobile;
-  public loadingTier = signal<'monthly' | 'yearly' | null>(null);
+  public loadingTier = signal<PurchasableTier | null>(null);
   public isManaging = signal(false);
+
+  private readonly commonFeatures = [
+    'Unlimited lawn entries',
+    'All AI features',
+    'Advanced analytics',
+    'GDD tracking',
+    'Priority support',
+  ];
 
   public plans: PricingPlan[] = [
     {
@@ -48,13 +57,7 @@ export class SubscriptionComponent implements OnInit {
       name: 'Monthly',
       price: 7,
       period: 'month',
-      features: [
-        'Unlimited lawn entries',
-        'All AI features',
-        'Advanced analytics',
-        'GDD tracking',
-        'Priority support',
-      ],
+      features: this.commonFeatures,
     },
     {
       tier: 'yearly',
@@ -62,19 +65,12 @@ export class SubscriptionComponent implements OnInit {
       price: 60,
       period: 'year',
       popular: true,
-      features: [
-        'Unlimited lawn entries',
-        'All AI features',
-        'Advanced analytics',
-        'GDD tracking',
-        'Priority support',
-        'Save $24/year',
-      ],
+      features: [...this.commonFeatures, 'Save $24/year'],
     },
   ];
 
   public freeLimits = [
-    '6 lawn entries per month',
+    `${FREE_TIER_ENTRY_LIMIT} lawn entries per month`,
     'Basic analytics',
     'AI features unavailable',
   ];
@@ -84,17 +80,17 @@ export class SubscriptionComponent implements OnInit {
       if (params['success'] === 'true') {
         this.throwSuccessToast('Subscription activated successfully!');
         this.subscriptionService.refreshSubscription();
-        this.router.navigate([], { queryParams: {} });
+      } else if (params['canceled'] === 'true') {
+        this.throwInfoToast('Subscription checkout was canceled');
       }
 
-      if (params['canceled'] === 'true') {
-        this.throwInfoToast('Subscription checkout was canceled');
+      if (params['success'] || params['canceled']) {
         this.router.navigate([], { queryParams: {} });
       }
     });
   }
 
-  public async subscribe(tier: 'monthly' | 'yearly') {
+  public async subscribe(tier: PurchasableTier) {
     this.loadingTier.set(tier);
 
     try {
@@ -128,12 +124,6 @@ export class SubscriptionComponent implements OnInit {
     return new Date(sub.currentPeriodEnd).toLocaleDateString();
   }
 
-  public get isSubscriptionActive(): boolean {
-    const sub = this.subscription();
-
-    return sub?.status === 'active' && this.isPro();
-  }
-
   public get willCancelAtPeriodEnd(): boolean {
     return this.subscription()?.cancelAtPeriodEnd || false;
   }
@@ -141,18 +131,16 @@ export class SubscriptionComponent implements OnInit {
   public get tierDisplayName(): string {
     const tier = this.subscription()?.tier;
 
-    if (tier === 'lifetime') {
-      return 'Pro (Lifetime)';
+    if (!tier || tier === 'free') {
+      return 'Free';
     }
 
-    if (tier === 'monthly') {
-      return 'Pro (Monthly)';
-    }
+    const tierNames: Record<string, string> = {
+      lifetime: 'Lifetime',
+      monthly: 'Monthly',
+      yearly: 'Yearly',
+    };
 
-    if (tier === 'yearly') {
-      return 'Pro (Yearly)';
-    }
-
-    return 'Free';
+    return `Pro (${tierNames[tier] || tier})`;
   }
 }

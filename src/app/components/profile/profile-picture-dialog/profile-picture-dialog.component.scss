@@ -28,6 +28,20 @@
   }
 }
 
+:host-context(:root.yv-dark-mode) .drop-zone {
+  border-color: var(--p-surface-700);
+  background: var(--p-surface-900);
+
+  &:hover {
+    border-color: var(--p-primary-400);
+    background: var(--p-surface-800);
+  }
+
+  &.dragging {
+    background: var(--p-surface-700);
+  }
+}
+
 .drop-zone-content {
   display: flex;
   flex-direction: column;

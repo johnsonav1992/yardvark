@@ -14,11 +14,24 @@ export class SubscriptionService {
   public isPro = computed(() => {
     const sub = this.currentSubscription();
 
-    return (
-      sub?.tier === 'monthly' ||
-      sub?.tier === 'yearly' ||
-      sub?.tier === 'lifetime'
-    );
+    if (!sub) {
+      return false;
+    }
+
+    const hasPaidTier =
+      sub.tier === 'monthly' ||
+      sub.tier === 'yearly' ||
+      sub.tier === 'lifetime';
+
+    if (!hasPaidTier) {
+      return false;
+    }
+
+    if (sub.tier === 'lifetime') {
+      return true;
+    }
+
+    return sub.status === 'active' || sub.status === 'trialing';
   });
 
   public async createCheckout(tier: 'monthly' | 'yearly'): Promise<string> {

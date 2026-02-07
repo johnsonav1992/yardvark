@@ -84,6 +84,16 @@ export class StripeService {
     );
   }
 
+  async getCustomer(
+    customerId: string,
+  ): Promise<Stripe.Customer | Stripe.DeletedCustomer> {
+    LogHelpers.addBusinessContext('stripe_operation', 'get_customer');
+
+    return LogHelpers.withExternalCallTelemetry('stripe', () =>
+      this.stripe.customers.retrieve(customerId),
+    );
+  }
+
   async cancelSubscription(
     subscriptionId: string,
   ): Promise<Stripe.Subscription> {

@@ -52,28 +52,25 @@ export class WebhookController {
     LogHelpers.addBusinessContext('stripe_event_id', event.id);
     LogHelpers.addBusinessContext('stripe_event_type', event.type);
 
-    const existingEvent = await LogHelpers.withDatabaseTelemetry(() =>
-      this.webhookEventRepo.findOne({
-        where: { stripeEventId: event.id },
-      }),
-    );
-
-    if (existingEvent) {
-      LogHelpers.addBusinessContext('webhook_duplicate', true);
-      return res
-        .status(HttpStatus.OK)
-        .json({ received: true, duplicate: true });
-    }
-
     const webhookEvent = this.webhookEventRepo.create({
       stripeEventId: event.id,
       eventType: event.type,
       processed: false,
     });
 
-    await LogHelpers.withDatabaseTelemetry(() =>
-      this.webhookEventRepo.save(webhookEvent),
-    );
+    try {
+      await LogHelpers.withDatabaseTelemetry(() =>
+        this.webhookEventRepo.save(webhookEvent),
+      );
+    } catch (error) {
+      if (error.code === '23505') {
+        LogHelpers.addBusinessContext('webhook_duplicate', true);
+        return res
+          .status(HttpStatus.OK)
+          .json({ received: true, duplicate: true });
+      }
+      throw error;
+    }
 
     res.status(HttpStatus.OK).json({ received: true });
 

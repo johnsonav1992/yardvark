@@ -15,10 +15,10 @@ export class Subscription {
   @Column({ name: 'user_id', unique: true })
   userId: string;
 
-  @Column({ name: 'stripe_customer_id', nullable: true })
+  @Column({ name: 'stripe_customer_id', nullable: true, type: 'varchar' })
   stripeCustomerId: string;
 
-  @Column({ name: 'stripe_subscription_id', nullable: true, unique: true })
+  @Column({ name: 'stripe_subscription_id', nullable: true, unique: true, type: 'varchar' })
   stripeSubscriptionId: string;
 
   @Column({ default: 'free' })

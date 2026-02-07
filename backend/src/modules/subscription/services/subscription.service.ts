@@ -70,6 +70,26 @@ export class SubscriptionService {
     this.subscriptionCache.delete(userId);
   }
 
+  private isActiveSubscription(subscription: Subscription): boolean {
+    const hasPaidTier =
+      subscription.tier === SUBSCRIPTION_TIERS.MONTHLY ||
+      subscription.tier === SUBSCRIPTION_TIERS.YEARLY ||
+      subscription.tier === SUBSCRIPTION_TIERS.LIFETIME;
+
+    if (!hasPaidTier) {
+      return false;
+    }
+
+    if (subscription.tier === SUBSCRIPTION_TIERS.LIFETIME) {
+      return true;
+    }
+
+    return (
+      subscription.status === SUBSCRIPTION_STATUSES.ACTIVE ||
+      subscription.status === SUBSCRIPTION_STATUSES.TRIALING
+    );
+  }
+
   async getOrCreateSubscription(userId: string): Promise<Subscription> {
     const cached = this.getCachedSubscription(userId);
 
@@ -116,7 +136,27 @@ export class SubscriptionService {
 
     const subscription = await this.getOrCreateSubscription(userId);
 
-    let customerId = subscription.stripeCustomerId;
+    let customerId: string | null = subscription.stripeCustomerId;
+
+    if (customerId) {
+      try {
+        const customer = await this.stripeService.getCustomer(customerId);
+
+        if ('deleted' in customer && customer.deleted) {
+          LogHelpers.addBusinessContext('stripe_customer_deleted', true);
+          customerId = null;
+          subscription.stripeCustomerId = null as unknown as string;
+        }
+      } catch (error) {
+        if (error.code === 'resource_missing') {
+          LogHelpers.addBusinessContext('stripe_customer_missing', true);
+          customerId = null;
+          subscription.stripeCustomerId = null as unknown as string;
+        } else {
+          throw error;
+        }
+      }
+    }
 
     if (!customerId) {
       const customer = await this.stripeService.createCustomer(
@@ -131,6 +171,8 @@ export class SubscriptionService {
       await LogHelpers.withDatabaseTelemetry(() =>
         this.subscriptionRepo.save(subscription),
       );
+
+      this.invalidateCache(userId);
 
       LogHelpers.addBusinessContext('stripe_customer_created', true);
     }
@@ -296,10 +338,7 @@ export class SubscriptionService {
   ): Promise<FeatureAccessResult> {
     const subscription = await this.getOrCreateSubscription(userId);
 
-    const isPro =
-      subscription.tier === SUBSCRIPTION_TIERS.MONTHLY ||
-      subscription.tier === SUBSCRIPTION_TIERS.YEARLY ||
-      subscription.tier === SUBSCRIPTION_TIERS.LIFETIME;
+    const isPro = this.isActiveSubscription(subscription);
 
     LogHelpers.addBusinessContext('feature_check', feature);
     LogHelpers.addBusinessContext('is_pro', isPro);
@@ -350,28 +389,23 @@ export class SubscriptionService {
     const nextMonth = new Date(currentMonth);
     nextMonth.setMonth(nextMonth.getMonth() + 1);
 
-    let usage = await LogHelpers.withDatabaseTelemetry(() =>
-      this.usageRepo.findOne({
-        where: { userId, featureName: feature, periodStart: currentMonth },
-      }),
+    const result = await LogHelpers.withDatabaseTelemetry(() =>
+      this.usageRepo.query(
+        `
+        INSERT INTO feature_usage (user_id, feature_name, usage_count, period_start, period_end)
+        VALUES ($1, $2, 1, $3, $4)
+        ON CONFLICT (user_id, feature_name, period_start)
+        DO UPDATE SET usage_count = feature_usage.usage_count + 1, last_updated = CURRENT_TIMESTAMP
+        RETURNING usage_count
+      `,
+        [userId, feature, currentMonth, nextMonth],
+      ),
     );
 
-    if (!usage) {
-      usage = this.usageRepo.create({
-        userId,
-        featureName: feature,
-        usageCount: 1,
-        periodStart: currentMonth,
-        periodEnd: nextMonth,
-      });
-    } else {
-      usage.usageCount += 1;
-    }
-
-    await LogHelpers.withDatabaseTelemetry(() => this.usageRepo.save(usage));
+    const newUsageCount = result[0]?.usage_count;
 
     LogHelpers.addBusinessContext('usage_incremented', true);
     LogHelpers.addBusinessContext('feature', feature);
-    LogHelpers.addBusinessContext('new_usage_count', usage.usageCount);
+    LogHelpers.addBusinessContext('new_usage_count', newUsageCount);
   }
 }

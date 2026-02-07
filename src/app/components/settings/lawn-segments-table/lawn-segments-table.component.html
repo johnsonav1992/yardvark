@@ -59,7 +59,6 @@
             @let isInEditingMode =
               !!currentlyEditingLawnSegmentIds()?.includes(segment.id);
             @let isNewSegment = segment.id < 1;
-
             @if (isRowBeingEdited && isInEditingMode) {
               <p-button
                 [icon]="'ti ti-check'"

@@ -7,7 +7,7 @@ import { LawnSegmentsModule } from './modules/lawn-segments/lawn-segments.module
 import { EntriesModule } from './modules/entries/entries.module';
 import { ProductsModule } from './modules/products/products.module';
 import { JwtStrategy } from './guards/jwt.strategy';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/auth.guard';
 import { FeatureFlagGuard } from './guards/feature-flag.guard';
 import { UsersController } from './modules/users/controllers/users.controller';
@@ -26,6 +26,9 @@ import { AiModule } from './modules/ai/ai.module';
 import { EmailModule } from './modules/email/email.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { GddModule } from './modules/gdd/gdd.module';
+import { SubscriptionModule } from './modules/subscription/subscription.module';
+import { SubscriptionGuard } from './guards/subscription.guard';
+import { LoggingInterceptor } from './logger/logger';
 
 @Module({
   imports: [
@@ -53,10 +56,15 @@ import { GddModule } from './modules/gdd/gdd.module';
     AiModule,
     EmailModule,
     GddModule,
+    SubscriptionModule,
   ],
   controllers: [UsersController, FilesController],
   providers: [
     JwtStrategy,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
@@ -68,6 +76,10 @@ import { GddModule } from './modules/gdd/gdd.module';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: SubscriptionGuard,
     },
     UsersService,
     S3Service,

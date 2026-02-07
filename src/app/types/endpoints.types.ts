@@ -11,7 +11,8 @@ export type ApiEndpointRoutes =
   | WeatherRoutes
   | AiRoutes
   | EmailRoutes
-  | GddRoutes;
+  | GddRoutes
+  | SubscriptionRoutes;
 
 type SettingsRoutes = 'settings';
 
@@ -53,3 +54,9 @@ type AiRoutes = 'ai/chat';
 type EmailRoutes = 'email/feedback';
 
 type GddRoutes = 'gdd/current' | 'gdd/historical' | 'gdd/forecast';
+
+type SubscriptionRoutes =
+  | 'subscription/status'
+  | 'subscription/checkout'
+  | 'subscription/portal'
+  | 'subscription/check-feature';

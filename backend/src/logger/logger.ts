@@ -7,8 +7,8 @@ import {
   Scope,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { Observable, throwError, from, of } from 'rxjs';
+import { catchError, tap, mergeMap } from 'rxjs/operators';
 import { randomUUID } from 'crypto';
 import { LogContext, HttpLogEntry } from './logger.types';
 import {
@@ -18,12 +18,16 @@ import {
 } from './logger.constants';
 import { requestContext, RequestContext } from './logger.context';
 import { logToOTel } from './otel.transport';
+import { SubscriptionService } from '../modules/subscription/services/subscription.service';
+import { LogHelpers } from './logger.helpers';
 
 export { LogContext, WideEventContext } from './logger.types';
 export { getLogContext, getRequestContext } from './logger.context';
 
 @Injectable({ scope: Scope.REQUEST })
 export class LoggingInterceptor implements NestInterceptor {
+  constructor(private readonly subscriptionService: SubscriptionService) {}
+
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const httpContext = context.switchToHttp();
     const request = httpContext.getRequest<Request>();
@@ -42,44 +46,103 @@ export class LoggingInterceptor implements NestInterceptor {
 
     const start = Date.now();
 
+    const loadSubscriptionContext$ = request.user?.userId
+      ? from(
+          this.subscriptionService.getOrCreateSubscription(request.user.userId),
+        ).pipe(
+          tap((subscription) => {
+            if (subscription) {
+              LogHelpers.addBusinessContext(
+                'subscription_tier',
+                subscription.tier,
+              );
+              LogHelpers.addBusinessContext(
+                'subscription_status',
+                subscription.status,
+              );
+              LogHelpers.addBusinessContext(
+                'is_pro',
+                subscription.tier === 'monthly' ||
+                  subscription.tier === 'yearly' ||
+                  subscription.tier === 'lifetime',
+              );
+
+              if (subscription.currentPeriodStart) {
+                const daysSinceSubscription = Math.floor(
+                  (Date.now() -
+                    new Date(subscription.currentPeriodStart).getTime()) /
+                    (1000 * 60 * 60 * 24),
+                );
+                LogHelpers.addBusinessContext(
+                  'subscription_days_active',
+                  daysSinceSubscription,
+                );
+              }
+
+              if (subscription.tier === 'lifetime') {
+                const daysSinceCreation = Math.floor(
+                  (Date.now() - new Date(subscription.createdAt).getTime()) /
+                    (1000 * 60 * 60 * 24),
+                );
+                LogHelpers.addBusinessContext(
+                  'lifetime_subscription_age_days',
+                  daysSinceCreation,
+                );
+              }
+
+              if (subscription.cancelAtPeriodEnd) {
+                LogHelpers.addBusinessContext('subscription_canceling', true);
+              }
+            }
+          }),
+          catchError(() => {
+            LogHelpers.addBusinessContext('subscription_fetch_error', true);
+            return of(null);
+          }),
+        )
+      : of(null);
+
     return new Observable((subscriber) => {
       requestContext.run(reqContext, () => {
-        next
-          .handle()
+        loadSubscriptionContext$
           .pipe(
-            tap(() => {
-              const duration = Date.now() - start;
-              const statusCode = response.statusCode;
+            mergeMap(() =>
+              next.handle().pipe(
+                tap(() => {
+                  const duration = Date.now() - start;
+                  const statusCode = response.statusCode;
 
-              if (this.shouldLogRequest(statusCode, duration, true)) {
-                this.logHttpRequest({
-                  request,
-                  statusCode,
-                  duration,
-                  traceId,
-                  requestId,
-                  success: true,
-                  logContext,
-                });
-              }
-            }),
-            catchError((error: unknown) => {
-              const duration = Date.now() - start;
-              const statusCode = this.getErrorStatusCode(response, error);
+                  if (this.shouldLogRequest(statusCode, duration, true)) {
+                    this.logHttpRequest({
+                      request,
+                      statusCode,
+                      duration,
+                      traceId,
+                      requestId,
+                      success: true,
+                      logContext,
+                    });
+                  }
+                }),
+                catchError((error: unknown) => {
+                  const duration = Date.now() - start;
+                  const statusCode = this.getErrorStatusCode(response, error);
 
-              this.logHttpRequest({
-                request,
-                statusCode,
-                duration,
-                traceId,
-                requestId,
-                success: false,
-                error,
-                logContext,
-              });
+                  this.logHttpRequest({
+                    request,
+                    statusCode,
+                    duration,
+                    traceId,
+                    requestId,
+                    success: false,
+                    error,
+                    logContext,
+                  });
 
-              return throwError(() => error);
-            }),
+                  return throwError(() => error);
+                }),
+              ),
+            ),
           )
           .subscribe(subscriber);
       });

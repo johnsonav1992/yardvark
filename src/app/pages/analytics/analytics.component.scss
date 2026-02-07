@@ -17,6 +17,14 @@
   }
 }
 
+.chart-empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 400px;
+}
+
 ::ng-deep.info-overlay {
   width: 300px;
 }

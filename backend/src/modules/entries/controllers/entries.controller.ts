@@ -17,10 +17,15 @@ import {
   EntryCreationRequest,
 } from '../models/entries.types';
 import { Request } from 'express';
+import { SubscriptionFeature } from '../../../decorators/subscription-feature.decorator';
+import { SubscriptionService } from '../../subscription/services/subscription.service';
 
 @Controller('entries')
 export class EntriesController {
-  constructor(private readonly _entriesService: EntriesService) {}
+  constructor(
+    private readonly _entriesService: EntriesService,
+    private readonly _subscriptionService: SubscriptionService,
+  ) {}
 
   @Get()
   public getEntries(
@@ -73,11 +78,22 @@ export class EntriesController {
   }
 
   @Post()
+  @SubscriptionFeature('entry_creation')
   public async createEntry(
     @Req() req: Request,
     @Body() entry: EntryCreationRequest,
   ) {
-    return this._entriesService.createEntry(req.user.userId, entry);
+    const result = await this._entriesService.createEntry(
+      req.user.userId,
+      entry,
+    );
+
+    await this._subscriptionService.incrementUsage(
+      req.user.userId,
+      'entry_creation',
+    );
+
+    return result;
   }
 
   @Post('batch')

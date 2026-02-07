@@ -16,6 +16,8 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { FormsModule } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { PopoverModule } from 'primeng/popover';
+import { SubscriptionService } from '../../services/subscription.service';
+import { UpgradePromptComponent } from '../../components/subscription/upgrade-prompt/upgrade-prompt.component';
 
 @Component({
   selector: 'analytics',
@@ -28,7 +30,8 @@ import { PopoverModule } from 'primeng/popover';
     DatePickerModule,
     FormsModule,
     FloatLabelModule,
-    PopoverModule
+    PopoverModule,
+    UpgradePromptComponent
   ],
   templateUrl: './analytics.component.html',
   styleUrl: './analytics.component.scss'
@@ -36,11 +39,13 @@ import { PopoverModule } from 'primeng/popover';
 export class AnalyticsComponent {
   private _globalUiService = inject(GlobalUiService);
   private _analyticsService = inject(AnalyticsService);
+  private _subscriptionService = inject(SubscriptionService);
 
   public analyticsData = this._analyticsService.analyticsData;
 
   public isDarkMode = this._globalUiService.isDarkMode;
   public isMobile = this._globalUiService.isMobile;
+  public isPro = this._subscriptionService.isPro;
 
   public year = this._analyticsService.year;
   public yearDate = computed(() => new Date(this.year(), 0, 1));
@@ -51,12 +56,18 @@ export class AnalyticsComponent {
       isMobile: this.isMobile()
     };
 
-    return [
+    const allCharts = [
       getMonthlyMowingChartConfig(this.analyticsData.value(), uiOptions),
       getAverageDaysBetweenChartConfig(this.analyticsData.value(), uiOptions),
       getFertilizerTimelineChartConfig(this.analyticsData.value(), uiOptions),
       getProductTypeDistributionChartConfig(this.analyticsData.value())
     ];
+
+    if (!this.isPro()) {
+      return [allCharts[0]];
+    }
+
+    return allCharts;
   });
 
   public hasAnyData = computed(() => {

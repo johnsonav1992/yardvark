@@ -325,9 +325,15 @@ export class AddEntryComponent implements OnInit {
             queryParams: { date: createdDate }
           });
         },
-        error: () => {
+        error: (error) => {
           this.isLoading.set(false);
-          this.throwErrorToast('Failed to create entry');
+          if (error.status === 402) {
+            this.throwErrorToast(
+              error.error.message || 'Entry limit reached. Upgrade for unlimited entries.'
+            );
+          } else {
+            this.throwErrorToast('Failed to create entry');
+          }
         }
       });
     } else {
@@ -354,9 +360,15 @@ export class AddEntryComponent implements OnInit {
             queryParams: { date: latestDate.toISOString() }
           });
         },
-        error: () => {
+        error: (error) => {
           this.isLoading.set(false);
-          this.throwErrorToast('Failed to create entries');
+          if (error.status === 402) {
+            this.throwErrorToast(
+              error.error.message || 'Entry limit reached. Upgrade for unlimited entries.'
+            );
+          } else {
+            this.throwErrorToast('Failed to create entries');
+          }
         }
       });
     }

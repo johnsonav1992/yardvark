@@ -85,7 +85,6 @@
     @for (day of days(); track day.date) {
       @let isSelectedDateSameAsThisDate =
         mobileDateSelected()?.getDate() === day.date.getDate();
-
       <div
         class="day"
         [class.mobile]="isMobile()"

@@ -6,6 +6,7 @@ import { EntriesService } from './entries.service';
 import { AiService } from './ai.service';
 import { LocationService } from './location.service';
 import { SoilTemperatureService } from './soil-temperature.service';
+import { SubscriptionService } from './subscription.service';
 import {
   calculateLawnHealthScore,
   isCurrentlyGrowingSeason
@@ -35,6 +36,7 @@ export class LawnHealthScoreService {
   private _aiService = inject(AiService);
   private _locationService = inject(LocationService);
   private _soilTempService = inject(SoilTemperatureService);
+  private _subscriptionService = inject(SubscriptionService);
 
   public analyticsData = this._analyticsService.analyticsData;
   public lastMowDate = this._entriesService.lastMow;
@@ -121,6 +123,9 @@ export class LawnHealthScoreService {
   public aiDescriptionResource = rxResource({
     params: () => {
       if (this.isLoading()) return undefined;
+
+      const isPro = this._subscriptionService.isPro();
+      if (!isPro) return undefined;
 
       const scoreData = this.lawnHealthScore();
       return scoreData.totalScore > 0 && !scoreData.isOffSeason

@@ -12,7 +12,6 @@
       <label for="year">Year</label>
     </p-floatlabel>
   </ng-template>
-
   @if (analyticsData.isLoading()) {
     <loading-spinner />
   } @else if (!hasAnyData()) {
@@ -54,9 +53,19 @@
               [options]="chart.options"
             />
           } @else {
-            <empty-message message="No data available" size="sm" />
+            <div class="chart-empty-state">
+              <empty-message message="No data available" size="lg" />
+            </div>
           }
         </p-card>
+      }
+
+      @if (!isPro()) {
+        <div [style.width]="isMobile() ? '100%' : '49%'">
+          <upgrade-prompt
+            message="Upgrade to Pro to unlock advanced analytics including average days between mowing, fertilizer timeline, and product distribution insights."
+          />
+        </div>
       }
     </div>
   }

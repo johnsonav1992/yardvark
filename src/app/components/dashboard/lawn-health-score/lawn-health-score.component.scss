@@ -233,3 +233,12 @@
     max-width: 300px;
   }
 }
+
+::ng-deep upgrade-prompt .upgrade-card {
+  border: none;
+  box-shadow: none;
+}
+
+::ng-deep upgrade-prompt .upgrade-content {
+  padding: 2rem 1rem;
+}

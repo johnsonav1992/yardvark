@@ -1,0 +1,156 @@
+<page-container pageTitle="Subscription">
+  @if (isPro()) {
+    <p-message severity="success" [closable]="false" class="mb-4">
+      <div class="plan-status-content">
+        <div class="plan-info">
+          <p-tag [value]="tierDisplayName" severity="success">
+            <ng-template #icon>
+              <i class="ti ti-crown"></i>
+            </ng-template>
+          </p-tag>
+          @if (subscription()?.tier === 'lifetime') {
+            <span>You have lifetime pro access! Thank you for being an early adopter.</span>
+          } @else {
+            <span>
+              Your plan is active until <strong>{{ subscriptionEndDate }}</strong>
+            </span>
+            @if (willCancelAtPeriodEnd) {
+              <small class="cancel-warning">
+                <i class="ti ti-alert-circle"></i>
+                Cancels at end of billing period
+              </small>
+            }
+          }
+        </div>
+        @if (subscription()?.tier !== 'lifetime') {
+          <p-button
+            label="Manage Subscription"
+            icon="ti ti-settings"
+            (onClick)="manageSubscription()"
+            [loading]="isManaging()"
+            outlined
+            size="small"
+          />
+        }
+      </div>
+    </p-message>
+  } @else {
+    <p-message severity="info" [closable]="false" class="mb-4">
+      <div class="plan-status-content">
+        <div class="plan-info">
+          <p-tag value="Free Plan" severity="secondary" />
+          <span>Limited to 6 entries per month with no AI features</span>
+        </div>
+      </div>
+    </p-message>
+  }
+  <h3 class="section-title">Choose Your Plan</h3>
+  <div class="pricing-grid">
+    @for (plan of plans; track plan.tier) {
+      <p-card
+        [class]="
+          'pricing-card' +
+          (plan.popular ? ' popular' : '') +
+          (isPro() && subscription()?.tier === plan.tier ? ' current' : '')
+        "
+      >
+        <ng-template #header>
+          <div class="card-header-content">
+            @if (plan.popular) {
+              <p-tag value="Most Popular" severity="success">
+                <ng-template #icon>
+                  <i class="ti ti-star"></i>
+                </ng-template>
+              </p-tag>
+            }
+            @if (isPro() && subscription()?.tier === plan.tier) {
+              <p-tag value="Current Plan" severity="info">
+                <ng-template #icon>
+                  <i class="ti ti-check"></i>
+                </ng-template>
+              </p-tag>
+            }
+            <h3 class="plan-name">{{ plan.name }}</h3>
+            <div class="plan-pricing">
+              <span class="price">${{ plan.price }}</span>
+              <span class="period">/ {{ plan.period }}</span>
+            </div>
+            @if (plan.tier === 'yearly') {
+              <p-tag value="Save $24/year" severity="success" [rounded]="true" />
+            }
+          </div>
+        </ng-template>
+
+        <p-divider />
+
+        <ul class="features-list">
+          @for (feature of plan.features; track feature) {
+            <li>
+              <i class="ti ti-circle-check"></i>
+              <span>{{ feature }}</span>
+            </li>
+          }
+        </ul>
+
+        <ng-template #footer>
+          <p-button
+            [label]="
+              isPro() && subscription()?.tier === plan.tier
+                ? 'Current Plan'
+                : isPro() && subscription()?.tier === 'lifetime'
+                  ? 'Lifetime Active'
+                  : 'Get Started'
+            "
+            [disabled]="
+              isPro() &&
+              (subscription()?.tier === plan.tier ||
+                subscription()?.tier === 'lifetime')
+            "
+            [loading]="loadingTier() === plan.tier"
+            (onClick)="subscribe(plan.tier)"
+            class="w-full"
+            [severity]="plan.popular ? 'success' : 'primary'"
+            [outlined]="!plan.popular"
+          />
+        </ng-template>
+      </p-card>
+    }
+  </div>
+  @if (!isPro()) {
+    <p-divider />
+    <h3 class="section-title">Why Upgrade to Pro?</h3>
+    <div class="benefits-grid">
+      <p-card class="benefit-card">
+        <div class="benefit-content">
+          <i class="ti ti-infinity benefit-icon"></i>
+          <h4>Unlimited Entries</h4>
+          <p>Track every lawn care activity without worrying about monthly limits</p>
+        </div>
+      </p-card>
+
+      <p-card class="benefit-card">
+        <div class="benefit-content">
+          <i class="ti ti-sparkles benefit-icon"></i>
+          <h4>AI-Powered Insights</h4>
+          <p>Get personalized recommendations and lawn health analysis powered by AI</p>
+        </div>
+      </p-card>
+
+      <p-card class="benefit-card">
+        <div class="benefit-content">
+          <i class="ti ti-chart-line benefit-icon"></i>
+          <h4>Advanced Analytics</h4>
+          <p>Access detailed analytics and insights to optimize your lawn care routine</p>
+        </div>
+      </p-card>
+
+      <p-card class="benefit-card">
+        <div class="benefit-content">
+          <i class="ti ti-headset benefit-icon"></i>
+          <h4>Priority Support</h4>
+          <p>Get help faster with priority email support from our team</p>
+        </div>
+      </p-card>
+    </div>
+  }
+</page-container>

@@ -87,7 +87,6 @@
     <h4>Profile picture:</h4>
     @let picture =
       user()?.picture?.includes("gravatar") ? undefined : user()?.picture;
-
     <div
       class="avatar-wrapper"
       [class.clickable]="!isGoogleUser()"

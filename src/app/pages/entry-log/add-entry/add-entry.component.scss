@@ -33,26 +33,27 @@
     }
   }
 
-  .button-container {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    padding: 1rem;
-    background-color: var(--p-surface-0);
-    border-top: 1px solid var(--p-surface-200);
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
-    z-index: 100;
+}
 
-    :root.yv-dark-mode & {
-      background-color: var(--p-surface-900);
-      border-top-color: var(--p-surface-700);
-      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3);
-    }
-  }
+.button-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 1rem;
+  background-color: var(--p-surface-0);
+  border-top: 1px solid var(--p-surface-200);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+}
+
+:host-context(:root.yv-dark-mode) .button-container {
+  background-color: var(--p-surface-900) !important;
+  border-top-color: var(--p-surface-700) !important;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.3) !important;
 }
 
 .main-form {

@@ -39,9 +39,21 @@ export class SubscriptionGuard implements CanActivate {
     );
 
     if (!access.allowed) {
+      let message = 'Subscription required';
+
+      if (
+        featureName === 'entry_creation' &&
+        access.limit !== undefined &&
+        access.usage !== undefined
+      ) {
+        message = `Entry limit reached (${access.usage}/${access.limit}). Upgrade for unlimited entries.`;
+      } else if (featureName.startsWith('ai_')) {
+        message = 'AI features require a Pro subscription. Upgrade to unlock.';
+      }
+
       throw new HttpException(
         {
-          message: 'Subscription required',
+          message,
           feature: featureName,
           limit: access.limit,
           usage: access.usage,

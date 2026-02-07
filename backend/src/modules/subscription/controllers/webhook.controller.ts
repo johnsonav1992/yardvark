@@ -72,49 +72,51 @@ export class WebhookController {
       throw error;
     }
 
-    res.status(HttpStatus.OK).json({ received: true });
-
-    void this.processWebhookAsync(event, webhookEvent.id);
-  }
-
-  private async processWebhookAsync(
-    event: Stripe.Event,
-    webhookEventId: number,
-  ) {
     try {
-      switch (event.type) {
-        case 'checkout.session.completed':
-          await this.handleCheckoutCompleted(event.data.object);
-          break;
-
-        case 'customer.subscription.created':
-        case 'customer.subscription.updated':
-          await this.subscriptionService.handleSubscriptionUpdate(
-            event.data.object,
-          );
-          break;
-
-        case 'customer.subscription.deleted':
-          await this.subscriptionService.handleSubscriptionDeleted(
-            event.data.object,
-          );
-          break;
-
-        default:
-          LogHelpers.addBusinessContext('unhandled_event', true);
-      }
-
-      await LogHelpers.withDatabaseTelemetry(() =>
-        this.webhookEventRepo.update(webhookEventId, {
-          processed: true,
-          processedAt: new Date(),
-        }),
-      );
-
-      LogHelpers.addBusinessContext('webhook_processed', true);
+      await this.processWebhookEvent(event, webhookEvent.id);
+      return res.status(HttpStatus.OK).json({ received: true });
     } catch (err) {
       LogHelpers.addBusinessContext('webhook_processing_error', err.message);
+      return res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ error: 'Webhook processing failed' });
     }
+  }
+
+  private async processWebhookEvent(
+    event: Stripe.Event,
+    webhookEventId: number,
+  ): Promise<void> {
+    switch (event.type) {
+      case 'checkout.session.completed':
+        await this.handleCheckoutCompleted(event.data.object);
+        break;
+
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated':
+        await this.subscriptionService.handleSubscriptionUpdate(
+          event.data.object,
+        );
+        break;
+
+      case 'customer.subscription.deleted':
+        await this.subscriptionService.handleSubscriptionDeleted(
+          event.data.object,
+        );
+        break;
+
+      default:
+        LogHelpers.addBusinessContext('unhandled_event', true);
+    }
+
+    await LogHelpers.withDatabaseTelemetry(() =>
+      this.webhookEventRepo.update(webhookEventId, {
+        processed: true,
+        processedAt: new Date(),
+      }),
+    );
+
+    LogHelpers.addBusinessContext('webhook_processed', true);
   }
 
   private async handleCheckoutCompleted(session: Stripe.Checkout.Session) {

@@ -3,7 +3,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
-import * as express from 'express';
 import {
   initializeOTelLogger,
   parseOTelHeaders,
@@ -16,9 +15,7 @@ async function bootstrap() {
     enabled: process.env.OTEL_ENABLED === 'true',
   });
 
-  const app = await NestFactory.create(AppModule);
-
-  app.use('/stripe/webhook', express.raw({ type: 'application/json' }));
+  const app = await NestFactory.create(AppModule, { rawBody: true });
 
   app.use(helmet());
 

@@ -1,6 +1,7 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
@@ -28,7 +29,7 @@ import { FREE_TIER_ENTRY_LIMIT } from '../../constants/subscription.constants';
   templateUrl: './subscription.component.html',
   styleUrl: './subscription.component.scss',
 })
-export class SubscriptionComponent implements OnInit {
+export class SubscriptionComponent {
   private subscriptionService = inject(SubscriptionService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
@@ -36,6 +37,7 @@ export class SubscriptionComponent implements OnInit {
   private throwSuccessToast = injectSuccessToast();
   private throwErrorToast = injectErrorToast();
   private throwInfoToast = injectInfoToast();
+  private queryParams = toSignal(this.route.queryParams);
 
   public subscription = this.subscriptionService.currentSubscription;
   public isPro = this.subscriptionService.isPro;
@@ -75,8 +77,14 @@ export class SubscriptionComponent implements OnInit {
     'AI features unavailable',
   ];
 
-  ngOnInit() {
-    this.route.queryParams.subscribe((params) => {
+  constructor() {
+    effect(() => {
+      const params = this.queryParams();
+
+      if (!params) {
+        return;
+      }
+
       if (params['success'] === 'true') {
         this.throwSuccessToast('Subscription activated successfully!');
         this.subscriptionService.refreshSubscription();

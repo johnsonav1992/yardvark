@@ -16,10 +16,10 @@ export class Subscription {
   userId: string;
 
   @Column({ name: 'stripe_customer_id', nullable: true, type: 'varchar' })
-  stripeCustomerId: string;
+  stripeCustomerId: string | null;
 
   @Column({ name: 'stripe_subscription_id', nullable: true, unique: true, type: 'varchar' })
-  stripeSubscriptionId: string;
+  stripeSubscriptionId: string | null;
 
   @Column({ default: 'free' })
   tier: SubscriptionTier;
@@ -28,16 +28,16 @@ export class Subscription {
   status: SubscriptionStatus;
 
   @Column({ name: 'current_period_start', type: 'timestamptz', nullable: true })
-  currentPeriodStart: Date;
+  currentPeriodStart: Date | null;
 
   @Column({ name: 'current_period_end', type: 'timestamptz', nullable: true })
-  currentPeriodEnd: Date;
+  currentPeriodEnd: Date | null;
 
   @Column({ name: 'cancel_at_period_end', default: false })
   cancelAtPeriodEnd: boolean;
 
   @Column({ name: 'canceled_at', type: 'timestamptz', nullable: true })
-  canceledAt: Date;
+  canceledAt: Date | null;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;

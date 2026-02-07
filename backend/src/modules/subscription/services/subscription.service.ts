@@ -30,6 +30,7 @@ type CachedSubscription = {
 export class SubscriptionService {
   private subscriptionCache = new Map<string, CachedSubscription>();
   private readonly CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+  private readonly CACHE_MAX_SIZE = 1000;
   private readonly FREE_TIER_ENTRY_LIMIT = 6;
 
   constructor(
@@ -51,6 +52,8 @@ export class SubscriptionService {
 
     if (cached && this.isCacheValid(cached)) {
       LogHelpers.addBusinessContext('subscription_cache_hit', true);
+      this.subscriptionCache.delete(userId);
+      this.subscriptionCache.set(userId, cached);
       return cached.data;
     }
 
@@ -62,6 +65,15 @@ export class SubscriptionService {
   }
 
   private cacheSubscription(userId: string, subscription: Subscription): void {
+    if (this.subscriptionCache.size >= this.CACHE_MAX_SIZE) {
+      const firstKey = this.subscriptionCache.keys().next().value;
+
+      if (firstKey) {
+        this.subscriptionCache.delete(firstKey);
+        LogHelpers.addBusinessContext('subscription_cache_evicted', true);
+      }
+    }
+
     this.subscriptionCache.set(userId, {
       data: subscription,
       timestamp: Date.now(),
@@ -107,7 +119,7 @@ export class SubscriptionService {
   }
 
   private clearStripeCustomer(subscription: Subscription): void {
-    subscription.stripeCustomerId = null as unknown as string;
+    subscription.stripeCustomerId = null;
   }
 
   private isActiveSubscription(subscription: Subscription): boolean {

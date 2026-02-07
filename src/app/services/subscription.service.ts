@@ -1,5 +1,6 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { httpResource } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { apiUrl, postReq } from '../utils/httpUtils';
 import {
   Subscription,
@@ -40,14 +41,16 @@ export class SubscriptionService {
 
   public async createCheckout(tier: PurchasableTier): Promise<string> {
     const baseUrl = window.location.origin;
-    const response = await postReq<{ url: string }>(
-      apiUrl('subscription/checkout'),
-      {
-        tier,
-        successUrl: `${baseUrl}/subscription?success=true`,
-        cancelUrl: `${baseUrl}/subscription?canceled=true`
-      }
-    ).toPromise();
+    const response = await firstValueFrom(
+      postReq<{ url: string }>(
+        apiUrl('subscription/checkout'),
+        {
+          tier,
+          successUrl: `${baseUrl}/subscription?success=true`,
+          cancelUrl: `${baseUrl}/subscription?canceled=true`
+        }
+      )
+    );
 
     if (!response?.url) {
       throw new Error('Failed to create checkout session');
@@ -58,12 +61,14 @@ export class SubscriptionService {
 
   public async openPortal(): Promise<string> {
     const baseUrl = window.location.origin;
-    const response = await postReq<{ url: string }>(
-      apiUrl('subscription/portal'),
-      {
-        returnUrl: `${baseUrl}/subscription`
-      }
-    ).toPromise();
+    const response = await firstValueFrom(
+      postReq<{ url: string }>(
+        apiUrl('subscription/portal'),
+        {
+          returnUrl: `${baseUrl}/subscription`
+        }
+      )
+    );
 
     if (!response?.url) {
       throw new Error('Failed to create portal session');
@@ -74,10 +79,12 @@ export class SubscriptionService {
 
   public async checkFeatureAccess(feature: string): Promise<FeatureAccess> {
     try {
-      const response = await postReq<FeatureAccess>(
-        apiUrl('subscription/check-feature'),
-        { feature }
-      ).toPromise();
+      const response = await firstValueFrom(
+        postReq<FeatureAccess>(
+          apiUrl('subscription/check-feature'),
+          { feature }
+        )
+      );
 
       return response || { allowed: false };
     } catch (error) {

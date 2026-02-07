@@ -12,20 +12,24 @@ In general, follow all of the ways things have been done in this repo so far. A 
 ## Subscription Feature Architecture
 
 ### Overview
-Yardvark uses Stripe for subscription management with a freemium model. Full implementation guide available at: `/Users/Alex/.claude/plans/zippy-tumbling-storm.md`
+
+Yardvark uses Stripe for subscription management with a freemium model.
 
 ### Pricing Model
+
 - **Free Tier**: 6 entries/month, no AI features
 - **Monthly**: $7/month - unlimited entries + all AI features
 - **Yearly**: $60/year - unlimited entries + all AI features (save $24/year)
 - **Lifetime**: Grandfathered tier for existing users (unlimited forever)
 
 **Feature Gating**:
+
 - AI endpoints: Add `@SubscriptionFeature('ai_chat')`, `@SubscriptionFeature('ai_query')`, etc.
 - Entry creation: Add `@SubscriptionFeature('entry_creation')` + call `incrementUsage()` after success
 - Free users: Blocked at 402 Payment Required with usage info
 
 **Environment Variables** (in `.env`):
+
 ```bash
 STRIPE_SECRET_KEY=sk_...
 STRIPE_PUBLISHABLE_KEY=pk_...
@@ -37,12 +41,14 @@ STRIPE_YEARLY_PRICE_ID=price_...
 ### Frontend Architecture
 
 **Location**: `/src/app/pages/subscription/`
+
 - Service: `subscription.service.ts` (uses rxResource for subscription data, computed signals for isPro)
 - Component: `subscription.component.ts/html/scss` (pricing cards, checkout, billing portal)
 - Types: `subscription.types.ts` (SubscriptionTier, SubscriptionStatus, Subscription, FeatureAccess)
 - Reusable: `upgrade-prompt.component.ts` (warning banner for blocked features)
 
 **Usage Pattern**:
+
 ```typescript
 private subscriptionService = inject(SubscriptionService);
 public isPro = this.subscriptionService.isPro;
@@ -57,19 +63,23 @@ if (!access.allowed) {
 ```
 
 **Environment Variables** (in `environment.ts`):
+
 ```typescript
-stripePublishableKey: 'pk_...'
+stripePublishableKey: "pk_...";
 ```
 
 ### Stripe Integration
+
 - **Checkout**: Stripe Checkout (hosted) - redirects to Stripe payment page
 - **Billing Portal**: Stripe Customer Portal - users manage subscription, payment methods, invoices
 - **Webhooks**: `/stripe/webhook` endpoint handles subscription events (created, updated, deleted)
 
 ### Grandfathering Strategy
+
 Migration script identifies all users with existing entries and grants them `tier='lifetime'` automatically. These users never see payment prompts and have unlimited access forever.
 
 ### Key Implementation Notes
+
 1. SubscriptionGuard runs globally on all endpoints - checks for `@SubscriptionFeature` decorator
 2. Usage tracking happens AFTER successful operations (e.g., after entry created)
 3. Feature checks happen BEFORE operations (e.g., before showing add entry form)

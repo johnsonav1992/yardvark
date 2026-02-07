@@ -25,6 +25,8 @@ import { injectErrorToast } from '../../../utils/toastUtils';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonDesignTokens } from '@primeuix/themes/types/button';
 import { NO_IMAGE_URL } from '../../../constants/style-constants';
+import { TagModule } from 'primeng/tag';
+import { differenceInDays, differenceInMonths } from 'date-fns';
 
 @Component({
   selector: 'equipment-view',
@@ -38,7 +40,8 @@ import { NO_IMAGE_URL } from '../../../constants/style-constants';
     TableModule,
     CardModule,
     ButtonModule,
-    NgTemplateOutlet
+    NgTemplateOutlet,
+    TagModule
   ],
   templateUrl: './equipment-view.component.html',
   styleUrl: './equipment-view.component.scss',
@@ -70,6 +73,118 @@ export class EquipmentViewComponent {
       .value()
       ?.find((equipment) => equipment.id === this.equipmentId())
   );
+
+  public maintenanceStatusConfig = computed(() => {
+    const eq = this.equipment();
+
+    if (!eq) return null;
+
+    const records = eq.maintenanceRecords;
+    const createdAt = new Date(eq.createdAt);
+    const now = new Date();
+    const daysSinceCreation = differenceInDays(now, createdAt);
+
+    if (daysSinceCreation <= 2) {
+      return {
+        label: 'Newly Added',
+        severity: 'info' as const,
+        icon: 'ti ti-sparkles'
+      };
+    }
+
+    if (!records || records.length === 0) {
+      const monthsSinceCreation = differenceInMonths(now, createdAt);
+
+      if (monthsSinceCreation >= 1) {
+        return {
+          label: 'Never Serviced',
+          severity: 'info' as const,
+          icon: 'ti ti-help-circle'
+        };
+      }
+
+      return null;
+    }
+
+    const lastMaintenance = new Date(records[0].maintenanceDate);
+    const monthsSince = differenceInMonths(now, lastMaintenance);
+
+    if (monthsSince <= 1) {
+      return {
+        label: 'Recently Serviced',
+        severity: 'success' as const,
+        icon: 'ti ti-circle-check'
+      };
+    }
+
+    if (monthsSince >= 3 && monthsSince < 6) {
+      return {
+        label: 'Service Soon',
+        severity: 'warn' as const,
+        icon: 'ti ti-clock-exclamation'
+      };
+    }
+
+    if (monthsSince >= 6) {
+      return {
+        label: 'Maintenance Due',
+        severity: 'danger' as const,
+        icon: 'ti ti-alert-triangle'
+      };
+    }
+
+    return null;
+  });
+
+  public totalMaintenanceCost = computed(() => {
+    const eq = this.equipment();
+
+    if (!eq || !eq.maintenanceRecords) return 0;
+
+    return eq.maintenanceRecords.reduce(
+      (total, record) => total + (record.cost || 0),
+      0
+    );
+  });
+
+  public daysSincePurchase = computed(() => {
+    const eq = this.equipment();
+
+    if (!eq?.purchaseDate) return null;
+
+    return differenceInDays(new Date(), new Date(eq.purchaseDate));
+  });
+
+  public ownedForDisplay = computed(() => {
+    const days = this.daysSincePurchase();
+
+    if (days === null) return null;
+
+    const years = Math.floor(days / 365);
+    const remainingDays = days % 365;
+
+    if (years === 0) {
+      return `${days} ${days === 1 ? 'day' : 'days'}`;
+    }
+
+    if (remainingDays === 0) {
+      return `${years} ${years === 1 ? 'year' : 'years'}`;
+    }
+
+    return `${years} ${years === 1 ? 'year' : 'years'}, ${remainingDays} ${remainingDays === 1 ? 'day' : 'days'}`;
+  });
+
+  public daysSinceLastService = computed(() => {
+    const eq = this.equipment();
+
+    if (!eq || !eq.maintenanceRecords || eq.maintenanceRecords.length === 0) {
+      return null;
+    }
+
+    const lastService = new Date(eq.maintenanceRecords[0].maintenanceDate);
+
+    return differenceInDays(new Date(), lastService);
+  });
 
   public openEquipmentModal(maintenanceRecord?: EquipmentMaintenance): void {
     const dialogRef = this._dialogService.open(

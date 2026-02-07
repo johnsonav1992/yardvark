@@ -108,20 +108,22 @@ export class S3Service {
       path.extname(file.originalname).toLowerCase() === '.heic';
 
     if (isHeic) {
-      const { data: jpegBuffer, error } = await tryCatch(
-        () =>
-          convert({
-            buffer: file.buffer,
-            format: 'JPEG',
-            quality: 0.9,
-          }) as Promise<Buffer>,
+      const { data: jpegArrayBuffer, error } = await tryCatch(() =>
+        convert({
+          buffer: file.buffer.buffer.slice(
+            file.buffer.byteOffset,
+            file.buffer.byteOffset + file.buffer.byteLength,
+          ),
+          format: 'JPEG',
+          quality: 0.9,
+        }),
       );
 
       if (error) {
         throw new Error(`Failed to convert HEIC file: ${error.message}`);
       }
 
-      bufferToUpload = jpegBuffer;
+      bufferToUpload = Buffer.from(jpegArrayBuffer);
       filename = filename.replace(/\.heic$/i, '.jpg');
       mimetype = 'image/jpeg';
     }

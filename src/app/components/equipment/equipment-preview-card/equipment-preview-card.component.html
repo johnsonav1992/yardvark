@@ -1,43 +1,109 @@
 <p-card
-  [style]="{ position: 'relative', cursor: 'pointer' }"
+  [style]="{ cursor: 'pointer' }"
+  class="equipment-card"
   (click)="goToEquipment()"
 >
-  <ng-template #title>
-    <div class="title-wrapper">
-      <h3>{{ equipment().brand }} {{ equipment().name }}</h3>
+  <ng-template pTemplate="header">
+    <div class="header-image-container">
+      <img
+        [src]="equipment().imageUrl || noImageUrl"
+        [alt]="equipment().name"
+        class="equipment-image"
+        loading="lazy"
+      />
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="title">
+    <div class="title-with-icon">
+      <i class="ti ti-tools icon"></i>
+      {{ equipment().brand }} {{ equipment().name }}
+    </div>
+  </ng-template>
+
+  @if (equipment().model) {
+
+    <ng-template pTemplate="subtitle">
+      Model: {{ equipment().model }}
+    </ng-template>
+
+  }
+
+  <div class="card-content">
+    <div class="metadata-badges">
+
+      @if (equipment().fuelType) {
+
+        <p-tag [value]="equipment().fuelType" severity="secondary">
+          <ng-template #icon>
+            <i class="ti ti-gas-station"></i>
+          </ng-template>
+        </p-tag>
+
+      }
+
+      @if (maintenanceStatusConfig(); as config) {
+
+        <p-tag [value]="config.label" [severity]="config.severity">
+          <ng-template #icon>
+            <i [class]="config.icon"></i>
+          </ng-template>
+        </p-tag>
+
+      }
+
+    </div>
+
+    @if (equipment().description) {
+
+      <p class="description">{{ equipment().description }}</p>
+
+    }
+
+    <div class="equipment-details">
+
+      @if (equipment().purchaseDate) {
+
+        <span class="detail-item" pTooltip="Purchase date" tooltipPosition="top">
+          <i class="ti ti-calendar"></i>
+          <span>{{ equipment().purchaseDate | date: "M/dd/yyyy" }}</span>
+        </span>
+
+      }
+
+      @if (equipment().purchaseDate && equipment().maintenanceRecords.length > 0) {
+
+        <p-divider layout="vertical" />
+
+      }
+
+      @if (equipment().maintenanceRecords.length > 0) {
+
+        <span class="detail-item" pTooltip="Last service date" tooltipPosition="top">
+          <i class="ti ti-tool"></i>
+          <span>{{ equipment().maintenanceRecords[0].maintenanceDate | date: "M/dd/yyyy" }}</span>
+        </span>
+
+      }
+
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="card-footer-actions">
+      <p-button
+        label="View Details"
+        icon="ti ti-eye"
+        (onClick)="goToEquipment()"
+        [style.flex]="'1'"
+      />
       <p-button
         icon="ti ti-hammer"
         outlined
-        rounded
         severity="secondary"
         pTooltip="Add maintenance record"
         (onClick)="openMaintenanceRecordModal($event, equipment().id)"
       />
     </div>
   </ng-template>
-  <div class="content-container">
-    <div class="img-desc">
-      <img
-        [src]="equipment().imageUrl || noImageUrl"
-        alt="{{ equipment().name }}"
-        class="equipment-img"
-      />
-      <div class="inner-content">
-        @if (equipment().description) {
-          <p>{{ equipment().description }}</p>
-        }
-        <p>
-          <em> Last maintenance: </em>
-          @if (equipment().maintenanceRecords.length > 0) {
-            {{
-              equipment().maintenanceRecords[0].maintenanceDate
-                | date: "MM/dd/yyyy"
-            }}
-          } @else {
-            <em>N/A</em>
-          }
-        </p>
-      </div>
-    </div>
-  </div>
 </p-card>

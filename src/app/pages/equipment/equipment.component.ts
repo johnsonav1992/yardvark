@@ -14,6 +14,14 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputIconModule } from 'primeng/inputicon';
 import { FormsModule } from '@angular/forms';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { DatePipe } from '@angular/common';
+import { DialogService } from 'primeng/dynamicdialog';
+import { EquipmentMaintenanceAddEditModalComponent } from '../../components/equipment/equipment-maintenance-add-edit-modal/equipment-maintenance-add-edit-modal.component';
+import { differenceInDays, differenceInMonths } from 'date-fns';
+import { Equipment } from '../../types/equipment.types';
+import { NO_IMAGE_URL } from '../../constants/style-constants';
 
 @Component({
   selector: 'equipment',
@@ -23,26 +31,33 @@ import { FormsModule } from '@angular/forms';
     CardModule,
     LoadingSpinnerComponent,
     ButtonModule,
-    ButtonModule,
     TooltipModule,
     FloatLabelModule,
     IconFieldModule,
     InputTextModule,
     InputIconModule,
-    FormsModule
+    FormsModule,
+    TableModule,
+    TagModule,
+    DatePipe
   ],
   templateUrl: './equipment.component.html',
-  styleUrl: './equipment.component.scss'
+  styleUrl: './equipment.component.scss',
+  providers: [DialogService]
 })
 export class EquipmentComponent {
   private _equipmentService = inject(EquipmentService);
   private _globalUiService = inject(GlobalUiService);
   private _router = inject(Router);
+  private _dialogService = inject(DialogService);
 
   public screenWidth = this._globalUiService.screenWidth;
   public isMobile = this._globalUiService.isMobile;
 
   public equipment = this._equipmentService.equipment;
+  public noImageUrl = NO_IMAGE_URL;
+
+  public viewMode = signal<'grid' | 'table'>('grid');
 
   public searchQuery = signal('');
   public filteredEquipment = computed(() =>
@@ -61,8 +76,111 @@ export class EquipmentComponent {
       )
   );
 
+  public toggleViewMode(): void {
+    this.viewMode.set(this.viewMode() === 'grid' ? 'table' : 'grid');
+  }
+
   public navToAddEquipment(): void {
     this._router.navigate(['equipment', 'add']);
+  }
+
+  public goToEquipment(id: number): void {
+    this._router.navigate(['equipment', id]);
+  }
+
+  public openMaintenanceRecordModal(
+    e: Event,
+    equipmentId: number
+  ): void {
+    e.stopPropagation();
+
+    const dialogRef = this._dialogService.open(
+      EquipmentMaintenanceAddEditModalComponent,
+      {
+        header: 'Add Maintenance Record',
+        modal: true,
+        focusOnShow: false,
+        width: '50%',
+        dismissableMask: true,
+        closable: true,
+        contentStyle: { overflow: 'visible' },
+        breakpoints: {
+          '800px': '95%'
+        },
+        maximizable: true,
+        inputValues: { equipmentId }
+      }
+    );
+
+    if (dialogRef && this.isMobile()) {
+      const instance = this._dialogService.getInstance(dialogRef);
+
+      if (instance) instance.maximize();
+    }
+
+    dialogRef?.onClose.subscribe((result) => {
+      if (result === 'success') {
+        this._equipmentService.equipment.reload();
+      }
+    });
+  }
+
+  public getMaintenanceStatusConfig(equipment: Equipment) {
+    const records = equipment.maintenanceRecords;
+    const createdAt = new Date(equipment.createdAt);
+    const now = new Date();
+    const daysSinceCreation = differenceInDays(now, createdAt);
+
+    if (daysSinceCreation <= 2) {
+      return {
+        label: 'Newly Added',
+        severity: 'info' as const,
+        icon: 'ti ti-sparkles'
+      };
+    }
+
+    if (!records || records.length === 0) {
+      const monthsSinceCreation = differenceInMonths(now, createdAt);
+
+      if (monthsSinceCreation >= 1) {
+        return {
+          label: 'Never Serviced',
+          severity: 'info' as const,
+          icon: 'ti ti-help-circle'
+        };
+      }
+
+      return null;
+    }
+
+    const lastMaintenance = new Date(records[0].maintenanceDate);
+    const monthsSince = differenceInMonths(now, lastMaintenance);
+
+    if (monthsSince <= 1) {
+      return {
+        label: 'Recently Serviced',
+        severity: 'success' as const,
+        icon: 'ti ti-circle-check'
+      };
+    }
+
+    if (monthsSince >= 3 && monthsSince < 6) {
+      return {
+        label: 'Service Soon',
+        severity: 'warn' as const,
+        icon: 'ti ti-clock-exclamation'
+      };
+    }
+
+    if (monthsSince >= 6) {
+      return {
+        label: 'Maintenance Due',
+        severity: 'danger' as const,
+        icon: 'ti ti-alert-triangle'
+      };
+    }
+
+    return null;
   }
 
   public addButtonDt: ButtonDesignTokens = {

@@ -16,7 +16,7 @@ export class SubscriptionGuard implements CanActivate {
     private subscriptionService: SubscriptionService,
   ) {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
+  public async canActivate(context: ExecutionContext): Promise<boolean> {
     const featureName = this.reflector.getAllAndOverride<string>(
       SUBSCRIPTION_FEATURE_KEY,
       [context.getHandler(), context.getClass()],

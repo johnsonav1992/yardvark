@@ -27,7 +27,7 @@ export class WebhookController {
 
   @Public()
   @Post('webhook')
-  async handleWebhook(
+  public async handleWebhook(
     @Req() req: RawBodyRequest<Request>,
     @Res() res: Response,
   ) {

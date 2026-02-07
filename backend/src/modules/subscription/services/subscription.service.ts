@@ -80,7 +80,7 @@ export class SubscriptionService {
     });
   }
 
-  invalidateCache(userId: string): void {
+  public invalidateCache(userId: string): void {
     this.subscriptionCache.delete(userId);
   }
 
@@ -142,7 +142,7 @@ export class SubscriptionService {
     );
   }
 
-  async getOrCreateSubscription(userId: string): Promise<Subscription> {
+  public async getOrCreateSubscription(userId: string): Promise<Subscription> {
     const cached = this.getCachedSubscription(userId);
 
     if (cached) {
@@ -176,7 +176,7 @@ export class SubscriptionService {
     return subscription;
   }
 
-  async createCheckoutSession(
+  public async createCheckoutSession(
     userId: string,
     email: string,
     name: string,
@@ -261,7 +261,7 @@ export class SubscriptionService {
     return { url: session.url };
   }
 
-  async createPortalSession(
+  public async createPortalSession(
     userId: string,
     returnUrl: string,
   ): Promise<{ url: string }> {
@@ -295,7 +295,7 @@ export class SubscriptionService {
     return { url: session.url };
   }
 
-  async handleSubscriptionUpdate(
+  public async handleSubscriptionUpdate(
     stripeSubscription: Stripe.Subscription,
   ): Promise<void> {
     const userId = stripeSubscription.metadata.userId;
@@ -335,7 +335,7 @@ export class SubscriptionService {
     LogHelpers.addBusinessContext('new_status', subscription.status);
   }
 
-  async handleSubscriptionDeleted(
+  public async handleSubscriptionDeleted(
     stripeSubscription: Stripe.Subscription,
   ): Promise<void> {
     const userId = stripeSubscription.metadata.userId;
@@ -369,7 +369,7 @@ export class SubscriptionService {
     }
   }
 
-  async checkFeatureAccess(
+  public async checkFeatureAccess(
     userId: string,
     feature: string,
   ): Promise<FeatureAccessResult> {
@@ -413,7 +413,7 @@ export class SubscriptionService {
     return { allowed: true };
   }
 
-  async incrementUsage(userId: string, feature: string): Promise<void> {
+  public async incrementUsage(userId: string, feature: string): Promise<void> {
     const { start: periodStart, end: periodEnd } = this.getCurrentMonthPeriod();
 
     const result = await LogHelpers.withDatabaseTelemetry(() =>

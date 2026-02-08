@@ -116,6 +116,26 @@
   right: 0.5rem;
 }
 
+.existing-image-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+
+  .file-image {
+    max-height: calc(100% - 60px);
+  }
+
+  .replace-button {
+    position: absolute;
+    bottom: 0.5rem;
+  }
+}
+
 .empty-file {
   width: 100%;
   display: flex;

@@ -27,14 +27,24 @@ export class StripeService {
   ): Promise<Stripe.Customer> {
     LogHelpers.addBusinessContext('stripe_operation', 'create_customer');
     LogHelpers.addBusinessContext('userId', userId);
+    LogHelpers.addBusinessContext('customer_email', email);
+    LogHelpers.addBusinessContext('customer_name', name);
 
-    return LogHelpers.withExternalCallTelemetry('stripe', () =>
-      this.stripe.customers.create({
-        email,
-        name,
-        metadata: { userId },
-      }),
-    );
+    try {
+      return await LogHelpers.withExternalCallTelemetry('stripe', () =>
+        this.stripe.customers.create({
+          email,
+          name,
+          metadata: { userId },
+        }),
+      );
+    } catch (error) {
+      LogHelpers.addBusinessContext('stripe_error_type', error.type);
+      LogHelpers.addBusinessContext('stripe_error_code', error.code);
+      LogHelpers.addBusinessContext('stripe_error_message', error.message);
+
+      throw error;
+    }
   }
 
   async createCheckoutSession(
@@ -47,19 +57,28 @@ export class StripeService {
     LogHelpers.addBusinessContext('stripe_operation', 'create_checkout');
     LogHelpers.addBusinessContext('userId', userId);
     LogHelpers.addBusinessContext('priceId', priceId);
+    LogHelpers.addBusinessContext('customerId', customerId);
 
-    return LogHelpers.withExternalCallTelemetry('stripe', () =>
-      this.stripe.checkout.sessions.create({
-        customer: customerId,
-        mode: 'subscription',
-        payment_method_types: ['card'],
-        line_items: [{ price: priceId, quantity: 1 }],
-        success_url: successUrl,
-        cancel_url: cancelUrl,
-        metadata: { userId },
-        subscription_data: { metadata: { userId } },
-      }),
-    );
+    try {
+      return await LogHelpers.withExternalCallTelemetry('stripe', () =>
+        this.stripe.checkout.sessions.create({
+          customer: customerId,
+          mode: 'subscription',
+          payment_method_types: ['card'],
+          line_items: [{ price: priceId, quantity: 1 }],
+          success_url: successUrl,
+          cancel_url: cancelUrl,
+          metadata: { userId },
+          subscription_data: { metadata: { userId } },
+        }),
+      );
+    } catch (error) {
+      LogHelpers.addBusinessContext('stripe_error_type', error.type);
+      LogHelpers.addBusinessContext('stripe_error_code', error.code);
+      LogHelpers.addBusinessContext('stripe_error_message', error.message);
+
+      throw error;
+    }
   }
 
   async createPortalSession(
@@ -67,31 +86,58 @@ export class StripeService {
     returnUrl: string,
   ): Promise<Stripe.BillingPortal.Session> {
     LogHelpers.addBusinessContext('stripe_operation', 'create_portal');
+    LogHelpers.addBusinessContext('customerId', customerId);
 
-    return LogHelpers.withExternalCallTelemetry('stripe', () =>
-      this.stripe.billingPortal.sessions.create({
-        customer: customerId,
-        return_url: returnUrl,
-      }),
-    );
+    try {
+      return await LogHelpers.withExternalCallTelemetry('stripe', () =>
+        this.stripe.billingPortal.sessions.create({
+          customer: customerId,
+          return_url: returnUrl,
+        }),
+      );
+    } catch (error) {
+      LogHelpers.addBusinessContext('stripe_error_type', error.type);
+      LogHelpers.addBusinessContext('stripe_error_code', error.code);
+      LogHelpers.addBusinessContext('stripe_error_message', error.message);
+
+      throw error;
+    }
   }
 
   async getSubscription(subscriptionId: string): Promise<Stripe.Subscription> {
     LogHelpers.addBusinessContext('stripe_operation', 'get_subscription');
+    LogHelpers.addBusinessContext('subscriptionId', subscriptionId);
 
-    return LogHelpers.withExternalCallTelemetry('stripe', () =>
-      this.stripe.subscriptions.retrieve(subscriptionId),
-    );
+    try {
+      return await LogHelpers.withExternalCallTelemetry('stripe', () =>
+        this.stripe.subscriptions.retrieve(subscriptionId),
+      );
+    } catch (error) {
+      LogHelpers.addBusinessContext('stripe_error_type', error.type);
+      LogHelpers.addBusinessContext('stripe_error_code', error.code);
+      LogHelpers.addBusinessContext('stripe_error_message', error.message);
+
+      throw error;
+    }
   }
 
   async getCustomer(
     customerId: string,
   ): Promise<Stripe.Customer | Stripe.DeletedCustomer> {
     LogHelpers.addBusinessContext('stripe_operation', 'get_customer');
+    LogHelpers.addBusinessContext('customerId', customerId);
 
-    return LogHelpers.withExternalCallTelemetry('stripe', () =>
-      this.stripe.customers.retrieve(customerId),
-    );
+    try {
+      return await LogHelpers.withExternalCallTelemetry('stripe', () =>
+        this.stripe.customers.retrieve(customerId),
+      );
+    } catch (error) {
+      LogHelpers.addBusinessContext('stripe_error_type', error.type);
+      LogHelpers.addBusinessContext('stripe_error_code', error.code);
+      LogHelpers.addBusinessContext('stripe_error_message', error.message);
+
+      throw error;
+    }
   }
 
   async cancelSubscription(
@@ -100,11 +146,19 @@ export class StripeService {
     LogHelpers.addBusinessContext('stripe_operation', 'cancel_subscription');
     LogHelpers.addBusinessContext('subscriptionId', subscriptionId);
 
-    return LogHelpers.withExternalCallTelemetry('stripe', () =>
-      this.stripe.subscriptions.update(subscriptionId, {
-        cancel_at_period_end: true,
-      }),
-    );
+    try {
+      return await LogHelpers.withExternalCallTelemetry('stripe', () =>
+        this.stripe.subscriptions.update(subscriptionId, {
+          cancel_at_period_end: true,
+        }),
+      );
+    } catch (error) {
+      LogHelpers.addBusinessContext('stripe_error_type', error.type);
+      LogHelpers.addBusinessContext('stripe_error_code', error.code);
+      LogHelpers.addBusinessContext('stripe_error_message', error.message);
+
+      throw error;
+    }
   }
 
   constructWebhookEvent(payload: Buffer, signature: string): Stripe.Event {

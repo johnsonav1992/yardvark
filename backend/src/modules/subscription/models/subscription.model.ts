@@ -18,7 +18,12 @@ export class Subscription {
   @Column({ name: 'stripe_customer_id', nullable: true, type: 'varchar' })
   stripeCustomerId: string | null;
 
-  @Column({ name: 'stripe_subscription_id', nullable: true, unique: true, type: 'varchar' })
+  @Column({
+    name: 'stripe_subscription_id',
+    nullable: true,
+    unique: true,
+    type: 'varchar',
+  })
   stripeSubscriptionId: string | null;
 
   @Column({ default: 'free' })

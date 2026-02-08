@@ -31,9 +31,19 @@ export class WebhookController {
     @Req() req: RawBodyRequest<Request>,
     @Res() res: Response,
   ) {
+    LogHelpers.addBusinessContext('webhook_operation', 'handle_webhook');
+
     const signature = req.headers['stripe-signature'] as string;
 
+    if (!signature) {
+      LogHelpers.addBusinessContext('webhook_error', 'missing_signature');
+      return res
+        .status(HttpStatus.BAD_REQUEST)
+        .send('Missing Stripe signature header');
+    }
+
     if (!req.rawBody) {
+      LogHelpers.addBusinessContext('webhook_error', 'missing_raw_body');
       return res
         .status(HttpStatus.BAD_REQUEST)
         .send('Missing raw body for webhook verification');
@@ -44,13 +54,16 @@ export class WebhookController {
     try {
       event = this.stripeService.constructWebhookEvent(req.rawBody, signature);
     } catch (err) {
+      LogHelpers.addBusinessContext('webhook_verification_failed', true);
+      LogHelpers.addBusinessContext('verification_error', err.message);
       return res
         .status(HttpStatus.BAD_REQUEST)
-        .send(`Webhook Error: ${err.message}`);
+        .send(`Webhook verification failed: ${err.message}`);
     }
 
     LogHelpers.addBusinessContext('stripe_event_id', event.id);
     LogHelpers.addBusinessContext('stripe_event_type', event.type);
+    LogHelpers.addBusinessContext('stripe_created', event.created);
 
     const webhookEvent = this.webhookEventRepo.create({
       stripeEventId: event.id,
@@ -62,24 +75,32 @@ export class WebhookController {
       await LogHelpers.withDatabaseTelemetry(() =>
         this.webhookEventRepo.save(webhookEvent),
       );
+      LogHelpers.addBusinessContext('webhook_event_saved', true);
     } catch (error) {
       if (error.code === '23505') {
         LogHelpers.addBusinessContext('webhook_duplicate', true);
+        LogHelpers.addBusinessContext('duplicate_event_id', event.id);
         return res
           .status(HttpStatus.OK)
           .json({ received: true, duplicate: true });
       }
+
+      LogHelpers.addBusinessContext('webhook_save_error', error.message);
+      LogHelpers.addBusinessContext('error_code', error.code);
       throw error;
     }
 
     try {
       await this.processWebhookEvent(event, webhookEvent.id);
+      LogHelpers.addBusinessContext('webhook_processing_complete', true);
       return res.status(HttpStatus.OK).json({ received: true });
     } catch (err) {
-      LogHelpers.addBusinessContext('webhook_processing_error', err.message);
+      LogHelpers.addBusinessContext('webhook_processing_failed', true);
+      LogHelpers.addBusinessContext('processing_error', err.message);
+      LogHelpers.addBusinessContext('error_stack', err.stack);
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ error: 'Webhook processing failed' });
+        .json({ error: 'Webhook processing failed', message: err.message });
     }
   }
 
@@ -87,54 +108,88 @@ export class WebhookController {
     event: Stripe.Event,
     webhookEventId: number,
   ): Promise<void> {
-    switch (event.type) {
-      case 'checkout.session.completed':
-        await this.handleCheckoutCompleted(event.data.object);
-        break;
+    LogHelpers.addBusinessContext('processing_event_type', event.type);
 
-      case 'customer.subscription.created':
-      case 'customer.subscription.updated':
-        await this.subscriptionService.handleSubscriptionUpdate(
-          event.data.object,
-        );
-        break;
+    try {
+      switch (event.type) {
+        case 'checkout.session.completed':
+          await this.handleCheckoutCompleted(event.data.object);
+          break;
 
-      case 'customer.subscription.deleted':
-        await this.subscriptionService.handleSubscriptionDeleted(
-          event.data.object,
-        );
-        break;
+        case 'customer.subscription.created':
+        case 'customer.subscription.updated':
+          await this.subscriptionService.handleSubscriptionUpdate(
+            event.data.object,
+          );
+          break;
 
-      default:
-        LogHelpers.addBusinessContext('unhandled_event', true);
+        case 'customer.subscription.deleted':
+          await this.subscriptionService.handleSubscriptionDeleted(
+            event.data.object,
+          );
+          break;
+
+        default:
+          LogHelpers.addBusinessContext('unhandled_event_type', event.type);
+          LogHelpers.addBusinessContext('unhandled_event', true);
+      }
+
+      await LogHelpers.withDatabaseTelemetry(() =>
+        this.webhookEventRepo.update(webhookEventId, {
+          processed: true,
+          processedAt: new Date(),
+        }),
+      );
+
+      LogHelpers.addBusinessContext('webhook_processed', true);
+    } catch (error) {
+      LogHelpers.addBusinessContext('event_processing_error', error.message);
+      LogHelpers.addBusinessContext('event_type', event.type);
+      LogHelpers.addBusinessContext('event_id', event.id);
+
+      throw error;
     }
-
-    await LogHelpers.withDatabaseTelemetry(() =>
-      this.webhookEventRepo.update(webhookEventId, {
-        processed: true,
-        processedAt: new Date(),
-      }),
-    );
-
-    LogHelpers.addBusinessContext('webhook_processed', true);
   }
 
   private async handleCheckoutCompleted(session: Stripe.Checkout.Session) {
+    LogHelpers.addBusinessContext('checkout_handler', 'processing');
+    LogHelpers.addBusinessContext('session_id', session.id);
+    LogHelpers.addBusinessContext('session_mode', session.mode);
+
     if (session.mode !== 'subscription') {
+      LogHelpers.addBusinessContext('checkout_skipped', 'not_subscription');
       return;
     }
 
     if (!session.subscription) {
-      LogHelpers.addBusinessContext('checkout_missing_subscription', true);
-      return;
+      LogHelpers.addBusinessContext(
+        'checkout_error',
+        'missing_subscription_id',
+      );
+      LogHelpers.addBusinessContext('session_status', session.status);
+
+      throw new Error('Checkout session completed but missing subscription ID');
     }
 
-    const subscription = await this.stripeService.getSubscription(
+    LogHelpers.addBusinessContext(
+      'checkout_subscription_id',
       session.subscription as string,
     );
 
-    await this.subscriptionService.handleSubscriptionUpdate(subscription);
+    try {
+      const subscription = await this.stripeService.getSubscription(
+        session.subscription as string,
+      );
 
-    LogHelpers.addBusinessContext('checkout_completed', true);
+      LogHelpers.addBusinessContext('subscription_status', subscription.status);
+
+      await this.subscriptionService.handleSubscriptionUpdate(subscription);
+
+      LogHelpers.addBusinessContext('checkout_completed', true);
+    } catch (error) {
+      LogHelpers.addBusinessContext('checkout_processing_error', error.message);
+
+      throw error;
+    }
   }
 }

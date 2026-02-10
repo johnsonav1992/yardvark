@@ -13,8 +13,8 @@ import { LogHelpers } from '../../logger/logger.helpers';
 
 @Injectable()
 export class S3Service {
-  private s3: S3Client;
-  private bucketName: string;
+  private readonly s3: S3Client;
+  private readonly bucketName: string;
 
   constructor(private readonly configService: ConfigService) {
     this.s3 = new S3Client({

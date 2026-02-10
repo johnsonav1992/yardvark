@@ -29,12 +29,12 @@ export class SubscriptionService {
 
   constructor(
     @InjectRepository(Subscription)
-    private subscriptionRepo: Repository<Subscription>,
+    private readonly subscriptionRepo: Repository<Subscription>,
     @InjectRepository(FeatureUsage)
-    private usageRepo: Repository<FeatureUsage>,
-    private stripeService: StripeService,
-    private configService: ConfigService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly usageRepo: Repository<FeatureUsage>,
+    private readonly stripeService: StripeService,
+    private readonly configService: ConfigService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
   ) {}
 
   private getCacheKey(userId: string): string {

@@ -19,10 +19,10 @@ import { LogHelpers } from '../../../logger/logger.helpers';
 @Controller('stripe')
 export class WebhookController {
   constructor(
-    private stripeService: StripeService,
-    private subscriptionService: SubscriptionService,
+    private readonly stripeService: StripeService,
+    private readonly subscriptionService: SubscriptionService,
     @InjectRepository(WebhookEvent)
-    private webhookEventRepo: Repository<WebhookEvent>,
+    private readonly webhookEventRepo: Repository<WebhookEvent>,
   ) {}
 
   @Public()

@@ -5,9 +5,9 @@ import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Injectable()
 export class StripeService {
-  private stripe: Stripe;
+  private readonly stripe: Stripe;
 
-  constructor(private configService: ConfigService) {
+  constructor(private readonly configService: ConfigService) {
     const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
 
     if (!secretKey) {
@@ -20,7 +20,7 @@ export class StripeService {
     });
   }
 
-  async createCustomer(
+  public async createCustomer(
     userId: string,
     email: string,
     name: string,
@@ -47,7 +47,7 @@ export class StripeService {
     }
   }
 
-  async createCheckoutSession(
+  public async createCheckoutSession(
     customerId: string,
     priceId: string,
     userId: string,
@@ -81,7 +81,7 @@ export class StripeService {
     }
   }
 
-  async createPortalSession(
+  public async createPortalSession(
     customerId: string,
     returnUrl: string,
   ): Promise<Stripe.BillingPortal.Session> {
@@ -104,7 +104,9 @@ export class StripeService {
     }
   }
 
-  async getSubscription(subscriptionId: string): Promise<Stripe.Subscription> {
+  public async getSubscription(
+    subscriptionId: string,
+  ): Promise<Stripe.Subscription> {
     LogHelpers.addBusinessContext('stripe_operation', 'get_subscription');
     LogHelpers.addBusinessContext('subscriptionId', subscriptionId);
 
@@ -121,7 +123,7 @@ export class StripeService {
     }
   }
 
-  async getCustomer(
+  public async getCustomer(
     customerId: string,
   ): Promise<Stripe.Customer | Stripe.DeletedCustomer> {
     LogHelpers.addBusinessContext('stripe_operation', 'get_customer');
@@ -140,7 +142,7 @@ export class StripeService {
     }
   }
 
-  async cancelSubscription(
+  public async cancelSubscription(
     subscriptionId: string,
   ): Promise<Stripe.Subscription> {
     LogHelpers.addBusinessContext('stripe_operation', 'cancel_subscription');
@@ -161,7 +163,10 @@ export class StripeService {
     }
   }
 
-  constructWebhookEvent(payload: Buffer, signature: string): Stripe.Event {
+  public constructWebhookEvent(
+    payload: Buffer,
+    signature: string,
+  ): Stripe.Event {
     const webhookSecret = this.configService.get<string>(
       'STRIPE_WEBHOOK_SECRET',
     );
@@ -183,7 +188,7 @@ export class StripeService {
     }
   }
 
-  getStripe(): Stripe {
+  public getStripe(): Stripe {
     return this.stripe;
   }
 }

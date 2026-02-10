@@ -17,7 +17,7 @@ export interface FeedbackEmailData {
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
-  private mailerSend: MailerSend;
+  private mailerSend!: MailerSend;
   private isInitialized = false;
 
   constructor(private readonly configService: ConfigService) {

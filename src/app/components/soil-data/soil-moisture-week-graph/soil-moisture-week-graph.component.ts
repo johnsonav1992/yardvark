@@ -1,6 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { ChartData, ChartOptions } from 'chart.js';
-import { getFullWeekOfDayLabelsCenteredAroundCurrentDay } from '../../../utils/timeUtils';
 import { getPrimeNgHexColor } from '../../../utils/styleUtils';
 import { ChartLoaderComponent } from '../../miscellanious/chart-loader/chart-loader.component';
 import { ChartModule } from 'primeng/chart';
@@ -27,15 +26,12 @@ export class SoilMoistureWeekGraphComponent {
   public isMobile = this._globalUiService.isMobile;
   public isDarkMode = this._globalUiService.isDarkMode;
 
+  public labels = input.required<string[]>();
   public dailyMoistureData = input.required<number[]>();
   public isLoadingChartData = input<boolean>(false);
 
   public moistureChartData = computed<ChartData<'line'>>(() => ({
-    labels: getFullWeekOfDayLabelsCenteredAroundCurrentDay({
-      includeDates: true,
-      tinyDayNames: this.isMobile(),
-      shortDayNames: !this.isMobile()
-    }),
+    labels: this.labels(),
     datasets: [
       {
         type: 'line',

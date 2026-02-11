@@ -20,6 +20,7 @@
       <p-card [style.width]="isMobile() ? '100%' : '49%'">
         <ng-template #title>Average soil temperatures</ng-template>
         <soil-temp-week-graph
+          [labels]="chartLabels()"
           [dailyAverageShallowTemps]="dailyAverageShallowTemps()"
           [dailyAverageDeepTemps]="dailyAverageDeepTemps()"
           [isLoadingChartData]="isLoadingAveragesChartData()"
@@ -37,6 +38,7 @@
           ></i>
         </ng-template>
         <soil-moisture-week-graph
+          [labels]="chartLabels()"
           [dailyMoistureData]="dailyMoistureData()"
           [isLoadingChartData]="isLoadingAveragesChartData()"
         />

@@ -1,17 +1,17 @@
 /**
- * Gets the start and end dates of a full week centered around the current date.
+ * Gets the start and end dates of a rolling two-week window centered around the current date.
  *
- * @returns An object containing the start and end dates of the week.
- * @property {Date} startDate - The start date of the week (3 days before today).
- * @property {Date} endDate - The end date of the week (3 days after today).
+ * @returns An object containing the start and end dates.
+ * @property {Date} startDate - 7 days before today.
+ * @property {Date} endDate - 7 days after today.
  */
 export const getRollingWeekStartAndEndDates = () => {
   const today = new Date();
   const startDate = new Date(today);
   const endDate = new Date(today);
 
-  startDate.setDate(today.getDate() - 3);
-  endDate.setDate(today.getDate() + 3);
+  startDate.setDate(today.getDate() - 7);
+  endDate.setDate(today.getDate() + 7);
 
   return {
     startDate,
@@ -20,12 +20,13 @@ export const getRollingWeekStartAndEndDates = () => {
 };
 
 /**
- * Gets the labels for the days of the week, centered around the current day.
+ * Gets day labels for a rolling two-week window centered around the current day.
  *
- * @param {Object} [opts] - Optional parameters.
- * @param {boolean} [opts.includeDates] - Whether to include dates in the labels.
- * @param {boolean} [opts.shortDayNames] - Whether to use short day names (e.g., Mon, Tue).
- * @returns {string[]} An array of strings representing the days of the week.
+ * @param opts - Optional parameters for label formatting.
+ * @param opts.includeDates - Whether to include dates in the labels.
+ * @param opts.shortDayNames - Whether to use short day names (e.g., Mon, Tue).
+ * @param opts.tinyDayNames - Whether to use tiny day names (e.g., M, Tu).
+ * @returns An array of strings representing the days in the window.
  */
 export const getFullWeekOfDayLabelsCenteredAroundCurrentDay = (opts?: {
   includeDates?: boolean;
@@ -36,7 +37,7 @@ export const getFullWeekOfDayLabelsCenteredAroundCurrentDay = (opts?: {
   const todayIndex = today.getDay();
   const labels = [];
 
-  for (let i = -3; i <= 3; i++) {
+  for (let i = -7; i <= 7; i++) {
     const currentDate = new Date(today);
     currentDate.setDate(today.getDate() + i);
     const dayIndex = (todayIndex + i + 7) % 7;

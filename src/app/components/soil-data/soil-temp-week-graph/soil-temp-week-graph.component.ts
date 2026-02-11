@@ -1,7 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { ChartData, ChartOptions } from 'chart.js';
 import { ChartModule } from 'primeng/chart';
-import { getFullWeekOfDayLabelsCenteredAroundCurrentDay } from '../../../utils/timeUtils';
 import { OpenMeteoQueryParams } from '../../../types/openmeteo.types';
 import { getPrimeNgHexColor } from '../../../utils/styleUtils';
 import { ChartLoaderComponent } from '../../miscellanious/chart-loader/chart-loader.component';
@@ -23,6 +22,7 @@ export class SoilTempWeekGraphComponent {
   public isDarkMode = this._globalUiService.isDarkMode;
   public isMobile = this._globalUiService.isMobile;
 
+  public labels = input.required<string[]>();
   public dailyAverageShallowTemps = input.required<number[]>();
   public dailyAverageDeepTemps = input.required<number[]>();
   public tempUnit =
@@ -34,11 +34,7 @@ export class SoilTempWeekGraphComponent {
   );
 
   public tempsChartData = computed<ChartData<'line'>>(() => ({
-    labels: getFullWeekOfDayLabelsCenteredAroundCurrentDay({
-      includeDates: true,
-      tinyDayNames: this.isMobile(),
-      shortDayNames: !this.isMobile()
-    }),
+    labels: this.labels(),
     datasets: [
       {
         type: 'line',

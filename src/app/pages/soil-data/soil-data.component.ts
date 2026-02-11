@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { PopoverModule } from 'primeng/popover';
 import { GlobalUiService } from '../../services/global-ui.service';
-import { getFullWeekOfDayLabelsCenteredAroundCurrentDay } from '../../utils/timeUtils';
+import { getDayLabelsCenteredAroundToday } from '../../utils/timeUtils';
 
 @Component({
   selector: 'soil-data',
@@ -38,7 +38,7 @@ export class SoilDataComponent {
   );
 
   private _allLabels = computed(() =>
-    getFullWeekOfDayLabelsCenteredAroundCurrentDay({
+    getDayLabelsCenteredAroundToday({
       includeDates: true,
       tinyDayNames: this.isMobile(),
       shortDayNames: !this.isMobile()

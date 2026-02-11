@@ -5,7 +5,7 @@
  * @property {Date} startDate - 7 days before today.
  * @property {Date} endDate - 7 days after today.
  */
-export const getRollingWeekStartAndEndDates = () => {
+export const getRollingDateWindowAroundToday = () => {
   const today = new Date();
   const startDate = new Date(today);
   const endDate = new Date(today);
@@ -28,7 +28,7 @@ export const getRollingWeekStartAndEndDates = () => {
  * @param opts.tinyDayNames - Whether to use tiny day names (e.g., M, Tu).
  * @returns An array of strings representing the days in the window.
  */
-export const getFullWeekOfDayLabelsCenteredAroundCurrentDay = (opts?: {
+export const getDayLabelsCenteredAroundToday = (opts?: {
   includeDates?: boolean;
   shortDayNames?: boolean;
   tinyDayNames?: boolean;

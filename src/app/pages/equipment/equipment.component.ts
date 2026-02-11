@@ -3,7 +3,7 @@ import { PageContainerComponent } from '../../components/layout/page-container/p
 import { EquipmentService } from '../../services/equipment.service';
 import { EquipmentPreviewCardComponent } from '../../components/equipment/equipment-preview-card/equipment-preview-card.component';
 import { CardModule } from 'primeng/card';
-import { LoadingSpinnerComponent } from '../../components/miscellanious/loading-spinner/loading-spinner.component';
+import { SkeletonModule } from 'primeng/skeleton';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { GlobalUiService } from '../../services/global-ui.service';
@@ -29,7 +29,7 @@ import { NO_IMAGE_URL } from '../../constants/style-constants';
     PageContainerComponent,
     EquipmentPreviewCardComponent,
     CardModule,
-    LoadingSpinnerComponent,
+    SkeletonModule,
     ButtonModule,
     TooltipModule,
     FloatLabelModule,
@@ -56,6 +56,7 @@ export class EquipmentComponent {
 
   public equipment = this._equipmentService.equipment;
   public noImageUrl = NO_IMAGE_URL;
+  public skeletonCards = Array(6).fill(0);
 
   public viewMode = signal<'grid' | 'table'>('grid');
 

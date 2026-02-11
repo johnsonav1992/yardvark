@@ -30,7 +30,39 @@
     </p-floatlabel>
   </ng-template>
   @if (equipment.isLoading()) {
-    <loading-spinner />
+    <div class="equipment-grid">
+      @for (i of skeletonCards; track i) {
+        <p-card class="skeleton-card">
+          <ng-template pTemplate="header">
+            <p-skeleton width="100%" height="300px" />
+          </ng-template>
+          <ng-template pTemplate="title">
+            <p-skeleton width="70%" height="1.25rem" />
+          </ng-template>
+          <ng-template pTemplate="subtitle">
+            <p-skeleton width="40%" height="1rem" />
+          </ng-template>
+          <div class="skeleton-card-content">
+            <div class="skeleton-badges">
+              <p-skeleton width="80px" height="1.5rem" borderRadius="1rem" />
+              <p-skeleton width="110px" height="1.5rem" borderRadius="1rem" />
+            </div>
+            <p-skeleton width="100%" height="0.9rem" />
+            <p-skeleton width="85%" height="0.9rem" />
+            <div class="skeleton-details">
+              <p-skeleton width="100px" height="0.85rem" />
+              <p-skeleton width="100px" height="0.85rem" />
+            </div>
+          </div>
+          <ng-template pTemplate="footer">
+            <div class="skeleton-footer">
+              <p-skeleton width="100%" height="2.25rem" borderRadius="var(--p-button-border-radius)" />
+              <p-skeleton width="2.75rem" height="2.25rem" borderRadius="var(--p-button-border-radius)" />
+            </div>
+          </ng-template>
+        </p-card>
+      }
+    </div>
   } @else {
     @if (viewMode() === 'grid' || isMobile()) {
       <div class="equipment-grid">

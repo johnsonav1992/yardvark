@@ -20,7 +20,78 @@
   </ng-template>
 
   @if (isLoading()) {
-    <loading-spinner />
+    <div class="equipment-detail-container">
+      <div class="hero-section">
+        <p-skeleton width="100%" height="100%" />
+      </div>
+      <div class="info-cards-grid">
+        @for (card of skeletonInfoCards; track card) {
+          <p-card class="info-card">
+            <ng-template pTemplate="header">
+              <div class="card-header">
+                <p-skeleton shape="circle" size="1.25rem" />
+                <p-skeleton width="120px" height="1rem" />
+              </div>
+            </ng-template>
+            <div class="info-items">
+              @for (i of [0, 1, 2]; track i) {
+                <div class="info-item">
+                  <p-skeleton shape="circle" size="1.25rem" />
+                  <div class="info-content">
+                    <p-skeleton width="80px" height="0.875rem" />
+                    <p-skeleton width="120px" height="1rem" />
+                  </div>
+                </div>
+              }
+            </div>
+          </p-card>
+        }
+      </div>
+      <p-card class="description-card">
+        <ng-template pTemplate="header">
+          <div class="card-header">
+            <p-skeleton shape="circle" size="1.25rem" />
+            <p-skeleton width="100px" height="1rem" />
+          </div>
+        </ng-template>
+        <div class="skeleton-description-content">
+          <p-skeleton width="100%" height="0.9rem" />
+          <p-skeleton width="95%" height="0.9rem" />
+          <p-skeleton width="70%" height="0.9rem" />
+        </div>
+      </p-card>
+      <p-card class="stats-summary-card">
+        <div class="stats-summary">
+          @for (i of [0, 1]; track i) {
+            <div class="stat-item">
+              <p-skeleton shape="circle" size="4rem" />
+              <div class="stat-content">
+                <p-skeleton width="60px" height="1.75rem" />
+                <p-skeleton width="140px" height="0.875rem" />
+              </div>
+            </div>
+          }
+        </div>
+      </p-card>
+      <div class="maintenance-section">
+        <div class="maintenance-header">
+          <p-skeleton width="200px" height="1.5rem" />
+          <p-skeleton width="110px" height="2.25rem" borderRadius="var(--p-button-border-radius)" />
+        </div>
+        <p-card>
+          <div class="skeleton-maintenance-rows">
+            @for (i of [0, 1, 2]; track i) {
+              <div class="skeleton-maintenance-row">
+                <p-skeleton width="100px" height="1rem" />
+                <p-skeleton width="70px" height="1rem" />
+                <p-skeleton width="60%" height="1rem" />
+                <p-skeleton width="80px" height="2rem" borderRadius="var(--p-button-border-radius)" />
+              </div>
+            }
+          </div>
+        </p-card>
+      </div>
+    </div>
   } @else {
     <div class="equipment-detail-container">
       <div class="hero-section">

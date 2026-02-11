@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject, NgZone, OnDestroy, signal } from '@angular/core';
 import { PageContainerComponent } from '../../../components/layout/page-container/page-container.component';
-import { LoadingSpinnerComponent } from '../../../components/miscellanious/loading-spinner/loading-spinner.component';
+import { SkeletonModule } from 'primeng/skeleton';
 import { DividerModule } from 'primeng/divider';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { EquipmentService } from '../../../services/equipment.service';
@@ -32,7 +32,7 @@ import { differenceInDays, differenceInMonths } from 'date-fns';
   selector: 'equipment-view',
   imports: [
     PageContainerComponent,
-    LoadingSpinnerComponent,
+    SkeletonModule,
     DividerModule,
     TitleCasePipe,
     DatePipe,
@@ -58,6 +58,7 @@ export class EquipmentViewComponent implements OnDestroy {
   public throwErrorToast = injectErrorToast();
 
   public noImageUrl = NO_IMAGE_URL;
+  public skeletonInfoCards = Array(3).fill(0);
 
   public isMobile = this._globalUiService.isMobile;
 

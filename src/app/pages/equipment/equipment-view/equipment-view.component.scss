@@ -140,6 +140,25 @@
   }
 }
 
+.skeleton-description-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 1rem;
+}
+
+.skeleton-maintenance-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.skeleton-maintenance-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
 .description-card {
   .description-text {
     padding: 1rem;

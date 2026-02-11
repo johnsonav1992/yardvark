@@ -193,6 +193,7 @@ export class WeatherService {
     if (type === 'historical') {
       return `weather:historical:${params.lat}:${params.long}:${params.startDate}:${params.endDate}:${params.temperatureUnit}`;
     }
+
     return `weather:forecast:${params.lat}:${params.long}`;
   }
 }

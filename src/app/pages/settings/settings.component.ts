@@ -124,6 +124,7 @@ export class SettingsComponent implements UnsavedChanges {
 
   public onSegmentSave(segment: LawnSegment): void {
     const mapEdits = this._lawnMapComponent()?.saveCurrentEdit();
+
     if (mapEdits) {
       segment.coordinates = [mapEdits.coordinates];
       segment.size = mapEdits.size;

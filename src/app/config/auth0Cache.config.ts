@@ -19,20 +19,24 @@ export class CustomAuth0Cache implements ICache {
       return (async () => {
         const { value: json } = await Preferences.get({ key });
         if (!json) return undefined;
+
         try {
           return JSON.parse(json) as T;
         } catch (e) {
           console.warn('Failed to parse cached data', e);
+
           return undefined;
         }
       })();
     } else {
       const json = localStorage.getItem(key);
       if (!json) return undefined;
+
       try {
         return JSON.parse(json) as T;
       } catch (e) {
         console.warn('Failed to parse cached data', e);
+
         return undefined;
       }
     }
@@ -49,6 +53,7 @@ export class CustomAuth0Cache implements ICache {
   public async allKeys() {
     if (Capacitor.isNativePlatform()) {
       const { keys } = await Preferences.keys();
+
       return keys.filter((key) => key.startsWith(this.CACHE_KEY_PREFIX));
     } else {
       return Object.keys(localStorage).filter((key) =>

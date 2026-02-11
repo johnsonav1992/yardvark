@@ -6,6 +6,7 @@ import { CsvExportConfig } from '../types/csv.types';
 
 export const formatDateForCsv = (dateString: string): string => {
   if (!dateString) return '';
+
   try {
     const date = new Date(dateString);
     return format(date, 'MM-dd-yyyy');

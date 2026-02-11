@@ -973,8 +973,11 @@ describe('GddService', () => {
       cacheManager.get.mockResolvedValue(null);
     });
 
-    it('should return dormant when recent temps are below base temperature', async () => {
-      // Winter temps for warm-season grass (base 50°F)
+    it('should return dormant when recent temps are below dormancy threshold', async () => {
+      const recentDate = new Date();
+      recentDate.setDate(recentDate.getDate() - 7);
+
+      // Winter temps for warm-season grass (dormancy threshold 60°F)
       const winterTemps = [
         { date: '2025-12-01', maxTemp: 45, minTemp: 30 },
         { date: '2025-12-02', maxTemp: 42, minTemp: 28 },
@@ -986,17 +989,14 @@ describe('GddService', () => {
       ];
 
       settingsService.getUserSettings.mockResolvedValue(mockSettingsWarmGrass);
-      // Dormant takes priority regardless of how old the app date is
-      entriesService.getLastPgrApplicationDate.mockResolvedValue(
-        new Date('2025-07-01'),
-      );
+      entriesService.getLastPgrApplicationDate.mockResolvedValue(recentDate);
       weatherService.getHistoricalAirTemperatures.mockResolvedValue(
         winterTemps,
       );
 
       const result = await service.getCurrentGdd(mockUserId);
 
-      // Average high temp (~44°F) is below warm-season base (50°F)
+      // Average high temp (~44°F) is below warm-season dormancy threshold (60°F)
       expect(result.cycleStatus).toBe('dormant');
     });
 
@@ -1125,33 +1125,97 @@ describe('GddService', () => {
       expect(result.cycleStatus).toBe('dormant');
     });
 
-    it('should not be dormant for cool-season grass in moderate winter', async () => {
-      // Temps above cool-season base (32°F) but below warm-season base (50°F)
-      // Use recent date
+    it('should not be dormant for cool-season grass when highs are above dormancy threshold', async () => {
       const recentDate = new Date();
       recentDate.setDate(recentDate.getDate() - 7);
 
-      const coolWinterTemps = [
-        { date: '2025-12-01', maxTemp: 42, minTemp: 28 },
-        { date: '2025-12-02', maxTemp: 45, minTemp: 30 },
-        { date: '2025-12-03', maxTemp: 40, minTemp: 25 },
-        { date: '2025-12-04', maxTemp: 48, minTemp: 32 },
-        { date: '2025-12-05', maxTemp: 44, minTemp: 29 },
-        { date: '2025-12-06', maxTemp: 46, minTemp: 31 },
-        { date: '2025-12-07', maxTemp: 43, minTemp: 27 },
+      // Highs above cool-season dormancy threshold (50°F)
+      const mildSpringTemps = [
+        { date: '2025-12-01', maxTemp: 55, minTemp: 38 },
+        { date: '2025-12-02', maxTemp: 58, minTemp: 40 },
+        { date: '2025-12-03', maxTemp: 52, minTemp: 35 },
+        { date: '2025-12-04', maxTemp: 56, minTemp: 39 },
+        { date: '2025-12-05', maxTemp: 54, minTemp: 37 },
+        { date: '2025-12-06', maxTemp: 57, minTemp: 41 },
+        { date: '2025-12-07', maxTemp: 53, minTemp: 36 },
       ];
 
       settingsService.getUserSettings.mockResolvedValue(mockSettings); // cool-season
       entriesService.getLastPgrApplicationDate.mockResolvedValue(recentDate);
       weatherService.getHistoricalAirTemperatures.mockResolvedValue(
-        coolWinterTemps,
+        mildSpringTemps,
       );
 
       const result = await service.getCurrentGdd(mockUserId);
 
-      // Average high (~44°F) is above cool-season base (32°F)
-      // Should NOT be dormant for cool-season grass
+      // Average high (~55°F) is above cool-season dormancy threshold (50°F)
       expect(result.cycleStatus).not.toBe('dormant');
+    });
+
+    it('should reset GDD cycle when coming out of dormancy into a new season', async () => {
+      // Last PGR from previous fall
+      const fallPgrDate = new Date();
+      fallPgrDate.setDate(fallPgrDate.getDate() - 120);
+
+      // Simulate: warm fall → cold winter → warm spring
+      const tempHistory = [
+        // Fall: 20 days warm (highs ~70°F)
+        ...Array.from({ length: 20 }, (_, i) => ({
+          date: `2025-09-${String(i + 10).padStart(2, '0')}`,
+          maxTemp: 68 + (i % 5),
+          minTemp: 48 + (i % 5),
+        })),
+        // Winter: 80 days cold (highs ~40°F, below cool dormancy 50°F)
+        ...Array.from({ length: 80 }, (_, i) => ({
+          date: `2025-${String(10 + Math.floor(i / 30)).padStart(2, '0')}-${String((i % 30) + 1).padStart(2, '0')}`,
+          maxTemp: 38 + (i % 5),
+          minTemp: 22 + (i % 5),
+        })),
+        // Spring: 20 days warm (highs ~60°F, above dormancy threshold)
+        ...Array.from({ length: 20 }, (_, i) => ({
+          date: `2026-02-${String(i + 1).padStart(2, '0')}`,
+          maxTemp: 58 + (i % 5),
+          minTemp: 40 + (i % 5),
+        })),
+      ];
+
+      settingsService.getUserSettings.mockResolvedValue(mockSettings); // cool-season
+      entriesService.getLastPgrApplicationDate.mockResolvedValue(fallPgrDate);
+      weatherService.getHistoricalAirTemperatures.mockResolvedValue(
+        tempHistory,
+      );
+
+      const result = await service.getCurrentGdd(mockUserId);
+
+      // Should reset: not dormant now, but dormancy occurred since last PGR
+      expect(result.lastPgrAppDate).toBeNull();
+      expect(result.accumulatedGdd).toBe(0);
+      expect(result.cycleStatus).toBe('active');
+      expect(result.percentageToTarget).toBe(0);
+    });
+
+    it('should not reset GDD cycle when no dormancy occurred since last PGR', async () => {
+      const recentDate = new Date();
+      recentDate.setDate(recentDate.getDate() - 5);
+
+      // All warm days — no dormancy period
+      const warmTemps = [
+        { date: '2025-12-03', maxTemp: 75, minTemp: 55 },
+        { date: '2025-12-04', maxTemp: 78, minTemp: 58 },
+        { date: '2025-12-05', maxTemp: 72, minTemp: 52 },
+        { date: '2025-12-06', maxTemp: 80, minTemp: 60 },
+        { date: '2025-12-07', maxTemp: 76, minTemp: 56 },
+      ];
+
+      settingsService.getUserSettings.mockResolvedValue(mockSettings);
+      entriesService.getLastPgrApplicationDate.mockResolvedValue(recentDate);
+      weatherService.getHistoricalAirTemperatures.mockResolvedValue(warmTemps);
+
+      const result = await service.getCurrentGdd(mockUserId);
+
+      // Should NOT reset — normal mid-season behavior
+      expect(result.lastPgrAppDate).not.toBeNull();
+      expect(result.accumulatedGdd).toBeGreaterThan(0);
     });
   });
 });

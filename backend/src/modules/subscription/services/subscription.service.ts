@@ -58,6 +58,7 @@ export class SubscriptionService {
     } catch (error) {
       LogHelpers.addBusinessContext('cache_get_error', error.message);
       LogHelpers.addBusinessContext('cache_user_id', userId);
+
       return null;
     }
   }

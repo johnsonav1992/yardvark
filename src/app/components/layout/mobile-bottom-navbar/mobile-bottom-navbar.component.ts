@@ -105,6 +105,7 @@ export class MobileBottomNavbarComponent {
 
   private readonly splashScreenWatcher = effect(() => {
     const isSettingsLoaded = this.isSettingsLoaded();
+
     if (isSettingsLoaded) {
       SplashScreen.hide();
       this.splashScreenWatcher.destroy(); // Stop watching after hiding the splash screen

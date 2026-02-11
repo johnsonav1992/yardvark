@@ -131,6 +131,7 @@ export class AiController {
 
           res.write(`data: ${data}\n\n`);
         }
+
         if (chunk.done) {
           res.write('data: {"type":"done"}\n\n');
           break;

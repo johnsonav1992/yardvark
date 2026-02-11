@@ -37,6 +37,7 @@ export class WebhookController {
 
     if (!signature) {
       LogHelpers.addBusinessContext('webhook_error', 'missing_signature');
+
       return res
         .status(HttpStatus.BAD_REQUEST)
         .send('Missing Stripe signature header');
@@ -44,6 +45,7 @@ export class WebhookController {
 
     if (!req.rawBody) {
       LogHelpers.addBusinessContext('webhook_error', 'missing_raw_body');
+
       return res
         .status(HttpStatus.BAD_REQUEST)
         .send('Missing raw body for webhook verification');
@@ -56,6 +58,7 @@ export class WebhookController {
     } catch (err) {
       LogHelpers.addBusinessContext('webhook_verification_failed', true);
       LogHelpers.addBusinessContext('verification_error', err.message);
+
       return res
         .status(HttpStatus.BAD_REQUEST)
         .send(`Webhook verification failed: ${err.message}`);
@@ -80,6 +83,7 @@ export class WebhookController {
       if (error.code === '23505') {
         LogHelpers.addBusinessContext('webhook_duplicate', true);
         LogHelpers.addBusinessContext('duplicate_event_id', event.id);
+
         return res
           .status(HttpStatus.OK)
           .json({ received: true, duplicate: true });
@@ -93,11 +97,13 @@ export class WebhookController {
     try {
       await this.processWebhookEvent(event, webhookEvent.id);
       LogHelpers.addBusinessContext('webhook_processing_complete', true);
+
       return res.status(HttpStatus.OK).json({ received: true });
     } catch (err) {
       LogHelpers.addBusinessContext('webhook_processing_failed', true);
       LogHelpers.addBusinessContext('processing_error', err.message);
       LogHelpers.addBusinessContext('error_stack', err.stack);
+
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ error: 'Webhook processing failed', message: err.message });
@@ -158,6 +164,7 @@ export class WebhookController {
 
     if (session.mode !== 'subscription') {
       LogHelpers.addBusinessContext('checkout_skipped', 'not_subscription');
+
       return;
     }
 

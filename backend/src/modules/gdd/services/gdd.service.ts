@@ -204,6 +204,7 @@ export class GddService {
     LogHelpers.recordCacheMiss();
 
     const settings = await this._settingsService.getUserSettings(userId);
+
     if (!settings || Array.isArray(settings)) {
       throw new HttpException(
         'User settings not found',
@@ -212,6 +213,7 @@ export class GddService {
     }
 
     const { location, grassType, temperatureUnit } = settings.value;
+
     if (!location?.lat || !location?.long) {
       throw new HttpException(
         'User location not configured',
@@ -274,6 +276,7 @@ export class GddService {
     LogHelpers.recordCacheMiss();
 
     const settings = await this._settingsService.getUserSettings(userId);
+
     if (!settings || Array.isArray(settings)) {
       throw new HttpException(
         'User settings not found',
@@ -283,6 +286,7 @@ export class GddService {
 
     const { location, grassType, temperatureUnit, customGddTarget } =
       settings.value;
+
     if (!location?.lat || !location?.long) {
       throw new HttpException(
         'User location not configured',
@@ -368,6 +372,7 @@ export class GddService {
     if (type === 'historical' && params) {
       return `gdd:${userId}:historical:start=${params.startDate}:end=${params.endDate}`;
     }
+
     return `gdd:${userId}:${type}`;
   }
 
@@ -376,9 +381,11 @@ export class GddService {
     temperatureUnit: 'fahrenheit' | 'celsius',
   ): number {
     const baseTempF = GDD_BASE_TEMPERATURES[grassType];
+
     if (temperatureUnit === 'celsius') {
       return Math.round((baseTempF - 32) * (5 / 9));
     }
+
     return baseTempF;
   }
 

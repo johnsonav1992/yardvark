@@ -216,6 +216,7 @@ export class LawnMapComponent implements OnDestroy {
     }
 
     const originalCoords = this._originalCoordinates();
+
     if (targetSegment?.id && originalCoords) {
       const layer = this._segmentLayers().get(targetSegment.id);
 

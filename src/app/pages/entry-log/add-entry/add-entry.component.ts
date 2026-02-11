@@ -220,6 +220,7 @@ export class AddEntryComponent implements OnInit {
 
   public duplicateEntryForm(index: number): void {
     const formToDuplicate = this.entryForms.at(index);
+
     if (formToDuplicate) {
       const duplicatedForm = this.createEntryForm();
       const value = formToDuplicate.getRawValue();

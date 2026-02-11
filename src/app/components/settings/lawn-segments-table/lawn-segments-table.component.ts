@@ -125,6 +125,7 @@ export class LawnSegmentsTableComponent {
         if (tableSegment) {
           this.lawnSegmentTable()?.cancelRowEdit(tableSegment);
         }
+
         this.lawnSegments.update((prev) =>
           prev?.map((seg) =>
             seg.name.toLowerCase() === newSeg.name.toLowerCase() ? newSeg : seg
@@ -133,11 +134,13 @@ export class LawnSegmentsTableComponent {
       },
       error: () => {
         this._throwErrorToast('Error saving lawn segment');
+
         if (isNewSegment) {
           this.lawnSegments.update((prev) =>
             prev?.filter((seg) => seg.id !== segment.id)
           );
         }
+
         this.currentlyEditingLawnSegmentIds.set(null);
       }
     });
@@ -161,6 +164,7 @@ export class LawnSegmentsTableComponent {
       );
     } else {
       const originalName = this._originalSegmentNames.get(segment.id);
+
       if (originalName !== undefined) {
         this.lawnSegments.update((prev) =>
           prev?.map((seg) =>

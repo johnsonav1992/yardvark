@@ -62,6 +62,7 @@ export class CsvExportService {
     };
 
     let normalized = text;
+
     for (const [utf8Char, asciiChar] of Object.entries(replacements)) {
       normalized = normalized.replace(new RegExp(utf8Char, 'g'), asciiChar);
     }

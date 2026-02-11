@@ -3,7 +3,6 @@ import {
   Injectable,
   HttpException,
   HttpStatus,
-  Logger,
 } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -24,6 +23,7 @@ import {
   GDD_OVERDUE_MULTIPLIER,
   GDD_OVERDUE_DAYS_THRESHOLD,
   GDD_DORMANCY_CHECK_DAYS,
+  GDD_DORMANCY_TEMPERATURES,
 } from '../models/gdd.constants';
 import {
   CurrentGddResponse,
@@ -36,8 +36,6 @@ import {
 
 @Injectable()
 export class GddService {
-  private readonly _logger = new Logger(GddService.name);
-
   constructor(
     @Inject(CACHE_MANAGER) private readonly _cacheManager: Cache,
     private readonly _entriesService: EntriesService,
@@ -123,13 +121,42 @@ export class GddService {
       Math.round((accumulatedGdd / targetGdd) * 100),
     );
 
+    const dormancyTemperature = this.getDormancyTemperature(
+      grassType,
+      temperatureUnit,
+    );
+
     const cycleStatus = this.determineCycleStatus({
       accumulatedGdd,
       targetGdd,
       daysSinceLastApp,
       recentTemps: temperatureData.slice(-GDD_DORMANCY_CHECK_DAYS),
-      baseTemperature,
+      dormancyTemperature,
     });
+
+    if (
+      cycleStatus !== 'dormant' &&
+      this.hasDormancyOccurredInPeriod(temperatureData, dormancyTemperature)
+    ) {
+      LogHelpers.addBusinessContext('gddDormancyReset', true);
+      LogHelpers.addBusinessContext('gddCycleStatus', 'active');
+
+      const resetResult: CurrentGddResponse = {
+        accumulatedGdd: 0,
+        lastPgrAppDate: null,
+        daysSinceLastApp: null,
+        baseTemperature,
+        baseTemperatureUnit: temperatureUnit,
+        targetGdd,
+        percentageToTarget: 0,
+        grassType,
+        cycleStatus: 'active',
+      };
+
+      await this._cacheManager.set(cacheKey, resetResult, GDD_CACHE_TTL);
+
+      return resetResult;
+    }
 
     LogHelpers.addBusinessContext(
       'gddAccumulated',
@@ -137,10 +164,7 @@ export class GddService {
     );
     LogHelpers.addBusinessContext('gddTarget', targetGdd);
     LogHelpers.addBusinessContext('gddCycleStatus', cycleStatus);
-
-    this._logger.log(
-      `GDD calculated for user ${userId}: ${accumulatedGdd.toFixed(1)}/${targetGdd} GDD, status=${cycleStatus}, days=${daysSinceLastApp}`,
-    );
+    LogHelpers.addBusinessContext('gddDaysSinceLastApp', daysSinceLastApp);
 
     const result: CurrentGddResponse = {
       accumulatedGdd: Math.round(accumulatedGdd * 10) / 10,
@@ -358,8 +382,21 @@ export class GddService {
     return baseTempF;
   }
 
+  private getDormancyTemperature(
+    grassType: 'warm' | 'cool',
+    temperatureUnit: 'fahrenheit' | 'celsius',
+  ): number {
+    const dormancyTempF = GDD_DORMANCY_TEMPERATURES[grassType];
+
+    if (temperatureUnit === 'celsius') {
+      return Math.round((dormancyTempF - 32) * (5 / 9));
+    }
+
+    return dormancyTempF;
+  }
+
   /**
-   * Determines the cycle status based on accumulated GDD, time elapsed, and recent temps
+   * Determines the cycle status based on accumulated GDD, time elapsed, and recent temps.
    * Priority: dormant > overdue > complete > active
    */
   private determineCycleStatus({
@@ -367,23 +404,19 @@ export class GddService {
     targetGdd,
     daysSinceLastApp,
     recentTemps,
-    baseTemperature,
+    dormancyTemperature,
   }: {
     accumulatedGdd: number;
     targetGdd: number;
     daysSinceLastApp: number;
     recentTemps: Array<{ maxTemp: number; minTemp: number }>;
-    baseTemperature: number;
+    dormancyTemperature: number;
   }): GddCycleStatus {
     if (recentTemps.length > 0) {
       const avgHighTemp =
         recentTemps.reduce((sum, t) => sum + t.maxTemp, 0) / recentTemps.length;
 
-      this._logger.log(
-        `Dormancy check: avgHighTemp=${avgHighTemp.toFixed(1)}, baseTemp=${baseTemperature}, highs=${JSON.stringify(recentTemps.map((t) => t.maxTemp))}`,
-      );
-
-      if (avgHighTemp < baseTemperature) return 'dormant';
+      if (avgHighTemp < dormancyTemperature) return 'dormant';
     }
 
     const isOverdue =
@@ -395,6 +428,32 @@ export class GddService {
     if (accumulatedGdd >= targetGdd) return 'complete';
 
     return 'active';
+  }
+
+  /**
+   * Checks if a dormancy period occurred within the given temperature data
+   * by scanning for any window of GDD_DORMANCY_CHECK_DAYS consecutive days
+   * where average highs fell below the dormancy threshold.
+   */
+  private hasDormancyOccurredInPeriod(
+    temperatureData: Array<{ maxTemp: number }>,
+    dormancyTemperature: number,
+  ): boolean {
+    if (temperatureData.length < GDD_DORMANCY_CHECK_DAYS) return false;
+
+    for (
+      let i = 0;
+      i <= temperatureData.length - GDD_DORMANCY_CHECK_DAYS;
+      i++
+    ) {
+      const window = temperatureData.slice(i, i + GDD_DORMANCY_CHECK_DAYS);
+      const avgHigh =
+        window.reduce((sum, t) => sum + t.maxTemp, 0) / window.length;
+
+      if (avgHigh < dormancyTemperature) return true;
+    }
+
+    return false;
   }
 
   private extractDailyTempsFromForecast(

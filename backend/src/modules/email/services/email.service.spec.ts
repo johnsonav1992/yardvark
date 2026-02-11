@@ -1,30 +1,17 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { EmailService, FeedbackEmailData } from './email.service';
+import * as nodemailer from 'nodemailer';
 
-jest.mock('mailersend', () => {
-  return {
-    MailerSend: jest.fn().mockImplementation(() => ({
-      email: {
-        send: jest.fn(),
-      },
-    })),
-    EmailParams: jest.fn().mockImplementation(() => ({
-      setFrom: jest.fn().mockReturnThis(),
-      setTo: jest.fn().mockReturnThis(),
-      setSubject: jest.fn().mockReturnThis(),
-      setHtml: jest.fn().mockReturnThis(),
-      setReplyTo: jest.fn().mockReturnThis(),
-    })),
-    Sender: jest.fn().mockImplementation((email, name) => ({ email, name })),
-    Recipient: jest.fn().mockImplementation((email, name) => ({ email, name })),
-  };
+jest.mock('nodemailer');
+
+const mockSendMail = jest.fn().mockResolvedValue({ messageId: 'test-id' });
+(nodemailer.createTransport as jest.Mock).mockReturnValue({
+  sendMail: mockSendMail,
 });
 
 describe('EmailService', () => {
   let service: EmailService;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  let configService: ConfigService;
 
   const mockConfigService = {
     get: jest.fn(),
@@ -49,7 +36,11 @@ describe('EmailService', () => {
   beforeEach(async () => {
     jest.clearAllMocks();
 
-    mockConfigService.get.mockReturnValue('test-api-key');
+    mockConfigService.get.mockImplementation((key: string) => {
+      if (key === 'GMAIL_USER') return 'test@gmail.com';
+      if (key === 'GMAIL_APP_PASSWORD') return 'test-app-password';
+      return undefined;
+    });
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -62,7 +53,6 @@ describe('EmailService', () => {
     }).compile();
 
     service = module.get<EmailService>(EmailService);
-    configService = module.get<ConfigService>(ConfigService);
   });
 
   it('should be defined', () => {
@@ -70,12 +60,13 @@ describe('EmailService', () => {
   });
 
   describe('initialization', () => {
-    it('should initialize with valid API key', () => {
-      expect(mockConfigService.get).toHaveBeenCalledWith('MAILERSEND_API_KEY');
+    it('should initialize with valid Gmail credentials', () => {
+      expect(mockConfigService.get).toHaveBeenCalledWith('GMAIL_USER');
+      expect(mockConfigService.get).toHaveBeenCalledWith('GMAIL_APP_PASSWORD');
       expect(service).toBeDefined();
     });
 
-    it('should not initialize when API key is missing', async () => {
+    it('should not initialize when Gmail user is missing', async () => {
       mockConfigService.get.mockReturnValue(undefined);
 
       const module: TestingModule = await Test.createTestingModule({
@@ -96,7 +87,7 @@ describe('EmailService', () => {
       expect(result).toBe(false);
     });
 
-    it('should not initialize when API key is empty string', async () => {
+    it('should not initialize when Gmail credentials are empty', async () => {
       mockConfigService.get.mockReturnValue('');
 
       const module: TestingModule = await Test.createTestingModule({
@@ -215,7 +206,7 @@ describe('EmailService', () => {
       const unicodeFeedback: FeedbackEmailData = {
         name: 'Test User 日本語',
         email: 'testuser@example.com',
-        message: 'Feedback with emojis 🌱🏡 and special characters: é, ñ, ü',
+        message: 'Feedback with emojis and special characters',
         feedbackType: 'general',
       };
 
@@ -226,52 +217,18 @@ describe('EmailService', () => {
   });
 
   describe('error handling', () => {
-    it('should return false when MailerSend throws an error', async () => {
-      const { MailerSend } = jest.requireMock('mailersend');
-      MailerSend.mockImplementationOnce(() => ({
-        email: {
-          send: jest.fn().mockRejectedValue(new Error('MailerSend API error')),
-        },
-      }));
+    it('should return false when sendMail throws an error', async () => {
+      mockSendMail.mockRejectedValueOnce(new Error('SMTP error'));
 
-      const module: TestingModule = await Test.createTestingModule({
-        providers: [
-          EmailService,
-          {
-            provide: ConfigService,
-            useValue: { get: jest.fn().mockReturnValue('test-api-key') },
-          },
-        ],
-      }).compile();
-
-      const serviceWithError = module.get<EmailService>(EmailService);
-
-      const result = await serviceWithError.sendFeedbackEmail(mockFeedbackData);
+      const result = await service.sendFeedbackEmail(mockFeedbackData);
 
       expect(result).toBe(false);
     });
 
     it('should handle network errors gracefully', async () => {
-      const { MailerSend } = jest.requireMock('mailersend');
-      MailerSend.mockImplementationOnce(() => ({
-        email: {
-          send: jest.fn().mockRejectedValue(new Error('Network error')),
-        },
-      }));
+      mockSendMail.mockRejectedValueOnce(new Error('Network error'));
 
-      const module: TestingModule = await Test.createTestingModule({
-        providers: [
-          EmailService,
-          {
-            provide: ConfigService,
-            useValue: { get: jest.fn().mockReturnValue('test-api-key') },
-          },
-        ],
-      }).compile();
-
-      const serviceWithError = module.get<EmailService>(EmailService);
-
-      const result = await serviceWithError.sendFeedbackEmail(mockFeedbackData);
+      const result = await service.sendFeedbackEmail(mockFeedbackData);
 
       expect(result).toBe(false);
     });

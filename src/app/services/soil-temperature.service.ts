@@ -6,7 +6,7 @@ import {
   DailySoilTemperatureResponse,
   OpenMeteoQueryParams
 } from '../types/openmeteo.types';
-import { getRollingWeekStartAndEndDates } from '../utils/timeUtils';
+import { getRollingDateWindowAroundToday } from '../utils/timeUtils';
 import { injectSettingsService } from './settings.service';
 import { addDays, isBefore } from 'date-fns';
 import { LocationService } from './location.service';
@@ -70,7 +70,7 @@ export class SoilTemperatureService {
       const coords =
         this._locationService.userLatLong() ||
         this._currentPositionLatLong?.value();
-      const { startDate, endDate } = getRollingWeekStartAndEndDates();
+      const { startDate, endDate } = getRollingDateWindowAroundToday();
 
       return coords && startDate && endDate
         ? {

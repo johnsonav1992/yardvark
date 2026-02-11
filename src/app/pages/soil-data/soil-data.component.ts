@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { PopoverModule } from 'primeng/popover';
 import { GlobalUiService } from '../../services/global-ui.service';
+import { getDayLabelsCenteredAroundToday } from '../../utils/timeUtils';
 
 @Component({
   selector: 'soil-data',
@@ -36,7 +37,15 @@ export class SoilDataComponent {
     () => !!this._locationService.userLatLong()
   );
 
-  public dailyAverageShallowTemps = computed(() => {
+  private _allLabels = computed(() =>
+    getDayLabelsCenteredAroundToday({
+      includeDates: true,
+      tinyDayNames: this.isMobile(),
+      shortDayNames: !this.isMobile()
+    })
+  );
+
+  private _rawShallowTemps = computed(() => {
     const rawTempData =
       this._soilTemperatureService.rollingWeekDailyAverageSoilData.value()
         ?.hourly.soil_temperature_6cm;
@@ -44,7 +53,7 @@ export class SoilDataComponent {
     return getAllDailyNumericDataAverages(rawTempData || []);
   });
 
-  public dailyAverageDeepTemps = computed(() => {
+  private _rawDeepTemps = computed(() => {
     const rawTempData =
       this._soilTemperatureService.rollingWeekDailyAverageSoilData.value()
         ?.hourly.soil_temperature_18cm;
@@ -52,7 +61,7 @@ export class SoilDataComponent {
     return getAllDailyNumericDataAverages(rawTempData || []);
   });
 
-  public dailyMoistureData = computed(() => {
+  private _rawMoistureData = computed(() => {
     const rawMoistureData =
       this._soilTemperatureService.rollingWeekDailyAverageSoilData.value()
         ?.hourly.soil_moisture_3_to_9cm;
@@ -62,6 +71,39 @@ export class SoilDataComponent {
       multiplicationFactor: 100
     });
   });
+
+  private _filteredChartData = computed(() => {
+    const labels = this._allLabels();
+    const shallow = this._rawShallowTemps();
+    const deep = this._rawDeepTemps();
+    const moisture = this._rawMoistureData();
+
+    const filteredLabels: string[] = [];
+    const filteredShallow: number[] = [];
+    const filteredDeep: number[] = [];
+    const filteredMoisture: number[] = [];
+
+    for (let i = 0; i < labels.length; i++) {
+      if (shallow[i] === null && deep[i] === null && moisture[i] === null) continue;
+
+      filteredLabels.push(labels[i]);
+      filteredShallow.push(shallow[i] ?? 0);
+      filteredDeep.push(deep[i] ?? 0);
+      filteredMoisture.push(moisture[i] ?? 0);
+    }
+
+    return {
+      labels: filteredLabels,
+      shallowTemps: filteredShallow,
+      deepTemps: filteredDeep,
+      moisture: filteredMoisture
+    };
+  });
+
+  public chartLabels = computed(() => this._filteredChartData().labels);
+  public dailyAverageShallowTemps = computed(() => this._filteredChartData().shallowTemps);
+  public dailyAverageDeepTemps = computed(() => this._filteredChartData().deepTemps);
+  public dailyMoistureData = computed(() => this._filteredChartData().moisture);
 
   public isLoadingAveragesChartData = computed(() =>
     this._soilTemperatureService.rollingWeekDailyAverageSoilData.isLoading()

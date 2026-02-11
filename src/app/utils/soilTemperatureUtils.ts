@@ -26,20 +26,25 @@ export const getSoilTemperatureDisplayColor = (soilTemp: number) => {
 
 /**
  * Calculates the average of numeric data over a 24-hour period.
+ * Filters out null values before averaging. Returns null if all values are null.
  *
  * @param numericData - An array of numeric readings taken over 24 hours.
  * @param options - An optional parameter to specify rounding precision.
- * @returns The average value, rounded to the specified decimal places.
+ * @returns The average value rounded to the specified decimal places, or null if no valid data.
  */
 export const calculate24HourNumericAverage = (
-  numericData: number[],
+  numericData: (number | null)[],
   options?: { precision?: number }
-) => {
-  const total = numericData.reduce((sum, temp) => sum + temp, 0);
+): number | null => {
+  const validData = numericData.filter((val): val is number => val !== null);
+
+  if (validData.length === 0) return null;
+
+  const total = validData.reduce((sum, temp) => sum + temp, 0);
   const precision = options?.precision ?? 1;
 
   return (
-    Math.round((total / numericData.length) * Math.pow(10, precision)) /
+    Math.round((total / validData.length) * Math.pow(10, precision)) /
     Math.pow(10, precision)
   );
 };
@@ -54,16 +59,20 @@ export const calculate24HourNumericAverage = (
  * @returns An array of daily average values, rounded to the specified decimal places.
  */
 export const getAllDailyNumericDataAverages = (
-  hourlyNumericData: number[],
+  hourlyNumericData: (number | null)[],
   options?: { precision?: number; multiplicationFactor?: number }
-): number[] => {
-  let dailyAverages: number[] = [];
+): (number | null)[] => {
+  const dailyAverages: (number | null)[] = [];
 
   for (let i = 0; i < hourlyNumericData.length; i += HOURS_IN_A_DAY) {
     const dailyData = hourlyNumericData.slice(i, i + HOURS_IN_A_DAY);
     const dailyAverage = calculate24HourNumericAverage(dailyData, options);
 
-    dailyAverages.push(dailyAverage * (options?.multiplicationFactor || 1));
+    dailyAverages.push(
+      dailyAverage !== null
+        ? dailyAverage * (options?.multiplicationFactor || 1)
+        : null
+    );
   }
 
   return dailyAverages;

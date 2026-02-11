@@ -18,9 +18,9 @@ export type HourlyUnits = {
 
 export type HourlySoilData = {
   time: string[];
-  soil_temperature_6cm: number[];
-  soil_temperature_18cm: number[];
-  soil_moisture_3_to_9cm: number[];
+  soil_temperature_6cm: (number | null)[];
+  soil_temperature_18cm: (number | null)[];
+  soil_moisture_3_to_9cm: (number | null)[];
 };
 
 export type OpenMeteoQueryParams = {

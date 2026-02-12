@@ -1,14 +1,16 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { ChartData, ChartOptions } from 'chart.js';
+import { Chart, ChartData, ChartOptions } from 'chart.js';
 import { ChartModule } from 'primeng/chart';
 import { OpenMeteoQueryParams } from '../../../types/openmeteo.types';
 import { getPrimeNgHexColor } from '../../../utils/styleUtils';
 import { ChartLoaderComponent } from '../../miscellanious/chart-loader/chart-loader.component';
 import { GlobalUiService } from '../../../services/global-ui.service';
-import { getChartGridLineColors } from '../../../utils/chartUtils';
 import { DARK_MODE_CHART_GRID_COLOR } from '../../../constants/chart-constants';
 import { CardModule } from 'primeng/card';
 import { NgTemplateOutlet } from '@angular/common';
+import annotationPlugin from 'chartjs-plugin-annotation';
+
+Chart.register(annotationPlugin);
 
 @Component({
   selector: 'soil-temp-week-graph',
@@ -28,6 +30,7 @@ export class SoilTempWeekGraphComponent {
   public tempUnit =
     input.required<NonNullable<OpenMeteoQueryParams['temperature_unit']>>();
   public isLoadingChartData = input<boolean>(false);
+  public todayIndex = input<number>(-1);
 
   public displayTempUnit = computed(
     () => `${this.tempUnit() === 'fahrenheit' ? '°F' : '°C'}`
@@ -71,13 +74,6 @@ export class SoilTempWeekGraphComponent {
           : undefined
       },
       x: {
-        grid: {
-          color: (context) =>
-            getChartGridLineColors(
-              context,
-              this.isDarkMode() ? 'dark' : 'light'
-            )
-        },
         ticks: {
           maxRotation: this.isMobile() ? 25 : 0,
           minRotation: this.isMobile() ? 25 : 0
@@ -88,6 +84,26 @@ export class SoilTempWeekGraphComponent {
       legend: {
         position: 'chartArea',
         align: 'end'
+      },
+      annotation: {
+        annotations:
+          this.todayIndex() >= 0
+            ? {
+                todayLine: {
+                  type: 'line',
+                  xMin: this.todayIndex(),
+                  xMax: this.todayIndex(),
+                  borderColor: this.isDarkMode()
+                    ? 'rgba(156, 163, 175, 0.6)'
+                    : 'rgba(107, 114, 128, 0.5)',
+                  borderWidth: 2,
+                  borderDash: [5, 5],
+                  label: {
+                    display: false
+                  }
+                }
+              }
+            : {}
       }
     }
   }));

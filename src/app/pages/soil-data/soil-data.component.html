@@ -25,6 +25,7 @@
           [dailyAverageDeepTemps]="dailyAverageDeepTemps()"
           [isLoadingChartData]="isLoadingAveragesChartData()"
           [tempUnit]="tempUnit()"
+          [todayIndex]="todayIndex()"
         />
       </p-card>
       <p-card [style.width]="isMobile() ? '100%' : '49%'">
@@ -41,6 +42,7 @@
           [labels]="chartLabels()"
           [dailyMoistureData]="dailyMoistureData()"
           [isLoadingChartData]="isLoadingAveragesChartData()"
+          [todayIndex]="todayIndex()"
         />
       </p-card>
     </div>

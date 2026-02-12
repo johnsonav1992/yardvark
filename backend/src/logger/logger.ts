@@ -20,6 +20,7 @@ import { requestContext, RequestContext } from './logger.context';
 import { logToOTel } from './otel.transport';
 import { SubscriptionService } from '../modules/subscription/services/subscription.service';
 import { LogHelpers } from './logger.helpers';
+import { trace, context as otelContext, SpanStatusCode } from '@opentelemetry/api';
 
 export { LogContext, WideEventContext } from './logger.types';
 export { getLogContext, getRequestContext } from './logger.context';
@@ -33,7 +34,6 @@ export class LoggingInterceptor implements NestInterceptor {
     const request = httpContext.getRequest<Request>();
     const response = httpContext.getResponse<Response>();
 
-    const traceId = this.getOrCreateTraceId(request);
     const requestId = randomUUID();
 
     const logContext: LogContext = {
@@ -42,6 +42,18 @@ export class LoggingInterceptor implements NestInterceptor {
       externalCalls: [],
     };
 
+    const tracer = trace.getTracer('yardvark-api');
+    const span = tracer.startSpan(`${request.method} ${request.path}`, {
+      attributes: {
+        'http.method': request.method,
+        'http.url': request.url,
+        'http.target': request.path,
+        'http.user_agent': request.headers['user-agent'],
+        'custom.request_id': requestId,
+      },
+    });
+
+    const traceId = span.spanContext().traceId;
     const reqContext: RequestContext = { traceId, requestId, logContext };
 
     const start = Date.now();
@@ -103,48 +115,70 @@ export class LoggingInterceptor implements NestInterceptor {
       : of(null);
 
     return new Observable((subscriber) => {
-      requestContext.run(reqContext, () => {
-        loadSubscriptionContext$
-          .pipe(
-            mergeMap(() =>
-              next.handle().pipe(
-                tap(() => {
-                  const duration = Date.now() - start;
-                  const statusCode = response.statusCode;
+      const spanContext = trace.setSpan(otelContext.active(), span);
 
-                  if (this.shouldLogRequest(statusCode, duration, true)) {
+      requestContext.run(reqContext, () => {
+        otelContext.with(spanContext, () => {
+          loadSubscriptionContext$
+            .pipe(
+              mergeMap(() =>
+                next.handle().pipe(
+                  tap(() => {
+                    const duration = Date.now() - start;
+                    const statusCode = response.statusCode;
+
+                    span.setAttributes({
+                      'http.status_code': statusCode,
+                      'http.response_time_ms': duration,
+                    });
+                    span.setStatus({ code: SpanStatusCode.OK });
+                    span.end();
+
+                    if (this.shouldLogRequest(statusCode, duration, true)) {
+                      this.logHttpRequest({
+                        request,
+                        statusCode,
+                        duration,
+                        traceId,
+                        requestId,
+                        success: true,
+                        logContext,
+                      });
+                    }
+                  }),
+                  catchError((error: unknown) => {
+                    const duration = Date.now() - start;
+                    const statusCode = this.getErrorStatusCode(response, error);
+
+                    span.setAttributes({
+                      'http.status_code': statusCode,
+                      'http.response_time_ms': duration,
+                    });
+                    span.setStatus({
+                      code: SpanStatusCode.ERROR,
+                      message: error instanceof Error ? error.message : 'Unknown error',
+                    });
+                    span.recordException(error instanceof Error ? error : new Error(String(error)));
+                    span.end();
+
                     this.logHttpRequest({
                       request,
                       statusCode,
                       duration,
                       traceId,
                       requestId,
-                      success: true,
+                      success: false,
+                      error,
                       logContext,
                     });
-                  }
-                }),
-                catchError((error: unknown) => {
-                  const duration = Date.now() - start;
-                  const statusCode = this.getErrorStatusCode(response, error);
 
-                  this.logHttpRequest({
-                    request,
-                    statusCode,
-                    duration,
-                    traceId,
-                    requestId,
-                    success: false,
-                    error,
-                    logContext,
-                  });
-
-                  return throwError(() => error);
-                }),
+                    return throwError(() => error);
+                  }),
+                ),
               ),
-            ),
-          )
-          .subscribe(subscriber);
+            )
+            .subscribe(subscriber);
+        });
       });
     });
   }
@@ -245,14 +279,6 @@ export class LoggingInterceptor implements NestInterceptor {
     );
   }
 
-  private getOrCreateTraceId(request: Request): string {
-    const existingTraceId =
-      request.headers['x-trace-id'] ||
-      request.headers['x-request-id'] ||
-      request.headers['x-correlation-id'];
-
-    return (existingTraceId as string) || randomUUID();
-  }
 
   private getClientIp(request: Request): string | undefined {
     const forwarded = request.headers['x-forwarded-for'];

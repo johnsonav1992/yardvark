@@ -5,15 +5,20 @@ import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
 import {
   initializeOTelLogger,
+  OTelConfig,
   parseOTelHeaders,
 } from './logger/otel.transport';
+import { initializeOTelTracing } from './logger/otel.tracing';
 
 async function bootstrap() {
-  initializeOTelLogger({
+  const otelConfig: OTelConfig = {
     endpoint: process.env.OTEL_EXPORTER_OTLP_ENDPOINT || '',
     headers: parseOTelHeaders(process.env.OTEL_EXPORTER_OTLP_HEADERS),
     enabled: process.env.OTEL_ENABLED === 'true',
-  });
+  };
+
+  initializeOTelTracing(otelConfig);
+  initializeOTelLogger(otelConfig);
 
   const app = await NestFactory.create(AppModule, { rawBody: true });
 

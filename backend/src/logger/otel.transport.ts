@@ -1,4 +1,5 @@
 import { logs, SeverityNumber } from '@opentelemetry/api-logs';
+import { trace, context as otelContext } from '@opentelemetry/api';
 import {
   LoggerProvider,
   SimpleLogRecordProcessor,
@@ -95,12 +96,14 @@ export function logToOTel(
   attributes?: Record<string, unknown>,
 ): void {
   const logger = logs.getLogger('yardvark-api');
+  const activeContext = otelContext.active();
 
   logger.emit({
     severityNumber: severityMap[level],
     severityText: level.toUpperCase(),
     body: message,
     attributes: flattenAttributes(attributes),
+    context: activeContext,
   });
 }
 

@@ -7,317 +7,347 @@
 @let isEntryLoading = entryResource.isLoading();
 <page-container pageTitle="Journal Entry" [useNormalBack]="true">
   <div [formGroup]="editForm">
-    <p-card>
-      <ng-template #title>
-        <div class="title-container">
-          @if (isEntryLoading) {
-            <p-skeleton [width]="'100px'" />
-            <p-skeleton [width]="'50px'" [height]="'40px'" />
-          } @else {
-            {{ date }}
-            @if (!isMobile() && isInEditMode()) {
-              <input
-                pInputText
-                formControlName="title"
-                placeholder="Enter title"
-                [style]="{ width: '50%' }"
-              />
-            } @else {
-              @if (!isMobile() && entryData()?.title) {
-                <h3>
-                  {{ entryData()?.title }}
-                </h3>
-              }
-            }
-            @if (!isMobile()) {
-              <div class="button-container">
-                <p-button
-                  [label]="isInEditMode() ? 'Save' : 'Edit'"
-                  [icon]="
-                    isLoading()
-                      ? 'ti ti-loader-2 icon-spin'
-                      : isInEditMode()
-                        ? 'ti ti-check'
-                        : 'ti ti-pencil'
-                  "
-                  outlined
-                  (click)="isInEditMode() ? submitEdits() : toggleEditMode()"
-                  [severity]="isInEditMode() ? 'success' : 'secondary'"
-                />
-                <p-button
-                  [label]="isInEditMode() ? 'Cancel' : 'Delete'"
-                  [icon]="isInEditMode() ? 'ti ti-x' : 'ti ti-trash-x'"
-                  outlined
-                  (click)="isInEditMode() ? toggleEditMode() : openConfirmDelete()"
-                  severity="danger"
-                />
+    @if (isEntryLoading) {
+      <div class="entry-detail-container">
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="card-header">
+              <p-skeleton shape="circle" size="1.25rem" />
+              <p-skeleton width="120px" height="1rem" />
+            </div>
+          </ng-template>
+          <div class="skeleton-items">
+            @for (i of [0, 1, 2, 3]; track i) {
+              <div class="skeleton-item">
+                <p-skeleton shape="circle" size="1.25rem" />
+                <div class="skeleton-content">
+                  <p-skeleton width="100px" height="0.875rem" />
+                  <p-skeleton width="180px" height="1rem" />
+                </div>
               </div>
             }
+          </div>
+        </p-card>
+        <div class="cards-grid">
+          @for (i of [0, 1]; track i) {
+            <p-card>
+              <ng-template pTemplate="header">
+                <div class="card-header">
+                  <p-skeleton shape="circle" size="1.25rem" />
+                  <p-skeleton width="100px" height="1rem" />
+                </div>
+              </ng-template>
+              <div class="skeleton-items">
+                <p-skeleton width="100%" height="60px" />
+              </div>
+            </p-card>
           }
         </div>
-        @if (isInEditMode()) {
-          <div class="time-title-edit-container">
-            @if (isMobile()) {
-              <div class="edit-field-wrapper">
-                <h3>Time:</h3>
-                <p-datePicker
-                  timeOnly
-                  [hourFormat]="'12'"
-                  formControlName="time"
-                  placeholder="Enter time"
-                />
+      </div>
+    } @else {
+      <div class="entry-detail-container">
+        <div class="cards-grid">
+          <p-card>
+            <ng-template pTemplate="header">
+              <div class="card-header">
+                <i class="ti ti-info-circle"></i>
+                <h3>Entry Info</h3>
               </div>
-              <div class="edit-field-wrapper">
-                <h3>Title (optional):</h3>
-                <input
-                  pInputText
-                  formControlName="title"
-                  placeholder="Enter title"
-                />
+            </ng-template>
+            <div class="info-items">
+              <div class="info-item">
+                <i class="ti ti-calendar"></i>
+                <div class="info-content">
+                  <span class="label">Date</span>
+                  <span class="value">{{ date }}</span>
+                </div>
               </div>
-            } @else {
-              <p-datePicker
-                timeOnly
-                [hourFormat]="'12'"
-                formControlName="time"
-                placeholder="Enter time"
-                [style]="{ width: '110px' }"
-              />
-            }
-          </div>
-        } @else {
-          <small>{{ time }}</small>
-          @if (isMobile() && entryData()?.title) {
-            <h3 [style.margin-block]="'.5rem'">{{ entryData()?.title }}</h3>
-          }
-        }
-      </ng-template>
-      <ng-template #subtitle>
-        @if (isEntryLoading) {
-          <div
-            [style]="{
-              display: 'flex',
-              gap: '1rem',
-              marginTop: '1rem',
-              alignItems: 'center'
-            }"
-          >
-            <p-skeleton [width]="'100px'" />
-            <p-skeleton [width]="'80px'" height="30px" borderRadius=".75rem" />
-          </div>
-        } @else {
-          @if (entryData()?.soilTemperature) {
-            Soil temp:
-            <p-chip
-              [label]="soilTemp"
-              icon="ti ti-thermometer"
-              [dt]="soilTempChipDt"
-            />
-          }
-        }
-      </ng-template>
-      <p-divider />
-      <div class="content-container">
-        @if (isEntryLoading) {
-          @for (num of [1, 2, 3]; track num) {
-            <p-skeleton [width]="'175px'" height="20px" />
-            <p-skeleton [width]="'90px'" />
-          }
-        } @else {
-          <div class="section-container">
-            <h3>Activities:</h3>
-            @if (isInEditMode()) {
-              <p-multiSelect
-                [options]="allActivities.value()"
-                [optionLabel]="'name'"
-                formControlName="activities"
-                [style]="{ width: isMobile() ? '100%' : '50%' }"
-                [showClear]="true"
-              />
-            } @else {
-              @if (activities()?.length) {
-                @for (activity of activities(); track activity.id) {
-                  <p>{{ activity.name }}</p>
-                }
-              } @else {
-                <p>N/A</p>
+              <div class="info-item">
+                <i class="ti ti-clock"></i>
+                <div class="info-content">
+                  <span class="label">Time</span>
+                  @if (isInEditMode()) {
+                    <p-datePicker
+                      timeOnly
+                      [hourFormat]="'12'"
+                      formControlName="time"
+                      placeholder="Enter time"
+                      [style]="{ width: isMobile() ? '100%' : '150px' }"
+                    />
+                  } @else {
+                    <span class="value">{{ time }}</span>
+                  }
+                </div>
+              </div>
+              @if (isInEditMode() || entryData()?.title) {
+                <div class="title-field">
+                  @if (isInEditMode()) {
+                    <input
+                      pInputText
+                      formControlName="title"
+                      placeholder="Entry title (optional)"
+                    />
+                  } @else {
+                    <div class="title-display">{{ entryData()?.title }}</div>
+                  }
+                </div>
               }
-            }
-          </div>
-          @if (shouldShowMowingHeight()) {
-            <div class="section-container">
-              <h3>Mowing Height:</h3>
-              @if (isInEditMode()) {
-                <input
-                  pInputText
-                  type="number"
-                  step="0.25"
-                  min="0.5"
-                  max="6"
-                  formControlName="mowingHeight"
-                  placeholder="e.g., 3.5"
-                  [style]="{ width: isMobile() ? '100%' : '50%' }"
-                />
-                <small class="text-muted">Height in inches</small>
-              } @else {
-                @if (entryData()?.mowingHeight) {
-                  <p>{{ entryData()?.mowingHeight }}"</p>
+              @if (entryData()?.soilTemperature) {
+                <div class="info-item">
+                  <i class="ti ti-thermometer"></i>
+                  <div class="info-content">
+                    <span class="label">Soil Temperature</span>
+                    <div class="chip-wrapper">
+                      <p-chip [label]="soilTemp" [dt]="soilTempChipDt" />
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </p-card>
+
+          <p-card>
+            <ng-template pTemplate="header">
+              <div class="card-header">
+                <i class="ti ti-list-check"></i>
+                <h3>Activity & Lawn Details</h3>
+              </div>
+            </ng-template>
+            <div class="info-items">
+              <div class="info-item">
+                <i class="ti ti-tools"></i>
+                <div class="info-content">
+                  <span class="label">Activities</span>
+                  @if (isInEditMode()) {
+                    <p-multiSelect
+                      [options]="allActivities.value()"
+                      [optionLabel]="'name'"
+                      formControlName="activities"
+                      [style]="{ width: '100%' }"
+                      [showClear]="true"
+                    />
+                  } @else {
+                    @if (activities()?.length) {
+                      <div class="value-list">
+                        @for (activity of activities(); track activity.id) {
+                          <span>{{ activity.name }}</span>
+                        }
+                      </div>
+                    } @else {
+                      <span class="empty">None</span>
+                    }
+                  }
+                </div>
+              </div>
+              <div class="info-item">
+                <i class="ti ti-layout-grid"></i>
+                <div class="info-content">
+                  <span class="label">Lawn Segments</span>
+                  @if (isInEditMode()) {
+                    <p-multiSelect
+                      [options]="allLawnSegments.value()"
+                      [optionLabel]="'name'"
+                      formControlName="lawnSegments"
+                      [style]="{ width: '100%' }"
+                      [showClear]="true"
+                    />
+                  } @else {
+                    @if (entryData()?.lawnSegments?.length) {
+                      <div class="value-list">
+                        @for (
+                          segment of entryData()?.lawnSegments;
+                          track segment.id
+                        ) {
+                          <span>{{ segment.name }}</span>
+                        }
+                      </div>
+                    } @else {
+                      <span class="empty">None</span>
+                    }
+                  }
+                </div>
+              </div>
+              @if (shouldShowMowingHeight()) {
+                <div class="info-item">
+                  <i class="ti ti-ruler"></i>
+                  <div class="info-content">
+                    <span class="label">Mowing Height</span>
+                    @if (isInEditMode()) {
+                      <div class="mowing-input">
+                        <input
+                          pInputText
+                          type="number"
+                          step="0.25"
+                          min="0.5"
+                          max="6"
+                          formControlName="mowingHeight"
+                          placeholder="e.g., 3.5"
+                          [style]="{ width: '100px' }"
+                        />
+                        <small>inches</small>
+                      </div>
+                    } @else {
+                      <span class="value">{{ entryData()?.mowingHeight }}"</span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </p-card>
+        </div>
+
+        <div class="cards-grid">
+          @if (shouldShowProductsCard()) {
+            <p-card>
+              <ng-template pTemplate="header">
+                <div class="card-header">
+                  <i class="ti ti-package"></i>
+                  <h3>Products Applied</h3>
+                </div>
+              </ng-template>
+              <div class="card-content">
+                @if (isInEditMode()) {
+                  <products-selector
+                    [form]="editForm"
+                    inputWidth="100%"
+                    productCardsWidth="100%"
+                  />
                 } @else {
-                  <p>N/A</p>
+                  @if (entryData()?.products?.length) {
+                    <div class="products-list">
+                      @for (product of entryData()?.products; track product.id) {
+                        <product-small-card
+                          [product]="product"
+                          [asAppliedAmount]="true"
+                          [width]="isMobile() ? '100%' : 'max-content'"
+                        />
+                      }
+                    </div>
+                  } @else {
+                    <span class="empty">No products applied</span>
+                  }
+                }
+              </div>
+            </p-card>
+          }
+
+          @if (shouldShowNotesCard()) {
+            <p-card>
+              <ng-template pTemplate="header">
+                <div class="card-header">
+                  <i class="ti ti-notes"></i>
+                  <h3>Notes</h3>
+                </div>
+              </ng-template>
+              <div class="card-content">
+                @if (isInEditMode()) {
+                  <textarea
+                    pTextarea
+                    [rows]="8"
+                    formControlName="notes"
+                    placeholder="Add notes..."
+                    class="notes-textarea"
+                  ></textarea>
+                } @else {
+                  <p class="notes-text">{{ entryData()?.notes }}</p>
+                }
+              </div>
+            </p-card>
+          }
+        </div>
+
+        @if (shouldShowImagesCard()) {
+          <p-card>
+            <ng-template pTemplate="header">
+              <div class="card-header">
+                <i class="ti ti-photo"></i>
+                <h3>Images</h3>
+              </div>
+            </ng-template>
+            <div class="card-content">
+              @if (isInEditMode()) {
+                <p-fileUpload
+                  [multiple]="true"
+                  [fileLimit]="5"
+                  [maxFileSize]="maxFileUploadSize"
+                  accept="image/*"
+                  (onSelect)="onFilesSelect($event)"
+                  chooseLabel="Choose Images"
+                  [showUploadButton]="false"
+                  [showCancelButton]="false"
+                  [files]="downloadedFiles()"
+                >
+                  <ng-template
+                    #content
+                    let-files
+                    let-removeFileCallback="removeFileCallback"
+                  >
+                    @for (file of files; track file.name) {
+                      <div class="file-item">
+                        <div class="file-preview">
+                          <img [src]="file.objectURL" />
+                          <span>{{ file.name }}</span>
+                        </div>
+                        <p-button
+                          type="button"
+                          icon="ti ti-x"
+                          severity="danger"
+                          rounded
+                          outlined
+                          size="small"
+                          (click)="onRemoveFile(file, removeFileCallback, $index)"
+                        />
+                      </div>
+                    }
+                  </ng-template>
+                  <ng-template #file></ng-template>
+                </p-fileUpload>
+              } @else {
+                @let imgs = entryImageUrls();
+                @if (imgs?.length) {
+                  <p-galleria
+                    [value]="imgs"
+                    [showIndicators]="(imgs?.length || 0) > 1"
+                    [showThumbnails]="false"
+                    [containerStyle]="{ width: '100%' }"
+                  >
+                    <ng-template #item let-item>
+                      <div class="gallery-container">
+                        <img [src]="item" />
+                      </div>
+                    </ng-template>
+                  </p-galleria>
                 }
               }
             </div>
-          }
-          <div class="section-container">
-            <h3>Lawn segments:</h3>
-            @if (isInEditMode()) {
-              <p-multiSelect
-                [options]="allLawnSegments.value()"
-                [optionLabel]="'name'"
-                formControlName="lawnSegments"
-                [style]="{ width: isMobile() ? '100%' : '50%' }"
-                [showClear]="true"
-              />
-            } @else {
-              @if (entryData()?.lawnSegments?.length) {
-                @for (segment of entryData()?.lawnSegments; track segment.id) {
-                  <p>{{ segment.name }}</p>
-                }
-              } @else {
-                <p>N/A</p>
-              }
-            }
-          </div>
-          <div class="section-container">
-            <h3>Notes:</h3>
-            @if (isInEditMode()) {
-              <textarea
-                pTextarea
-                [rows]="3"
-                formControlName="notes"
-                [style]="{ width: isMobile() ? '100%' : '50%' }"
-              ></textarea>
-            } @else {
-              @if (entryData()?.notes) {
-                {{ entryData()?.notes }}
-              } @else {
-                <p>N/A</p>
-              }
-            }
-          </div>
-          <div class="section-container">
-            <h3>Products:</h3>
-            @if (isInEditMode()) {
-              <products-selector
-                [form]="editForm"
-                [inputWidth]="isMobile() ? '100%' : '50%'"
-                [productCardsWidth]="isMobile() ? '100%' : '50%'"
-              />
-            } @else {
-              @if (entryData()?.products?.length) {
-                <div class="products-wrapper">
-                  @for (product of entryData()?.products; track product.id) {
-                    <product-small-card
-                      [product]="product"
-                      [asAppliedAmount]="true"
-                      [width]="isMobile() ? '100%' : 'max-content'"
-                    />
-                  }
-                </div>
-              } @else {
-                <p>N/A</p>
-              }
-            }
-          </div>
-        }
-        @if (isInEditMode()) {
-          <div class="section-container">
-            <p-fileUpload
-              [multiple]="true"
-              [fileLimit]="5"
-              [maxFileSize]="maxFileUploadSize"
-              accept="image/*"
-              (onSelect)="onFilesSelect($event)"
-              chooseLabel="Choose Images"
-              [showUploadButton]="false"
-              [showCancelButton]="false"
-              [files]="downloadedFiles()"
-            >
-              <ng-template
-                #content
-                let-files
-                let-removeFileCallback="removeFileCallback"
-              >
-                @for (file of files; track file.name) {
-                  <div class="file">
-                    <div class="name-image">
-                      <img [src]="file.objectURL" width="auto" height="40" />
-                      {{ file.name }}
-                    </div>
-                    <p-button
-                      type="button"
-                      icon="ti ti-x"
-                      severity="danger"
-                      rounded
-                      outlined
-                      (click)="onRemoveFile(file, removeFileCallback, $index)"
-                    />
-                  </div>
-                }
-              </ng-template>
-              <ng-template #file></ng-template>
-            </p-fileUpload>
-          </div>
-        }
-        @if (isMobile()) {
-          <div class="mobile-action-buttons">
-            <p-button
-              [label]="isInEditMode() ? 'Save' : 'Edit'"
-              [icon]="
-                isLoading()
-                  ? 'ti ti-loader-2 icon-spin'
-                  : isInEditMode()
-                    ? 'ti ti-check'
-                    : 'ti ti-pencil'
-              "
-              outlined
-              (click)="isInEditMode() ? submitEdits() : toggleEditMode()"
-              [severity]="isInEditMode() ? 'success' : 'secondary'"
-            />
-            <p-button
-              [label]="isInEditMode() ? 'Cancel' : 'Delete'"
-              [icon]="isInEditMode() ? 'ti ti-x' : 'ti ti-trash-x'"
-              outlined
-              (click)="isInEditMode() ? toggleEditMode() : openConfirmDelete()"
-              severity="danger"
-            />
-          </div>
+          </p-card>
         }
       </div>
-    </p-card>
-    @let imgs = entryImageUrls();
-    @if (!isInEditMode()) {
-      @if (imgs?.length) {
-        <p-card [style]="{ marginTop: '1rem' }">
-          <h3>Images:</h3>
-          <p-galleria
-            [value]="imgs"
-            [showIndicators]="(imgs?.length || 0) > 1"
-            [showThumbnails]="false"
-            showIndicators
-            [containerStyle]="{
-              marginTop: '.5rem',
-              width: !isMobile() ? '65%' : '100%'
-            }"
-          >
-            <ng-template #item let-item>
-              <div class="galleria-image-container">
-                <img [src]="item" class="image" />
-              </div>
-            </ng-template>
-          </p-galleria>
-        </p-card>
-      }
     }
   </div>
+
+  @if (!isEntryLoading) {
+    <div class="button-container">
+      <p-button
+        [label]="isInEditMode() ? 'Save' : 'Edit'"
+        [icon]="
+          isLoading()
+            ? 'ti ti-loader-2 icon-spin'
+            : isInEditMode()
+              ? 'ti ti-check'
+              : 'ti ti-pencil'
+        "
+        outlined
+        (click)="isInEditMode() ? submitEdits() : toggleEditMode()"
+        [severity]="isInEditMode() ? 'success' : 'secondary'"
+      />
+      <p-button
+        [label]="isInEditMode() ? 'Cancel' : 'Delete'"
+        [icon]="isInEditMode() ? 'ti ti-x' : 'ti ti-trash-x'"
+        outlined
+        (click)="isInEditMode() ? toggleEditMode() : openConfirmDelete()"
+        severity="danger"
+      />
+    </div>
+  }
 </page-container>

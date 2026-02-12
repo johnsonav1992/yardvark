@@ -242,3 +242,22 @@
 ::ng-deep upgrade-prompt .upgrade-content {
   padding: 2rem 1rem;
 }
+
+:host-context(:root.yv-dark-mode) {
+  ::ng-deep p-card .p-card {
+    background: var(--p-surface-800);
+    color: var(--p-surface-100);
+  }
+
+  .empty-state,
+  .off-season-state {
+    h3 {
+      color: var(--p-surface-100);
+    }
+  }
+
+  .off-season-tip {
+    background: var(--p-surface-700);
+    color: var(--p-surface-100);
+  }
+}

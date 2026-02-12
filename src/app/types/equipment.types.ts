@@ -6,6 +6,7 @@ export type Equipment = {
   model?: string;
   description?: string;
   imageUrl?: string;
+  imagePosition?: string;
   serialNumber?: string;
   purchaseDate?: Date;
   purchasePrice?: number;

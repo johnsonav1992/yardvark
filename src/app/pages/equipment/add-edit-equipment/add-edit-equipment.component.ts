@@ -77,6 +77,7 @@ export class AddEditEquipmentComponent implements OnInit {
         ?.find((equipment) => equipment.id === +this.equipmentId!)
     : null;
 
+  public currentImageUrl = signal<string | null>(null);
   public isLoading = signal(false);
 
   public ngOnInit(): void {
@@ -86,8 +87,12 @@ export class AddEditEquipmentComponent implements OnInit {
         purchaseDate: this.equipmentToEdit.purchaseDate
           ? new Date(this.equipmentToEdit.purchaseDate)
           : null,
-        image: null // TODO
+        image: null
       });
+
+      if (this.equipmentToEdit.imageUrl) {
+        this.currentImageUrl.set(this.equipmentToEdit.imageUrl);
+      }
     }
   }
 
@@ -95,10 +100,15 @@ export class AddEditEquipmentComponent implements OnInit {
     const file = e.files[0];
 
     this.form.patchValue({ image: file });
+    this.currentImageUrl.set(null);
   }
 
   public fileClear(): void {
     this.form.patchValue({ image: null });
+
+    if (this.equipmentToEdit?.imageUrl) {
+      this.currentImageUrl.set(this.equipmentToEdit.imageUrl);
+    }
   }
 
   public back(): void {

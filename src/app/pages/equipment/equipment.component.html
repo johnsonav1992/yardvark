@@ -1,8 +1,18 @@
 <page-container pageTitle="Equipment">
   <ng-template #action1>
+    @if (!isMobile()) {
+      <p-button
+        [icon]="viewMode() === 'grid' ? 'ti ti-list' : 'ti ti-grid-dots'"
+        [pTooltip]="viewMode() === 'grid' ? 'List view' : 'Grid view'"
+        outlined
+        severity="secondary"
+        (onClick)="toggleViewMode()"
+        [style.marginLeft]="'auto'"
+      />
+    }
     <p-floatlabel
       variant="on"
-      [style.marginLeft]="screenWidth() > 400 ? 'auto' : ''"
+      [style.marginLeft]="isMobile() || screenWidth() <= 400 ? 'auto' : ''"
       [style.width]="isMobile() ? '30vw' : ''"
     >
       <p-iconfield iconPosition="left">
@@ -20,24 +30,179 @@
     </p-floatlabel>
   </ng-template>
   @if (equipment.isLoading()) {
-    <loading-spinner />
+    <div class="equipment-grid">
+      @for (i of skeletonCards; track i) {
+        <p-card class="skeleton-card">
+          <ng-template pTemplate="header">
+            <p-skeleton width="100%" height="300px" />
+          </ng-template>
+          <ng-template pTemplate="title">
+            <p-skeleton width="70%" height="1.25rem" />
+          </ng-template>
+          <ng-template pTemplate="subtitle">
+            <p-skeleton width="40%" height="1rem" />
+          </ng-template>
+          <div class="skeleton-card-content">
+            <div class="skeleton-badges">
+              <p-skeleton width="80px" height="1.5rem" borderRadius="1rem" />
+              <p-skeleton width="110px" height="1.5rem" borderRadius="1rem" />
+            </div>
+            <p-skeleton width="100%" height="0.9rem" />
+            <p-skeleton width="85%" height="0.9rem" />
+            <div class="skeleton-details">
+              <p-skeleton width="100px" height="0.85rem" />
+              <p-skeleton width="100px" height="0.85rem" />
+            </div>
+          </div>
+          <ng-template pTemplate="footer">
+            <div class="skeleton-footer">
+              <p-skeleton width="100%" height="2.25rem" borderRadius="var(--p-button-border-radius)" />
+              <p-skeleton width="2.75rem" height="2.25rem" borderRadius="var(--p-button-border-radius)" />
+            </div>
+          </ng-template>
+        </p-card>
+      }
+    </div>
   } @else {
-    @for (equipmentItem of filteredEquipment(); track equipmentItem.id) {
-      <equipment-preview-card [equipment]="equipmentItem" />
-    } @empty {
-      <p-card>
-        <ng-template #title>
-          <h2>No equipment found</h2>
+    @if (viewMode() === 'grid' || isMobile()) {
+      <div class="equipment-grid">
+        @for (equipmentItem of filteredEquipment(); track equipmentItem.id) {
+          <equipment-preview-card [equipment]="equipmentItem" />
+        } @empty {
+          <div class="empty-state">
+            <p-card>
+              <ng-template #title>
+                <div class="empty-state-title">
+                  <i class="ti ti-tools"></i>
+                  <h2>No equipment found</h2>
+                </div>
+              </ng-template>
+              <div class="empty-card-content">
+                <p>Try adding some equipment to your inventory.</p>
+                <p-button
+                  icon="ti ti-plus"
+                  label="Add Equipment"
+                  (click)="navToAddEquipment()"
+                />
+              </div>
+            </p-card>
+          </div>
+        }
+      </div>
+    } @else {
+      <p-table
+        [value]="filteredEquipment() || []"
+        [tableStyle]="{ 'min-width': '50rem' }"
+        styleClass="equipment-table"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 80px">Image</th>
+            <th>Name</th>
+            <th>Model</th>
+            <th>Fuel Type</th>
+            <th>Status</th>
+            <th>Last Service</th>
+            <th>Purchased</th>
+            <th style="width: 200px">Actions</th>
+          </tr>
         </ng-template>
-        <div class="empty-card-content">
-          <p>Try adding some equipment to your inventory.</p>
-          <p-button
-            icon="ti ti-plus"
-            label="Add Equipment"
-            (click)="navToAddEquipment()"
-          />
-        </div>
-      </p-card>
+        <ng-template pTemplate="body" let-item>
+          <tr
+            [style.cursor]="'pointer'"
+            (click)="goToEquipment(item.id)"
+            class="equipment-row"
+          >
+            <td>
+              <img
+                [src]="item.imageUrl || noImageUrl"
+                [alt]="item.name"
+                class="table-image"
+              />
+            </td>
+            <td>
+              <div class="name-cell">
+                <i class="ti ti-tools"></i>
+                <strong>{{ item.brand }} {{ item.name }}</strong>
+              </div>
+            </td>
+            <td>{{ item.model || "-" }}</td>
+            <td>
+              @if (item.fuelType) {
+                <p-tag [value]="item.fuelType" severity="secondary">
+                  <ng-template pTemplate="icon">
+                    <i class="ti ti-gas-station"></i>
+                  </ng-template>
+                </p-tag>
+              } @else {
+                <span>-</span>
+              }
+            </td>
+            <td>
+              @if (getMaintenanceStatusConfig(item); as config) {
+                <p-tag [value]="config.label" [severity]="config.severity">
+                  <ng-template pTemplate="icon">
+                    <i [class]="config.icon"></i>
+                  </ng-template>
+                </p-tag>
+              } @else {
+                <span>-</span>
+              }
+            </td>
+            <td>
+              @if (item.maintenanceRecords.length > 0) {
+                {{ item.maintenanceRecords[0].maintenanceDate | date: "M/dd/yyyy" }}
+              } @else {
+                <span>N/A</span>
+              }
+            </td>
+            <td>
+              @if (item.purchaseDate) {
+                {{ item.purchaseDate | date: "M/dd/yyyy" }}
+              } @else {
+                <span>-</span>
+              }
+            </td>
+            <td (click)="$event.stopPropagation()">
+              <div class="table-actions">
+                <p-button
+                  icon="ti ti-eye"
+                  size="small"
+                  outlined
+                  pTooltip="View details"
+                  tooltipPosition="bottom"
+                  (onClick)="goToEquipment(item.id)"
+                />
+                <p-button
+                  icon="ti ti-hammer"
+                  size="small"
+                  outlined
+                  severity="secondary"
+                  pTooltip="Add maintenance"
+                  tooltipPosition="bottom"
+                  (onClick)="openMaintenanceRecordModal($event, item.id)"
+                />
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="8" class="empty-table">
+              <div class="empty-table-content">
+                <i class="ti ti-tools"></i>
+                <h3>No equipment found</h3>
+                <p>Try adding some equipment to your inventory.</p>
+                <p-button
+                  icon="ti ti-plus"
+                  label="Add Equipment"
+                  (click)="navToAddEquipment()"
+                />
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
     }
   }
   <p-button

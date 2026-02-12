@@ -10,7 +10,7 @@
           severity="secondary"
         />
       }
-      <h1>{{ pageTitle() }}</h1>
+      <h1 [class]="titleClass()">{{ pageTitle() }}</h1>
       @if (titleSuffix()) {
         <ng-container [ngTemplateOutlet]="titleSuffix()!"></ng-container>
       }

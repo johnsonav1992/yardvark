@@ -17,7 +17,7 @@ import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Controller('subscription')
 export class SubscriptionController {
-  constructor(private subscriptionService: SubscriptionService) {}
+  constructor(private readonly subscriptionService: SubscriptionService) {}
 
   @Get('status')
   async getStatus(@Req() req: Request) {

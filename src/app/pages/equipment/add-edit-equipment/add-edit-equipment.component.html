@@ -51,10 +51,27 @@
           />
         </ng-template>
         <ng-template #empty>
-          <div class="empty-file" (click)="imageUploader.choose()">
-            <p>Drag and drop image here or click to upload</p>
-            <i class="ti ti-cloud-upload upload-icon"></i>
-          </div>
+          @if (currentImageUrl()) {
+            <div class="existing-image-container">
+              <img
+                [src]="currentImageUrl()"
+                class="file-image"
+                [class.mobile]="isMobile()"
+              />
+              <p-button
+                label="Replace Image"
+                icon="ti ti-upload"
+                severity="secondary"
+                (click)="imageUploader.choose()"
+                class="replace-button"
+              />
+            </div>
+          } @else {
+            <div class="empty-file" (click)="imageUploader.choose()">
+              <p>Drag and drop image here or click to upload</p>
+              <i class="ti ti-cloud-upload upload-icon"></i>
+            </div>
+          }
         </ng-template>
       </p-fileUpload>
     </div>

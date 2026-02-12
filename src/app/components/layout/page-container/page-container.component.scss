@@ -17,11 +17,28 @@
       flex-wrap: wrap;
     }
 
-    .inner-title,
+    .inner-title {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex: 1;
+      min-width: 0;
+
+      h1 {
+        margin: 0;
+        font-size: 1.75rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+      }
+    }
+
     .actions {
       display: flex;
       gap: 0.5rem;
       align-items: center;
+      flex-shrink: 0;
     }
   }
 }

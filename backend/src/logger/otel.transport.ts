@@ -1,5 +1,5 @@
 import { logs, SeverityNumber } from '@opentelemetry/api-logs';
-import { trace, context as otelContext } from '@opentelemetry/api';
+import { context as otelContext } from '@opentelemetry/api';
 import {
   LoggerProvider,
   SimpleLogRecordProcessor,

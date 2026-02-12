@@ -72,3 +72,10 @@
     }
   }
 }
+
+:host-context(:root.yv-dark-mode) {
+  ::ng-deep p-card .p-card {
+    background: var(--p-surface-800);
+    color: var(--p-surface-100);
+  }
+}

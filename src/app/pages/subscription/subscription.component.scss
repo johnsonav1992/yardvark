@@ -170,3 +170,19 @@
     }
   }
 }
+
+:host-context(:root.yv-dark-mode) {
+  ::ng-deep {
+    .pricing-card,
+    .benefit-card {
+      .p-card {
+        background: var(--p-surface-800);
+        color: var(--p-surface-100);
+      }
+
+      &.current {
+        background: var(--p-surface-700);
+      }
+    }
+  }
+}

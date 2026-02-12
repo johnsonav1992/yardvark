@@ -87,6 +87,7 @@
   padding: 1rem;
   background: var(--p-surface-50);
   border-bottom: 1px solid var(--p-surface-200);
+  border-radius: var(--p-card-border-radius) var(--p-card-border-radius) 0 0;
 
   i {
     font-size: 1.25rem;
@@ -98,6 +99,97 @@
     font-size: 1rem;
     font-weight: 600;
     color: var(--p-surface-700);
+  }
+}
+
+:host-context(:root.yv-dark-mode) {
+  ::ng-deep p-card .p-card {
+    background: var(--p-surface-800);
+    color: var(--p-surface-100);
+    overflow: hidden;
+  }
+
+  .card-header {
+    background: var(--p-surface-800);
+    border-bottom-color: var(--p-surface-700);
+
+    h3 {
+      color: var(--p-surface-100);
+    }
+  }
+
+  .hero-section {
+    background: var(--p-surface-700);
+  }
+
+  .description-card .description-text {
+    color: var(--p-surface-300);
+  }
+
+  .stats-summary .stat-item {
+    i {
+      background: var(--p-surface-700);
+    }
+
+    .stat-content {
+      .stat-value {
+        color: var(--p-surface-100);
+      }
+
+      .stat-label {
+        color: var(--p-surface-400);
+      }
+    }
+  }
+
+  .info-item .info-content {
+    .info-label {
+      color: var(--p-surface-400);
+    }
+
+    .info-value {
+      color: var(--p-surface-100);
+    }
+  }
+
+  .maintenance-section .maintenance-header h2 {
+    color: var(--p-surface-100);
+  }
+
+  ::ng-deep .maintenance-table-card .maintenance-row:hover {
+    background-color: var(--p-surface-700);
+  }
+
+  .maintenance-mobile-card {
+    .mobile-card-header .mobile-card-date {
+      color: var(--p-surface-100);
+    }
+
+    .mobile-card-cost {
+      background: var(--p-surface-700);
+
+      strong {
+        color: var(--p-surface-100);
+      }
+    }
+
+    .mobile-card-notes p {
+      color: var(--p-surface-300);
+    }
+  }
+
+  .empty-maintenance {
+    p {
+      color: var(--p-surface-300);
+    }
+
+    .empty-subtext {
+      color: var(--p-surface-400);
+    }
+  }
+
+  .position-controls {
+    background: var(--p-surface-800);
   }
 }
 

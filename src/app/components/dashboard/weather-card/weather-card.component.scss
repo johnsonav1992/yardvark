@@ -168,3 +168,23 @@
     }
   }
 }
+
+:host-context(:root.yv-dark-mode) {
+  ::ng-deep p-card .p-card {
+    background: var(--p-surface-800);
+    color: var(--p-surface-100);
+  }
+
+  .temperature,
+  .forecast {
+    color: var(--p-surface-100) !important;
+  }
+
+  .tonight-weather {
+    border-top-color: var(--p-surface-700);
+
+    h4 {
+      color: var(--p-surface-100);
+    }
+  }
+}

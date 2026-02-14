@@ -13,7 +13,9 @@
       @for (marker of dayMarkers; track marker.id) {
         <div [style.margin-left]="$index !== 0 ? '-.25rem' : ''">
           <p-button
-            (click)="navigateToEntry(marker.data.entry); $event.stopPropagation()"
+            (click)="
+              navigateToEntry(marker.data.entry); $event.stopPropagation()
+            "
             [icon]="marker.icon"
             rounded
             size="small"
@@ -36,20 +38,30 @@
       <div
         class="list-sort-controls"
         [style]="{
-          padding: isMobile() ? '0.5rem 0.75rem 0.25rem 0.75rem' : '0.75rem 1rem 0.5rem 1rem',
+          padding: isMobile()
+            ? '0.5rem 0.75rem 0.25rem 0.75rem'
+            : '0.75rem 1rem 0.5rem 1rem',
           gap: '0.5rem'
         }"
       >
         <span class="sort-label">Sort</span>
         <p-button
-          [icon]="entrySortOrder() === 'asc' ? 'ti ti-sort-ascending-2' : 'ti ti-sort-descending-2'"
+          [icon]="
+            entrySortOrder() === 'asc'
+              ? 'ti ti-sort-ascending-2'
+              : 'ti ti-sort-descending-2'
+          "
           severity="secondary"
           outlined
           rounded
           size="large"
           [dt]="sortButtonDt"
           (click)="toggleSortOrder()"
-          [pTooltip]="entrySortOrder() === 'asc' ? 'Sort by date: Oldest First' : 'Sort by date: Newest First'"
+          [pTooltip]="
+            entrySortOrder() === 'asc'
+              ? 'Sort by date: Oldest First'
+              : 'Sort by date: Newest First'
+          "
           tooltipPosition="left"
           [showDelay]="1500"
         />

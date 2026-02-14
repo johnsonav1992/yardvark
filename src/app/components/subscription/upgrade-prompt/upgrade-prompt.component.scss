@@ -1,6 +1,10 @@
 :host ::ng-deep .upgrade-card {
   border: 2px solid var(--p-green-100);
-  background: linear-gradient(135deg, var(--p-surface-50) 0%, var(--p-green-50) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--p-surface-50) 0%,
+    var(--p-green-50) 100%
+  );
 }
 
 .upgrade-content {

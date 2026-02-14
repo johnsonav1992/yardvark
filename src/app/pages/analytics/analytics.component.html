@@ -25,7 +25,9 @@
     </div>
   } @else {
     <em [style.font-size]="'10px'">
-      {{ `${isMobile() ? 'Click on' : 'Hover over'} segments or points of charts to see more details` }}
+      {{
+        `${isMobile() ? "Click on" : "Hover over"} segments or points of charts to see more details`
+      }}
     </em>
     <div class="main-container">
       @for (chart of charts(); track chart.title) {

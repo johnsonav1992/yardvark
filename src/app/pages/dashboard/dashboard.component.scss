@@ -106,7 +106,7 @@
       }
 
       &::before {
-        content: '↓ Drop widget here ↓';
+        content: "↓ Drop widget here ↓";
         color: var(--p-primary-600);
         font-weight: 500;
         font-size: 1.1rem;
@@ -154,7 +154,7 @@
       }
 
       &::before {
-        content: '↓ Drop widget here ↓';
+        content: "↓ Drop widget here ↓";
         color: var(--p-primary-700);
         font-weight: 600;
         font-size: 1rem;
@@ -169,7 +169,8 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     border-color: var(--p-primary-500);
     background: var(--p-primary-50);
   }
@@ -180,7 +181,8 @@
 }
 
 @keyframes pulse-dark {
-  0%, 100% {
+  0%,
+  100% {
     border-color: var(--p-primary-400);
     background: var(--p-surface-800);
   }
@@ -191,7 +193,8 @@
 }
 
 @keyframes bounce {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0);
   }
   50% {

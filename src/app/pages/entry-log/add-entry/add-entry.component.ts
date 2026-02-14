@@ -330,7 +330,8 @@ export class AddEntryComponent implements OnInit {
           this.isLoading.set(false);
           if (error.status === 402) {
             this.throwErrorToast(
-              error.error.message || 'Entry limit reached. Upgrade for unlimited entries.'
+              error.error.message ||
+                'Entry limit reached. Upgrade for unlimited entries.'
             );
           } else {
             this.throwErrorToast('Failed to create entry');
@@ -365,7 +366,8 @@ export class AddEntryComponent implements OnInit {
           this.isLoading.set(false);
           if (error.status === 402) {
             this.throwErrorToast(
-              error.error.message || 'Entry limit reached. Upgrade for unlimited entries.'
+              error.error.message ||
+                'Entry limit reached. Upgrade for unlimited entries.'
             );
           } else {
             this.throwErrorToast('Failed to create entries');

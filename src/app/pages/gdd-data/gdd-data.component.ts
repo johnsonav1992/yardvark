@@ -58,7 +58,9 @@ export class GddDataComponent {
       this.forecastData.isLoading()
   );
 
-  public hasLoadedGddData = computed(() => this.currentGddData.value() !== undefined);
+  public hasLoadedGddData = computed(
+    () => this.currentGddData.value() !== undefined
+  );
 
   public accumulatedGdd = computed(
     () => this.currentGddData.value()?.accumulatedGdd ?? 0

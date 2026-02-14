@@ -12,7 +12,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { S3Service } from 'src/modules/s3/s3.service';
 import { imageFileValidator } from 'src/utils/fileUtils';
 import { ProductsService } from '../services/products.service';
-import { resultOrThrow } from '../../../utils/unwrapResult';
+import { resultOrThrow } from '../../../utils/resultOrThrow';
 import { Product } from '../models/products.model';
 import { User } from '../../../decorators/user.decorator';
 import { LogHelpers } from '../../../logger/logger.helpers';

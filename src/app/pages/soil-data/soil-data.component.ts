@@ -16,7 +16,10 @@ import { CardModule } from 'primeng/card';
 import { PopoverModule } from 'primeng/popover';
 import { GlobalUiService } from '../../services/global-ui.service';
 import { injectSettingsService } from '../../services/settings.service';
-import { getDayLabelsCenteredAroundToday, HOURS_IN_A_DAY } from '../../utils/timeUtils';
+import {
+  getDayLabelsCenteredAroundToday,
+  HOURS_IN_A_DAY
+} from '../../utils/timeUtils';
 
 @Component({
   selector: 'soil-data',
@@ -93,7 +96,11 @@ export class SoilDataComponent {
     let todayIndex = 0;
 
     for (let i = 0; i < labels.length; i++) {
-      const hasData = !(shallow[i] === null && deep[i] === null && moisture[i] === null);
+      const hasData = !(
+        shallow[i] === null &&
+        deep[i] === null &&
+        moisture[i] === null
+      );
 
       if (!hasData) continue;
 
@@ -117,8 +124,12 @@ export class SoilDataComponent {
   });
 
   public chartLabels = computed(() => this._filteredChartData().labels);
-  public dailyAverageShallowTemps = computed(() => this._filteredChartData().shallowTemps);
-  public dailyAverageDeepTemps = computed(() => this._filteredChartData().deepTemps);
+  public dailyAverageShallowTemps = computed(
+    () => this._filteredChartData().shallowTemps
+  );
+  public dailyAverageDeepTemps = computed(
+    () => this._filteredChartData().deepTemps
+  );
   public dailyMoistureData = computed(() => this._filteredChartData().moisture);
   public todayIndex = computed(() => this._filteredChartData().todayIndex);
 
@@ -148,9 +159,7 @@ export class SoilDataComponent {
     const hour = String(now.getHours()).padStart(2, '0');
     const nowLocal = `${year}-${month}-${day}T${hour}`;
 
-    const index = hourly.time.findIndex(
-      (t) => t.startsWith(nowLocal)
-    );
+    const index = hourly.time.findIndex((t) => t.startsWith(nowLocal));
 
     return index >= 0 ? index : 7 * HOURS_IN_A_DAY + now.getHours();
   });

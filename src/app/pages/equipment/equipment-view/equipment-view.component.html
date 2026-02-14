@@ -76,7 +76,11 @@
       <div class="maintenance-section">
         <div class="maintenance-header">
           <p-skeleton width="200px" height="1.5rem" />
-          <p-skeleton width="110px" height="2.25rem" borderRadius="var(--p-button-border-radius)" />
+          <p-skeleton
+            width="110px"
+            height="2.25rem"
+            borderRadius="var(--p-button-border-radius)"
+          />
         </div>
         <p-card>
           <div class="skeleton-maintenance-rows">
@@ -85,7 +89,11 @@
                 <p-skeleton width="100px" height="1rem" />
                 <p-skeleton width="70px" height="1rem" />
                 <p-skeleton width="60%" height="1rem" />
-                <p-skeleton width="80px" height="2rem" borderRadius="var(--p-button-border-radius)" />
+                <p-skeleton
+                  width="80px"
+                  height="2rem"
+                  borderRadius="var(--p-button-border-radius)"
+                />
               </div>
             }
           </div>
@@ -106,7 +114,6 @@
         />
 
         @if (!isAdjustingPosition()) {
-
           <button
             class="adjust-position-button"
             pButton
@@ -117,9 +124,7 @@
             tooltipPosition="left"
             (click)="togglePositionAdjustment()"
           ></button>
-
         } @else {
-
           <div class="position-controls">
             <p-button
               label="Save"
@@ -136,7 +141,6 @@
               (onClick)="cancelPositionAdjustment()"
             />
           </div>
-
         }
       </div>
 
@@ -153,14 +157,18 @@
               <i class="ti ti-tag"></i>
               <div class="info-content">
                 <span class="info-label">Brand</span>
-                <span class="info-value">{{ equipment()?.brand | titlecase }}</span>
+                <span class="info-value">{{
+                  equipment()?.brand | titlecase
+                }}</span>
               </div>
             </div>
             <div class="info-item">
               <i class="ti ti-box"></i>
               <div class="info-content">
                 <span class="info-label">Model</span>
-                <span class="info-value">{{ equipment()?.model || "N/A" }}</span>
+                <span class="info-value">{{
+                  equipment()?.model || "N/A"
+                }}</span>
               </div>
             </div>
             @if (equipment()?.fuelType) {
@@ -181,7 +189,9 @@
                 <i class="ti ti-barcode"></i>
                 <div class="info-content">
                   <span class="info-label">Serial Number</span>
-                  <span class="info-value">{{ equipment()?.serialNumber }}</span>
+                  <span class="info-value">{{
+                    equipment()?.serialNumber
+                  }}</span>
                 </div>
               </div>
             }
@@ -247,7 +257,10 @@
                 </div>
               </div>
             }
-            @if (equipment()?.maintenanceRecords && equipment()!.maintenanceRecords.length > 0) {
+            @if (
+              equipment()?.maintenanceRecords &&
+              equipment()!.maintenanceRecords.length > 0
+            ) {
               <div class="info-item">
                 <i class="ti ti-calendar-check"></i>
                 <div class="info-content">
@@ -299,14 +312,18 @@
           <div class="stat-item">
             <i class="ti ti-tool"></i>
             <div class="stat-content">
-              <span class="stat-value">{{ equipment()?.maintenanceRecords?.length || 0 }}</span>
+              <span class="stat-value">{{
+                equipment()?.maintenanceRecords?.length || 0
+              }}</span>
               <span class="stat-label">Service Records</span>
             </div>
           </div>
           <div class="stat-item">
             <i class="ti ti-currency-dollar"></i>
             <div class="stat-content">
-              <span class="stat-value">{{ totalMaintenanceCost() | currency }}</span>
+              <span class="stat-value">{{
+                totalMaintenanceCost() | currency
+              }}</span>
               <span class="stat-label">Total Maintenance Cost</span>
             </div>
           </div>
@@ -376,7 +393,9 @@
               <div class="empty-maintenance">
                 <i class="ti ti-tools"></i>
                 <p>No maintenance records found</p>
-                <p class="empty-subtext">Add your first service record to get started</p>
+                <p class="empty-subtext">
+                  Add your first service record to get started
+                </p>
               </div>
             </p-card>
           }
@@ -438,7 +457,9 @@
                     <div class="empty-maintenance">
                       <i class="ti ti-tools"></i>
                       <p>No maintenance records found</p>
-                      <p class="empty-subtext">Add your first service record to get started</p>
+                      <p class="empty-subtext">
+                        Add your first service record to get started
+                      </p>
                     </div>
                   </td>
                 </tr>

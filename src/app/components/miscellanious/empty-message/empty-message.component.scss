@@ -41,7 +41,7 @@
   }
 
   // Size variants
-  &[data-size='sm'] {
+  &[data-size="sm"] {
     .icon-wrapper {
       width: 40px;
       height: 40px;
@@ -62,7 +62,7 @@
     }
   }
 
-  &[data-size='md'] {
+  &[data-size="md"] {
     .icon-wrapper {
       width: 56px;
       height: 56px;
@@ -83,7 +83,7 @@
     }
   }
 
-  &[data-size='lg'] {
+  &[data-size="lg"] {
     .icon-wrapper {
       width: 72px;
       height: 72px;

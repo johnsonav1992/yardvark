@@ -18,7 +18,14 @@ import { SubscriptionService } from '../../../services/subscription.service';
 
 @Component({
   selector: 'quick-stats',
-  imports: [CardModule, ButtonModule, TooltipModule, ProgressBarModule, DividerModule, CdkDragHandle],
+  imports: [
+    CardModule,
+    ButtonModule,
+    TooltipModule,
+    ProgressBarModule,
+    DividerModule,
+    CdkDragHandle
+  ],
   templateUrl: './quick-stats.component.html',
   styleUrl: './quick-stats.component.scss'
 })
@@ -38,13 +45,15 @@ export class QuickStatsComponent {
   public lastMowDate = this._entriesService.lastMow;
   public lastEntry = this._entriesService.recentEntry;
   public userCoords = this._locationService.userLatLong;
-  public past24HourSoilData = this._soilTempService.past24HourSoilTemperatureData;
+  public past24HourSoilData =
+    this._soilTempService.past24HourSoilTemperatureData;
   public temperatureUnit = this._soilTempService.temperatureUnit;
 
-  public isLoading = computed(() =>
-    this.lastMowDate.isLoading() ||
-    this.lastEntry.isLoading() ||
-    this._entriesService.lastProductApp.isLoading()
+  public isLoading = computed(
+    () =>
+      this.lastMowDate.isLoading() ||
+      this.lastEntry.isLoading() ||
+      this._entriesService.lastProductApp.isLoading()
   );
 
   public daysSinceLastMow = computed(() => {

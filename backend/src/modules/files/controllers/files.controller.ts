@@ -16,7 +16,7 @@ import { firstValueFrom, map } from 'rxjs';
 import { S3Service } from 'src/modules/s3/s3.service';
 import { MAX_FILE_LARGE_UPLOAD_SIZE } from 'src/utils/constants';
 import { imageFileValidator } from 'src/utils/fileUtils';
-import { resultOrThrow } from '../../../utils/unwrapResult';
+import { resultOrThrow } from '../../../utils/resultOrThrow';
 import { Readable } from 'stream';
 import { User } from '../../../decorators/user.decorator';
 import { LogHelpers } from '../../../logger/logger.helpers';

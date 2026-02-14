@@ -6,6 +6,4 @@ import { Component } from '@angular/core';
   templateUrl: './reminder-dialog.html',
   styleUrl: './reminder-dialog.scss'
 })
-export class ReminderDialog {
-
-}
+export class ReminderDialog {}

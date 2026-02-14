@@ -17,6 +17,7 @@ Built with Angular and Nest.js, Yardvark helps lawncare DIYers manage their lawn
 ## Screenshots
 
 ### Mobile Experience
+
 <p align="center">
   <img width="30%" alt="Mobile Dashboard" src="https://github.com/user-attachments/assets/f5a0b0eb-24db-49cb-9f0f-baad01c612ea" />
   <img width="30%" alt="Mobile Entry Log" src="https://github.com/user-attachments/assets/80a1c046-797a-415d-abc1-121adeb23b5c" />
@@ -24,6 +25,7 @@ Built with Angular and Nest.js, Yardvark helps lawncare DIYers manage their lawn
 </p>
 
 ### Desktop Experience
+
 <img width="100%" alt="Desktop Dashboard" src="https://github.com/user-attachments/assets/742f735f-b0a9-4449-8ec8-dc0d6b8fd5bc" />
 
 ---
@@ -38,4 +40,4 @@ Built with Angular and Nest.js, Yardvark helps lawncare DIYers manage their lawn
 
 ---
 
-*Stay tuned for the official release!*
+_Stay tuned for the official release!_

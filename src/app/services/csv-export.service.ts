@@ -58,7 +58,7 @@ export class CsvExportService {
       '\u00A0': ' ',
       '\u00B0': ' degrees',
       '\u2032': "'",
-      '\u2033': '"',
+      '\u2033': '"'
     };
 
     let normalized = text;

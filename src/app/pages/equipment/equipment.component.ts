@@ -89,10 +89,7 @@ export class EquipmentComponent {
     this._router.navigate(['equipment', id]);
   }
 
-  public openMaintenanceRecordModal(
-    e: Event,
-    equipmentId: number
-  ): void {
+  public openMaintenanceRecordModal(e: Event, equipmentId: number): void {
     e.stopPropagation();
 
     const dialogRef = this._dialogService.open(

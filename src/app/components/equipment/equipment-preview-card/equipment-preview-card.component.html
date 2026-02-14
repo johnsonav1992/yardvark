@@ -23,70 +23,65 @@
   </ng-template>
 
   @if (equipment().model) {
-
     <ng-template pTemplate="subtitle">
       Model: {{ equipment().model }}
     </ng-template>
-
   }
 
   <div class="card-content">
     <div class="metadata-badges">
-
       @if (equipment().fuelType) {
-
         <p-tag [value]="equipment().fuelType" severity="secondary">
           <ng-template #icon>
             <i class="ti ti-gas-station"></i>
           </ng-template>
         </p-tag>
-
       }
 
       @if (maintenanceStatusConfig(); as config) {
-
         <p-tag [value]="config.label" [severity]="config.severity">
           <ng-template #icon>
             <i [class]="config.icon"></i>
           </ng-template>
         </p-tag>
-
       }
-
     </div>
 
     @if (equipment().description) {
-
       <p class="description">{{ equipment().description }}</p>
-
     }
 
     <div class="equipment-details">
-
       @if (equipment().purchaseDate) {
-
-        <span class="detail-item" pTooltip="Purchase date" tooltipPosition="top">
+        <span
+          class="detail-item"
+          pTooltip="Purchase date"
+          tooltipPosition="top"
+        >
           <i class="ti ti-calendar"></i>
           <span>{{ equipment().purchaseDate | date: "M/dd/yyyy" }}</span>
         </span>
-
       }
 
-      @if (equipment().purchaseDate && equipment().maintenanceRecords.length > 0) {
-
+      @if (
+        equipment().purchaseDate && equipment().maintenanceRecords.length > 0
+      ) {
         <p-divider layout="vertical" />
-
       }
 
       @if (equipment().maintenanceRecords.length > 0) {
-
-        <span class="detail-item" pTooltip="Last service date" tooltipPosition="top">
+        <span
+          class="detail-item"
+          pTooltip="Last service date"
+          tooltipPosition="top"
+        >
           <i class="ti ti-tool"></i>
-          <span>{{ equipment().maintenanceRecords[0].maintenanceDate | date: "M/dd/yyyy" }}</span>
+          <span>{{
+            equipment().maintenanceRecords[0].maintenanceDate
+              | date: "M/dd/yyyy"
+          }}</span>
         </span>
-
       }
-
     </div>
   </div>
 

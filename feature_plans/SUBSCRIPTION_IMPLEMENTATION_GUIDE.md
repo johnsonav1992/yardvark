@@ -1,9 +1,11 @@
 # Yardvark Subscription Feature - Complete Implementation Guide
 
 ## Overview
+
 This guide provides step-by-step instructions with complete code for implementing Stripe subscriptions in Yardvark.
 
 ### Requirements
+
 - **Pricing**: $7/month or $60/year
 - **Free Tier**: 6 entries/month, no AI features
 - **Paid Tier**: Unlimited entries, full AI access
@@ -14,6 +16,7 @@ This guide provides step-by-step instructions with complete code for implementin
 ---
 
 ## TABLE OF CONTENTS
+
 1. [Prerequisites & Setup](#step-1-prerequisites-setup)
 2. [Stripe Dashboard Setup](#step-2-stripe-dashboard-setup)
 3. [Backend: Database Models](#step-3-backend-database-models)
@@ -90,6 +93,7 @@ You'll add the webhook endpoint after deployment. Keep the Dashboard open for la
 ### 3.1: Create Subscription Types
 
 **Create directory**:
+
 ```bash
 mkdir -p backend/src/modules/subscription/models
 ```
@@ -98,25 +102,23 @@ mkdir -p backend/src/modules/subscription/models
 
 ```typescript
 export const SUBSCRIPTION_TIERS = {
-  FREE: 'free',
-  MONTHLY: 'monthly',
-  YEARLY: 'yearly',
-  LIFETIME: 'lifetime',
+  FREE: "free",
+  MONTHLY: "monthly",
+  YEARLY: "yearly",
+  LIFETIME: "lifetime",
 } as const;
 
 export const SUBSCRIPTION_STATUSES = {
-  ACTIVE: 'active',
-  CANCELED: 'canceled',
-  PAST_DUE: 'past_due',
-  INCOMPLETE: 'incomplete',
-  TRIALING: 'trialing',
+  ACTIVE: "active",
+  CANCELED: "canceled",
+  PAST_DUE: "past_due",
+  INCOMPLETE: "incomplete",
+  TRIALING: "trialing",
 } as const;
 
-export type SubscriptionTier =
-  (typeof SUBSCRIPTION_TIERS)[keyof typeof SUBSCRIPTION_TIERS];
+export type SubscriptionTier = (typeof SUBSCRIPTION_TIERS)[keyof typeof SUBSCRIPTION_TIERS];
 
-export type SubscriptionStatus =
-  (typeof SUBSCRIPTION_STATUSES)[keyof typeof SUBSCRIPTION_STATUSES];
+export type SubscriptionStatus = (typeof SUBSCRIPTION_STATUSES)[keyof typeof SUBSCRIPTION_STATUSES];
 ```
 
 ### 3.2: Create Subscription Model
@@ -124,51 +126,45 @@ export type SubscriptionStatus =
 **File**: `backend/src/modules/subscription/models/subscription.model.ts`
 
 ```typescript
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
-import { SubscriptionTier, SubscriptionStatus } from './subscription.types';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import { SubscriptionTier, SubscriptionStatus } from "./subscription.types";
 
-@Entity('subscriptions')
+@Entity("subscriptions")
 export class Subscription {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'user_id', unique: true })
+  @Column({ name: "user_id", unique: true })
   userId: string;
 
-  @Column({ name: 'stripe_customer_id', nullable: true })
+  @Column({ name: "stripe_customer_id", nullable: true })
   stripeCustomerId: string;
 
-  @Column({ name: 'stripe_subscription_id', nullable: true })
+  @Column({ name: "stripe_subscription_id", nullable: true })
   stripeSubscriptionId: string;
 
-  @Column({ default: 'free' })
+  @Column({ default: "free" })
   tier: SubscriptionTier;
 
-  @Column({ default: 'active' })
+  @Column({ default: "active" })
   status: SubscriptionStatus;
 
-  @Column({ name: 'current_period_start', type: 'timestamptz', nullable: true })
+  @Column({ name: "current_period_start", type: "timestamptz", nullable: true })
   currentPeriodStart: Date;
 
-  @Column({ name: 'current_period_end', type: 'timestamptz', nullable: true })
+  @Column({ name: "current_period_end", type: "timestamptz", nullable: true })
   currentPeriodEnd: Date;
 
-  @Column({ name: 'cancel_at_period_end', default: false })
+  @Column({ name: "cancel_at_period_end", default: false })
   cancelAtPeriodEnd: boolean;
 
-  @Column({ name: 'canceled_at', type: 'timestamptz', nullable: true })
+  @Column({ name: "canceled_at", type: "timestamptz", nullable: true })
   canceledAt: Date;
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
+  @CreateDateColumn({ name: "created_at", type: "timestamptz" })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
+  @UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
   updatedAt: Date;
 }
 ```
@@ -178,38 +174,32 @@ export class Subscription {
 **File**: `backend/src/modules/subscription/models/usage.model.ts`
 
 ```typescript
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  Index,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, Index } from "typeorm";
 
-@Entity('feature_usage')
-@Index(['userId', 'featureName', 'periodStart'], { unique: true })
-@Index(['userId'])
-@Index(['periodStart', 'periodEnd'])
+@Entity("feature_usage")
+@Index(["userId", "featureName", "periodStart"], { unique: true })
+@Index(["userId"])
+@Index(["periodStart", "periodEnd"])
 export class FeatureUsage {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'user_id' })
+  @Column({ name: "user_id" })
   userId: string;
 
-  @Column({ name: 'feature_name' })
+  @Column({ name: "feature_name" })
   featureName: string;
 
-  @Column({ name: 'usage_count', default: 0 })
+  @Column({ name: "usage_count", default: 0 })
   usageCount: number;
 
-  @Column({ name: 'period_start', type: 'timestamptz' })
+  @Column({ name: "period_start", type: "timestamptz" })
   periodStart: Date;
 
-  @Column({ name: 'period_end', type: 'timestamptz' })
+  @Column({ name: "period_end", type: "timestamptz" })
   periodEnd: Date;
 
-  @CreateDateColumn({ name: 'last_updated', type: 'timestamptz' })
+  @CreateDateColumn({ name: "last_updated", type: "timestamptz" })
   lastUpdated: Date;
 }
 ```
@@ -228,10 +218,10 @@ npm run migration:generate -- src/migrations/AddSubscriptionTables
 **Edit the generated file** (`backend/src/migrations/[TIMESTAMP]-AddSubscriptionTables.ts`):
 
 ```typescript
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class AddSubscriptionTables1234567890000 implements MigrationInterface {
-  name = 'AddSubscriptionTables1234567890000';
+  name = "AddSubscriptionTables1234567890000";
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
@@ -286,10 +276,10 @@ npm run migration:generate -- src/migrations/GrandfatherExistingUsers
 **Edit the generated file** (`backend/src/migrations/[TIMESTAMP]-GrandfatherExistingUsers.ts`):
 
 ```typescript
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class GrandfatherExistingUsers1234567890001 implements MigrationInterface {
-  name = 'GrandfatherExistingUsers1234567890001';
+  name = "GrandfatherExistingUsers1234567890001";
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
@@ -307,8 +297,7 @@ export class GrandfatherExistingUsers1234567890001 implements MigrationInterface
     `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-  }
+  public async down(queryRunner: QueryRunner): Promise<void> {}
 }
 ```
 
@@ -319,6 +308,7 @@ npm run migration:run
 ```
 
 Verify:
+
 ```bash
 psql -h localhost -U your_user -d your_database
 \dt
@@ -335,6 +325,7 @@ SELECT * FROM subscriptions;
 **File**: `backend/.env`
 
 Add these lines:
+
 ```bash
 STRIPE_SECRET_KEY=sk_test_your_secret_key_here
 STRIPE_PUBLISHABLE_KEY=pk_test_your_publishable_key_here
@@ -352,6 +343,7 @@ Replace placeholders with your actual keys from Step 2.
 ### 6.1: Create Stripe Service
 
 **Create directory**:
+
 ```bash
 mkdir -p backend/src/modules/subscription/services
 ```
@@ -359,11 +351,11 @@ mkdir -p backend/src/modules/subscription/services
 **File**: `backend/src/modules/subscription/services/stripe.service.ts`
 
 ```typescript
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import Stripe from 'stripe';
-import { LogHelpers } from '../../../logger/logger.helpers';
-import { tryCatch } from '../../../utils/tryCatch';
+import { Injectable, Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import Stripe from "stripe";
+import { LogHelpers } from "../../../logger/logger.helpers";
+import { tryCatch } from "../../../utils/tryCatch";
 
 @Injectable()
 export class StripeService {
@@ -371,25 +363,21 @@ export class StripeService {
   private readonly logger = new Logger(StripeService.name);
 
   constructor(private configService: ConfigService) {
-    const secretKey = this.configService.get<string>('STRIPE_SECRET_KEY');
+    const secretKey = this.configService.get<string>("STRIPE_SECRET_KEY");
 
     if (!secretKey) {
-      throw new Error('STRIPE_SECRET_KEY is not configured');
+      throw new Error("STRIPE_SECRET_KEY is not configured");
     }
 
     this.stripe = new Stripe(secretKey, {
-      apiVersion: '2024-11-20.acacia',
+      apiVersion: "2024-11-20.acacia",
       typescript: true,
     });
 
-    this.logger.log('Stripe service initialized');
+    this.logger.log("Stripe service initialized");
   }
 
-  async createCustomer(
-    userId: string,
-    email: string,
-    name: string,
-  ): Promise<Stripe.Customer> {
+  async createCustomer(userId: string, email: string, name: string): Promise<Stripe.Customer> {
     const start = Date.now();
     const result = await tryCatch(async () => {
       return this.stripe.customers.create({
@@ -399,31 +387,25 @@ export class StripeService {
       });
     });
 
-    LogHelpers.recordExternalCall('stripe', Date.now() - start, result.success);
-    LogHelpers.addBusinessContext('stripeOperation', 'createCustomer');
+    LogHelpers.recordExternalCall("stripe", Date.now() - start, result.success);
+    LogHelpers.addBusinessContext("stripeOperation", "createCustomer");
 
     if (result.success) {
       this.logger.log(`Created Stripe customer for user ${userId}`);
       return result.data;
     }
 
-    this.logger.error('Error creating Stripe customer:', result.error);
+    this.logger.error("Error creating Stripe customer:", result.error);
     throw result.error;
   }
 
-  async createCheckoutSession(
-    customerId: string,
-    priceId: string,
-    userId: string,
-    successUrl: string,
-    cancelUrl: string,
-  ): Promise<Stripe.Checkout.Session> {
+  async createCheckoutSession(customerId: string, priceId: string, userId: string, successUrl: string, cancelUrl: string): Promise<Stripe.Checkout.Session> {
     const start = Date.now();
     const result = await tryCatch(async () => {
       return this.stripe.checkout.sessions.create({
         customer: customerId,
-        mode: 'subscription',
-        payment_method_types: ['card'],
+        mode: "subscription",
+        payment_method_types: ["card"],
         line_items: [{ price: priceId, quantity: 1 }],
         success_url: successUrl,
         cancel_url: cancelUrl,
@@ -432,22 +414,19 @@ export class StripeService {
       });
     });
 
-    LogHelpers.recordExternalCall('stripe', Date.now() - start, result.success);
-    LogHelpers.addBusinessContext('stripeOperation', 'createCheckoutSession');
+    LogHelpers.recordExternalCall("stripe", Date.now() - start, result.success);
+    LogHelpers.addBusinessContext("stripeOperation", "createCheckoutSession");
 
     if (result.success) {
       this.logger.log(`Created checkout session for customer ${customerId}`);
       return result.data;
     }
 
-    this.logger.error('Error creating checkout session:', result.error);
+    this.logger.error("Error creating checkout session:", result.error);
     throw result.error;
   }
 
-  async createPortalSession(
-    customerId: string,
-    returnUrl: string,
-  ): Promise<Stripe.BillingPortal.Session> {
+  async createPortalSession(customerId: string, returnUrl: string): Promise<Stripe.BillingPortal.Session> {
     const start = Date.now();
     const result = await tryCatch(async () => {
       return this.stripe.billingPortal.sessions.create({
@@ -456,15 +435,15 @@ export class StripeService {
       });
     });
 
-    LogHelpers.recordExternalCall('stripe', Date.now() - start, result.success);
-    LogHelpers.addBusinessContext('stripeOperation', 'createPortalSession');
+    LogHelpers.recordExternalCall("stripe", Date.now() - start, result.success);
+    LogHelpers.addBusinessContext("stripeOperation", "createPortalSession");
 
     if (result.success) {
       this.logger.log(`Created portal session for customer ${customerId}`);
       return result.data;
     }
 
-    this.logger.error('Error creating portal session:', result.error);
+    this.logger.error("Error creating portal session:", result.error);
     throw result.error;
   }
 
@@ -474,13 +453,13 @@ export class StripeService {
       return this.stripe.subscriptions.retrieve(subscriptionId);
     });
 
-    LogHelpers.recordExternalCall('stripe', Date.now() - start, result.success);
+    LogHelpers.recordExternalCall("stripe", Date.now() - start, result.success);
 
     if (result.success) {
       return result.data;
     }
 
-    this.logger.error('Error retrieving subscription:', result.error);
+    this.logger.error("Error retrieving subscription:", result.error);
     throw result.error;
   }
 
@@ -492,23 +471,23 @@ export class StripeService {
       });
     });
 
-    LogHelpers.recordExternalCall('stripe', Date.now() - start, result.success);
-    LogHelpers.addBusinessContext('stripeOperation', 'cancelSubscription');
+    LogHelpers.recordExternalCall("stripe", Date.now() - start, result.success);
+    LogHelpers.addBusinessContext("stripeOperation", "cancelSubscription");
 
     if (result.success) {
       this.logger.log(`Canceled subscription ${subscriptionId}`);
       return result.data;
     }
 
-    this.logger.error('Error canceling subscription:', result.error);
+    this.logger.error("Error canceling subscription:", result.error);
     throw result.error;
   }
 
   constructWebhookEvent(payload: Buffer, signature: string): Stripe.Event {
-    const webhookSecret = this.configService.get<string>('STRIPE_WEBHOOK_SECRET');
+    const webhookSecret = this.configService.get<string>("STRIPE_WEBHOOK_SECRET");
 
     if (!webhookSecret) {
-      throw new Error('STRIPE_WEBHOOK_SECRET is not configured');
+      throw new Error("STRIPE_WEBHOOK_SECRET is not configured");
     }
 
     try {
@@ -532,16 +511,16 @@ export class StripeService {
 **File**: `backend/src/modules/subscription/services/subscription.service.ts`
 
 ```typescript
-import { Injectable, HttpException, HttpStatus, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Subscription } from '../models/subscription.model';
-import { FeatureUsage } from '../models/usage.model';
-import { StripeService } from './stripe.service';
-import { ConfigService } from '@nestjs/config';
-import { SUBSCRIPTION_TIERS } from '../models/subscription.types';
-import { LogHelpers } from '../../../logger/logger.helpers';
-import Stripe from 'stripe';
+import { Injectable, HttpException, HttpStatus, Logger } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Subscription } from "../models/subscription.model";
+import { FeatureUsage } from "../models/usage.model";
+import { StripeService } from "./stripe.service";
+import { ConfigService } from "@nestjs/config";
+import { SUBSCRIPTION_TIERS } from "../models/subscription.types";
+import { LogHelpers } from "../../../logger/logger.helpers";
+import Stripe from "stripe";
 
 export type FeatureAccessResult = {
   allowed: boolean;
@@ -571,26 +550,19 @@ export class SubscriptionService {
       subscription = this.subscriptionRepo.create({
         userId,
         tier: SUBSCRIPTION_TIERS.FREE,
-        status: 'active',
+        status: "active",
       });
 
       await this.subscriptionRepo.save(subscription);
-      LogHelpers.addBusinessContext('subscriptionCreated', true);
+      LogHelpers.addBusinessContext("subscriptionCreated", true);
     }
 
     return subscription;
   }
 
-  async createCheckoutSession(
-    userId: string,
-    email: string,
-    name: string,
-    tier: 'monthly' | 'yearly',
-    successUrl: string,
-    cancelUrl: string,
-  ): Promise<{ url: string }> {
+  async createCheckoutSession(userId: string, email: string, name: string, tier: "monthly" | "yearly", successUrl: string, cancelUrl: string): Promise<{ url: string }> {
     this.logger.log(`Creating checkout for user ${userId}, tier: ${tier}`);
-    LogHelpers.addBusinessContext('subscriptionTier', tier);
+    LogHelpers.addBusinessContext("subscriptionTier", tier);
 
     const subscription = await this.getOrCreateSubscription(userId);
 
@@ -603,25 +575,13 @@ export class SubscriptionService {
       await this.subscriptionRepo.save(subscription);
     }
 
-    const priceId =
-      tier === 'monthly'
-        ? this.configService.get<string>('STRIPE_MONTHLY_PRICE_ID')
-        : this.configService.get<string>('STRIPE_YEARLY_PRICE_ID');
+    const priceId = tier === "monthly" ? this.configService.get<string>("STRIPE_MONTHLY_PRICE_ID") : this.configService.get<string>("STRIPE_YEARLY_PRICE_ID");
 
     if (!priceId) {
-      throw new HttpException(
-        `Price ID not configured for tier: ${tier}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException(`Price ID not configured for tier: ${tier}`, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    const session = await this.stripeService.createCheckoutSession(
-      customerId,
-      priceId,
-      userId,
-      successUrl,
-      cancelUrl,
-    );
+    const session = await this.stripeService.createCheckoutSession(customerId, priceId, userId, successUrl, cancelUrl);
 
     return { url: session.url };
   }
@@ -630,13 +590,10 @@ export class SubscriptionService {
     const subscription = await this.subscriptionRepo.findOne({ where: { userId } });
 
     if (!subscription?.stripeCustomerId) {
-      throw new HttpException('No subscription found', HttpStatus.NOT_FOUND);
+      throw new HttpException("No subscription found", HttpStatus.NOT_FOUND);
     }
 
-    const session = await this.stripeService.createPortalSession(
-      subscription.stripeCustomerId,
-      returnUrl,
-    );
+    const session = await this.stripeService.createPortalSession(subscription.stripeCustomerId, returnUrl);
 
     return { url: session.url };
   }
@@ -645,7 +602,7 @@ export class SubscriptionService {
     const userId = stripeSubscription.metadata.userId;
 
     if (!userId) {
-      this.logger.error('No userId in subscription metadata');
+      this.logger.error("No userId in subscription metadata");
       return;
     }
 
@@ -654,8 +611,8 @@ export class SubscriptionService {
     const subscription = await this.getOrCreateSubscription(userId);
 
     const priceId = stripeSubscription.items.data[0]?.price.id;
-    const monthlyPriceId = this.configService.get<string>('STRIPE_MONTHLY_PRICE_ID');
-    const yearlyPriceId = this.configService.get<string>('STRIPE_YEARLY_PRICE_ID');
+    const monthlyPriceId = this.configService.get<string>("STRIPE_MONTHLY_PRICE_ID");
+    const yearlyPriceId = this.configService.get<string>("STRIPE_YEARLY_PRICE_ID");
 
     let tier = SUBSCRIPTION_TIERS.FREE;
 
@@ -676,8 +633,8 @@ export class SubscriptionService {
 
     await this.subscriptionRepo.save(subscription);
 
-    LogHelpers.addBusinessContext('subscriptionUpdated', true);
-    LogHelpers.addBusinessContext('newTier', tier);
+    LogHelpers.addBusinessContext("subscriptionUpdated", true);
+    LogHelpers.addBusinessContext("newTier", tier);
 
     this.logger.log(`Subscription updated for user ${userId}: ${tier} (${subscription.status})`);
   }
@@ -686,7 +643,7 @@ export class SubscriptionService {
     const userId = stripeSubscription.metadata.userId;
 
     if (!userId) {
-      this.logger.error('No userId in subscription metadata');
+      this.logger.error("No userId in subscription metadata");
       return;
     }
 
@@ -696,12 +653,12 @@ export class SubscriptionService {
 
     if (subscription) {
       subscription.tier = SUBSCRIPTION_TIERS.FREE;
-      subscription.status = 'canceled';
+      subscription.status = "canceled";
       subscription.canceledAt = new Date();
 
       await this.subscriptionRepo.save(subscription);
 
-      LogHelpers.addBusinessContext('subscriptionDeleted', true);
+      LogHelpers.addBusinessContext("subscriptionDeleted", true);
 
       this.logger.log(`Subscription canceled for user ${userId}`);
     }
@@ -710,19 +667,16 @@ export class SubscriptionService {
   async checkFeatureAccess(userId: string, feature: string): Promise<FeatureAccessResult> {
     const subscription = await this.getOrCreateSubscription(userId);
 
-    const isPro =
-      subscription.tier === SUBSCRIPTION_TIERS.MONTHLY ||
-      subscription.tier === SUBSCRIPTION_TIERS.YEARLY ||
-      subscription.tier === SUBSCRIPTION_TIERS.LIFETIME;
+    const isPro = subscription.tier === SUBSCRIPTION_TIERS.MONTHLY || subscription.tier === SUBSCRIPTION_TIERS.YEARLY || subscription.tier === SUBSCRIPTION_TIERS.LIFETIME;
 
-    LogHelpers.addBusinessContext('isPro', isPro);
-    LogHelpers.addBusinessContext('featureChecked', feature);
+    LogHelpers.addBusinessContext("isPro", isPro);
+    LogHelpers.addBusinessContext("featureChecked", feature);
 
-    if (feature.startsWith('ai_')) {
+    if (feature.startsWith("ai_")) {
       return { allowed: isPro };
     }
 
-    if (feature === 'entry_creation') {
+    if (feature === "entry_creation") {
       if (isPro) {
         return { allowed: true };
       }
@@ -735,14 +689,14 @@ export class SubscriptionService {
       nextMonth.setMonth(nextMonth.getMonth() + 1);
 
       const usage = await this.usageRepo.findOne({
-        where: { userId, featureName: 'entry_creation', periodStart: currentMonth },
+        where: { userId, featureName: "entry_creation", periodStart: currentMonth },
       });
 
       const usageCount = usage?.usageCount || 0;
       const limit = 6;
 
-      LogHelpers.addBusinessContext('entryUsage', usageCount);
-      LogHelpers.addBusinessContext('entryLimit', limit);
+      LogHelpers.addBusinessContext("entryUsage", usageCount);
+      LogHelpers.addBusinessContext("entryLimit", limit);
 
       return { allowed: usageCount < limit, limit, usage: usageCount };
     }
@@ -776,8 +730,8 @@ export class SubscriptionService {
 
     await this.usageRepo.save(usage);
 
-    LogHelpers.addBusinessContext('usageIncremented', feature);
-    LogHelpers.addBusinessContext('newUsageCount', usage.usageCount);
+    LogHelpers.addBusinessContext("usageIncremented", feature);
+    LogHelpers.addBusinessContext("newUsageCount", usage.usageCount);
 
     this.logger.log(`Incremented ${feature} usage for user ${userId}: ${usage.usageCount}`);
   }
@@ -791,6 +745,7 @@ export class SubscriptionService {
 ### 8.1: Create Subscription Controller
 
 **Create directory**:
+
 ```bash
 mkdir -p backend/src/modules/subscription/controllers
 ```
@@ -798,46 +753,36 @@ mkdir -p backend/src/modules/subscription/controllers
 **File**: `backend/src/modules/subscription/controllers/subscription.controller.ts`
 
 ```typescript
-import { Controller, Post, Get, Body, Req, HttpException, HttpStatus } from '@nestjs/common';
-import { SubscriptionService } from '../services/subscription.service';
-import { Request } from 'express';
+import { Controller, Post, Get, Body, Req, HttpException, HttpStatus } from "@nestjs/common";
+import { SubscriptionService } from "../services/subscription.service";
+import { Request } from "express";
 
-@Controller('subscription')
+@Controller("subscription")
 export class SubscriptionController {
   constructor(private subscriptionService: SubscriptionService) {}
 
-  @Get('status')
+  @Get("status")
   async getStatus(@Req() req: Request) {
     const subscription = await this.subscriptionService.getOrCreateSubscription(req.user.userId);
 
     return subscription;
   }
 
-  @Post('checkout')
-  async createCheckout(
-    @Req() req: Request,
-    @Body() body: { tier: 'monthly' | 'yearly'; successUrl: string; cancelUrl: string },
-  ) {
-    if (!['monthly', 'yearly'].includes(body.tier)) {
-      throw new HttpException('Invalid tier', HttpStatus.BAD_REQUEST);
+  @Post("checkout")
+  async createCheckout(@Req() req: Request, @Body() body: { tier: "monthly" | "yearly"; successUrl: string; cancelUrl: string }) {
+    if (!["monthly", "yearly"].includes(body.tier)) {
+      throw new HttpException("Invalid tier", HttpStatus.BAD_REQUEST);
     }
 
-    return this.subscriptionService.createCheckoutSession(
-      req.user.userId,
-      req.user.email,
-      req.user.name,
-      body.tier,
-      body.successUrl,
-      body.cancelUrl,
-    );
+    return this.subscriptionService.createCheckoutSession(req.user.userId, req.user.email, req.user.name, body.tier, body.successUrl, body.cancelUrl);
   }
 
-  @Post('portal')
+  @Post("portal")
   async createPortal(@Req() req: Request, @Body() body: { returnUrl: string }) {
     return this.subscriptionService.createPortalSession(req.user.userId, body.returnUrl);
   }
 
-  @Post('check-feature')
+  @Post("check-feature")
   async checkFeature(@Req() req: Request, @Body() body: { feature: string }) {
     return this.subscriptionService.checkFeatureAccess(req.user.userId, body.feature);
   }
@@ -849,14 +794,14 @@ export class SubscriptionController {
 **File**: `backend/src/modules/subscription/controllers/webhook.controller.ts`
 
 ```typescript
-import { Controller, Post, Req, Res, HttpStatus, RawBodyRequest } from '@nestjs/common';
-import { Request, Response } from 'express';
-import { StripeService } from '../services/stripe.service';
-import { SubscriptionService } from '../services/subscription.service';
-import { Public } from '../../../decorators/public.decorator';
-import Stripe from 'stripe';
+import { Controller, Post, Req, Res, HttpStatus, RawBodyRequest } from "@nestjs/common";
+import { Request, Response } from "express";
+import { StripeService } from "../services/stripe.service";
+import { SubscriptionService } from "../services/subscription.service";
+import { Public } from "../../../decorators/public.decorator";
+import Stripe from "stripe";
 
-@Controller('stripe')
+@Controller("stripe")
 export class WebhookController {
   constructor(
     private stripeService: StripeService,
@@ -864,9 +809,9 @@ export class WebhookController {
   ) {}
 
   @Public()
-  @Post('webhook')
+  @Post("webhook")
   async handleWebhook(@Req() req: RawBodyRequest<Request>, @Res() res: Response) {
-    const signature = req.headers['stripe-signature'] as string;
+    const signature = req.headers["stripe-signature"] as string;
 
     let event: Stripe.Event;
 
@@ -878,17 +823,13 @@ export class WebhookController {
 
     try {
       switch (event.type) {
-        case 'customer.subscription.created':
-        case 'customer.subscription.updated':
-          await this.subscriptionService.handleSubscriptionUpdate(
-            event.data.object as Stripe.Subscription,
-          );
+        case "customer.subscription.created":
+        case "customer.subscription.updated":
+          await this.subscriptionService.handleSubscriptionUpdate(event.data.object as Stripe.Subscription);
           break;
 
-        case 'customer.subscription.deleted':
-          await this.subscriptionService.handleSubscriptionDeleted(
-            event.data.object as Stripe.Subscription,
-          );
+        case "customer.subscription.deleted":
+          await this.subscriptionService.handleSubscriptionDeleted(event.data.object as Stripe.Subscription);
           break;
 
         default:
@@ -912,12 +853,11 @@ export class WebhookController {
 **File**: `backend/src/decorators/subscription-feature.decorator.ts`
 
 ```typescript
-import { SetMetadata } from '@nestjs/common';
+import { SetMetadata } from "@nestjs/common";
 
-export const SUBSCRIPTION_FEATURE_KEY = 'subscriptionFeature';
+export const SUBSCRIPTION_FEATURE_KEY = "subscriptionFeature";
 
-export const SubscriptionFeature = (featureName: string) =>
-  SetMetadata(SUBSCRIPTION_FEATURE_KEY, featureName);
+export const SubscriptionFeature = (featureName: string) => SetMetadata(SUBSCRIPTION_FEATURE_KEY, featureName);
 ```
 
 ### 9.2: Create Subscription Guard
@@ -925,16 +865,10 @@ export const SubscriptionFeature = (featureName: string) =>
 **File**: `backend/src/guards/subscription.guard.ts`
 
 ```typescript
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { SUBSCRIPTION_FEATURE_KEY } from '../decorators/subscription-feature.decorator';
-import { SubscriptionService } from '../modules/subscription/services/subscription.service';
+import { Injectable, CanActivate, ExecutionContext, HttpException, HttpStatus } from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { SUBSCRIPTION_FEATURE_KEY } from "../decorators/subscription-feature.decorator";
+import { SubscriptionService } from "../modules/subscription/services/subscription.service";
 
 @Injectable()
 export class SubscriptionGuard implements CanActivate {
@@ -944,10 +878,7 @@ export class SubscriptionGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const featureName = this.reflector.getAllAndOverride<string>(
-      SUBSCRIPTION_FEATURE_KEY,
-      [context.getHandler(), context.getClass()],
-    );
+    const featureName = this.reflector.getAllAndOverride<string>(SUBSCRIPTION_FEATURE_KEY, [context.getHandler(), context.getClass()]);
 
     if (!featureName) {
       return true;
@@ -957,7 +888,7 @@ export class SubscriptionGuard implements CanActivate {
     const userId = request.user?.userId;
 
     if (!userId) {
-      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+      throw new HttpException("Unauthorized", HttpStatus.UNAUTHORIZED);
     }
 
     const access = await this.subscriptionService.checkFeatureAccess(userId, featureName);
@@ -965,7 +896,7 @@ export class SubscriptionGuard implements CanActivate {
     if (!access.allowed) {
       throw new HttpException(
         {
-          message: 'Subscription required',
+          message: "Subscription required",
           feature: featureName,
           limit: access.limit,
           usage: access.usage,
@@ -988,21 +919,18 @@ export class SubscriptionGuard implements CanActivate {
 **File**: `backend/src/modules/subscription/subscription.module.ts`
 
 ```typescript
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
-import { Subscription } from './models/subscription.model';
-import { FeatureUsage } from './models/usage.model';
-import { SubscriptionController } from './controllers/subscription.controller';
-import { WebhookController } from './controllers/webhook.controller';
-import { SubscriptionService } from './services/subscription.service';
-import { StripeService } from './services/stripe.service';
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { ConfigModule } from "@nestjs/config";
+import { Subscription } from "./models/subscription.model";
+import { FeatureUsage } from "./models/usage.model";
+import { SubscriptionController } from "./controllers/subscription.controller";
+import { WebhookController } from "./controllers/webhook.controller";
+import { SubscriptionService } from "./services/subscription.service";
+import { StripeService } from "./services/stripe.service";
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Subscription, FeatureUsage]),
-    ConfigModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Subscription, FeatureUsage]), ConfigModule],
   exports: [SubscriptionService, TypeOrmModule],
   controllers: [SubscriptionController, WebhookController],
   providers: [SubscriptionService, StripeService],
@@ -1015,13 +943,15 @@ export class SubscriptionModule {}
 **File**: `backend/src/app.module.ts`
 
 Add imports at the top:
+
 ```typescript
-import { SubscriptionModule } from './modules/subscription/subscription.module';
-import { SubscriptionGuard } from './guards/subscription.guard';
-import { APP_GUARD } from '@nestjs/core';
+import { SubscriptionModule } from "./modules/subscription/subscription.module";
+import { SubscriptionGuard } from "./guards/subscription.guard";
+import { APP_GUARD } from "@nestjs/core";
 ```
 
 Add to `imports` array:
+
 ```typescript
 @Module({
   imports: [
@@ -1045,11 +975,13 @@ Add to `imports` array:
 **File**: `backend/src/modules/ai/controllers/ai.controller.ts`
 
 Add import at top:
+
 ```typescript
-import { SubscriptionFeature } from '../../../decorators/subscription-feature.decorator';
+import { SubscriptionFeature } from "../../../decorators/subscription-feature.decorator";
 ```
 
 Add decorators to methods:
+
 ```typescript
 @Post('chat')
 @SubscriptionFeature('ai_chat')
@@ -1069,12 +1001,14 @@ public async streamQueryEntries(...) { ... }
 **File**: `backend/src/modules/entries/controllers/entries.controller.ts`
 
 Add imports:
+
 ```typescript
-import { SubscriptionFeature } from '../../../decorators/subscription-feature.decorator';
-import { SubscriptionService } from '../../subscription/services/subscription.service';
+import { SubscriptionFeature } from "../../../decorators/subscription-feature.decorator";
+import { SubscriptionService } from "../../subscription/services/subscription.service";
 ```
 
 Update constructor:
+
 ```typescript
 constructor(
   private readonly _entriesService: EntriesService,
@@ -1083,6 +1017,7 @@ constructor(
 ```
 
 Update create entry method:
+
 ```typescript
 @Post()
 @SubscriptionFeature('entry_creation')
@@ -1100,11 +1035,13 @@ public async createEntry(@Req() req: Request, @Body() entry: EntryCreationReques
 **File**: `backend/src/modules/entries/entries.module.ts`
 
 Add import:
+
 ```typescript
-import { SubscriptionModule } from '../subscription/subscription.module';
+import { SubscriptionModule } from "../subscription/subscription.module";
 ```
 
 Add to imports array:
+
 ```typescript
 @Module({
   imports: [
@@ -1122,14 +1059,9 @@ Add to imports array:
 **File**: `src/app/types/subscription.types.ts`
 
 ```typescript
-export type SubscriptionTier = 'free' | 'monthly' | 'yearly' | 'lifetime';
+export type SubscriptionTier = "free" | "monthly" | "yearly" | "lifetime";
 
-export type SubscriptionStatus =
-  | 'active'
-  | 'canceled'
-  | 'past_due'
-  | 'incomplete'
-  | 'trialing';
+export type SubscriptionStatus = "active" | "canceled" | "past_due" | "incomplete" | "trialing";
 
 export type Subscription = {
   id: number;
@@ -1153,7 +1085,7 @@ export type FeatureAccess = {
 };
 
 export type PricingPlan = {
-  tier: 'monthly' | 'yearly';
+  tier: "monthly" | "yearly";
   name: string;
   price: number;
   period: string;
@@ -1171,18 +1103,20 @@ export type PricingPlan = {
 **File**: `src/environments/environment.ts`
 
 Add:
+
 ```typescript
 export const environment: Environment = {
-  stripePublishableKey: 'pk_live_your_publishable_key',
+  stripePublishableKey: "pk_live_your_publishable_key",
 };
 ```
 
 **File**: `src/environments/environment.development.ts`
 
 Add:
+
 ```typescript
 export const environment: Environment = {
-  stripePublishableKey: 'pk_test_your_publishable_key',
+  stripePublishableKey: "pk_test_your_publishable_key",
 };
 ```
 
@@ -1191,15 +1125,15 @@ export const environment: Environment = {
 **File**: `src/app/services/subscription.service.ts`
 
 ```typescript
-import { Injectable, computed, inject } from '@angular/core';
-import { rxResource } from '@angular/core/rxjs-interop';
-import { apiUrl, getReq, postReq } from '../utils/httpUtils';
-import { Subscription, FeatureAccess } from '../types/subscription.types';
+import { Injectable, computed, inject } from "@angular/core";
+import { rxResource } from "@angular/core/rxjs-interop";
+import { apiUrl, getReq, postReq } from "../utils/httpUtils";
+import { Subscription, FeatureAccess } from "../types/subscription.types";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class SubscriptionService {
   public subscription = rxResource<Subscription, void>({
-    loader: () => getReq<Subscription>(apiUrl('subscription/status')),
+    loader: () => getReq<Subscription>(apiUrl("subscription/status")),
   });
 
   public currentSubscription = computed(() => this.subscription.value());
@@ -1207,12 +1141,12 @@ export class SubscriptionService {
   public isPro = computed(() => {
     const sub = this.currentSubscription();
 
-    return sub?.tier === 'monthly' || sub?.tier === 'yearly' || sub?.tier === 'lifetime';
+    return sub?.tier === "monthly" || sub?.tier === "yearly" || sub?.tier === "lifetime";
   });
 
-  public async createCheckout(tier: 'monthly' | 'yearly'): Promise<string> {
+  public async createCheckout(tier: "monthly" | "yearly"): Promise<string> {
     const baseUrl = window.location.origin;
-    const response = await postReq<{ url: string }>(apiUrl('subscription/checkout'), {
+    const response = await postReq<{ url: string }>(apiUrl("subscription/checkout"), {
       tier,
       successUrl: `${baseUrl}/subscription?success=true`,
       cancelUrl: `${baseUrl}/subscription?canceled=true`,
@@ -1223,7 +1157,7 @@ export class SubscriptionService {
 
   public async openPortal(): Promise<string> {
     const baseUrl = window.location.origin;
-    const response = await postReq<{ url: string }>(apiUrl('subscription/portal'), {
+    const response = await postReq<{ url: string }>(apiUrl("subscription/portal"), {
       returnUrl: `${baseUrl}/subscription`,
     }).toPromise();
 
@@ -1231,7 +1165,7 @@ export class SubscriptionService {
   }
 
   public async checkFeatureAccess(feature: string): Promise<FeatureAccess> {
-    return postReq<FeatureAccess>(apiUrl('subscription/check-feature'), { feature }).toPromise();
+    return postReq<FeatureAccess>(apiUrl("subscription/check-feature"), { feature }).toPromise();
   }
 
   public hasAiAccess(): boolean {
@@ -1255,6 +1189,7 @@ export function injectSubscriptionService() {
 ### 14.1: Create Subscription Component
 
 **Create directory**:
+
 ```bash
 mkdir -p src/app/pages/subscription
 ```
@@ -1262,34 +1197,26 @@ mkdir -p src/app/pages/subscription
 **File**: `src/app/pages/subscription/subscription.component.ts`
 
 ```typescript
-import { Component, computed, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
-import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { TagModule } from 'primeng/tag';
-import { DividerModule } from 'primeng/divider';
-import { MessageModule } from 'primeng/message';
-import { SubscriptionService } from '../../services/subscription.service';
-import { PricingPlan } from '../../types/subscription.types';
-import { injectSuccessToast, injectErrorToast } from '../../utils/toastUtils';
-import { GlobalUiService } from '../../services/global-ui.service';
+import { Component, computed, inject, signal, OnInit } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { ActivatedRoute, Router } from "@angular/router";
+import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
+import { ButtonModule } from "primeng/button";
+import { CardModule } from "primeng/card";
+import { TagModule } from "primeng/tag";
+import { DividerModule } from "primeng/divider";
+import { MessageModule } from "primeng/message";
+import { SubscriptionService } from "../../services/subscription.service";
+import { PricingPlan } from "../../types/subscription.types";
+import { injectSuccessToast, injectErrorToast } from "../../utils/toastUtils";
+import { GlobalUiService } from "../../services/global-ui.service";
 
 @Component({
-  selector: 'subscription',
+  selector: "subscription",
   standalone: true,
-  imports: [
-    CommonModule,
-    PageContainerComponent,
-    ButtonModule,
-    CardModule,
-    TagModule,
-    DividerModule,
-    MessageModule,
-  ],
-  templateUrl: './subscription.component.html',
-  styleUrl: './subscription.component.scss',
+  imports: [CommonModule, PageContainerComponent, ButtonModule, CardModule, TagModule, DividerModule, MessageModule],
+  templateUrl: "./subscription.component.html",
+  styleUrl: "./subscription.component.scss",
 })
 export class SubscriptionComponent implements OnInit {
   private subscriptionService = inject(SubscriptionService);
@@ -1306,62 +1233,47 @@ export class SubscriptionComponent implements OnInit {
 
   public plans: PricingPlan[] = [
     {
-      tier: 'monthly',
-      name: 'Monthly',
+      tier: "monthly",
+      name: "Monthly",
       price: 7,
-      period: 'month',
-      features: [
-        'Unlimited lawn entries',
-        'All AI features',
-        'Advanced analytics',
-        'Priority support',
-      ],
+      period: "month",
+      features: ["Unlimited lawn entries", "All AI features", "Advanced analytics", "Priority support"],
     },
     {
-      tier: 'yearly',
-      name: 'Yearly',
+      tier: "yearly",
+      name: "Yearly",
       price: 60,
-      period: 'year',
+      period: "year",
       popular: true,
-      features: [
-        'Unlimited lawn entries',
-        'All AI features',
-        'Advanced analytics',
-        'Priority support',
-        'Save $24/year',
-      ],
+      features: ["Unlimited lawn entries", "All AI features", "Advanced analytics", "Priority support", "Save $24/year"],
     },
   ];
 
-  public freeLimits = [
-    '6 lawn entries per month',
-    'Basic analytics',
-    'AI features unavailable',
-  ];
+  public freeLimits = ["6 lawn entries per month", "Basic analytics", "AI features unavailable"];
 
   ngOnInit() {
     this.route.queryParams.subscribe((params) => {
-      if (params['success'] === 'true') {
-        this.throwSuccessToast('Subscription activated successfully!');
+      if (params["success"] === "true") {
+        this.throwSuccessToast("Subscription activated successfully!");
         this.subscriptionService.refreshSubscription();
         this.router.navigate([], { queryParams: {} });
       }
 
-      if (params['canceled'] === 'true') {
-        this.throwErrorToast('Subscription checkout was canceled');
+      if (params["canceled"] === "true") {
+        this.throwErrorToast("Subscription checkout was canceled");
         this.router.navigate([], { queryParams: {} });
       }
     });
   }
 
-  public async subscribe(tier: 'monthly' | 'yearly') {
+  public async subscribe(tier: "monthly" | "yearly") {
     this.isLoading.set(true);
 
     try {
       const checkoutUrl = await this.subscriptionService.createCheckout(tier);
       window.location.href = checkoutUrl;
     } catch (error) {
-      this.throwErrorToast('Failed to start checkout');
+      this.throwErrorToast("Failed to start checkout");
       this.isLoading.set(false);
     }
   }
@@ -1373,7 +1285,7 @@ export class SubscriptionComponent implements OnInit {
       const portalUrl = await this.subscriptionService.openPortal();
       window.location.href = portalUrl;
     } catch (error) {
-      this.throwErrorToast('Failed to open billing portal');
+      this.throwErrorToast("Failed to open billing portal");
       this.isLoading.set(false);
     }
   }
@@ -1391,7 +1303,7 @@ export class SubscriptionComponent implements OnInit {
   public get isSubscriptionActive(): boolean {
     const sub = this.subscription();
 
-    return sub?.status === 'active' && this.isPro();
+    return sub?.status === "active" && this.isPro();
   }
 
   public get willCancelAtPeriodEnd(): boolean {
@@ -1401,19 +1313,19 @@ export class SubscriptionComponent implements OnInit {
   public get tierDisplayName(): string {
     const tier = this.subscription()?.tier;
 
-    if (tier === 'lifetime') {
-      return 'Pro (Lifetime)';
+    if (tier === "lifetime") {
+      return "Pro (Lifetime)";
     }
 
-    if (tier === 'monthly') {
-      return 'Pro (Monthly)';
+    if (tier === "monthly") {
+      return "Pro (Monthly)";
     }
 
-    if (tier === 'yearly') {
-      return 'Pro (Yearly)';
+    if (tier === "yearly") {
+      return "Pro (Yearly)";
     }
 
-    return 'Free';
+    return "Free";
   }
 }
 ```
@@ -1425,54 +1337,45 @@ export class SubscriptionComponent implements OnInit {
 ```html
 <page-container title="Subscription">
   @if (isPro()) {
-    <p-message severity="success" [closable]="false">
-      <div class="flex flex-column gap-2">
-        <strong>{{ tierDisplayName }}</strong>
+  <p-message severity="success" [closable]="false">
+    <div class="flex flex-column gap-2">
+      <strong>{{ tierDisplayName }}</strong>
 
-        @if (subscription()?.tier !== 'lifetime') {
-          <span>Your {{ subscription()?.tier }} plan is active until {{ subscriptionEndDate }}</span>
-        } @else {
-          <span>You have lifetime pro access! Thank you for being an early adopter.</span>
-        }
+      @if (subscription()?.tier !== 'lifetime') {
+      <span>Your {{ subscription()?.tier }} plan is active until {{ subscriptionEndDate }}</span>
+      } @else {
+      <span>You have lifetime pro access! Thank you for being an early adopter.</span>
+      } @if (willCancelAtPeriodEnd) {
+      <span class="text-orange-500">Will cancel at period end</span>
+      }
+    </div>
+  </p-message>
 
-        @if (willCancelAtPeriodEnd) {
-          <span class="text-orange-500">Will cancel at period end</span>
-        }
-      </div>
-    </p-message>
-
-    @if (subscription()?.tier !== 'lifetime') {
-      <div class="flex justify-content-center mt-4">
-        <p-button
-          label="Manage Subscription"
-          icon="ti ti-settings"
-          (onClick)="manageSubscription()"
-          [loading]="isLoading()"
-        />
-      </div>
-    }
-
-    <p-divider />
-  } @else {
-    <p-message severity="info" [closable]="false">
-      <div class="flex flex-column gap-2">
-        <strong>Free Plan</strong>
-        <span>Upgrade to unlock unlimited entries and AI features</span>
-      </div>
-    </p-message>
+  @if (subscription()?.tier !== 'lifetime') {
+  <div class="flex justify-content-center mt-4">
+    <p-button label="Manage Subscription" icon="ti ti-settings" (onClick)="manageSubscription()" [loading]="isLoading()" />
+  </div>
   }
 
-  @if (!isPro()) {
-    <div class="free-limits mt-4">
-      <h3>Current Limitations (Free)</h3>
-      <ul>
-        @for (limit of freeLimits; track limit) {
-          <li>{{ limit }}</li>
-        }
-      </ul>
+  <p-divider />
+  } @else {
+  <p-message severity="info" [closable]="false">
+    <div class="flex flex-column gap-2">
+      <strong>Free Plan</strong>
+      <span>Upgrade to unlock unlimited entries and AI features</span>
     </div>
+  </p-message>
+  } @if (!isPro()) {
+  <div class="free-limits mt-4">
+    <h3>Current Limitations (Free)</h3>
+    <ul>
+      @for (limit of freeLimits; track limit) {
+      <li>{{ limit }}</li>
+      }
+    </ul>
+  </div>
 
-    <p-divider />
+  <p-divider />
   }
 
   <div class="pricing-container">
@@ -1480,46 +1383,39 @@ export class SubscriptionComponent implements OnInit {
 
     <div class="grid justify-content-center">
       @for (plan of plans; track plan.tier) {
-        <div class="col-12 md:col-6 lg:col-5">
-          <p-card>
-            <ng-template pTemplate="header">
-              <div class="card-header-content">
-                <h3>{{ plan.name }}</h3>
+      <div class="col-12 md:col-6 lg:col-5">
+        <p-card>
+          <ng-template pTemplate="header">
+            <div class="card-header-content">
+              <h3>{{ plan.name }}</h3>
 
-                @if (plan.popular) {
-                  <p-tag value="Most Popular" severity="success" />
-                }
-              </div>
-            </ng-template>
-
-            <div class="pricing-content">
-              <div class="price-section">
-                <span class="price">${{ plan.price }}</span>
-                <span class="period">/ {{ plan.period }}</span>
-              </div>
-
-              <p-divider />
-
-              <ul class="features-list">
-                @for (feature of plan.features; track feature) {
-                  <li>
-                    <i class="ti ti-check"></i>
-                    <span>{{ feature }}</span>
-                  </li>
-                }
-              </ul>
-
-              <p-button
-                [label]="isPro() && subscription()?.tier === plan.tier ? 'Current Plan' : 'Subscribe'"
-                [disabled]="isPro() && (subscription()?.tier === plan.tier || subscription()?.tier === 'lifetime')"
-                [loading]="isLoading()"
-                (onClick)="subscribe(plan.tier)"
-                styleClass="w-full"
-                [severity]="plan.popular ? 'success' : 'primary'"
-              />
+              @if (plan.popular) {
+              <p-tag value="Most Popular" severity="success" />
+              }
             </div>
-          </p-card>
-        </div>
+          </ng-template>
+
+          <div class="pricing-content">
+            <div class="price-section">
+              <span class="price">${{ plan.price }}</span>
+              <span class="period">/ {{ plan.period }}</span>
+            </div>
+
+            <p-divider />
+
+            <ul class="features-list">
+              @for (feature of plan.features; track feature) {
+              <li>
+                <i class="ti ti-check"></i>
+                <span>{{ feature }}</span>
+              </li>
+              }
+            </ul>
+
+            <p-button [label]="isPro() && subscription()?.tier === plan.tier ? 'Current Plan' : 'Subscribe'" [disabled]="isPro() && (subscription()?.tier === plan.tier || subscription()?.tier === 'lifetime')" [loading]="isLoading()" (onClick)="subscribe(plan.tier)" styleClass="w-full" [severity]="plan.popular ? 'success' : 'primary'" />
+          </div>
+        </p-card>
+      </div>
       }
     </div>
   </div>
@@ -1597,6 +1493,7 @@ export class SubscriptionComponent implements OnInit {
 ### 14.4: Create Upgrade Prompt Component
 
 **Create directory**:
+
 ```bash
 mkdir -p src/app/components/subscription
 ```
@@ -1604,35 +1501,30 @@ mkdir -p src/app/components/subscription
 **File**: `src/app/components/subscription/upgrade-prompt/upgrade-prompt.component.ts`
 
 ```typescript
-import { Component, Input, inject } from '@angular/core';
-import { Router } from '@angular/router';
-import { MessageModule } from 'primeng/message';
-import { ButtonModule } from 'primeng/button';
+import { Component, Input, inject } from "@angular/core";
+import { Router } from "@angular/router";
+import { MessageModule } from "primeng/message";
+import { ButtonModule } from "primeng/button";
 
 @Component({
-  selector: 'upgrade-prompt',
+  selector: "upgrade-prompt",
   standalone: true,
   imports: [MessageModule, ButtonModule],
   template: `
     <p-message severity="warn" [closable]="false">
       <div class="flex flex-column gap-3">
         <span>{{ message }}</span>
-        <p-button
-          label="Upgrade to Pro"
-          icon="ti ti-crown"
-          size="small"
-          (onClick)="navigateToSubscription()"
-        />
+        <p-button label="Upgrade to Pro" icon="ti ti-crown" size="small" (onClick)="navigateToSubscription()" />
       </div>
     </p-message>
   `,
 })
 export class UpgradePromptComponent {
-  @Input() message = 'Upgrade to unlock this feature';
+  @Input() message = "Upgrade to unlock this feature";
   private router = inject(Router);
 
   navigateToSubscription() {
-    this.router.navigate(['/subscription']);
+    this.router.navigate(["/subscription"]);
   }
 }
 ```
@@ -1646,17 +1538,19 @@ export class UpgradePromptComponent {
 **File**: `src/app/app.routes.ts`
 
 Add import:
+
 ```typescript
-import { SubscriptionComponent } from './pages/subscription/subscription.component';
+import { SubscriptionComponent } from "./pages/subscription/subscription.component";
 ```
 
 Add route to `mainRoutes`:
+
 ```typescript
 export const mainRoutes: Routes = [
   {
-    path: 'subscription',
+    path: "subscription",
     component: SubscriptionComponent,
-    canActivate: [hybridAuthGuard]
+    canActivate: [hybridAuthGuard],
   },
 ];
 ```
@@ -1666,6 +1560,7 @@ export const mainRoutes: Routes = [
 **File**: `src/app/config/navigation.config.ts`
 
 Add to `NAV_ITEMS`:
+
 ```typescript
 {
   label: 'Subscription',
@@ -1683,13 +1578,15 @@ Add to `NAV_ITEMS`:
 **File**: `src/app/pages/entry-log/add-entry/add-entry.component.ts`
 
 Add imports:
+
 ```typescript
-import { SubscriptionService } from '../../../services/subscription.service';
-import { Router } from '@angular/router';
-import { injectErrorToast } from '../../../utils/toastUtils';
+import { SubscriptionService } from "../../../services/subscription.service";
+import { Router } from "@angular/router";
+import { injectErrorToast } from "../../../utils/toastUtils";
 ```
 
 Add to constructor/inject:
+
 ```typescript
 private subscriptionService = inject(SubscriptionService);
 private router = inject(Router);
@@ -1697,6 +1594,7 @@ private throwErrorToast = injectErrorToast();
 ```
 
 Add check in `ngOnInit`:
+
 ```typescript
 async ngOnInit() {
   const access = await this.subscriptionService.checkFeatureAccess('entry_creation');
@@ -1721,9 +1619,9 @@ public hasAiAccess = this.subscriptionService.isPro;
 
 ```html
 @if (hasAiAccess()) {
-  <!-- AI UI here -->
+<!-- AI UI here -->
 } @else {
-  <upgrade-prompt message="Upgrade to unlock AI-powered lawn analysis" />
+<upgrade-prompt message="Upgrade to unlock AI-powered lawn analysis" />
 }
 ```
 
@@ -1739,6 +1637,7 @@ npm run start:dev
 ```
 
 Test endpoints with Postman or curl:
+
 ```bash
 curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   http://localhost:3000/subscription/status
@@ -1767,11 +1666,13 @@ npm run start
 Visit `http://localhost:4200/subscription`
 
 Use Stripe test cards:
+
 - Success: `4242 4242 4242 4242`
 - Requires auth: `4000 0025 0000 3155`
 - Decline: `4000 0000 0000 0002`
 
 Test scenarios:
+
 1. Subscribe to monthly plan
 2. Verify subscription status updates
 3. Try creating 7th entry as free user
@@ -1785,6 +1686,7 @@ Test scenarios:
 ### 18.1: Deploy Backend
 
 1. Push code to Railway:
+
 ```bash
 cd backend
 git add .
@@ -1793,6 +1695,7 @@ git push
 ```
 
 2. Add environment variables in Railway dashboard:
+
 ```
 STRIPE_SECRET_KEY=sk_live_...
 STRIPE_PUBLISHABLE_KEY=pk_live_...
@@ -1802,6 +1705,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 ```
 
 3. Run migrations:
+
 ```bash
 npm run migration:run
 ```
@@ -1820,11 +1724,13 @@ npm run migration:run
 ### 18.3: Deploy Frontend
 
 1. Update environment for production in `src/environments/environment.ts`:
+
 ```typescript
-stripePublishableKey: 'pk_live_...'
+stripePublishableKey: "pk_live_...";
 ```
 
 2. Deploy to Netlify:
+
 ```bash
 git add .
 git commit -m "Add subscription UI"
@@ -1843,6 +1749,7 @@ git push
 ## STEP 19: Verification Checklist
 
 ### Backend
+
 - [ ] Migrations ran successfully
 - [ ] Existing users show `tier='lifetime'` in database
 - [ ] `/subscription/status` returns subscription data
@@ -1854,6 +1761,7 @@ git push
 - [ ] Usage counter increments correctly
 
 ### Frontend
+
 - [ ] `/subscription` page loads
 - [ ] Pricing cards show $7/month and $60/year
 - [ ] Subscribe button redirects to Stripe
@@ -1867,6 +1775,7 @@ git push
 - [ ] Navigation shows subscription link
 
 ### End-to-End
+
 - [ ] New user defaults to free tier
 - [ ] Free user can create 6 entries
 - [ ] 7th entry shows limit error
@@ -1882,22 +1791,26 @@ git push
 ## Troubleshooting
 
 ### Webhook Not Working
+
 - Verify webhook secret matches Stripe Dashboard
 - Check Railway logs for webhook errors
 - Use Stripe Dashboard → Webhooks → Events to see delivery attempts
 - Ensure `@Public()` decorator is on webhook endpoint
 
 ### Checkout Redirect Fails
+
 - Check CORS settings if frontend/backend on different domains
 - Verify success/cancel URLs are correct
 - Check browser console for errors
 
 ### Migration Errors
+
 - Ensure database connection is correct
 - Check if tables already exist
 - Verify TypeORM config matches database
 
 ### Feature Gating Not Working
+
 - Ensure SubscriptionGuard is registered globally
 - Check decorator is applied to endpoints
 - Verify service is injected in guard
@@ -1908,6 +1821,7 @@ git push
 ## Next Steps
 
 After successful deployment:
+
 1. Monitor Stripe Dashboard for subscription events
 2. Track usage metrics in database
 3. Add email notifications for subscription changes (future)

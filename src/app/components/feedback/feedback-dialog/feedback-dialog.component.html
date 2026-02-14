@@ -57,14 +57,14 @@
         [style.width]="'100%'"
       >
         <ng-template pTemplate="item" let-option>
-          <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px">
             <i [class]="option.icon"></i>
             <span>{{ option.label }}</span>
           </div>
         </ng-template>
         <ng-template pTemplate="selectedItem" let-option>
           @if (option) {
-            <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px">
               <i [class]="option.icon"></i>
               <span>{{ option.label }}</span>
             </div>

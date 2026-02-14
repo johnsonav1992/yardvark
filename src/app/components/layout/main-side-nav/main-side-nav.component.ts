@@ -14,7 +14,13 @@ import { NAV_ITEMS } from '../../../config/navigation.config';
 
 @Component({
   selector: 'main-side-nav',
-  imports: [DrawerModule, MenuModule, ToggleSwitchModule, FormsModule, ButtonModule],
+  imports: [
+    DrawerModule,
+    MenuModule,
+    ToggleSwitchModule,
+    FormsModule,
+    ButtonModule
+  ],
   providers: [DialogService],
   templateUrl: './main-side-nav.component.html',
   styleUrl: './main-side-nav.component.scss',
@@ -57,7 +63,7 @@ export class MainSideNavComponent {
     dialogRef?.onClose.subscribe();
   };
 
-  public menuItems: MenuItem[] = NAV_ITEMS.map(item => ({
+  public menuItems: MenuItem[] = NAV_ITEMS.map((item) => ({
     ...item,
     command: this.closeSidebar
   }));

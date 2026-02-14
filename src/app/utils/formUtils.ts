@@ -63,9 +63,8 @@ export const websiteUrlValidator: ValidatorFn = (control) => {
   const val = control.value;
 
   if (val && val.length > 0) {
-    const isValid = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- ./?%&=~_:();,]*)?$/.test(
-      val
-    );
+    const isValid =
+      /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- ./?%&=~_:();,]*)?$/.test(val);
 
     return isValid ? null : { invalidUrl: true };
   }

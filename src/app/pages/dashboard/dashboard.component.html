@@ -42,32 +42,44 @@
       <p>Click the button above to restore widgets to your dashboard.</p>
     </div>
   } @else {
-    <div class="cards-container" cdkDropList (cdkDropListDropped)="onWidgetDrop($event)" cdkDropListOrientation="mixed">
+    <div
+      class="cards-container"
+      cdkDropList
+      (cdkDropListDropped)="onWidgetDrop($event)"
+      cdkDropListOrientation="mixed"
+    >
       @for (widgetId of orderedVisibleWidgets(); track widgetId) {
-          <div cdkDrag [cdkDragDisabled]="isAnyWidgetLoading()" [cdkDragStartDelay]="0" class="widget-wrapper">
+        <div
+          cdkDrag
+          [cdkDragDisabled]="isAnyWidgetLoading()"
+          [cdkDragStartDelay]="0"
+          class="widget-wrapper"
+        >
           @switch (widgetId) {
-              @case ('recent-entry') {
+            @case ("recent-entry") {
               @if (recentEntry.isLoading()) {
                 <card-skeleton />
               } @else {
                 <recent-entry (onHideWidget)="hideWidget('recent-entry')" />
               }
             }
-              @case ('quick-stats') {
+            @case ("quick-stats") {
               @if (isQuickStatsLoading()) {
                 <card-skeleton />
               } @else {
                 <quick-stats (onHideWidget)="hideWidget('quick-stats')" />
               }
             }
-              @case ('lawn-health-score') {
+            @case ("lawn-health-score") {
               @if (isLawnHealthScoreLoading()) {
                 <card-skeleton />
               } @else {
-                  <lawn-health-score (onHideWidget)="hideWidget('lawn-health-score')" />
-                }
+                <lawn-health-score
+                  (onHideWidget)="hideWidget('lawn-health-score')"
+                />
               }
-              @case ('weather-card') {
+            }
+            @case ("weather-card") {
               @if (isWeatherCardLoading()) {
                 <card-skeleton />
               } @else {

@@ -1,6 +1,6 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { GddService } from '../services/gdd.service';
-import { resultOrThrow } from '../../../utils/unwrapResult';
+import { resultOrThrow } from '../../../utils/resultOrThrow';
 import { User } from '../../../decorators/user.decorator';
 import { LogHelpers } from '../../../logger/logger.helpers';
 

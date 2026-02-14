@@ -17,7 +17,14 @@ import { differenceInDays, differenceInMonths } from 'date-fns';
 
 @Component({
   selector: 'equipment-preview-card',
-  imports: [CardModule, DatePipe, ButtonModule, TooltipModule, TagModule, DividerModule],
+  imports: [
+    CardModule,
+    DatePipe,
+    ButtonModule,
+    TooltipModule,
+    TagModule,
+    DividerModule
+  ],
   templateUrl: './equipment-preview-card.component.html',
   styleUrl: './equipment-preview-card.component.scss',
   providers: [DialogService]

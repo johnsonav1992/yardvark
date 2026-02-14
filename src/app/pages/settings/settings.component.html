@@ -6,7 +6,9 @@
       @if (isPro()) {
         <div class="subscription-status">
           <i class="ti ti-crown pro-icon"></i>
-          <span class="subscription-tier">{{ subscription.value()?.tier | titlecase }} Plan</span>
+          <span class="subscription-tier"
+            >{{ subscription.value()?.tier | titlecase }} Plan</span
+          >
         </div>
       } @else {
         <div class="subscription-status">

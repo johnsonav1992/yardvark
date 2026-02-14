@@ -4,7 +4,7 @@ import { apiUrl, postReq } from '../utils/httpUtils';
 import {
   Subscription,
   FeatureAccess,
-  PurchasableTier,
+  PurchasableTier
 } from '../types/subscription.types';
 
 @Injectable({ providedIn: 'root' })
@@ -41,32 +41,25 @@ export class SubscriptionService {
   public createCheckout(tier: PurchasableTier) {
     const baseUrl = window.location.origin;
 
-    return postReq<{ url: string }>(
-      apiUrl('subscription/checkout'),
-      {
-        tier,
-        successUrl: `${baseUrl}/subscription?success=true`,
-        cancelUrl: `${baseUrl}/subscription?canceled=true`
-      }
-    );
+    return postReq<{ url: string }>(apiUrl('subscription/checkout'), {
+      tier,
+      successUrl: `${baseUrl}/subscription?success=true`,
+      cancelUrl: `${baseUrl}/subscription?canceled=true`
+    });
   }
 
   public openPortal() {
     const baseUrl = window.location.origin;
 
-    return postReq<{ url: string }>(
-      apiUrl('subscription/portal'),
-      {
-        returnUrl: `${baseUrl}/subscription`
-      }
-    );
+    return postReq<{ url: string }>(apiUrl('subscription/portal'), {
+      returnUrl: `${baseUrl}/subscription`
+    });
   }
 
   public checkFeatureAccess(feature: string) {
-    return postReq<FeatureAccess>(
-      apiUrl('subscription/check-feature'),
-      { feature }
-    );
+    return postReq<FeatureAccess>(apiUrl('subscription/check-feature'), {
+      feature
+    });
   }
 
   public hasAiAccess(): boolean {

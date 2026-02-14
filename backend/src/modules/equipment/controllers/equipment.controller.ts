@@ -16,7 +16,7 @@ import { imageFileValidator } from 'src/utils/fileUtils';
 import { S3Service } from 'src/modules/s3/s3.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { EquipmentMaintenance } from '../models/equipmentMaintenance.model';
-import { resultOrThrow } from '../../../utils/unwrapResult';
+import { resultOrThrow } from '../../../utils/resultOrThrow';
 import { User } from '../../../decorators/user.decorator';
 import { LogHelpers } from '../../../logger/logger.helpers';
 

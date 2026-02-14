@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class UpdateEmbeddingTo384Dimensions1758997911640
-  implements MigrationInterface
-{
+export class UpdateEmbeddingTo384Dimensions1758997911640 implements MigrationInterface {
   name = 'UpdateEmbeddingTo384Dimensions1758997911640';
 
   public async up(queryRunner: QueryRunner): Promise<void> {

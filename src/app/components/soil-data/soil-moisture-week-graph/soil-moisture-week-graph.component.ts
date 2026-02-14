@@ -10,12 +10,7 @@ import { NgTemplateOutlet } from '@angular/common';
 
 @Component({
   selector: 'soil-moisture-week-graph',
-  imports: [
-    ChartLoaderComponent,
-    ChartModule,
-    CardModule,
-    NgTemplateOutlet
-  ],
+  imports: [ChartLoaderComponent, ChartModule, CardModule, NgTemplateOutlet],
   templateUrl: './soil-moisture-week-graph.component.html',
   styleUrl: './soil-moisture-week-graph.component.scss'
 })

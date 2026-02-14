@@ -52,7 +52,19 @@ export const hideVirtualKeyboard = () => {
  */
 export const convertToPounds = (
   quantity: number,
-  unit: 'lbs' | 'oz' | 'fl oz' | 'kg' | 'g' | 'gal' | 'qt' | 'pt' | 'tsp' | 'mL' | 'L' | (string & {})
+  unit:
+    | 'lbs'
+    | 'oz'
+    | 'fl oz'
+    | 'kg'
+    | 'g'
+    | 'gal'
+    | 'qt'
+    | 'pt'
+    | 'tsp'
+    | 'mL'
+    | 'L'
+    | (string & {})
 ): number => {
   const conversionRates: Record<string, number> = {
     // Solid weights

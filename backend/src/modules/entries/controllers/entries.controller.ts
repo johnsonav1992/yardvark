@@ -18,7 +18,7 @@ import {
 import { User } from '../../../decorators/user.decorator';
 import { SubscriptionFeature } from '../../../decorators/subscription-feature.decorator';
 import { SubscriptionService } from '../../subscription/services/subscription.service';
-import { resultOrThrow } from '../../../utils/unwrapResult';
+import { resultOrThrow } from '../../../utils/resultOrThrow';
 import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Controller('entries')

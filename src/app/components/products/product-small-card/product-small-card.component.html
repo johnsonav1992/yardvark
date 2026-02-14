@@ -1,23 +1,29 @@
-<div
-  class="product-card"
-  [class.with-border]="showBorder()"
->
+<div class="product-card" [class.with-border]="showBorder()">
   <div class="product-content">
     <div class="image-container">
-      <img [src]="product().imageUrl || noImageUrl" alt="{{ product().name }}" />
+      <img
+        [src]="product().imageUrl || noImageUrl"
+        alt="{{ product().name }}"
+      />
     </div>
     <div class="product-details">
       <div class="product-name">{{ product().name }}</div>
       @if (!hideSubtitle()) {
         <div class="product-info">
           <span class="brand">{{ product().brand }}</span>
-          @if (product().guaranteedAnalysis && product().guaranteedAnalysis !== 'N/A') {
+          @if (
+            product().guaranteedAnalysis &&
+            product().guaranteedAnalysis !== "N/A"
+          ) {
             <span class="separator">•</span>
             <span class="analysis">{{ product().guaranteedAnalysis }}</span>
           }
           @if (asAppliedAmount()) {
             <span class="separator">•</span>
-            <span class="applied">{{ product().quantity }}{{ product().quantityUnit }} Applied</span>
+            <span class="applied"
+              >{{ product().quantity
+              }}{{ product().quantityUnit }} Applied</span
+            >
           } @else {
             <span class="separator">•</span>
             <span class="category">{{ product().category | capitalize }}</span>

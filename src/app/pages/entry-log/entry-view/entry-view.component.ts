@@ -169,16 +169,16 @@ export class EntryViewComponent {
 
   public downloadedFiles = signal<File[]>([]);
 
-  public shouldShowProductsCard = computed(() =>
-    (this.entryData()?.products?.length ?? 0) > 0 || this.isInEditMode()
+  public shouldShowProductsCard = computed(
+    () => (this.entryData()?.products?.length ?? 0) > 0 || this.isInEditMode()
   );
 
-  public shouldShowNotesCard = computed(() =>
-    !!this.entryData()?.notes || this.isInEditMode()
+  public shouldShowNotesCard = computed(
+    () => !!this.entryData()?.notes || this.isInEditMode()
   );
 
-  public shouldShowImagesCard = computed(() =>
-    this.entryImageUrls().length > 0 || this.isInEditMode()
+  public shouldShowImagesCard = computed(
+    () => this.entryImageUrls().length > 0 || this.isInEditMode()
   );
 
   // @ts-expect-error -> using this until signal forms are ready

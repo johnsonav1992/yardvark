@@ -13,7 +13,15 @@ import { UpgradePromptComponent } from '../../subscription/upgrade-prompt/upgrad
 
 @Component({
   selector: 'lawn-health-score',
-  imports: [CardModule, DividerModule, PopoverModule, ButtonModule, TooltipModule, CdkDragHandle, UpgradePromptComponent],
+  imports: [
+    CardModule,
+    DividerModule,
+    PopoverModule,
+    ButtonModule,
+    TooltipModule,
+    CdkDragHandle,
+    UpgradePromptComponent
+  ],
   templateUrl: './lawn-health-score.component.html',
   styleUrl: './lawn-health-score.component.scss'
 })
@@ -34,7 +42,7 @@ export class LawnHealthScoreComponent {
     const aiResource = this._lawnHealthScoreService.aiDescriptionResource;
     const aiDescription = aiResource.hasValue() ? aiResource.value() : '';
     const currentDescription = this.finalDescription();
-    
+
     return aiDescription && currentDescription === aiDescription;
   });
 

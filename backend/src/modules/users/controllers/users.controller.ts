@@ -11,7 +11,7 @@ import { UsersService } from '../services/users.service';
 import { User } from '../Models/user.model';
 import { User as AuthUser } from '../../../decorators/user.decorator';
 import { imageFileValidator } from 'src/utils/fileUtils';
-import { resultOrThrow } from '../../../utils/unwrapResult';
+import { resultOrThrow } from '../../../utils/resultOrThrow';
 import { LogHelpers } from '../../../logger/logger.helpers';
 
 const MAX_PROFILE_PICTURE_SIZE = 5 * 1024 * 1024;

@@ -1,4 +1,12 @@
-import { Component, computed, effect, inject, NgZone, OnDestroy, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  NgZone,
+  OnDestroy,
+  signal
+} from '@angular/core';
 import { PageContainerComponent } from '../../../components/layout/page-container/page-container.component';
 import { SkeletonModule } from 'primeng/skeleton';
 import { DividerModule } from 'primeng/divider';
@@ -8,11 +16,7 @@ import { DividerDesignTokens } from '@primeuix/themes/types/divider';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
-import {
-  CurrencyPipe,
-  DatePipe,
-  TitleCasePipe
-} from '@angular/common';
+import { CurrencyPipe, DatePipe, TitleCasePipe } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { CardDesignTokens } from '@primeuix/themes/types/card';
@@ -349,12 +353,19 @@ export class EquipmentViewComponent implements OnDestroy {
     this.startPositionX.set(isNaN(x) ? 50 : x);
     this.startPositionY.set(isNaN(y) ? 50 : y);
 
-    document.addEventListener('touchmove', this.onDocumentTouchMove, { passive: false });
+    document.addEventListener('touchmove', this.onDocumentTouchMove, {
+      passive: false
+    });
     document.addEventListener('touchend', this.onDocumentTouchEnd);
   }
 
   private onDocumentMouseMove = (event: MouseEvent): void => {
-    if (!this.isAdjustingPosition() || !this.isDragging() || !this.imageElement()) return;
+    if (
+      !this.isAdjustingPosition() ||
+      !this.isDragging() ||
+      !this.imageElement()
+    )
+      return;
 
     event.preventDefault();
 
@@ -387,7 +398,12 @@ export class EquipmentViewComponent implements OnDestroy {
   };
 
   private onDocumentTouchMove = (event: TouchEvent): void => {
-    if (!this.isAdjustingPosition() || !this.isDragging() || !this.imageElement()) return;
+    if (
+      !this.isAdjustingPosition() ||
+      !this.isDragging() ||
+      !this.imageElement()
+    )
+      return;
 
     event.preventDefault();
     const touch = event.touches[0];
@@ -440,7 +456,9 @@ export class EquipmentViewComponent implements OnDestroy {
           this._equipmentService.equipment.reload();
         },
         error: () => {
-          this.throwErrorToast('Error saving image position. Please try again.');
+          this.throwErrorToast(
+            'Error saving image position. Please try again.'
+          );
         }
       });
   }

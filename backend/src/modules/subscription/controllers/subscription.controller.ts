@@ -12,7 +12,7 @@ import {
   PURCHASABLE_TIERS,
 } from '../models/subscription.types';
 import { LogHelpers } from '../../../logger/logger.helpers';
-import { resultOrThrow } from '../../../utils/unwrapResult';
+import { resultOrThrow } from '../../../utils/resultOrThrow';
 import { User } from '../../../decorators/user.decorator';
 import { ExtractedUserRequestData } from '../../../types/request';
 

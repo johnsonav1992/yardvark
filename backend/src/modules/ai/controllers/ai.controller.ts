@@ -12,7 +12,7 @@ import { AiChatResponse, AiChatRequest } from '../../../types/ai.types';
 // import { Public } from '../../../decorators/public.decorator';
 import { FeatureFlag } from '../../../decorators/feature-flag.decorator';
 import { SubscriptionFeature } from '../../../decorators/subscription-feature.decorator';
-import { resultOrThrow } from '../../../utils/unwrapResult';
+import { resultOrThrow } from '../../../utils/resultOrThrow';
 import { User } from '../../../decorators/user.decorator';
 import { LogHelpers } from '../../../logger/logger.helpers';
 

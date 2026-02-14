@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class Analytics11AddYearParameter1767323034538
-  implements MigrationInterface
-{
+export class Analytics11AddYearParameter1767323034538 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
       CREATE OR REPLACE FUNCTION get_user_analytics_v2(p_user_id VARCHAR, p_year INT DEFAULT EXTRACT(YEAR FROM CURRENT_DATE)::INT)

@@ -12,7 +12,7 @@ import {
   LawnSegmentCreationRequest,
   LawnSegmentUpdateRequest,
 } from '../models/lawn-segments.types';
-import { resultOrThrow } from '../../../utils/unwrapResult';
+import { resultOrThrow } from '../../../utils/resultOrThrow';
 import { User } from '../../../decorators/user.decorator';
 import { LogHelpers } from '../../../logger/logger.helpers';
 

@@ -187,7 +187,9 @@
                         <small>inches</small>
                       </div>
                     } @else {
-                      <span class="value">{{ entryData()?.mowingHeight }}"</span>
+                      <span class="value"
+                        >{{ entryData()?.mowingHeight }}"</span
+                      >
                     }
                   </div>
                 </div>
@@ -215,7 +217,10 @@
                 } @else {
                   @if (entryData()?.products?.length) {
                     <div class="products-list">
-                      @for (product of entryData()?.products; track product.id) {
+                      @for (
+                        product of entryData()?.products;
+                        track product.id
+                      ) {
                         <product-small-card
                           [product]="product"
                           [asAppliedAmount]="true"
@@ -295,7 +300,9 @@
                           rounded
                           outlined
                           size="small"
-                          (click)="onRemoveFile(file, removeFileCallback, $index)"
+                          (click)="
+                            onRemoveFile(file, removeFileCallback, $index)
+                          "
                         />
                       </div>
                     }

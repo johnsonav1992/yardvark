@@ -56,15 +56,23 @@
           </div>
           <ng-template pTemplate="footer">
             <div class="skeleton-footer">
-              <p-skeleton width="100%" height="2.25rem" borderRadius="var(--p-button-border-radius)" />
-              <p-skeleton width="2.75rem" height="2.25rem" borderRadius="var(--p-button-border-radius)" />
+              <p-skeleton
+                width="100%"
+                height="2.25rem"
+                borderRadius="var(--p-button-border-radius)"
+              />
+              <p-skeleton
+                width="2.75rem"
+                height="2.25rem"
+                borderRadius="var(--p-button-border-radius)"
+              />
             </div>
           </ng-template>
         </p-card>
       }
     </div>
   } @else {
-    @if (viewMode() === 'grid' || isMobile()) {
+    @if (viewMode() === "grid" || isMobile()) {
       <div class="equipment-grid">
         @for (equipmentItem of filteredEquipment(); track equipmentItem.id) {
           <equipment-preview-card [equipment]="equipmentItem" />
@@ -151,7 +159,9 @@
             </td>
             <td>
               @if (item.maintenanceRecords.length > 0) {
-                {{ item.maintenanceRecords[0].maintenanceDate | date: "M/dd/yyyy" }}
+                {{
+                  item.maintenanceRecords[0].maintenanceDate | date: "M/dd/yyyy"
+                }}
               } @else {
                 <span>N/A</span>
               }

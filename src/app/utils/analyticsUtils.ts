@@ -236,7 +236,8 @@ export const getAverageDaysBetweenChartConfig = (
   }
 
   const startMonth = averageDaysData[0]?.monthNumber || 1;
-  const endMonth = averageDaysData[averageDaysData.length - 1]?.monthNumber || 12;
+  const endMonth =
+    averageDaysData[averageDaysData.length - 1]?.monthNumber || 12;
   const labels = getMonthAbbreviations(startMonth, endMonth);
 
   const mowingData = averageDaysData.map((item) =>

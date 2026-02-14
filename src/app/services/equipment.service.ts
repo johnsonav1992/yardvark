@@ -23,8 +23,13 @@ export class EquipmentService {
     equipmentId: number,
     equipmentData: EquipmentFormData | Partial<Equipment>
   ) {
-    if (equipmentData instanceof FormData || this.isEquipmentFormData(equipmentData)) {
-      const formData = this.buildEquipmentFormData(equipmentData as EquipmentFormData);
+    if (
+      equipmentData instanceof FormData ||
+      this.isEquipmentFormData(equipmentData)
+    ) {
+      const formData = this.buildEquipmentFormData(
+        equipmentData as EquipmentFormData
+      );
       return putReq(apiUrl(`equipment/${equipmentId}`), formData);
     }
 

@@ -5,7 +5,10 @@ import { ToggleButtonModule } from 'primeng/togglebutton';
 import { FormsModule } from '@angular/forms';
 import { DynamicDialogRef } from 'primeng/dynamicdialog';
 import { SettingsService } from '../../../services/settings.service';
-import { NAV_ITEMS, DEFAULT_MOBILE_NAV_ITEMS } from '../../../config/navigation.config';
+import {
+  NAV_ITEMS,
+  DEFAULT_MOBILE_NAV_ITEMS
+} from '../../../config/navigation.config';
 
 interface SelectableNavItem {
   id: string;
@@ -25,7 +28,7 @@ export class NavbarCustomizationDialogComponent {
   private _settingsService = inject(SettingsService);
 
   public items = signal<SelectableNavItem[]>(
-    NAV_ITEMS.map(item => ({
+    NAV_ITEMS.map((item) => ({
       id: item.id,
       label: item.label,
       icon: item.icon,
@@ -40,9 +43,10 @@ export class NavbarCustomizationDialogComponent {
   constructor() {
     const settings = this._settingsService.currentSettings();
     const items = settings?.mobileNavbarItems;
-    const currentSelection = items && items.length >= 4 && items.length <= 5
-      ? items
-      : DEFAULT_MOBILE_NAV_ITEMS;
+    const currentSelection =
+      items && items.length >= 4 && items.length <= 5
+        ? items
+        : DEFAULT_MOBILE_NAV_ITEMS;
 
     this.items.update((items) =>
       items.map((item) => ({

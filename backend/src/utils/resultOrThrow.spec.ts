@@ -1,5 +1,5 @@
 import { HttpException } from '@nestjs/common';
-import { resultOrThrow } from './unwrapResult';
+import { resultOrThrow } from './resultOrThrow';
 import { error, success } from '../types/either';
 import {
   ResourceError,

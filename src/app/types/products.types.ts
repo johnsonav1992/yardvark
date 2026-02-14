@@ -48,8 +48,6 @@ type RawProductTypes = (typeof PRODUCT_TYPES)[keyof typeof PRODUCT_TYPES];
 
 type CapitalizedProductTypes = Capitalize<RawProductTypes>;
 
-export type ProductCategories =
-  | Exclude<CapitalizedProductTypes, 'Pgr'>
-  | 'PGR';
+export type ProductCategories = Exclude<CapitalizedProductTypes, 'Pgr'> | 'PGR';
 
 export type ProductCategoryValues = RawProductTypes;

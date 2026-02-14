@@ -10,7 +10,11 @@ import { DividerModule } from 'primeng/divider';
 import { MessageModule } from 'primeng/message';
 import { SubscriptionService } from '../../services/subscription.service';
 import { PricingPlan, PurchasableTier } from '../../types/subscription.types';
-import { injectSuccessToast, injectErrorToast, injectInfoToast } from '../../utils/toastUtils';
+import {
+  injectSuccessToast,
+  injectErrorToast,
+  injectInfoToast
+} from '../../utils/toastUtils';
 import { GlobalUiService } from '../../services/global-ui.service';
 import { FREE_TIER_ENTRY_LIMIT } from '../../constants/subscription.constants';
 
@@ -24,10 +28,10 @@ import { FREE_TIER_ENTRY_LIMIT } from '../../constants/subscription.constants';
     CardModule,
     TagModule,
     DividerModule,
-    MessageModule,
+    MessageModule
   ],
   templateUrl: './subscription.component.html',
-  styleUrl: './subscription.component.scss',
+  styleUrl: './subscription.component.scss'
 })
 export class SubscriptionComponent {
   private subscriptionService = inject(SubscriptionService);
@@ -50,7 +54,7 @@ export class SubscriptionComponent {
     'All AI features',
     'Advanced analytics',
     'GDD tracking',
-    'Priority support',
+    'Priority support'
   ];
 
   public plans: PricingPlan[] = [
@@ -59,7 +63,7 @@ export class SubscriptionComponent {
       name: 'Monthly',
       price: 7,
       period: 'month',
-      features: this.commonFeatures,
+      features: this.commonFeatures
     },
     {
       tier: 'yearly',
@@ -67,14 +71,14 @@ export class SubscriptionComponent {
       price: 60,
       period: 'year',
       popular: true,
-      features: [...this.commonFeatures, 'Save $24/year'],
-    },
+      features: [...this.commonFeatures, 'Save $24/year']
+    }
   ];
 
   public freeLimits = [
     `${FREE_TIER_ENTRY_LIMIT} lawn entries per month`,
     'Basic analytics',
-    'AI features unavailable',
+    'AI features unavailable'
   ];
 
   constructor() {
@@ -160,7 +164,7 @@ export class SubscriptionComponent {
     const tierNames: Record<string, string> = {
       lifetime: 'Lifetime',
       monthly: 'Monthly',
-      yearly: 'Yearly',
+      yearly: 'Yearly'
     };
 
     return `Pro (${tierNames[tier] || tier})`;

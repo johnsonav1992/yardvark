@@ -62,7 +62,9 @@
         } @else {
           <p class="stat">
             <i class="ti ti-flame icon"></i> GDD Progress:
-            <b [class.complete]="isGddComplete()">{{ gddAccumulated() }} / {{ gddTarget() }}</b>
+            <b [class.complete]="isGddComplete()"
+              >{{ gddAccumulated() }} / {{ gddTarget() }}</b
+            >
           </p>
           <p-progressbar [value]="gddPercentage()" [showValue]="false" />
         }

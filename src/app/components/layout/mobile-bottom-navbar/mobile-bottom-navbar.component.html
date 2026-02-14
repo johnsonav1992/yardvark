@@ -9,7 +9,9 @@
           "
           [routerLink]="item.routerLink || null"
           [routerLinkActive]="item.id !== 'more' ? 'navbar-item-active' : ''"
-          [routerLinkActiveOptions]="item.routerLinkActiveOptions || { exact: false }"
+          [routerLinkActiveOptions]="
+            item.routerLinkActiveOptions || { exact: false }
+          "
           (click)="item.id === 'more' && handleMoreClick($event)"
         >
           <i [class]="item.icon"></i>

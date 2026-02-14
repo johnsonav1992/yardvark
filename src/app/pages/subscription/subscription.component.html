@@ -8,11 +8,15 @@
               <i class="ti ti-crown"></i>
             </ng-template>
           </p-tag>
-          @if (subscription()?.tier === 'lifetime') {
-            <span>You have lifetime pro access! Thank you for being an early adopter.</span>
+          @if (subscription()?.tier === "lifetime") {
+            <span
+              >You have lifetime pro access! Thank you for being an early
+              adopter.</span
+            >
           } @else {
             <span>
-              Your plan is active until <strong>{{ subscriptionEndDate }}</strong>
+              Your plan is active until
+              <strong>{{ subscriptionEndDate }}</strong>
             </span>
             @if (willCancelAtPeriodEnd) {
               <small class="cancel-warning">
@@ -22,7 +26,7 @@
             }
           }
         </div>
-        @if (subscription()?.tier !== 'lifetime') {
+        @if (subscription()?.tier !== "lifetime") {
           <p-button
             label="Manage Subscription"
             icon="ti ti-settings"
@@ -75,8 +79,12 @@
               <span class="price">${{ plan.price }}</span>
               <span class="period">/ {{ plan.period }}</span>
             </div>
-            @if (plan.tier === 'yearly') {
-              <p-tag value="Save $24/year" severity="success" [rounded]="true" />
+            @if (plan.tier === "yearly") {
+              <p-tag
+                value="Save $24/year"
+                severity="success"
+                [rounded]="true"
+              />
             }
           </div>
         </ng-template>
@@ -124,7 +132,9 @@
         <div class="benefit-content">
           <i class="ti ti-infinity benefit-icon"></i>
           <h4>Unlimited Entries</h4>
-          <p>Track every lawn care activity without worrying about monthly limits</p>
+          <p>
+            Track every lawn care activity without worrying about monthly limits
+          </p>
         </div>
       </p-card>
 
@@ -132,7 +142,10 @@
         <div class="benefit-content">
           <i class="ti ti-sparkles benefit-icon"></i>
           <h4>AI-Powered Insights</h4>
-          <p>Get personalized recommendations and lawn health analysis powered by AI</p>
+          <p>
+            Get personalized recommendations and lawn health analysis powered by
+            AI
+          </p>
         </div>
       </p-card>
 
@@ -140,7 +153,10 @@
         <div class="benefit-content">
           <i class="ti ti-chart-line benefit-icon"></i>
           <h4>Advanced Analytics</h4>
-          <p>Access detailed analytics and insights to optimize your lawn care routine</p>
+          <p>
+            Access detailed analytics and insights to optimize your lawn care
+            routine
+          </p>
         </div>
       </p-card>
 

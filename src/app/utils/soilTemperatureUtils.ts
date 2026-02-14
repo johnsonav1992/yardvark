@@ -168,7 +168,7 @@ export const getSoilMoistureInsight = (
   }
 
   return {
-    icon: 'ti ti-droplet-filled',
+    icon: 'ti ti-droplets',
     label: 'Saturated',
     description:
       grassType === 'cool'

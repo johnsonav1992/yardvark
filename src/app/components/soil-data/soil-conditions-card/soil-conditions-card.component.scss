@@ -12,7 +12,14 @@
 
 .reading-icon {
   font-size: 1.5rem;
-  color: var(--p-primary-500);
+
+  &.ti-thermometer {
+    color: var(--p-surface-500);
+  }
+
+  &.ti-droplet {
+    color: var(--p-blue-400);
+  }
 }
 
 .reading-text {

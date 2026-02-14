@@ -59,7 +59,8 @@ export const getGddForecastChartConfig = (
       data: dailyGdd,
       backgroundColor: getPrimeNgHexColor('amber.300'),
       borderColor: getPrimeNgHexColor('amber.500'),
-      yAxisID: 'y'
+      yAxisID: 'y',
+      order: 1
     },
     {
       type: 'line' as const,
@@ -68,7 +69,8 @@ export const getGddForecastChartConfig = (
       borderColor: getPrimeNgHexColor('teal.500'),
       backgroundColor: 'transparent',
       tension: 0.3,
-      yAxisID: 'y1'
+      yAxisID: 'y1',
+      order: 0
     },
     {
       type: 'line' as const,
@@ -78,7 +80,8 @@ export const getGddForecastChartConfig = (
       borderDash: [5, 5],
       borderWidth: 2,
       pointRadius: 0,
-      yAxisID: 'y1'
+      yAxisID: 'y1',
+      order: 0
     }
   ];
 

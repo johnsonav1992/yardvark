@@ -22,8 +22,9 @@
             @if (tempTrend(); as trend) {
               <span class="trend" [class]="'trend-' + trend.direction">
                 <i [class]="trend.icon"></i>
-                @if (trend.direction !== 'stable') {
-                  {{ trend.delta > 0 ? '+' : '' }}{{ trend.delta }}{{ displayTempUnit() }}
+                @if (trend.direction !== "stable") {
+                  {{ trend.delta > 0 ? "+" : "" }}{{ trend.delta
+                  }}{{ displayTempUnit() }}
                 }
               </span>
             }
@@ -37,7 +38,9 @@
         <i class="ti ti-thermometer reading-icon"></i>
         <div class="reading-text">
           <span class="reading-label">Deep (7in)</span>
-          <span class="reading-value">{{ deepTemp() }}{{ displayTempUnit() }}</span>
+          <span class="reading-value"
+            >{{ deepTemp() }}{{ displayTempUnit() }}</span
+          >
         </div>
       </div>
     }
@@ -52,8 +55,8 @@
             @if (moistureTrend(); as trend) {
               <span class="trend" [class]="'trend-' + trend.direction">
                 <i [class]="trend.icon"></i>
-                @if (trend.direction !== 'stable') {
-                  {{ trend.delta > 0 ? '+' : '' }}{{ trend.delta }}%
+                @if (trend.direction !== "stable") {
+                  {{ trend.delta > 0 ? "+" : "" }}{{ trend.delta }}%
                 }
               </span>
             }

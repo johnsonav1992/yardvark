@@ -16,7 +16,7 @@
 
   i {
     font-size: 1.25rem;
-    color: var(--p-primary-500);
+    color: var(--p-surface-500);
   }
 
   h3 {
@@ -88,6 +88,10 @@
     margin-top: 0;
     flex-shrink: 0;
     line-height: 1;
+
+    &.ti-thermometer {
+      color: var(--p-surface-500);
+    }
   }
 
   .info-content {

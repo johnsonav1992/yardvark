@@ -142,6 +142,10 @@
   .benefit-icon {
     font-size: 2.5rem;
     color: var(--p-primary-500);
+
+    &.ti-sparkles {
+      color: var(--p-violet-400);
+    }
   }
 
   h4 {

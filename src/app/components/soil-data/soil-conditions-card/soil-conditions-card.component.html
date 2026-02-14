@@ -22,7 +22,9 @@
             @if (tempTrend(); as trend) {
               <span class="trend" [class]="'trend-' + trend.direction">
                 <i [class]="trend.icon"></i>
-                @if (trend.direction !== "stable") {
+                @if (trend.direction === "stable") {
+                  Stable
+                } @else {
                   {{ trend.delta > 0 ? "+" : "" }}{{ trend.delta
                   }}{{ displayTempUnit() }}
                 }
@@ -55,7 +57,9 @@
             @if (moistureTrend(); as trend) {
               <span class="trend" [class]="'trend-' + trend.direction">
                 <i [class]="trend.icon"></i>
-                @if (trend.direction !== "stable") {
+                @if (trend.direction === "stable") {
+                  Stable
+                } @else {
                   {{ trend.delta > 0 ? "+" : "" }}{{ trend.delta }}%
                 }
               </span>

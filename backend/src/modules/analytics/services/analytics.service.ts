@@ -14,11 +14,9 @@ export class AnalyticsService {
     const analyticsYear = year ?? new Date().getFullYear();
     LogHelpers.addBusinessContext('analyticsYear', analyticsYear);
 
-    const result = await LogHelpers.withDatabaseTelemetry(() =>
-      this.dataSource.query<AnalyticsRes>(
-        `SELECT * FROM get_user_analytics_v2($1, $2)`,
-        [userId, analyticsYear],
-      ),
+    const result = await this.dataSource.query<AnalyticsRes>(
+      `SELECT * FROM get_user_analytics_v2($1, $2)`,
+      [userId, analyticsYear],
     );
 
     return result[0].get_user_analytics_v2;

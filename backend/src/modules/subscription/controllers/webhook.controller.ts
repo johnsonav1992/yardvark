@@ -75,9 +75,7 @@ export class WebhookController {
     });
 
     try {
-      await LogHelpers.withDatabaseTelemetry(() =>
-        this.webhookEventRepo.save(webhookEvent),
-      );
+      await this.webhookEventRepo.save(webhookEvent);
       LogHelpers.addBusinessContext('webhook_event_saved', true);
     } catch (error) {
       if (error.code === '23505') {
@@ -167,12 +165,10 @@ export class WebhookController {
         LogHelpers.addBusinessContext('unhandled_event', true);
     }
 
-    await LogHelpers.withDatabaseTelemetry(() =>
-      this.webhookEventRepo.update(webhookEventId, {
-        processed: true,
-        processedAt: new Date(),
-      }),
-    );
+    await this.webhookEventRepo.update(webhookEventId, {
+      processed: true,
+      processedAt: new Date(),
+    });
 
     LogHelpers.addBusinessContext('webhook_processed', true);
   }

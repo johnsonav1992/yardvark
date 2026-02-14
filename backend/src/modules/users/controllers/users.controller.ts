@@ -38,7 +38,10 @@ export class UsersController {
     file: Express.Multer.File,
     @AuthUser('userId') userId: string,
   ) {
-    LogHelpers.addBusinessContext('controller_operation', 'upload_profile_picture');
+    LogHelpers.addBusinessContext(
+      'controller_operation',
+      'upload_profile_picture',
+    );
     LogHelpers.addBusinessContext('user_id', userId);
 
     return resultOrThrow(

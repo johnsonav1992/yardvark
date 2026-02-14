@@ -65,7 +65,10 @@ export class AiController {
     @User('userId') userId: string,
     @Body() body?: { userId?: string },
   ): Promise<{ processed: number; errors: number }> {
-    LogHelpers.addBusinessContext('controller_operation', 'ai_initialize_embeddings');
+    LogHelpers.addBusinessContext(
+      'controller_operation',
+      'ai_initialize_embeddings',
+    );
     LogHelpers.addBusinessContext('user_id', userId);
 
     const resolvedUserId =

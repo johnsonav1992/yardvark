@@ -1,7 +1,6 @@
 import { DataSource } from 'typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import * as dotenv from 'dotenv';
-import { TelemetryLogger } from './logger/typeorm-telemetry.logger';
 
 dotenv.config();
 
@@ -18,6 +17,4 @@ export const dataSource = new DataSource({
   migrations: [__dirname + '/migrations/*.{ts,js}'],
   entities: [__dirname + '/**/models/*.model.{ts,js}'],
   namingStrategy: new SnakeNamingStrategy(),
-  logger: new TelemetryLogger(),
-  logging: true,
 });

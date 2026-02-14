@@ -12,7 +12,7 @@ import {
   PURCHASABLE_TIERS,
 } from '../models/subscription.types';
 import { LogHelpers } from '../../../logger/logger.helpers';
-import { unwrapResult } from '../../../utils/unwrapResult';
+import { resultOrThrow } from '../../../utils/unwrapResult';
 import { User } from '../../../decorators/user.decorator';
 import { ExtractedUserRequestData } from '../../../types/request';
 
@@ -25,19 +25,9 @@ export class SubscriptionController {
     LogHelpers.addBusinessContext('controller_operation', 'get_status');
     LogHelpers.addBusinessContext('user_id', userId);
 
-    try {
-      const subscription =
-        await this.subscriptionService.getOrCreateSubscription(userId);
-
-      return subscription;
-    } catch (error) {
-      LogHelpers.addBusinessContext('get_status_error', error.message);
-
-      throw new HttpException(
-        `Failed to get subscription status: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return resultOrThrow(
+      await this.subscriptionService.getOrCreateSubscription(userId),
+    );
   }
 
   @Post('checkout')
@@ -59,7 +49,7 @@ export class SubscriptionController {
       );
     }
 
-    return unwrapResult(
+    return resultOrThrow(
       await this.subscriptionService.createCheckoutSession(
         user.userId,
         user.email,
@@ -79,7 +69,7 @@ export class SubscriptionController {
     LogHelpers.addBusinessContext('controller_operation', 'create_portal');
     LogHelpers.addBusinessContext('user_id', userId);
 
-    return unwrapResult(
+    return resultOrThrow(
       await this.subscriptionService.createPortalSession(
         userId,
         body.returnUrl,
@@ -96,18 +86,8 @@ export class SubscriptionController {
     LogHelpers.addBusinessContext('user_id', userId);
     LogHelpers.addBusinessContext('feature_name', body.feature);
 
-    try {
-      return await this.subscriptionService.checkFeatureAccess(
-        userId,
-        body.feature,
-      );
-    } catch (error) {
-      LogHelpers.addBusinessContext('check_feature_error', error.message);
-
-      throw new HttpException(
-        `Failed to check feature access: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return resultOrThrow(
+      await this.subscriptionService.checkFeatureAccess(userId, body.feature),
+    );
   }
 }

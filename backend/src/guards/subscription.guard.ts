@@ -33,10 +33,19 @@ export class SubscriptionGuard implements CanActivate {
       throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
     }
 
-    const access = await this.subscriptionService.checkFeatureAccess(
+    const accessResult = await this.subscriptionService.checkFeatureAccess(
       userId,
       featureName,
     );
+
+    if (accessResult.isError()) {
+      throw new HttpException(
+        accessResult.value.message,
+        accessResult.value.statusCode,
+      );
+    }
+
+    const access = accessResult.value;
 
     if (!access.allowed) {
       let message = 'Subscription required';

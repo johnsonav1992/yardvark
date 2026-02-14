@@ -134,3 +134,25 @@ export class MissingPriceId extends ResourceValidationError {
     });
   }
 }
+
+export class SubscriptionFetchError extends ResourceError {
+  constructor(originalError?: Error | unknown) {
+    super({
+      message: 'Failed to fetch or create subscription',
+      code: 'SUBSCRIPTION_FETCH_ERROR',
+      statusCode: 500,
+      error: originalError,
+    });
+  }
+}
+
+export class FeatureAccessError extends ResourceError {
+  constructor(originalError?: Error | unknown) {
+    super({
+      message: 'Failed to check feature access',
+      code: 'FEATURE_ACCESS_ERROR',
+      statusCode: 500,
+      error: originalError,
+    });
+  }
+}

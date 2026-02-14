@@ -31,6 +31,8 @@ import {
   MissingUserId,
   MissingPriceId,
   SubscriptionUpdateError,
+  SubscriptionFetchError,
+  FeatureAccessError,
 } from '../models/subscription.errors';
 
 export type FeatureAccessResult = {
@@ -159,38 +161,50 @@ export class SubscriptionService {
     );
   }
 
-  public async getOrCreateSubscription(userId: string): Promise<Subscription> {
+  public async getOrCreateSubscription(
+    userId: string,
+  ): Promise<Either<SubscriptionFetchError, Subscription>> {
     const cached = await this.getCachedSubscription(userId);
 
     if (cached) {
       LogHelpers.addBusinessContext('subscription_tier', cached.tier);
-      return cached;
+
+      return success(cached);
     }
 
-    let subscription = await LogHelpers.withDatabaseTelemetry(() =>
-      this.subscriptionRepo.findOne({
-        where: { userId },
-      }),
-    );
-
-    if (!subscription) {
-      LogHelpers.addBusinessContext('subscription_created', true);
-
-      const newSubscription = this.subscriptionRepo.create({
-        userId,
-        tier: SUBSCRIPTION_TIERS.FREE,
-        status: SUBSCRIPTION_STATUSES.ACTIVE,
-      });
-
-      subscription = await LogHelpers.withDatabaseTelemetry(() =>
-        this.subscriptionRepo.save(newSubscription),
+    try {
+      let subscription = await LogHelpers.withDatabaseTelemetry(() =>
+        this.subscriptionRepo.findOne({
+          where: { userId },
+        }),
       );
+
+      if (!subscription) {
+        LogHelpers.addBusinessContext('subscription_created', true);
+
+        const newSubscription = this.subscriptionRepo.create({
+          userId,
+          tier: SUBSCRIPTION_TIERS.FREE,
+          status: SUBSCRIPTION_STATUSES.ACTIVE,
+        });
+
+        subscription = await LogHelpers.withDatabaseTelemetry(() =>
+          this.subscriptionRepo.save(newSubscription),
+        );
+      }
+
+      await this.cacheSubscription(userId, subscription);
+      LogHelpers.addBusinessContext('subscription_tier', subscription.tier);
+
+      return success(subscription);
+    } catch (err) {
+      LogHelpers.addBusinessContext(
+        'subscription_fetch_error',
+        (err as Error).message,
+      );
+
+      return error(new SubscriptionFetchError(err));
     }
-
-    await this.cacheSubscription(userId, subscription);
-    LogHelpers.addBusinessContext('subscription_tier', subscription.tier);
-
-    return subscription;
   }
 
   public async createCheckoutSession(
@@ -206,7 +220,11 @@ export class SubscriptionService {
     LogHelpers.addBusinessContext('checkout_user_id', userId);
     LogHelpers.addBusinessContext('checkout_user_email', email);
 
-    const subscription = await this.getOrCreateSubscription(userId);
+    const subscriptionResult = await this.getOrCreateSubscription(userId);
+
+    if (subscriptionResult.isError()) return error(subscriptionResult.value);
+
+    const subscription = subscriptionResult.value;
     LogHelpers.addBusinessContext('existing_tier', subscription.tier);
 
     let customerId: string | null = subscription.stripeCustomerId;
@@ -382,8 +400,13 @@ export class SubscriptionService {
 
     LogHelpers.addBusinessContext('webhook_user_id', userId);
 
+    const subscriptionResult = await this.getOrCreateSubscription(userId);
+
+    if (subscriptionResult.isError()) return error(subscriptionResult.value);
+
+    const subscription = subscriptionResult.value;
+
     try {
-      const subscription = await this.getOrCreateSubscription(userId);
       LogHelpers.addBusinessContext('previous_tier', subscription.tier);
       LogHelpers.addBusinessContext('previous_status', subscription.status);
 
@@ -502,45 +525,63 @@ export class SubscriptionService {
   public async checkFeatureAccess(
     userId: string,
     feature: string,
-  ): Promise<FeatureAccessResult> {
-    const subscription = await this.getOrCreateSubscription(userId);
+  ): Promise<Either<FeatureAccessError, FeatureAccessResult>> {
+    try {
+      const subscriptionResult = await this.getOrCreateSubscription(userId);
 
-    const isPro = this.isActiveSubscription(subscription);
-
-    LogHelpers.addBusinessContext('feature_check', feature);
-    LogHelpers.addBusinessContext('is_pro', isPro);
-
-    if (feature.startsWith('ai_')) {
-      return { allowed: isPro };
-    }
-
-    if (feature === 'entry_creation') {
-      if (isPro) {
-        return { allowed: true };
+      if (subscriptionResult.isError()) {
+        return error(new FeatureAccessError(subscriptionResult.value.error));
       }
 
-      const { start: periodStart } = this.getCurrentMonthPeriod();
+      const subscription = subscriptionResult.value;
+      const isPro = this.isActiveSubscription(subscription);
 
-      const usage = await LogHelpers.withDatabaseTelemetry(() =>
-        this.usageRepo.findOne({
-          where: {
-            userId,
-            featureName: 'entry_creation',
-            periodStart,
-          },
-        }),
+      LogHelpers.addBusinessContext('feature_check', feature);
+      LogHelpers.addBusinessContext('is_pro', isPro);
+
+      if (feature.startsWith('ai_')) {
+        return success({ allowed: isPro });
+      }
+
+      if (feature === 'entry_creation') {
+        if (isPro) {
+          return success({ allowed: true });
+        }
+
+        const { start: periodStart } = this.getCurrentMonthPeriod();
+
+        const usage = await LogHelpers.withDatabaseTelemetry(() =>
+          this.usageRepo.findOne({
+            where: {
+              userId,
+              featureName: 'entry_creation',
+              periodStart,
+            },
+          }),
+        );
+
+        const usageCount = usage?.usageCount || 0;
+        const limit = this.FREE_TIER_ENTRY_LIMIT;
+
+        LogHelpers.addBusinessContext('entry_usage', usageCount);
+        LogHelpers.addBusinessContext('entry_limit', limit);
+
+        return success({
+          allowed: usageCount < limit,
+          limit,
+          usage: usageCount,
+        });
+      }
+
+      return success({ allowed: true });
+    } catch (err) {
+      LogHelpers.addBusinessContext(
+        'feature_access_error',
+        (err as Error).message,
       );
 
-      const usageCount = usage?.usageCount || 0;
-      const limit = this.FREE_TIER_ENTRY_LIMIT;
-
-      LogHelpers.addBusinessContext('entry_usage', usageCount);
-      LogHelpers.addBusinessContext('entry_limit', limit);
-
-      return { allowed: usageCount < limit, limit, usage: usageCount };
+      return error(new FeatureAccessError(err));
     }
-
-    return { allowed: true };
   }
 
   public async incrementUsage(

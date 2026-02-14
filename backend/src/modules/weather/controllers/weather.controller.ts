@@ -1,6 +1,7 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { WeatherService } from '../services/weather.service';
-import { unwrapResult } from '../../../utils/unwrapResult';
+import { resultOrThrow } from '../../../utils/unwrapResult';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Controller('weather')
 export class WeatherController {
@@ -11,6 +12,10 @@ export class WeatherController {
     @Query('lat') lat: string,
     @Query('long') long: string,
   ) {
-    return unwrapResult(await this.weatherService.getWeatherData(lat, long));
+    LogHelpers.addBusinessContext('controller_operation', 'get_forecast');
+    LogHelpers.addBusinessContext('forecast_lat', lat);
+    LogHelpers.addBusinessContext('forecast_long', long);
+
+    return resultOrThrow(await this.weatherService.getWeatherData(lat, long));
   }
 }

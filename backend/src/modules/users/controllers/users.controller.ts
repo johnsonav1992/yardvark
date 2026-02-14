@@ -11,7 +11,8 @@ import { UsersService } from '../services/users.service';
 import { User } from '../Models/user.model';
 import { User as AuthUser } from '../../../decorators/user.decorator';
 import { imageFileValidator } from 'src/utils/fileUtils';
-import { unwrapResult } from '../../../utils/unwrapResult';
+import { resultOrThrow } from '../../../utils/unwrapResult';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 const MAX_PROFILE_PICTURE_SIZE = 5 * 1024 * 1024;
 
@@ -24,7 +25,10 @@ export class UsersController {
     @AuthUser('userId') userId: string,
     @Body() data: Partial<User>,
   ) {
-    return unwrapResult(await this.usersService.updateUser(userId, data));
+    LogHelpers.addBusinessContext('controller_operation', 'update_user');
+    LogHelpers.addBusinessContext('user_id', userId);
+
+    return resultOrThrow(await this.usersService.updateUser(userId, data));
   }
 
   @Post('profile-picture')
@@ -34,7 +38,10 @@ export class UsersController {
     file: Express.Multer.File,
     @AuthUser('userId') userId: string,
   ) {
-    return unwrapResult(
+    LogHelpers.addBusinessContext('controller_operation', 'upload_profile_picture');
+    LogHelpers.addBusinessContext('user_id', userId);
+
+    return resultOrThrow(
       await this.usersService.updateProfilePicture(userId, file),
     );
   }

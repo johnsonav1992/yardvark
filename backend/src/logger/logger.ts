@@ -66,49 +66,55 @@ export class LoggingInterceptor implements NestInterceptor {
       ? from(
           this.subscriptionService.getOrCreateSubscription(request.user.userId),
         ).pipe(
-          tap((subscription) => {
-            if (subscription) {
-              LogHelpers.addBusinessContext(
-                'subscription_tier',
-                subscription.tier,
+          tap((result) => {
+            if (result.isError()) {
+              LogHelpers.addBusinessContext('subscription_fetch_error', true);
+
+              return;
+            }
+
+            const subscription = result.value;
+
+            LogHelpers.addBusinessContext(
+              'subscription_tier',
+              subscription.tier,
+            );
+            LogHelpers.addBusinessContext(
+              'subscription_status',
+              subscription.status,
+            );
+            LogHelpers.addBusinessContext(
+              'is_pro',
+              subscription.tier === 'monthly' ||
+                subscription.tier === 'yearly' ||
+                subscription.tier === 'lifetime',
+            );
+
+            if (subscription.currentPeriodStart) {
+              const daysSinceSubscription = Math.floor(
+                (Date.now() -
+                  new Date(subscription.currentPeriodStart).getTime()) /
+                  (1000 * 60 * 60 * 24),
               );
               LogHelpers.addBusinessContext(
-                'subscription_status',
-                subscription.status,
+                'subscription_days_active',
+                daysSinceSubscription,
+              );
+            }
+
+            if (subscription.tier === 'lifetime') {
+              const daysSinceCreation = Math.floor(
+                (Date.now() - new Date(subscription.createdAt).getTime()) /
+                  (1000 * 60 * 60 * 24),
               );
               LogHelpers.addBusinessContext(
-                'is_pro',
-                subscription.tier === 'monthly' ||
-                  subscription.tier === 'yearly' ||
-                  subscription.tier === 'lifetime',
+                'lifetime_subscription_age_days',
+                daysSinceCreation,
               );
+            }
 
-              if (subscription.currentPeriodStart) {
-                const daysSinceSubscription = Math.floor(
-                  (Date.now() -
-                    new Date(subscription.currentPeriodStart).getTime()) /
-                    (1000 * 60 * 60 * 24),
-                );
-                LogHelpers.addBusinessContext(
-                  'subscription_days_active',
-                  daysSinceSubscription,
-                );
-              }
-
-              if (subscription.tier === 'lifetime') {
-                const daysSinceCreation = Math.floor(
-                  (Date.now() - new Date(subscription.createdAt).getTime()) /
-                    (1000 * 60 * 60 * 24),
-                );
-                LogHelpers.addBusinessContext(
-                  'lifetime_subscription_age_days',
-                  daysSinceCreation,
-                );
-              }
-
-              if (subscription.cancelAtPeriodEnd) {
-                LogHelpers.addBusinessContext('subscription_canceling', true);
-              }
+            if (subscription.cancelAtPeriodEnd) {
+              LogHelpers.addBusinessContext('subscription_canceling', true);
             }
           }),
           catchError(() => {

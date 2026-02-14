@@ -3,11 +3,11 @@ import { Either } from '../types/either';
 import { ResourceError } from '../errors/resource-error';
 
 /**
- * Utility function to unwrap an `Either` result. If the result is an error,
+ * Utility function to properly unwrap an `Either` result. If the result is an error,
  * it throws an `HttpException` with the appropriate status code and message.
  * If it's a success, it returns the value.
  */
-export const unwrapResult = <L extends ResourceError, A>(
+export const resultOrThrow = <L extends ResourceError, A>(
   result: Either<L, A>,
 ): A => {
   if (result.isError()) {

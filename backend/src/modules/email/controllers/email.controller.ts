@@ -2,7 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import { EmailService, FeedbackEmailData } from '../services/email.service';
 import { FeedbackRequest } from '../models/email.types';
 import { LogHelpers } from '../../../logger/logger.helpers';
-import { unwrapResult } from '../../../utils/unwrapResult';
+import { resultOrThrow } from '../../../utils/unwrapResult';
 
 @Controller('email')
 export class EmailController {
@@ -15,7 +15,7 @@ export class EmailController {
 
     const emailData: FeedbackEmailData = feedbackData;
 
-    unwrapResult(await this.emailService.sendFeedbackEmail(emailData));
+    resultOrThrow(await this.emailService.sendFeedbackEmail(emailData));
 
     return { message: 'Feedback sent successfully' };
   }

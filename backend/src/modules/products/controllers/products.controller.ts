@@ -12,9 +12,10 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { S3Service } from 'src/modules/s3/s3.service';
 import { imageFileValidator } from 'src/utils/fileUtils';
 import { ProductsService } from '../services/products.service';
-import { unwrapResult } from '../../../utils/unwrapResult';
+import { resultOrThrow } from '../../../utils/unwrapResult';
 import { Product } from '../models/products.model';
 import { User } from '../../../decorators/user.decorator';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Controller('products')
 export class ProductsController {
@@ -30,12 +31,15 @@ export class ProductsController {
     @UploadedFile(imageFileValidator()) file: Express.Multer.File,
     @Body() body: Product & { systemProduct?: string | boolean },
   ) {
+    LogHelpers.addBusinessContext('controller_operation', 'create_product');
+    LogHelpers.addBusinessContext('user_id', userId);
+
     if (body.systemProduct) body.systemProduct = body.systemProduct === 'true';
 
     let imageUrl: string | undefined;
 
     if (file) {
-      imageUrl = unwrapResult(await this._s3Service.uploadFile(file, userId));
+      imageUrl = resultOrThrow(await this._s3Service.uploadFile(file, userId));
     }
 
     return this._productsService.addProduct({
@@ -47,11 +51,17 @@ export class ProductsController {
 
   @Get()
   public getProducts(@User('userId') userId: string) {
+    LogHelpers.addBusinessContext('controller_operation', 'get_products');
+    LogHelpers.addBusinessContext('user_id', userId);
+
     return this._productsService.getProducts(userId);
   }
 
   @Get('user-only')
   public getUserProducts(@User('userId') userId: string) {
+    LogHelpers.addBusinessContext('controller_operation', 'get_user_products');
+    LogHelpers.addBusinessContext('user_id', userId);
+
     return this._productsService.getProducts(userId, {
       userOnly: true,
     });
@@ -62,6 +72,10 @@ export class ProductsController {
     @User('userId') userId: string,
     @Param('productId') productId: number,
   ) {
+    LogHelpers.addBusinessContext('controller_operation', 'hide_product');
+    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext('product_id', productId);
+
     return this._productsService.hideProduct(userId, productId);
   }
 
@@ -70,6 +84,10 @@ export class ProductsController {
     @User('userId') userId: string,
     @Param('productId') productId: number,
   ) {
+    LogHelpers.addBusinessContext('controller_operation', 'unhide_product');
+    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext('product_id', productId);
+
     return this._productsService.unhideProduct(userId, productId);
   }
 }

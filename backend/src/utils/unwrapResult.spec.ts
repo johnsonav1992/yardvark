@@ -1,5 +1,5 @@
 import { HttpException } from '@nestjs/common';
-import { unwrapResult } from './unwrapResult';
+import { resultOrThrow } from './unwrapResult';
 import { error, success } from '../types/either';
 import {
   ResourceError,
@@ -13,26 +13,26 @@ describe('unwrapResult', () => {
     it('should return the value for a successful result', () => {
       const result = success<ResourceError, string>('hello');
 
-      expect(unwrapResult(result)).toBe('hello');
+      expect(resultOrThrow(result)).toBe('hello');
     });
 
     it('should return the value for a successful result with a number', () => {
       const result = success<ResourceError, number>(42);
 
-      expect(unwrapResult(result)).toBe(42);
+      expect(resultOrThrow(result)).toBe(42);
     });
 
     it('should return the value for a successful result with an object', () => {
       const data = { id: 1, name: 'Test' };
       const result = success<ResourceError, typeof data>(data);
 
-      expect(unwrapResult(result)).toEqual(data);
+      expect(resultOrThrow(result)).toEqual(data);
     });
 
     it('should return the value for a successful result with null', () => {
       const result = success<ResourceError, null>(null);
 
-      expect(unwrapResult(result)).toBeNull();
+      expect(resultOrThrow(result)).toBeNull();
     });
   });
 
@@ -44,7 +44,7 @@ describe('unwrapResult', () => {
       });
       const result = error<ResourceError, string>(resourceError);
 
-      expect(() => unwrapResult(result)).toThrow(HttpException);
+      expect(() => resultOrThrow(result)).toThrow(HttpException);
     });
 
     it('should throw with the correct default statusCode of 500', () => {
@@ -55,7 +55,7 @@ describe('unwrapResult', () => {
       const result = error<ResourceError, string>(resourceError);
 
       try {
-        unwrapResult(result);
+        resultOrThrow(result);
         fail('Expected HttpException to be thrown');
       } catch (e) {
         expect(e).toBeInstanceOf(HttpException);
@@ -72,7 +72,7 @@ describe('unwrapResult', () => {
       const result = error<ResourceError, string>(resourceError);
 
       try {
-        unwrapResult(result);
+        resultOrThrow(result);
         fail('Expected HttpException to be thrown');
       } catch (e) {
         expect(e).toBeInstanceOf(HttpException);
@@ -94,7 +94,7 @@ describe('unwrapResult', () => {
       const result = error<ResourceNotFound, string>(resourceError);
 
       try {
-        unwrapResult(result);
+        resultOrThrow(result);
         fail('Expected HttpException to be thrown');
       } catch (e) {
         expect(e).toBeInstanceOf(HttpException);
@@ -110,7 +110,7 @@ describe('unwrapResult', () => {
       const result = error<ResourceNotFound, string>(resourceError);
 
       try {
-        unwrapResult(result);
+        resultOrThrow(result);
         fail('Expected HttpException to be thrown');
       } catch (e) {
         const response = (e as HttpException).getResponse();
@@ -131,7 +131,7 @@ describe('unwrapResult', () => {
       const result = error<ExternalServiceError, string>(resourceError);
 
       try {
-        unwrapResult(result);
+        resultOrThrow(result);
         fail('Expected HttpException to be thrown');
       } catch (e) {
         expect(e).toBeInstanceOf(HttpException);
@@ -148,7 +148,7 @@ describe('unwrapResult', () => {
       const result = error<ExternalServiceError, string>(resourceError);
 
       try {
-        unwrapResult(result);
+        resultOrThrow(result);
         fail('Expected HttpException to be thrown');
       } catch (e) {
         expect(e).toBeInstanceOf(HttpException);
@@ -164,7 +164,7 @@ describe('unwrapResult', () => {
       const result = error<ExternalServiceError, string>(resourceError);
 
       try {
-        unwrapResult(result);
+        resultOrThrow(result);
         fail('Expected HttpException to be thrown');
       } catch (e) {
         const response = (e as HttpException).getResponse();
@@ -185,7 +185,7 @@ describe('unwrapResult', () => {
       const result = error<ResourceValidationError, string>(resourceError);
 
       try {
-        unwrapResult(result);
+        resultOrThrow(result);
         fail('Expected HttpException to be thrown');
       } catch (e) {
         expect(e).toBeInstanceOf(HttpException);
@@ -201,7 +201,7 @@ describe('unwrapResult', () => {
       const result = error<ResourceValidationError, string>(resourceError);
 
       try {
-        unwrapResult(result);
+        resultOrThrow(result);
         fail('Expected HttpException to be thrown');
       } catch (e) {
         const response = (e as HttpException).getResponse();

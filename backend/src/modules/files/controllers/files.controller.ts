@@ -16,9 +16,10 @@ import { firstValueFrom, map } from 'rxjs';
 import { S3Service } from 'src/modules/s3/s3.service';
 import { MAX_FILE_LARGE_UPLOAD_SIZE } from 'src/utils/constants';
 import { imageFileValidator } from 'src/utils/fileUtils';
-import { unwrapResult } from '../../../utils/unwrapResult';
+import { resultOrThrow } from '../../../utils/unwrapResult';
 import { Readable } from 'stream';
 import { User } from '../../../decorators/user.decorator';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Controller('files')
 export class FilesController {
@@ -34,7 +35,10 @@ export class FilesController {
     files: Express.Multer.File[],
     @User('userId') userId: string,
   ) {
-    return unwrapResult(await this._s3Service.uploadFiles(files, userId));
+    LogHelpers.addBusinessContext('controller_operation', 'upload_files');
+    LogHelpers.addBusinessContext('user_id', userId);
+
+    return resultOrThrow(await this._s3Service.uploadFiles(files, userId));
   }
 
   @Get('download')
@@ -42,6 +46,9 @@ export class FilesController {
     @Query('url') fileUrl: string,
     @Res() res: Response,
   ) {
+    LogHelpers.addBusinessContext('controller_operation', 'download_file');
+    LogHelpers.addBusinessContext('file_url', fileUrl);
+
     let fileRes: { data: Readable; contentType: string };
 
     try {
@@ -61,6 +68,8 @@ export class FilesController {
           ),
       );
     } catch (err) {
+      LogHelpers.addBusinessContext('download_error', (err as Error).message);
+
       throw new HttpException(
         `Failed to download file - ${(err as Error).message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,

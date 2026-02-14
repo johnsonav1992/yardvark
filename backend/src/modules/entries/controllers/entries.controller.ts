@@ -18,7 +18,8 @@ import {
 import { User } from '../../../decorators/user.decorator';
 import { SubscriptionFeature } from '../../../decorators/subscription-feature.decorator';
 import { SubscriptionService } from '../../subscription/services/subscription.service';
-import { unwrapResult } from '../../../utils/unwrapResult';
+import { resultOrThrow } from '../../../utils/unwrapResult';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Controller('entries')
 export class EntriesController {
@@ -33,18 +34,32 @@ export class EntriesController {
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {
-    return unwrapResult(
+    LogHelpers.addBusinessContext('controller_operation', 'get_entries');
+    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext('start_date', startDate);
+    LogHelpers.addBusinessContext('end_date', endDate);
+
+    return resultOrThrow(
       await this._entriesService.getEntries(userId, startDate, endDate),
     );
   }
 
   @Get('single/most-recent')
   public getMostRecentEntry(@User('userId') userId: string) {
+    LogHelpers.addBusinessContext(
+      'controller_operation',
+      'get_most_recent_entry',
+    );
+    LogHelpers.addBusinessContext('user_id', userId);
+
     return this._entriesService.getMostRecentEntry(userId);
   }
 
   @Get('last-mow')
   public async getLastMowDate(@User('userId') userId: string) {
+    LogHelpers.addBusinessContext('controller_operation', 'get_last_mow_date');
+    LogHelpers.addBusinessContext('user_id', userId);
+
     const lastMowDate = await this._entriesService.getLastMowDate(userId);
 
     return { lastMowDate };
@@ -52,6 +67,12 @@ export class EntriesController {
 
   @Get('last-product-app')
   public async getLastProductAppDate(@User('userId') userId: string) {
+    LogHelpers.addBusinessContext(
+      'controller_operation',
+      'get_last_product_app_date',
+    );
+    LogHelpers.addBusinessContext('user_id', userId);
+
     const lastProductAppDate =
       await this._entriesService.getLastProductApplicationDate(userId);
 
@@ -60,6 +81,12 @@ export class EntriesController {
 
   @Get('last-pgr-app')
   public async getLastPgrAppDate(@User('userId') userId: string) {
+    LogHelpers.addBusinessContext(
+      'controller_operation',
+      'get_last_pgr_app_date',
+    );
+    LogHelpers.addBusinessContext('user_id', userId);
+
     const lastPgrAppDate =
       await this._entriesService.getLastPgrApplicationDate(userId);
 
@@ -71,14 +98,21 @@ export class EntriesController {
     @User('userId') userId: string,
     @Param('date') date: string,
   ) {
-    return unwrapResult(
+    LogHelpers.addBusinessContext('controller_operation', 'get_entry_by_date');
+    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext('date', date);
+
+    return resultOrThrow(
       await this._entriesService.getEntryByDate(userId, date),
     );
   }
 
   @Get('single/:entryId')
   public async getEntry(@Param('entryId') entryId: number) {
-    return unwrapResult(await this._entriesService.getEntry(entryId));
+    LogHelpers.addBusinessContext('controller_operation', 'get_entry');
+    LogHelpers.addBusinessContext('entry_id', entryId);
+
+    return resultOrThrow(await this._entriesService.getEntry(entryId));
   }
 
   @Post()
@@ -87,6 +121,9 @@ export class EntriesController {
     @User('userId') userId: string,
     @Body() entry: EntryCreationRequest,
   ) {
+    LogHelpers.addBusinessContext('controller_operation', 'create_entry');
+    LogHelpers.addBusinessContext('user_id', userId);
+
     const result = await this._entriesService.createEntry(userId, entry);
 
     await this._subscriptionService.incrementUsage(userId, 'entry_creation');
@@ -99,6 +136,13 @@ export class EntriesController {
     @User('userId') userId: string,
     @Body() body: BatchEntryCreationRequest,
   ): Promise<BatchEntryCreationResponse> {
+    LogHelpers.addBusinessContext(
+      'controller_operation',
+      'create_entries_batch',
+    );
+    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext('batch_size', body.entries.length);
+
     return this._entriesService.createEntriesBatch(userId, body);
   }
 
@@ -107,16 +151,27 @@ export class EntriesController {
     @Param('entryId') entryId: number,
     @Body() entry: Partial<EntryCreationRequest>,
   ) {
-    return unwrapResult(await this._entriesService.updateEntry(entryId, entry));
+    LogHelpers.addBusinessContext('controller_operation', 'update_entry');
+    LogHelpers.addBusinessContext('entry_id', entryId);
+
+    return resultOrThrow(
+      await this._entriesService.updateEntry(entryId, entry),
+    );
   }
 
   @Delete(':entryId')
   public async softDeleteEntry(@Param('entryId') entryId: number) {
-    return unwrapResult(await this._entriesService.softDeleteEntry(entryId));
+    LogHelpers.addBusinessContext('controller_operation', 'delete_entry');
+    LogHelpers.addBusinessContext('entry_id', entryId);
+
+    return resultOrThrow(await this._entriesService.softDeleteEntry(entryId));
   }
 
   @Post('recover/:entryId')
   public recoverEntry(@Param('entryId') entryId: number) {
+    LogHelpers.addBusinessContext('controller_operation', 'recover_entry');
+    LogHelpers.addBusinessContext('entry_id', entryId);
+
     return this._entriesService.recoverEntry(entryId);
   }
 
@@ -125,11 +180,17 @@ export class EntriesController {
     @User('userId') userId: string,
     @Body() searchCriteria: EntriesSearchRequest,
   ) {
+    LogHelpers.addBusinessContext('controller_operation', 'search_entries');
+    LogHelpers.addBusinessContext('user_id', userId);
+
     return this._entriesService.searchEntries(userId, searchCriteria);
   }
 
   @Delete('entry-image/:entryImageId')
   public deleteEntryImage(@Param('entryImageId') entryImageId: number) {
+    LogHelpers.addBusinessContext('controller_operation', 'delete_entry_image');
+    LogHelpers.addBusinessContext('entry_image_id', entryImageId);
+
     return this._entriesService.softDeleteEntryImage(entryImageId);
   }
 }

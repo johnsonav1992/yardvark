@@ -12,8 +12,9 @@ import { AiChatResponse, AiChatRequest } from '../../../types/ai.types';
 // import { Public } from '../../../decorators/public.decorator';
 import { FeatureFlag } from '../../../decorators/feature-flag.decorator';
 import { SubscriptionFeature } from '../../../decorators/subscription-feature.decorator';
-import { unwrapResult } from '../../../utils/unwrapResult';
+import { resultOrThrow } from '../../../utils/unwrapResult';
 import { User } from '../../../decorators/user.decorator';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Controller('ai')
 export class AiController {
@@ -24,11 +25,13 @@ export class AiController {
   public async chat(
     @Body() chatRequest: AiChatRequest,
   ): Promise<AiChatResponse> {
+    LogHelpers.addBusinessContext('controller_operation', 'ai_chat');
+
     if (!chatRequest.prompt || chatRequest.prompt.trim().length === 0) {
       throw new HttpException('Prompt is required', HttpStatus.BAD_REQUEST);
     }
 
-    return unwrapResult(await this.aiService.chat(chatRequest.prompt));
+    return resultOrThrow(await this.aiService.chat(chatRequest.prompt));
   }
 
   @FeatureFlag('ENABLE_ENTRY_QUERY')
@@ -39,6 +42,9 @@ export class AiController {
     @User('userId') userId: string,
     @Body() body: { query: string; userId?: string },
   ): Promise<AiChatResponse> {
+    LogHelpers.addBusinessContext('controller_operation', 'ai_query_entries');
+    LogHelpers.addBusinessContext('user_id', userId);
+
     if (!body.query || body.query.trim().length === 0) {
       throw new HttpException('Query is required', HttpStatus.BAD_REQUEST);
     }
@@ -46,7 +52,7 @@ export class AiController {
     const resolvedUserId =
       body.userId || userId || 'google-oauth2|111643664660289512636';
 
-    return unwrapResult(
+    return resultOrThrow(
       await this.aiService.queryEntries(resolvedUserId, body.query),
     );
   }
@@ -59,10 +65,13 @@ export class AiController {
     @User('userId') userId: string,
     @Body() body?: { userId?: string },
   ): Promise<{ processed: number; errors: number }> {
+    LogHelpers.addBusinessContext('controller_operation', 'ai_initialize_embeddings');
+    LogHelpers.addBusinessContext('user_id', userId);
+
     const resolvedUserId =
       body?.userId || userId || 'google-oauth2|111643664660289512636';
 
-    return unwrapResult(
+    return resultOrThrow(
       await this.aiService.initializeEmbeddings(resolvedUserId),
     );
   }
@@ -76,6 +85,9 @@ export class AiController {
     @Res() res: Response,
     @Body() body: { query: string; userId?: string },
   ): Promise<void> {
+    LogHelpers.addBusinessContext('controller_operation', 'ai_stream_query');
+    LogHelpers.addBusinessContext('user_id', userId);
+
     if (!body.query || body.query.trim().length === 0) {
       throw new HttpException('Query is required', HttpStatus.BAD_REQUEST);
     }
@@ -115,6 +127,8 @@ export class AiController {
 
       res.end();
     } catch (error) {
+      LogHelpers.addBusinessContext('stream_error', (error as Error).message);
+
       const errorData = JSON.stringify({
         type: 'error',
         message: (error as Error).message || 'Unknown error',

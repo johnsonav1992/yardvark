@@ -1,0 +1,92 @@
+.readings {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.reading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.reading-icon {
+  font-size: 1.5rem;
+  color: var(--p-primary-500);
+}
+
+.reading-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.reading-label {
+  font-size: 0.75rem;
+  color: var(--p-text-muted-color);
+}
+
+.reading-value {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.trend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.trend-rising {
+  color: var(--p-red-400);
+}
+
+.trend-falling {
+  color: var(--p-blue-400);
+}
+
+.trend-stable {
+  color: var(--p-text-muted-color);
+}
+
+.insights {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--p-surface-200);
+}
+
+.insight {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.insight-icon {
+  font-size: 1.25rem;
+  margin-top: 0.125rem;
+  color: var(--p-primary-400);
+}
+
+.insight-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.insight-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.insight-description {
+  font-size: 0.8125rem;
+  color: var(--p-text-muted-color);
+}

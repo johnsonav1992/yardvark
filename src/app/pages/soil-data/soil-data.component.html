@@ -45,6 +45,19 @@
           [todayIndex]="todayIndex()"
         />
       </p-card>
+      <p-card [style.width]="'100%'">
+        <ng-template #title>Current conditions</ng-template>
+        <soil-conditions-card
+          [shallowTemp]="currentShallowTemp()"
+          [deepTemp]="currentDeepTemp()"
+          [moisturePct]="currentMoisturePct()"
+          [tempUnit]="tempUnit()"
+          [grassType]="grassType()"
+          [tempTrend]="tempTrend()"
+          [moistureTrend]="moistureTrend()"
+          [isLoading]="isLoadingAveragesChartData()"
+        />
+      </p-card>
     </div>
   }
 </page-container>

@@ -31,7 +31,7 @@
   </ng-template>
   @if (equipment.isLoading()) {
     <div class="equipment-grid">
-      @for (i of skeletonCards; track i) {
+      @for (i of skeletonCards; track $index) {
         <p-card class="skeleton-card">
           <ng-template pTemplate="header">
             <p-skeleton width="100%" height="300px" />

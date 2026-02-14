@@ -20,17 +20,15 @@ export class EquipmentService {
   ) {}
 
   public async getAllUserEquipment(userId: string): Promise<Equipment[]> {
-    const equipment = await LogHelpers.withDatabaseTelemetry(() =>
-      this._equipmentRepo.find({
-        where: { userId },
-        relations: { maintenanceRecords: true },
-        order: {
-          maintenanceRecords: {
-            maintenanceDate: 'DESC',
-          },
+    const equipment = await this._equipmentRepo.find({
+      where: { userId },
+      relations: { maintenanceRecords: true },
+      order: {
+        maintenanceRecords: {
+          maintenanceDate: 'DESC',
         },
-      }),
-    );
+      },
+    });
 
     LogHelpers.addBusinessContext('equipmentCount', equipment.length);
 
@@ -47,9 +45,7 @@ export class EquipmentService {
       userId,
     });
 
-    const saved = await LogHelpers.withDatabaseTelemetry(() =>
-      this._equipmentRepo.save(newEquipment),
-    );
+    const saved = await this._equipmentRepo.save(newEquipment);
 
     LogHelpers.addBusinessContext('equipmentCreated', saved.id);
 
@@ -111,9 +107,7 @@ export class EquipmentService {
       },
     });
 
-    await LogHelpers.withDatabaseTelemetry(() =>
-      this._equipmentMaintenanceRepo.save(newMaintenanceRecord),
-    );
+    await this._equipmentMaintenanceRepo.save(newMaintenanceRecord);
 
     LogHelpers.addBusinessContext(
       'maintenanceRecordCreated',
@@ -155,9 +149,7 @@ export class EquipmentService {
       return error(new EquipmentNotFound());
     }
 
-    await LogHelpers.withDatabaseTelemetry(() =>
-      this._equipmentRepo.softDelete(equipmentId),
-    );
+    await this._equipmentRepo.softDelete(equipmentId);
 
     LogHelpers.addBusinessContext('equipmentDeleted', true);
 

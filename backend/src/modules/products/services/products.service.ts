@@ -24,17 +24,13 @@ export class ProductsService {
         ? [{ userId: 'system' }]
         : [{ userId }, { userId: 'system' }];
 
-    const products = await LogHelpers.withDatabaseTelemetry(() =>
-      this._productsRepo.find({
-        where,
-      }),
-    );
+    const products = await this._productsRepo.find({
+      where,
+    });
 
-    const hiddenProductIds = await LogHelpers.withDatabaseTelemetry(() =>
-      this._userHiddenProductsRepo.find({
-        where: { userId },
-      }),
-    );
+    const hiddenProductIds = await this._userHiddenProductsRepo.find({
+      where: { userId },
+    });
 
     LogHelpers.addBusinessContext('productsReturned', products.length);
     LogHelpers.addBusinessContext(
@@ -56,9 +52,7 @@ export class ProductsService {
 
   public async addProduct(product: Product) {
     const newProduct = this._productsRepo.create(product);
-    const saved = await LogHelpers.withDatabaseTelemetry(() =>
-      this._productsRepo.save(newProduct),
-    );
+    const saved = await this._productsRepo.save(newProduct);
 
     LogHelpers.addBusinessContext('productCreated', saved.id);
 
@@ -68,9 +62,7 @@ export class ProductsService {
   public async hideProduct(userId: string, productId: number) {
     LogHelpers.addBusinessContext('productId', productId);
 
-    await LogHelpers.withDatabaseTelemetry(() =>
-      this._userHiddenProductsRepo.save({ userId, productId }),
-    );
+    await this._userHiddenProductsRepo.save({ userId, productId });
 
     LogHelpers.addBusinessContext('productHidden', true);
   }
@@ -78,9 +70,7 @@ export class ProductsService {
   public async unhideProduct(userId: string, productId: number) {
     LogHelpers.addBusinessContext('productId', productId);
 
-    await LogHelpers.withDatabaseTelemetry(() =>
-      this._userHiddenProductsRepo.delete({ userId, productId }),
-    );
+    await this._userHiddenProductsRepo.delete({ userId, productId });
 
     LogHelpers.addBusinessContext('productUnhidden', true);
   }

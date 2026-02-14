@@ -12,9 +12,7 @@ export class ActivitiesService {
   ) {}
 
   public async getActivities() {
-    const activities = await LogHelpers.withDatabaseTelemetry(() =>
-      this._activitiesRepo.find(),
-    );
+    const activities = await this._activitiesRepo.find();
 
     LogHelpers.addBusinessContext('activitiesCount', activities.length);
 

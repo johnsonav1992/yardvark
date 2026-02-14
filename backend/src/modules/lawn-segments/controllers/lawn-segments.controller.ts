@@ -33,7 +33,10 @@ export class LawnSegmentsController {
     @User('userId') userId: string,
     @Body() lawnSegment: LawnSegmentCreationRequest,
   ) {
-    LogHelpers.addBusinessContext('controller_operation', 'create_lawn_segment');
+    LogHelpers.addBusinessContext(
+      'controller_operation',
+      'create_lawn_segment',
+    );
     LogHelpers.addBusinessContext('user_id', userId);
 
     return this._lawnSegmentService.createLawnSegment(userId, lawnSegment);
@@ -44,7 +47,10 @@ export class LawnSegmentsController {
     @Param('id') id: number,
     @Body() updateData: LawnSegmentUpdateRequest,
   ) {
-    LogHelpers.addBusinessContext('controller_operation', 'update_lawn_segment');
+    LogHelpers.addBusinessContext(
+      'controller_operation',
+      'update_lawn_segment',
+    );
     LogHelpers.addBusinessContext('lawn_segment_id', id);
 
     return resultOrThrow(
@@ -54,7 +60,10 @@ export class LawnSegmentsController {
 
   @Delete(':id')
   public deleteLawnSegment(@Param('id') id: number) {
-    LogHelpers.addBusinessContext('controller_operation', 'delete_lawn_segment');
+    LogHelpers.addBusinessContext(
+      'controller_operation',
+      'delete_lawn_segment',
+    );
     LogHelpers.addBusinessContext('lawn_segment_id', id);
 
     return this._lawnSegmentService.deleteLawnSegment(id);

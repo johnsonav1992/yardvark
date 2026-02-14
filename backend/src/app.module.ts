@@ -29,6 +29,7 @@ import { GddModule } from './modules/gdd/gdd.module';
 import { SubscriptionModule } from './modules/subscription/subscription.module';
 import { SubscriptionGuard } from './guards/subscription.guard';
 import { LoggingInterceptor } from './logger/logger';
+import { DatabaseTelemetryService } from './db/database-telemetry.service';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { LoggingInterceptor } from './logger/logger';
   ],
   controllers: [UsersController, FilesController],
   providers: [
+    DatabaseTelemetryService,
     JwtStrategy,
     {
       provide: APP_INTERCEPTOR,

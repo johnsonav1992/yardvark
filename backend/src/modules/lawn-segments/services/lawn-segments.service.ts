@@ -18,9 +18,7 @@ export class LawnSegmentsService {
   ) {}
 
   public async getLawnSegments(userId: string) {
-    const segments = await LogHelpers.withDatabaseTelemetry(() =>
-      this._lawnSegmentRepo.findBy({ userId }),
-    );
+    const segments = await this._lawnSegmentRepo.findBy({ userId });
 
     LogHelpers.addBusinessContext('lawnSegmentsCount', segments.length);
 
@@ -33,9 +31,7 @@ export class LawnSegmentsService {
   ) {
     const lawnSeg = this._lawnSegmentRepo.create({ ...lawnSegment, userId });
 
-    const saved = await LogHelpers.withDatabaseTelemetry(() =>
-      this._lawnSegmentRepo.save(lawnSeg),
-    );
+    const saved = await this._lawnSegmentRepo.save(lawnSeg);
 
     LogHelpers.addBusinessContext('lawnSegmentCreated', saved.id);
 
@@ -48,9 +44,7 @@ export class LawnSegmentsService {
   ): Promise<Either<LawnSegmentNotFound, LawnSegment>> {
     LogHelpers.addBusinessContext('lawnSegmentId', id);
 
-    const segment = await LogHelpers.withDatabaseTelemetry(() =>
-      this._lawnSegmentRepo.findOneBy({ id }),
-    );
+    const segment = await this._lawnSegmentRepo.findOneBy({ id });
 
     if (!segment) {
       return error(new LawnSegmentNotFound());
@@ -58,9 +52,7 @@ export class LawnSegmentsService {
 
     Object.assign(segment, updateData);
 
-    const saved = await LogHelpers.withDatabaseTelemetry(() =>
-      this._lawnSegmentRepo.save(segment),
-    );
+    const saved = await this._lawnSegmentRepo.save(segment);
 
     LogHelpers.addBusinessContext('lawnSegmentUpdated', true);
 
@@ -70,9 +62,7 @@ export class LawnSegmentsService {
   public async deleteLawnSegment(id: number) {
     LogHelpers.addBusinessContext('lawnSegmentId', id);
 
-    const result = await LogHelpers.withDatabaseTelemetry(() =>
-      this._lawnSegmentRepo.delete({ id }),
-    );
+    const result = await this._lawnSegmentRepo.delete({ id });
 
     LogHelpers.addBusinessContext('lawnSegmentDeleted', true);
 

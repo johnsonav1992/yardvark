@@ -30,9 +30,7 @@ export class RemindersService {
 
   public async createReminder(userId: string, reminderData: Partial<Reminder>) {
     const reminder = this.remindersRepo.create({ ...reminderData, userId });
-    const saved = await LogHelpers.withDatabaseTelemetry(() =>
-      this.remindersRepo.save(reminder),
-    );
+    const saved = await this.remindersRepo.save(reminder);
 
     LogHelpers.addBusinessContext('reminderCreated', saved.id);
 
@@ -40,12 +38,10 @@ export class RemindersService {
   }
 
   public async getUserReminders(userId: string) {
-    const reminders = await LogHelpers.withDatabaseTelemetry(() =>
-      this.remindersRepo.find({
-        where: { userId, isActive: true },
-        order: { scheduledDate: 'ASC' },
-      }),
-    );
+    const reminders = await this.remindersRepo.find({
+      where: { userId, isActive: true },
+      order: { scheduledDate: 'ASC' },
+    });
 
     LogHelpers.addBusinessContext('remindersCount', reminders.length);
 
@@ -56,11 +52,9 @@ export class RemindersService {
     userId: string,
     subscription: PushSubscriptionData,
   ) {
-    const existingSubscription = await LogHelpers.withDatabaseTelemetry(() =>
-      this.subscriptionsRepo.findOne({
-        where: { userId, endpoint: subscription.endpoint },
-      }),
-    );
+    const existingSubscription = await this.subscriptionsRepo.findOne({
+      where: { userId, endpoint: subscription.endpoint },
+    });
 
     if (!existingSubscription) {
       const newSubscription = this.subscriptionsRepo.create({
@@ -70,9 +64,7 @@ export class RemindersService {
         authKey: subscription.keys.auth,
       });
 
-      const saved = await LogHelpers.withDatabaseTelemetry(() =>
-        this.subscriptionsRepo.save(newSubscription),
-      );
+      const saved = await this.subscriptionsRepo.save(newSubscription);
 
       LogHelpers.addBusinessContext('pushSubscriptionCreated', true);
 
@@ -87,19 +79,15 @@ export class RemindersService {
   public async sendReminderNotification(reminderId: number) {
     LogHelpers.addBusinessContext('reminderId', reminderId);
 
-    const reminder = await LogHelpers.withDatabaseTelemetry(() =>
-      this.remindersRepo.findOne({
-        where: { id: reminderId },
-      }),
-    );
+    const reminder = await this.remindersRepo.findOne({
+      where: { id: reminderId },
+    });
 
     if (!reminder) return;
 
-    const subscriptions = await LogHelpers.withDatabaseTelemetry(() =>
-      this.subscriptionsRepo.find({
-        where: { userId: reminder.userId },
-      }),
-    );
+    const subscriptions = await this.subscriptionsRepo.find({
+      where: { userId: reminder.userId },
+    });
 
     LogHelpers.addBusinessContext(
       'pushSubscriptionCount',

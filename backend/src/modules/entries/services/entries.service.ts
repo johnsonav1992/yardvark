@@ -39,25 +39,23 @@ export class EntriesService {
   ): Promise<
     Either<EntriesNotFound, ReturnType<typeof getEntryResponseMapping>[]>
   > {
-    const entries = await LogHelpers.withDatabaseTelemetry(() =>
-      this._entriesRepo.find({
-        where: {
-          userId,
-          date:
-            startDate && endDate
-              ? Between(new Date(startDate), new Date(endDate))
-              : undefined,
+    const entries = await this._entriesRepo.find({
+      where: {
+        userId,
+        date:
+          startDate && endDate
+            ? Between(new Date(startDate), new Date(endDate))
+            : undefined,
+      },
+      relations: {
+        activities: true,
+        lawnSegments: true,
+        entryProducts: {
+          product: true,
         },
-        relations: {
-          activities: true,
-          lawnSegments: true,
-          entryProducts: {
-            product: true,
-          },
-          entryImages: true,
-        },
-      }),
-    );
+        entryImages: true,
+      },
+    });
 
     if (!entries) {
       return error(new EntriesNotFound());
@@ -75,19 +73,17 @@ export class EntriesService {
   > {
     LogHelpers.addBusinessContext('entryId', entryId);
 
-    const entry = await LogHelpers.withDatabaseTelemetry(() =>
-      this._entriesRepo.findOne({
-        where: { id: entryId },
-        relations: {
-          activities: true,
-          lawnSegments: true,
-          entryProducts: {
-            product: true,
-          },
-          entryImages: true,
+    const entry = await this._entriesRepo.findOne({
+      where: { id: entryId },
+      relations: {
+        activities: true,
+        lawnSegments: true,
+        entryProducts: {
+          product: true,
         },
-      }),
-    );
+        entryImages: true,
+      },
+    });
 
     if (!entry) {
       return error(new EntryNotFound());
@@ -223,9 +219,7 @@ export class EntriesService {
         })) || [],
     });
 
-    await LogHelpers.withDatabaseTelemetry(() =>
-      this._entriesRepo.save(newEntry),
-    );
+    await this._entriesRepo.save(newEntry);
 
     LogHelpers.addBusinessContext('entryCreated', newEntry.id);
     LogHelpers.addBusinessContext(
@@ -392,20 +386,18 @@ export class EntriesService {
       ];
     }
 
-    const entries = await LogHelpers.withDatabaseTelemetry(() =>
-      this._entriesRepo.find({
-        where,
-        relations: {
-          activities: true,
-          lawnSegments: true,
-          entryProducts: { product: true },
-        },
-        order: {
-          date: 'DESC',
-          time: 'DESC',
-        },
-      }),
-    );
+    const entries = await this._entriesRepo.find({
+      where,
+      relations: {
+        activities: true,
+        lawnSegments: true,
+        entryProducts: { product: true },
+      },
+      order: {
+        date: 'DESC',
+        time: 'DESC',
+      },
+    });
 
     LogHelpers.addBusinessContext('searchResultsCount', entries.length);
 

@@ -14,9 +14,7 @@ export class SettingsService {
   ) {}
 
   public async getUserSettings(userId: string): Promise<SettingsResponse | []> {
-    const settings = await LogHelpers.withDatabaseTelemetry(() =>
-      this._settingsRepo.findOneBy({ userId }),
-    );
+    const settings = await this._settingsRepo.findOneBy({ userId });
     const settingsValue = settings?.value as Stringified<SettingsData>;
 
     if (!settings) {
@@ -36,20 +34,14 @@ export class SettingsService {
     userId: string,
     settings: Stringified<SettingsData>,
   ): Promise<SettingsData> {
-    const userSettings = await LogHelpers.withDatabaseTelemetry(() =>
-      this._settingsRepo.findBy({ userId }),
-    );
+    const userSettings = await this._settingsRepo.findBy({ userId });
     const newSettings = JSON.parse(settings);
 
     if (userSettings.length) {
-      await LogHelpers.withDatabaseTelemetry(() =>
-        this._settingsRepo.update({ userId }, { value: settings }),
-      );
+      await this._settingsRepo.update({ userId }, { value: settings });
       LogHelpers.addBusinessContext('settingsUpdated', true);
     } else {
-      await LogHelpers.withDatabaseTelemetry(() =>
-        this._settingsRepo.save({ value: settings, userId }),
-      );
+      await this._settingsRepo.save({ value: settings, userId });
       LogHelpers.addBusinessContext('settingsCreated', true);
     }
 

@@ -173,11 +173,9 @@ export class SubscriptionService {
     }
 
     try {
-      let subscription = await LogHelpers.withDatabaseTelemetry(() =>
-        this.subscriptionRepo.findOne({
-          where: { userId },
-        }),
-      );
+      let subscription = await this.subscriptionRepo.findOne({
+        where: { userId },
+      });
 
       if (!subscription) {
         LogHelpers.addBusinessContext('subscription_created', true);
@@ -188,9 +186,7 @@ export class SubscriptionService {
           status: SUBSCRIPTION_STATUSES.ACTIVE,
         });
 
-        subscription = await LogHelpers.withDatabaseTelemetry(() =>
-          this.subscriptionRepo.save(newSubscription),
-        );
+        subscription = await this.subscriptionRepo.save(newSubscription);
       }
 
       await this.cacheSubscription(userId, subscription);
@@ -267,9 +263,7 @@ export class SubscriptionService {
         customerId = customer.id;
         subscription.stripeCustomerId = customerId;
 
-        await LogHelpers.withDatabaseTelemetry(() =>
-          this.subscriptionRepo.save(subscription),
-        );
+        await this.subscriptionRepo.save(subscription);
 
         await this.invalidateCache(userId);
 
@@ -331,11 +325,9 @@ export class SubscriptionService {
     LogHelpers.addBusinessContext('portal_operation', 'create_portal');
     LogHelpers.addBusinessContext('portal_user_id', userId);
 
-    const subscription = await LogHelpers.withDatabaseTelemetry(() =>
-      this.subscriptionRepo.findOne({
-        where: { userId },
-      }),
-    );
+    const subscription = await this.subscriptionRepo.findOne({
+      where: { userId },
+    });
 
     if (!subscription) {
       LogHelpers.addBusinessContext('portal_session_failed', true);
@@ -437,9 +429,7 @@ export class SubscriptionService {
       );
       subscription.cancelAtPeriodEnd = stripeSubscription.cancel_at_period_end;
 
-      await LogHelpers.withDatabaseTelemetry(() =>
-        this.subscriptionRepo.save(subscription),
-      );
+      await this.subscriptionRepo.save(subscription);
 
       await this.invalidateCache(userId);
 
@@ -483,11 +473,9 @@ export class SubscriptionService {
     LogHelpers.addBusinessContext('webhook_user_id', userId);
 
     try {
-      const subscription = await LogHelpers.withDatabaseTelemetry(() =>
-        this.subscriptionRepo.findOne({
-          where: { userId },
-        }),
-      );
+      const subscription = await this.subscriptionRepo.findOne({
+        where: { userId },
+      });
 
       if (!subscription) {
         LogHelpers.addBusinessContext(
@@ -506,9 +494,7 @@ export class SubscriptionService {
       subscription.status = SUBSCRIPTION_STATUSES.CANCELED;
       subscription.canceledAt = new Date();
 
-      await LogHelpers.withDatabaseTelemetry(() =>
-        this.subscriptionRepo.save(subscription),
-      );
+      await this.subscriptionRepo.save(subscription);
 
       await this.invalidateCache(userId);
 
@@ -550,15 +536,13 @@ export class SubscriptionService {
 
         const { start: periodStart } = this.getCurrentMonthPeriod();
 
-        const usage = await LogHelpers.withDatabaseTelemetry(() =>
-          this.usageRepo.findOne({
-            where: {
-              userId,
-              featureName: 'entry_creation',
-              periodStart,
-            },
-          }),
-        );
+        const usage = await this.usageRepo.findOne({
+          where: {
+            userId,
+            featureName: 'entry_creation',
+            periodStart,
+          },
+        });
 
         const usageCount = usage?.usageCount || 0;
         const limit = this.FREE_TIER_ENTRY_LIMIT;
@@ -595,23 +579,19 @@ export class SubscriptionService {
     const { start: periodStart, end: periodEnd } = this.getCurrentMonthPeriod();
 
     try {
-      const existingUsage = await LogHelpers.withDatabaseTelemetry(() =>
-        this.usageRepo.findOne({
-          where: {
-            userId,
-            featureName: feature,
-            periodStart,
-          },
-        }),
-      );
+      const existingUsage = await this.usageRepo.findOne({
+        where: {
+          userId,
+          featureName: feature,
+          periodStart,
+        },
+      });
 
       if (existingUsage) {
         existingUsage.usageCount += 1;
         existingUsage.lastUpdated = new Date();
 
-        await LogHelpers.withDatabaseTelemetry(() =>
-          this.usageRepo.save(existingUsage),
-        );
+        await this.usageRepo.save(existingUsage);
 
         LogHelpers.addBusinessContext('usage_incremented', true);
         LogHelpers.addBusinessContext(
@@ -627,9 +607,7 @@ export class SubscriptionService {
           periodEnd,
         });
 
-        await LogHelpers.withDatabaseTelemetry(() =>
-          this.usageRepo.save(newUsage),
-        );
+        await this.usageRepo.save(newUsage);
 
         LogHelpers.addBusinessContext('usage_created', true);
         LogHelpers.addBusinessContext('new_usage_count', 1);

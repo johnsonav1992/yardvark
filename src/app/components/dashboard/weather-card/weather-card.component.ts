@@ -10,12 +10,11 @@ import {
   convertPeriodToForecast,
   getForecastMarkerIcon
 } from '../../../utils/weatherUtils';
-import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loading-spinner.component';
 import type { WeatherPeriod } from '../../../types/weather.types';
 
 @Component({
   selector: 'weather-card',
-  imports: [CardModule, ButtonModule, TooltipModule, LoadingSpinnerComponent, CdkDragHandle],
+  imports: [CardModule, ButtonModule, TooltipModule, CdkDragHandle],
   templateUrl: './weather-card.component.html',
   styleUrl: './weather-card.component.scss'
 })

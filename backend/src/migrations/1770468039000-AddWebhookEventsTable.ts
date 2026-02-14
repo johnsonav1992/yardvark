@@ -15,7 +15,9 @@ export class AddWebhookEventsTable1770468039000 implements MigrationInterface {
       );
     `);
 
-    await queryRunner.query(`CREATE INDEX idx_webhook_events_stripe_event_id ON webhook_events(stripe_event_id);`);
+    await queryRunner.query(
+      `CREATE INDEX idx_webhook_events_stripe_event_id ON webhook_events(stripe_event_id);`,
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

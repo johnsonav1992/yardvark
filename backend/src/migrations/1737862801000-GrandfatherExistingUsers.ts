@@ -1,6 +1,8 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class GrandfatherExistingUsers1737862801000 implements MigrationInterface {
+export class GrandfatherExistingUsers1737862801000
+  implements MigrationInterface
+{
   name = 'GrandfatherExistingUsers1737862801000';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -19,7 +21,5 @@ export class GrandfatherExistingUsers1737862801000 implements MigrationInterface
     `);
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-
-  }
+  public async down(queryRunner: QueryRunner): Promise<void> {}
 }

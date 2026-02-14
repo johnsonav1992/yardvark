@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
+import { HttpException } from '@nestjs/common';
 import { Request } from 'express';
+import { success, error } from '../../../types/either';
+import {
+  UserSettingsNotFound,
+  UserLocationNotConfigured,
+} from '../models/gdd.errors';
 import { GddController } from './gdd.controller';
 import { GddService } from '../services/gdd.service';
 import {
@@ -106,7 +112,9 @@ describe('GddController', () => {
   describe('getCurrentGdd', () => {
     it('should call gddService.getCurrentGdd with user ID from request', async () => {
       const req = createMockRequest(mockUserId);
-      gddService.getCurrentGdd.mockResolvedValue(mockCurrentGddResponse);
+      gddService.getCurrentGdd.mockResolvedValue(
+        success(mockCurrentGddResponse),
+      );
 
       await controller.getCurrentGdd(req);
 
@@ -114,21 +122,37 @@ describe('GddController', () => {
       expect(gddService.getCurrentGdd).toHaveBeenCalledTimes(1);
     });
 
-    it('should return the response from gddService', async () => {
+    it('should return the unwrapped response from gddService', async () => {
       const req = createMockRequest(mockUserId);
-      gddService.getCurrentGdd.mockResolvedValue(mockCurrentGddResponse);
+      gddService.getCurrentGdd.mockResolvedValue(
+        success(mockCurrentGddResponse),
+      );
 
       const result = await controller.getCurrentGdd(req);
 
       expect(result).toEqual(mockCurrentGddResponse);
     });
 
-    it('should propagate errors from gddService', async () => {
+    it('should throw HttpException when service returns error', async () => {
       const req = createMockRequest(mockUserId);
-      const error = new Error('Service error');
-      gddService.getCurrentGdd.mockRejectedValue(error);
+      gddService.getCurrentGdd.mockResolvedValue(
+        error(new UserSettingsNotFound()),
+      );
 
-      await expect(controller.getCurrentGdd(req)).rejects.toThrow(error);
+      await expect(controller.getCurrentGdd(req)).rejects.toThrow(
+        HttpException,
+      );
+    });
+
+    it('should throw HttpException with correct status for location error', async () => {
+      const req = createMockRequest(mockUserId);
+      gddService.getCurrentGdd.mockResolvedValue(
+        error(new UserLocationNotConfigured()),
+      );
+
+      await expect(controller.getCurrentGdd(req)).rejects.toThrow(
+        HttpException,
+      );
     });
   });
 
@@ -138,7 +162,9 @@ describe('GddController', () => {
 
     it('should call gddService.getHistoricalGdd with correct parameters', async () => {
       const req = createMockRequest(mockUserId);
-      gddService.getHistoricalGdd.mockResolvedValue(mockHistoricalGddResponse);
+      gddService.getHistoricalGdd.mockResolvedValue(
+        success(mockHistoricalGddResponse),
+      );
 
       await controller.getHistoricalGdd(req, startDate, endDate);
 
@@ -150,30 +176,35 @@ describe('GddController', () => {
       expect(gddService.getHistoricalGdd).toHaveBeenCalledTimes(1);
     });
 
-    it('should return the response from gddService', async () => {
+    it('should return the unwrapped response from gddService', async () => {
       const req = createMockRequest(mockUserId);
-      gddService.getHistoricalGdd.mockResolvedValue(mockHistoricalGddResponse);
+      gddService.getHistoricalGdd.mockResolvedValue(
+        success(mockHistoricalGddResponse),
+      );
 
       const result = await controller.getHistoricalGdd(req, startDate, endDate);
 
       expect(result).toEqual(mockHistoricalGddResponse);
     });
 
-    it('should propagate errors from gddService', async () => {
+    it('should throw HttpException when service returns error', async () => {
       const req = createMockRequest(mockUserId);
-      const error = new Error('Service error');
-      gddService.getHistoricalGdd.mockRejectedValue(error);
+      gddService.getHistoricalGdd.mockResolvedValue(
+        error(new UserSettingsNotFound()),
+      );
 
       await expect(
         controller.getHistoricalGdd(req, startDate, endDate),
-      ).rejects.toThrow(error);
+      ).rejects.toThrow(HttpException);
     });
 
     it('should pass through different date ranges', async () => {
       const req = createMockRequest(mockUserId);
       const customStart = '2024-01-01';
       const customEnd = '2024-12-31';
-      gddService.getHistoricalGdd.mockResolvedValue(mockHistoricalGddResponse);
+      gddService.getHistoricalGdd.mockResolvedValue(
+        success(mockHistoricalGddResponse),
+      );
 
       await controller.getHistoricalGdd(req, customStart, customEnd);
 
@@ -188,7 +219,9 @@ describe('GddController', () => {
   describe('getGddForecast', () => {
     it('should call gddService.getGddForecast with user ID from request', async () => {
       const req = createMockRequest(mockUserId);
-      gddService.getGddForecast.mockResolvedValue(mockGddForecastResponse);
+      gddService.getGddForecast.mockResolvedValue(
+        success(mockGddForecastResponse),
+      );
 
       await controller.getGddForecast(req);
 
@@ -196,21 +229,26 @@ describe('GddController', () => {
       expect(gddService.getGddForecast).toHaveBeenCalledTimes(1);
     });
 
-    it('should return the response from gddService', async () => {
+    it('should return the unwrapped response from gddService', async () => {
       const req = createMockRequest(mockUserId);
-      gddService.getGddForecast.mockResolvedValue(mockGddForecastResponse);
+      gddService.getGddForecast.mockResolvedValue(
+        success(mockGddForecastResponse),
+      );
 
       const result = await controller.getGddForecast(req);
 
       expect(result).toEqual(mockGddForecastResponse);
     });
 
-    it('should propagate errors from gddService', async () => {
+    it('should throw HttpException when service returns error', async () => {
       const req = createMockRequest(mockUserId);
-      const error = new Error('Service error');
-      gddService.getGddForecast.mockRejectedValue(error);
+      gddService.getGddForecast.mockResolvedValue(
+        error(new UserSettingsNotFound()),
+      );
 
-      await expect(controller.getGddForecast(req)).rejects.toThrow(error);
+      await expect(controller.getGddForecast(req)).rejects.toThrow(
+        HttpException,
+      );
     });
   });
 
@@ -219,9 +257,15 @@ describe('GddController', () => {
       const differentUserId = 'different-user-456';
       const req = createMockRequest(differentUserId);
 
-      gddService.getCurrentGdd.mockResolvedValue(mockCurrentGddResponse);
-      gddService.getHistoricalGdd.mockResolvedValue(mockHistoricalGddResponse);
-      gddService.getGddForecast.mockResolvedValue(mockGddForecastResponse);
+      gddService.getCurrentGdd.mockResolvedValue(
+        success(mockCurrentGddResponse),
+      );
+      gddService.getHistoricalGdd.mockResolvedValue(
+        success(mockHistoricalGddResponse),
+      );
+      gddService.getGddForecast.mockResolvedValue(
+        success(mockGddForecastResponse),
+      );
 
       await controller.getCurrentGdd(req);
       await controller.getHistoricalGdd(req, '2024-06-01', '2024-06-02');

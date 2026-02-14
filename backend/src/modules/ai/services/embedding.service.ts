@@ -2,7 +2,6 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { Entry } from '../../entries/models/entries.model';
 import { FeatureExtractionPipeline, pipeline } from '@huggingface/transformers';
 import { createEntryEmbeddingText } from '../../entries/utils/entryRagUtils';
-import { tryCatch } from '../../../utils/tryCatch';
 import { ConfigService } from '@nestjs/config';
 import { LogHelpers } from '../../../logger/logger.helpers';
 
@@ -23,17 +22,16 @@ export class EmbeddingService implements OnModuleInit {
       return;
     }
 
-    const result = await tryCatch(() =>
-      pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2'),
-    );
-
-    if (!result.success) {
+    try {
+      this.embedder = await pipeline(
+        'feature-extraction',
+        'Xenova/all-MiniLM-L6-v2',
+      );
+    } catch (err) {
       throw new Error(
-        `Failed to initialize embedding model: ${result.error.message}`,
+        `Failed to initialize embedding model: ${(err as Error).message}`,
       );
     }
-
-    this.embedder = result.data;
   }
 
   public async generateEmbedding(text: string): Promise<number[]> {
@@ -44,32 +42,35 @@ export class EmbeddingService implements OnModuleInit {
     }
 
     const start = Date.now();
-    const result = await tryCatch(() =>
-      embedder(text, {
+
+    try {
+      const result = await embedder(text, {
         pooling: 'mean',
         normalize: true,
-      }),
-    );
+      });
 
-    LogHelpers.recordExternalCall(
-      'embedding-model',
-      Date.now() - start,
-      result.success,
-    );
+      LogHelpers.recordExternalCall(
+        'embedding-model',
+        Date.now() - start,
+        true,
+      );
 
-    if (!result.success) {
-      throw new Error(`Failed to generate embedding: ${result.error.message}`);
+      if (result && typeof result === 'object' && 'data' in result) {
+        return Array.from(result.data) as number[];
+      }
+
+      throw new Error('Invalid embedding result format');
+    } catch (err) {
+      LogHelpers.recordExternalCall(
+        'embedding-model',
+        Date.now() - start,
+        false,
+      );
+
+      throw new Error(
+        `Failed to generate embedding: ${(err as Error).message}`,
+      );
     }
-
-    if (
-      result.data &&
-      typeof result.data === 'object' &&
-      'data' in result.data
-    ) {
-      return Array.from(result.data.data) as number[];
-    }
-
-    throw new Error('Invalid embedding result format');
   }
 
   public async embedEntry(entry: Entry): Promise<number[]> {

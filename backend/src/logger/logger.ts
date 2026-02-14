@@ -20,7 +20,11 @@ import { requestContext, RequestContext } from './logger.context';
 import { logToOTel } from './otel.transport';
 import { SubscriptionService } from '../modules/subscription/services/subscription.service';
 import { LogHelpers } from './logger.helpers';
-import { trace, context as otelContext, SpanStatusCode } from '@opentelemetry/api';
+import {
+  trace,
+  context as otelContext,
+  SpanStatusCode,
+} from '@opentelemetry/api';
 
 export { LogContext, WideEventContext } from './logger.types';
 export { getLogContext, getRequestContext } from './logger.context';
@@ -156,9 +160,14 @@ export class LoggingInterceptor implements NestInterceptor {
                     });
                     span.setStatus({
                       code: SpanStatusCode.ERROR,
-                      message: error instanceof Error ? error.message : 'Unknown error',
+                      message:
+                        error instanceof Error
+                          ? error.message
+                          : 'Unknown error',
                     });
-                    span.recordException(error instanceof Error ? error : new Error(String(error)));
+                    span.recordException(
+                      error instanceof Error ? error : new Error(String(error)),
+                    );
                     span.end();
 
                     this.logHttpRequest({
@@ -278,7 +287,6 @@ export class LoggingInterceptor implements NestInterceptor {
       logEntry as unknown as Record<string, unknown>,
     );
   }
-
 
   private getClientIp(request: Request): string | undefined {
     const forwarded = request.headers['x-forwarded-for'];

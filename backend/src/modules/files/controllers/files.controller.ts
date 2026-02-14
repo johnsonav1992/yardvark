@@ -17,7 +17,7 @@ import { firstValueFrom, map } from 'rxjs';
 import { S3Service } from 'src/modules/s3/s3.service';
 import { MAX_FILE_LARGE_UPLOAD_SIZE } from 'src/utils/constants';
 import { imageFileValidator } from 'src/utils/fileUtils';
-import { tryCatch } from 'src/utils/tryCatch';
+import { unwrapResult } from '../../../utils/unwrapResult';
 import { Readable } from 'stream';
 
 @Controller('files')
@@ -29,12 +29,14 @@ export class FilesController {
 
   @Post('upload')
   @UseInterceptors(FilesInterceptor('file', 10))
-  public uploadFiles(
+  public async uploadFiles(
     @UploadedFiles(imageFileValidator(MAX_FILE_LARGE_UPLOAD_SIZE))
     files: Express.Multer.File[],
     @Req() req: Request,
   ) {
-    return this._s3Service.uploadFiles(files, req.user.userId);
+    return unwrapResult(
+      await this._s3Service.uploadFiles(files, req.user.userId),
+    );
   }
 
   @Get('download')
@@ -42,8 +44,10 @@ export class FilesController {
     @Query('url') fileUrl: string,
     @Res() res: Response,
   ) {
-    const { data: fileRes, error } = await tryCatch(() =>
-      firstValueFrom(
+    let fileRes: { data: Readable; contentType: string };
+
+    try {
+      fileRes = await firstValueFrom(
         this.http
           .get<Readable>(fileUrl, {
             responseType: 'stream',
@@ -57,12 +61,10 @@ export class FilesController {
               return { data: response.data, contentType };
             }),
           ),
-      ),
-    );
-
-    if (error) {
+      );
+    } catch (err) {
       throw new HttpException(
-        `Failed to download file - ${error.message}`,
+        `Failed to download file - ${(err as Error).message}`,
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

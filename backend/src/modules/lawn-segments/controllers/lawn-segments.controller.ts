@@ -14,6 +14,7 @@ import {
   LawnSegmentUpdateRequest,
 } from '../models/lawn-segments.types';
 import { Request } from 'express';
+import { unwrapResult } from '../../../utils/unwrapResult';
 
 @Controller('lawn-segments')
 export class LawnSegmentsController {
@@ -36,11 +37,13 @@ export class LawnSegmentsController {
   }
 
   @Put(':id')
-  public updateLawnSegment(
+  public async updateLawnSegment(
     @Param('id') id: number,
     @Body() updateData: LawnSegmentUpdateRequest,
   ) {
-    return this._lawnSegmentService.updateLawnSegment(id, updateData);
+    return unwrapResult(
+      await this._lawnSegmentService.updateLawnSegment(id, updateData),
+    );
   }
 
   @Delete(':id')

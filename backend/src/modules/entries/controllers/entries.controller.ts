@@ -19,6 +19,7 @@ import {
 import { Request } from 'express';
 import { SubscriptionFeature } from '../../../decorators/subscription-feature.decorator';
 import { SubscriptionService } from '../../subscription/services/subscription.service';
+import { unwrapResult } from '../../../utils/unwrapResult';
 
 @Controller('entries')
 export class EntriesController {
@@ -28,12 +29,18 @@ export class EntriesController {
   ) {}
 
   @Get()
-  public getEntries(
+  public async getEntries(
     @Req() req: Request,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {
-    return this._entriesService.getEntries(req.user.userId, startDate, endDate);
+    return unwrapResult(
+      await this._entriesService.getEntries(
+        req.user.userId,
+        startDate,
+        endDate,
+      ),
+    );
   }
 
   @Get('single/most-recent')
@@ -68,13 +75,18 @@ export class EntriesController {
   }
 
   @Get('single/by-date/:date')
-  public getEntryByDate(@Req() req: Request, @Param('date') date: string) {
-    return this._entriesService.getEntryByDate(req.user.userId, date);
+  public async getEntryByDate(
+    @Req() req: Request,
+    @Param('date') date: string,
+  ) {
+    return unwrapResult(
+      await this._entriesService.getEntryByDate(req.user.userId, date),
+    );
   }
 
   @Get('single/:entryId')
-  public getEntry(@Param('entryId') entryId: number) {
-    return this._entriesService.getEntry(entryId);
+  public async getEntry(@Param('entryId') entryId: number) {
+    return unwrapResult(await this._entriesService.getEntry(entryId));
   }
 
   @Post()
@@ -105,16 +117,16 @@ export class EntriesController {
   }
 
   @Put(':entryId')
-  public updateEntry(
+  public async updateEntry(
     @Param('entryId') entryId: number,
     @Body() entry: Partial<EntryCreationRequest>,
   ) {
-    return this._entriesService.updateEntry(entryId, entry);
+    return unwrapResult(await this._entriesService.updateEntry(entryId, entry));
   }
 
   @Delete(':entryId')
-  public softDeleteEntry(@Param('entryId') entryId: number) {
-    return this._entriesService.softDeleteEntry(entryId);
+  public async softDeleteEntry(@Param('entryId') entryId: number) {
+    return unwrapResult(await this._entriesService.softDeleteEntry(entryId));
   }
 
   @Post('recover/:entryId')

@@ -116,45 +116,65 @@ export class WebhookController {
   ): Promise<void> {
     LogHelpers.addBusinessContext('processing_event_type', event.type);
 
-    try {
-      switch (event.type) {
-        case 'checkout.session.completed':
-          await this.handleCheckoutCompleted(event.data.object);
-          break;
+    switch (event.type) {
+      case 'checkout.session.completed':
+        await this.handleCheckoutCompleted(event.data.object);
+        break;
 
-        case 'customer.subscription.created':
-        case 'customer.subscription.updated':
+      case 'customer.subscription.created':
+      case 'customer.subscription.updated': {
+        const updateResult =
           await this.subscriptionService.handleSubscriptionUpdate(
             event.data.object,
           );
-          break;
 
-        case 'customer.subscription.deleted':
+        if (updateResult.isError()) {
+          LogHelpers.addBusinessContext(
+            'subscription_update_failed',
+            updateResult.value.message,
+          );
+          LogHelpers.addBusinessContext(
+            'subscription_update_error_code',
+            updateResult.value.code,
+          );
+        }
+
+        break;
+      }
+
+      case 'customer.subscription.deleted': {
+        const deleteResult =
           await this.subscriptionService.handleSubscriptionDeleted(
             event.data.object,
           );
-          break;
 
-        default:
-          LogHelpers.addBusinessContext('unhandled_event_type', event.type);
-          LogHelpers.addBusinessContext('unhandled_event', true);
+        if (deleteResult.isError()) {
+          LogHelpers.addBusinessContext(
+            'subscription_delete_failed',
+            deleteResult.value.message,
+          );
+          LogHelpers.addBusinessContext(
+            'subscription_delete_error_code',
+            deleteResult.value.code,
+          );
+        }
+
+        break;
       }
 
-      await LogHelpers.withDatabaseTelemetry(() =>
-        this.webhookEventRepo.update(webhookEventId, {
-          processed: true,
-          processedAt: new Date(),
-        }),
-      );
-
-      LogHelpers.addBusinessContext('webhook_processed', true);
-    } catch (error) {
-      LogHelpers.addBusinessContext('event_processing_error', error.message);
-      LogHelpers.addBusinessContext('event_type', event.type);
-      LogHelpers.addBusinessContext('event_id', event.id);
-
-      throw error;
+      default:
+        LogHelpers.addBusinessContext('unhandled_event_type', event.type);
+        LogHelpers.addBusinessContext('unhandled_event', true);
     }
+
+    await LogHelpers.withDatabaseTelemetry(() =>
+      this.webhookEventRepo.update(webhookEventId, {
+        processed: true,
+        processedAt: new Date(),
+      }),
+    );
+
+    LogHelpers.addBusinessContext('webhook_processed', true);
   }
 
   private async handleCheckoutCompleted(session: Stripe.Checkout.Session) {
@@ -183,20 +203,26 @@ export class WebhookController {
       session.subscription as string,
     );
 
-    try {
-      const subscription = await this.stripeService.getSubscription(
-        session.subscription as string,
-      );
+    const subscription = await this.stripeService.getSubscription(
+      session.subscription as string,
+    );
 
-      LogHelpers.addBusinessContext('subscription_status', subscription.status);
+    LogHelpers.addBusinessContext('subscription_status', subscription.status);
 
+    const result =
       await this.subscriptionService.handleSubscriptionUpdate(subscription);
 
-      LogHelpers.addBusinessContext('checkout_completed', true);
-    } catch (error) {
-      LogHelpers.addBusinessContext('checkout_processing_error', error.message);
-
-      throw error;
+    if (result.isError()) {
+      LogHelpers.addBusinessContext(
+        'checkout_processing_error',
+        result.value.message,
+      );
+      LogHelpers.addBusinessContext(
+        'checkout_processing_error_code',
+        result.value.code,
+      );
     }
+
+    LogHelpers.addBusinessContext('checkout_completed', true);
   }
 }

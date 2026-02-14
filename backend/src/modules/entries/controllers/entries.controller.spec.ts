@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EntriesController } from '../controllers/entries.controller';
 import { EntriesService } from '../services/entries.service';
+import { SubscriptionService } from '../../subscription/services/subscription.service';
 
 describe('EntriesController', () => {
   let controller: EntriesController;
@@ -16,6 +17,10 @@ describe('EntriesController', () => {
     searchEntries: jest.fn(),
   };
 
+  const mockSubscriptionService = {
+    incrementUsage: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [EntriesController],
@@ -23,6 +28,10 @@ describe('EntriesController', () => {
         {
           provide: EntriesService,
           useValue: mockEntriesService,
+        },
+        {
+          provide: SubscriptionService,
+          useValue: mockSubscriptionService,
         },
       ],
     }).compile();

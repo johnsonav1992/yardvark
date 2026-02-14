@@ -42,11 +42,21 @@ export class AddSubscriptionTables1737862800000 implements MigrationInterface {
       );
     `);
 
-    await queryRunner.query(`CREATE INDEX idx_subscriptions_user_id ON subscriptions(user_id);`);
-    await queryRunner.query(`CREATE INDEX idx_subscriptions_stripe_customer_id ON subscriptions(stripe_customer_id);`);
-    await queryRunner.query(`CREATE INDEX idx_subscriptions_stripe_subscription_id ON subscriptions(stripe_subscription_id);`);
-    await queryRunner.query(`CREATE INDEX idx_feature_usage_user_id ON feature_usage(user_id);`);
-    await queryRunner.query(`CREATE INDEX idx_feature_usage_period ON feature_usage(period_start, period_end);`);
+    await queryRunner.query(
+      `CREATE INDEX idx_subscriptions_user_id ON subscriptions(user_id);`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX idx_subscriptions_stripe_customer_id ON subscriptions(stripe_customer_id);`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX idx_subscriptions_stripe_subscription_id ON subscriptions(stripe_subscription_id);`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX idx_feature_usage_user_id ON feature_usage(user_id);`,
+    );
+    await queryRunner.query(
+      `CREATE INDEX idx_feature_usage_period ON feature_usage(period_start, period_end);`,
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

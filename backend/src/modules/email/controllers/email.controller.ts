@@ -1,13 +1,8 @@
-import {
-  Body,
-  Controller,
-  Post,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { EmailService, FeedbackEmailData } from '../services/email.service';
 import { FeedbackRequest } from '../models/email.types';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { unwrapResult } from '../../../utils/unwrapResult';
 
 @Controller('email')
 export class EmailController {
@@ -20,17 +15,8 @@ export class EmailController {
 
     const emailData: FeedbackEmailData = feedbackData;
 
-    const success = await this.emailService.sendFeedbackEmail(emailData);
+    unwrapResult(await this.emailService.sendFeedbackEmail(emailData));
 
-    if (success) {
-      return { message: 'Feedback sent successfully' };
-    }
-
-    LogHelpers.addBusinessContext('feedback_send_failed', true);
-
-    throw new HttpException(
-      'Failed to send feedback email',
-      HttpStatus.INTERNAL_SERVER_ERROR,
-    );
+    return { message: 'Feedback sent successfully' };
   }
 }

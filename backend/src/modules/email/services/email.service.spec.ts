@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigService } from '@nestjs/config';
 import { EmailService, FeedbackEmailData } from './email.service';
 import * as nodemailer from 'nodemailer';
+import { EmailNotConfigured, EmailSendError } from '../models/email.errors';
 
 jest.mock('nodemailer');
 
@@ -66,7 +67,7 @@ describe('EmailService', () => {
       expect(service).toBeDefined();
     });
 
-    it('should not initialize when Gmail user is missing', async () => {
+    it('should return an EmailNotConfigured error when Gmail user is missing', async () => {
       mockConfigService.get.mockReturnValue(undefined);
 
       const module: TestingModule = await Test.createTestingModule({
@@ -84,10 +85,11 @@ describe('EmailService', () => {
       const result =
         await uninitializedService.sendFeedbackEmail(mockFeedbackData);
 
-      expect(result).toBe(false);
+      expect(result.isError()).toBe(true);
+      expect(result.value).toBeInstanceOf(EmailNotConfigured);
     });
 
-    it('should not initialize when Gmail credentials are empty', async () => {
+    it('should return an EmailNotConfigured error when Gmail credentials are empty', async () => {
       mockConfigService.get.mockReturnValue('');
 
       const module: TestingModule = await Test.createTestingModule({
@@ -105,7 +107,8 @@ describe('EmailService', () => {
       const result =
         await uninitializedService.sendFeedbackEmail(mockFeedbackData);
 
-      expect(result).toBe(false);
+      expect(result.isError()).toBe(true);
+      expect(result.value).toBeInstanceOf(EmailNotConfigured);
     });
   });
 
@@ -113,7 +116,8 @@ describe('EmailService', () => {
     it('should send feedback email successfully with basic data', async () => {
       const result = await service.sendFeedbackEmail(mockFeedbackData);
 
-      expect(result).toBe(true);
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toBe(true);
     });
 
     it('should send feedback email successfully with all optional fields', async () => {
@@ -121,7 +125,8 @@ describe('EmailService', () => {
         mockFeedbackDataWithOptionalFields,
       );
 
-      expect(result).toBe(true);
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toBe(true);
     });
 
     it('should handle general feedback type', async () => {
@@ -132,7 +137,8 @@ describe('EmailService', () => {
 
       const result = await service.sendFeedbackEmail(generalFeedback);
 
-      expect(result).toBe(true);
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toBe(true);
     });
 
     it('should handle bug feedback type', async () => {
@@ -143,7 +149,8 @@ describe('EmailService', () => {
 
       const result = await service.sendFeedbackEmail(bugFeedback);
 
-      expect(result).toBe(true);
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toBe(true);
     });
 
     it('should handle enhancement feedback type', async () => {
@@ -154,10 +161,11 @@ describe('EmailService', () => {
 
       const result = await service.sendFeedbackEmail(enhancementFeedback);
 
-      expect(result).toBe(true);
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toBe(true);
     });
 
-    it('should return false when service is not initialized', async () => {
+    it('should return an EmailNotConfigured error when service is not initialized', async () => {
       mockConfigService.get.mockReturnValue(undefined);
 
       const module: TestingModule = await Test.createTestingModule({
@@ -175,7 +183,8 @@ describe('EmailService', () => {
       const result =
         await uninitializedService.sendFeedbackEmail(mockFeedbackData);
 
-      expect(result).toBe(false);
+      expect(result.isError()).toBe(true);
+      expect(result.value).toBeInstanceOf(EmailNotConfigured);
     });
 
     it('should handle feedback with special characters in message', async () => {
@@ -187,7 +196,8 @@ describe('EmailService', () => {
 
       const result = await service.sendFeedbackEmail(specialCharsFeedback);
 
-      expect(result).toBe(true);
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toBe(true);
     });
 
     it('should handle feedback with long message', async () => {
@@ -199,7 +209,8 @@ describe('EmailService', () => {
 
       const result = await service.sendFeedbackEmail(longMessageFeedback);
 
-      expect(result).toBe(true);
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toBe(true);
     });
 
     it('should handle feedback with unicode characters', async () => {
@@ -212,25 +223,28 @@ describe('EmailService', () => {
 
       const result = await service.sendFeedbackEmail(unicodeFeedback);
 
-      expect(result).toBe(true);
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toBe(true);
     });
   });
 
   describe('error handling', () => {
-    it('should return false when sendMail throws an error', async () => {
+    it('should return an EmailSendError when sendMail throws an error', async () => {
       mockSendMail.mockRejectedValueOnce(new Error('SMTP error'));
 
       const result = await service.sendFeedbackEmail(mockFeedbackData);
 
-      expect(result).toBe(false);
+      expect(result.isError()).toBe(true);
+      expect(result.value).toBeInstanceOf(EmailSendError);
     });
 
-    it('should handle network errors gracefully', async () => {
+    it('should return an EmailSendError when a network error occurs', async () => {
       mockSendMail.mockRejectedValueOnce(new Error('Network error'));
 
       const result = await service.sendFeedbackEmail(mockFeedbackData);
 
-      expect(result).toBe(false);
+      expect(result.isError()).toBe(true);
+      expect(result.value).toBeInstanceOf(EmailSendError);
     });
   });
 });

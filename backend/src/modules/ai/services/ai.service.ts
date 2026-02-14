@@ -2,8 +2,13 @@ import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { GeminiService } from './gemini.service';
 import { EmbeddingService } from './embedding.service';
 import { EntriesService } from '../../entries/services/entries.service';
-import { tryCatch } from '../../../utils/tryCatch';
+import { Either, error, success } from '../../../types/either';
 import { AiChatResponse } from '../../../types/ai.types';
+import {
+  AiChatError,
+  AiQueryError,
+  AiEmbeddingError,
+} from '../models/ai.errors';
 import {
   extractDateRange,
   preprocessQuery,
@@ -20,39 +25,38 @@ export class AiService {
     private readonly entriesService: EntriesService,
   ) {}
 
-  public async chat(prompt: string): Promise<AiChatResponse> {
-    const result = await tryCatch(() => this.geminiService.simpleChat(prompt));
+  public async chat(
+    prompt: string,
+  ): Promise<Either<AiChatError, AiChatResponse>> {
+    try {
+      const response = await this.geminiService.simpleChat(prompt);
 
-    if (!result.success) {
-      throw new Error(
-        `Failed to generate AI response: ${result.error.message}`,
-      );
+      return success(response);
+    } catch (err) {
+      return error(new AiChatError(err));
     }
-
-    return result.data;
   }
 
   public async chatWithSystem(
     systemPrompt: string,
     userPrompt: string,
-  ): Promise<AiChatResponse> {
-    const result = await tryCatch(() =>
-      this.geminiService.chatWithSystem(systemPrompt, userPrompt),
-    );
-
-    if (!result.success) {
-      throw new Error(
-        `Failed to generate AI response: ${result.error.message}`,
+  ): Promise<Either<AiChatError, AiChatResponse>> {
+    try {
+      const response = await this.geminiService.chatWithSystem(
+        systemPrompt,
+        userPrompt,
       );
-    }
 
-    return result.data;
+      return success(response);
+    } catch (err) {
+      return error(new AiChatError(err));
+    }
   }
 
   public async queryEntries(
     userId: string,
     naturalQuery: string,
-  ): Promise<AiChatResponse> {
+  ): Promise<Either<AiQueryError, AiChatResponse>> {
     LogHelpers.addBusinessContext('aiQueryType', 'rag');
 
     try {
@@ -76,9 +80,14 @@ export class AiService {
       Entry data from user's lawn care history:
       ${context}`;
 
-      return this.geminiService.chatWithSystem(systemPrompt, naturalQuery);
-    } catch (error) {
-      throw new Error(`Failed to process query: ${(error as Error).message}`);
+      const response = await this.geminiService.chatWithSystem(
+        systemPrompt,
+        naturalQuery,
+      );
+
+      return success(response);
+    } catch (err) {
+      return error(new AiQueryError(err));
     }
   }
 
@@ -122,31 +131,35 @@ export class AiService {
 
   public async initializeEmbeddings(
     userId: string,
-  ): Promise<{ processed: number; errors: number }> {
-    const entriesWithoutEmbeddings =
-      await this.entriesService.getEntriesWithoutEmbeddings(userId);
+  ): Promise<Either<AiEmbeddingError, { processed: number; errors: number }>> {
+    try {
+      const entriesWithoutEmbeddings =
+        await this.entriesService.getEntriesWithoutEmbeddings(userId);
 
-    LogHelpers.addBusinessContext(
-      'embeddingsToProcess',
-      entriesWithoutEmbeddings.length,
-    );
+      LogHelpers.addBusinessContext(
+        'embeddingsToProcess',
+        entriesWithoutEmbeddings.length,
+      );
 
-    let processed = 0;
-    let errors = 0;
+      let processed = 0;
+      let errors = 0;
 
-    for (const entry of entriesWithoutEmbeddings) {
-      try {
-        const embedding = await this.embeddingService.embedEntry(entry);
-        await this.entriesService.updateEntryEmbedding(entry.id, embedding);
-        processed++;
-      } catch {
-        errors++;
+      for (const entry of entriesWithoutEmbeddings) {
+        try {
+          const embedding = await this.embeddingService.embedEntry(entry);
+          await this.entriesService.updateEntryEmbedding(entry.id, embedding);
+          processed++;
+        } catch {
+          errors++;
+        }
       }
+
+      LogHelpers.addBusinessContext('embeddingsProcessed', processed);
+      LogHelpers.addBusinessContext('embeddingsErrors', errors);
+
+      return success({ processed, errors });
+    } catch (err) {
+      return error(new AiEmbeddingError(err));
     }
-
-    LogHelpers.addBusinessContext('embeddingsProcessed', processed);
-    LogHelpers.addBusinessContext('embeddingsErrors', errors);
-
-    return { processed, errors };
   }
 }

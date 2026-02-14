@@ -9,12 +9,12 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AiService } from '../services/ai.service';
-import { tryCatch } from '../../../utils/tryCatch';
 import { AiChatResponse, AiChatRequest } from '../../../types/ai.types';
 import { Request } from 'express';
 // import { Public } from '../../../decorators/public.decorator';
 import { FeatureFlag } from '../../../decorators/feature-flag.decorator';
 import { SubscriptionFeature } from '../../../decorators/subscription-feature.decorator';
+import { unwrapResult } from '../../../utils/unwrapResult';
 
 @Controller('ai')
 export class AiController {
@@ -29,18 +29,7 @@ export class AiController {
       throw new HttpException('Prompt is required', HttpStatus.BAD_REQUEST);
     }
 
-    const result = await tryCatch(() =>
-      this.aiService.chat(chatRequest.prompt),
-    );
-
-    if (!result.success) {
-      throw new HttpException(
-        result.error.message || 'Failed to generate AI response',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-
-    return result.data;
+    return unwrapResult(await this.aiService.chat(chatRequest.prompt));
   }
 
   @FeatureFlag('ENABLE_ENTRY_QUERY')
@@ -57,18 +46,8 @@ export class AiController {
 
     const userId =
       body.userId || req.user?.userId || 'google-oauth2|111643664660289512636';
-    const result = await tryCatch(() =>
-      this.aiService.queryEntries(userId, body.query),
-    );
 
-    if (!result.success) {
-      throw new HttpException(
-        result.error.message || 'Failed to process entry query',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-
-    return result.data;
+    return unwrapResult(await this.aiService.queryEntries(userId, body.query));
   }
 
   @FeatureFlag('ENABLE_ENTRY_QUERY')
@@ -81,18 +60,8 @@ export class AiController {
   ): Promise<{ processed: number; errors: number }> {
     const userId =
       body?.userId || req.user?.userId || 'google-oauth2|111643664660289512636';
-    const result = await tryCatch(() =>
-      this.aiService.initializeEmbeddings(userId),
-    );
 
-    if (!result.success) {
-      throw new HttpException(
-        result.error.message || 'Failed to initialize embeddings',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-
-    return result.data;
+    return unwrapResult(await this.aiService.initializeEmbeddings(userId));
   }
 
   @FeatureFlag('ENABLE_ENTRY_QUERY')

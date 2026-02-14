@@ -2,8 +2,6 @@ import {
   Body,
   Controller,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   Post,
   Put,
@@ -16,7 +14,7 @@ import { S3Service } from 'src/modules/s3/s3.service';
 import { imageFileValidator } from 'src/utils/fileUtils';
 import { ProductsService } from '../services/products.service';
 import { Request } from 'express';
-import { tryCatch } from 'src/utils/tryCatch';
+import { unwrapResult } from '../../../utils/unwrapResult';
 import { Product } from '../models/products.model';
 
 @Controller('products')
@@ -35,27 +33,18 @@ export class ProductsController {
   ) {
     if (body.systemProduct) body.systemProduct = body.systemProduct === 'true';
 
-    let imageUrl: string | null = null;
+    let imageUrl: string | undefined;
 
     if (file) {
-      const { data, error } = await tryCatch(() =>
-        this._s3Service.uploadFile(file, req.user.userId),
+      imageUrl = unwrapResult(
+        await this._s3Service.uploadFile(file, req.user.userId),
       );
-
-      imageUrl = data;
-
-      if (error) {
-        throw new HttpException(
-          `Error uploading file to S3 - ${error.message}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
     }
 
     return this._productsService.addProduct({
       ...body,
       userId: body.systemProduct ? 'system' : req.user.userId,
-      imageUrl: imageUrl || undefined,
+      imageUrl,
     });
   }
 

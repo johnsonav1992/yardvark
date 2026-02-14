@@ -9,7 +9,11 @@ import {
   WeatherDotGovForecastResponse,
   WeatherDotGovPointsResponse,
 } from '../models/weather.types';
-import { tryCatch } from '../../../utils/tryCatch';
+import { Either, error, success } from '../../../types/either';
+import {
+  WeatherFetchError,
+  HistoricalWeatherFetchError,
+} from '../models/weather.errors';
 import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Injectable()
@@ -29,7 +33,7 @@ export class WeatherService {
   public async getWeatherData(
     lat: string,
     long: string,
-  ): Promise<WeatherDotGovForecastResponse> {
+  ): Promise<Either<WeatherFetchError, WeatherDotGovForecastResponse>> {
     const cacheKey = this.getCacheKey('forecast', { lat, long });
 
     const cached =
@@ -37,14 +41,16 @@ export class WeatherService {
 
     if (cached) {
       LogHelpers.recordCacheHit();
-      return cached;
+
+      return success(cached);
     }
 
     LogHelpers.recordCacheMiss();
 
     const start = Date.now();
-    const result = await tryCatch(() =>
-      firstValueFrom(
+
+    try {
+      const data = await firstValueFrom(
         this.httpService
           .get<WeatherDotGovPointsResponse>(
             `${this.weatherDotGovBaseUrl}/points/${lat},${long}`,
@@ -64,22 +70,18 @@ export class WeatherService {
             }),
             map((forecastResponse) => forecastResponse.data),
           ),
-      ),
-    );
+      );
 
-    LogHelpers.recordExternalCall(
-      'weather.gov',
-      Date.now() - start,
-      result.success,
-    );
+      LogHelpers.recordExternalCall('weather.gov', Date.now() - start, true);
 
-    if (!result.success) {
-      throw new Error(`Failed to fetch weather data: ${result.error.message}`);
+      await this._cacheManager.set(cacheKey, data, this._forecastCacheTtl);
+
+      return success(data);
+    } catch (err) {
+      LogHelpers.recordExternalCall('weather.gov', Date.now() - start, false);
+
+      return error(new WeatherFetchError(err));
     }
-
-    await this._cacheManager.set(cacheKey, result.data, this._forecastCacheTtl);
-
-    return result.data;
   }
 
   public async getHistoricalAirTemperatures({
@@ -94,7 +96,12 @@ export class WeatherService {
     startDate: string;
     endDate: string;
     temperatureUnit?: 'fahrenheit' | 'celsius';
-  }): Promise<Array<{ date: string; maxTemp: number; minTemp: number }>> {
+  }): Promise<
+    Either<
+      HistoricalWeatherFetchError,
+      Array<{ date: string; maxTemp: number; minTemp: number }>
+    >
+  > {
     const cacheKey = this.getCacheKey('historical', {
       lat,
       long,
@@ -113,7 +120,8 @@ export class WeatherService {
 
     if (cached) {
       LogHelpers.recordCacheHit();
-      return cached;
+
+      return success(cached);
     }
 
     LogHelpers.recordCacheMiss();
@@ -129,41 +137,36 @@ export class WeatherService {
     });
 
     const start = Date.now();
-    const result = await tryCatch(() =>
-      firstValueFrom(
+
+    try {
+      const result = await firstValueFrom(
         this.httpService
           .get<OpenMeteoHistoricalResponse>(
             `${this.openMeteoHistoricalUrl}?${params}`,
           )
           .pipe(map((res) => res.data)),
-      ),
-    );
-
-    LogHelpers.recordExternalCall(
-      'open-meteo',
-      Date.now() - start,
-      result.success,
-    );
-
-    if (!result.success) {
-      throw new Error(
-        `Failed to fetch historical temperatures: ${result.error.message}`,
       );
+
+      LogHelpers.recordExternalCall('open-meteo', Date.now() - start, true);
+
+      const { daily } = result;
+
+      const data: HistoricalTempResult = daily.time.map(
+        (date: string, i: number) => ({
+          date,
+          maxTemp: daily.temperature_2m_max[i],
+          minTemp: daily.temperature_2m_min[i],
+        }),
+      );
+
+      await this._cacheManager.set(cacheKey, data, this._historicalCacheTtl);
+
+      return success(data);
+    } catch (err) {
+      LogHelpers.recordExternalCall('open-meteo', Date.now() - start, false);
+
+      return error(new HistoricalWeatherFetchError(err));
     }
-
-    const { daily } = result.data;
-
-    const data: HistoricalTempResult = daily.time.map(
-      (date: string, i: number) => ({
-        date,
-        maxTemp: daily.temperature_2m_max[i],
-        minTemp: daily.temperature_2m_min[i],
-      }),
-    );
-
-    await this._cacheManager.set(cacheKey, data, this._historicalCacheTtl);
-
-    return data;
   }
 
   private getCacheKey(

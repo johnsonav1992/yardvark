@@ -84,11 +84,12 @@ describe('S3Service', () => {
     it('should upload a file successfully and return URL', async () => {
       const result = await service.uploadFile(mockFile, 'user-123');
 
-      expect(result).toContain(
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toContain(
         'https://test-bucket.s3.us-east-1.amazonaws.com/',
       );
-      expect(result).toContain('user-123');
-      expect(result).toContain('test-image.jpg');
+      expect(result.value).toContain('user-123');
+      expect(result.value).toContain('test-image.jpg');
     });
 
     it('should call S3 send with correct parameters', async () => {
@@ -109,7 +110,8 @@ describe('S3Service', () => {
     it('should generate unique key with userId prefix', async () => {
       const result = await service.uploadFile(mockFile, 'user-456');
 
-      expect(result).toContain('user-456');
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toContain('user-456');
     });
 
     it('should handle different file types', async () => {
@@ -136,7 +138,8 @@ describe('S3Service', () => {
 
       const result = await service.uploadFile(fileWithSpaces, 'user-123');
 
-      expect(result).toContain(
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toContain(
         encodeURIComponent('test image with spaces.jpg'),
       );
     });
@@ -149,15 +152,19 @@ describe('S3Service', () => {
 
       const result = await service.uploadFile(fileWithSpecialChars, 'user-123');
 
-      expect(result).toBeDefined();
+      expect(result.isSuccess()).toBe(true);
       expect(mockSend).toHaveBeenCalled();
     });
 
-    it('should throw error when S3 upload fails', async () => {
+    it('should return error when S3 upload fails', async () => {
       mockSend.mockRejectedValueOnce(new Error('S3 upload failed'));
 
-      await expect(service.uploadFile(mockFile, 'user-123')).rejects.toThrow(
-        'S3 upload failed',
+      const result = await service.uploadFile(mockFile, 'user-123');
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toHaveProperty(
+        'message',
+        'Failed to upload file to S3',
       );
     });
   });
@@ -170,12 +177,15 @@ describe('S3Service', () => {
     ];
 
     it('should upload multiple files and return array of URLs', async () => {
-      const results = await service.uploadFiles(mockFiles, 'user-123');
+      const result = await service.uploadFiles(mockFiles, 'user-123');
 
-      expect(results).toHaveLength(3);
-      expect(results[0]).toContain('image1.jpg');
-      expect(results[1]).toContain('image2.jpg');
-      expect(results[2]).toContain('image3.jpg');
+      expect(result.isSuccess()).toBe(true);
+
+      const urls = result.value as string[];
+      expect(urls).toHaveLength(3);
+      expect(urls[0]).toContain('image1.jpg');
+      expect(urls[1]).toContain('image2.jpg');
+      expect(urls[2]).toContain('image3.jpg');
     });
 
     it('should call S3 send for each file', async () => {
@@ -185,18 +195,20 @@ describe('S3Service', () => {
     });
 
     it('should handle empty file array', async () => {
-      const results = await service.uploadFiles([], 'user-123');
+      const result = await service.uploadFiles([], 'user-123');
 
-      expect(results).toEqual([]);
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toEqual([]);
       expect(mockSend).not.toHaveBeenCalled();
     });
 
     it('should handle single file in array', async () => {
       const singleFile = [mockFile];
 
-      const results = await service.uploadFiles(singleFile, 'user-123');
+      const result = await service.uploadFiles(singleFile, 'user-123');
 
-      expect(results).toHaveLength(1);
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toHaveLength(1);
       expect(mockSend).toHaveBeenCalledTimes(1);
     });
 
@@ -208,9 +220,10 @@ describe('S3Service', () => {
           originalname: `image${i}.jpg`,
         }));
 
-      const results = await service.uploadFiles(manyFiles, 'user-123', 5);
+      const result = await service.uploadFiles(manyFiles, 'user-123', 5);
 
-      expect(results).toHaveLength(12);
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toHaveLength(12);
       expect(mockSend).toHaveBeenCalledTimes(12);
     });
 
@@ -222,19 +235,24 @@ describe('S3Service', () => {
           originalname: `image${i}.jpg`,
         }));
 
-      const results = await service.uploadFiles(sixFiles, 'user-123');
+      const result = await service.uploadFiles(sixFiles, 'user-123');
 
-      expect(results).toHaveLength(6);
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toHaveLength(6);
     });
 
-    it('should propagate error if one upload fails', async () => {
+    it('should return error if one upload fails', async () => {
       mockSend
         .mockResolvedValueOnce({})
         .mockRejectedValueOnce(new Error('Upload failed'))
         .mockResolvedValueOnce({});
 
-      await expect(service.uploadFiles(mockFiles, 'user-123')).rejects.toThrow(
-        'Upload failed',
+      const result = await service.uploadFiles(mockFiles, 'user-123');
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toHaveProperty(
+        'message',
+        'Failed to upload file to S3',
       );
     });
   });
@@ -249,8 +267,9 @@ describe('S3Service', () => {
     it('should convert HEIC file to JPEG', async () => {
       const result = await service.uploadFile(heicFile, 'user-123');
 
-      expect(result).toContain('.jpg');
-      expect(result).not.toContain('.heic');
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toContain('.jpg');
+      expect(result.value).not.toContain('.heic');
     });
 
     it('should detect HEIC by mimetype image/heic', async () => {
@@ -328,12 +347,16 @@ describe('S3Service', () => {
       );
     });
 
-    it('should throw error when HEIC conversion fails', async () => {
+    it('should return error when HEIC conversion fails', async () => {
       const heicConvert = jest.requireMock('heic-convert');
       heicConvert.mockRejectedValueOnce(new Error('Conversion failed'));
 
-      await expect(service.uploadFile(heicFile, 'user-123')).rejects.toThrow(
-        'Failed to convert HEIC file: Conversion failed',
+      const result = await service.uploadFile(heicFile, 'user-123');
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toHaveProperty(
+        'message',
+        'Failed to convert HEIC file',
       );
     });
   });
@@ -374,25 +397,28 @@ describe('S3Service', () => {
     it('should handle network errors', async () => {
       mockSend.mockRejectedValueOnce(new Error('Network error'));
 
-      await expect(service.uploadFile(mockFile, 'user-123')).rejects.toThrow(
-        'Network error',
-      );
+      const result = await service.uploadFile(mockFile, 'user-123');
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toHaveProperty('code', 'S3_UPLOAD_ERROR');
     });
 
     it('should handle permission errors', async () => {
       mockSend.mockRejectedValueOnce(new Error('Access Denied'));
 
-      await expect(service.uploadFile(mockFile, 'user-123')).rejects.toThrow(
-        'Access Denied',
-      );
+      const result = await service.uploadFile(mockFile, 'user-123');
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toHaveProperty('code', 'S3_UPLOAD_ERROR');
     });
 
     it('should handle bucket not found errors', async () => {
       mockSend.mockRejectedValueOnce(new Error('NoSuchBucket'));
 
-      await expect(service.uploadFile(mockFile, 'user-123')).rejects.toThrow(
-        'NoSuchBucket',
-      );
+      const result = await service.uploadFile(mockFile, 'user-123');
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toHaveProperty('code', 'S3_UPLOAD_ERROR');
     });
   });
 });

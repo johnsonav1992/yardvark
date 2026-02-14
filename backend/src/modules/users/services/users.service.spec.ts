@@ -1,9 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { UsersService } from '../services/users.service';
 import { S3Service } from 'src/modules/s3/s3.service';
+import { success, error } from '../../../types/either';
+import { S3UploadError } from '../../s3/s3.errors';
 
 describe('UsersService', () => {
   let service: UsersService;
@@ -23,6 +25,7 @@ describe('UsersService', () => {
         AUTH0_BACKEND_CLIENT_ID: 'test-client-id',
         AUTH0_BACKEND_CLIENT_SECRET: 'test-client-secret',
       };
+
       return config[key];
     }),
   };
@@ -77,7 +80,22 @@ describe('UsersService', () => {
           grant_type: 'client_credentials',
         },
       );
-      expect(result).toBe(mockToken);
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toBe(mockToken);
+    });
+
+    it('should return error when Auth0 token request fails', async () => {
+      mockHttpService.post.mockReturnValue(
+        throwError(() => new Error('Auth0 error')),
+      );
+
+      const result = await service.getManagementToken();
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toHaveProperty(
+        'message',
+        'Failed to get Auth0 management token',
+      );
     });
   });
 
@@ -104,7 +122,8 @@ describe('UsersService', () => {
           },
         },
       );
-      expect(result).toEqual(mockResponse.data);
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toEqual(mockResponse.data);
     });
 
     it('should fetch management token before updating user', async () => {
@@ -119,6 +138,32 @@ describe('UsersService', () => {
       expect(mockHttpService.post).toHaveBeenCalledTimes(1);
       expect(mockHttpService.patch).toHaveBeenCalledTimes(1);
     });
+
+    it('should return error when token fetch fails', async () => {
+      mockHttpService.post.mockReturnValue(
+        throwError(() => new Error('Token error')),
+      );
+
+      const result = await service.updateUser('user123', { name: 'Test' });
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toHaveProperty('message', 'Failed to update user');
+    });
+
+    it('should return error when patch request fails', async () => {
+      const mockToken = 'mock-access-token';
+      mockHttpService.post.mockReturnValue(
+        of({ data: { access_token: mockToken } }),
+      );
+      mockHttpService.patch.mockReturnValue(
+        throwError(() => new Error('Patch error')),
+      );
+
+      const result = await service.updateUser('user123', { name: 'Test' });
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toHaveProperty('message', 'Failed to update user');
+    });
   });
 
   describe('updateProfilePicture', () => {
@@ -126,6 +171,7 @@ describe('UsersService', () => {
       buffer: Buffer.from('test-image'),
       originalname: 'test-image.jpg',
       mimetype: 'image/jpeg',
+      size: 1024,
     } as Express.Multer.File;
 
     it('should upload image to S3 and update Auth0 user picture', async () => {
@@ -133,7 +179,7 @@ describe('UsersService', () => {
       const mockS3Url = 'https://bucket.s3.amazonaws.com/profile/test.jpg';
       const mockToken = 'mock-access-token';
 
-      mockS3Service.uploadFile.mockResolvedValue(mockS3Url);
+      mockS3Service.uploadFile.mockResolvedValue(success(mockS3Url));
       mockHttpService.post.mockReturnValue(
         of({ data: { access_token: mockToken } }),
       );
@@ -157,7 +203,8 @@ describe('UsersService', () => {
           headers: { Authorization: `Bearer ${mockToken}` },
         }),
       );
-      expect(result).toEqual({ picture: mockS3Url });
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toEqual({ picture: mockS3Url });
     });
 
     it('should generate unique filename with timestamp', async () => {
@@ -165,7 +212,7 @@ describe('UsersService', () => {
       const mockS3Url = 'https://bucket.s3.amazonaws.com/profile/test.jpg';
       const mockToken = 'mock-access-token';
 
-      mockS3Service.uploadFile.mockResolvedValue(mockS3Url);
+      mockS3Service.uploadFile.mockResolvedValue(success(mockS3Url));
       mockHttpService.post.mockReturnValue(
         of({ data: { access_token: mockToken } }),
       );
@@ -177,6 +224,40 @@ describe('UsersService', () => {
 
       const uploadedFile = mockS3Service.uploadFile.mock.calls[0][0];
       expect(uploadedFile.originalname).toMatch(/^profile-picture-\d+\.jpg$/);
+    });
+
+    it('should return error when S3 upload fails', async () => {
+      const userId = 'auth0|user123';
+
+      mockS3Service.uploadFile.mockResolvedValue(
+        error(new S3UploadError(new Error('S3 failure'))),
+      );
+
+      const result = await service.updateProfilePicture(userId, mockFile);
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toHaveProperty(
+        'message',
+        'Failed to upload profile picture',
+      );
+    });
+
+    it('should return error when user update fails after S3 upload', async () => {
+      const userId = 'auth0|user123';
+      const mockS3Url = 'https://bucket.s3.amazonaws.com/profile/test.jpg';
+
+      mockS3Service.uploadFile.mockResolvedValue(success(mockS3Url));
+      mockHttpService.post.mockReturnValue(
+        throwError(() => new Error('Token error')),
+      );
+
+      const result = await service.updateProfilePicture(userId, mockFile);
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toHaveProperty(
+        'message',
+        'Failed to upload profile picture',
+      );
     });
   });
 });

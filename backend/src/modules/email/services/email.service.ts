@@ -1,9 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
-import { tryCatch } from '../../../utils/tryCatch';
 import { generateFeedbackEmailHtml } from '../helpers/email.helpers';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { Either, error, success } from '../../../types/either';
+import { EmailSendError, EmailNotConfigured } from '../models/email.errors';
 
 export interface FeedbackEmailData {
   name: string;
@@ -30,6 +31,7 @@ export class EmailService {
       this.logger.warn(
         'GMAIL_USER or GMAIL_APP_PASSWORD not configured. Email service will not function.',
       );
+
       return;
     }
 
@@ -44,7 +46,7 @@ export class EmailService {
 
   public async sendFeedbackEmail(
     feedbackData: FeedbackEmailData,
-  ): Promise<boolean> {
+  ): Promise<Either<EmailSendError | EmailNotConfigured, true>> {
     LogHelpers.addBusinessContext('email_operation', 'send_feedback');
     LogHelpers.addBusinessContext('feedback_type', feedbackData.feedbackType);
     LogHelpers.addBusinessContext('from_email', this.gmailUser);
@@ -56,47 +58,44 @@ export class EmailService {
         'Email transporter not initialized. Check GMAIL_USER and GMAIL_APP_PASSWORD.',
       );
 
-      return false;
+      return error(new EmailNotConfigured());
     }
 
     const html = generateFeedbackEmailHtml(feedbackData);
-
     const start = Date.now();
-    const result = await tryCatch(async () => {
-      return await this.transporter!.sendMail({
+
+    try {
+      const result = await this.transporter.sendMail({
         from: `"Yardvark Feedback" <${this.gmailUser}>`,
         to: this.adminEmail,
         replyTo: `"${feedbackData.name}" <${feedbackData.email}>`,
         subject: `Yardvark Feedback from ${feedbackData.name}`,
         html,
       });
-    });
 
-    LogHelpers.recordExternalCall(
-      'gmail_smtp',
-      Date.now() - start,
-      result.success,
-    );
-
-    LogHelpers.addBusinessContext('email_sent', result.success);
-
-    if (result.success) {
-      LogHelpers.addBusinessContext('email_message_id', result.data?.messageId);
+      LogHelpers.recordExternalCall('gmail_smtp', Date.now() - start, true);
+      LogHelpers.addBusinessContext('email_sent', true);
+      LogHelpers.addBusinessContext('email_message_id', result?.messageId);
       this.logger.log('Feedback email sent successfully');
-      return true;
+
+      return success(true as const);
+    } catch (err) {
+      LogHelpers.recordExternalCall('gmail_smtp', Date.now() - start, false);
+      LogHelpers.addBusinessContext('email_sent', false);
+      LogHelpers.addBusinessContext(
+        'email_error_message',
+        (err as Error)?.message,
+      );
+      LogHelpers.addBusinessContext('email_error_code', (err as any)?.code);
+      LogHelpers.addBusinessContext(
+        'email_error_command',
+        (err as any)?.command,
+      );
+      this.logger.error(
+        `Failed to send feedback email: ${(err as Error)?.message}`,
+      );
+
+      return error(new EmailSendError(err));
     }
-
-    const error = result.error;
-
-    LogHelpers.addBusinessContext('email_error_message', error?.message);
-    LogHelpers.addBusinessContext('email_error_code', (error as any)?.code);
-    LogHelpers.addBusinessContext(
-      'email_error_command',
-      (error as any)?.command,
-    );
-
-    this.logger.error(`Failed to send feedback email: ${error?.message}`);
-
-    return false;
   }
 }

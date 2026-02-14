@@ -1,4 +1,4 @@
-import { Injectable, HttpException, HttpStatus, Inject } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -16,6 +16,22 @@ import { StripeService } from './stripe.service';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { Either, error, success } from '../../../types/either';
+import { ResourceError } from '../../../errors/resource-error';
+import {
+  StripeCustomerVerificationError,
+  StripeCustomerCreationError,
+  PriceIdNotConfigured,
+  CheckoutSessionCreationError,
+  CheckoutUrlMissing,
+  SubscriptionNotFound,
+  StripeCustomerNotFound,
+  PortalSessionCreationError,
+  PortalUrlMissing,
+  MissingUserId,
+  MissingPriceId,
+  SubscriptionUpdateError,
+} from '../models/subscription.errors';
 
 export type FeatureAccessResult = {
   allowed: boolean;
@@ -184,226 +200,167 @@ export class SubscriptionService {
     tier: PurchasableTier,
     successUrl: string,
     cancelUrl: string,
-  ): Promise<{ url: string }> {
+  ): Promise<Either<ResourceError, { url: string }>> {
     LogHelpers.addBusinessContext('checkout_operation', 'create_checkout');
     LogHelpers.addBusinessContext('checkout_tier', tier);
     LogHelpers.addBusinessContext('checkout_user_id', userId);
     LogHelpers.addBusinessContext('checkout_user_email', email);
 
-    try {
-      const subscription = await this.getOrCreateSubscription(userId);
-      LogHelpers.addBusinessContext('existing_tier', subscription.tier);
+    const subscription = await this.getOrCreateSubscription(userId);
+    LogHelpers.addBusinessContext('existing_tier', subscription.tier);
 
-      let customerId: string | null = subscription.stripeCustomerId;
+    let customerId: string | null = subscription.stripeCustomerId;
 
-      if (customerId) {
-        LogHelpers.addBusinessContext('existing_customer_id', customerId);
-
-        try {
-          const customer = await this.stripeService.getCustomer(customerId);
-
-          if ('deleted' in customer && customer.deleted) {
-            LogHelpers.addBusinessContext('stripe_customer_deleted', true);
-            customerId = null;
-            this.clearStripeCustomer(subscription);
-          }
-        } catch (error) {
-          LogHelpers.addBusinessContext('customer_lookup_error', error.message);
-          LogHelpers.addBusinessContext('customer_error_code', error.code);
-
-          if (error.code === 'resource_missing') {
-            LogHelpers.addBusinessContext('stripe_customer_missing', true);
-            customerId = null;
-            this.clearStripeCustomer(subscription);
-          } else {
-            throw new HttpException(
-              `Failed to verify Stripe customer: ${error.message}`,
-              HttpStatus.INTERNAL_SERVER_ERROR,
-            );
-          }
-        }
-      }
-
-      if (!customerId) {
-        LogHelpers.addBusinessContext('creating_new_customer', true);
-
-        try {
-          const customer = await this.stripeService.createCustomer(
-            userId,
-            email,
-            name,
-          );
-
-          customerId = customer.id;
-          subscription.stripeCustomerId = customerId;
-
-          await LogHelpers.withDatabaseTelemetry(() =>
-            this.subscriptionRepo.save(subscription),
-          );
-
-          await this.invalidateCache(userId);
-
-          LogHelpers.addBusinessContext('stripe_customer_created', true);
-          LogHelpers.addBusinessContext('new_customer_id', customerId);
-        } catch (error) {
-          LogHelpers.addBusinessContext(
-            'customer_creation_error',
-            error.message,
-          );
-
-          throw new HttpException(
-            `Failed to create Stripe customer: ${error.message}`,
-            HttpStatus.INTERNAL_SERVER_ERROR,
-          );
-        }
-      }
-
-      const priceId =
-        tier === 'monthly'
-          ? this.configService.get<string>('STRIPE_MONTHLY_PRICE_ID')
-          : this.configService.get<string>('STRIPE_YEARLY_PRICE_ID');
-
-      if (!priceId) {
-        LogHelpers.addBusinessContext('price_id_missing', true);
-        LogHelpers.addBusinessContext('requested_tier', tier);
-
-        throw new HttpException(
-          `Price ID not configured for tier: ${tier}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-
-      LogHelpers.addBusinessContext('price_id', priceId);
+    if (customerId) {
+      LogHelpers.addBusinessContext('existing_customer_id', customerId);
 
       try {
-        const session = await this.stripeService.createCheckoutSession(
-          customerId,
-          priceId,
+        const customer = await this.stripeService.getCustomer(customerId);
+
+        if ('deleted' in customer && customer.deleted) {
+          LogHelpers.addBusinessContext('stripe_customer_deleted', true);
+          customerId = null;
+          this.clearStripeCustomer(subscription);
+        }
+      } catch (err) {
+        LogHelpers.addBusinessContext('customer_lookup_error', err.message);
+        LogHelpers.addBusinessContext('customer_error_code', err.code);
+
+        if (err.code === 'resource_missing') {
+          LogHelpers.addBusinessContext('stripe_customer_missing', true);
+          customerId = null;
+          this.clearStripeCustomer(subscription);
+        } else {
+          return error(new StripeCustomerVerificationError(err));
+        }
+      }
+    }
+
+    if (!customerId) {
+      LogHelpers.addBusinessContext('creating_new_customer', true);
+
+      try {
+        const customer = await this.stripeService.createCustomer(
           userId,
-          successUrl,
-          cancelUrl,
+          email,
+          name,
         );
 
-        if (!session.url) {
-          LogHelpers.addBusinessContext('checkout_missing_url', true);
-          LogHelpers.addBusinessContext('session_id', session.id);
+        customerId = customer.id;
+        subscription.stripeCustomerId = customerId;
 
-          throw new HttpException(
-            'Checkout session created but missing URL',
-            HttpStatus.INTERNAL_SERVER_ERROR,
-          );
-        }
+        await LogHelpers.withDatabaseTelemetry(() =>
+          this.subscriptionRepo.save(subscription),
+        );
 
-        LogHelpers.addBusinessContext('checkout_session_created', true);
+        await this.invalidateCache(userId);
+
+        LogHelpers.addBusinessContext('stripe_customer_created', true);
+        LogHelpers.addBusinessContext('new_customer_id', customerId);
+      } catch (err) {
+        LogHelpers.addBusinessContext('customer_creation_error', err.message);
+
+        return error(new StripeCustomerCreationError(err));
+      }
+    }
+
+    const priceId =
+      tier === 'monthly'
+        ? this.configService.get<string>('STRIPE_MONTHLY_PRICE_ID')
+        : this.configService.get<string>('STRIPE_YEARLY_PRICE_ID');
+
+    if (!priceId) {
+      LogHelpers.addBusinessContext('price_id_missing', true);
+      LogHelpers.addBusinessContext('requested_tier', tier);
+
+      return error(new PriceIdNotConfigured(tier));
+    }
+
+    LogHelpers.addBusinessContext('price_id', priceId);
+
+    try {
+      const session = await this.stripeService.createCheckoutSession(
+        customerId,
+        priceId,
+        userId,
+        successUrl,
+        cancelUrl,
+      );
+
+      if (!session.url) {
+        LogHelpers.addBusinessContext('checkout_missing_url', true);
         LogHelpers.addBusinessContext('session_id', session.id);
 
-        return { url: session.url };
-      } catch (error) {
-        LogHelpers.addBusinessContext('checkout_creation_error', error.message);
-        LogHelpers.addBusinessContext('customer_id', customerId);
-
-        throw new HttpException(
-          `Failed to create checkout session: ${error.message}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
+        return error(new CheckoutUrlMissing());
       }
 
-      LogHelpers.addBusinessContext('checkout_unexpected_error', error.message);
+      LogHelpers.addBusinessContext('checkout_session_created', true);
+      LogHelpers.addBusinessContext('session_id', session.id);
 
-      throw new HttpException(
-        `Unexpected error during checkout: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      return success({ url: session.url });
+    } catch (err) {
+      LogHelpers.addBusinessContext('checkout_creation_error', err.message);
+      LogHelpers.addBusinessContext('customer_id', customerId);
+
+      return error(new CheckoutSessionCreationError(err));
     }
   }
 
   public async createPortalSession(
     userId: string,
     returnUrl: string,
-  ): Promise<{ url: string }> {
+  ): Promise<Either<ResourceError, { url: string }>> {
     LogHelpers.addBusinessContext('portal_operation', 'create_portal');
     LogHelpers.addBusinessContext('portal_user_id', userId);
 
+    const subscription = await LogHelpers.withDatabaseTelemetry(() =>
+      this.subscriptionRepo.findOne({
+        where: { userId },
+      }),
+    );
+
+    if (!subscription) {
+      LogHelpers.addBusinessContext('portal_session_failed', true);
+      LogHelpers.addBusinessContext('reason', 'no_subscription_record');
+
+      return error(new SubscriptionNotFound());
+    }
+
+    if (!subscription.stripeCustomerId) {
+      LogHelpers.addBusinessContext('portal_session_failed', true);
+      LogHelpers.addBusinessContext('reason', 'no_stripe_customer');
+      LogHelpers.addBusinessContext('subscription_tier', subscription.tier);
+
+      return error(new StripeCustomerNotFound());
+    }
+
+    LogHelpers.addBusinessContext('customer_id', subscription.stripeCustomerId);
+
     try {
-      const subscription = await LogHelpers.withDatabaseTelemetry(() =>
-        this.subscriptionRepo.findOne({
-          where: { userId },
-        }),
-      );
-
-      if (!subscription) {
-        LogHelpers.addBusinessContext('portal_session_failed', true);
-        LogHelpers.addBusinessContext('reason', 'no_subscription_record');
-
-        throw new HttpException(
-          'No subscription record found for user',
-          HttpStatus.NOT_FOUND,
-        );
-      }
-
-      if (!subscription.stripeCustomerId) {
-        LogHelpers.addBusinessContext('portal_session_failed', true);
-        LogHelpers.addBusinessContext('reason', 'no_stripe_customer');
-        LogHelpers.addBusinessContext('subscription_tier', subscription.tier);
-
-        throw new HttpException(
-          'No Stripe customer associated with subscription',
-          HttpStatus.NOT_FOUND,
-        );
-      }
-
-      LogHelpers.addBusinessContext(
-        'customer_id',
+      const session = await this.stripeService.createPortalSession(
         subscription.stripeCustomerId,
+        returnUrl,
       );
 
-      try {
-        const session = await this.stripeService.createPortalSession(
-          subscription.stripeCustomerId,
-          returnUrl,
-        );
+      if (!session.url) {
+        LogHelpers.addBusinessContext('portal_missing_url', true);
 
-        if (!session.url) {
-          LogHelpers.addBusinessContext('portal_missing_url', true);
-
-          throw new HttpException(
-            'Portal session created but missing URL',
-            HttpStatus.INTERNAL_SERVER_ERROR,
-          );
-        }
-
-        LogHelpers.addBusinessContext('portal_session_created', true);
-
-        return { url: session.url };
-      } catch (error) {
-        LogHelpers.addBusinessContext('portal_creation_error', error.message);
-
-        throw new HttpException(
-          `Failed to create portal session: ${error.message}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-    } catch (error) {
-      if (error instanceof HttpException) {
-        throw error;
+        return error(new PortalUrlMissing());
       }
 
-      LogHelpers.addBusinessContext('portal_unexpected_error', error.message);
+      LogHelpers.addBusinessContext('portal_session_created', true);
 
-      throw new HttpException(
-        `Unexpected error creating portal session: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      return success({ url: session.url });
+    } catch (err) {
+      LogHelpers.addBusinessContext('portal_creation_error', err.message);
+
+      return error(new PortalSessionCreationError(err));
     }
   }
 
   public async handleSubscriptionUpdate(
     stripeSubscription: Stripe.Subscription,
-  ): Promise<void> {
+  ): Promise<Either<ResourceError, void>> {
     LogHelpers.addBusinessContext('webhook_operation', 'subscription_update');
     LogHelpers.addBusinessContext(
       'stripe_subscription_id',
@@ -420,7 +377,7 @@ export class SubscriptionService {
         JSON.stringify(stripeSubscription.metadata),
       );
 
-      throw new Error('Webhook missing userId in subscription metadata');
+      return error(new MissingUserId());
     }
 
     LogHelpers.addBusinessContext('webhook_user_id', userId);
@@ -439,7 +396,7 @@ export class SubscriptionService {
           stripeSubscription.items.data.length,
         );
 
-        throw new Error('Subscription missing price ID');
+        return error(new MissingPriceId());
       }
 
       LogHelpers.addBusinessContext('stripe_price_id', priceId);
@@ -470,16 +427,18 @@ export class SubscriptionService {
         'cancel_at_period_end',
         subscription.cancelAtPeriodEnd,
       );
-    } catch (error) {
-      LogHelpers.addBusinessContext('subscription_update_error', error.message);
 
-      throw error;
+      return success(undefined);
+    } catch (err) {
+      LogHelpers.addBusinessContext('subscription_update_error', err.message);
+
+      return error(new SubscriptionUpdateError(err));
     }
   }
 
   public async handleSubscriptionDeleted(
     stripeSubscription: Stripe.Subscription,
-  ): Promise<void> {
+  ): Promise<Either<ResourceError, void>> {
     LogHelpers.addBusinessContext('webhook_operation', 'subscription_deleted');
     LogHelpers.addBusinessContext(
       'stripe_subscription_id',
@@ -495,7 +454,7 @@ export class SubscriptionService {
         JSON.stringify(stripeSubscription.metadata),
       );
 
-      throw new Error('Webhook missing userId in subscription metadata');
+      return error(new MissingUserId());
     }
 
     LogHelpers.addBusinessContext('webhook_user_id', userId);
@@ -514,9 +473,7 @@ export class SubscriptionService {
         );
         LogHelpers.addBusinessContext('user_id', userId);
 
-        throw new Error(
-          `No subscription found for user ${userId} during deletion`,
-        );
+        return error(new SubscriptionNotFound());
       }
 
       LogHelpers.addBusinessContext('previous_tier', subscription.tier);
@@ -533,10 +490,12 @@ export class SubscriptionService {
       await this.invalidateCache(userId);
 
       LogHelpers.addBusinessContext('subscription_canceled', true);
-    } catch (error) {
-      LogHelpers.addBusinessContext('subscription_delete_error', error.message);
 
-      throw error;
+      return success(undefined);
+    } catch (err) {
+      LogHelpers.addBusinessContext('subscription_delete_error', err.message);
+
+      return error(new SubscriptionUpdateError(err));
     }
   }
 
@@ -584,7 +543,10 @@ export class SubscriptionService {
     return { allowed: true };
   }
 
-  public async incrementUsage(userId: string, feature: string): Promise<void> {
+  public async incrementUsage(
+    userId: string,
+    feature: string,
+  ): Promise<Either<ResourceError, void>> {
     LogHelpers.addBusinessContext('usage_operation', 'increment');
     LogHelpers.addBusinessContext('user_id', userId);
     LogHelpers.addBusinessContext('feature', feature);
@@ -631,10 +593,19 @@ export class SubscriptionService {
         LogHelpers.addBusinessContext('usage_created', true);
         LogHelpers.addBusinessContext('new_usage_count', 1);
       }
-    } catch (error) {
-      LogHelpers.addBusinessContext('usage_increment_error', error.message);
 
-      throw error;
+      return success(undefined);
+    } catch (err) {
+      LogHelpers.addBusinessContext('usage_increment_error', err.message);
+
+      return error(
+        new ResourceError({
+          message: `Failed to increment usage: ${err.message}`,
+          code: 'USAGE_INCREMENT_ERROR',
+          statusCode: 500,
+          error: err,
+        }),
+      );
     }
   }
 }

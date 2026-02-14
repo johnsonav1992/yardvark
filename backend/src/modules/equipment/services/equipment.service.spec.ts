@@ -1,9 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { EquipmentService } from './equipment.service';
 import { Equipment } from '../models/equipment.model';
 import { EquipmentMaintenance } from '../models/equipmentMaintenance.model';
+import {
+  EquipmentNotFound,
+  MaintenanceRecordNotFound,
+} from '../models/equipment.errors';
 
 describe('EquipmentService', () => {
   let service: EquipmentService;
@@ -165,17 +168,19 @@ describe('EquipmentService', () => {
           updatedAt: expect.any(Date),
         }),
       );
-      expect(result.name).toBe('Updated Name');
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toEqual(
+        expect.objectContaining({ name: 'Updated Name' }),
+      );
     });
 
-    it('should throw NOT_FOUND when equipment does not exist', async () => {
+    it('should return EquipmentNotFound when equipment does not exist', async () => {
       mockEquipmentRepository.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.updateEquipment(999, { name: 'Test' }),
-      ).rejects.toThrow(
-        new HttpException('Equipment not found', HttpStatus.NOT_FOUND),
-      );
+      const result = await service.updateEquipment(999, { name: 'Test' });
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toBeInstanceOf(EquipmentNotFound);
     });
   });
 
@@ -190,11 +195,12 @@ describe('EquipmentService', () => {
         isActive: false,
       });
 
-      await service.toggleEquipmentArchiveStatus(1, false);
+      const result = await service.toggleEquipmentArchiveStatus(1, false);
 
       expect(mockEquipmentRepository.save).toHaveBeenCalledWith(
         expect.objectContaining({ isActive: false }),
       );
+      expect(result.isSuccess()).toBe(true);
     });
 
     it('should unarchive equipment (set isActive to true)', async () => {
@@ -207,21 +213,21 @@ describe('EquipmentService', () => {
         isActive: true,
       });
 
-      await service.toggleEquipmentArchiveStatus(1, true);
+      const result = await service.toggleEquipmentArchiveStatus(1, true);
 
       expect(mockEquipmentRepository.save).toHaveBeenCalledWith(
         expect.objectContaining({ isActive: true }),
       );
+      expect(result.isSuccess()).toBe(true);
     });
 
-    it('should throw NOT_FOUND when equipment does not exist', async () => {
+    it('should return EquipmentNotFound when equipment does not exist', async () => {
       mockEquipmentRepository.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.toggleEquipmentArchiveStatus(999, false),
-      ).rejects.toThrow(
-        new HttpException('Equipment not found', HttpStatus.NOT_FOUND),
-      );
+      const result = await service.toggleEquipmentArchiveStatus(999, false);
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toBeInstanceOf(EquipmentNotFound);
     });
   });
 
@@ -246,17 +252,19 @@ describe('EquipmentService', () => {
         ...maintenanceData,
         equipment: { id: 1 },
       });
-      expect(result).toEqual(mockMaintenanceRecord);
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toEqual(mockMaintenanceRecord);
     });
 
-    it('should throw NOT_FOUND when equipment does not exist', async () => {
+    it('should return EquipmentNotFound when equipment does not exist', async () => {
       mockEquipmentRepository.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.createMaintenanceRecord(999, { notes: 'Test maintenance' }),
-      ).rejects.toThrow(
-        new HttpException('Equipment not found', HttpStatus.NOT_FOUND),
-      );
+      const result = await service.createMaintenanceRecord(999, {
+        notes: 'Test maintenance',
+      });
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toBeInstanceOf(EquipmentNotFound);
     });
   });
 
@@ -282,17 +290,21 @@ describe('EquipmentService', () => {
           updatedAt: expect.any(Date),
         }),
       );
-      expect(result.notes).toBe('Updated notes');
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toEqual(
+        expect.objectContaining({ notes: 'Updated notes' }),
+      );
     });
 
-    it('should throw NOT_FOUND when maintenance record does not exist', async () => {
+    it('should return MaintenanceRecordNotFound when maintenance record does not exist', async () => {
       mockMaintenanceRepository.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.updateMaintenanceRecord(999, { notes: 'Test' }),
-      ).rejects.toThrow(
-        new HttpException('Maintenance record not found', HttpStatus.NOT_FOUND),
-      );
+      const result = await service.updateMaintenanceRecord(999, {
+        notes: 'Test',
+      });
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toBeInstanceOf(MaintenanceRecordNotFound);
     });
   });
 
@@ -301,17 +313,19 @@ describe('EquipmentService', () => {
       mockEquipmentRepository.findOne.mockResolvedValue(mockEquipment);
       mockEquipmentRepository.softDelete.mockResolvedValue({ affected: 1 });
 
-      await service.deleteEquipment(1);
+      const result = await service.deleteEquipment(1);
 
       expect(mockEquipmentRepository.softDelete).toHaveBeenCalledWith(1);
+      expect(result.isSuccess()).toBe(true);
     });
 
-    it('should throw NOT_FOUND when equipment does not exist', async () => {
+    it('should return EquipmentNotFound when equipment does not exist', async () => {
       mockEquipmentRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.deleteEquipment(999)).rejects.toThrow(
-        new HttpException('Equipment not found', HttpStatus.NOT_FOUND),
-      );
+      const result = await service.deleteEquipment(999);
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toBeInstanceOf(EquipmentNotFound);
     });
   });
 
@@ -322,17 +336,19 @@ describe('EquipmentService', () => {
       );
       mockMaintenanceRepository.softDelete.mockResolvedValue({ affected: 1 });
 
-      await service.deleteMaintenanceRecord(1);
+      const result = await service.deleteMaintenanceRecord(1);
 
       expect(mockMaintenanceRepository.softDelete).toHaveBeenCalledWith(1);
+      expect(result.isSuccess()).toBe(true);
     });
 
-    it('should throw NOT_FOUND when maintenance record does not exist', async () => {
+    it('should return MaintenanceRecordNotFound when maintenance record does not exist', async () => {
       mockMaintenanceRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.deleteMaintenanceRecord(999)).rejects.toThrow(
-        new HttpException('Maintenance record not found', HttpStatus.NOT_FOUND),
-      );
+      const result = await service.deleteMaintenanceRecord(999);
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toBeInstanceOf(MaintenanceRecordNotFound);
     });
   });
 });

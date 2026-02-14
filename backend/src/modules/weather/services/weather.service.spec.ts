@@ -10,7 +10,6 @@ import {
 } from '../models/weather.types';
 import { of, throwError } from 'rxjs';
 import { AxiosResponse } from 'axios';
-import * as tryCatchModule from '../../../utils/tryCatch';
 
 describe('WeatherService', () => {
   let service: WeatherService;
@@ -204,6 +203,7 @@ describe('WeatherService', () => {
 
       const result = await service.getWeatherData('32.7767', '-96.7970');
 
+      expect(result.isSuccess()).toBe(true);
       expect(mockHttpService.get).toHaveBeenCalledTimes(2);
       expect(mockHttpService.get).toHaveBeenNthCalledWith(
         1,
@@ -213,7 +213,7 @@ describe('WeatherService', () => {
         2,
         'https://api.weather.gov/gridpoints/FWD/80,110/forecast',
       );
-      expect(result).toEqual(mockForecastResponse);
+      expect(result.value).toEqual(mockForecastResponse);
     });
 
     it('should handle different coordinate formats', async () => {
@@ -295,13 +295,17 @@ describe('WeatherService', () => {
 
       const result = await service.getWeatherData('32.7767', '-96.7970');
 
-      expect(result.properties.periods).toHaveLength(3);
-      expect(result.properties.periods[0].name).toBe('Today');
-      expect(result.properties.periods[1].name).toBe('Tonight');
-      expect(result.properties.periods[2].name).toBe('Tomorrow');
+      expect(result.isSuccess()).toBe(true);
+
+      if (result.isSuccess()) {
+        expect(result.value.properties.periods).toHaveLength(3);
+        expect(result.value.properties.periods[0].name).toBe('Today');
+        expect(result.value.properties.periods[1].name).toBe('Tonight');
+        expect(result.value.properties.periods[2].name).toBe('Tomorrow');
+      }
     });
 
-    it('should throw error when forecast URL is missing from points response', async () => {
+    it('should return error when forecast URL is missing from points response', async () => {
       const pointsResponseWithoutForecast: WeatherDotGovPointsResponse = {
         ...mockPointsResponse,
         properties: {
@@ -320,24 +324,30 @@ describe('WeatherService', () => {
 
       mockHttpService.get.mockReturnValueOnce(of(pointsAxiosResponse));
 
-      await expect(
-        service.getWeatherData('32.7767', '-96.7970'),
-      ).rejects.toThrow(
-        'Failed to fetch weather data: Forecast URL not found in response',
+      const result = await service.getWeatherData('32.7767', '-96.7970');
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toHaveProperty(
+        'message',
+        'Failed to fetch weather data',
       );
     });
 
-    it('should throw error when points API call fails', async () => {
+    it('should return error when points API call fails', async () => {
       mockHttpService.get.mockReturnValueOnce(
         throwError(() => new Error('Points API error')),
       );
 
-      await expect(
-        service.getWeatherData('32.7767', '-96.7970'),
-      ).rejects.toThrow('Failed to fetch weather data: Points API error');
+      const result = await service.getWeatherData('32.7767', '-96.7970');
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toHaveProperty(
+        'message',
+        'Failed to fetch weather data',
+      );
     });
 
-    it('should throw error when forecast API call fails', async () => {
+    it('should return error when forecast API call fails', async () => {
       const pointsAxiosResponse: AxiosResponse<WeatherDotGovPointsResponse> = {
         data: mockPointsResponse,
         status: 200,
@@ -350,9 +360,13 @@ describe('WeatherService', () => {
         .mockReturnValueOnce(of(pointsAxiosResponse))
         .mockReturnValueOnce(throwError(() => new Error('Forecast API error')));
 
-      await expect(
-        service.getWeatherData('32.7767', '-96.7970'),
-      ).rejects.toThrow('Failed to fetch weather data: Forecast API error');
+      const result = await service.getWeatherData('32.7767', '-96.7970');
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toHaveProperty(
+        'message',
+        'Failed to fetch weather data',
+      );
     });
 
     it('should handle network timeout errors', async () => {
@@ -360,10 +374,12 @@ describe('WeatherService', () => {
         throwError(() => new Error('timeout of 5000ms exceeded')),
       );
 
-      await expect(
-        service.getWeatherData('32.7767', '-96.7970'),
-      ).rejects.toThrow(
-        'Failed to fetch weather data: timeout of 5000ms exceeded',
+      const result = await service.getWeatherData('32.7767', '-96.7970');
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toHaveProperty(
+        'message',
+        'Failed to fetch weather data',
       );
     });
 
@@ -372,35 +388,13 @@ describe('WeatherService', () => {
         throwError(() => new Error('Invalid point coordinates')),
       );
 
-      await expect(
-        service.getWeatherData('invalid', 'coordinates'),
-      ).rejects.toThrow(
-        'Failed to fetch weather data: Invalid point coordinates',
+      const result = await service.getWeatherData('invalid', 'coordinates');
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toHaveProperty(
+        'message',
+        'Failed to fetch weather data',
       );
-    });
-
-    it('should handle non-Error objects in tryCatch', async () => {
-      jest.spyOn(tryCatchModule, 'tryCatch').mockResolvedValueOnce({
-        success: false,
-        data: null,
-        error: { message: undefined } as unknown as Error,
-      });
-
-      await expect(
-        service.getWeatherData('32.7767', '-96.7970'),
-      ).rejects.toThrow('Failed to fetch weather data: undefined');
-    });
-
-    it('should handle empty forecast data', async () => {
-      jest.spyOn(tryCatchModule, 'tryCatch').mockResolvedValueOnce({
-        success: false,
-        data: null,
-        error: new Error('Empty forecast data'),
-      });
-
-      await expect(
-        service.getWeatherData('32.7767', '-96.7970'),
-      ).rejects.toThrow('Failed to fetch weather data: Empty forecast data');
     });
 
     it('should handle malformed points response', async () => {
@@ -419,9 +413,13 @@ describe('WeatherService', () => {
 
       mockHttpService.get.mockReturnValueOnce(of(pointsAxiosResponse));
 
-      await expect(
-        service.getWeatherData('32.7767', '-96.7970'),
-      ).rejects.toThrow('Failed to fetch weather data:');
+      const result = await service.getWeatherData('32.7767', '-96.7970');
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toHaveProperty(
+        'message',
+        'Failed to fetch weather data',
+      );
     });
 
     it('should handle edge case coordinates', async () => {
@@ -494,9 +492,13 @@ describe('WeatherService', () => {
 
       const result = await service.getWeatherData('32.7767', '-96.7970');
 
-      expect(
-        result.properties.periods[0].probabilityOfPrecipitation.value,
-      ).toBeNull();
+      expect(result.isSuccess()).toBe(true);
+
+      if (result.isSuccess()) {
+        expect(
+          result.value.properties.periods[0].probabilityOfPrecipitation.value,
+        ).toBeNull();
+      }
     });
 
     it('should return cached data on cache hit', async () => {
@@ -504,11 +506,12 @@ describe('WeatherService', () => {
 
       const result = await service.getWeatherData('32.7767', '-96.7970');
 
+      expect(result.isSuccess()).toBe(true);
       expect(mockCacheManager.get).toHaveBeenCalledWith(
         'weather:forecast:32.7767:-96.7970',
       );
       expect(mockHttpService.get).not.toHaveBeenCalled();
-      expect(result).toEqual(mockForecastResponse);
+      expect(result.value).toEqual(mockForecastResponse);
     });
 
     it('should cache data after fetching from API', async () => {
@@ -586,7 +589,8 @@ describe('WeatherService', () => {
       const result =
         await service.getHistoricalAirTemperatures(historicalParams);
 
-      expect(result).toEqual([
+      expect(result.isSuccess()).toBe(true);
+      expect(result.value).toEqual([
         { date: '2024-06-01', maxTemp: 95.2, minTemp: 72.5 },
         { date: '2024-06-02', maxTemp: 92.8, minTemp: 74.1 },
         { date: '2024-06-03', maxTemp: 89.6, minTemp: 71.3 },
@@ -639,11 +643,12 @@ describe('WeatherService', () => {
       const result =
         await service.getHistoricalAirTemperatures(historicalParams);
 
+      expect(result.isSuccess()).toBe(true);
       expect(mockCacheManager.get).toHaveBeenCalledWith(
         'weather:historical:32.7767:-96.797:2024-06-01:2024-06-03:fahrenheit',
       );
       expect(mockHttpService.get).not.toHaveBeenCalled();
-      expect(result).toEqual(cachedData);
+      expect(result.value).toEqual(cachedData);
     });
 
     it('should cache data after fetching from API', async () => {
@@ -670,15 +675,18 @@ describe('WeatherService', () => {
       );
     });
 
-    it('should throw error when API call fails', async () => {
+    it('should return error when API call fails', async () => {
       mockHttpService.get.mockReturnValueOnce(
         throwError(() => new Error('Open-Meteo API error')),
       );
 
-      await expect(
-        service.getHistoricalAirTemperatures(historicalParams),
-      ).rejects.toThrow(
-        'Failed to fetch historical temperatures: Open-Meteo API error',
+      const result =
+        await service.getHistoricalAirTemperatures(historicalParams);
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toHaveProperty(
+        'message',
+        'Failed to fetch historical temperatures',
       );
     });
 
@@ -712,10 +720,11 @@ describe('WeatherService', () => {
         temperatureUnit: 'celsius',
       });
 
+      expect(result.isSuccess()).toBe(true);
       expect(mockHttpService.get).toHaveBeenCalledWith(
         expect.stringContaining('temperature_unit=celsius'),
       );
-      expect(result).toEqual([
+      expect(result.value).toEqual([
         { date: '2024-06-01', maxTemp: 35.1, minTemp: 22.5 },
       ]);
     });

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   BatchEntryCreationRequest,
   BatchEntryCreationResponse,
@@ -18,6 +18,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { getEntryResponseMapping } from '../utils/entryUtils';
 import { ACTIVITY_IDS } from 'src/constants/activities.constants';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { Either, error, success } from '../../../types/either';
+import { EntriesNotFound, EntryNotFound } from '../models/entries.errors';
 
 @Injectable()
 export class EntriesService {
@@ -34,7 +36,9 @@ export class EntriesService {
     userId: string,
     startDate?: string,
     endDate?: string,
-  ) {
+  ): Promise<
+    Either<EntriesNotFound, ReturnType<typeof getEntryResponseMapping>[]>
+  > {
     const entries = await LogHelpers.withDatabaseTelemetry(() =>
       this._entriesRepo.find({
         where: {
@@ -56,15 +60,19 @@ export class EntriesService {
     );
 
     if (!entries) {
-      throw new HttpException('Entries not found', HttpStatus.NOT_FOUND);
+      return error(new EntriesNotFound());
     }
 
     LogHelpers.addBusinessContext('entriesReturned', entries.length);
 
-    return entries.map((entry) => getEntryResponseMapping(entry));
+    return success(entries.map((entry) => getEntryResponseMapping(entry)));
   }
 
-  public async getEntry(entryId: number) {
+  public async getEntry(
+    entryId: number,
+  ): Promise<
+    Either<EntryNotFound, ReturnType<typeof getEntryResponseMapping>>
+  > {
     LogHelpers.addBusinessContext('entryId', entryId);
 
     const entry = await LogHelpers.withDatabaseTelemetry(() =>
@@ -82,13 +90,18 @@ export class EntriesService {
     );
 
     if (!entry) {
-      throw new HttpException('Entry not found', HttpStatus.NOT_FOUND);
+      return error(new EntryNotFound());
     }
 
-    return getEntryResponseMapping(entry);
+    return success(getEntryResponseMapping(entry));
   }
 
-  public async getEntryByDate(userId: string, date: string) {
+  public async getEntryByDate(
+    userId: string,
+    date: string,
+  ): Promise<
+    Either<EntryNotFound, ReturnType<typeof getEntryResponseMapping>>
+  > {
     const entry = await this._entriesRepo.findOne({
       where: { userId, date: new Date(date) },
       relations: {
@@ -102,10 +115,10 @@ export class EntriesService {
     });
 
     if (!entry) {
-      throw new HttpException('Entry not found', HttpStatus.NOT_FOUND);
+      return error(new EntryNotFound());
     }
 
-    return getEntryResponseMapping(entry);
+    return success(getEntryResponseMapping(entry));
   }
 
   public async getMostRecentEntry(userId: string) {
@@ -262,7 +275,7 @@ export class EntriesService {
   public async updateEntry(
     entryId: number,
     entry: Partial<EntryCreationRequest>,
-  ) {
+  ): Promise<Either<EntryNotFound, Entry>> {
     LogHelpers.addBusinessContext('entryId', entryId);
 
     const entryToUpdate = await this._entriesRepo.findOne({
@@ -276,7 +289,7 @@ export class EntriesService {
     });
 
     if (!entryToUpdate) {
-      throw new HttpException('Entry not found', HttpStatus.NOT_FOUND);
+      return error(new EntryNotFound());
     }
 
     entryToUpdate.lawnSegments = [];
@@ -308,10 +321,12 @@ export class EntriesService {
 
     await this._entriesRepo.save(updatedEntry);
 
-    return updatedEntry;
+    return success(updatedEntry);
   }
 
-  public async softDeleteEntry(entryId: number) {
+  public async softDeleteEntry(
+    entryId: number,
+  ): Promise<Either<EntryNotFound, void>> {
     LogHelpers.addBusinessContext('entryId', entryId);
 
     const entry = await this._entriesRepo.findOne({
@@ -319,11 +334,13 @@ export class EntriesService {
     });
 
     if (!entry) {
-      throw new HttpException('Entry not found', HttpStatus.NOT_FOUND);
+      return error(new EntryNotFound());
     }
 
     await this._entriesRepo.softDelete(entryId);
     LogHelpers.addBusinessContext('entryDeleted', true);
+
+    return success(undefined);
   }
 
   public async recoverEntry(entryId: number) {

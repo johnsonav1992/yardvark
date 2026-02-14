@@ -3,8 +3,6 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   Post,
   Put,
@@ -18,9 +16,9 @@ import { EquipmentService } from '../services/equipment.service';
 import { Equipment } from '../models/equipment.model';
 import { imageFileValidator } from 'src/utils/fileUtils';
 import { S3Service } from 'src/modules/s3/s3.service';
-import { tryCatch } from 'src/utils/tryCatch';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { EquipmentMaintenance } from '../models/equipmentMaintenance.model';
+import { unwrapResult } from '../../../utils/unwrapResult';
 
 @Controller('equipment')
 export class EquipmentController {
@@ -45,21 +43,12 @@ export class EquipmentController {
   ) {
     const userId = req.user.userId;
 
-    let imageUrl: string | undefined = undefined;
+    let imageUrl: string | undefined;
 
     if (file) {
-      const { data, error } = await tryCatch(() =>
-        this._s3Service.uploadFile(file, req.user.userId),
+      imageUrl = unwrapResult(
+        await this._s3Service.uploadFile(file, req.user.userId),
       );
-
-      imageUrl = data || undefined;
-
-      if (error) {
-        throw new HttpException(
-          `Error uploading file to S3 - ${error.message}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
     }
 
     return this._equipmentService.createEquipment(userId, {
@@ -76,71 +65,75 @@ export class EquipmentController {
     @UploadedFile(imageFileValidator()) file: Express.Multer.File,
     @Body() equipmentData: Partial<Equipment>,
   ) {
-    let imageUrl: string | undefined = undefined;
+    let imageUrl: string | undefined;
 
     if (file) {
-      const { data, error } = await tryCatch(() =>
-        this._s3Service.uploadFile(file, req.user.userId),
+      imageUrl = unwrapResult(
+        await this._s3Service.uploadFile(file, req.user.userId),
       );
-
-      imageUrl = data || undefined;
-
-      if (error) {
-        throw new HttpException(
-          `Error uploading file to S3 - ${error.message}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
     }
 
-    return this._equipmentService.updateEquipment(equipmentId, {
+    const result = await this._equipmentService.updateEquipment(equipmentId, {
       ...equipmentData,
       imageUrl,
     });
+
+    return unwrapResult(result);
   }
 
   @Put(':equipmentId')
-  public toggleEquipmentArchiveStatus(
+  public async toggleEquipmentArchiveStatus(
     @Param('equipmentId') equipmentId: number,
     @Query('isActive') isActive: boolean,
   ) {
-    return this._equipmentService.toggleEquipmentArchiveStatus(
+    const result = await this._equipmentService.toggleEquipmentArchiveStatus(
       equipmentId,
       isActive,
     );
+
+    return unwrapResult(result);
   }
 
   @Post(':equipmentId/maintenance')
-  public createMaintenanceRecord(
+  public async createMaintenanceRecord(
     @Param('equipmentId') equipmentId: number,
     @Body() maintenanceData: Partial<EquipmentMaintenance>,
   ) {
-    return this._equipmentService.createMaintenanceRecord(
+    const result = await this._equipmentService.createMaintenanceRecord(
       equipmentId,
       maintenanceData,
     );
+
+    return unwrapResult(result);
   }
 
   @Put('maintenance/:maintenanceId')
-  public updateMaintenanceRecord(
+  public async updateMaintenanceRecord(
     @Param('maintenanceId') maintenanceId: number,
     @Body() maintenanceData: Partial<EquipmentMaintenance>,
   ) {
-    return this._equipmentService.updateMaintenanceRecord(
+    const result = await this._equipmentService.updateMaintenanceRecord(
       maintenanceId,
       maintenanceData,
     );
+
+    return unwrapResult(result);
   }
 
   @Delete(':equipmentId')
-  public deleteEquipment(@Param('equipmentId') equipmentId: number) {
-    return this._equipmentService.deleteEquipment(equipmentId);
+  public async deleteEquipment(@Param('equipmentId') equipmentId: number) {
+    const result = await this._equipmentService.deleteEquipment(equipmentId);
+
+    return unwrapResult(result);
   }
 
   @Delete('maintenance/:maintenanceId')
-  public deleteMaintenanceRecord(
+  public async deleteMaintenanceRecord(
     @Param('maintenanceId') maintenanceId: number,
   ) {
-    return this._equipmentService.deleteMaintenanceRecord(maintenanceId);
+    const result =
+      await this._equipmentService.deleteMaintenanceRecord(maintenanceId);
+
+    return unwrapResult(result);
   }
 }

@@ -1,13 +1,14 @@
-import {
-  Inject,
-  Injectable,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { format, differenceInDays } from 'date-fns';
 
+import { Either, error, success } from '../../../types/either';
+import { ResourceError } from '../../../errors/resource-error';
+import {
+  UserSettingsNotFound,
+  UserLocationNotConfigured,
+} from '../models/gdd.errors';
 import { EntriesService } from '../../entries/services/entries.service';
 import { SettingsService } from '../../settings/services/settings.service';
 import { WeatherService } from '../../weather/services/weather.service';
@@ -43,14 +44,17 @@ export class GddService {
     private readonly _weatherService: WeatherService,
   ) {}
 
-  public async getCurrentGdd(userId: string): Promise<CurrentGddResponse> {
+  public async getCurrentGdd(
+    userId: string,
+  ): Promise<Either<ResourceError, CurrentGddResponse>> {
     const cacheKey = this.getCacheKey(userId, 'current');
 
     const cached = await this._cacheManager.get<CurrentGddResponse>(cacheKey);
 
     if (cached) {
       LogHelpers.recordCacheHit();
-      return cached;
+
+      return success(cached);
     }
 
     LogHelpers.recordCacheMiss();
@@ -58,20 +62,14 @@ export class GddService {
     const settings = await this._settingsService.getUserSettings(userId);
 
     if (!settings || Array.isArray(settings)) {
-      throw new HttpException(
-        'User settings not found',
-        HttpStatus.BAD_REQUEST,
-      );
+      return error(new UserSettingsNotFound());
     }
 
     const { location, grassType, temperatureUnit, customGddTarget } =
       settings.value;
 
     if (!location?.lat || !location?.long) {
-      throw new HttpException(
-        'User location not configured',
-        HttpStatus.BAD_REQUEST,
-      );
+      return error(new UserLocationNotConfigured());
     }
 
     const lastPgrAppDate =
@@ -95,20 +93,23 @@ export class GddService {
 
       await this._cacheManager.set(cacheKey, result, GDD_CACHE_TTL);
 
-      return result;
+      return success(result);
     }
 
     const startDate = format(lastPgrAppDate, 'yyyy-MM-dd');
     const endDate = format(new Date(), 'yyyy-MM-dd');
 
-    const temperatureData =
-      await this._weatherService.getHistoricalAirTemperatures({
-        lat: location.lat,
-        long: location.long,
-        startDate,
-        endDate,
-        temperatureUnit,
-      });
+    const tempResult = await this._weatherService.getHistoricalAirTemperatures({
+      lat: location.lat,
+      long: location.long,
+      startDate,
+      endDate,
+      temperatureUnit,
+    });
+
+    if (tempResult.isError()) return error(tempResult.value);
+
+    const temperatureData = tempResult.value;
 
     const accumulatedGdd = calculateAccumulatedGDD(
       temperatureData.map((d) => ({ high: d.maxTemp, low: d.minTemp })),
@@ -155,7 +156,7 @@ export class GddService {
 
       await this._cacheManager.set(cacheKey, resetResult, GDD_CACHE_TTL);
 
-      return resetResult;
+      return success(resetResult);
     }
 
     LogHelpers.addBusinessContext(
@@ -180,14 +181,14 @@ export class GddService {
 
     await this._cacheManager.set(cacheKey, result, GDD_CACHE_TTL);
 
-    return result;
+    return success(result);
   }
 
   public async getHistoricalGdd(
     userId: string,
     startDate: string,
     endDate: string,
-  ): Promise<HistoricalGddResponse> {
+  ): Promise<Either<ResourceError, HistoricalGddResponse>> {
     const cacheKey = this.getCacheKey(userId, 'historical', {
       startDate,
       endDate,
@@ -198,7 +199,8 @@ export class GddService {
 
     if (cached) {
       LogHelpers.recordCacheHit();
-      return cached;
+
+      return success(cached);
     }
 
     LogHelpers.recordCacheMiss();
@@ -206,31 +208,28 @@ export class GddService {
     const settings = await this._settingsService.getUserSettings(userId);
 
     if (!settings || Array.isArray(settings)) {
-      throw new HttpException(
-        'User settings not found',
-        HttpStatus.BAD_REQUEST,
-      );
+      return error(new UserSettingsNotFound());
     }
 
     const { location, grassType, temperatureUnit } = settings.value;
 
     if (!location?.lat || !location?.long) {
-      throw new HttpException(
-        'User location not configured',
-        HttpStatus.BAD_REQUEST,
-      );
+      return error(new UserLocationNotConfigured());
     }
 
     const baseTemperature = this.getBaseTemperature(grassType, temperatureUnit);
 
-    const temperatureData =
-      await this._weatherService.getHistoricalAirTemperatures({
-        lat: location.lat,
-        long: location.long,
-        startDate,
-        endDate,
-        temperatureUnit,
-      });
+    const tempResult = await this._weatherService.getHistoricalAirTemperatures({
+      lat: location.lat,
+      long: location.long,
+      startDate,
+      endDate,
+      temperatureUnit,
+    });
+
+    if (tempResult.isError()) return error(tempResult.value);
+
+    const temperatureData = tempResult.value;
 
     const dailyGdd: DailyGddDataPoint[] = temperatureData.map((day) => ({
       date: day.date,
@@ -260,17 +259,20 @@ export class GddService {
 
     await this._cacheManager.set(cacheKey, result, GDD_CACHE_TTL);
 
-    return result;
+    return success(result);
   }
 
-  public async getGddForecast(userId: string): Promise<GddForecastResponse> {
+  public async getGddForecast(
+    userId: string,
+  ): Promise<Either<ResourceError, GddForecastResponse>> {
     const cacheKey = this.getCacheKey(userId, 'forecast');
 
     const cached = await this._cacheManager.get<GddForecastResponse>(cacheKey);
 
     if (cached) {
       LogHelpers.recordCacheHit();
-      return cached;
+
+      return success(cached);
     }
 
     LogHelpers.recordCacheMiss();
@@ -278,32 +280,33 @@ export class GddService {
     const settings = await this._settingsService.getUserSettings(userId);
 
     if (!settings || Array.isArray(settings)) {
-      throw new HttpException(
-        'User settings not found',
-        HttpStatus.BAD_REQUEST,
-      );
+      return error(new UserSettingsNotFound());
     }
 
     const { location, grassType, temperatureUnit, customGddTarget } =
       settings.value;
 
     if (!location?.lat || !location?.long) {
-      throw new HttpException(
-        'User location not configured',
-        HttpStatus.BAD_REQUEST,
-      );
+      return error(new UserLocationNotConfigured());
     }
 
     const baseTemperature = this.getBaseTemperature(grassType, temperatureUnit);
     const targetGdd = customGddTarget ?? GDD_TARGET_INTERVALS[grassType];
 
-    const currentGddData = await this.getCurrentGdd(userId);
-    const currentAccumulatedGdd = currentGddData.accumulatedGdd;
+    const currentGddResult = await this.getCurrentGdd(userId);
 
-    const forecast = await this._weatherService.getWeatherData(
+    if (currentGddResult.isError()) return error(currentGddResult.value);
+
+    const currentAccumulatedGdd = currentGddResult.value.accumulatedGdd;
+
+    const forecastResult = await this._weatherService.getWeatherData(
       String(location.lat),
       String(location.long),
     );
+
+    if (forecastResult.isError()) return error(forecastResult.value);
+
+    const forecast = forecastResult.value;
 
     const dailyForecasts = this.extractDailyTempsFromForecast(
       forecast.properties.periods,
@@ -350,7 +353,7 @@ export class GddService {
 
     await this._cacheManager.set(cacheKey, result, GDD_CACHE_TTL);
 
-    return result;
+    return success(result);
   }
 
   public async invalidateCache(userId: string): Promise<void> {

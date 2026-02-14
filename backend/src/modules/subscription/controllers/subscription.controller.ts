@@ -14,6 +14,7 @@ import {
   PURCHASABLE_TIERS,
 } from '../models/subscription.types';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { unwrapResult } from '../../../utils/unwrapResult';
 
 @Controller('subscription')
 export class SubscriptionController {
@@ -58,27 +59,16 @@ export class SubscriptionController {
       );
     }
 
-    try {
-      return await this.subscriptionService.createCheckoutSession(
+    return unwrapResult(
+      await this.subscriptionService.createCheckoutSession(
         req.user.userId,
         req.user.email,
         req.user.name,
         body.tier,
         body.successUrl,
         body.cancelUrl,
-      );
-    } catch (error) {
-      LogHelpers.addBusinessContext('create_checkout_error', error.message);
-
-      if (error instanceof HttpException) {
-        throw error;
-      }
-
-      throw new HttpException(
-        `Failed to create checkout: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+      ),
+    );
   }
 
   @Post('portal')
@@ -86,23 +76,12 @@ export class SubscriptionController {
     LogHelpers.addBusinessContext('controller_operation', 'create_portal');
     LogHelpers.addBusinessContext('user_id', req.user.userId);
 
-    try {
-      return await this.subscriptionService.createPortalSession(
+    return unwrapResult(
+      await this.subscriptionService.createPortalSession(
         req.user.userId,
         body.returnUrl,
-      );
-    } catch (error) {
-      LogHelpers.addBusinessContext('create_portal_error', error.message);
-
-      if (error instanceof HttpException) {
-        throw error;
-      }
-
-      throw new HttpException(
-        `Failed to create portal session: ${error.message}`,
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+      ),
+    );
   }
 
   @Post('check-feature')

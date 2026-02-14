@@ -7,6 +7,8 @@ import {
   LawnSegmentUpdateRequest,
 } from '../models/lawn-segments.types';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { Either, error, success } from '../../../types/either';
+import { LawnSegmentNotFound } from '../models/lawn-segments.errors';
 
 @Injectable()
 export class LawnSegmentsService {
@@ -43,7 +45,7 @@ export class LawnSegmentsService {
   public async updateLawnSegment(
     id: number,
     updateData: LawnSegmentUpdateRequest,
-  ) {
+  ): Promise<Either<LawnSegmentNotFound, LawnSegment>> {
     LogHelpers.addBusinessContext('lawnSegmentId', id);
 
     const segment = await LogHelpers.withDatabaseTelemetry(() =>
@@ -51,7 +53,7 @@ export class LawnSegmentsService {
     );
 
     if (!segment) {
-      throw new Error('Lawn segment not found');
+      return error(new LawnSegmentNotFound());
     }
 
     Object.assign(segment, updateData);
@@ -62,7 +64,7 @@ export class LawnSegmentsService {
 
     LogHelpers.addBusinessContext('lawnSegmentUpdated', true);
 
-    return saved;
+    return success(saved);
   }
 
   public async deleteLawnSegment(id: number) {

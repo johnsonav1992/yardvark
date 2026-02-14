@@ -5,6 +5,12 @@ import { firstValueFrom } from 'rxjs';
 import { User } from '../Models/user.model';
 import { S3Service } from 'src/modules/s3/s3.service';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { Either, error, success } from '../../../types/either';
+import {
+  Auth0TokenError,
+  UserUpdateError,
+  ProfilePictureUploadError,
+} from '../Models/user.errors';
 
 @Injectable()
 export class UsersService {
@@ -26,9 +32,9 @@ export class UsersService {
     this.usersUrl = `https://${this.auth0Domain}/api/v2/users`;
   }
 
-  public async getManagementToken(): Promise<string> {
+  public async getManagementToken(): Promise<Either<Auth0TokenError, string>> {
     const start = Date.now();
-    let success = true;
+    let isSuccess = true;
 
     try {
       const response = await firstValueFrom(
@@ -43,23 +49,33 @@ export class UsersService {
         ),
       );
 
-      return response.data.access_token;
-    } catch (error) {
-      success = false;
-      throw error;
+      return success(response.data.access_token);
+    } catch (err) {
+      isSuccess = false;
+
+      return error(new Auth0TokenError(err));
     } finally {
-      LogHelpers.recordExternalCall('auth0-token', Date.now() - start, success);
+      LogHelpers.recordExternalCall(
+        'auth0-token',
+        Date.now() - start,
+        isSuccess,
+      );
     }
   }
 
   public async updateUser(
     userId: string,
     userData: Partial<User>,
-  ): Promise<any> {
-    const token = await this.getManagementToken();
+  ): Promise<Either<UserUpdateError, any>> {
+    const tokenResult = await this.getManagementToken();
 
+    if (tokenResult.isError()) {
+      return error(new UserUpdateError(tokenResult.value.error));
+    }
+
+    const token = tokenResult.value;
     const start = Date.now();
-    let success = true;
+    let isSuccess = true;
 
     try {
       const response = await firstValueFrom(
@@ -70,15 +86,16 @@ export class UsersService {
         }),
       );
 
-      return response.data;
-    } catch (error) {
-      success = false;
-      throw error;
+      return success(response.data);
+    } catch (err) {
+      isSuccess = false;
+
+      return error(new UserUpdateError(err));
     } finally {
       LogHelpers.recordExternalCall(
         'auth0-update',
         Date.now() - start,
-        success,
+        isSuccess,
       );
     }
   }
@@ -86,22 +103,38 @@ export class UsersService {
   public async updateProfilePicture(
     userId: string,
     file: Express.Multer.File,
-  ): Promise<{ picture: string }> {
+  ): Promise<Either<ProfilePictureUploadError, { picture: string }>> {
     LogHelpers.addBusinessContext('profilePictureUpdate', true);
     LogHelpers.addBusinessContext('fileSize', file.size);
 
-    const profilePictureFile = {
-      ...file,
-      originalname: `profile-picture-${Date.now()}.${file.originalname.split('.').pop()}`,
-    };
+    try {
+      const profilePictureFile = {
+        ...file,
+        originalname: `profile-picture-${Date.now()}.${file.originalname.split('.').pop()}`,
+      };
 
-    const pictureUrl = await this.s3Service.uploadFile(
-      profilePictureFile,
-      `${userId}/profile`,
-    );
+      const uploadResult = await this.s3Service.uploadFile(
+        profilePictureFile,
+        `${userId}/profile`,
+      );
 
-    await this.updateUser(userId, { picture: pictureUrl } as Partial<User>);
+      if (uploadResult.isError()) {
+        return error(new ProfilePictureUploadError(uploadResult.value.error));
+      }
 
-    return { picture: pictureUrl };
+      const pictureUrl = uploadResult.value;
+
+      const updateResult = await this.updateUser(userId, {
+        picture: pictureUrl,
+      } as Partial<User>);
+
+      if (updateResult.isError()) {
+        return error(new ProfilePictureUploadError(updateResult.value.error));
+      }
+
+      return success({ picture: pictureUrl });
+    } catch (err) {
+      return error(new ProfilePictureUploadError(err));
+    }
   }
 }

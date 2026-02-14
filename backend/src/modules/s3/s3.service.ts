@@ -8,7 +8,8 @@ import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import * as convert from 'heic-convert';
 import * as path from 'path';
-import { tryCatch } from 'src/utils/tryCatch';
+import { Either, error, success } from '../../types/either';
+import { S3UploadError, HeicConversionError } from './s3.errors';
 import { LogHelpers } from '../../logger/logger.helpers';
 
 @Injectable()
@@ -31,12 +32,17 @@ export class S3Service {
   public async uploadFile(
     file: Express.Multer.File,
     userId: string,
-  ): Promise<string> {
+  ): Promise<Either<S3UploadError | HeicConversionError, string>> {
     LogHelpers.addBusinessContext('fileSize', file.size);
     LogHelpers.addBusinessContext('fileMimeType', file.mimetype);
 
-    const { buffer, originalname, mimetype } =
-      await this.checkForHeicAndConvert(file);
+    const conversionResult = await this.checkForHeicAndConvert(file);
+
+    if (conversionResult.isError()) {
+      return error(conversionResult.value);
+    }
+
+    const { buffer, originalname, mimetype } = conversionResult.value;
 
     const key = this.createFileKey(userId, originalname);
 
@@ -49,27 +55,28 @@ export class S3Service {
     };
 
     const start = Date.now();
-    let success = true;
 
     try {
       await this.s3.send(new PutObjectCommand(uploadParams));
-    } catch (error) {
-      success = false;
-      throw error;
-    } finally {
-      LogHelpers.recordExternalCall('aws-s3', Date.now() - start, success);
+    } catch (err) {
+      LogHelpers.recordExternalCall('aws-s3', Date.now() - start, false);
+
+      return error(new S3UploadError(err));
     }
 
+    LogHelpers.recordExternalCall('aws-s3', Date.now() - start, true);
     LogHelpers.addBusinessContext('s3UploadSuccess', true);
 
-    return `https://${this.bucketName}.s3.${process.env.AWS_REGION_YARDVARK}.amazonaws.com/${encodeURIComponent(key)}`;
+    const url = `https://${this.bucketName}.s3.${process.env.AWS_REGION_YARDVARK}.amazonaws.com/${encodeURIComponent(key)}`;
+
+    return success(url);
   }
 
   public async uploadFiles(
     files: Express.Multer.File[],
     userId: string,
     concurrency = 5,
-  ): Promise<string[]> {
+  ): Promise<Either<S3UploadError | HeicConversionError, string[]>> {
     LogHelpers.addBusinessContext('batchUploadCount', files.length);
 
     const results: string[] = [];
@@ -81,23 +88,30 @@ export class S3Service {
         batch.map((file) => this.uploadFile(file, userId)),
       );
 
-      results.push(...batchResults);
+      for (const result of batchResults) {
+        if (result.isError()) return error(result.value);
+
+        results.push(result.value);
+      }
     }
 
     LogHelpers.addBusinessContext('batchUploadSuccess', results.length);
 
-    return results;
+    return success(results);
   }
 
   private createFileKey(userId: string, fileName: string): string {
     return `${userId}/${randomUUID().substring(0, 4)}-${fileName}`;
   }
 
-  private async checkForHeicAndConvert(file: Express.Multer.File): Promise<{
-    buffer: Buffer;
-    originalname: string;
-    mimetype: string;
-  }> {
+  private async checkForHeicAndConvert(
+    file: Express.Multer.File,
+  ): Promise<
+    Either<
+      HeicConversionError,
+      { buffer: Buffer; originalname: string; mimetype: string }
+    >
+  > {
     let bufferToUpload = file.buffer;
     let filename = file.originalname;
     let mimetype = file.mimetype;
@@ -108,30 +122,28 @@ export class S3Service {
       path.extname(file.originalname).toLowerCase() === '.heic';
 
     if (isHeic) {
-      const { data: jpegArrayBuffer, error } = await tryCatch(() =>
-        convert({
+      try {
+        const jpegArrayBuffer = await convert({
           buffer: file.buffer.buffer.slice(
             file.buffer.byteOffset,
             file.buffer.byteOffset + file.buffer.byteLength,
           ),
           format: 'JPEG',
           quality: 0.9,
-        }),
-      );
+        });
 
-      if (error) {
-        throw new Error(`Failed to convert HEIC file: ${error.message}`);
+        bufferToUpload = Buffer.from(jpegArrayBuffer);
+        filename = filename.replace(/\.heic$/i, '.jpg');
+        mimetype = 'image/jpeg';
+      } catch (err) {
+        return error(new HeicConversionError(err));
       }
-
-      bufferToUpload = Buffer.from(jpegArrayBuffer);
-      filename = filename.replace(/\.heic$/i, '.jpg');
-      mimetype = 'image/jpeg';
     }
 
-    return {
+    return success({
       buffer: bufferToUpload,
       originalname: filename,
       mimetype: mimetype,
-    };
+    });
   }
 }

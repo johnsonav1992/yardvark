@@ -5,6 +5,7 @@ import { LawnSegmentsService } from '../services/lawn-segments.service';
 import { LawnSegment } from '../models/lawn-segments.model';
 import { LawnSegmentCreationRequest } from '../models/lawn-segments.types';
 import { DEFAULT_LAWN_SEGMENT_COLOR } from '../../../constants/lawn-segments.constants';
+import { LawnSegmentNotFound } from '../models/lawn-segments.errors';
 
 describe('LawnSegmentsService', () => {
   let service: LawnSegmentsService;
@@ -325,7 +326,11 @@ describe('LawnSegmentsService', () => {
       expect(mockRepository.findOneBy).toHaveBeenCalledWith({
         id: mockLawnSegment.id,
       });
-      expect(result).toEqual(updatedSegment);
+      expect(result.isSuccess()).toBe(true);
+
+      if (result.isSuccess()) {
+        expect(result.value).toEqual(updatedSegment);
+      }
     });
 
     it('should handle updating different properties', async () => {
@@ -340,8 +345,12 @@ describe('LawnSegmentsService', () => {
         updateData,
       );
 
-      expect(result.size).toBe(3000.0);
-      expect(result.name).toBe(mockLawnSegment.name);
+      expect(result.isSuccess()).toBe(true);
+
+      if (result.isSuccess()) {
+        expect(result.value.size).toBe(3000.0);
+        expect(result.value.name).toBe(mockLawnSegment.name);
+      }
     });
 
     it('should handle name-only updates', async () => {
@@ -356,8 +365,12 @@ describe('LawnSegmentsService', () => {
         updateData,
       );
 
-      expect(result.name).toBe('Renamed Segment');
-      expect(result.size).toBe(mockLawnSegment.size);
+      expect(result.isSuccess()).toBe(true);
+
+      if (result.isSuccess()) {
+        expect(result.value.name).toBe('Renamed Segment');
+        expect(result.value.size).toBe(mockLawnSegment.size);
+      }
     });
 
     it('should preserve userId and id during updates', async () => {
@@ -372,16 +385,21 @@ describe('LawnSegmentsService', () => {
         updateData,
       );
 
-      expect(result.id).toBe(mockLawnSegment.id);
-      expect(result.userId).toBe(mockLawnSegment.userId);
+      expect(result.isSuccess()).toBe(true);
+
+      if (result.isSuccess()) {
+        expect(result.value.id).toBe(mockLawnSegment.id);
+        expect(result.value.userId).toBe(mockLawnSegment.userId);
+      }
     });
 
-    it('should throw error when segment not found', async () => {
+    it('should return error when segment not found', async () => {
       mockRepository.findOneBy.mockResolvedValue(null);
 
-      await expect(
-        service.updateLawnSegment(999, { name: 'Test' }),
-      ).rejects.toThrow('Lawn segment not found');
+      const result = await service.updateLawnSegment(999, { name: 'Test' });
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toBeInstanceOf(LawnSegmentNotFound);
     });
 
     it('should handle repository save errors during update', async () => {
@@ -407,7 +425,11 @@ describe('LawnSegmentsService', () => {
         updateData,
       );
 
-      expect(result.size).toBe(0);
+      expect(result.isSuccess()).toBe(true);
+
+      if (result.isSuccess()) {
+        expect(result.value.size).toBe(0);
+      }
     });
   });
 

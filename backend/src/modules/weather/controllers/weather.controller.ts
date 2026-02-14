@@ -1,7 +1,6 @@
-import { Controller, Get, HttpException, Query } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { WeatherService } from '../services/weather.service';
-import { tryCatch } from 'src/utils/tryCatch';
-import { HttpStatusCode } from 'axios';
+import { unwrapResult } from '../../../utils/unwrapResult';
 
 @Controller('weather')
 export class WeatherController {
@@ -12,17 +11,6 @@ export class WeatherController {
     @Query('lat') lat: string,
     @Query('long') long: string,
   ) {
-    const { data, error } = await tryCatch(() =>
-      this.weatherService.getWeatherData(lat, long),
-    );
-
-    if (error) {
-      return new HttpException(
-        'Failed to fetch weather data',
-        HttpStatusCode.InternalServerError,
-      );
-    }
-
-    return data;
+    return unwrapResult(await this.weatherService.getWeatherData(lat, long));
   }
 }

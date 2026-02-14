@@ -1,7 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { HttpException } from '@nestjs/common';
 import { EmailController } from './email.controller';
 import { EmailService, FeedbackEmailData } from '../services/email.service';
 import { FeedbackRequest } from '../models/email.types';
+import { success, error } from '../../../types/either';
+import {
+  EmailSendError,
+  EmailNotConfigured,
+} from '../models/email.errors';
 
 describe('EmailController', () => {
   let controller: EmailController;
@@ -42,7 +48,9 @@ describe('EmailController', () => {
 
   describe('sendFeedback', () => {
     it('should return success message when email is sent successfully', async () => {
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(true);
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(
+        success(true),
+      );
 
       const result = await controller.sendFeedback(mockFeedbackRequest);
 
@@ -52,12 +60,14 @@ describe('EmailController', () => {
       expect(result).toEqual({ message: 'Feedback sent successfully' });
     });
 
-    it('should throw error when email fails to send', async () => {
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(false);
+    it('should throw HttpException when email fails to send', async () => {
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(
+        error(new EmailSendError()),
+      );
 
       await expect(
         controller.sendFeedback(mockFeedbackRequest),
-      ).rejects.toThrow('Failed to send feedback email');
+      ).rejects.toThrow(HttpException);
 
       expect(mockEmailService.sendFeedbackEmail).toHaveBeenCalledWith(
         mockFeedbackRequest,
@@ -69,7 +79,9 @@ describe('EmailController', () => {
         ...mockFeedbackRequest,
         feedbackType: 'general',
       };
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(true);
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(
+        success(true),
+      );
 
       const result = await controller.sendFeedback(generalFeedback);
 
@@ -84,7 +96,9 @@ describe('EmailController', () => {
         ...mockFeedbackRequest,
         feedbackType: 'bug',
       };
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(true);
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(
+        success(true),
+      );
 
       const result = await controller.sendFeedback(bugFeedback);
 
@@ -99,7 +113,9 @@ describe('EmailController', () => {
         ...mockFeedbackRequest,
         feedbackType: 'enhancement',
       };
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(true);
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(
+        success(true),
+      );
 
       const result = await controller.sendFeedback(enhancementFeedback);
 
@@ -110,7 +126,9 @@ describe('EmailController', () => {
     });
 
     it('should pass correct email data structure to service', async () => {
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(true);
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(
+        success(true),
+      );
 
       await controller.sendFeedback(mockFeedbackRequest);
 
@@ -133,7 +151,9 @@ describe('EmailController', () => {
         message: 'Message with special chars: <>&"\'',
         feedbackType: 'general',
       };
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(true);
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(
+        success(true),
+      );
 
       const result = await controller.sendFeedback(specialCharsFeedback);
 
@@ -148,7 +168,9 @@ describe('EmailController', () => {
         ...mockFeedbackRequest,
         message: 'A'.repeat(5000),
       };
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(true);
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(
+        success(true),
+      );
 
       const result = await controller.sendFeedback(longMessageFeedback);
 
@@ -159,8 +181,8 @@ describe('EmailController', () => {
     });
 
     it('should handle service errors', async () => {
-      const error = new Error('Service unavailable');
-      mockEmailService.sendFeedbackEmail.mockRejectedValue(error);
+      const serviceError = new Error('Service unavailable');
+      mockEmailService.sendFeedbackEmail.mockRejectedValue(serviceError);
 
       await expect(
         controller.sendFeedback(mockFeedbackRequest),
@@ -174,7 +196,9 @@ describe('EmailController', () => {
         message: 'Message with emojis 🌱🏡 and accents: é, ñ, ü',
         feedbackType: 'general',
       };
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(true);
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(
+        success(true),
+      );
 
       const result = await controller.sendFeedback(unicodeFeedback);
 
@@ -191,7 +215,9 @@ describe('EmailController', () => {
         message: 'X',
         feedbackType: 'general',
       };
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(true);
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(
+        success(true),
+      );
 
       const result = await controller.sendFeedback(minimalFeedback);
 
@@ -203,20 +229,24 @@ describe('EmailController', () => {
   });
 
   describe('error handling and edge cases', () => {
-    it('should handle undefined service response', async () => {
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(undefined);
+    it('should throw HttpException when email is not configured', async () => {
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(
+        error(new EmailNotConfigured()),
+      );
 
       await expect(
         controller.sendFeedback(mockFeedbackRequest),
-      ).rejects.toThrow('Failed to send feedback email');
+      ).rejects.toThrow(HttpException);
     });
 
-    it('should handle null service response', async () => {
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(null);
+    it('should throw HttpException when email send fails', async () => {
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(
+        error(new EmailSendError()),
+      );
 
       await expect(
         controller.sendFeedback(mockFeedbackRequest),
-      ).rejects.toThrow('Failed to send feedback email');
+      ).rejects.toThrow(HttpException);
     });
 
     it('should handle network timeout errors', async () => {

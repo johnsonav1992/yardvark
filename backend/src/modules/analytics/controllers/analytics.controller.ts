@@ -1,15 +1,16 @@
-import { Controller, Get, Query, Req } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { AnalyticsService } from '../services/analytics.service';
-import { Request } from 'express';
+import { User } from '../../../decorators/user.decorator';
 
 @Controller('analytics')
 export class AnalyticsController {
   constructor(private readonly _analyticsService: AnalyticsService) {}
 
   @Get()
-  public async getAnalytics(@Req() req: Request, @Query('year') year?: number) {
-    const userId = req.user.userId;
-
+  public async getAnalytics(
+    @User('userId') userId: string,
+    @Query('year') year?: number,
+  ) {
     return this._analyticsService.getAnalytics(userId, year);
   }
 }

@@ -3,31 +3,31 @@ import {
   Post,
   Get,
   Body,
-  Req,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
 import { SubscriptionService } from '../services/subscription.service';
-import { Request } from 'express';
 import {
   PurchasableTier,
   PURCHASABLE_TIERS,
 } from '../models/subscription.types';
 import { LogHelpers } from '../../../logger/logger.helpers';
 import { unwrapResult } from '../../../utils/unwrapResult';
+import { User } from '../../../decorators/user.decorator';
+import { ExtractedUserRequestData } from '../../../types/request';
 
 @Controller('subscription')
 export class SubscriptionController {
   constructor(private readonly subscriptionService: SubscriptionService) {}
 
   @Get('status')
-  async getStatus(@Req() req: Request) {
+  public async getStatus(@User('userId') userId: string) {
     LogHelpers.addBusinessContext('controller_operation', 'get_status');
-    LogHelpers.addBusinessContext('user_id', req.user.userId);
+    LogHelpers.addBusinessContext('user_id', userId);
 
     try {
       const subscription =
-        await this.subscriptionService.getOrCreateSubscription(req.user.userId);
+        await this.subscriptionService.getOrCreateSubscription(userId);
 
       return subscription;
     } catch (error) {
@@ -41,13 +41,13 @@ export class SubscriptionController {
   }
 
   @Post('checkout')
-  async createCheckout(
-    @Req() req: Request,
+  public async createCheckout(
+    @User() user: ExtractedUserRequestData,
     @Body()
     body: { tier: PurchasableTier; successUrl: string; cancelUrl: string },
   ) {
     LogHelpers.addBusinessContext('controller_operation', 'create_checkout');
-    LogHelpers.addBusinessContext('user_id', req.user.userId);
+    LogHelpers.addBusinessContext('user_id', user.userId);
     LogHelpers.addBusinessContext('requested_tier', body.tier);
 
     if (!PURCHASABLE_TIERS.includes(body.tier)) {
@@ -61,9 +61,9 @@ export class SubscriptionController {
 
     return unwrapResult(
       await this.subscriptionService.createCheckoutSession(
-        req.user.userId,
-        req.user.email,
-        req.user.name,
+        user.userId,
+        user.email,
+        user.name,
         body.tier,
         body.successUrl,
         body.cancelUrl,
@@ -72,27 +72,33 @@ export class SubscriptionController {
   }
 
   @Post('portal')
-  async createPortal(@Req() req: Request, @Body() body: { returnUrl: string }) {
+  public async createPortal(
+    @User('userId') userId: string,
+    @Body() body: { returnUrl: string },
+  ) {
     LogHelpers.addBusinessContext('controller_operation', 'create_portal');
-    LogHelpers.addBusinessContext('user_id', req.user.userId);
+    LogHelpers.addBusinessContext('user_id', userId);
 
     return unwrapResult(
       await this.subscriptionService.createPortalSession(
-        req.user.userId,
+        userId,
         body.returnUrl,
       ),
     );
   }
 
   @Post('check-feature')
-  async checkFeature(@Req() req: Request, @Body() body: { feature: string }) {
+  public async checkFeature(
+    @User('userId') userId: string,
+    @Body() body: { feature: string },
+  ) {
     LogHelpers.addBusinessContext('controller_operation', 'check_feature');
-    LogHelpers.addBusinessContext('user_id', req.user.userId);
+    LogHelpers.addBusinessContext('user_id', userId);
     LogHelpers.addBusinessContext('feature_name', body.feature);
 
     try {
       return await this.subscriptionService.checkFeatureAccess(
-        req.user.userId,
+        userId,
         body.feature,
       );
     } catch (error) {

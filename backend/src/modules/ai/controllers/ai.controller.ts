@@ -4,17 +4,16 @@ import {
   Post,
   HttpException,
   HttpStatus,
-  Req,
   Res,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { AiService } from '../services/ai.service';
 import { AiChatResponse, AiChatRequest } from '../../../types/ai.types';
-import { Request } from 'express';
 // import { Public } from '../../../decorators/public.decorator';
 import { FeatureFlag } from '../../../decorators/feature-flag.decorator';
 import { SubscriptionFeature } from '../../../decorators/subscription-feature.decorator';
 import { unwrapResult } from '../../../utils/unwrapResult';
+import { User } from '../../../decorators/user.decorator';
 
 @Controller('ai')
 export class AiController {
@@ -37,17 +36,19 @@ export class AiController {
   // @Public()
   @Post('query-entries')
   public async queryEntries(
-    @Req() req: Request,
+    @User('userId') userId: string,
     @Body() body: { query: string; userId?: string },
   ): Promise<AiChatResponse> {
     if (!body.query || body.query.trim().length === 0) {
       throw new HttpException('Query is required', HttpStatus.BAD_REQUEST);
     }
 
-    const userId =
-      body.userId || req.user?.userId || 'google-oauth2|111643664660289512636';
+    const resolvedUserId =
+      body.userId || userId || 'google-oauth2|111643664660289512636';
 
-    return unwrapResult(await this.aiService.queryEntries(userId, body.query));
+    return unwrapResult(
+      await this.aiService.queryEntries(resolvedUserId, body.query),
+    );
   }
 
   @FeatureFlag('ENABLE_ENTRY_QUERY')
@@ -55,13 +56,15 @@ export class AiController {
   // @Public()
   @Post('initialize-embeddings')
   public async initializeEmbeddings(
-    @Req() req: Request,
+    @User('userId') userId: string,
     @Body() body?: { userId?: string },
   ): Promise<{ processed: number; errors: number }> {
-    const userId =
-      body?.userId || req.user?.userId || 'google-oauth2|111643664660289512636';
+    const resolvedUserId =
+      body?.userId || userId || 'google-oauth2|111643664660289512636';
 
-    return unwrapResult(await this.aiService.initializeEmbeddings(userId));
+    return unwrapResult(
+      await this.aiService.initializeEmbeddings(resolvedUserId),
+    );
   }
 
   @FeatureFlag('ENABLE_ENTRY_QUERY')
@@ -69,7 +72,7 @@ export class AiController {
   // @Public()
   @Post('stream-query-entries')
   public async streamQueryEntries(
-    @Req() req: Request,
+    @User('userId') userId: string,
     @Res() res: Response,
     @Body() body: { query: string; userId?: string },
   ): Promise<void> {
@@ -77,7 +80,7 @@ export class AiController {
       throw new HttpException('Query is required', HttpStatus.BAD_REQUEST);
     }
 
-    const userId = body.userId || req.user?.userId;
+    const resolvedUserId = body.userId || userId;
 
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
@@ -88,7 +91,10 @@ export class AiController {
     res.write('data: {"type":"connected"}\n\n');
 
     try {
-      const stream = this.aiService.streamQueryEntries(userId, body.query);
+      const stream = this.aiService.streamQueryEntries(
+        resolvedUserId,
+        body.query,
+      );
 
       for await (const chunk of stream) {
         if (chunk.content) {

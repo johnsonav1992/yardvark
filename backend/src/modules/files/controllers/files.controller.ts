@@ -6,19 +6,19 @@ import {
   HttpStatus,
   Post,
   Query,
-  Req,
   Res,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { firstValueFrom, map } from 'rxjs';
 import { S3Service } from 'src/modules/s3/s3.service';
 import { MAX_FILE_LARGE_UPLOAD_SIZE } from 'src/utils/constants';
 import { imageFileValidator } from 'src/utils/fileUtils';
 import { unwrapResult } from '../../../utils/unwrapResult';
 import { Readable } from 'stream';
+import { User } from '../../../decorators/user.decorator';
 
 @Controller('files')
 export class FilesController {
@@ -32,11 +32,9 @@ export class FilesController {
   public async uploadFiles(
     @UploadedFiles(imageFileValidator(MAX_FILE_LARGE_UPLOAD_SIZE))
     files: Express.Multer.File[],
-    @Req() req: Request,
+    @User('userId') userId: string,
   ) {
-    return unwrapResult(
-      await this._s3Service.uploadFiles(files, req.user.userId),
-    );
+    return unwrapResult(await this._s3Service.uploadFiles(files, userId));
   }
 
   @Get('download')

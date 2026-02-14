@@ -7,7 +7,6 @@ import {
   Post,
   Put,
   Query,
-  Req,
 } from '@nestjs/common';
 import { EntriesService } from '../services/entries.service';
 import {
@@ -16,7 +15,7 @@ import {
   EntriesSearchRequest,
   EntryCreationRequest,
 } from '../models/entries.types';
-import { Request } from 'express';
+import { User } from '../../../decorators/user.decorator';
 import { SubscriptionFeature } from '../../../decorators/subscription-feature.decorator';
 import { SubscriptionService } from '../../subscription/services/subscription.service';
 import { unwrapResult } from '../../../utils/unwrapResult';
@@ -30,57 +29,50 @@ export class EntriesController {
 
   @Get()
   public async getEntries(
-    @Req() req: Request,
+    @User('userId') userId: string,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {
     return unwrapResult(
-      await this._entriesService.getEntries(
-        req.user.userId,
-        startDate,
-        endDate,
-      ),
+      await this._entriesService.getEntries(userId, startDate, endDate),
     );
   }
 
   @Get('single/most-recent')
-  public getMostRecentEntry(@Req() req: Request) {
-    return this._entriesService.getMostRecentEntry(req.user.userId);
+  public getMostRecentEntry(@User('userId') userId: string) {
+    return this._entriesService.getMostRecentEntry(userId);
   }
 
   @Get('last-mow')
-  public async getLastMowDate(@Req() req: Request) {
-    const lastMowDate = await this._entriesService.getLastMowDate(
-      req.user.userId,
-    );
+  public async getLastMowDate(@User('userId') userId: string) {
+    const lastMowDate = await this._entriesService.getLastMowDate(userId);
 
     return { lastMowDate };
   }
 
   @Get('last-product-app')
-  public async getLastProductAppDate(@Req() req: Request) {
+  public async getLastProductAppDate(@User('userId') userId: string) {
     const lastProductAppDate =
-      await this._entriesService.getLastProductApplicationDate(req.user.userId);
+      await this._entriesService.getLastProductApplicationDate(userId);
 
     return { lastProductAppDate };
   }
 
   @Get('last-pgr-app')
-  public async getLastPgrAppDate(@Req() req: Request) {
-    const lastPgrAppDate = await this._entriesService.getLastPgrApplicationDate(
-      req.user.userId,
-    );
+  public async getLastPgrAppDate(@User('userId') userId: string) {
+    const lastPgrAppDate =
+      await this._entriesService.getLastPgrApplicationDate(userId);
 
     return { lastPgrAppDate };
   }
 
   @Get('single/by-date/:date')
   public async getEntryByDate(
-    @Req() req: Request,
+    @User('userId') userId: string,
     @Param('date') date: string,
   ) {
     return unwrapResult(
-      await this._entriesService.getEntryByDate(req.user.userId, date),
+      await this._entriesService.getEntryByDate(userId, date),
     );
   }
 
@@ -92,28 +84,22 @@ export class EntriesController {
   @Post()
   @SubscriptionFeature('entry_creation')
   public async createEntry(
-    @Req() req: Request,
+    @User('userId') userId: string,
     @Body() entry: EntryCreationRequest,
   ) {
-    const result = await this._entriesService.createEntry(
-      req.user.userId,
-      entry,
-    );
+    const result = await this._entriesService.createEntry(userId, entry);
 
-    await this._subscriptionService.incrementUsage(
-      req.user.userId,
-      'entry_creation',
-    );
+    await this._subscriptionService.incrementUsage(userId, 'entry_creation');
 
     return result;
   }
 
   @Post('batch')
   public async createEntriesBatch(
-    @Req() req: Request,
+    @User('userId') userId: string,
     @Body() body: BatchEntryCreationRequest,
   ): Promise<BatchEntryCreationResponse> {
-    return this._entriesService.createEntriesBatch(req.user.userId, body);
+    return this._entriesService.createEntriesBatch(userId, body);
   }
 
   @Put(':entryId')
@@ -136,10 +122,10 @@ export class EntriesController {
 
   @Post('search')
   public searchEntries(
-    @Req() req: Request,
+    @User('userId') userId: string,
     @Body() searchCriteria: EntriesSearchRequest,
   ) {
-    return this._entriesService.searchEntries(req.user.userId, searchCriteria);
+    return this._entriesService.searchEntries(userId, searchCriteria);
   }
 
   @Delete('entry-image/:entryImageId')

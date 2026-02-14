@@ -4,10 +4,7 @@ import { EmailController } from './email.controller';
 import { EmailService, FeedbackEmailData } from '../services/email.service';
 import { FeedbackRequest } from '../models/email.types';
 import { success, error } from '../../../types/either';
-import {
-  EmailSendError,
-  EmailNotConfigured,
-} from '../models/email.errors';
+import { EmailSendError, EmailNotConfigured } from '../models/email.errors';
 
 describe('EmailController', () => {
   let controller: EmailController;
@@ -48,9 +45,7 @@ describe('EmailController', () => {
 
   describe('sendFeedback', () => {
     it('should return success message when email is sent successfully', async () => {
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(
-        success(true),
-      );
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(success(true));
 
       const result = await controller.sendFeedback(mockFeedbackRequest);
 
@@ -79,9 +74,7 @@ describe('EmailController', () => {
         ...mockFeedbackRequest,
         feedbackType: 'general',
       };
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(
-        success(true),
-      );
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(success(true));
 
       const result = await controller.sendFeedback(generalFeedback);
 
@@ -96,9 +89,7 @@ describe('EmailController', () => {
         ...mockFeedbackRequest,
         feedbackType: 'bug',
       };
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(
-        success(true),
-      );
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(success(true));
 
       const result = await controller.sendFeedback(bugFeedback);
 
@@ -113,9 +104,7 @@ describe('EmailController', () => {
         ...mockFeedbackRequest,
         feedbackType: 'enhancement',
       };
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(
-        success(true),
-      );
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(success(true));
 
       const result = await controller.sendFeedback(enhancementFeedback);
 
@@ -126,9 +115,7 @@ describe('EmailController', () => {
     });
 
     it('should pass correct email data structure to service', async () => {
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(
-        success(true),
-      );
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(success(true));
 
       await controller.sendFeedback(mockFeedbackRequest);
 
@@ -151,9 +138,7 @@ describe('EmailController', () => {
         message: 'Message with special chars: <>&"\'',
         feedbackType: 'general',
       };
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(
-        success(true),
-      );
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(success(true));
 
       const result = await controller.sendFeedback(specialCharsFeedback);
 
@@ -168,9 +153,7 @@ describe('EmailController', () => {
         ...mockFeedbackRequest,
         message: 'A'.repeat(5000),
       };
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(
-        success(true),
-      );
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(success(true));
 
       const result = await controller.sendFeedback(longMessageFeedback);
 
@@ -196,9 +179,7 @@ describe('EmailController', () => {
         message: 'Message with emojis 🌱🏡 and accents: é, ñ, ü',
         feedbackType: 'general',
       };
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(
-        success(true),
-      );
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(success(true));
 
       const result = await controller.sendFeedback(unicodeFeedback);
 
@@ -215,9 +196,7 @@ describe('EmailController', () => {
         message: 'X',
         feedbackType: 'general',
       };
-      mockEmailService.sendFeedbackEmail.mockResolvedValue(
-        success(true),
-      );
+      mockEmailService.sendFeedbackEmail.mockResolvedValue(success(true));
 
       const result = await controller.sendFeedback(minimalFeedback);
 

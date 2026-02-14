@@ -3,14 +3,13 @@ import {
   Controller,
   Post,
   Put,
-  Req,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from '../services/users.service';
-import { Request } from 'express';
 import { User } from '../Models/user.model';
+import { User as AuthUser } from '../../../decorators/user.decorator';
 import { imageFileValidator } from 'src/utils/fileUtils';
 import { unwrapResult } from '../../../utils/unwrapResult';
 
@@ -21,9 +20,10 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Put()
-  public async updateUser(@Req() req: Request, @Body() data: Partial<User>) {
-    const userId = req.user.userId;
-
+  public async updateUser(
+    @AuthUser('userId') userId: string,
+    @Body() data: Partial<User>,
+  ) {
     return unwrapResult(await this.usersService.updateUser(userId, data));
   }
 
@@ -32,10 +32,8 @@ export class UsersController {
   public async uploadProfilePicture(
     @UploadedFile(imageFileValidator(MAX_PROFILE_PICTURE_SIZE))
     file: Express.Multer.File,
-    @Req() req: Request,
+    @AuthUser('userId') userId: string,
   ) {
-    const userId = req.user.userId;
-
     return unwrapResult(
       await this.usersService.updateProfilePicture(userId, file),
     );

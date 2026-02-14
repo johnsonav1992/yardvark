@@ -6,34 +6,30 @@ import {
   Param,
   Post,
   Put,
-  Req,
 } from '@nestjs/common';
 import { LawnSegmentsService } from '../services/lawn-segments.service';
 import {
   LawnSegmentCreationRequest,
   LawnSegmentUpdateRequest,
 } from '../models/lawn-segments.types';
-import { Request } from 'express';
 import { unwrapResult } from '../../../utils/unwrapResult';
+import { User } from '../../../decorators/user.decorator';
 
 @Controller('lawn-segments')
 export class LawnSegmentsController {
   constructor(private readonly _lawnSegmentService: LawnSegmentsService) {}
 
   @Get()
-  public getLawnSegments(@Req() req: Request) {
-    return this._lawnSegmentService.getLawnSegments(req.user.userId);
+  public getLawnSegments(@User('userId') userId: string) {
+    return this._lawnSegmentService.getLawnSegments(userId);
   }
 
   @Post()
   public createLawnSegment(
-    @Req() req: Request,
+    @User('userId') userId: string,
     @Body() lawnSegment: LawnSegmentCreationRequest,
   ) {
-    return this._lawnSegmentService.createLawnSegment(
-      req.user.userId,
-      lawnSegment,
-    );
+    return this._lawnSegmentService.createLawnSegment(userId, lawnSegment);
   }
 
   @Put(':id')

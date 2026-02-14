@@ -7,11 +7,9 @@ import {
   Post,
   Put,
   Query,
-  Req,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { Request } from 'express';
 import { EquipmentService } from '../services/equipment.service';
 import { Equipment } from '../models/equipment.model';
 import { imageFileValidator } from 'src/utils/fileUtils';
@@ -19,6 +17,7 @@ import { S3Service } from 'src/modules/s3/s3.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { EquipmentMaintenance } from '../models/equipmentMaintenance.model';
 import { unwrapResult } from '../../../utils/unwrapResult';
+import { User } from '../../../decorators/user.decorator';
 
 @Controller('equipment')
 export class EquipmentController {
@@ -28,27 +27,21 @@ export class EquipmentController {
   ) {}
 
   @Get()
-  public getAllUserEquipment(@Req() req: Request) {
-    const userId = req.user.userId;
-
+  public getAllUserEquipment(@User('userId') userId: string) {
     return this._equipmentService.getAllUserEquipment(userId);
   }
 
   @Post()
   @UseInterceptors(FileInterceptor('equipment-image'))
   public async createEquipment(
-    @Req() req: Request,
+    @User('userId') userId: string,
     @UploadedFile(imageFileValidator()) file: Express.Multer.File,
     @Body() equipmentData: Partial<Equipment>,
   ) {
-    const userId = req.user.userId;
-
     let imageUrl: string | undefined;
 
     if (file) {
-      imageUrl = unwrapResult(
-        await this._s3Service.uploadFile(file, req.user.userId),
-      );
+      imageUrl = unwrapResult(await this._s3Service.uploadFile(file, userId));
     }
 
     return this._equipmentService.createEquipment(userId, {
@@ -60,7 +53,7 @@ export class EquipmentController {
   @Put(':equipmentId')
   @UseInterceptors(FileInterceptor('equipment-image'))
   public async updateEquipment(
-    @Req() req: Request,
+    @User('userId') userId: string,
     @Param('equipmentId') equipmentId: number,
     @UploadedFile(imageFileValidator()) file: Express.Multer.File,
     @Body() equipmentData: Partial<Equipment>,
@@ -68,9 +61,7 @@ export class EquipmentController {
     let imageUrl: string | undefined;
 
     if (file) {
-      imageUrl = unwrapResult(
-        await this._s3Service.uploadFile(file, req.user.userId),
-      );
+      imageUrl = unwrapResult(await this._s3Service.uploadFile(file, userId));
     }
 
     const result = await this._equipmentService.updateEquipment(equipmentId, {

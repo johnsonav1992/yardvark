@@ -16,7 +16,9 @@ describe('Either', () => {
 
     it('should work with complex error types', () => {
       const errPayload = { code: 404, message: 'Not found' };
-      const result = error<{ code: number; message: string }, string>(errPayload);
+      const result = error<{ code: number; message: string }, string>(
+        errPayload,
+      );
 
       expect(result.value).toEqual({ code: 404, message: 'Not found' });
     });
@@ -143,7 +145,12 @@ describe('Either', () => {
     });
 
     it('should work with different left and right types in a realistic scenario', () => {
-      const fetchUser = (id: number): Either<{ code: number; msg: string }, { name: string; age: number }> => {
+      const fetchUser = (
+        id: number,
+      ): Either<
+        { code: number; msg: string },
+        { name: string; age: number }
+      > => {
         if (id <= 0) {
           return error({ code: 400, msg: 'Invalid ID' });
         }

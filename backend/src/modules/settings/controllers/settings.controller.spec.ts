@@ -2,27 +2,17 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { SettingsController } from './settings.controller';
 import { SettingsService } from '../services/settings.service';
 import { SettingsData, SettingsResponse } from '../models/settings.types';
-import { Request } from 'express';
-import { ExtractedUserRequestData } from '../../../types/request';
 
 describe('SettingsController', () => {
   let controller: SettingsController;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let settingsService: SettingsService;
 
+  const mockUserId = 'user-123';
+
   const mockSettingsService = {
     getUserSettings: jest.fn(),
     updateSettings: jest.fn(),
-  };
-
-  const mockUser: ExtractedUserRequestData = {
-    userId: 'user-123',
-    email: 'test@example.com',
-    name: 'Test User',
-  };
-
-  const mockRequest: Partial<Request> = {
-    user: mockUser,
   };
 
   const mockSettingsData: SettingsData = {
@@ -74,10 +64,10 @@ describe('SettingsController', () => {
         mockSettingsResponse,
       );
 
-      const result = await controller.getSettings(mockRequest as Request);
+      const result = await controller.getSettings(mockUserId);
 
       expect(mockSettingsService.getUserSettings).toHaveBeenCalledWith(
-        'user-123',
+        mockUserId,
       );
       expect(result).toEqual(mockSettingsResponse);
     });
@@ -85,29 +75,22 @@ describe('SettingsController', () => {
     it('should return empty array when user has no settings', async () => {
       mockSettingsService.getUserSettings.mockResolvedValue([]);
 
-      const result = await controller.getSettings(mockRequest as Request);
+      const result = await controller.getSettings(mockUserId);
 
       expect(mockSettingsService.getUserSettings).toHaveBeenCalledWith(
-        'user-123',
+        mockUserId,
       );
       expect(result).toEqual([]);
     });
 
-    it('should call service with correct userId from request', async () => {
-      const differentUserRequest: Partial<Request> = {
-        user: {
-          userId: 'different-user-456',
-          email: 'different@example.com',
-          name: 'Different User',
-        },
-      };
-
+    it('should call service with correct userId', async () => {
+      const differentUserId = 'different-user-456';
       mockSettingsService.getUserSettings.mockResolvedValue([]);
 
-      await controller.getSettings(differentUserRequest as Request);
+      await controller.getSettings(differentUserId);
 
       expect(mockSettingsService.getUserSettings).toHaveBeenCalledWith(
-        'different-user-456',
+        differentUserId,
       );
     });
 
@@ -115,11 +98,11 @@ describe('SettingsController', () => {
       const error = new Error('Database connection failed');
       mockSettingsService.getUserSettings.mockRejectedValue(error);
 
-      await expect(
-        controller.getSettings(mockRequest as Request),
-      ).rejects.toThrow('Database connection failed');
+      await expect(controller.getSettings(mockUserId)).rejects.toThrow(
+        'Database connection failed',
+      );
       expect(mockSettingsService.getUserSettings).toHaveBeenCalledWith(
-        'user-123',
+        mockUserId,
       );
     });
   });
@@ -129,12 +112,12 @@ describe('SettingsController', () => {
       mockSettingsService.updateSettings.mockResolvedValue(mockSettingsData);
 
       const result = await controller.updateSettings(
-        mockRequest as Request,
+        mockUserId,
         mockSettingsData,
       );
 
       expect(mockSettingsService.updateSettings).toHaveBeenCalledWith(
-        'user-123',
+        mockUserId,
         JSON.stringify(mockSettingsData),
       );
       expect(result).toEqual(mockSettingsData);
@@ -160,35 +143,25 @@ describe('SettingsController', () => {
       mockSettingsService.updateSettings.mockResolvedValue(newSettingsData);
 
       const result = await controller.updateSettings(
-        mockRequest as Request,
+        mockUserId,
         newSettingsData,
       );
 
       expect(mockSettingsService.updateSettings).toHaveBeenCalledWith(
-        'user-123',
+        mockUserId,
         JSON.stringify(newSettingsData),
       );
       expect(result).toEqual(newSettingsData);
     });
 
-    it('should call service with correct userId from request', async () => {
-      const differentUserRequest: Partial<Request> = {
-        user: {
-          userId: 'different-user-789',
-          email: 'another@example.com',
-          name: 'Another User',
-        },
-      };
-
+    it('should call service with correct userId', async () => {
+      const differentUserId = 'different-user-789';
       mockSettingsService.updateSettings.mockResolvedValue(mockSettingsData);
 
-      await controller.updateSettings(
-        differentUserRequest as Request,
-        mockSettingsData,
-      );
+      await controller.updateSettings(differentUserId, mockSettingsData);
 
       expect(mockSettingsService.updateSettings).toHaveBeenCalledWith(
-        'different-user-789',
+        differentUserId,
         JSON.stringify(mockSettingsData),
       );
     });
@@ -212,13 +185,10 @@ describe('SettingsController', () => {
 
       mockSettingsService.updateSettings.mockResolvedValue(complexSettingsData);
 
-      await controller.updateSettings(
-        mockRequest as Request,
-        complexSettingsData,
-      );
+      await controller.updateSettings(mockUserId, complexSettingsData);
 
       expect(mockSettingsService.updateSettings).toHaveBeenCalledWith(
-        'user-123',
+        mockUserId,
         JSON.stringify(complexSettingsData),
       );
     });
@@ -243,12 +213,12 @@ describe('SettingsController', () => {
       mockSettingsService.updateSettings.mockResolvedValue(minimalSettingsData);
 
       const result = await controller.updateSettings(
-        mockRequest as Request,
+        mockUserId,
         minimalSettingsData,
       );
 
       expect(mockSettingsService.updateSettings).toHaveBeenCalledWith(
-        'user-123',
+        mockUserId,
         JSON.stringify(minimalSettingsData),
       );
       expect(result).toEqual(minimalSettingsData);
@@ -259,11 +229,11 @@ describe('SettingsController', () => {
       mockSettingsService.updateSettings.mockRejectedValue(error);
 
       await expect(
-        controller.updateSettings(mockRequest as Request, mockSettingsData),
+        controller.updateSettings(mockUserId, mockSettingsData),
       ).rejects.toThrow('Update operation failed');
 
       expect(mockSettingsService.updateSettings).toHaveBeenCalledWith(
-        'user-123',
+        mockUserId,
         JSON.stringify(mockSettingsData),
       );
     });
@@ -290,12 +260,12 @@ describe('SettingsController', () => {
       );
 
       const result = await controller.updateSettings(
-        mockRequest as Request,
+        mockUserId,
         specialLocationSettings,
       );
 
       expect(mockSettingsService.updateSettings).toHaveBeenCalledWith(
-        'user-123',
+        mockUserId,
         JSON.stringify(specialLocationSettings),
       );
       expect(result).toEqual(specialLocationSettings);
@@ -306,7 +276,7 @@ describe('SettingsController', () => {
     it('should handle service returning null/undefined', async () => {
       mockSettingsService.getUserSettings.mockResolvedValue(null);
 
-      const result = await controller.getSettings(mockRequest as Request);
+      const result = await controller.getSettings(mockUserId);
 
       expect(result).toBeNull();
     });
@@ -315,7 +285,7 @@ describe('SettingsController', () => {
       const jsonStringifySpy = jest.spyOn(JSON, 'stringify');
       mockSettingsService.updateSettings.mockResolvedValue(mockSettingsData);
 
-      await controller.updateSettings(mockRequest as Request, mockSettingsData);
+      await controller.updateSettings(mockUserId, mockSettingsData);
 
       expect(jsonStringifySpy).toHaveBeenCalledWith(mockSettingsData);
 

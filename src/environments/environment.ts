@@ -9,6 +9,6 @@ export const environment: Environment = {
   auth0Domain: 'dev-w4uj6ulyqeacwtfi.us.auth0.com',
   auth0ClientId: 'QRPi2KnSnV3pEnDiOqE2aN4zeNS8vRM5',
   mapBoxPublicKey:
-    'pk.eyJ1Ijoiam9obnNvbmF2IiwiYSI6ImNtOG1mMWE0aDBnbjgyaW9tcWc2c2JhczUifQ.2jMp1pCJKr2RDKIVfXwwNQ',
+    'pk.eyJ1Ijoiam9obnNvbmF2IiwiYSI6ImNtbG5vMnRqNTB4cXkzZm40NnoyYXR3dzIifQ.ULlBdB7Bon1exoDEVA5NdQ',
   stripePublishableKey: 'pk_live_your_publishable_key_here'
 };

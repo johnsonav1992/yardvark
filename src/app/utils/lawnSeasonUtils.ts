@@ -1,4 +1,4 @@
-import { differenceInDays } from 'date-fns';
+import { differenceInDays, getYear } from 'date-fns';
 import { LatLong } from '../types/location.types';
 import { lawnSeasonDatesAndTemperaturesReference } from '../constants/soil-temperature-constants';
 
@@ -124,7 +124,7 @@ export const getLawnSeasonCompletedPercentageWithTemp = (
  */
 export const getLawnSeasonStartAndEndDates = (coords: LatLong) => {
   const clampedLat = Math.max(30, Math.min(50, coords.lat));
-  const year = new Date().getFullYear();
+  const year = getYear(new Date());
 
   let closestReference = lawnSeasonDatesAndTemperaturesReference[0];
   let minDistance = Math.abs(clampedLat - closestReference.lat);

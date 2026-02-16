@@ -9,7 +9,6 @@ import {
 import { Response } from 'express';
 import { AiService } from '../services/ai.service';
 import { AiChatResponse, AiChatRequest } from '../../../types/ai.types';
-// import { Public } from '../../../decorators/public.decorator';
 import { FeatureFlag } from '../../../decorators/feature-flag.decorator';
 import { SubscriptionFeature } from '../../../decorators/subscription-feature.decorator';
 import { resultOrThrow } from '../../../utils/resultOrThrow';

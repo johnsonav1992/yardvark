@@ -18,6 +18,7 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { PopoverModule } from 'primeng/popover';
 import { SubscriptionService } from '../../services/subscription.service';
 import { UpgradePromptComponent } from '../../components/subscription/upgrade-prompt/upgrade-prompt.component';
+import { getYear } from 'date-fns';
 
 @Component({
   selector: 'analytics',
@@ -77,6 +78,6 @@ export class AnalyticsComponent {
   });
 
   public onYearChange(date: Date): void {
-    this._analyticsService.year.set(date.getFullYear());
+    this._analyticsService.year.set(getYear(date));
   }
 }

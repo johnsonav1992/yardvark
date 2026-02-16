@@ -17,6 +17,7 @@ import {
 } from '../../utils/toastUtils';
 import { GlobalUiService } from '../../services/global-ui.service';
 import { FREE_TIER_ENTRY_LIMIT } from '../../constants/subscription.constants';
+import { format, parseISO } from 'date-fns';
 
 @Component({
   selector: 'subscription',
@@ -147,7 +148,9 @@ export class SubscriptionComponent {
       return null;
     }
 
-    return new Date(sub.currentPeriodEnd).toLocaleDateString();
+    const endDate = parseISO(sub.currentPeriodEnd.toString());
+
+    return format(endDate, 'P');
   }
 
   public get willCancelAtPeriodEnd(): boolean {

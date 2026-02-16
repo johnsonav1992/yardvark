@@ -96,8 +96,9 @@ export class GddService {
       return success(result);
     }
 
+    const today = new Date();
     const startDate = format(lastPgrAppDate, 'yyyy-MM-dd');
-    const endDate = format(new Date(), 'yyyy-MM-dd');
+    const endDate = format(today, 'yyyy-MM-dd');
 
     const tempResult = await this._weatherService.getHistoricalAirTemperatures({
       lat: location.lat,
@@ -479,7 +480,8 @@ export class GddService {
     const dailyMap = new Map<string, { high?: number; low?: number }>();
 
     periods.forEach((period) => {
-      const date = format(new Date(period.startTime), 'yyyy-MM-dd');
+      const periodDate = new Date(period.startTime);
+      const date = format(periodDate, 'yyyy-MM-dd');
       const existing = dailyMap.get(date) || {};
 
       let temp = period.temperature;

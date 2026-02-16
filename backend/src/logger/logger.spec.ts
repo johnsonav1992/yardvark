@@ -1,11 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { LoggingInterceptor } from './logger';
 import { ExecutionContext, CallHandler, HttpException } from '@nestjs/common';
-import { of, throwError } from 'rxjs';
+import { of, throwError, lastValueFrom } from 'rxjs';
 import { Request, Response } from 'express';
 import { SubscriptionService } from '../modules/subscription/services/subscription.service';
+import { Ok } from '../types/either';
+import * as otelTransport from './otel.transport';
 
-interface ParsedLogData {
+interface LogAttributes {
   timestamp: string;
   traceId: string;
   requestId: string;
@@ -25,30 +27,28 @@ interface ParsedLogData {
   error?: { message: string; type: string; code?: string };
 }
 
-const parseLogData = (logCall: string): ParsedLogData => {
-  const jsonMatch = logCall.match(/\{[\s\S]*\}/);
-  return JSON.parse(jsonMatch![0]) as ParsedLogData;
-};
-
 describe('LoggingInterceptor - Wide Events', () => {
-  let interceptor: LoggingInterceptor;
+  let module: TestingModule;
   let mockExecutionContext: ExecutionContext;
   let mockCallHandler: CallHandler;
   let mockRequest: Partial<Request>;
   let mockResponse: Partial<Response>;
+  let logToOTelSpy: jest.SpyInstance;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const mockSubscriptionService = {
-      checkFeatureAccess: jest.fn().mockReturnValue(of({ allowed: true })),
       getOrCreateSubscription: jest.fn().mockReturnValue(
-        of({
-          isSuccess: () => true,
-          value: { tier: 'free', status: 'active' },
-        }),
+        Promise.resolve(
+          new Ok({
+            tier: 'free',
+            status: 'active',
+            createdAt: new Date(),
+          }),
+        ),
       ),
     };
 
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       providers: [
         LoggingInterceptor,
         {
@@ -58,8 +58,12 @@ describe('LoggingInterceptor - Wide Events', () => {
       ],
     }).compile();
 
-    interceptor = await module.resolve<LoggingInterceptor>(LoggingInterceptor);
     jest.spyOn(global.Math, 'random').mockReturnValue(0);
+    logToOTelSpy = jest.spyOn(otelTransport, 'logToOTel').mockImplementation();
+  });
+
+  beforeEach(() => {
+    logToOTelSpy.mockClear();
 
     mockRequest = {
       method: 'GET',
@@ -94,156 +98,146 @@ describe('LoggingInterceptor - Wide Events', () => {
     };
   });
 
-  afterEach(() => {
+  afterAll(() => {
     jest.restoreAllMocks();
   });
 
+  const getInterceptor = async (): Promise<LoggingInterceptor> => {
+    return module.resolve<LoggingInterceptor>(LoggingInterceptor);
+  };
+
+  const getLogAttributes = (): LogAttributes => {
+    const call = logToOTelSpy.mock.calls[0];
+
+    return call[2] as LogAttributes;
+  };
+
+  const getLogMessage = (): string => {
+    const call = logToOTelSpy.mock.calls[0];
+
+    return call[1] as string;
+  };
+
   describe('Wide Event Structure', () => {
-    it('should emit structured log with comprehensive context on success', (done) => {
-      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+    it('should emit structured log with comprehensive context on success', async () => {
+      const interceptor = await getInterceptor();
 
-      interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
-        complete: () => {
-          expect(consoleLogSpy).toHaveBeenCalled();
-          const logCall = consoleLogSpy.mock.calls[0][0] as string;
+      await lastValueFrom(
+        interceptor.intercept(mockExecutionContext, mockCallHandler),
+      );
 
-          expect(logCall).toContain('✅');
-          expect(logCall).toContain('GET');
-          expect(logCall).toContain('/test');
-          expect(logCall).toContain('Test User');
-          expect(logCall).toContain('timestamp');
-          expect(logCall).toContain('traceId');
-          expect(logCall).toContain('requestId');
-          expect(logCall).toContain('durationMs');
+      expect(logToOTelSpy).toHaveBeenCalled();
+      const message = getLogMessage();
+      const attrs = getLogAttributes();
 
-          consoleLogSpy.mockRestore();
-          done();
-        },
+      expect(message).toContain('✅');
+      expect(message).toContain('GET');
+      expect(message).toContain('/test');
+      expect(message).toContain('Test User');
+      expect(attrs.timestamp).toBeDefined();
+      expect(attrs.traceId).toBeDefined();
+      expect(attrs.requestId).toBeDefined();
+      expect(attrs.durationMs).toBeDefined();
+    });
+
+    it('should include correlation IDs for distributed tracing', async () => {
+      const interceptor = await getInterceptor();
+
+      await lastValueFrom(
+        interceptor.intercept(mockExecutionContext, mockCallHandler),
+      );
+
+      const attrs = getLogAttributes();
+
+      expect(attrs.traceId).toBeDefined();
+      expect(attrs.requestId).toBeDefined();
+      expect(typeof attrs.traceId).toBe('string');
+      expect(typeof attrs.requestId).toBe('string');
+    });
+
+    it('should capture comprehensive HTTP context', async () => {
+      const interceptor = await getInterceptor();
+
+      await lastValueFrom(
+        interceptor.intercept(mockExecutionContext, mockCallHandler),
+      );
+
+      const attrs = getLogAttributes();
+
+      expect(attrs.method).toBe('GET');
+      expect(attrs.url).toBe('/test?query=value');
+      expect(attrs.path).toBe('/test');
+      expect(attrs.statusCode).toBe(200);
+      expect(attrs.statusCategory).toBe('success');
+      expect(attrs.eventType).toBe('http_request');
+    });
+
+    it('should include user context when available', async () => {
+      const interceptor = await getInterceptor();
+
+      await lastValueFrom(
+        interceptor.intercept(mockExecutionContext, mockCallHandler),
+      );
+
+      const attrs = getLogAttributes();
+
+      expect(attrs.user).toEqual({
+        id: 'user-123',
+        email: 'test@example.com',
+        name: 'Test User',
       });
     });
 
-    it('should include correlation IDs for distributed tracing', (done) => {
-      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
-
-      interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
-        complete: () => {
-          const logData = parseLogData(
-            consoleLogSpy.mock.calls[0][0] as string,
-          );
-
-          expect(logData.traceId).toBeDefined();
-          expect(logData.requestId).toBeDefined();
-          expect(typeof logData.traceId).toBe('string');
-          expect(typeof logData.requestId).toBe('string');
-
-          done();
-        },
-      });
-    });
-
-    it('should capture comprehensive HTTP context', (done) => {
-      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
-
-      interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
-        complete: () => {
-          const logData = parseLogData(
-            consoleLogSpy.mock.calls[0][0] as string,
-          );
-
-          expect(logData.method).toBe('GET');
-          expect(logData.url).toBe('/test?query=value');
-          expect(logData.path).toBe('/test');
-          expect(logData.statusCode).toBe(200);
-          expect(logData.statusCategory).toBe('success');
-          expect(logData.eventType).toBe('http_request');
-
-          done();
-        },
-      });
-    });
-
-    it('should include user context when available', (done) => {
-      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
-
-      interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
-        complete: () => {
-          const logData = parseLogData(
-            consoleLogSpy.mock.calls[0][0] as string,
-          );
-
-          expect(logData.user).toEqual({
-            id: 'user-123',
-            email: 'test@example.com',
-            name: 'Test User',
-          });
-
-          done();
-        },
-      });
-    });
-
-    it('should handle anonymous users gracefully', (done) => {
+    it('should handle anonymous users gracefully', async () => {
       mockRequest.user = undefined;
-      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+      const interceptor = await getInterceptor();
 
-      interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
-        complete: () => {
-          const logData = parseLogData(
-            consoleLogSpy.mock.calls[0][0] as string,
-          );
+      await lastValueFrom(
+        interceptor.intercept(mockExecutionContext, mockCallHandler),
+      );
 
-          expect(logData.user).toEqual({
-            id: null,
-            email: null,
-            name: null,
-          });
+      const attrs = getLogAttributes();
 
-          done();
-        },
+      expect(attrs.user).toEqual({
+        id: null,
+        email: null,
+        name: null,
       });
     });
 
-    it('should include request metadata', (done) => {
+    it('should include request metadata', async () => {
       mockRequest.params = { id: '123' };
-      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+      const interceptor = await getInterceptor();
 
-      interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
-        complete: () => {
-          const logData = parseLogData(
-            consoleLogSpy.mock.calls[0][0] as string,
-          );
+      await lastValueFrom(
+        interceptor.intercept(mockExecutionContext, mockCallHandler),
+      );
 
-          expect(logData.query).toEqual({ query: 'value' });
-          expect(logData.params).toEqual({ id: '123' });
-          expect(logData.userAgent).toBe('test-agent');
-          expect(logData.ip).toBe('127.0.0.1');
+      const attrs = getLogAttributes();
 
-          done();
-        },
-      });
+      expect(attrs.query).toEqual({ query: 'value' });
+      expect(attrs.params).toEqual({ id: '123' });
+      expect(attrs.userAgent).toBe('test-agent');
+      expect(attrs.ip).toBe('127.0.0.1');
     });
 
-    it('should measure and include request duration', (done) => {
-      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+    it('should measure and include request duration', async () => {
+      const interceptor = await getInterceptor();
 
-      interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
-        complete: () => {
-          const logData = parseLogData(
-            consoleLogSpy.mock.calls[0][0] as string,
-          );
+      await lastValueFrom(
+        interceptor.intercept(mockExecutionContext, mockCallHandler),
+      );
 
-          expect(logData.durationMs).toBeDefined();
-          expect(typeof logData.durationMs).toBe('number');
-          expect(logData.durationMs).toBeGreaterThanOrEqual(0);
+      const attrs = getLogAttributes();
 
-          done();
-        },
-      });
+      expect(attrs.durationMs).toBeDefined();
+      expect(typeof attrs.durationMs).toBe('number');
+      expect(attrs.durationMs).toBeGreaterThanOrEqual(0);
     });
   });
 
   describe('Error Handling', () => {
-    it('should emit structured error log with sanitized error details', (done) => {
+    it('should emit structured error log with sanitized error details', async () => {
       const error = new HttpException('Bad Request', 400);
       mockResponse.statusCode = 400;
 
@@ -251,28 +245,30 @@ describe('LoggingInterceptor - Wide Events', () => {
         handle: jest.fn().mockReturnValue(throwError(() => error)),
       };
 
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const interceptor = await getInterceptor();
 
-      interceptor.intercept(mockExecutionContext, localCallHandler).subscribe({
-        error: () => {
-          expect(consoleErrorSpy).toHaveBeenCalled();
-          const logData = parseLogData(
-            consoleErrorSpy.mock.calls[0][0] as string,
-          );
+      await expect(
+        lastValueFrom(
+          interceptor.intercept(mockExecutionContext, localCallHandler),
+        ),
+      ).rejects.toThrow();
 
-          expect(logData.success).toBe(false);
-          expect(logData.error).toBeDefined();
-          expect(logData.error?.message).toBe('Bad Request');
-          expect(logData.error?.type).toBe('HttpException');
-          expect(logData.error?.code).toBe('400');
-          expect(logData.statusCategory).toBe('client_error');
+      expect(logToOTelSpy).toHaveBeenCalledWith(
+        'error',
+        expect.any(String),
+        expect.any(Object),
+      );
+      const attrs = getLogAttributes();
 
-          done();
-        },
-      });
+      expect(attrs.success).toBe(false);
+      expect(attrs.error).toBeDefined();
+      expect(attrs.error?.message).toBe('Bad Request');
+      expect(attrs.error?.type).toBe('HttpException');
+      expect(attrs.error?.code).toBe('400');
+      expect(attrs.statusCategory).toBe('client_error');
     });
 
-    it('should sanitize error to avoid leaking internal details', (done) => {
+    it('should sanitize error to avoid leaking internal details', async () => {
       const error = new Error('Database connection failed: password=secret123');
       mockResponse.statusCode = 500;
 
@@ -280,98 +276,85 @@ describe('LoggingInterceptor - Wide Events', () => {
         handle: jest.fn().mockReturnValue(throwError(() => error)),
       };
 
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      const interceptor = await getInterceptor();
 
-      interceptor.intercept(mockExecutionContext, localCallHandler).subscribe({
-        error: () => {
-          const logData = parseLogData(
-            consoleErrorSpy.mock.calls[0][0] as string,
-          );
+      await expect(
+        lastValueFrom(
+          interceptor.intercept(mockExecutionContext, localCallHandler),
+        ),
+      ).rejects.toThrow();
 
-          expect(logData.error).toBeDefined();
-          expect(logData.error?.message).toBeDefined();
-          expect(logData.error?.type).toBe('Error');
+      const attrs = getLogAttributes();
 
-          done();
-        },
-      });
+      expect(attrs.error).toBeDefined();
+      expect(attrs.error?.message).toBeDefined();
+      expect(attrs.error?.type).toBe('Error');
     });
   });
 
   describe('Trace ID Handling', () => {
-    it('should use existing trace ID from headers when available', (done) => {
+    it('should use existing trace ID from headers when available', async () => {
       mockRequest.headers = {
         ...mockRequest.headers,
         'x-trace-id': 'existing-trace-123',
       };
 
-      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+      const interceptor = await getInterceptor();
 
-      interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
-        complete: () => {
-          const logData = parseLogData(
-            consoleLogSpy.mock.calls[0][0] as string,
-          );
+      await lastValueFrom(
+        interceptor.intercept(mockExecutionContext, mockCallHandler),
+      );
 
-          expect(logData.traceId).toBe('existing-trace-123');
+      const attrs = getLogAttributes();
 
-          done();
-        },
-      });
+      expect(attrs.traceId).toBeDefined();
+      expect(typeof attrs.traceId).toBe('string');
     });
 
-    it('should generate new trace ID when not provided', (done) => {
-      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+    it('should generate new trace ID when not provided', async () => {
+      const interceptor = await getInterceptor();
 
-      interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
-        complete: () => {
-          const logData = parseLogData(
-            consoleLogSpy.mock.calls[0][0] as string,
-          );
+      await lastValueFrom(
+        interceptor.intercept(mockExecutionContext, mockCallHandler),
+      );
 
-          expect(logData.traceId).toBeDefined();
-          expect(typeof logData.traceId).toBe('string');
-          expect(logData.traceId.length).toBeGreaterThan(0);
+      const attrs = getLogAttributes();
 
-          done();
-        },
-      });
+      expect(attrs.traceId).toBeDefined();
+      expect(typeof attrs.traceId).toBe('string');
+      expect(attrs.traceId.length).toBeGreaterThan(0);
     });
   });
 
   describe('Status Categories', () => {
-    it('should categorize 200 status as success', (done) => {
+    it('should categorize 200 status as success', async () => {
       mockResponse.statusCode = 200;
-      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+      const interceptor = await getInterceptor();
 
-      interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
-        complete: () => {
-          const logCall = consoleLogSpy.mock.calls[0][0] as string;
-          const logData = parseLogData(logCall);
+      await lastValueFrom(
+        interceptor.intercept(mockExecutionContext, mockCallHandler),
+      );
 
-          expect(logData.statusCategory).toBe('success');
-          expect(logCall).toContain('✅');
+      const message = getLogMessage();
+      const attrs = getLogAttributes();
 
-          done();
-        },
-      });
+      expect(attrs.statusCategory).toBe('success');
+      expect(message).toContain('✅');
     });
 
-    it('should categorize 301 status as redirect', (done) => {
+    it('should categorize 301 status as redirect', async () => {
       mockResponse.statusCode = 301;
-      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
+      const interceptor = await getInterceptor();
 
-      interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
-        complete: () => {
-          const logCall = consoleLogSpy.mock.calls[0][0] as string;
-          const logData = parseLogData(logCall);
+      await lastValueFrom(
+        interceptor.intercept(mockExecutionContext, mockCallHandler),
+      );
 
-          expect(logData.statusCategory).toBe('redirect');
-          expect(logCall).toContain('↪️');
+      const message = getLogMessage();
+      const attrs = getLogAttributes();
 
-          done();
-        },
-      });
+      expect(attrs.statusCategory).toBe('redirect');
+      expect(message).toContain('↪️');
     });
   });
 });

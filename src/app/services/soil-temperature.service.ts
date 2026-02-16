@@ -8,7 +8,7 @@ import {
 } from '../types/openmeteo.types';
 import { getRollingDateWindowAroundToday } from '../utils/timeUtils';
 import { injectSettingsService } from './settings.service';
-import { addDays, isBefore } from 'date-fns';
+import { addDays, isBefore, subHours, startOfDay } from 'date-fns';
 import { LocationService } from './location.service';
 import { of } from 'rxjs';
 
@@ -45,11 +45,8 @@ export class SoilTemperatureService {
         this._currentPositionLatLong?.value();
       const now = new Date();
       const endHour = formatDate(now, 'y-MM-ddTHH:00', 'en-US')!;
-      const startHour = formatDate(
-        new Date(now.getTime() - 24 * 60 * 60 * 1000),
-        'y-MM-ddTHH:00',
-        'en-US'
-      )!;
+      const past24Hours = subHours(now, 24);
+      const startHour = formatDate(past24Hours, 'y-MM-ddTHH:00', 'en-US')!;
 
       return coords
         ? {
@@ -98,9 +95,10 @@ export class SoilTemperatureService {
       const coords =
         this._locationService.userLatLong() ||
         this._currentPositionLatLong?.value();
-
-      const maxFutureDate = addDays(new Date(), 7);
-      const isBeforeToday = isBefore(date() || new Date(), new Date());
+      const now = new Date();
+      const todayStart = startOfDay(now);
+      const maxFutureDate = addDays(now, 7);
+      const isBeforeToday = isBefore(date() || now, todayStart);
 
       const isWithinFutureInterval =
         !!date() && isBefore(date()!, maxFutureDate);

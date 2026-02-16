@@ -30,7 +30,7 @@ import { ConfirmationService } from 'primeng/api';
 import { ButtonDesignTokens } from '@primeuix/themes/types/button';
 import { NO_IMAGE_URL } from '../../../constants/style-constants';
 import { TagModule } from 'primeng/tag';
-import { differenceInDays, differenceInMonths } from 'date-fns';
+import { differenceInDays, differenceInMonths, parseISO } from 'date-fns';
 
 @Component({
   selector: 'equipment-view',
@@ -105,8 +105,8 @@ export class EquipmentViewComponent implements OnDestroy {
     if (!eq) return null;
 
     const records = eq.maintenanceRecords;
-    const createdAt = new Date(eq.createdAt);
     const now = new Date();
+    const createdAt = parseISO(eq.createdAt.toString());
     const daysSinceCreation = differenceInDays(now, createdAt);
 
     if (daysSinceCreation <= 2) {
@@ -131,7 +131,7 @@ export class EquipmentViewComponent implements OnDestroy {
       return null;
     }
 
-    const lastMaintenance = new Date(records[0].maintenanceDate);
+    const lastMaintenance = parseISO(records[0].maintenanceDate.toString());
     const monthsSince = differenceInMonths(now, lastMaintenance);
 
     if (monthsSince <= 1) {
@@ -177,7 +177,9 @@ export class EquipmentViewComponent implements OnDestroy {
 
     if (!eq?.purchaseDate) return null;
 
-    return differenceInDays(new Date(), new Date(eq.purchaseDate));
+    const now = new Date();
+
+    return differenceInDays(now, parseISO(eq.purchaseDate.toString()));
   });
 
   public ownedForDisplay = computed(() => {
@@ -206,9 +208,10 @@ export class EquipmentViewComponent implements OnDestroy {
       return null;
     }
 
-    const lastService = new Date(eq.maintenanceRecords[0].maintenanceDate);
+    const now = new Date();
+    const lastService = parseISO(eq.maintenanceRecords[0].maintenanceDate.toString());
 
-    return differenceInDays(new Date(), lastService);
+    return differenceInDays(now, lastService);
   });
 
   public openEquipmentModal(maintenanceRecord?: EquipmentMaintenance): void {
@@ -224,7 +227,7 @@ export class EquipmentViewComponent implements OnDestroy {
         contentStyle: { overflow: 'visible' },
         inputValues: {
           date: maintenanceRecord?.maintenanceDate
-            ? new Date(maintenanceRecord?.maintenanceDate)
+            ? parseISO(maintenanceRecord.maintenanceDate.toString())
             : undefined,
           notes: maintenanceRecord?.notes,
           cost: maintenanceRecord?.cost,

@@ -3,7 +3,7 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { EntriesService } from '../../../services/entries.service';
-import { differenceInDays } from 'date-fns';
+import { differenceInDays, parseISO } from 'date-fns';
 import { getLawnSeasonCompletedPercentageWithTemp } from '../../../utils/lawnSeasonUtils';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { DividerModule } from 'primeng/divider';
@@ -61,7 +61,8 @@ export class QuickStatsComponent {
 
     if (!lastMowDate) return 'N/A';
 
-    const daysSince = differenceInDays(new Date(), new Date(lastMowDate));
+    const now = new Date();
+    const daysSince = differenceInDays(now, parseISO(lastMowDate.toString()));
 
     return daysSince ?? 'N/A';
   });
@@ -71,7 +72,8 @@ export class QuickStatsComponent {
 
     if (!lastEntry) return 'N/A';
 
-    const daysSince = differenceInDays(new Date(), new Date(lastEntry.date));
+    const now = new Date();
+    const daysSince = differenceInDays(now, parseISO(lastEntry.date.toString()));
 
     return daysSince ?? 'N/A';
   });
@@ -82,9 +84,10 @@ export class QuickStatsComponent {
 
     if (!lastProductAppDate) return 'N/A';
 
+    const now = new Date();
     const daysSince = differenceInDays(
-      new Date(),
-      new Date(lastProductAppDate)
+      now,
+      parseISO(lastProductAppDate.toString())
     );
 
     return daysSince ?? 'N/A';

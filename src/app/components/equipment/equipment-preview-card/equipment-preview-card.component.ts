@@ -13,7 +13,7 @@ import { EquipmentMaintenanceAddEditModalComponent } from '../equipment-maintena
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { EquipmentService } from '../../../services/equipment.service';
 import { NO_IMAGE_URL } from '../../../constants/style-constants';
-import { differenceInDays, differenceInMonths } from 'date-fns';
+import { differenceInDays, differenceInMonths, parseISO } from 'date-fns';
 
 @Component({
   selector: 'equipment-preview-card',
@@ -50,8 +50,8 @@ export class EquipmentPreviewCardComponent {
   public maintenanceStatus = computed(() => {
     const equipmentData = this.equipment();
     const records = equipmentData.maintenanceRecords;
-    const createdAt = new Date(equipmentData.createdAt);
     const now = new Date();
+    const createdAt = parseISO(equipmentData.createdAt.toString());
     const daysSinceCreation = differenceInDays(now, createdAt);
 
     if (daysSinceCreation <= 2) return 'new';
@@ -64,7 +64,7 @@ export class EquipmentPreviewCardComponent {
       return 'none';
     }
 
-    const lastMaintenance = new Date(records[0].maintenanceDate);
+    const lastMaintenance = parseISO(records[0].maintenanceDate.toString());
     const monthsSince = differenceInMonths(now, lastMaintenance);
 
     if (monthsSince <= 1) return 'recent';

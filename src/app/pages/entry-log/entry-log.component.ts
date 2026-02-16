@@ -21,7 +21,7 @@ import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
 import { EntriesService } from '../../services/entries.service';
 import { GlobalUiService } from '../../services/global-ui.service';
 import { DividerModule } from 'primeng/divider';
-import { format, isSameDay } from 'date-fns';
+import { format, isSameDay, parseISO, isValid } from 'date-fns';
 import { CardModule } from 'primeng/card';
 import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -72,9 +72,9 @@ export class EntryLogComponent implements OnInit {
         const date = params['date'];
 
         if (date) {
-          const parsedDate = new Date(date);
+          const parsedDate = parseISO(date);
 
-          if (!isNaN(parsedDate.getTime())) {
+          if (isValid(parsedDate)) {
             return parsedDate;
           }
         }
@@ -109,7 +109,7 @@ export class EntryLogComponent implements OnInit {
         return this.entries
           .value()
           ?.filter((entry) =>
-            isSameDay(new Date(entry.date), newMobileDateToView)
+            isSameDay(parseISO(entry.date.toString()), newMobileDateToView)
           )
           .map((entry) => {
             const time = entry.time
@@ -139,7 +139,7 @@ export class EntryLogComponent implements OnInit {
 
       return {
         id: crypto.randomUUID(),
-        date: new Date(entry.date),
+        date: parseISO(entry.date.toString()),
         icon,
         data: { entry }
       };

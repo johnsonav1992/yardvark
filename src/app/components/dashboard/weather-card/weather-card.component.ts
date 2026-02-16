@@ -11,6 +11,7 @@ import {
   getForecastMarkerIcon
 } from '../../../utils/weatherUtils';
 import type { WeatherPeriod } from '../../../types/weather.types';
+import { format, parseISO } from 'date-fns';
 
 @Component({
   selector: 'weather-card',
@@ -109,8 +110,8 @@ export class WeatherCardComponent {
     isDaytime?: boolean;
   }): WeatherPeriod | undefined {
     return forecasts.find((period) => {
-      const periodDate = new Date(period.startTime);
-      const matchesDate = periodDate.toDateString() === dateString;
+      const periodDate = parseISO(period.startTime);
+      const matchesDate = format(periodDate, 'EEE MMM dd yyyy') === dateString;
       const matchesDayTime =
         isDaytime === undefined || period.isDaytime === isDaytime;
 
@@ -119,7 +120,7 @@ export class WeatherCardComponent {
   }
 
   private getTodayDateString(): string {
-    return new Date().toDateString();
+    return format(new Date(), 'EEE MMM dd yyyy');
   }
 
   public hideWidget(): void {

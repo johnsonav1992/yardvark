@@ -19,7 +19,7 @@ import { TagModule } from 'primeng/tag';
 import { DatePipe } from '@angular/common';
 import { DialogService } from 'primeng/dynamicdialog';
 import { EquipmentMaintenanceAddEditModalComponent } from '../../components/equipment/equipment-maintenance-add-edit-modal/equipment-maintenance-add-edit-modal.component';
-import { differenceInDays, differenceInMonths } from 'date-fns';
+import { differenceInDays, differenceInMonths, parseISO } from 'date-fns';
 import { Equipment } from '../../types/equipment.types';
 import { NO_IMAGE_URL } from '../../constants/style-constants';
 
@@ -125,8 +125,8 @@ export class EquipmentComponent {
 
   public getMaintenanceStatusConfig(equipment: Equipment) {
     const records = equipment.maintenanceRecords;
-    const createdAt = new Date(equipment.createdAt);
     const now = new Date();
+    const createdAt = parseISO(equipment.createdAt.toString());
     const daysSinceCreation = differenceInDays(now, createdAt);
 
     if (daysSinceCreation <= 2) {
@@ -151,7 +151,7 @@ export class EquipmentComponent {
       return null;
     }
 
-    const lastMaintenance = new Date(records[0].maintenanceDate);
+    const lastMaintenance = parseISO(records[0].maintenanceDate.toString());
     const monthsSince = differenceInMonths(now, lastMaintenance);
 
     if (monthsSince <= 1) {

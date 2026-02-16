@@ -20,6 +20,7 @@ import { ACTIVITY_IDS } from 'src/constants/activities.constants';
 import { LogHelpers } from '../../../logger/logger.helpers';
 import { Either, error, success } from '../../../types/either';
 import { EntriesNotFound, EntryNotFound } from '../models/entries.errors';
+import { parseISO, startOfDay, endOfDay, getYear, startOfYear } from 'date-fns';
 
 @Injectable()
 export class EntriesService {
@@ -44,7 +45,7 @@ export class EntriesService {
         userId,
         date:
           startDate && endDate
-            ? Between(new Date(startDate), new Date(endDate))
+            ? Between(parseISO(startDate), parseISO(endDate))
             : undefined,
       },
       relations: {
@@ -99,7 +100,7 @@ export class EntriesService {
     Either<EntryNotFound, ReturnType<typeof getEntryResponseMapping>>
   > {
     const entry = await this._entriesRepo.findOne({
-      where: { userId, date: new Date(date) },
+      where: { userId, date: parseISO(date) },
       relations: {
         activities: true,
         lawnSegments: true,
@@ -118,16 +119,12 @@ export class EntriesService {
   }
 
   public async getMostRecentEntry(userId: string) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const endOfToday = new Date();
-    endOfToday.setHours(23, 59, 59, 999);
+    const todayEnd = endOfDay(new Date());
 
     const entry = await this._entriesRepo.findOne({
       where: {
         userId,
-        date: Between(new Date(0), endOfToday),
+        date: Between(new Date(0), todayEnd),
       },
       order: {
         date: 'DESC',
@@ -346,13 +343,13 @@ export class EntriesService {
     searchCriteria: EntriesSearchRequest,
   ) {
     const today = new Date();
-    const startOfYear = new Date(today.getFullYear(), 0, 1);
+    const yearStart = startOfYear(today);
 
     const startDate = searchCriteria.dateRange?.[0]
-      ? new Date(searchCriteria.dateRange[0])
-      : startOfYear;
+      ? parseISO(searchCriteria.dateRange[0])
+      : yearStart;
     const endDate = searchCriteria.dateRange?.[1]
-      ? new Date(searchCriteria.dateRange[1])
+      ? parseISO(searchCriteria.dateRange[1])
       : today;
 
     const baseConditions: FindOptionsWhere<Entry> = {
@@ -439,8 +436,8 @@ export class EntriesService {
 
     if (startDate && endDate) {
       query = query.andWhere('entry.date BETWEEN :startDate AND :endDate', {
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
+        startDate: parseISO(startDate),
+        endDate: parseISO(endDate),
       });
     }
 

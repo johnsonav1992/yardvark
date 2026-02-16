@@ -20,6 +20,7 @@ import {
   getDayLabelsCenteredAroundToday,
   HOURS_IN_A_DAY
 } from '../../utils/timeUtils';
+import { getYear, getMonth, getDate, getHours, format } from 'date-fns';
 
 @Component({
   selector: 'soil-data',
@@ -153,15 +154,11 @@ export class SoilDataComponent {
     if (!hourly) return -1;
 
     const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hour = String(now.getHours()).padStart(2, '0');
-    const nowLocal = `${year}-${month}-${day}T${hour}`;
+    const nowLocal = format(now, "yyyy-MM-dd'T'HH");
 
     const index = hourly.time.findIndex((t) => t.startsWith(nowLocal));
 
-    return index >= 0 ? index : 7 * HOURS_IN_A_DAY + now.getHours();
+    return index >= 0 ? index : 7 * HOURS_IN_A_DAY + getHours(now);
   });
 
   public currentShallowTemp = computed(() => {

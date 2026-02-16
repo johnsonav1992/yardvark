@@ -8,17 +8,23 @@ import {
   QUERY_REPLACEMENTS,
   ACTIVITY_ENHANCEMENTS,
 } from './entryRagConstants';
+import { getYear, getMonth, startOfMonth, endOfMonth, startOfYear, endOfYear, format as formatDate } from 'date-fns';
 
 export function extractDateRange(
   query: string,
 ): { startDate: string; endDate: string } | null {
   const lowerQuery = query.toLowerCase();
-  const currentYear = new Date().getFullYear();
+  const currentYear = getYear(new Date());
 
-  const createRange = (year: number, month: number) => ({
-    startDate: new Date(year, month, 1).toISOString().split('T')[0],
-    endDate: new Date(year, month + 1, 0).toISOString().split('T')[0],
-  });
+  const createRange = (year: number, month: number) => {
+    const monthStart = startOfMonth(new Date(year, month));
+    const monthEnd = endOfMonth(new Date(year, month));
+
+    return {
+      startDate: formatDate(monthStart, 'yyyy-MM-dd'),
+      endDate: formatDate(monthEnd, 'yyyy-MM-dd'),
+    };
+  };
 
   const monthYearMatch = lowerQuery.match(QUERY_PATTERNS.MONTH_YEAR);
 
@@ -44,10 +50,12 @@ export function extractDateRange(
 
   if (yearMatch) {
     const year = parseInt(yearMatch[1]);
+    const yearStart = startOfYear(new Date(year, 0));
+    const yearEnd = endOfYear(new Date(year, 0));
 
     return {
-      startDate: new Date(year, 0, 1).toISOString().split('T')[0],
-      endDate: new Date(year, 11, 31).toISOString().split('T')[0],
+      startDate: formatDate(yearStart, 'yyyy-MM-dd'),
+      endDate: formatDate(yearEnd, 'yyyy-MM-dd'),
     };
   }
 
@@ -97,7 +105,7 @@ export function getActivitySynonyms(activities: { name: string }[]): string[] {
 }
 
 export function getSeason(date: Date): string {
-  const month = date.getMonth();
+  const month = getMonth(date);
 
   if (month >= 2 && month <= 4) return 'spring';
   if (month >= 5 && month <= 7) return 'summer';
@@ -110,12 +118,15 @@ export function createEntryEmbeddingText(entry: Entry): string {
   const parts: string[] = [];
 
   if (entry.date) {
-    const date = new Date(entry.date);
+    const date = entry.date instanceof Date ? entry.date : new Date(entry.date);
+    const dateString = formatDate(date, 'yyyy-MM-dd');
+    const monthName = formatDate(date, 'MMMM');
+    const year = getYear(date);
 
     parts.push(
-      `Date: ${entry.date.toISOString().split('T')[0]}`,
-      `Month: ${date.toLocaleString('default', { month: 'long' })}`,
-      `Year: ${date.getFullYear()}`,
+      `Date: ${dateString}`,
+      `Month: ${monthName}`,
+      `Year: ${year}`,
       `Season: ${getSeason(date)}`,
     );
   }

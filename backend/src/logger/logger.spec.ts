@@ -3,6 +3,7 @@ import { LoggingInterceptor } from './logger';
 import { ExecutionContext, CallHandler, HttpException } from '@nestjs/common';
 import { of, throwError } from 'rxjs';
 import { Request, Response } from 'express';
+import { SubscriptionService } from '../modules/subscription/services/subscription.service';
 
 interface ParsedLogData {
   timestamp: string;
@@ -37,8 +38,24 @@ describe('LoggingInterceptor - Wide Events', () => {
   let mockResponse: Partial<Response>;
 
   beforeEach(async () => {
+    const mockSubscriptionService = {
+      checkFeatureAccess: jest.fn().mockReturnValue(of({ allowed: true })),
+      getOrCreateSubscription: jest.fn().mockReturnValue(
+        of({
+          isSuccess: () => true,
+          value: { tier: 'free', status: 'active' },
+        }),
+      ),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
-      providers: [LoggingInterceptor],
+      providers: [
+        LoggingInterceptor,
+        {
+          provide: SubscriptionService,
+          useValue: mockSubscriptionService,
+        },
+      ],
     }).compile();
 
     interceptor = await module.resolve<LoggingInterceptor>(LoggingInterceptor);
@@ -83,12 +100,12 @@ describe('LoggingInterceptor - Wide Events', () => {
 
   describe('Wide Event Structure', () => {
     it('should emit structured log with comprehensive context on success', (done) => {
-      const logSpy = jest.spyOn(interceptor['logger'], 'log');
+      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          expect(logSpy).toHaveBeenCalled();
-          const logCall = logSpy.mock.calls[0][0] as string;
+          expect(consoleLogSpy).toHaveBeenCalled();
+          const logCall = consoleLogSpy.mock.calls[0][0] as string;
 
           expect(logCall).toContain('✅');
           expect(logCall).toContain('GET');
@@ -99,17 +116,20 @@ describe('LoggingInterceptor - Wide Events', () => {
           expect(logCall).toContain('requestId');
           expect(logCall).toContain('durationMs');
 
+          consoleLogSpy.mockRestore();
           done();
         },
       });
     });
 
     it('should include correlation IDs for distributed tracing', (done) => {
-      const logSpy = jest.spyOn(interceptor['logger'], 'log');
+      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logData = parseLogData(logSpy.mock.calls[0][0] as string);
+          const logData = parseLogData(
+            consoleLogSpy.mock.calls[0][0] as string,
+          );
 
           expect(logData.traceId).toBeDefined();
           expect(logData.requestId).toBeDefined();
@@ -122,11 +142,13 @@ describe('LoggingInterceptor - Wide Events', () => {
     });
 
     it('should capture comprehensive HTTP context', (done) => {
-      const logSpy = jest.spyOn(interceptor['logger'], 'log');
+      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logData = parseLogData(logSpy.mock.calls[0][0] as string);
+          const logData = parseLogData(
+            consoleLogSpy.mock.calls[0][0] as string,
+          );
 
           expect(logData.method).toBe('GET');
           expect(logData.url).toBe('/test?query=value');
@@ -141,11 +163,13 @@ describe('LoggingInterceptor - Wide Events', () => {
     });
 
     it('should include user context when available', (done) => {
-      const logSpy = jest.spyOn(interceptor['logger'], 'log');
+      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logData = parseLogData(logSpy.mock.calls[0][0] as string);
+          const logData = parseLogData(
+            consoleLogSpy.mock.calls[0][0] as string,
+          );
 
           expect(logData.user).toEqual({
             id: 'user-123',
@@ -160,11 +184,13 @@ describe('LoggingInterceptor - Wide Events', () => {
 
     it('should handle anonymous users gracefully', (done) => {
       mockRequest.user = undefined;
-      const logSpy = jest.spyOn(interceptor['logger'], 'log');
+      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logData = parseLogData(logSpy.mock.calls[0][0] as string);
+          const logData = parseLogData(
+            consoleLogSpy.mock.calls[0][0] as string,
+          );
 
           expect(logData.user).toEqual({
             id: null,
@@ -179,11 +205,13 @@ describe('LoggingInterceptor - Wide Events', () => {
 
     it('should include request metadata', (done) => {
       mockRequest.params = { id: '123' };
-      const logSpy = jest.spyOn(interceptor['logger'], 'log');
+      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logData = parseLogData(logSpy.mock.calls[0][0] as string);
+          const logData = parseLogData(
+            consoleLogSpy.mock.calls[0][0] as string,
+          );
 
           expect(logData.query).toEqual({ query: 'value' });
           expect(logData.params).toEqual({ id: '123' });
@@ -196,11 +224,13 @@ describe('LoggingInterceptor - Wide Events', () => {
     });
 
     it('should measure and include request duration', (done) => {
-      const logSpy = jest.spyOn(interceptor['logger'], 'log');
+      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logData = parseLogData(logSpy.mock.calls[0][0] as string);
+          const logData = parseLogData(
+            consoleLogSpy.mock.calls[0][0] as string,
+          );
 
           expect(logData.durationMs).toBeDefined();
           expect(typeof logData.durationMs).toBe('number');
@@ -221,12 +251,14 @@ describe('LoggingInterceptor - Wide Events', () => {
         handle: jest.fn().mockReturnValue(throwError(() => error)),
       };
 
-      const errorSpy = jest.spyOn(interceptor['logger'], 'error');
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       interceptor.intercept(mockExecutionContext, localCallHandler).subscribe({
         error: () => {
-          expect(errorSpy).toHaveBeenCalled();
-          const logData = parseLogData(errorSpy.mock.calls[0][0] as string);
+          expect(consoleErrorSpy).toHaveBeenCalled();
+          const logData = parseLogData(
+            consoleErrorSpy.mock.calls[0][0] as string,
+          );
 
           expect(logData.success).toBe(false);
           expect(logData.error).toBeDefined();
@@ -248,11 +280,13 @@ describe('LoggingInterceptor - Wide Events', () => {
         handle: jest.fn().mockReturnValue(throwError(() => error)),
       };
 
-      const errorSpy = jest.spyOn(interceptor['logger'], 'error');
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       interceptor.intercept(mockExecutionContext, localCallHandler).subscribe({
         error: () => {
-          const logData = parseLogData(errorSpy.mock.calls[0][0] as string);
+          const logData = parseLogData(
+            consoleErrorSpy.mock.calls[0][0] as string,
+          );
 
           expect(logData.error).toBeDefined();
           expect(logData.error?.message).toBeDefined();
@@ -271,11 +305,13 @@ describe('LoggingInterceptor - Wide Events', () => {
         'x-trace-id': 'existing-trace-123',
       };
 
-      const logSpy = jest.spyOn(interceptor['logger'], 'log');
+      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logData = parseLogData(logSpy.mock.calls[0][0] as string);
+          const logData = parseLogData(
+            consoleLogSpy.mock.calls[0][0] as string,
+          );
 
           expect(logData.traceId).toBe('existing-trace-123');
 
@@ -285,11 +321,13 @@ describe('LoggingInterceptor - Wide Events', () => {
     });
 
     it('should generate new trace ID when not provided', (done) => {
-      const logSpy = jest.spyOn(interceptor['logger'], 'log');
+      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logData = parseLogData(logSpy.mock.calls[0][0] as string);
+          const logData = parseLogData(
+            consoleLogSpy.mock.calls[0][0] as string,
+          );
 
           expect(logData.traceId).toBeDefined();
           expect(typeof logData.traceId).toBe('string');
@@ -304,11 +342,11 @@ describe('LoggingInterceptor - Wide Events', () => {
   describe('Status Categories', () => {
     it('should categorize 200 status as success', (done) => {
       mockResponse.statusCode = 200;
-      const logSpy = jest.spyOn(interceptor['logger'], 'log');
+      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logCall = logSpy.mock.calls[0][0] as string;
+          const logCall = consoleLogSpy.mock.calls[0][0] as string;
           const logData = parseLogData(logCall);
 
           expect(logData.statusCategory).toBe('success');
@@ -321,11 +359,11 @@ describe('LoggingInterceptor - Wide Events', () => {
 
     it('should categorize 301 status as redirect', (done) => {
       mockResponse.statusCode = 301;
-      const logSpy = jest.spyOn(interceptor['logger'], 'log');
+      const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
 
       interceptor.intercept(mockExecutionContext, mockCallHandler).subscribe({
         complete: () => {
-          const logCall = logSpy.mock.calls[0][0] as string;
+          const logCall = consoleLogSpy.mock.calls[0][0] as string;
           const logData = parseLogData(logCall);
 
           expect(logData.statusCategory).toBe('redirect');

@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
@@ -11,7 +11,7 @@ import { ButtonModule } from 'primeng/button';
   styleUrl: './upgrade-prompt.component.scss'
 })
 export class UpgradePromptComponent {
-  @Input() message = 'Upgrade to unlock this feature';
+  message = input<string>('Upgrade to unlock this feature');
   private router = inject(Router);
 
   navigateToSubscription() {

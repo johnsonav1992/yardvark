@@ -40,7 +40,7 @@ describe('AiController', () => {
       const mockResponse = {
         content: 'Test response',
         model: 'gemini-2.0-flash',
-        provider: 'gemini',
+        provider: 'gemini' as const,
       };
 
       jest.spyOn(aiService, 'chat').mockResolvedValue(success(mockResponse));
@@ -75,7 +75,7 @@ describe('AiController', () => {
       const mockResponse = {
         content: 'Query response',
         model: 'gemini-2.0-flash',
-        provider: 'gemini',
+        provider: 'gemini' as const,
       };
 
       jest
@@ -103,7 +103,7 @@ describe('AiController', () => {
       const mockResponse = {
         content: 'Query response',
         model: 'gemini-2.0-flash',
-        provider: 'gemini',
+        provider: 'gemini' as const,
       };
 
       jest

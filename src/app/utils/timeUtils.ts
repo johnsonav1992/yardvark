@@ -1,3 +1,5 @@
+import { subDays, addDays, getDay, addMonths, getMonth, getDate, getYear, setHours, setMinutes, setSeconds, setMilliseconds } from 'date-fns';
+
 /**
  * Gets the start and end dates of a rolling two-week window centered around the current date.
  *
@@ -7,11 +9,8 @@
  */
 export const getRollingDateWindowAroundToday = () => {
   const today = new Date();
-  const startDate = new Date(today);
-  const endDate = new Date(today);
-
-  startDate.setDate(today.getDate() - 7);
-  endDate.setDate(today.getDate() + 7);
+  const startDate = subDays(today, 7);
+  const endDate = addDays(today, 7);
 
   return {
     startDate,
@@ -34,12 +33,11 @@ export const getDayLabelsCenteredAroundToday = (opts?: {
   tinyDayNames?: boolean;
 }) => {
   const today = new Date();
-  const todayIndex = today.getDay();
+  const todayIndex = getDay(today);
   const labels = [];
 
   for (let i = -7; i <= 7; i++) {
-    const currentDate = new Date(today);
-    currentDate.setDate(today.getDate() + i);
+    const currentDate = addDays(today, i);
     const dayIndex = (todayIndex + i + 7) % 7;
 
     let label;
@@ -54,7 +52,7 @@ export const getDayLabelsCenteredAroundToday = (opts?: {
     }
 
     if (opts?.includeDates) {
-      const dateStr = `${currentDate.getMonth() + 1}/${currentDate.getDate()}`;
+      const dateStr = `${getMonth(currentDate) + 1}/${getDate(currentDate)}`;
       label += ` ${dateStr}`;
     }
 
@@ -108,13 +106,18 @@ export const debounce = <T extends (...args: any[]) => void>(
 export const convertTimeStringToDate = (
   timeString: string | null
 ): Date | null => {
-  if (!timeString) return null;
+  if (!timeString) {
+    return null;
+  }
 
   const today = new Date();
   const [hours, minutes, seconds] = timeString.split(':').map(Number);
+  let result = setHours(today, hours || 0);
+  result = setMinutes(result, minutes || 0);
+  result = setSeconds(result, seconds || 0);
+  result = setMilliseconds(result, 0);
 
-  today.setHours(hours || 0, minutes || 0, seconds || 0, 0);
-  return today;
+  return result;
 };
 
 /**
@@ -131,5 +134,9 @@ export const isTimeString = (value: string): boolean => {
  * @param day The day of the month to get.
  * @returns A Date object for the specified day in the given month.
  */
-export const getSpecificDayOfMonth = (monthDate: Date, day: number): Date =>
-  new Date(monthDate.getFullYear(), monthDate.getMonth(), day);
+export const getSpecificDayOfMonth = (monthDate: Date, day: number): Date => {
+  const year = getYear(monthDate);
+  const month = getMonth(monthDate);
+
+  return new Date(year, month, day);
+};

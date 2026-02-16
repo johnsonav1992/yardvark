@@ -2,7 +2,7 @@ import { TooltipItem } from 'chart.js';
 import { shortMonthNames } from '../constants/time-constants';
 import { AnalyticsChartConfig, AnalyticsRes } from '../types/analytics.types';
 import { getPrimeNgHexColor } from './styleUtils';
-import { format } from 'date-fns';
+import { format, getMonth } from 'date-fns';
 import { getPoundsOfNInFertilizerApp } from './lawnCalculatorUtils';
 
 export const LIQUID_OZ_AS_WEIGHT_IN_POUNDS = 0.1;
@@ -16,7 +16,7 @@ export const LIQUID_OZ_AS_WEIGHT_IN_POUNDS = 0.1;
  */
 export const getMonthAbbreviations = (
   startMonth = 1,
-  endMonth = new Date().getMonth()
+  endMonth = getMonth(new Date())
 ) => {
   const monthNames = shortMonthNames;
   const months: string[] = [];

@@ -24,7 +24,9 @@ export const isMasterUser = (user: Maybe<YVUser>): boolean => {
 };
 
 export const getUserInitials = (user: Maybe<YVUser>): string => {
-  if (!user?.name) return '';
+  if (!user?.name) {
+    return '';
+  }
 
   const nameParts = user.name.split(' ');
 

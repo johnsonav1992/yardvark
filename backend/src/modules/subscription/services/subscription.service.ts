@@ -34,6 +34,7 @@ import {
   SubscriptionFetchError,
   FeatureAccessError,
 } from '../models/subscription.errors';
+import { startOfMonth, addMonths, startOfDay } from 'date-fns';
 
 export type FeatureAccessResult = {
   allowed: boolean;
@@ -104,12 +105,9 @@ export class SubscriptionService {
   }
 
   private getCurrentMonthPeriod(): { start: Date; end: Date } {
-    const start = new Date();
-    start.setDate(1);
-    start.setHours(0, 0, 0, 0);
-
-    const end = new Date(start);
-    end.setMonth(end.getMonth() + 1);
+    const now = new Date();
+    const start = startOfDay(startOfMonth(now));
+    const end = addMonths(start, 1);
 
     return { start, end };
   }
@@ -492,7 +490,7 @@ export class SubscriptionService {
 
       subscription.tier = SUBSCRIPTION_TIERS.FREE;
       subscription.status = SUBSCRIPTION_STATUSES.CANCELED;
-      subscription.canceledAt = new Date();
+      subscription.canceledAt = startOfDay(new Date());
 
       await this.subscriptionRepo.save(subscription);
 
@@ -589,7 +587,7 @@ export class SubscriptionService {
 
       if (existingUsage) {
         existingUsage.usageCount += 1;
-        existingUsage.lastUpdated = new Date();
+        existingUsage.lastUpdated = startOfDay(new Date());
 
         await this.usageRepo.save(existingUsage);
 

@@ -4,6 +4,12 @@ import { GeminiService } from './gemini.service';
 import { EmbeddingService } from './embedding.service';
 import { EntriesService } from '../../entries/services/entries.service';
 
+jest.mock('../../entries/utils/entryRagUtils', () => ({
+  extractDateRange: jest.fn(() => null),
+  preprocessQuery: jest.fn((query: string) => query),
+  buildContextFromEntries: jest.fn(() => 'mocked context'),
+}));
+
 describe('AiService', () => {
   let service: AiService;
   let geminiService: GeminiService;
@@ -61,7 +67,7 @@ describe('AiService', () => {
       const mockResponse = {
         content: 'Test response',
         model: 'gemini-2.0-flash',
-        provider: 'gemini',
+        provider: 'gemini' as const,
       };
 
       jest.spyOn(geminiService, 'simpleChat').mockResolvedValue(mockResponse);
@@ -93,7 +99,7 @@ describe('AiService', () => {
       const mockResponse = {
         content: 'System response',
         model: 'gemini-2.0-flash',
-        provider: 'gemini',
+        provider: 'gemini' as const,
       };
 
       jest
@@ -140,12 +146,18 @@ describe('AiService', () => {
           userId: 'user1',
           date: new Date('2024-01-01'),
           notes: 'Test entry',
+          soilTemperature: null,
+          soilTemperatureUnit: null,
+          activities: [],
+          lawnSegments: [],
+          embedding: null,
+          products: [],
         },
       ];
       const mockResponse = {
         content: 'Query response',
         model: 'gemini-2.0-flash',
-        provider: 'gemini',
+        provider: 'gemini' as const,
       };
 
       jest
@@ -154,7 +166,7 @@ describe('AiService', () => {
 
       jest
         .spyOn(entriesService, 'searchEntriesByVector')
-        .mockResolvedValue(mockEntries);
+        .mockResolvedValue(mockEntries as any);
 
       jest
         .spyOn(geminiService, 'chatWithSystem')
@@ -196,19 +208,31 @@ describe('AiService', () => {
           userId: 'user1',
           date: new Date('2024-01-01'),
           notes: 'Test entry 1',
+          soilTemperature: null,
+          soilTemperatureUnit: null,
+          activities: [],
+          lawnSegments: [],
+          embedding: null,
+          products: [],
         },
         {
           id: 2,
           userId: 'user1',
           date: new Date('2024-01-02'),
           notes: 'Test entry 2',
+          soilTemperature: null,
+          soilTemperatureUnit: null,
+          activities: [],
+          lawnSegments: [],
+          embedding: null,
+          products: [],
         },
       ];
       const mockEmbedding = [0.1, 0.2, 0.3];
 
       jest
         .spyOn(entriesService, 'getEntriesWithoutEmbeddings')
-        .mockResolvedValue(mockEntries);
+        .mockResolvedValue(mockEntries as any);
 
       jest
         .spyOn(embeddingService, 'embedEntry')
@@ -239,19 +263,31 @@ describe('AiService', () => {
           userId: 'user1',
           date: new Date('2024-01-01'),
           notes: 'Test entry 1',
+          soilTemperature: null,
+          soilTemperatureUnit: null,
+          activities: [],
+          lawnSegments: [],
+          embedding: null,
+          products: [],
         },
         {
           id: 2,
           userId: 'user1',
           date: new Date('2024-01-02'),
           notes: 'Test entry 2',
+          soilTemperature: null,
+          soilTemperatureUnit: null,
+          activities: [],
+          lawnSegments: [],
+          embedding: null,
+          products: [],
         },
       ];
       const mockEmbedding = [0.1, 0.2, 0.3];
 
       jest
         .spyOn(entriesService, 'getEntriesWithoutEmbeddings')
-        .mockResolvedValue(mockEntries);
+        .mockResolvedValue(mockEntries as any);
 
       jest
         .spyOn(embeddingService, 'embedEntry')

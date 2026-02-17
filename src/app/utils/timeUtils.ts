@@ -121,14 +121,6 @@ export const convertTimeStringToDate = (
 };
 
 /**
- * Checks to see if a string is a valid time string in the format HH:mm:ss.
- */
-export const isTimeString = (value: string): boolean => {
-  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
-  return timeRegex.test(value);
-};
-
-/**
  * Gets a specific day of the month for a given month date.
  * @param monthDate The date representing the month.
  * @param day The day of the month to get.

@@ -35,21 +35,3 @@ export class AiEmbeddingError extends ResourceError {
     });
   }
 }
-
-export class PromptRequired extends ResourceValidationError {
-  constructor() {
-    super({
-      message: 'Prompt is required',
-      code: 'PROMPT_REQUIRED',
-    });
-  }
-}
-
-export class QueryRequired extends ResourceValidationError {
-  constructor() {
-    super({
-      message: 'Query is required',
-      code: 'QUERY_REQUIRED',
-    });
-  }
-}

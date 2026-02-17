@@ -70,7 +70,3 @@ export class SubscriptionService {
     this.subscription.reload();
   }
 }
-
-export function injectSubscriptionService() {
-  return inject(SubscriptionService);
-}

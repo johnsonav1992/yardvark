@@ -23,15 +23,6 @@ export class StripeCustomerNotFound extends ResourceNotFound {
   }
 }
 
-export class InvalidTier extends ResourceValidationError {
-  constructor(tier: string, validTiers: string[]) {
-    super({
-      message: `Invalid tier: ${tier}. Must be one of: ${validTiers.join(', ')}`,
-      code: 'INVALID_TIER',
-    });
-  }
-}
-
 export class PriceIdNotConfigured extends ResourceError {
   constructor(tier: string) {
     super({

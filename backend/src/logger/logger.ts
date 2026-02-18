@@ -326,10 +326,11 @@ export class LoggingInterceptor implements NestInterceptor {
     response: { statusCode: number },
     err: unknown,
   ): number {
-    return (
-      response.statusCode ??
-      (err instanceof HttpException ? err.getStatus() : 500)
-    );
+    if (err instanceof HttpException) {
+      return err.getStatus();
+    }
+
+    return response.statusCode >= 400 ? response.statusCode : 500;
   }
 
   private sanitizeError(err: unknown): HttpLogEntry['error'] {

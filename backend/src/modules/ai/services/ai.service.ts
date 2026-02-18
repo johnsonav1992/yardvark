@@ -3,6 +3,7 @@ import { GeminiService } from './gemini.service';
 import { EmbeddingService } from './embedding.service';
 import { EntriesService } from '../../entries/services/entries.service';
 import { Either, error, success } from '../../../types/either';
+import { resultOrThrow } from '../../../utils/resultOrThrow';
 import { AiChatResponse } from '../../../types/ai.types';
 import {
   AiChatError,
@@ -64,12 +65,14 @@ export class AiService {
       const queryEmbedding =
         await this.embeddingService.generateEmbedding(preprocessedQuery);
       const dateRange = extractDateRange(naturalQuery);
-      const relevantEntries = await this.entriesService.searchEntriesByVector({
-        userId,
-        queryEmbedding,
-        startDate: dateRange?.startDate,
-        endDate: dateRange?.endDate,
-      });
+      const relevantEntries = resultOrThrow(
+        await this.entriesService.searchEntriesByVector({
+          userId,
+          queryEmbedding,
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        }),
+      );
 
       LogHelpers.addBusinessContext('ragEntriesFound', relevantEntries.length);
 
@@ -102,12 +105,15 @@ export class AiService {
       const queryEmbedding =
         await this.embeddingService.generateEmbedding(preprocessedQuery);
       const dateRange = extractDateRange(naturalQuery);
-      const relevantEntries = await this.entriesService.searchEntriesByVector({
-        userId,
-        queryEmbedding,
-        startDate: dateRange?.startDate,
-        endDate: dateRange?.endDate,
-      });
+
+      const relevantEntries = resultOrThrow(
+        await this.entriesService.searchEntriesByVector({
+          userId,
+          queryEmbedding,
+          startDate: dateRange?.startDate,
+          endDate: dateRange?.endDate,
+        }),
+      );
 
       LogHelpers.addBusinessContext('ragEntriesFound', relevantEntries.length);
 

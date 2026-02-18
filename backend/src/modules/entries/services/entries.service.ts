@@ -19,8 +19,12 @@ import { getEntryResponseMapping } from '../utils/entryUtils';
 import { ACTIVITY_IDS } from 'src/constants/activities.constants';
 import { LogHelpers } from '../../../logger/logger.helpers';
 import { Either, error, success } from '../../../types/either';
-import { EntriesNotFound, EntryNotFound } from '../models/entries.errors';
-import { parseISO, startOfDay, endOfDay, getYear, startOfYear } from 'date-fns';
+import {
+  EntriesNotFound,
+  EntryNotFound,
+  InvalidDateRange,
+} from '../models/entries.errors';
+import { parseISO, isValid, startOfDay, endOfDay, getYear, startOfYear } from 'date-fns';
 
 @Injectable()
 export class EntriesService {
@@ -38,8 +42,20 @@ export class EntriesService {
     startDate?: string,
     endDate?: string,
   ): Promise<
-    Either<EntriesNotFound, ReturnType<typeof getEntryResponseMapping>[]>
+    Either<
+      EntriesNotFound | InvalidDateRange,
+      ReturnType<typeof getEntryResponseMapping>[]
+    >
   > {
+    if (startDate && endDate) {
+      const parsedStart = parseISO(startDate);
+      const parsedEnd = parseISO(endDate);
+
+      if (!isValid(parsedStart) || !isValid(parsedEnd)) {
+        return error(new InvalidDateRange());
+      }
+    }
+
     const entries = await this._entriesRepo.find({
       where: {
         userId,
@@ -97,10 +113,19 @@ export class EntriesService {
     userId: string,
     date: string,
   ): Promise<
-    Either<EntryNotFound, ReturnType<typeof getEntryResponseMapping>>
+    Either<
+      EntryNotFound | InvalidDateRange,
+      ReturnType<typeof getEntryResponseMapping>
+    >
   > {
+    const parsedDate = parseISO(date);
+
+    if (!isValid(parsedDate)) {
+      return error(new InvalidDateRange());
+    }
+
     const entry = await this._entriesRepo.findOne({
-      where: { userId, date: parseISO(date) },
+      where: { userId, date: parsedDate },
       relations: {
         activities: true,
         lawnSegments: true,
@@ -341,7 +366,9 @@ export class EntriesService {
   public async searchEntries(
     userId: string,
     searchCriteria: EntriesSearchRequest,
-  ) {
+  ): Promise<
+    Either<InvalidDateRange, ReturnType<typeof getEntryResponseMapping>[]>
+  > {
     const today = new Date();
     const yearStart = startOfYear(today);
 
@@ -351,6 +378,10 @@ export class EntriesService {
     const endDate = searchCriteria.dateRange?.[1]
       ? parseISO(searchCriteria.dateRange[1])
       : today;
+
+    if (!isValid(startDate) || !isValid(endDate)) {
+      return error(new InvalidDateRange());
+    }
 
     const baseConditions: FindOptionsWhere<Entry> = {
       userId,
@@ -398,7 +429,7 @@ export class EntriesService {
 
     LogHelpers.addBusinessContext('searchResultsCount', entries.length);
 
-    return entries.map((entry) => getEntryResponseMapping(entry));
+    return success(entries.map((entry) => getEntryResponseMapping(entry)));
   }
 
   public async softDeleteEntryImage(entryImageId: number) {
@@ -421,7 +452,7 @@ export class EntriesService {
     limit?: number;
     startDate?: string;
     endDate?: string;
-  }): Promise<Entry[]> {
+  }): Promise<Either<InvalidDateRange, Entry[]>> {
     const embeddingString = `[${queryEmbedding.join(',')}]`;
 
     let query = this._entriesRepo
@@ -435,17 +466,26 @@ export class EntriesService {
       .andWhere('entry.embedding IS NOT NULL');
 
     if (startDate && endDate) {
+      const parsedStart = parseISO(startDate);
+      const parsedEnd = parseISO(endDate);
+
+      if (!isValid(parsedStart) || !isValid(parsedEnd)) {
+        return error(new InvalidDateRange());
+      }
+
       query = query.andWhere('entry.date BETWEEN :startDate AND :endDate', {
-        startDate: parseISO(startDate),
-        endDate: parseISO(endDate),
+        startDate: parsedStart,
+        endDate: parsedEnd,
       });
     }
 
-    return query
+    const entries = await query
       .orderBy('entry.embedding <-> :queryEmbedding')
       .setParameter('queryEmbedding', embeddingString)
       .limit(limit)
       .getMany();
+
+    return success(entries);
   }
 
   public async updateEntryEmbedding(entryId: number, embedding: number[]) {

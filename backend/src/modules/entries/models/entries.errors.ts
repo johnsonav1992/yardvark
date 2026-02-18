@@ -1,4 +1,7 @@
-import { ResourceNotFound } from '../../../errors/resource-error';
+import {
+  ResourceNotFound,
+  ResourceValidationError,
+} from '../../../errors/resource-error';
 
 export class EntryNotFound extends ResourceNotFound {
   constructor() {
@@ -14,6 +17,15 @@ export class EntriesNotFound extends ResourceNotFound {
     super({
       message: 'Entries not found',
       code: 'ENTRIES_NOT_FOUND',
+    });
+  }
+}
+
+export class InvalidDateRange extends ResourceValidationError {
+  constructor() {
+    super({
+      message: 'Invalid date range provided',
+      code: 'INVALID_DATE_RANGE',
     });
   }
 }

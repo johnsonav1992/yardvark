@@ -176,14 +176,16 @@ export class EntriesController {
   }
 
   @Post('search')
-  public searchEntries(
+  public async searchEntries(
     @User('userId') userId: string,
     @Body() searchCriteria: EntriesSearchRequest,
   ) {
     LogHelpers.addBusinessContext('controller_operation', 'search_entries');
     LogHelpers.addBusinessContext('user_id', userId);
 
-    return this._entriesService.searchEntries(userId, searchCriteria);
+    return resultOrThrow(
+      await this._entriesService.searchEntries(userId, searchCriteria),
+    );
   }
 
   @Delete('entry-image/:entryImageId')

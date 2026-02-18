@@ -55,8 +55,8 @@ export class EntriesService {
     httpResource<Entry[]>(() =>
       apiUrl('entries', {
         queryParams: {
-          startDate: startOfMonth(currentDate()),
-          endDate: endOfMonth(currentDate())
+          startDate: startOfMonth(currentDate()).toISOString(),
+          endDate: endOfMonth(currentDate()).toISOString()
         }
       })
     );

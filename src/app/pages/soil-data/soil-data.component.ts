@@ -20,7 +20,7 @@ import {
   getDayLabelsCenteredAroundToday,
   HOURS_IN_A_DAY
 } from '../../utils/timeUtils';
-import { getYear, getMonth, getDate, getHours, format } from 'date-fns';
+import { getHours, format } from 'date-fns';
 
 @Component({
   selector: 'soil-data',

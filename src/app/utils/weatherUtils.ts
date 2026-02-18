@@ -12,7 +12,7 @@ import {
   DailyWeatherCalendarForecast,
   WeatherPeriod
 } from '../types/weather.types';
-import { getHours, parseISO } from 'date-fns';
+import { getHours } from 'date-fns';
 
 /**
  * Determines if the forecast is for night-time based on isDaytime property or time-based fallback logic

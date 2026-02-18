@@ -21,7 +21,6 @@ import { FilesModule } from './modules/files/files.module';
 import { FilesController } from './modules/files/controllers/files.controller';
 import { S3Service } from './modules/s3/s3.service';
 import { WeatherModule } from './modules/weather/weather.module';
-import { RemindersModule } from './modules/reminders/reminders.module';
 import { AiModule } from './modules/ai/ai.module';
 import { EmailModule } from './modules/email/email.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
@@ -53,7 +52,6 @@ import { DatabaseTelemetryService } from './db/database-telemetry.service';
     FilesModule,
     WeatherModule,
     HttpModule,
-    RemindersModule,
     AiModule,
     EmailModule,
     GddModule,

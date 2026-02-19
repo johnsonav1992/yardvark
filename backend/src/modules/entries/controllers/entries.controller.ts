@@ -8,6 +8,7 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EntriesService } from '../services/entries.service';
 import {
   BatchEntryCreationRequest,
@@ -17,15 +18,16 @@ import {
 } from '../models/entries.types';
 import { User } from '../../../decorators/user.decorator';
 import { SubscriptionFeature } from '../../../decorators/subscription-feature.decorator';
-import { SubscriptionService } from '../../subscription/services/subscription.service';
 import { resultOrThrow } from '../../../utils/resultOrThrow';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { EntryCreatedEvent } from '../../../events/entry-created.event';
+import { BatchEntriesCreatedEvent } from '../../../events/batch-entries-created.event';
 
 @Controller('entries')
 export class EntriesController {
   constructor(
     private readonly _entriesService: EntriesService,
-    private readonly _subscriptionService: SubscriptionService,
+    private readonly _eventEmitter: EventEmitter2,
   ) {}
 
   @Get()
@@ -126,7 +128,10 @@ export class EntriesController {
 
     const result = await this._entriesService.createEntry(userId, entry);
 
-    await this._subscriptionService.incrementUsage(userId, 'entry_creation');
+    this._eventEmitter.emit(
+      'entry.created',
+      new EntryCreatedEvent(userId, result.id),
+    );
 
     return result;
   }
@@ -143,7 +148,16 @@ export class EntriesController {
     LogHelpers.addBusinessContext('user_id', userId);
     LogHelpers.addBusinessContext('batch_size', body.entries.length);
 
-    return this._entriesService.createEntriesBatch(userId, body);
+    const result = await this._entriesService.createEntriesBatch(userId, body);
+
+    if (result.created > 0) {
+      this._eventEmitter.emit(
+        'entries.batch.created',
+        new BatchEntriesCreatedEvent(userId, result.created),
+      );
+    }
+
+    return result;
   }
 
   @Put(':entryId')

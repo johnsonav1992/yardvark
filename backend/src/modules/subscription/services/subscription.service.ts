@@ -688,4 +688,70 @@ export class SubscriptionService {
       );
     }
   }
+
+  public async incrementUsageBatch(
+    userId: string,
+    feature: string,
+    count: number,
+  ): Promise<Either<ResourceError, void>> {
+    LogHelpers.addBusinessContext('usage_operation', 'increment_batch');
+    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext('feature', feature);
+    LogHelpers.addBusinessContext('count', count);
+
+    if (count <= 0) {
+      return success(undefined);
+    }
+
+    const { start: periodStart, end: periodEnd } = this.getCurrentMonthPeriod();
+
+    try {
+      const existingUsage = await this.usageRepo.findOne({
+        where: {
+          userId,
+          featureName: feature,
+          periodStart,
+        },
+      });
+
+      if (existingUsage) {
+        existingUsage.usageCount += count;
+        existingUsage.lastUpdated = startOfDay(new Date());
+
+        await this.usageRepo.save(existingUsage);
+
+        LogHelpers.addBusinessContext('usage_incremented', true);
+        LogHelpers.addBusinessContext(
+          'new_usage_count',
+          existingUsage.usageCount,
+        );
+      } else {
+        const newUsage = this.usageRepo.create({
+          userId,
+          featureName: feature,
+          usageCount: count,
+          periodStart,
+          periodEnd,
+        });
+
+        await this.usageRepo.save(newUsage);
+
+        LogHelpers.addBusinessContext('usage_created', true);
+        LogHelpers.addBusinessContext('new_usage_count', count);
+      }
+
+      return success(undefined);
+    } catch (err) {
+      LogHelpers.addBusinessContext('usage_increment_error', err.message);
+
+      return error(
+        new ResourceError({
+          message: `Failed to increment batch usage: ${err.message}`,
+          code: 'USAGE_INCREMENT_BATCH_ERROR',
+          statusCode: 500,
+          error: err,
+        }),
+      );
+    }
+  }
 }

@@ -9,6 +9,7 @@ import { SubscriptionController } from './controllers/subscription.controller';
 import { WebhookController } from './controllers/webhook.controller';
 import { SubscriptionService } from './services/subscription.service';
 import { StripeService } from './services/stripe.service';
+import { UsageTrackingListener } from './listeners/usage-tracking.listener';
 
 @Module({
   imports: [
@@ -21,6 +22,6 @@ import { StripeService } from './services/stripe.service';
   ],
   exports: [SubscriptionService, TypeOrmModule],
   controllers: [SubscriptionController, WebhookController],
-  providers: [SubscriptionService, StripeService],
+  providers: [SubscriptionService, StripeService, UsageTrackingListener],
 })
 export class SubscriptionModule {}

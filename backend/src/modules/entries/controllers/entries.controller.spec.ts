@@ -1,12 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EntriesController } from '../controllers/entries.controller';
 import { EntriesService } from '../services/entries.service';
-import { SubscriptionService } from '../../subscription/services/subscription.service';
 
 describe('EntriesController', () => {
   let controller: EntriesController;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  let service: EntriesService;
 
   const mockEntriesService = {
     getEntries: jest.fn(),
@@ -17,8 +15,8 @@ describe('EntriesController', () => {
     searchEntries: jest.fn(),
   };
 
-  const mockSubscriptionService = {
-    incrementUsage: jest.fn(),
+  const mockEventEmitter = {
+    emit: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -30,14 +28,13 @@ describe('EntriesController', () => {
           useValue: mockEntriesService,
         },
         {
-          provide: SubscriptionService,
-          useValue: mockSubscriptionService,
+          provide: EventEmitter2,
+          useValue: mockEventEmitter,
         },
       ],
     }).compile();
 
     controller = module.get<EntriesController>(EntriesController);
-    service = module.get<EntriesService>(EntriesService);
     jest.clearAllMocks();
   });
 

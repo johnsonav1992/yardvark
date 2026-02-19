@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { SettingsModule } from './modules/settings/settings.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ActivitiesModule } from './modules/activities/activities.module';
 import { LawnSegmentsModule } from './modules/lawn-segments/lawn-segments.module';
 import { EntriesModule } from './modules/entries/entries.module';
@@ -34,6 +35,7 @@ import { DatabaseTelemetryService } from './db/database-telemetry.service';
   imports: [
     ConfigModule.forRoot({ envFilePath: '.env' }),
     TypeOrmModule.forRoot(dataSource.options),
+    EventEmitterModule.forRoot(),
     ThrottlerModule.forRoot([
       {
         ttl: 60000,

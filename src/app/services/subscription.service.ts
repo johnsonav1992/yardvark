@@ -4,7 +4,8 @@ import { apiUrl, postReq } from '../utils/httpUtils';
 import {
   Subscription,
   FeatureAccess,
-  PurchasableTier
+  PurchasableTier,
+  PricingResponse
 } from '../types/subscription.types';
 
 @Injectable({ providedIn: 'root' })
@@ -13,8 +14,14 @@ export class SubscriptionService {
     apiUrl('subscription/status')
   );
 
+  public pricing = httpResource<PricingResponse>(() =>
+    apiUrl('subscription/pricing')
+  );
+
   public currentSubscription = computed(() => this.subscription.value());
   public isLoading = computed(() => this.subscription.isLoading());
+  public currentPricing = computed(() => this.pricing.value());
+  public isPricingLoading = computed(() => this.pricing.isLoading());
 
   public isPro = computed(() => {
     const sub = this.currentSubscription();

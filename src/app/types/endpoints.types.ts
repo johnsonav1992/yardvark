@@ -57,6 +57,7 @@ type GddRoutes = 'gdd/current' | 'gdd/historical' | 'gdd/forecast';
 
 type SubscriptionRoutes =
   | 'subscription/status'
+  | 'subscription/pricing'
   | 'subscription/checkout'
   | 'subscription/portal'
   | 'subscription/check-feature';

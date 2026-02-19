@@ -10,6 +10,7 @@ import {
   SubscriptionTier,
   SubscriptionStatus,
   PurchasableTier,
+  PricingResponse,
 } from '../models/subscription.types';
 import { FeatureUsage } from '../models/usage.model';
 import { StripeService } from './stripe.service';
@@ -33,6 +34,7 @@ import {
   SubscriptionUpdateError,
   SubscriptionFetchError,
   FeatureAccessError,
+  PricingFetchError,
 } from '../models/subscription.errors';
 import { startOfMonth, addMonths, startOfDay } from 'date-fns';
 
@@ -563,6 +565,67 @@ export class SubscriptionService {
       );
 
       return error(new FeatureAccessError(err));
+    }
+  }
+
+  public async getPricing(): Promise<
+    Either<PricingFetchError, PricingResponse>
+  > {
+    const cacheKey = 'subscription:pricing';
+
+    try {
+      const cached = await this.cacheManager.get<PricingResponse>(cacheKey);
+
+      if (cached) {
+        LogHelpers.addBusinessContext('pricing_cache_hit', true);
+
+        return success(cached);
+      }
+
+      const monthlyPriceId = this.configService.get<string>(
+        'STRIPE_MONTHLY_PRICE_ID',
+      );
+      const yearlyPriceId = this.configService.get<string>(
+        'STRIPE_YEARLY_PRICE_ID',
+      );
+
+      if (!monthlyPriceId || !yearlyPriceId) {
+        return error(new PricingFetchError());
+      }
+
+      const stripe = this.stripeService.getStripe();
+
+      const [monthlyPrice, yearlyPrice] = await Promise.all([
+        stripe.prices.retrieve(monthlyPriceId),
+        stripe.prices.retrieve(yearlyPriceId),
+      ]);
+
+      const response: PricingResponse = {
+        prices: [
+          {
+            tier: SUBSCRIPTION_TIERS.MONTHLY,
+            amount: (monthlyPrice.unit_amount || 0) / 100,
+            currency: monthlyPrice.currency,
+            interval: 'month',
+          },
+          {
+            tier: SUBSCRIPTION_TIERS.YEARLY,
+            amount: (yearlyPrice.unit_amount || 0) / 100,
+            currency: yearlyPrice.currency,
+            interval: 'year',
+          },
+        ],
+      };
+
+      await this.cacheManager.set(cacheKey, response, 24 * 60 * 60 * 1000);
+
+      LogHelpers.addBusinessContext('pricing_fetched', true);
+
+      return success(response);
+    } catch (err) {
+      LogHelpers.addBusinessContext('pricing_fetch_error', (err as Error).message);
+
+      return error(new PricingFetchError(err));
     }
   }
 

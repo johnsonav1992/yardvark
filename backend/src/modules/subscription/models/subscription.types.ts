@@ -27,3 +27,14 @@ export const PURCHASABLE_TIERS: PurchasableTier[] = [
   SUBSCRIPTION_TIERS.MONTHLY,
   SUBSCRIPTION_TIERS.YEARLY,
 ];
+
+export type PricingInfo = {
+  tier: PurchasableTier;
+  amount: number;
+  currency: string;
+  interval: 'month' | 'year';
+};
+
+export type PricingResponse = {
+  prices: PricingInfo[];
+};

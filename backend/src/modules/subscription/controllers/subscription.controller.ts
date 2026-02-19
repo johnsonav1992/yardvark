@@ -30,6 +30,13 @@ export class SubscriptionController {
     );
   }
 
+  @Get('pricing')
+  public async getPricing() {
+    LogHelpers.addBusinessContext('controller_operation', 'get_pricing');
+
+    return resultOrThrow(await this.subscriptionService.getPricing());
+  }
+
   @Post('checkout')
   public async createCheckout(
     @User() user: ExtractedUserRequestData,

@@ -147,3 +147,14 @@ export class FeatureAccessError extends ResourceError {
     });
   }
 }
+
+export class PricingFetchError extends ExternalServiceError {
+  constructor(originalError?: Error | unknown) {
+    super({
+      message: 'Failed to fetch pricing from Stripe',
+      code: 'PRICING_FETCH_ERROR',
+      statusCode: 500,
+      error: originalError,
+    });
+  }
+}

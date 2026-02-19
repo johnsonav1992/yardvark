@@ -38,3 +38,14 @@ export type PricingPlan = {
   features: string[];
   popular?: boolean;
 };
+
+export type PricingInfo = {
+  tier: PurchasableTier;
+  amount: number;
+  currency: string;
+  interval: 'month' | 'year';
+};
+
+export type PricingResponse = {
+  prices: PricingInfo[];
+};

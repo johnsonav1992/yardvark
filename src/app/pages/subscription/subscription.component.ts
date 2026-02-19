@@ -1,4 +1,4 @@
-import { Component, inject, signal, effect } from '@angular/core';
+import { Component, inject, signal, effect, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -10,7 +10,7 @@ import { DividerModule } from 'primeng/divider';
 import { MessageModule } from 'primeng/message';
 import { SkeletonModule } from 'primeng/skeleton';
 import { SubscriptionService } from '../../services/subscription.service';
-import { PricingPlan, PurchasableTier } from '../../types/subscription.types';
+import { PurchasableTier } from '../../types/subscription.types';
 import {
   injectSuccessToast,
   injectErrorToast,
@@ -49,6 +49,8 @@ export class SubscriptionComponent {
   public subscription = this.subscriptionService.currentSubscription;
   public isPro = this.subscriptionService.isPro;
   public isLoadingSubscription = this.subscriptionService.isLoading;
+  public pricing = this.subscriptionService.currentPricing;
+  public isPricingLoading = this.subscriptionService.isPricingLoading;
   public isMobile = this.globalUiService.isMobile;
   public loadingTier = signal<PurchasableTier | null>(null);
   public isManaging = signal(false);
@@ -61,23 +63,54 @@ export class SubscriptionComponent {
     'Priority support'
   ];
 
-  public plans: PricingPlan[] = [
-    {
-      tier: 'monthly',
-      name: 'Monthly',
-      price: 7,
-      period: 'month',
-      features: this.commonFeatures
-    },
-    {
-      tier: 'yearly',
-      name: 'Yearly',
-      price: 60,
-      period: 'year',
-      popular: true,
-      features: [...this.commonFeatures, 'Save $24/year']
+  public plans = computed(() => {
+    const pricingData = this.pricing();
+
+    if (!pricingData) {
+      return [
+        {
+          tier: 'monthly' as const,
+          name: 'Monthly',
+          price: 7,
+          period: 'month',
+          features: this.commonFeatures
+        },
+        {
+          tier: 'yearly' as const,
+          name: 'Yearly',
+          price: 60,
+          period: 'year',
+          popular: true,
+          features: [...this.commonFeatures, 'Save $24/year']
+        }
+      ];
     }
-  ];
+
+    const monthlyPrice = pricingData.prices.find(p => p.tier === 'monthly');
+    const yearlyPrice = pricingData.prices.find(p => p.tier === 'yearly');
+
+    const monthlyCost = monthlyPrice?.amount || 7;
+    const yearlyCost = yearlyPrice?.amount || 60;
+    const savings = (monthlyCost * 12) - yearlyCost;
+
+    return [
+      {
+        tier: 'monthly' as const,
+        name: 'Monthly',
+        price: monthlyCost,
+        period: 'month',
+        features: this.commonFeatures
+      },
+      {
+        tier: 'yearly' as const,
+        name: 'Yearly',
+        price: yearlyCost,
+        period: 'year',
+        popular: true,
+        features: [...this.commonFeatures, `Save $${savings}/year`]
+      }
+    ];
+  });
 
   public freeLimits = [
     `${FREE_TIER_ENTRY_LIMIT} lawn entries per month`,

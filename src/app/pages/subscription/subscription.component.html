@@ -63,7 +63,7 @@
   }
   <h3 class="section-title">Choose Your Plan</h3>
   <div class="pricing-grid">
-    @if (isLoadingSubscription()) {
+    @if (isLoadingSubscription() || isPricingLoading()) {
       @for (i of [1, 2]; track i) {
         <p-card class="pricing-card">
           <ng-template #header>
@@ -88,7 +88,7 @@
         </p-card>
       }
     } @else {
-      @for (plan of plans; track plan.tier) {
+      @for (plan of plans(); track plan.tier) {
       <p-card
         [class]="
           'pricing-card' +

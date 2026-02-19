@@ -14,6 +14,7 @@ export class SubscriptionService {
   );
 
   public currentSubscription = computed(() => this.subscription.value());
+  public isLoading = computed(() => this.subscription.isLoading());
 
   public isPro = computed(() => {
     const sub = this.currentSubscription();

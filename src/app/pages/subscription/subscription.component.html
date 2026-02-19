@@ -1,5 +1,13 @@
 <page-container pageTitle="Subscription">
-  @if (isPro()) {
+  @if (isLoadingSubscription()) {
+    <p-card class="mb-4">
+      <div class="skeleton-banner">
+        <p-skeleton width="6rem" height="2rem" borderRadius="16px" />
+        <p-skeleton width="15rem" height="1.25rem" />
+        <p-skeleton width="8rem" height="2.5rem" borderRadius="6px" styleClass="ml-auto" />
+      </div>
+    </p-card>
+  } @else if (isPro()) {
     <p-message [closable]="false" class="mb-4 pro-banner">
       <div class="plan-status-content">
         <div class="plan-info">
@@ -48,14 +56,39 @@
       <div class="plan-status-content">
         <div class="plan-info">
           <p-tag value="Free Plan" severity="secondary" />
-          <span>Limited to 6 entries per month with no AI features</span>
+          <span>Limited to 6 entries per month with no additional pro features</span>
         </div>
       </div>
     </p-message>
   }
   <h3 class="section-title">Choose Your Plan</h3>
   <div class="pricing-grid">
-    @for (plan of plans; track plan.tier) {
+    @if (isLoadingSubscription()) {
+      @for (i of [1, 2]; track i) {
+        <p-card class="pricing-card">
+          <ng-template #header>
+            <div class="card-header-content">
+              <p-skeleton width="6rem" height="2rem" borderRadius="16px" />
+              <p-skeleton width="8rem" height="2rem" />
+              <p-skeleton width="10rem" height="3rem" />
+            </div>
+          </ng-template>
+          <p-divider />
+          <div class="skeleton-features">
+            @for (j of [1, 2, 3, 4, 5]; track j) {
+              <div class="skeleton-feature">
+                <p-skeleton shape="circle" size="1.25rem" />
+                <p-skeleton width="100%" height="1rem" />
+              </div>
+            }
+          </div>
+          <ng-template #footer>
+            <p-skeleton width="100%" height="2.5rem" borderRadius="6px" />
+          </ng-template>
+        </p-card>
+      }
+    } @else {
+      @for (plan of plans; track plan.tier) {
       <p-card
         [class]="
           'pricing-card' +
@@ -125,6 +158,7 @@
           />
         </ng-template>
       </p-card>
+      }
     }
   </div>
   @if (!isPro()) {

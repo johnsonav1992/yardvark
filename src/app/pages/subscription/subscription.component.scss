@@ -5,22 +5,50 @@
   margin: 0 0 1.5rem 0;
 }
 
+.skeleton-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem;
+}
+
+.skeleton-features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  .skeleton-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+}
+
 :host ::ng-deep .pro-banner {
   background: var(--p-surface-50);
   border: 1px solid var(--p-surface-200);
 
+  .p-message {
+    width: 100%;
+  }
+
   .p-message-content {
     background: transparent;
     border: none;
+    width: 100%;
+    display: flex;
+  }
+
+  .p-message-text {
+    width: 100%;
+    display: flex;
   }
 }
 
 .plan-status-content {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 1rem;
-  flex-wrap: wrap;
   width: 100%;
 
   .plan-info {
@@ -28,6 +56,8 @@
     align-items: center;
     gap: 1rem;
     flex-wrap: wrap;
+    flex: 1;
+    min-width: 0;
 
     > span {
       color: var(--p-text-muted-color);
@@ -39,6 +69,10 @@
       gap: 0.25rem;
       color: var(--p-orange-600);
     }
+  }
+
+  > p-button {
+    flex-shrink: 0;
   }
 }
 
@@ -66,10 +100,6 @@
 
   .p-card-content {
     flex: 1;
-  }
-
-  &.popular {
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   }
 
   &.current {

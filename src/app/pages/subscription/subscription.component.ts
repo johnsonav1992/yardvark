@@ -8,6 +8,7 @@ import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 import { DividerModule } from 'primeng/divider';
 import { MessageModule } from 'primeng/message';
+import { SkeletonModule } from 'primeng/skeleton';
 import { SubscriptionService } from '../../services/subscription.service';
 import { PricingPlan, PurchasableTier } from '../../types/subscription.types';
 import {
@@ -29,7 +30,8 @@ import { format, parseISO } from 'date-fns';
     CardModule,
     TagModule,
     DividerModule,
-    MessageModule
+    MessageModule,
+    SkeletonModule
   ],
   templateUrl: './subscription.component.html',
   styleUrl: './subscription.component.scss'
@@ -46,6 +48,7 @@ export class SubscriptionComponent {
 
   public subscription = this.subscriptionService.currentSubscription;
   public isPro = this.subscriptionService.isPro;
+  public isLoadingSubscription = this.subscriptionService.isLoading;
   public isMobile = this.globalUiService.isMobile;
   public loadingTier = signal<PurchasableTier | null>(null);
   public isManaging = signal(false);

@@ -1,9 +1,9 @@
 <page-container pageTitle="Subscription">
   @if (isPro()) {
-    <p-message severity="success" [closable]="false" class="mb-4">
+    <p-message [closable]="false" class="mb-4 pro-banner">
       <div class="plan-status-content">
         <div class="plan-info">
-          <p-tag [value]="tierDisplayName" severity="success">
+          <p-tag [value]="tierDisplayName" severity="secondary">
             <ng-template #icon>
               <i class="ti ti-crown"></i>
             </ng-template>
@@ -15,7 +15,11 @@
             >
           } @else {
             <span>
-              Your plan is active until
+              @if (subscription()?.tier === "monthly") {
+                Next charge on
+              } @else {
+                Your plan is active until
+              }
               <strong>{{ subscriptionEndDate }}</strong>
             </span>
             @if (willCancelAtPeriodEnd) {
@@ -32,6 +36,7 @@
             icon="ti ti-settings"
             (onClick)="manageSubscription()"
             [loading]="isManaging()"
+            severity="secondary"
             outlined
             size="small"
           />
@@ -61,14 +66,14 @@
         <ng-template #header>
           <div class="card-header-content">
             @if (plan.popular) {
-              <p-tag value="Most Popular" severity="success">
+              <p-tag value="Most Popular" severity="secondary">
                 <ng-template #icon>
                   <i class="ti ti-star"></i>
                 </ng-template>
               </p-tag>
             }
             @if (isPro() && subscription()?.tier === plan.tier) {
-              <p-tag value="Current Plan" severity="info">
+              <p-tag value="Current Plan" severity="secondary">
                 <ng-template #icon>
                   <i class="ti ti-check"></i>
                 </ng-template>
@@ -82,7 +87,7 @@
             @if (plan.tier === "yearly") {
               <p-tag
                 value="Save $24/year"
-                severity="success"
+                severity="secondary"
                 [rounded]="true"
               />
             }
@@ -117,8 +122,6 @@
             [loading]="loadingTier() === plan.tier"
             (onClick)="subscribe(plan.tier)"
             class="w-full"
-            [severity]="plan.popular ? 'success' : 'primary'"
-            [outlined]="!plan.popular"
           />
         </ng-template>
       </p-card>

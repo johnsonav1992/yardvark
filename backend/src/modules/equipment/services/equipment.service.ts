@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EquipmentMaintenance } from '../models/equipmentMaintenance.model';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 import { Either, error, success } from '../../../types/either';
 import {
   EquipmentNotFound,
@@ -30,7 +31,10 @@ export class EquipmentService {
       },
     });
 
-    LogHelpers.addBusinessContext('equipmentCount', equipment.length);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.equipmentCount,
+      equipment.length,
+    );
 
     return equipment;
   }
@@ -47,7 +51,10 @@ export class EquipmentService {
 
     const saved = await this._equipmentRepo.save(newEquipment);
 
-    LogHelpers.addBusinessContext('equipmentCreated', saved.id);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.equipmentCreated,
+      saved.id,
+    );
 
     return saved;
   }
@@ -92,7 +99,7 @@ export class EquipmentService {
     equipmentId: number,
     maintenanceData: Partial<EquipmentMaintenance>,
   ): Promise<Either<EquipmentNotFound, EquipmentMaintenance>> {
-    LogHelpers.addBusinessContext('equipmentId', equipmentId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
 
     const equipment = await this.findEquipmentById(equipmentId);
 
@@ -110,7 +117,7 @@ export class EquipmentService {
     await this._equipmentMaintenanceRepo.save(newMaintenanceRecord);
 
     LogHelpers.addBusinessContext(
-      'maintenanceRecordCreated',
+      BusinessContextKeys.maintenanceRecordCreated,
       newMaintenanceRecord.id,
     );
 
@@ -141,7 +148,7 @@ export class EquipmentService {
   public async deleteEquipment(
     equipmentId: number,
   ): Promise<Either<EquipmentNotFound, void>> {
-    LogHelpers.addBusinessContext('equipmentId', equipmentId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
 
     const equipment = await this.findEquipmentById(equipmentId);
 
@@ -151,7 +158,7 @@ export class EquipmentService {
 
     await this._equipmentRepo.softDelete(equipmentId);
 
-    LogHelpers.addBusinessContext('equipmentDeleted', true);
+    LogHelpers.addBusinessContext(BusinessContextKeys.equipmentDeleted, true);
 
     return success(undefined);
   }

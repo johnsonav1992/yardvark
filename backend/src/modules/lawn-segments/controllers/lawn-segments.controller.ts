@@ -15,6 +15,7 @@ import {
 import { resultOrThrow } from '../../../utils/resultOrThrow';
 import { User } from '../../../decorators/user.decorator';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 
 @Controller('lawn-segments')
 export class LawnSegmentsController {
@@ -22,8 +23,11 @@ export class LawnSegmentsController {
 
   @Get()
   public getLawnSegments(@User('userId') userId: string) {
-    LogHelpers.addBusinessContext('controller_operation', 'get_lawn_segments');
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_lawn_segments',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     return this._lawnSegmentService.getLawnSegments(userId);
   }
@@ -34,10 +38,10 @@ export class LawnSegmentsController {
     @Body() lawnSegment: LawnSegmentCreationRequest,
   ) {
     LogHelpers.addBusinessContext(
-      'controller_operation',
+      BusinessContextKeys.controllerOperation,
       'create_lawn_segment',
     );
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     return this._lawnSegmentService.createLawnSegment(userId, lawnSegment);
   }
@@ -48,10 +52,10 @@ export class LawnSegmentsController {
     @Body() updateData: LawnSegmentUpdateRequest,
   ) {
     LogHelpers.addBusinessContext(
-      'controller_operation',
+      BusinessContextKeys.controllerOperation,
       'update_lawn_segment',
     );
-    LogHelpers.addBusinessContext('lawn_segment_id', id);
+    LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentId, id);
 
     return resultOrThrow(
       await this._lawnSegmentService.updateLawnSegment(id, updateData),
@@ -61,10 +65,10 @@ export class LawnSegmentsController {
   @Delete(':id')
   public deleteLawnSegment(@Param('id') id: number) {
     LogHelpers.addBusinessContext(
-      'controller_operation',
+      BusinessContextKeys.controllerOperation,
       'delete_lawn_segment',
     );
-    LogHelpers.addBusinessContext('lawn_segment_id', id);
+    LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentId, id);
 
     return this._lawnSegmentService.deleteLawnSegment(id);
   }

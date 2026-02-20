@@ -19,6 +19,7 @@ import { EquipmentMaintenance } from '../models/equipmentMaintenance.model';
 import { resultOrThrow } from '../../../utils/resultOrThrow';
 import { User } from '../../../decorators/user.decorator';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 
 @Controller('equipment')
 export class EquipmentController {
@@ -29,8 +30,11 @@ export class EquipmentController {
 
   @Get()
   public getAllUserEquipment(@User('userId') userId: string) {
-    LogHelpers.addBusinessContext('controller_operation', 'get_all_equipment');
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_all_equipment',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     return this._equipmentService.getAllUserEquipment(userId);
   }
@@ -42,8 +46,11 @@ export class EquipmentController {
     @UploadedFile(imageFileValidator()) file: Express.Multer.File,
     @Body() equipmentData: Partial<Equipment>,
   ) {
-    LogHelpers.addBusinessContext('controller_operation', 'create_equipment');
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'create_equipment',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     let imageUrl: string | undefined;
 
@@ -65,9 +72,12 @@ export class EquipmentController {
     @UploadedFile(imageFileValidator()) file: Express.Multer.File,
     @Body() equipmentData: Partial<Equipment>,
   ) {
-    LogHelpers.addBusinessContext('controller_operation', 'update_equipment');
-    LogHelpers.addBusinessContext('user_id', userId);
-    LogHelpers.addBusinessContext('equipment_id', equipmentId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'update_equipment',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
 
     let imageUrl: string | undefined;
 
@@ -89,11 +99,11 @@ export class EquipmentController {
     @Query('isActive') isActive: boolean,
   ) {
     LogHelpers.addBusinessContext(
-      'controller_operation',
+      BusinessContextKeys.controllerOperation,
       'toggle_archive_status',
     );
-    LogHelpers.addBusinessContext('equipment_id', equipmentId);
-    LogHelpers.addBusinessContext('is_active', isActive);
+    LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.isActive, isActive);
 
     const result = await this._equipmentService.toggleEquipmentArchiveStatus(
       equipmentId,
@@ -109,10 +119,10 @@ export class EquipmentController {
     @Body() maintenanceData: Partial<EquipmentMaintenance>,
   ) {
     LogHelpers.addBusinessContext(
-      'controller_operation',
+      BusinessContextKeys.controllerOperation,
       'create_maintenance_record',
     );
-    LogHelpers.addBusinessContext('equipment_id', equipmentId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
 
     const result = await this._equipmentService.createMaintenanceRecord(
       equipmentId,
@@ -128,10 +138,13 @@ export class EquipmentController {
     @Body() maintenanceData: Partial<EquipmentMaintenance>,
   ) {
     LogHelpers.addBusinessContext(
-      'controller_operation',
+      BusinessContextKeys.controllerOperation,
       'update_maintenance_record',
     );
-    LogHelpers.addBusinessContext('maintenance_id', maintenanceId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.maintenanceId,
+      maintenanceId,
+    );
 
     const result = await this._equipmentService.updateMaintenanceRecord(
       maintenanceId,
@@ -143,8 +156,11 @@ export class EquipmentController {
 
   @Delete(':equipmentId')
   public async deleteEquipment(@Param('equipmentId') equipmentId: number) {
-    LogHelpers.addBusinessContext('controller_operation', 'delete_equipment');
-    LogHelpers.addBusinessContext('equipment_id', equipmentId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'delete_equipment',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
 
     const result = await this._equipmentService.deleteEquipment(equipmentId);
 
@@ -156,10 +172,13 @@ export class EquipmentController {
     @Param('maintenanceId') maintenanceId: number,
   ) {
     LogHelpers.addBusinessContext(
-      'controller_operation',
+      BusinessContextKeys.controllerOperation,
       'delete_maintenance_record',
     );
-    LogHelpers.addBusinessContext('maintenance_id', maintenanceId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.maintenanceId,
+      maintenanceId,
+    );
 
     const result =
       await this._equipmentService.deleteMaintenanceRecord(maintenanceId);

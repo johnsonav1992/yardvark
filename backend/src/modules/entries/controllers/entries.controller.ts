@@ -20,6 +20,10 @@ import { User } from '../../../decorators/user.decorator';
 import { SubscriptionFeature } from '../../../decorators/subscription-feature.decorator';
 import { resultOrThrow } from '../../../utils/resultOrThrow';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import {
+  EventNames,
+  BusinessContextKeys,
+} from '../../../logger/logger-keys.constants';
 import { EntryCreatedEvent } from '../../../events/entry-created.event';
 import { BatchEntriesCreatedEvent } from '../../../events/batch-entries-created.event';
 
@@ -36,8 +40,11 @@ export class EntriesController {
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {
-    LogHelpers.addBusinessContext('controller_operation', 'get_entries');
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_entries',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
     LogHelpers.addBusinessContext('start_date', startDate);
     LogHelpers.addBusinessContext('end_date', endDate);
 
@@ -49,18 +56,21 @@ export class EntriesController {
   @Get('single/most-recent')
   public getMostRecentEntry(@User('userId') userId: string) {
     LogHelpers.addBusinessContext(
-      'controller_operation',
+      BusinessContextKeys.controllerOperation,
       'get_most_recent_entry',
     );
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     return this._entriesService.getMostRecentEntry(userId);
   }
 
   @Get('last-mow')
   public async getLastMowDate(@User('userId') userId: string) {
-    LogHelpers.addBusinessContext('controller_operation', 'get_last_mow_date');
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_last_mow_date',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     const lastMowDate = await this._entriesService.getLastMowDate(userId);
 
@@ -70,10 +80,10 @@ export class EntriesController {
   @Get('last-product-app')
   public async getLastProductAppDate(@User('userId') userId: string) {
     LogHelpers.addBusinessContext(
-      'controller_operation',
+      BusinessContextKeys.controllerOperation,
       'get_last_product_app_date',
     );
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     const lastProductAppDate =
       await this._entriesService.getLastProductApplicationDate(userId);
@@ -84,10 +94,10 @@ export class EntriesController {
   @Get('last-pgr-app')
   public async getLastPgrAppDate(@User('userId') userId: string) {
     LogHelpers.addBusinessContext(
-      'controller_operation',
+      BusinessContextKeys.controllerOperation,
       'get_last_pgr_app_date',
     );
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     const lastPgrAppDate =
       await this._entriesService.getLastPgrApplicationDate(userId);
@@ -100,8 +110,11 @@ export class EntriesController {
     @User('userId') userId: string,
     @Param('date') date: string,
   ) {
-    LogHelpers.addBusinessContext('controller_operation', 'get_entry_by_date');
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_entry_by_date',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
     LogHelpers.addBusinessContext('date', date);
 
     return resultOrThrow(
@@ -111,8 +124,11 @@ export class EntriesController {
 
   @Get('single/:entryId')
   public async getEntry(@Param('entryId') entryId: number) {
-    LogHelpers.addBusinessContext('controller_operation', 'get_entry');
-    LogHelpers.addBusinessContext('entry_id', entryId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_entry',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
 
     return resultOrThrow(await this._entriesService.getEntry(entryId));
   }
@@ -123,13 +139,16 @@ export class EntriesController {
     @User('userId') userId: string,
     @Body() entry: EntryCreationRequest,
   ) {
-    LogHelpers.addBusinessContext('controller_operation', 'create_entry');
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'create_entry',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     const result = await this._entriesService.createEntry(userId, entry);
 
     this._eventEmitter.emit(
-      'entry.created',
+      EventNames.entryCreated,
       new EntryCreatedEvent(userId, result.id),
     );
 
@@ -142,17 +161,20 @@ export class EntriesController {
     @Body() body: BatchEntryCreationRequest,
   ): Promise<BatchEntryCreationResponse> {
     LogHelpers.addBusinessContext(
-      'controller_operation',
+      BusinessContextKeys.controllerOperation,
       'create_entries_batch',
     );
-    LogHelpers.addBusinessContext('user_id', userId);
-    LogHelpers.addBusinessContext('batch_size', body.entries.length);
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.batchSize,
+      body.entries.length,
+    );
 
     const result = await this._entriesService.createEntriesBatch(userId, body);
 
     if (result.created > 0) {
       this._eventEmitter.emit(
-        'entries.batch.created',
+        EventNames.batchEntriesCreated,
         new BatchEntriesCreatedEvent(userId, result.created),
       );
     }
@@ -165,8 +187,11 @@ export class EntriesController {
     @Param('entryId') entryId: number,
     @Body() entry: Partial<EntryCreationRequest>,
   ) {
-    LogHelpers.addBusinessContext('controller_operation', 'update_entry');
-    LogHelpers.addBusinessContext('entry_id', entryId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'update_entry',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
 
     return resultOrThrow(
       await this._entriesService.updateEntry(entryId, entry),
@@ -175,16 +200,22 @@ export class EntriesController {
 
   @Delete(':entryId')
   public async softDeleteEntry(@Param('entryId') entryId: number) {
-    LogHelpers.addBusinessContext('controller_operation', 'delete_entry');
-    LogHelpers.addBusinessContext('entry_id', entryId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'delete_entry',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
 
     return resultOrThrow(await this._entriesService.softDeleteEntry(entryId));
   }
 
   @Post('recover/:entryId')
   public recoverEntry(@Param('entryId') entryId: number) {
-    LogHelpers.addBusinessContext('controller_operation', 'recover_entry');
-    LogHelpers.addBusinessContext('entry_id', entryId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'recover_entry',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
 
     return this._entriesService.recoverEntry(entryId);
   }
@@ -194,8 +225,11 @@ export class EntriesController {
     @User('userId') userId: string,
     @Body() searchCriteria: EntriesSearchRequest,
   ) {
-    LogHelpers.addBusinessContext('controller_operation', 'search_entries');
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'search_entries',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     return resultOrThrow(
       await this._entriesService.searchEntries(userId, searchCriteria),
@@ -204,7 +238,10 @@ export class EntriesController {
 
   @Delete('entry-image/:entryImageId')
   public deleteEntryImage(@Param('entryImageId') entryImageId: number) {
-    LogHelpers.addBusinessContext('controller_operation', 'delete_entry_image');
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'delete_entry_image',
+    );
     LogHelpers.addBusinessContext('entry_image_id', entryImageId);
 
     return this._entriesService.softDeleteEntryImage(entryImageId);

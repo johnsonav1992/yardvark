@@ -13,6 +13,7 @@ import { EntriesService } from '../../entries/services/entries.service';
 import { SettingsService } from '../../settings/services/settings.service';
 import { WeatherService } from '../../weather/services/weather.service';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 import {
   getDailyGDDCalculation,
   calculateAccumulatedGDD,
@@ -140,8 +141,11 @@ export class GddService {
       cycleStatus !== 'dormant' &&
       this.hasDormancyOccurredInPeriod(temperatureData, dormancyTemperature)
     ) {
-      LogHelpers.addBusinessContext('gddDormancyReset', true);
-      LogHelpers.addBusinessContext('gddCycleStatus', 'active');
+      LogHelpers.addBusinessContext(BusinessContextKeys.gddDormancyReset, true);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.gddCycleStatus,
+        'active',
+      );
 
       const resetResult: CurrentGddResponse = {
         accumulatedGdd: 0,
@@ -164,9 +168,15 @@ export class GddService {
       'gddAccumulated',
       Math.round(accumulatedGdd * 10) / 10,
     );
-    LogHelpers.addBusinessContext('gddTarget', targetGdd);
-    LogHelpers.addBusinessContext('gddCycleStatus', cycleStatus);
-    LogHelpers.addBusinessContext('gddDaysSinceLastApp', daysSinceLastApp);
+    LogHelpers.addBusinessContext(BusinessContextKeys.gddTarget, targetGdd);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.gddCycleStatus,
+      cycleStatus,
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.gddDaysSinceLastApp,
+      daysSinceLastApp,
+    );
 
     const result: CurrentGddResponse = {
       accumulatedGdd: Math.round(accumulatedGdd * 10) / 10,

@@ -2,6 +2,7 @@ import { Controller, Get, Query } from '@nestjs/common';
 import { WeatherService } from '../services/weather.service';
 import { resultOrThrow } from '../../../utils/resultOrThrow';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 
 @Controller('weather')
 export class WeatherController {
@@ -12,9 +13,12 @@ export class WeatherController {
     @Query('lat') lat: string,
     @Query('long') long: string,
   ) {
-    LogHelpers.addBusinessContext('controller_operation', 'get_forecast');
-    LogHelpers.addBusinessContext('forecast_lat', lat);
-    LogHelpers.addBusinessContext('forecast_long', long);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_forecast',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.forecastLat, lat);
+    LogHelpers.addBusinessContext(BusinessContextKeys.forecastLong, long);
 
     return resultOrThrow(await this.weatherService.getWeatherData(lat, long));
   }

@@ -20,6 +20,7 @@ import { requestContext, RequestContext } from './logger.context';
 import { logToOTel } from './otel.transport';
 import { SubscriptionService } from '../modules/subscription/services/subscription.service';
 import { LogHelpers } from './logger.helpers';
+import { BusinessContextKeys } from './logger-keys.constants';
 import {
   trace,
   context as otelContext,
@@ -68,7 +69,10 @@ export class LoggingInterceptor implements NestInterceptor {
         ).pipe(
           tap((result) => {
             if (result.isError()) {
-              LogHelpers.addBusinessContext('subscription_fetch_error', true);
+              LogHelpers.addBusinessContext(
+                BusinessContextKeys.subscriptionFetchError,
+                true,
+              );
 
               return;
             }
@@ -76,15 +80,15 @@ export class LoggingInterceptor implements NestInterceptor {
             const subscription = result.value;
 
             LogHelpers.addBusinessContext(
-              'subscription_tier',
+              BusinessContextKeys.subscriptionTier,
               subscription.tier,
             );
             LogHelpers.addBusinessContext(
-              'subscription_status',
+              BusinessContextKeys.subscriptionStatus,
               subscription.status,
             );
             LogHelpers.addBusinessContext(
-              'is_pro',
+              BusinessContextKeys.isPro,
               subscription.tier === 'monthly' ||
                 subscription.tier === 'yearly' ||
                 subscription.tier === 'lifetime',
@@ -97,7 +101,7 @@ export class LoggingInterceptor implements NestInterceptor {
                   (1000 * 60 * 60 * 24),
               );
               LogHelpers.addBusinessContext(
-                'subscription_days_active',
+                BusinessContextKeys.subscriptionDaysActive,
                 daysSinceSubscription,
               );
             }
@@ -108,17 +112,23 @@ export class LoggingInterceptor implements NestInterceptor {
                   (1000 * 60 * 60 * 24),
               );
               LogHelpers.addBusinessContext(
-                'lifetime_subscription_age_days',
+                BusinessContextKeys.lifetimeSubscriptionAgeDays,
                 daysSinceCreation,
               );
             }
 
             if (subscription.cancelAtPeriodEnd) {
-              LogHelpers.addBusinessContext('subscription_canceling', true);
+              LogHelpers.addBusinessContext(
+                BusinessContextKeys.subscriptionCanceling,
+                true,
+              );
             }
           }),
           catchError(() => {
-            LogHelpers.addBusinessContext('subscription_fetch_error', true);
+            LogHelpers.addBusinessContext(
+              BusinessContextKeys.subscriptionFetchError,
+              true,
+            );
             return of(null);
           }),
         )

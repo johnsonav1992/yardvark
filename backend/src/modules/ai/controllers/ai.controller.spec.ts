@@ -115,7 +115,10 @@ describe('AiController', () => {
         userId: 'user2',
       });
 
-      expect(aiService.queryEntries).toHaveBeenCalledWith('user2', 'test query');
+      expect(aiService.queryEntries).toHaveBeenCalledWith(
+        'user2',
+        'test query',
+      );
     });
   });
 

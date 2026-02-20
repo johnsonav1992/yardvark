@@ -3,6 +3,7 @@ import { GddService } from '../services/gdd.service';
 import { resultOrThrow } from '../../../utils/resultOrThrow';
 import { User } from '../../../decorators/user.decorator';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 
 @Controller('gdd')
 export class GddController {
@@ -10,8 +11,11 @@ export class GddController {
 
   @Get('current')
   public async getCurrentGdd(@User('userId') userId: string) {
-    LogHelpers.addBusinessContext('controller_operation', 'get_current_gdd');
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_current_gdd',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     return resultOrThrow(await this._gddService.getCurrentGdd(userId));
   }
@@ -22,10 +26,13 @@ export class GddController {
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {
-    LogHelpers.addBusinessContext('controller_operation', 'get_historical_gdd');
-    LogHelpers.addBusinessContext('user_id', userId);
-    LogHelpers.addBusinessContext('start_date', startDate);
-    LogHelpers.addBusinessContext('end_date', endDate);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_historical_gdd',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.startDate, startDate);
+    LogHelpers.addBusinessContext(BusinessContextKeys.endDate, endDate);
 
     return resultOrThrow(
       await this._gddService.getHistoricalGdd(userId, startDate, endDate),
@@ -34,8 +41,11 @@ export class GddController {
 
   @Get('forecast')
   public async getGddForecast(@User('userId') userId: string) {
-    LogHelpers.addBusinessContext('controller_operation', 'get_gdd_forecast');
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_gdd_forecast',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     return resultOrThrow(await this._gddService.getGddForecast(userId));
   }

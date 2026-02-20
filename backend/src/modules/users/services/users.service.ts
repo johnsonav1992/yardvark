@@ -5,6 +5,7 @@ import { firstValueFrom } from 'rxjs';
 import { User } from '../Models/user.model';
 import { S3Service } from 'src/modules/s3/s3.service';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 import { Either, error, success } from '../../../types/either';
 import {
   Auth0TokenError,
@@ -104,8 +105,11 @@ export class UsersService {
     userId: string,
     file: Express.Multer.File,
   ): Promise<Either<ProfilePictureUploadError, { picture: string }>> {
-    LogHelpers.addBusinessContext('profilePictureUpdate', true);
-    LogHelpers.addBusinessContext('fileSize', file.size);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.profilePictureUpdate,
+      true,
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.fileSize, file.size);
 
     try {
       const profilePictureFile = {

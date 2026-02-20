@@ -230,7 +230,10 @@ describe('SubscriptionService', () => {
 
       jest.spyOn(usageRepo, 'findOne').mockResolvedValue(mockUsage as any);
 
-      const result = await service.checkFeatureAccess('user1', 'entry_creation');
+      const result = await service.checkFeatureAccess(
+        'user1',
+        'entry_creation',
+      );
 
       expect(result.isSuccess()).toBe(true);
 
@@ -251,7 +254,10 @@ describe('SubscriptionService', () => {
 
       jest.spyOn(cacheManager, 'get').mockResolvedValue(mockSubscription);
 
-      const result = await service.checkFeatureAccess('user1', 'entry_creation');
+      const result = await service.checkFeatureAccess(
+        'user1',
+        'entry_creation',
+      );
 
       expect(result.isSuccess()).toBe(true);
 

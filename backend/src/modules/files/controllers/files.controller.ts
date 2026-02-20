@@ -20,6 +20,7 @@ import { resultOrThrow } from '../../../utils/resultOrThrow';
 import { Readable } from 'stream';
 import { User } from '../../../decorators/user.decorator';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 
 @Controller('files')
 export class FilesController {
@@ -35,8 +36,11 @@ export class FilesController {
     files: Express.Multer.File[],
     @User('userId') userId: string,
   ) {
-    LogHelpers.addBusinessContext('controller_operation', 'upload_files');
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'upload_files',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     return resultOrThrow(await this._s3Service.uploadFiles(files, userId));
   }
@@ -46,8 +50,11 @@ export class FilesController {
     @Query('url') fileUrl: string,
     @Res() res: Response,
   ) {
-    LogHelpers.addBusinessContext('controller_operation', 'download_file');
-    LogHelpers.addBusinessContext('file_url', fileUrl);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'download_file',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.fileUrl, fileUrl);
 
     let fileRes: { data: Readable; contentType: string };
 
@@ -68,7 +75,10 @@ export class FilesController {
           ),
       );
     } catch (err) {
-      LogHelpers.addBusinessContext('download_error', (err as Error).message);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.downloadError,
+        (err as Error).message,
+      );
 
       throw new HttpException(
         `Failed to download file - ${(err as Error).message}`,

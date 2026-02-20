@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { generateFeedbackEmailHtml } from '../helpers/email.helpers';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 import { Either, error, success } from '../../../types/either';
 import { EmailSendError, EmailNotConfigured } from '../models/email.errors';
 
@@ -47,13 +48,28 @@ export class EmailService {
   public async sendFeedbackEmail(
     feedbackData: FeedbackEmailData,
   ): Promise<Either<EmailSendError | EmailNotConfigured, true>> {
-    LogHelpers.addBusinessContext('email_operation', 'send_feedback');
-    LogHelpers.addBusinessContext('feedback_type', feedbackData.feedbackType);
-    LogHelpers.addBusinessContext('from_email', this.gmailUser);
-    LogHelpers.addBusinessContext('sender_email', feedbackData.email);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.emailOperation,
+      'send_feedback',
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.feedbackType,
+      feedbackData.feedbackType,
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.fromEmail,
+      this.gmailUser,
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.senderEmail,
+      feedbackData.email,
+    );
 
     if (!this.transporter) {
-      LogHelpers.addBusinessContext('email_error', 'not_initialized');
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.emailError,
+        'not_initialized',
+      );
       this.logger.error(
         'Email transporter not initialized. Check GMAIL_USER and GMAIL_APP_PASSWORD.',
       );
@@ -74,21 +90,27 @@ export class EmailService {
       });
 
       LogHelpers.recordExternalCall('gmail_smtp', Date.now() - start, true);
-      LogHelpers.addBusinessContext('email_sent', true);
-      LogHelpers.addBusinessContext('email_message_id', result?.messageId);
+      LogHelpers.addBusinessContext(BusinessContextKeys.emailSent, true);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.emailMessageId,
+        result?.messageId,
+      );
       this.logger.log('Feedback email sent successfully');
 
       return success(true as const);
     } catch (err) {
       LogHelpers.recordExternalCall('gmail_smtp', Date.now() - start, false);
-      LogHelpers.addBusinessContext('email_sent', false);
+      LogHelpers.addBusinessContext(BusinessContextKeys.emailSent, false);
       LogHelpers.addBusinessContext(
-        'email_error_message',
+        BusinessContextKeys.emailError,
         (err as Error)?.message,
       );
-      LogHelpers.addBusinessContext('email_error_code', (err as any)?.code);
       LogHelpers.addBusinessContext(
-        'email_error_command',
+        BusinessContextKeys.emailErrorCode,
+        (err as any)?.code,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.emailErrorResponse,
         (err as any)?.command,
       );
       this.logger.error(

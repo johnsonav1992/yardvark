@@ -5,44 +5,63 @@ import { EntryCreatedEvent } from '../../../events/entry-created.event';
 import { BatchEntriesCreatedEvent } from '../../../events/batch-entries-created.event';
 import { LogHelpers } from '../../../logger/logger.helpers';
 import { EventHandlerHelpers } from '../../../logger/event-handler.helpers';
+import {
+  EventNames,
+  BusinessContextKeys,
+} from '../../../logger/logger-keys.constants';
 
 @Injectable()
 export class UsageTrackingListener {
   constructor(private readonly subscriptionService: SubscriptionService) {}
 
-  @OnEvent('entry.created', { async: true })
+  @OnEvent(EventNames.entryCreated, { async: true })
   public async handleEntryCreated(event: EntryCreatedEvent): Promise<void> {
-    await EventHandlerHelpers.withLoggingContext('entry.created', async () => {
-      LogHelpers.addBusinessContext('event_handler', 'entry.created');
-      LogHelpers.addBusinessContext('user_id', event.userId);
-      LogHelpers.addBusinessContext('entry_id', event.entryId);
-
-      const result = await this.subscriptionService.incrementUsage(
-        event.userId,
-        event.feature,
-      );
-
-      if (result.isError()) {
+    await EventHandlerHelpers.withLoggingContext(
+      EventNames.entryCreated,
+      async () => {
         LogHelpers.addBusinessContext(
-          'usage_increment_error',
-          result.value.message,
+          BusinessContextKeys.eventHandler,
+          EventNames.entryCreated,
         );
-      } else {
-        LogHelpers.addBusinessContext('usage_incremented', true);
-      }
-    });
+        LogHelpers.addBusinessContext(BusinessContextKeys.userId, event.userId);
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.entryId,
+          event.entryId,
+        );
+
+        const result = await this.subscriptionService.incrementUsage(
+          event.userId,
+          event.feature,
+        );
+
+        if (result.isError()) {
+          LogHelpers.addBusinessContext(
+            BusinessContextKeys.usageIncrementError,
+            result.value.message,
+          );
+        } else {
+          LogHelpers.addBusinessContext(
+            BusinessContextKeys.usageIncremented,
+            true,
+          );
+        }
+      },
+    );
   }
 
-  @OnEvent('entries.batch.created', { async: true })
+  @OnEvent(EventNames.batchEntriesCreated, { async: true })
   public async handleBatchEntriesCreated(
     event: BatchEntriesCreatedEvent,
   ): Promise<void> {
     await EventHandlerHelpers.withLoggingContext(
-      'entries.batch.created',
+      EventNames.batchEntriesCreated,
       async () => {
-        LogHelpers.addBusinessContext('event_handler', 'entries.batch.created');
-        LogHelpers.addBusinessContext('user_id', event.userId);
-        LogHelpers.addBusinessContext('count', event.count);
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.eventHandler,
+          EventNames.batchEntriesCreated,
+        );
+        LogHelpers.addBusinessContext(BusinessContextKeys.userId, event.userId);
+        LogHelpers.addBusinessContext(BusinessContextKeys.count, event.count);
 
         const result = await this.subscriptionService.incrementUsageBatch(
           event.userId,
@@ -52,11 +71,14 @@ export class UsageTrackingListener {
 
         if (result.isError()) {
           LogHelpers.addBusinessContext(
-            'usage_increment_batch_error',
+            BusinessContextKeys.usageIncrementBatchError,
             result.value.message,
           );
         } else {
-          LogHelpers.addBusinessContext('usage_batch_incremented', true);
+          LogHelpers.addBusinessContext(
+            BusinessContextKeys.usageBatchIncremented,
+            true,
+          );
         }
       },
     );

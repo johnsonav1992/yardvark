@@ -16,6 +16,7 @@ import {
   buildContextFromEntries,
 } from '../../entries/utils/entryRagUtils';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 
 @Injectable()
 export class AiService {
@@ -58,7 +59,7 @@ export class AiService {
     userId: string,
     naturalQuery: string,
   ): Promise<Either<AiQueryError, AiChatResponse>> {
-    LogHelpers.addBusinessContext('aiQueryType', 'rag');
+    LogHelpers.addBusinessContext(BusinessContextKeys.aiQueryType, 'rag');
 
     try {
       const preprocessedQuery = preprocessQuery(naturalQuery);
@@ -74,7 +75,10 @@ export class AiService {
         }),
       );
 
-      LogHelpers.addBusinessContext('ragEntriesFound', relevantEntries.length);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.ragEntriesFound,
+        relevantEntries.length,
+      );
 
       const context = buildContextFromEntries(relevantEntries);
 
@@ -98,7 +102,10 @@ export class AiService {
     userId: string,
     naturalQuery: string,
   ): AsyncGenerator<{ content: string; done: boolean }, void, unknown> {
-    LogHelpers.addBusinessContext('aiQueryType', 'rag-stream');
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.aiQueryType,
+      'rag-stream',
+    );
 
     try {
       const preprocessedQuery = preprocessQuery(naturalQuery);
@@ -115,7 +122,10 @@ export class AiService {
         }),
       );
 
-      LogHelpers.addBusinessContext('ragEntriesFound', relevantEntries.length);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.ragEntriesFound,
+        relevantEntries.length,
+      );
 
       const context = buildContextFromEntries(relevantEntries);
 
@@ -160,8 +170,14 @@ export class AiService {
         }
       }
 
-      LogHelpers.addBusinessContext('embeddingsProcessed', processed);
-      LogHelpers.addBusinessContext('embeddingsErrors', errors);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.embeddingsProcessed,
+        processed,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.embeddingsErrors,
+        errors,
+      );
 
       return success({ processed, errors });
     } catch (err) {

@@ -13,6 +13,7 @@ import { User as AuthUser } from '../../../decorators/user.decorator';
 import { imageFileValidator } from 'src/utils/fileUtils';
 import { resultOrThrow } from '../../../utils/resultOrThrow';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 
 const MAX_PROFILE_PICTURE_SIZE = 5 * 1024 * 1024;
 
@@ -25,8 +26,11 @@ export class UsersController {
     @AuthUser('userId') userId: string,
     @Body() data: Partial<User>,
   ) {
-    LogHelpers.addBusinessContext('controller_operation', 'update_user');
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'update_user',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     return resultOrThrow(await this.usersService.updateUser(userId, data));
   }
@@ -39,10 +43,10 @@ export class UsersController {
     @AuthUser('userId') userId: string,
   ) {
     LogHelpers.addBusinessContext(
-      'controller_operation',
+      BusinessContextKeys.controllerOperation,
       'upload_profile_picture',
     );
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     return resultOrThrow(
       await this.usersService.updateProfilePicture(userId, file),

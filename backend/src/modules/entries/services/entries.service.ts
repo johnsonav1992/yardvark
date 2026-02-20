@@ -18,13 +18,21 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { getEntryResponseMapping } from '../utils/entryUtils';
 import { ACTIVITY_IDS } from 'src/constants/activities.constants';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 import { Either, error, success } from '../../../types/either';
 import {
   EntriesNotFound,
   EntryNotFound,
   InvalidDateRange,
 } from '../models/entries.errors';
-import { parseISO, isValid, startOfDay, endOfDay, getYear, startOfYear } from 'date-fns';
+import {
+  parseISO,
+  isValid,
+  startOfDay,
+  endOfDay,
+  getYear,
+  startOfYear,
+} from 'date-fns';
 
 @Injectable()
 export class EntriesService {
@@ -78,7 +86,10 @@ export class EntriesService {
       return error(new EntriesNotFound());
     }
 
-    LogHelpers.addBusinessContext('entriesReturned', entries.length);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.entriesReturned,
+      entries.length,
+    );
 
     return success(entries.map((entry) => getEntryResponseMapping(entry)));
   }
@@ -88,7 +99,7 @@ export class EntriesService {
   ): Promise<
     Either<EntryNotFound, ReturnType<typeof getEntryResponseMapping>>
   > {
-    LogHelpers.addBusinessContext('entryId', entryId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
 
     const entry = await this._entriesRepo.findOne({
       where: { id: entryId },
@@ -243,12 +254,18 @@ export class EntriesService {
 
     await this._entriesRepo.save(newEntry);
 
-    LogHelpers.addBusinessContext('entryCreated', newEntry.id);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.entryCreated,
+      newEntry.id,
+    );
     LogHelpers.addBusinessContext(
       'activitiesCount',
       entry.activityIds?.length ?? 0,
     );
-    LogHelpers.addBusinessContext('productsCount', entry.products?.length ?? 0);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.productsCount,
+      entry.products?.length ?? 0,
+    );
 
     return newEntry;
   }
@@ -276,9 +293,18 @@ export class EntriesService {
       }
     });
 
-    LogHelpers.addBusinessContext('batchSize', body.entries.length);
-    LogHelpers.addBusinessContext('batchCreated', entries.length);
-    LogHelpers.addBusinessContext('batchFailed', errors.length);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.batchSize,
+      body.entries.length,
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.batchCreated,
+      entries.length,
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.batchFailed,
+      errors.length,
+    );
 
     return {
       created: entries.length,
@@ -292,7 +318,7 @@ export class EntriesService {
     entryId: number,
     entry: Partial<EntryCreationRequest>,
   ): Promise<Either<EntryNotFound, Entry>> {
-    LogHelpers.addBusinessContext('entryId', entryId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
 
     const entryToUpdate = await this._entriesRepo.findOne({
       where: { id: entryId },
@@ -343,7 +369,7 @@ export class EntriesService {
   public async softDeleteEntry(
     entryId: number,
   ): Promise<Either<EntryNotFound, void>> {
-    LogHelpers.addBusinessContext('entryId', entryId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
 
     const entry = await this._entriesRepo.findOne({
       where: { id: entryId },
@@ -354,7 +380,7 @@ export class EntriesService {
     }
 
     await this._entriesRepo.softDelete(entryId);
-    LogHelpers.addBusinessContext('entryDeleted', true);
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryDeleted, true);
 
     return success(undefined);
   }
@@ -427,7 +453,10 @@ export class EntriesService {
       },
     });
 
-    LogHelpers.addBusinessContext('searchResultsCount', entries.length);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.searchResultsCount,
+      entries.length,
+    );
 
     return success(entries.map((entry) => getEntryResponseMapping(entry)));
   }

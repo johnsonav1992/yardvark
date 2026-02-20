@@ -3,6 +3,7 @@ import { SettingsService } from '../services/settings.service';
 import { SettingsData } from '../models/settings.types';
 import { User } from '../../../decorators/user.decorator';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 
 @Controller('settings')
 export class SettingsController {
@@ -10,8 +11,11 @@ export class SettingsController {
 
   @Get()
   public getSettings(@User('userId') userId: string) {
-    LogHelpers.addBusinessContext('controller_operation', 'get_settings');
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_settings',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     return this._settingsService.getUserSettings(userId);
   }
@@ -21,8 +25,11 @@ export class SettingsController {
     @User('userId') userId: string,
     @Body() settings: SettingsData,
   ) {
-    LogHelpers.addBusinessContext('controller_operation', 'update_settings');
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'update_settings',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     const settingsVal = JSON.stringify(settings);
 

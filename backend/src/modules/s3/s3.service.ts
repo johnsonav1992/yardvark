@@ -11,6 +11,7 @@ import * as path from 'path';
 import { Either, error, success } from '../../types/either';
 import { S3UploadError, HeicConversionError } from './s3.errors';
 import { LogHelpers } from '../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../logger/logger-keys.constants';
 
 @Injectable()
 export class S3Service {
@@ -33,8 +34,11 @@ export class S3Service {
     file: Express.Multer.File,
     userId: string,
   ): Promise<Either<S3UploadError | HeicConversionError, string>> {
-    LogHelpers.addBusinessContext('fileSize', file.size);
-    LogHelpers.addBusinessContext('fileMimeType', file.mimetype);
+    LogHelpers.addBusinessContext(BusinessContextKeys.fileSize, file.size);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.fileMimeType,
+      file.mimetype,
+    );
 
     const conversionResult = await this.checkForHeicAndConvert(file);
 
@@ -65,7 +69,7 @@ export class S3Service {
     }
 
     LogHelpers.recordExternalCall('aws-s3', Date.now() - start, true);
-    LogHelpers.addBusinessContext('s3UploadSuccess', true);
+    LogHelpers.addBusinessContext(BusinessContextKeys.s3UploadSuccess, true);
 
     const url = `https://${this.bucketName}.s3.${process.env.AWS_REGION_YARDVARK}.amazonaws.com/${encodeURIComponent(key)}`;
 
@@ -77,7 +81,10 @@ export class S3Service {
     userId: string,
     concurrency = 5,
   ): Promise<Either<S3UploadError | HeicConversionError, string[]>> {
-    LogHelpers.addBusinessContext('batchUploadCount', files.length);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.batchUploadCount,
+      files.length,
+    );
 
     const results: string[] = [];
 
@@ -95,7 +102,10 @@ export class S3Service {
       }
     }
 
-    LogHelpers.addBusinessContext('batchUploadSuccess', results.length);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.batchUploadSuccess,
+      results.length,
+    );
 
     return success(results);
   }

@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { SettingsData, SettingsResponse } from '../models/settings.types';
 import { Stringified } from 'src/types/json-modified';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 
 @Injectable()
 export class SettingsService {
@@ -18,11 +19,11 @@ export class SettingsService {
     const settingsValue = settings?.value as Stringified<SettingsData>;
 
     if (!settings) {
-      LogHelpers.addBusinessContext('settingsFound', false);
+      LogHelpers.addBusinessContext(BusinessContextKeys.settingsFound, false);
       return [];
     }
 
-    LogHelpers.addBusinessContext('settingsFound', true);
+    LogHelpers.addBusinessContext(BusinessContextKeys.settingsFound, true);
 
     return {
       ...settings,
@@ -39,10 +40,10 @@ export class SettingsService {
 
     if (userSettings.length) {
       await this._settingsRepo.update({ userId }, { value: settings });
-      LogHelpers.addBusinessContext('settingsUpdated', true);
+      LogHelpers.addBusinessContext(BusinessContextKeys.settingsUpdated, true);
     } else {
       await this._settingsRepo.save({ value: settings, userId });
-      LogHelpers.addBusinessContext('settingsCreated', true);
+      LogHelpers.addBusinessContext(BusinessContextKeys.settingsCreated, true);
     }
 
     return newSettings;

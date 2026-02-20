@@ -8,7 +8,15 @@ import {
   QUERY_REPLACEMENTS,
   ACTIVITY_ENHANCEMENTS,
 } from './entryRagConstants';
-import { getYear, getMonth, startOfMonth, endOfMonth, startOfYear, endOfYear, format as formatDate } from 'date-fns';
+import {
+  getYear,
+  getMonth,
+  startOfMonth,
+  endOfMonth,
+  startOfYear,
+  endOfYear,
+  format as formatDate,
+} from 'date-fns';
 
 export function extractDateRange(
   query: string,

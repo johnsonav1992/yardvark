@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Injectable()
@@ -25,10 +26,13 @@ export class StripeService {
     email: string,
     name: string,
   ): Promise<Stripe.Customer> {
-    LogHelpers.addBusinessContext('stripe_operation', 'create_customer');
-    LogHelpers.addBusinessContext('userId', userId);
-    LogHelpers.addBusinessContext('customer_email', email);
-    LogHelpers.addBusinessContext('customer_name', name);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.stripeOperation,
+      'create_customer',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.customerEmail, email);
+    LogHelpers.addBusinessContext(BusinessContextKeys.customerName, name);
 
     try {
       return await LogHelpers.withExternalCallTelemetry('stripe', () =>
@@ -39,9 +43,18 @@ export class StripeService {
         }),
       );
     } catch (error) {
-      LogHelpers.addBusinessContext('stripe_error_type', error.type);
-      LogHelpers.addBusinessContext('stripe_error_code', error.code);
-      LogHelpers.addBusinessContext('stripe_error_message', error.message);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.stripeErrorType,
+        error.type,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.stripeErrorCode,
+        error.code,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.stripeErrorMessage,
+        error.message,
+      );
 
       throw error;
     }
@@ -54,10 +67,13 @@ export class StripeService {
     successUrl: string,
     cancelUrl: string,
   ): Promise<Stripe.Checkout.Session> {
-    LogHelpers.addBusinessContext('stripe_operation', 'create_checkout');
-    LogHelpers.addBusinessContext('userId', userId);
-    LogHelpers.addBusinessContext('priceId', priceId);
-    LogHelpers.addBusinessContext('customerId', customerId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.stripeOperation,
+      'create_checkout',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.priceId, priceId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.customerId, customerId);
 
     try {
       return await LogHelpers.withExternalCallTelemetry('stripe', () =>
@@ -73,9 +89,18 @@ export class StripeService {
         }),
       );
     } catch (error) {
-      LogHelpers.addBusinessContext('stripe_error_type', error.type);
-      LogHelpers.addBusinessContext('stripe_error_code', error.code);
-      LogHelpers.addBusinessContext('stripe_error_message', error.message);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.stripeErrorType,
+        error.type,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.stripeErrorCode,
+        error.code,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.stripeErrorMessage,
+        error.message,
+      );
 
       throw error;
     }
@@ -85,8 +110,11 @@ export class StripeService {
     customerId: string,
     returnUrl: string,
   ): Promise<Stripe.BillingPortal.Session> {
-    LogHelpers.addBusinessContext('stripe_operation', 'create_portal');
-    LogHelpers.addBusinessContext('customerId', customerId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.stripeOperation,
+      'create_portal',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.customerId, customerId);
 
     try {
       return await LogHelpers.withExternalCallTelemetry('stripe', () =>
@@ -96,9 +124,18 @@ export class StripeService {
         }),
       );
     } catch (error) {
-      LogHelpers.addBusinessContext('stripe_error_type', error.type);
-      LogHelpers.addBusinessContext('stripe_error_code', error.code);
-      LogHelpers.addBusinessContext('stripe_error_message', error.message);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.stripeErrorType,
+        error.type,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.stripeErrorCode,
+        error.code,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.stripeErrorMessage,
+        error.message,
+      );
 
       throw error;
     }
@@ -107,17 +144,32 @@ export class StripeService {
   public async getSubscription(
     subscriptionId: string,
   ): Promise<Stripe.Subscription> {
-    LogHelpers.addBusinessContext('stripe_operation', 'get_subscription');
-    LogHelpers.addBusinessContext('subscriptionId', subscriptionId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.stripeOperation,
+      'get_subscription',
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.subscriptionId,
+      subscriptionId,
+    );
 
     try {
       return await LogHelpers.withExternalCallTelemetry('stripe', () =>
         this.stripe.subscriptions.retrieve(subscriptionId),
       );
     } catch (error) {
-      LogHelpers.addBusinessContext('stripe_error_type', error.type);
-      LogHelpers.addBusinessContext('stripe_error_code', error.code);
-      LogHelpers.addBusinessContext('stripe_error_message', error.message);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.stripeErrorType,
+        error.type,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.stripeErrorCode,
+        error.code,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.stripeErrorMessage,
+        error.message,
+      );
 
       throw error;
     }
@@ -126,17 +178,29 @@ export class StripeService {
   public async getCustomer(
     customerId: string,
   ): Promise<Stripe.Customer | Stripe.DeletedCustomer> {
-    LogHelpers.addBusinessContext('stripe_operation', 'get_customer');
-    LogHelpers.addBusinessContext('customerId', customerId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.stripeOperation,
+      'get_customer',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.customerId, customerId);
 
     try {
       return await LogHelpers.withExternalCallTelemetry('stripe', () =>
         this.stripe.customers.retrieve(customerId),
       );
     } catch (error) {
-      LogHelpers.addBusinessContext('stripe_error_type', error.type);
-      LogHelpers.addBusinessContext('stripe_error_code', error.code);
-      LogHelpers.addBusinessContext('stripe_error_message', error.message);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.stripeErrorType,
+        error.type,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.stripeErrorCode,
+        error.code,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.stripeErrorMessage,
+        error.message,
+      );
 
       throw error;
     }
@@ -145,8 +209,14 @@ export class StripeService {
   public async cancelSubscription(
     subscriptionId: string,
   ): Promise<Stripe.Subscription> {
-    LogHelpers.addBusinessContext('stripe_operation', 'cancel_subscription');
-    LogHelpers.addBusinessContext('subscriptionId', subscriptionId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.stripeOperation,
+      'cancel_subscription',
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.subscriptionId,
+      subscriptionId,
+    );
 
     try {
       return await LogHelpers.withExternalCallTelemetry('stripe', () =>
@@ -155,9 +225,18 @@ export class StripeService {
         }),
       );
     } catch (error) {
-      LogHelpers.addBusinessContext('stripe_error_type', error.type);
-      LogHelpers.addBusinessContext('stripe_error_code', error.code);
-      LogHelpers.addBusinessContext('stripe_error_message', error.message);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.stripeErrorType,
+        error.type,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.stripeErrorCode,
+        error.code,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.stripeErrorMessage,
+        error.message,
+      );
 
       throw error;
     }
@@ -182,7 +261,10 @@ export class StripeService {
         webhookSecret,
       );
     } catch (err) {
-      LogHelpers.addBusinessContext('webhook_verification_failed', true);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.webhookVerificationFailed,
+        true,
+      );
 
       throw err;
     }

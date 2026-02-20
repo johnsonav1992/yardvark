@@ -1,6 +1,8 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class UpdateEmbeddingDimension1758973153543 implements MigrationInterface {
+export class UpdateEmbeddingDimension1758973153543
+  implements MigrationInterface
+{
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
       `ALTER TABLE entries DROP COLUMN IF EXISTS embedding`,

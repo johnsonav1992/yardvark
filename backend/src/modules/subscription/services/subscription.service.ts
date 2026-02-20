@@ -17,6 +17,7 @@ import { StripeService } from './stripe.service';
 import { ConfigService } from '@nestjs/config';
 import Stripe from 'stripe';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 import { Either, error, success } from '../../../types/either';
 import { ResourceError } from '../../../errors/resource-error';
 import {
@@ -71,14 +72,20 @@ export class SubscriptionService {
       );
 
       if (cached) {
-        LogHelpers.addBusinessContext('subscription_cache_hit', true);
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.subscriptionCacheHit,
+          true,
+        );
         return cached;
       }
 
       return null;
     } catch (error) {
-      LogHelpers.addBusinessContext('cache_get_error', error.message);
-      LogHelpers.addBusinessContext('cache_user_id', userId);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.cacheGetError,
+        error.message,
+      );
+      LogHelpers.addBusinessContext(BusinessContextKeys.cacheUserId, userId);
 
       return null;
     }
@@ -91,9 +98,15 @@ export class SubscriptionService {
     try {
       await this.cacheManager.set(this.getCacheKey(userId), subscription);
     } catch (error) {
-      LogHelpers.addBusinessContext('cache_set_error', error.message);
-      LogHelpers.addBusinessContext('cache_user_id', userId);
-      LogHelpers.addBusinessContext('cache_tier', subscription.tier);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.cacheSetError,
+        error.message,
+      );
+      LogHelpers.addBusinessContext(BusinessContextKeys.cacheUserId, userId);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.cacheTier,
+        subscription.tier,
+      );
     }
   }
 
@@ -101,8 +114,11 @@ export class SubscriptionService {
     try {
       await this.cacheManager.del(this.getCacheKey(userId));
     } catch (error) {
-      LogHelpers.addBusinessContext('cache_del_error', error.message);
-      LogHelpers.addBusinessContext('cache_user_id', userId);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.cacheDelError,
+        error.message,
+      );
+      LogHelpers.addBusinessContext(BusinessContextKeys.cacheUserId, userId);
     }
   }
 
@@ -167,7 +183,10 @@ export class SubscriptionService {
     const cached = await this.getCachedSubscription(userId);
 
     if (cached) {
-      LogHelpers.addBusinessContext('subscription_tier', cached.tier);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.subscriptionTier,
+        cached.tier,
+      );
 
       return success(cached);
     }
@@ -178,7 +197,10 @@ export class SubscriptionService {
       });
 
       if (!subscription) {
-        LogHelpers.addBusinessContext('subscription_created', true);
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.subscriptionCreated,
+          true,
+        );
 
         const newSubscription = this.subscriptionRepo.create({
           userId,
@@ -190,12 +212,15 @@ export class SubscriptionService {
       }
 
       await this.cacheSubscription(userId, subscription);
-      LogHelpers.addBusinessContext('subscription_tier', subscription.tier);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.subscriptionTier,
+        subscription.tier,
+      );
 
       return success(subscription);
     } catch (err) {
       LogHelpers.addBusinessContext(
-        'subscription_fetch_error',
+        BusinessContextKeys.subscriptionFetchError,
         (err as Error).message,
       );
 
@@ -211,37 +236,58 @@ export class SubscriptionService {
     successUrl: string,
     cancelUrl: string,
   ): Promise<Either<ResourceError, { url: string }>> {
-    LogHelpers.addBusinessContext('checkout_operation', 'create_checkout');
-    LogHelpers.addBusinessContext('checkout_tier', tier);
-    LogHelpers.addBusinessContext('checkout_user_id', userId);
-    LogHelpers.addBusinessContext('checkout_user_email', email);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.checkoutOperation,
+      'create_checkout',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.checkoutTier, tier);
+    LogHelpers.addBusinessContext(BusinessContextKeys.checkoutUserId, userId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.checkoutUserEmail, email);
 
     const subscriptionResult = await this.getOrCreateSubscription(userId);
 
     if (subscriptionResult.isError()) return error(subscriptionResult.value);
 
     const subscription = subscriptionResult.value;
-    LogHelpers.addBusinessContext('existing_tier', subscription.tier);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.existingTier,
+      subscription.tier,
+    );
 
     let customerId: string | null = subscription.stripeCustomerId;
 
     if (customerId) {
-      LogHelpers.addBusinessContext('existing_customer_id', customerId);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.existingCustomerId,
+        customerId,
+      );
 
       try {
         const customer = await this.stripeService.getCustomer(customerId);
 
         if ('deleted' in customer && customer.deleted) {
-          LogHelpers.addBusinessContext('stripe_customer_deleted', true);
+          LogHelpers.addBusinessContext(
+            BusinessContextKeys.stripeCustomerDeleted,
+            true,
+          );
           customerId = null;
           this.clearStripeCustomer(subscription);
         }
       } catch (err) {
-        LogHelpers.addBusinessContext('customer_lookup_error', err.message);
-        LogHelpers.addBusinessContext('customer_error_code', err.code);
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.customerLookupError,
+          err.message,
+        );
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.customerErrorCode,
+          err.code,
+        );
 
         if (err.code === 'resource_missing') {
-          LogHelpers.addBusinessContext('stripe_customer_missing', true);
+          LogHelpers.addBusinessContext(
+            BusinessContextKeys.stripeCustomerMissing,
+            true,
+          );
           customerId = null;
           this.clearStripeCustomer(subscription);
         } else {
@@ -251,7 +297,10 @@ export class SubscriptionService {
     }
 
     if (!customerId) {
-      LogHelpers.addBusinessContext('creating_new_customer', true);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.creatingNewCustomer,
+        true,
+      );
 
       try {
         const customer = await this.stripeService.createCustomer(
@@ -267,10 +316,19 @@ export class SubscriptionService {
 
         await this.invalidateCache(userId);
 
-        LogHelpers.addBusinessContext('stripe_customer_created', true);
-        LogHelpers.addBusinessContext('new_customer_id', customerId);
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.stripeCustomerCreated,
+          true,
+        );
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.newCustomerId,
+          customerId,
+        );
       } catch (err) {
-        LogHelpers.addBusinessContext('customer_creation_error', err.message);
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.customerCreationError,
+          err.message,
+        );
 
         return error(new StripeCustomerCreationError(err));
       }
@@ -282,13 +340,13 @@ export class SubscriptionService {
         : this.configService.get<string>('STRIPE_YEARLY_PRICE_ID');
 
     if (!priceId) {
-      LogHelpers.addBusinessContext('price_id_missing', true);
-      LogHelpers.addBusinessContext('requested_tier', tier);
+      LogHelpers.addBusinessContext(BusinessContextKeys.priceIdMissing, true);
+      LogHelpers.addBusinessContext(BusinessContextKeys.requestedTier, tier);
 
       return error(new PriceIdNotConfigured(tier));
     }
 
-    LogHelpers.addBusinessContext('price_id', priceId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.priceId, priceId);
 
     try {
       const session = await this.stripeService.createCheckoutSession(
@@ -300,19 +358,31 @@ export class SubscriptionService {
       );
 
       if (!session.url) {
-        LogHelpers.addBusinessContext('checkout_missing_url', true);
-        LogHelpers.addBusinessContext('session_id', session.id);
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.checkoutMissingUrl,
+          true,
+        );
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.sessionId,
+          session.id,
+        );
 
         return error(new CheckoutUrlMissing());
       }
 
-      LogHelpers.addBusinessContext('checkout_session_created', true);
-      LogHelpers.addBusinessContext('session_id', session.id);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.checkoutSessionCreated,
+        true,
+      );
+      LogHelpers.addBusinessContext(BusinessContextKeys.sessionId, session.id);
 
       return success({ url: session.url });
     } catch (err) {
-      LogHelpers.addBusinessContext('checkout_creation_error', err.message);
-      LogHelpers.addBusinessContext('customer_id', customerId);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.checkoutCreationError,
+        err.message,
+      );
+      LogHelpers.addBusinessContext(BusinessContextKeys.customerId, customerId);
 
       return error(new CheckoutSessionCreationError(err));
     }
@@ -322,29 +392,50 @@ export class SubscriptionService {
     userId: string,
     returnUrl: string,
   ): Promise<Either<ResourceError, { url: string }>> {
-    LogHelpers.addBusinessContext('portal_operation', 'create_portal');
-    LogHelpers.addBusinessContext('portal_user_id', userId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.portalOperation,
+      'create_portal',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.portalUserId, userId);
 
     const subscription = await this.subscriptionRepo.findOne({
       where: { userId },
     });
 
     if (!subscription) {
-      LogHelpers.addBusinessContext('portal_session_failed', true);
-      LogHelpers.addBusinessContext('reason', 'no_subscription_record');
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.portalSessionFailed,
+        true,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.reason,
+        'no_subscription_record',
+      );
 
       return error(new SubscriptionNotFound());
     }
 
     if (!subscription.stripeCustomerId) {
-      LogHelpers.addBusinessContext('portal_session_failed', true);
-      LogHelpers.addBusinessContext('reason', 'no_stripe_customer');
-      LogHelpers.addBusinessContext('subscription_tier', subscription.tier);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.portalSessionFailed,
+        true,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.reason,
+        'no_stripe_customer',
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.subscriptionTier,
+        subscription.tier,
+      );
 
       return error(new StripeCustomerNotFound());
     }
 
-    LogHelpers.addBusinessContext('customer_id', subscription.stripeCustomerId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.customerId,
+      subscription.stripeCustomerId,
+    );
 
     try {
       const session = await this.stripeService.createPortalSession(
@@ -353,16 +444,25 @@ export class SubscriptionService {
       );
 
       if (!session.url) {
-        LogHelpers.addBusinessContext('portal_missing_url', true);
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.portalMissingUrl,
+          true,
+        );
 
         return error(new PortalUrlMissing());
       }
 
-      LogHelpers.addBusinessContext('portal_session_created', true);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.portalSessionCreated,
+        true,
+      );
 
       return success({ url: session.url });
     } catch (err) {
-      LogHelpers.addBusinessContext('portal_creation_error', err.message);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.portalCreationError,
+        err.message,
+      );
 
       return error(new PortalSessionCreationError(err));
     }
@@ -371,17 +471,26 @@ export class SubscriptionService {
   public async handleSubscriptionUpdate(
     stripeSubscription: Stripe.Subscription,
   ): Promise<Either<ResourceError, void>> {
-    LogHelpers.addBusinessContext('webhook_operation', 'subscription_update');
     LogHelpers.addBusinessContext(
-      'stripe_subscription_id',
+      BusinessContextKeys.webhookOperation,
+      'subscription_update',
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.stripeSubscriptionId,
       stripeSubscription.id,
     );
-    LogHelpers.addBusinessContext('stripe_status', stripeSubscription.status);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.stripeStatus,
+      stripeSubscription.status,
+    );
 
     const userId = stripeSubscription.metadata.userId;
 
     if (!userId) {
-      LogHelpers.addBusinessContext('webhook_error', 'missing_user_id');
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.webhookError,
+        'missing_user_id',
+      );
       LogHelpers.addBusinessContext(
         'subscription_metadata',
         JSON.stringify(stripeSubscription.metadata),
@@ -390,7 +499,7 @@ export class SubscriptionService {
       return error(new MissingUserId());
     }
 
-    LogHelpers.addBusinessContext('webhook_user_id', userId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.webhookUserId, userId);
 
     const subscriptionResult = await this.getOrCreateSubscription(userId);
 
@@ -399,13 +508,22 @@ export class SubscriptionService {
     const subscription = subscriptionResult.value;
 
     try {
-      LogHelpers.addBusinessContext('previous_tier', subscription.tier);
-      LogHelpers.addBusinessContext('previous_status', subscription.status);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.previousTier,
+        subscription.tier,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.previousStatus,
+        subscription.status,
+      );
 
       const priceId = stripeSubscription.items.data[0]?.price.id;
 
       if (!priceId) {
-        LogHelpers.addBusinessContext('webhook_error', 'missing_price_id');
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.webhookError,
+          'missing_price_id',
+        );
         LogHelpers.addBusinessContext(
           'items_count',
           stripeSubscription.items.data.length,
@@ -414,7 +532,7 @@ export class SubscriptionService {
         return error(new MissingPriceId());
       }
 
-      LogHelpers.addBusinessContext('stripe_price_id', priceId);
+      LogHelpers.addBusinessContext(BusinessContextKeys.stripePriceId, priceId);
 
       const tier = this.getTierFromPriceId(priceId);
 
@@ -433,17 +551,26 @@ export class SubscriptionService {
 
       await this.invalidateCache(userId);
 
-      LogHelpers.addBusinessContext('subscription_updated', true);
-      LogHelpers.addBusinessContext('new_tier', tier);
-      LogHelpers.addBusinessContext('new_status', subscription.status);
       LogHelpers.addBusinessContext(
-        'cancel_at_period_end',
+        BusinessContextKeys.subscriptionUpdated,
+        true,
+      );
+      LogHelpers.addBusinessContext(BusinessContextKeys.newTier, tier);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.newStatus,
+        subscription.status,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.cancelAtPeriodEnd,
         subscription.cancelAtPeriodEnd,
       );
 
       return success(undefined);
     } catch (err) {
-      LogHelpers.addBusinessContext('subscription_update_error', err.message);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.subscriptionUpdateError,
+        err.message,
+      );
 
       return error(new SubscriptionUpdateError(err));
     }
@@ -452,16 +579,22 @@ export class SubscriptionService {
   public async handleSubscriptionDeleted(
     stripeSubscription: Stripe.Subscription,
   ): Promise<Either<ResourceError, void>> {
-    LogHelpers.addBusinessContext('webhook_operation', 'subscription_deleted');
     LogHelpers.addBusinessContext(
-      'stripe_subscription_id',
+      BusinessContextKeys.webhookOperation,
+      'subscription_deleted',
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.stripeSubscriptionId,
       stripeSubscription.id,
     );
 
     const userId = stripeSubscription.metadata.userId;
 
     if (!userId) {
-      LogHelpers.addBusinessContext('webhook_error', 'missing_user_id');
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.webhookError,
+        'missing_user_id',
+      );
       LogHelpers.addBusinessContext(
         'subscription_metadata',
         JSON.stringify(stripeSubscription.metadata),
@@ -470,7 +603,7 @@ export class SubscriptionService {
       return error(new MissingUserId());
     }
 
-    LogHelpers.addBusinessContext('webhook_user_id', userId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.webhookUserId, userId);
 
     try {
       const subscription = await this.subscriptionRepo.findOne({
@@ -479,16 +612,22 @@ export class SubscriptionService {
 
       if (!subscription) {
         LogHelpers.addBusinessContext(
-          'webhook_error',
+          BusinessContextKeys.webhookError,
           'subscription_not_found',
         );
-        LogHelpers.addBusinessContext('user_id', userId);
+        LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
         return error(new SubscriptionNotFound());
       }
 
-      LogHelpers.addBusinessContext('previous_tier', subscription.tier);
-      LogHelpers.addBusinessContext('previous_status', subscription.status);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.previousTier,
+        subscription.tier,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.previousStatus,
+        subscription.status,
+      );
 
       subscription.tier = SUBSCRIPTION_TIERS.FREE;
       subscription.status = SUBSCRIPTION_STATUSES.CANCELED;
@@ -498,11 +637,17 @@ export class SubscriptionService {
 
       await this.invalidateCache(userId);
 
-      LogHelpers.addBusinessContext('subscription_canceled', true);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.subscriptionCanceling,
+        true,
+      );
 
       return success(undefined);
     } catch (err) {
-      LogHelpers.addBusinessContext('subscription_delete_error', err.message);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.subscriptionUpdateError,
+        err.message,
+      );
 
       return error(new SubscriptionUpdateError(err));
     }
@@ -523,7 +668,7 @@ export class SubscriptionService {
       const isPro = this.isActiveSubscription(subscription);
 
       LogHelpers.addBusinessContext('feature_check', feature);
-      LogHelpers.addBusinessContext('is_pro', isPro);
+      LogHelpers.addBusinessContext(BusinessContextKeys.isPro, isPro);
 
       if (feature.startsWith('ai_')) {
         return success({ allowed: isPro });
@@ -623,7 +768,10 @@ export class SubscriptionService {
 
       return success(response);
     } catch (err) {
-      LogHelpers.addBusinessContext('pricing_fetch_error', (err as Error).message);
+      LogHelpers.addBusinessContext(
+        'pricing_fetch_error',
+        (err as Error).message,
+      );
 
       return error(new PricingFetchError(err));
     }
@@ -634,7 +782,7 @@ export class SubscriptionService {
     feature: string,
   ): Promise<Either<ResourceError, void>> {
     LogHelpers.addBusinessContext('usage_operation', 'increment');
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
     LogHelpers.addBusinessContext('feature', feature);
 
     const { start: periodStart, end: periodEnd } = this.getCurrentMonthPeriod();
@@ -654,7 +802,10 @@ export class SubscriptionService {
 
         await this.usageRepo.save(existingUsage);
 
-        LogHelpers.addBusinessContext('usage_incremented', true);
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.usageIncremented,
+          true,
+        );
         LogHelpers.addBusinessContext(
           'new_usage_count',
           existingUsage.usageCount,
@@ -670,13 +821,19 @@ export class SubscriptionService {
 
         await this.usageRepo.save(newUsage);
 
-        LogHelpers.addBusinessContext('usage_created', true);
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.usageIncremented,
+          true,
+        );
         LogHelpers.addBusinessContext('new_usage_count', 1);
       }
 
       return success(undefined);
     } catch (err) {
-      LogHelpers.addBusinessContext('usage_increment_error', err.message);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.usageIncrementError,
+        err.message,
+      );
 
       return error(
         new ResourceError({
@@ -695,9 +852,9 @@ export class SubscriptionService {
     count: number,
   ): Promise<Either<ResourceError, void>> {
     LogHelpers.addBusinessContext('usage_operation', 'increment_batch');
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
     LogHelpers.addBusinessContext('feature', feature);
-    LogHelpers.addBusinessContext('count', count);
+    LogHelpers.addBusinessContext(BusinessContextKeys.count, count);
 
     if (count <= 0) {
       return success(undefined);
@@ -720,7 +877,10 @@ export class SubscriptionService {
 
         await this.usageRepo.save(existingUsage);
 
-        LogHelpers.addBusinessContext('usage_incremented', true);
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.usageBatchIncremented,
+          true,
+        );
         LogHelpers.addBusinessContext(
           'new_usage_count',
           existingUsage.usageCount,
@@ -736,13 +896,19 @@ export class SubscriptionService {
 
         await this.usageRepo.save(newUsage);
 
-        LogHelpers.addBusinessContext('usage_created', true);
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.usageBatchIncremented,
+          true,
+        );
         LogHelpers.addBusinessContext('new_usage_count', count);
       }
 
       return success(undefined);
     } catch (err) {
-      LogHelpers.addBusinessContext('usage_increment_error', err.message);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.usageIncrementBatchError,
+        err.message,
+      );
 
       return error(
         new ResourceError({

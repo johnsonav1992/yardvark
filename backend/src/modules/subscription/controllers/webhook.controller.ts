@@ -15,6 +15,7 @@ import { WebhookEvent } from '../models/webhook-event.model';
 import { Public } from '../../../decorators/public.decorator';
 import Stripe from 'stripe';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 
 @Controller('stripe')
 export class WebhookController {
@@ -31,12 +32,18 @@ export class WebhookController {
     @Req() req: RawBodyRequest<Request>,
     @Res() res: Response,
   ) {
-    LogHelpers.addBusinessContext('webhook_operation', 'handle_webhook');
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.webhookOperation,
+      'handle_webhook',
+    );
 
     const signature = req.headers['stripe-signature'] as string;
 
     if (!signature) {
-      LogHelpers.addBusinessContext('webhook_error', 'missing_signature');
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.webhookError,
+        'missing_signature',
+      );
 
       return res
         .status(HttpStatus.BAD_REQUEST)
@@ -44,7 +51,10 @@ export class WebhookController {
     }
 
     if (!req.rawBody) {
-      LogHelpers.addBusinessContext('webhook_error', 'missing_raw_body');
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.webhookError,
+        'missing_raw_body',
+      );
 
       return res
         .status(HttpStatus.BAD_REQUEST)
@@ -56,17 +66,29 @@ export class WebhookController {
     try {
       event = this.stripeService.constructWebhookEvent(req.rawBody, signature);
     } catch (err) {
-      LogHelpers.addBusinessContext('webhook_verification_failed', true);
-      LogHelpers.addBusinessContext('verification_error', err.message);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.webhookVerificationFailed,
+        true,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.verificationError,
+        err.message,
+      );
 
       return res
         .status(HttpStatus.BAD_REQUEST)
         .send(`Webhook verification failed: ${err.message}`);
     }
 
-    LogHelpers.addBusinessContext('stripe_event_id', event.id);
-    LogHelpers.addBusinessContext('stripe_event_type', event.type);
-    LogHelpers.addBusinessContext('stripe_created', event.created);
+    LogHelpers.addBusinessContext(BusinessContextKeys.stripeEventId, event.id);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.stripeEventType,
+      event.type,
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.stripeCreated,
+      event.created,
+    );
 
     const webhookEvent = this.webhookEventRepo.create({
       stripeEventId: event.id,
@@ -76,31 +98,52 @@ export class WebhookController {
 
     try {
       await this.webhookEventRepo.save(webhookEvent);
-      LogHelpers.addBusinessContext('webhook_event_saved', true);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.webhookEventSaved,
+        true,
+      );
     } catch (error) {
       if (error.code === '23505') {
-        LogHelpers.addBusinessContext('webhook_duplicate', true);
-        LogHelpers.addBusinessContext('duplicate_event_id', event.id);
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.webhookDuplicate,
+          true,
+        );
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.duplicateEventId,
+          event.id,
+        );
 
         return res
           .status(HttpStatus.OK)
           .json({ received: true, duplicate: true });
       }
 
-      LogHelpers.addBusinessContext('webhook_save_error', error.message);
-      LogHelpers.addBusinessContext('error_code', error.code);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.webhookSaveError,
+        error.message,
+      );
+      LogHelpers.addBusinessContext(BusinessContextKeys.errorCode, error.code);
       throw error;
     }
 
     try {
       await this.processWebhookEvent(event, webhookEvent.id);
-      LogHelpers.addBusinessContext('webhook_processing_complete', true);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.webhookProcessingComplete,
+        true,
+      );
 
       return res.status(HttpStatus.OK).json({ received: true });
     } catch (err) {
-      LogHelpers.addBusinessContext('webhook_processing_failed', true);
-      LogHelpers.addBusinessContext('processing_error', err.message);
-      LogHelpers.addBusinessContext('error_stack', err.stack);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.webhookProcessingFailed,
+        true,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.processingError,
+        err.message,
+      );
+      LogHelpers.addBusinessContext(BusinessContextKeys.errorStack, err.stack);
 
       return res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -112,7 +155,10 @@ export class WebhookController {
     event: Stripe.Event,
     webhookEventId: number,
   ): Promise<void> {
-    LogHelpers.addBusinessContext('processing_event_type', event.type);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.processingEventType,
+      event.type,
+    );
 
     switch (event.type) {
       case 'checkout.session.completed':
@@ -161,8 +207,11 @@ export class WebhookController {
       }
 
       default:
-        LogHelpers.addBusinessContext('unhandled_event_type', event.type);
-        LogHelpers.addBusinessContext('unhandled_event', true);
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.unhandledEventType,
+          event.type,
+        );
+        LogHelpers.addBusinessContext(BusinessContextKeys.unhandledEvent, true);
     }
 
     await this.webhookEventRepo.update(webhookEventId, {
@@ -170,26 +219,38 @@ export class WebhookController {
       processedAt: new Date(),
     });
 
-    LogHelpers.addBusinessContext('webhook_processed', true);
+    LogHelpers.addBusinessContext(BusinessContextKeys.webhookProcessed, true);
   }
 
   private async handleCheckoutCompleted(session: Stripe.Checkout.Session) {
-    LogHelpers.addBusinessContext('checkout_handler', 'processing');
-    LogHelpers.addBusinessContext('session_id', session.id);
-    LogHelpers.addBusinessContext('session_mode', session.mode);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.checkoutHandler,
+      'processing',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.sessionId, session.id);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.sessionMode,
+      session.mode,
+    );
 
     if (session.mode !== 'subscription') {
-      LogHelpers.addBusinessContext('checkout_skipped', 'not_subscription');
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.checkoutSkipped,
+        'not_subscription',
+      );
 
       return;
     }
 
     if (!session.subscription) {
       LogHelpers.addBusinessContext(
-        'checkout_error',
+        BusinessContextKeys.checkoutError,
         'missing_subscription_id',
       );
-      LogHelpers.addBusinessContext('session_status', session.status);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.sessionStatus,
+        session.status,
+      );
 
       throw new Error('Checkout session completed but missing subscription ID');
     }
@@ -203,7 +264,10 @@ export class WebhookController {
       session.subscription as string,
     );
 
-    LogHelpers.addBusinessContext('subscription_status', subscription.status);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.subscriptionStatus,
+      subscription.status,
+    );
 
     const result =
       await this.subscriptionService.handleSubscriptionUpdate(subscription);
@@ -219,6 +283,6 @@ export class WebhookController {
       );
     }
 
-    LogHelpers.addBusinessContext('checkout_completed', true);
+    LogHelpers.addBusinessContext(BusinessContextKeys.checkoutCompleted, true);
   }
 }

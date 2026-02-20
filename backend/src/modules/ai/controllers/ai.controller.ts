@@ -14,6 +14,7 @@ import { SubscriptionFeature } from '../../../decorators/subscription-feature.de
 import { resultOrThrow } from '../../../utils/resultOrThrow';
 import { User } from '../../../decorators/user.decorator';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 
 @Controller('ai')
 export class AiController {
@@ -24,7 +25,10 @@ export class AiController {
   public async chat(
     @Body() chatRequest: AiChatRequest,
   ): Promise<AiChatResponse> {
-    LogHelpers.addBusinessContext('controller_operation', 'ai_chat');
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'ai_chat',
+    );
 
     if (!chatRequest.prompt || chatRequest.prompt.trim().length === 0) {
       throw new HttpException('Prompt is required', HttpStatus.BAD_REQUEST);
@@ -41,8 +45,11 @@ export class AiController {
     @User('userId') userId: string,
     @Body() body: { query: string; userId?: string },
   ): Promise<AiChatResponse> {
-    LogHelpers.addBusinessContext('controller_operation', 'ai_query_entries');
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'ai_query_entries',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     if (!body.query || body.query.trim().length === 0) {
       throw new HttpException('Query is required', HttpStatus.BAD_REQUEST);
@@ -65,10 +72,10 @@ export class AiController {
     @Body() body?: { userId?: string },
   ): Promise<{ processed: number; errors: number }> {
     LogHelpers.addBusinessContext(
-      'controller_operation',
+      BusinessContextKeys.controllerOperation,
       'ai_initialize_embeddings',
     );
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     const resolvedUserId =
       body?.userId || userId || 'google-oauth2|111643664660289512636';
@@ -87,8 +94,11 @@ export class AiController {
     @Res() res: Response,
     @Body() body: { query: string; userId?: string },
   ): Promise<void> {
-    LogHelpers.addBusinessContext('controller_operation', 'ai_stream_query');
-    LogHelpers.addBusinessContext('user_id', userId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'ai_stream_query',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     if (!body.query || body.query.trim().length === 0) {
       throw new HttpException('Query is required', HttpStatus.BAD_REQUEST);
@@ -129,7 +139,10 @@ export class AiController {
 
       res.end();
     } catch (error) {
-      LogHelpers.addBusinessContext('stream_error', (error as Error).message);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.streamError,
+        (error as Error).message,
+      );
 
       const errorData = JSON.stringify({
         type: 'error',

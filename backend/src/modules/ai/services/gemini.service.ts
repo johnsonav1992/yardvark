@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { GoogleGenAI } from '@google/genai';
 import { AiChatResponse } from '../../../types/ai.types';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 
 interface GeminiChatMessage {
   role: 'user' | 'system' | 'assistant';
@@ -46,8 +47,8 @@ export class GeminiService {
     options?: GeminiChatOptions,
   ): Promise<AiChatResponse> {
     const modelName = options?.model || this.defaultModel;
-    LogHelpers.addBusinessContext('aiModel', modelName);
-    LogHelpers.addBusinessContext('aiProvider', 'gemini');
+    LogHelpers.addBusinessContext(BusinessContextKeys.aiModel, modelName);
+    LogHelpers.addBusinessContext(BusinessContextKeys.aiProvider, 'gemini');
 
     const start = Date.now();
     let success = true;
@@ -145,9 +146,9 @@ export class GeminiService {
     options?: GeminiChatOptions,
   ): AsyncGenerator<{ content: string; done: boolean }, void, unknown> {
     const modelName = options?.model || this.defaultModel;
-    LogHelpers.addBusinessContext('aiModel', modelName);
-    LogHelpers.addBusinessContext('aiProvider', 'gemini');
-    LogHelpers.addBusinessContext('aiStreaming', true);
+    LogHelpers.addBusinessContext(BusinessContextKeys.aiModel, modelName);
+    LogHelpers.addBusinessContext(BusinessContextKeys.aiProvider, 'gemini');
+    LogHelpers.addBusinessContext(BusinessContextKeys.aiStreaming, true);
 
     const start = Date.now();
     let success = true;

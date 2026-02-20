@@ -153,7 +153,7 @@ export class AiService {
         await this.entriesService.getEntriesWithoutEmbeddings(userId);
 
       LogHelpers.addBusinessContext(
-        'embeddingsToProcess',
+        BusinessContextKeys.embeddingsToProcess,
         entriesWithoutEmbeddings.length,
       );
 

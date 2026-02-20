@@ -45,8 +45,8 @@ export class EntriesController {
       'get_entries',
     );
     LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
-    LogHelpers.addBusinessContext('start_date', startDate);
-    LogHelpers.addBusinessContext('end_date', endDate);
+    LogHelpers.addBusinessContext(BusinessContextKeys.startDate, startDate);
+    LogHelpers.addBusinessContext(BusinessContextKeys.endDate, endDate);
 
     return resultOrThrow(
       await this._entriesService.getEntries(userId, startDate, endDate),
@@ -115,7 +115,7 @@ export class EntriesController {
       'get_entry_by_date',
     );
     LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
-    LogHelpers.addBusinessContext('date', date);
+    LogHelpers.addBusinessContext(BusinessContextKeys.date, date);
 
     return resultOrThrow(
       await this._entriesService.getEntryByDate(userId, date),
@@ -242,7 +242,7 @@ export class EntriesController {
       BusinessContextKeys.controllerOperation,
       'delete_entry_image',
     );
-    LogHelpers.addBusinessContext('entry_image_id', entryImageId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryImageId, entryImageId);
 
     return this._entriesService.softDeleteEntryImage(entryImageId);
   }

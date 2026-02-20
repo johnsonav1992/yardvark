@@ -79,6 +79,10 @@ export const BusinessContextKeys = {
   checkoutSessionCreated: 'checkoutSessionCreated',
   checkoutMissingUrl: 'checkoutMissingUrl',
   checkoutCreationError: 'checkoutCreationError',
+  checkoutError: 'checkoutError',
+  checkoutSubscriptionId: 'checkoutSubscriptionId',
+  checkoutProcessingError: 'checkoutProcessingError',
+  checkoutProcessingErrorCode: 'checkoutProcessingErrorCode',
 
   portalOperation: 'portalOperation',
   portalUserId: 'portalUserId',
@@ -146,6 +150,7 @@ export const BusinessContextKeys = {
   gddCycleStatus: 'gddCycleStatus',
   gddTarget: 'gddTarget',
   gddDaysSinceLastApp: 'gddDaysSinceLastApp',
+  gddAccumulated: 'gddAccumulated',
 
   productId: 'productId',
   productsReturned: 'productsReturned',
@@ -191,6 +196,7 @@ export const BusinessContextKeys = {
   ragEntriesFound: 'ragEntriesFound',
   embeddingsProcessed: 'embeddingsProcessed',
   embeddingsErrors: 'embeddingsErrors',
+  embeddingsToProcess: 'embeddingsToProcess',
   streamError: 'streamError',
 
   equipmentCount: 'equipmentCount',

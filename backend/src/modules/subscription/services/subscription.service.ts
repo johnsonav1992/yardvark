@@ -667,7 +667,7 @@ export class SubscriptionService {
       const subscription = subscriptionResult.value;
       const isPro = this.isActiveSubscription(subscription);
 
-      LogHelpers.addBusinessContext('feature_check', feature);
+      LogHelpers.addBusinessContext(BusinessContextKeys.featureCheck, feature);
       LogHelpers.addBusinessContext(BusinessContextKeys.isPro, isPro);
 
       if (feature.startsWith('ai_')) {
@@ -692,8 +692,11 @@ export class SubscriptionService {
         const usageCount = usage?.usageCount || 0;
         const limit = this.FREE_TIER_ENTRY_LIMIT;
 
-        LogHelpers.addBusinessContext('entry_usage', usageCount);
-        LogHelpers.addBusinessContext('entry_limit', limit);
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.entryUsage,
+          usageCount,
+        );
+        LogHelpers.addBusinessContext(BusinessContextKeys.entryLimit, limit);
 
         return success({
           allowed: usageCount < limit,
@@ -722,7 +725,10 @@ export class SubscriptionService {
       const cached = await this.cacheManager.get<PricingResponse>(cacheKey);
 
       if (cached) {
-        LogHelpers.addBusinessContext('pricing_cache_hit', true);
+        LogHelpers.addBusinessContext(
+          BusinessContextKeys.pricingCacheHit,
+          true,
+        );
 
         return success(cached);
       }
@@ -764,7 +770,7 @@ export class SubscriptionService {
 
       await this.cacheManager.set(cacheKey, response, 24 * 60 * 60 * 1000);
 
-      LogHelpers.addBusinessContext('pricing_fetched', true);
+      LogHelpers.addBusinessContext(BusinessContextKeys.pricingFetched, true);
 
       return success(response);
     } catch (err) {
@@ -781,9 +787,12 @@ export class SubscriptionService {
     userId: string,
     feature: string,
   ): Promise<Either<ResourceError, void>> {
-    LogHelpers.addBusinessContext('usage_operation', 'increment');
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.usageOperation,
+      'increment',
+    );
     LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
-    LogHelpers.addBusinessContext('feature', feature);
+    LogHelpers.addBusinessContext(BusinessContextKeys.feature, feature);
 
     const { start: periodStart, end: periodEnd } = this.getCurrentMonthPeriod();
 
@@ -807,7 +816,7 @@ export class SubscriptionService {
           true,
         );
         LogHelpers.addBusinessContext(
-          'new_usage_count',
+          BusinessContextKeys.newUsageCount,
           existingUsage.usageCount,
         );
       } else {
@@ -825,7 +834,7 @@ export class SubscriptionService {
           BusinessContextKeys.usageIncremented,
           true,
         );
-        LogHelpers.addBusinessContext('new_usage_count', 1);
+        LogHelpers.addBusinessContext(BusinessContextKeys.newUsageCount, 1);
       }
 
       return success(undefined);
@@ -851,9 +860,12 @@ export class SubscriptionService {
     feature: string,
     count: number,
   ): Promise<Either<ResourceError, void>> {
-    LogHelpers.addBusinessContext('usage_operation', 'increment_batch');
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.usageOperation,
+      'increment_batch',
+    );
     LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
-    LogHelpers.addBusinessContext('feature', feature);
+    LogHelpers.addBusinessContext(BusinessContextKeys.feature, feature);
     LogHelpers.addBusinessContext(BusinessContextKeys.count, count);
 
     if (count <= 0) {
@@ -882,7 +894,7 @@ export class SubscriptionService {
           true,
         );
         LogHelpers.addBusinessContext(
-          'new_usage_count',
+          BusinessContextKeys.newUsageCount,
           existingUsage.usageCount,
         );
       } else {
@@ -900,7 +912,7 @@ export class SubscriptionService {
           BusinessContextKeys.usageBatchIncremented,
           true,
         );
-        LogHelpers.addBusinessContext('new_usage_count', count);
+        LogHelpers.addBusinessContext(BusinessContextKeys.newUsageCount, count);
       }
 
       return success(undefined);

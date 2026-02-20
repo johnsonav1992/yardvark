@@ -256,7 +256,7 @@ export class WebhookController {
     }
 
     LogHelpers.addBusinessContext(
-      'checkout_subscription_id',
+      BusinessContextKeys.checkoutSubscriptionId,
       session.subscription as string,
     );
 
@@ -274,11 +274,11 @@ export class WebhookController {
 
     if (result.isError()) {
       LogHelpers.addBusinessContext(
-        'checkout_processing_error',
+        BusinessContextKeys.checkoutProcessingError,
         result.value.message,
       );
       LogHelpers.addBusinessContext(
-        'checkout_processing_error_code',
+        BusinessContextKeys.checkoutProcessingErrorCode,
         result.value.code,
       );
     }

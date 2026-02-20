@@ -165,7 +165,7 @@ export class GddService {
     }
 
     LogHelpers.addBusinessContext(
-      'gddAccumulated',
+      BusinessContextKeys.gddAccumulated,
       Math.round(accumulatedGdd * 10) / 10,
     );
     LogHelpers.addBusinessContext(BusinessContextKeys.gddTarget, targetGdd);

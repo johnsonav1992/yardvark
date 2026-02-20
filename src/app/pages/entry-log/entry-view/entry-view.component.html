@@ -1,5 +1,5 @@
 @let date = entryData()?.date! | date: "M/d/yyyy";
-@let time = entryTime() | date: "h:mm a";
+@let time = entryTime() ? (entryTime() | date: "h:mm a") : "N/A";
 @let soilTemp =
   entryData()?.soilTemperature?.toString() +
   "° " +

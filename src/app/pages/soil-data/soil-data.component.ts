@@ -37,8 +37,16 @@ export class SoilDataComponent {
 
   public isMobile = this._globalUiService.isMobile;
 
+  public isLoadingSettings = computed(
+    () => this._settingsService.settings.isLoading()
+  );
+
   public userHasALocation = computed(
     () => !!this._locationService.userLatLong()
+  );
+
+  public shouldShowEmptyState = computed(
+    () => !this.isLoadingSettings() && !this.userHasALocation()
   );
 
   private _allLabels = computed(() =>

@@ -1,7 +1,6 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { Chart, ChartData, ChartOptions } from 'chart.js';
 import { ChartModule } from 'primeng/chart';
-import { OpenMeteoQueryParams } from '../../../types/openmeteo.types';
 import { getPrimeNgHexColor } from '../../../utils/styleUtils';
 import { ChartLoaderComponent } from '../../miscellanious/chart-loader/chart-loader.component';
 import { GlobalUiService } from '../../../services/global-ui.service';
@@ -27,8 +26,7 @@ export class SoilTempWeekGraphComponent {
   public labels = input.required<string[]>();
   public dailyAverageShallowTemps = input.required<number[]>();
   public dailyAverageDeepTemps = input.required<number[]>();
-  public tempUnit =
-    input.required<NonNullable<OpenMeteoQueryParams['temperature_unit']>>();
+  public tempUnit = input.required<'fahrenheit' | 'celsius'>();
   public isLoadingChartData = input<boolean>(false);
   public todayIndex = input<number>(-1);
 

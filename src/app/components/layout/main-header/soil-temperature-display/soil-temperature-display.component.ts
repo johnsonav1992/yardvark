@@ -3,12 +3,9 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { PopoverModule, Popover } from 'primeng/popover';
 import { FormsModule } from '@angular/forms';
-import { SoilTemperatureService } from '../../../../services/soil-temperature.service';
-import {
-  getAllDailyNumericDataAverages,
-  getSoilTemperatureDisplayColor
-} from '../../../../utils/soilTemperatureUtils';
-import { injectSettingsService } from '../../../../services/settings.service';
+import { SoilDataService } from '../../../../services/soil-data.service';
+import { getSoilTemperatureDisplayColor } from '../../../../utils/soilTemperatureUtils';
+import { SettingsService } from '../../../../services/settings.service';
 import { DegreesDisplay } from '../../../../types/temperature.styles';
 import { GlobalUiService } from '../../../../services/global-ui.service';
 import { LocationService } from '../../../../services/location.service';
@@ -21,16 +18,15 @@ import { fixOverlayPositionForScroll } from '../../../../utils/overlayPositionin
   styleUrl: './soil-temperature-display.component.scss'
 })
 export class SoilTemperatureDisplayComponent {
-  private _soilTemperatureService = inject(SoilTemperatureService);
-  private _settingsService = injectSettingsService();
+  private _soilDataService = inject(SoilDataService);
+  private _settingsService = inject(SettingsService);
   private _globalUiService = inject(GlobalUiService);
   private _locationService = inject(LocationService);
 
   public isDarkMode = this._globalUiService.isDarkMode;
   public isMobile = this._globalUiService.isMobile;
 
-  public soilTemperatureData =
-    this._soilTemperatureService.rollingWeekDailyAverageSoilData;
+  public soilTemperatureData = this._soilDataService.rollingWeekSoilData;
 
   public showDeepTemp = signal<boolean>(false);
 
@@ -41,17 +37,13 @@ export class SoilTemperatureDisplayComponent {
   );
 
   public currentTemp = computed(() => {
-    const hourlySoilTemperatures =
-      this.soilTemperatureData.value()?.hourly[
-        this.showDeepTemp() ? 'soil_temperature_18cm' : 'soil_temperature_6cm'
-      ];
+    const data = this._soilDataService.rollingWeekSoilData.value();
 
-    if (!hourlySoilTemperatures?.length) return null;
+    if (!data) return null;
 
-    const dailyAverages = getAllDailyNumericDataAverages(
-      hourlySoilTemperatures
-    );
-    const todayAverage = dailyAverages[7];
+    const todayAverage = this.showDeepTemp()
+      ? data.deepTemps[7]
+      : data.shallowTemps[7];
 
     return todayAverage !== null ? Math.round(todayAverage) : null;
   });

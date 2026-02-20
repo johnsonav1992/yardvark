@@ -12,7 +12,8 @@ export type ApiEndpointRoutes =
   | AiRoutes
   | EmailRoutes
   | GddRoutes
-  | SubscriptionRoutes;
+  | SubscriptionRoutes
+  | SoilDataRoutes;
 
 type SettingsRoutes = 'settings';
 
@@ -61,3 +62,5 @@ type SubscriptionRoutes =
   | 'subscription/checkout'
   | 'subscription/portal'
   | 'subscription/check-feature';
+
+type SoilDataRoutes = 'soil-data' | 'soil-data/rolling-week';

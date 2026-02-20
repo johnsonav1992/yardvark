@@ -1,10 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
-import { SoilTemperatureService } from '../../services/soil-temperature.service';
+import { SoilDataService } from '../../services/soil-data.service';
 import { SoilTempWeekGraphComponent } from '../../components/soil-data/soil-temp-week-graph/soil-temp-week-graph.component';
-import {
-  computeSoilTrend,
-  getAllDailyNumericDataAverages
-} from '../../utils/soilTemperatureUtils';
+import { computeSoilTrend } from '../../utils/soilTemperatureUtils';
 import { SoilMoistureWeekGraphComponent } from '../../components/soil-data/soil-moisture-week-graph/soil-moisture-week-graph.component';
 import { SoilConditionsCardComponent } from '../../components/soil-data/soil-conditions-card/soil-conditions-card.component';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
@@ -14,7 +11,7 @@ import { Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { PopoverModule } from 'primeng/popover';
 import { GlobalUiService } from '../../services/global-ui.service';
-import { injectSettingsService } from '../../services/settings.service';
+import { SettingsService } from '../../services/settings.service';
 import { getDayLabelsCenteredAroundToday } from '../../utils/timeUtils';
 
 @Component({
@@ -32,8 +29,8 @@ import { getDayLabelsCenteredAroundToday } from '../../utils/timeUtils';
   styleUrl: './soil-data.component.scss'
 })
 export class SoilDataComponent {
-  private _soilTemperatureService = inject(SoilTemperatureService);
-  private _settingsService = injectSettingsService();
+  private _soilDataService = inject(SoilDataService);
+  private _settingsService = inject(SettingsService);
   private _locationService = inject(LocationService);
   private _router = inject(Router);
   private _globalUiService = inject(GlobalUiService);
@@ -53,30 +50,15 @@ export class SoilDataComponent {
   );
 
   private _rawShallowTemps = computed(() => {
-    const rawTempData =
-      this._soilTemperatureService.rollingWeekDailyAverageSoilData.value()
-        ?.hourly.soil_temperature_6cm;
-
-    return getAllDailyNumericDataAverages(rawTempData || []);
+    return this._soilDataService.rollingWeekSoilData.value()?.shallowTemps || [];
   });
 
   private _rawDeepTemps = computed(() => {
-    const rawTempData =
-      this._soilTemperatureService.rollingWeekDailyAverageSoilData.value()
-        ?.hourly.soil_temperature_18cm;
-
-    return getAllDailyNumericDataAverages(rawTempData || []);
+    return this._soilDataService.rollingWeekSoilData.value()?.deepTemps || [];
   });
 
   private _rawMoistureData = computed(() => {
-    const rawMoistureData =
-      this._soilTemperatureService.rollingWeekDailyAverageSoilData.value()
-        ?.hourly.soil_moisture_3_to_9cm;
-
-    return getAllDailyNumericDataAverages(rawMoistureData || [], {
-      precision: 2,
-      multiplicationFactor: 100
-    });
+    return this._soilDataService.rollingWeekSoilData.value()?.moisturePcts || [];
   });
 
   private _filteredChartData = computed(() => {
@@ -130,11 +112,11 @@ export class SoilDataComponent {
   public todayIndex = computed(() => this._filteredChartData().todayIndex);
 
   public isLoadingAveragesChartData = computed(() =>
-    this._soilTemperatureService.rollingWeekDailyAverageSoilData.isLoading()
+    this._soilDataService.rollingWeekSoilData.isLoading()
   );
 
   public tempUnit = computed(
-    () => this._soilTemperatureService.temperatureUnit()!
+    () => this._settingsService.currentSettings()?.temperatureUnit ?? 'fahrenheit'
   );
 
   public grassType = computed(

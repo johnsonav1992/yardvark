@@ -30,6 +30,7 @@ import { SubscriptionModule } from './modules/subscription/subscription.module';
 import { SubscriptionGuard } from './guards/subscription.guard';
 import { LoggingInterceptor } from './logger/logger';
 import { DatabaseTelemetryService } from './db/database-telemetry.service';
+import { SoilDataModule } from './modules/soil-data/soil-data.module';
 
 @Module({
   imports: [
@@ -58,6 +59,7 @@ import { DatabaseTelemetryService } from './db/database-telemetry.service';
     EmailModule,
     GddModule,
     SubscriptionModule,
+    SoilDataModule,
   ],
   controllers: [UsersController, FilesController],
   providers: [

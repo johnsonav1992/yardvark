@@ -11,10 +11,10 @@ import { DividerDesignTokens } from '@primeuix/themes/types/divider';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { LocationService } from '../../../services/location.service';
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
-import { SoilTemperatureService } from '../../../services/soil-temperature.service';
-import { getAllDailyNumericDataAverages } from '../../../utils/soilTemperatureUtils';
+import { SoilDataService } from '../../../services/soil-data.service';
 import { GddService } from '../../../services/gdd.service';
 import { SubscriptionService } from '../../../services/subscription.service';
+import { SettingsService } from '../../../services/settings.service';
 
 @Component({
   selector: 'quick-stats',
@@ -33,7 +33,8 @@ export class QuickStatsComponent {
   private _entriesService = inject(EntriesService);
   private _locationService = inject(LocationService);
   private _globalUiService = inject(GlobalUiService);
-  private _soilTempService = inject(SoilTemperatureService);
+  private _soilDataService = inject(SoilDataService);
+  private _settingsService = inject(SettingsService);
   private _gddService = inject(GddService);
   private _subscriptionService = inject(SubscriptionService);
 
@@ -45,9 +46,9 @@ export class QuickStatsComponent {
   public lastMowDate = this._entriesService.lastMow;
   public lastEntry = this._entriesService.recentEntry;
   public userCoords = this._locationService.userLatLong;
-  public rollingWeekSoilData =
-    this._soilTempService.rollingWeekDailyAverageSoilData;
-  public temperatureUnit = this._soilTempService.temperatureUnit;
+  public temperatureUnit = computed(
+    () => this._settingsService.currentSettings()?.temperatureUnit || 'fahrenheit'
+  );
 
   public isLoading = computed(
     () =>
@@ -94,14 +95,11 @@ export class QuickStatsComponent {
   });
 
   public currentSoilTemp = computed(() => {
-    const soilData = this.rollingWeekSoilData.value();
-    if (!soilData?.hourly?.soil_temperature_6cm) return null;
+    const soilData = this._soilDataService.rollingWeekSoilData.value();
 
-    const dailyAverages = getAllDailyNumericDataAverages(
-      soilData.hourly.soil_temperature_6cm
-    );
+    if (!soilData) return null;
 
-    return dailyAverages[7];
+    return soilData.shallowTemps[7];
   });
 
   public lawnSeasonPercentage = computed(() => {

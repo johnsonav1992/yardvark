@@ -5,9 +5,9 @@ import { AnalyticsService } from './analytics.service';
 import { EntriesService } from './entries.service';
 import { AiService } from './ai.service';
 import { LocationService } from './location.service';
-import { SoilTemperatureService } from './soil-temperature.service';
+import { SoilDataService } from './soil-data.service';
 import { SubscriptionService } from './subscription.service';
-import { getAllDailyNumericDataAverages } from '../utils/soilTemperatureUtils';
+import { SettingsService } from './settings.service';
 import {
   calculateLawnHealthScore,
   isCurrentlyGrowingSeason
@@ -38,34 +38,33 @@ export class LawnHealthScoreService {
   private _entriesService = inject(EntriesService);
   private _aiService = inject(AiService);
   private _locationService = inject(LocationService);
-  private _soilTempService = inject(SoilTemperatureService);
+  private _soilDataService = inject(SoilDataService);
+  private _settingsService = inject(SettingsService);
   private _subscriptionService = inject(SubscriptionService);
 
   public analyticsData = this._analyticsService.analyticsData;
   public lastMowDate = this._entriesService.lastMow;
   public lastProductApp = this._entriesService.lastProductApp;
   public userCoords = this._locationService.userLatLong;
-  public rollingWeekSoilData =
-    this._soilTempService.rollingWeekDailyAverageSoilData;
-  public temperatureUnit = this._soilTempService.temperatureUnit;
+  public temperatureUnit = computed(
+    () =>
+      this._settingsService.currentSettings()?.temperatureUnit || 'fahrenheit'
+  );
 
   public isLoading = computed(
     () =>
       this.analyticsData.isLoading() ||
       this.lastMowDate.isLoading() ||
       this.lastProductApp.isLoading() ||
-      this.rollingWeekSoilData.isLoading()
+      this._soilDataService.rollingWeekSoilData.isLoading()
   );
 
   public currentSoilTemp = computed(() => {
-    const soilData = this.rollingWeekSoilData.value();
-    if (!soilData?.hourly?.soil_temperature_6cm) return null;
+    const soilData = this._soilDataService.rollingWeekSoilData.value();
 
-    const dailyAverages = getAllDailyNumericDataAverages(
-      soilData.hourly.soil_temperature_6cm
-    );
+    if (!soilData) return null;
 
-    return dailyAverages[7];
+    return soilData.shallowTemps[7];
   });
 
   public healthScoreFactors = computed((): LawnHealthScoreFactors => {

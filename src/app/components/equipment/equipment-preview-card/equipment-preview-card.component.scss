@@ -33,6 +33,16 @@
     height: 100%;
     object-fit: cover;
   }
+
+  .no-image-icon {
+    font-size: 10rem !important;
+    color: var(--p-surface-400);
+    opacity: 0.8;
+
+    @media (max-width: 768px) {
+      font-size: 8rem !important;
+    }
+  }
 }
 
 .title-with-icon {
@@ -130,5 +140,9 @@
     .detail-item {
       color: var(--p-surface-300);
     }
+  }
+
+  .no-image-icon {
+    color: var(--p-surface-400);
   }
 }

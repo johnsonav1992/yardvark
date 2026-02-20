@@ -28,7 +28,6 @@ import { EquipmentMaintenance } from '../../../types/equipment.types';
 import { injectErrorToast } from '../../../utils/toastUtils';
 import { ConfirmationService } from 'primeng/api';
 import { ButtonDesignTokens } from '@primeuix/themes/types/button';
-import { NO_IMAGE_URL } from '../../../constants/style-constants';
 import { TagModule } from 'primeng/tag';
 import { differenceInDays, differenceInMonths, parseISO } from 'date-fns';
 
@@ -61,7 +60,6 @@ export class EquipmentViewComponent implements OnDestroy {
   private _ngZone = inject(NgZone);
   public throwErrorToast = injectErrorToast();
 
-  public noImageUrl = NO_IMAGE_URL;
   public skeletonInfoCards = Array(3).fill(0);
 
   public isMobile = this._globalUiService.isMobile;

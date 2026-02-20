@@ -5,13 +5,17 @@
 >
   <ng-template pTemplate="header">
     <div class="header-image-container">
-      <img
-        [src]="equipment().imageUrl || noImageUrl"
-        [alt]="equipment().name"
-        class="equipment-image"
-        [style.object-position]="equipment().imagePosition || 'center center'"
-        loading="lazy"
-      />
+      @if (equipment().imageUrl) {
+        <img
+          [src]="equipment().imageUrl"
+          [alt]="equipment().name"
+          class="equipment-image"
+          [style.object-position]="equipment().imagePosition || 'center center'"
+          loading="lazy"
+        />
+      } @else {
+        <i class="li li-lawnmower no-image-icon"></i>
+      }
     </div>
   </ng-template>
 

@@ -12,7 +12,6 @@ import { DialogService } from 'primeng/dynamicdialog';
 import { EquipmentMaintenanceAddEditModalComponent } from '../equipment-maintenance-add-edit-modal/equipment-maintenance-add-edit-modal.component';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { EquipmentService } from '../../../services/equipment.service';
-import { NO_IMAGE_URL } from '../../../constants/style-constants';
 import { differenceInDays, differenceInMonths, parseISO } from 'date-fns';
 
 @Component({
@@ -37,8 +36,6 @@ export class EquipmentPreviewCardComponent {
 
   public isMobile = this._globalUiService.isMobile;
   public screenWidth = this._globalUiService.screenWidth;
-
-  public noImageUrl = NO_IMAGE_URL;
 
   public equipment = input.required<Equipment>();
 

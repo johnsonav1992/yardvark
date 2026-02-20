@@ -55,6 +55,24 @@
     z-index: 10;
   }
 
+  .no-image-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .no-image-icon {
+      font-size: 12rem !important;
+      color: var(--p-surface-400);
+      opacity: 0.8;
+
+      @media (max-width: 768px) {
+        font-size: 10rem !important;
+      }
+    }
+  }
+
   .position-controls {
     position: absolute;
     bottom: 1rem;
@@ -120,6 +138,10 @@
 
   .hero-section {
     background: var(--p-surface-700);
+
+    .no-image-icon {
+      color: var(--p-surface-400);
+    }
   }
 
   .description-card .description-text {

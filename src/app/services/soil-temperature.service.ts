@@ -8,7 +8,7 @@ import {
 } from '../types/openmeteo.types';
 import { getRollingDateWindowAroundToday } from '../utils/timeUtils';
 import { injectSettingsService } from './settings.service';
-import { addDays, isBefore, subHours, startOfDay } from 'date-fns';
+import { addDays, isBefore, startOfDay } from 'date-fns';
 import { LocationService } from './location.service';
 import { of } from 'rxjs';
 
@@ -37,30 +37,6 @@ export class SoilTemperatureService {
 
   // Shutting this off for now - will find a way to toggle it later
   public useCurrentPositionLatLong = signal<boolean>(false);
-
-  public past24HourSoilTemperatureData =
-    httpResource<DailySoilTemperatureResponse>(() => {
-      const coords =
-        this._locationService.userLatLong() ||
-        this._currentPositionLatLong?.value();
-      const now = new Date();
-      const endHour = formatDate(now, 'y-MM-ddTHH:00', 'en-US')!;
-      const past24Hours = subHours(now, 24);
-      const startHour = formatDate(past24Hours, 'y-MM-ddTHH:00', 'en-US')!;
-
-      return coords
-        ? {
-            url: this._baseUrl,
-            params: {
-              ...this._sharedQueryParams(),
-              latitude: coords.lat,
-              longitude: coords.long,
-              start_hour: startHour,
-              end_hour: endHour
-            } satisfies OpenMeteoQueryParams
-          }
-        : undefined;
-    });
 
   public rollingWeekDailyAverageSoilData =
     httpResource<DailySoilTemperatureResponse>(() => {

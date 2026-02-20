@@ -12,7 +12,7 @@ import { GlobalUiService } from '../../../services/global-ui.service';
 import { LocationService } from '../../../services/location.service';
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { SoilTemperatureService } from '../../../services/soil-temperature.service';
-import { calculate24HourNumericAverage } from '../../../utils/soilTemperatureUtils';
+import { getAllDailyNumericDataAverages } from '../../../utils/soilTemperatureUtils';
 import { GddService } from '../../../services/gdd.service';
 import { SubscriptionService } from '../../../services/subscription.service';
 
@@ -45,8 +45,8 @@ export class QuickStatsComponent {
   public lastMowDate = this._entriesService.lastMow;
   public lastEntry = this._entriesService.recentEntry;
   public userCoords = this._locationService.userLatLong;
-  public past24HourSoilData =
-    this._soilTempService.past24HourSoilTemperatureData;
+  public rollingWeekSoilData =
+    this._soilTempService.rollingWeekDailyAverageSoilData;
   public temperatureUnit = this._soilTempService.temperatureUnit;
 
   public isLoading = computed(
@@ -94,10 +94,14 @@ export class QuickStatsComponent {
   });
 
   public currentSoilTemp = computed(() => {
-    const soilData = this.past24HourSoilData.value();
+    const soilData = this.rollingWeekSoilData.value();
     if (!soilData?.hourly?.soil_temperature_6cm) return null;
 
-    return calculate24HourNumericAverage(soilData.hourly.soil_temperature_6cm);
+    const dailyAverages = getAllDailyNumericDataAverages(
+      soilData.hourly.soil_temperature_6cm
+    );
+
+    return dailyAverages[7];
   });
 
   public lawnSeasonPercentage = computed(() => {

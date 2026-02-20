@@ -3,8 +3,7 @@ import { SoilTemperatureService } from '../../services/soil-temperature.service'
 import { SoilTempWeekGraphComponent } from '../../components/soil-data/soil-temp-week-graph/soil-temp-week-graph.component';
 import {
   computeSoilTrend,
-  getAllDailyNumericDataAverages,
-  getMostRecentValue
+  getAllDailyNumericDataAverages
 } from '../../utils/soilTemperatureUtils';
 import { SoilMoistureWeekGraphComponent } from '../../components/soil-data/soil-moisture-week-graph/soil-moisture-week-graph.component';
 import { SoilConditionsCardComponent } from '../../components/soil-data/soil-conditions-card/soil-conditions-card.component';
@@ -16,11 +15,7 @@ import { CardModule } from 'primeng/card';
 import { PopoverModule } from 'primeng/popover';
 import { GlobalUiService } from '../../services/global-ui.service';
 import { injectSettingsService } from '../../services/settings.service';
-import {
-  getDayLabelsCenteredAroundToday,
-  HOURS_IN_A_DAY
-} from '../../utils/timeUtils';
-import { getHours, format } from 'date-fns';
+import { getDayLabelsCenteredAroundToday } from '../../utils/timeUtils';
 
 @Component({
   selector: 'soil-data',
@@ -146,55 +141,22 @@ export class SoilDataComponent {
     () => this._settingsService.currentSettings()?.grassType ?? 'cool'
   );
 
-  private _currentHourIndex = computed(() => {
-    const hourly =
-      this._soilTemperatureService.rollingWeekDailyAverageSoilData.value()
-        ?.hourly;
-
-    if (!hourly) return -1;
-
-    const now = new Date();
-    const nowLocal = format(now, "yyyy-MM-dd'T'HH");
-
-    const index = hourly.time.findIndex((t) => t.startsWith(nowLocal));
-
-    return index >= 0 ? index : 7 * HOURS_IN_A_DAY + getHours(now);
-  });
-
   public currentShallowTemp = computed(() => {
-    const hourly =
-      this._soilTemperatureService.rollingWeekDailyAverageSoilData.value()
-        ?.hourly.soil_temperature_6cm;
+    const todayAvg = this._rawShallowTemps()[7];
 
-    if (!hourly) return null;
-
-    const val = getMostRecentValue(hourly, this._currentHourIndex());
-
-    return val !== null ? Math.round(val) : null;
+    return todayAvg !== null ? Math.round(todayAvg) : null;
   });
 
   public currentDeepTemp = computed(() => {
-    const hourly =
-      this._soilTemperatureService.rollingWeekDailyAverageSoilData.value()
-        ?.hourly.soil_temperature_18cm;
+    const todayAvg = this._rawDeepTemps()[7];
 
-    if (!hourly) return null;
-
-    const val = getMostRecentValue(hourly, this._currentHourIndex());
-
-    return val !== null ? Math.round(val) : null;
+    return todayAvg !== null ? Math.round(todayAvg) : null;
   });
 
   public currentMoisturePct = computed(() => {
-    const hourly =
-      this._soilTemperatureService.rollingWeekDailyAverageSoilData.value()
-        ?.hourly.soil_moisture_3_to_9cm;
+    const todayAvg = this._rawMoistureData()[7];
 
-    if (!hourly) return null;
-
-    const val = getMostRecentValue(hourly, this._currentHourIndex());
-
-    return val !== null ? Math.round(val * 100) : null;
+    return todayAvg !== null ? Math.round(todayAvg) : null;
   });
 
   public tempTrend = computed(() => computeSoilTrend(this._rawShallowTemps()));

@@ -7,6 +7,7 @@ import { AiService } from './ai.service';
 import { LocationService } from './location.service';
 import { SoilTemperatureService } from './soil-temperature.service';
 import { SubscriptionService } from './subscription.service';
+import { getAllDailyNumericDataAverages } from '../utils/soilTemperatureUtils';
 import {
   calculateLawnHealthScore,
   isCurrentlyGrowingSeason
@@ -44,8 +45,8 @@ export class LawnHealthScoreService {
   public lastMowDate = this._entriesService.lastMow;
   public lastProductApp = this._entriesService.lastProductApp;
   public userCoords = this._locationService.userLatLong;
-  public past24HourSoilData =
-    this._soilTempService.past24HourSoilTemperatureData;
+  public rollingWeekSoilData =
+    this._soilTempService.rollingWeekDailyAverageSoilData;
   public temperatureUnit = this._soilTempService.temperatureUnit;
 
   public isLoading = computed(
@@ -53,19 +54,18 @@ export class LawnHealthScoreService {
       this.analyticsData.isLoading() ||
       this.lastMowDate.isLoading() ||
       this.lastProductApp.isLoading() ||
-      this.past24HourSoilData.isLoading()
+      this.rollingWeekSoilData.isLoading()
   );
 
   public currentSoilTemp = computed(() => {
-    const soilData = this.past24HourSoilData.value();
+    const soilData = this.rollingWeekSoilData.value();
     if (!soilData?.hourly?.soil_temperature_6cm) return null;
 
-    const temps = soilData.hourly.soil_temperature_6cm.filter(
-      (t): t is number => t !== null
+    const dailyAverages = getAllDailyNumericDataAverages(
+      soilData.hourly.soil_temperature_6cm
     );
-    if (temps.length === 0) return null;
 
-    return temps.reduce((sum, temp) => sum + temp, 0) / temps.length;
+    return dailyAverages[7];
   });
 
   public healthScoreFactors = computed((): LawnHealthScoreFactors => {

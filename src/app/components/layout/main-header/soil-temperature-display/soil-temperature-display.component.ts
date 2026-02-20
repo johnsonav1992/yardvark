@@ -5,7 +5,7 @@ import { PopoverModule, Popover } from 'primeng/popover';
 import { FormsModule } from '@angular/forms';
 import { SoilTemperatureService } from '../../../../services/soil-temperature.service';
 import {
-  calculate24HourNumericAverage,
+  getAllDailyNumericDataAverages,
   getSoilTemperatureDisplayColor
 } from '../../../../utils/soilTemperatureUtils';
 import { injectSettingsService } from '../../../../services/settings.service';
@@ -30,7 +30,7 @@ export class SoilTemperatureDisplayComponent {
   public isMobile = this._globalUiService.isMobile;
 
   public soilTemperatureData =
-    this._soilTemperatureService.past24HourSoilTemperatureData;
+    this._soilTemperatureService.rollingWeekDailyAverageSoilData;
 
   public showDeepTemp = signal<boolean>(false);
 
@@ -40,7 +40,7 @@ export class SoilTemperatureDisplayComponent {
     () => !!this._locationService.userLatLong()
   );
 
-  public average24HourTemp = computed(() => {
+  public currentTemp = computed(() => {
     const hourlySoilTemperatures =
       this.soilTemperatureData.value()?.hourly[
         this.showDeepTemp() ? 'soil_temperature_18cm' : 'soil_temperature_6cm'
@@ -48,19 +48,24 @@ export class SoilTemperatureDisplayComponent {
 
     if (!hourlySoilTemperatures?.length) return null;
 
-    return calculate24HourNumericAverage(hourlySoilTemperatures);
+    const dailyAverages = getAllDailyNumericDataAverages(
+      hourlySoilTemperatures
+    );
+    const todayAverage = dailyAverages[7];
+
+    return todayAverage !== null ? Math.round(todayAverage) : null;
   });
 
   public tempToDisplay = computed<DegreesDisplay<false> | null>(() => {
-    const averageTemp = this.average24HourTemp();
+    const temp = this.currentTemp();
 
-    return averageTemp ? `${averageTemp}` : null;
+    return temp !== null ? `${temp}` : null;
   });
 
   public displayColor = computed(() => {
-    const currentTemp = this.average24HourTemp();
+    const temp = this.currentTemp();
 
-    if (currentTemp) return getSoilTemperatureDisplayColor(currentTemp);
+    if (temp !== null) return getSoilTemperatureDisplayColor(temp);
 
     return 'black';
   });

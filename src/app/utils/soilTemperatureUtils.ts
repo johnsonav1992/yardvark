@@ -72,7 +72,7 @@ const getCoolSeasonTempInsight = (tempF: number): SoilConditionInsight => {
     };
   }
 
-  if (tempF < 65) {
+  if (tempF < 75) {
     return {
       icon: 'ti ti-leaf',
       label: 'Normal growth',
@@ -80,7 +80,7 @@ const getCoolSeasonTempInsight = (tempF: number): SoilConditionInsight => {
     };
   }
 
-  if (tempF < 75) {
+  if (tempF < 90) {
     return {
       icon: 'ti ti-sun',
       label: 'Slowing down',
@@ -116,10 +116,10 @@ const getWarmSeasonTempInsight = (tempF: number): SoilConditionInsight => {
     };
   }
 
-  if (tempF < 80) {
+  if (tempF < 95) {
     return {
       icon: 'ti ti-leaf',
-      label: 'Normal growth',
+      label: 'Active growth',
       description:
         'Ideal conditions for fertilizing, aerating, and dethatching.'
     };
@@ -156,7 +156,7 @@ export const getSoilMoistureInsight = (
     };
   }
 
-  if (moisturePct < 30) {
+  if (moisturePct < 35) {
     return {
       icon: 'ti ti-droplet-half-2',
       label: 'Adequate',
@@ -184,8 +184,8 @@ export type SoilTrend = {
 };
 
 /**
- * Computes a trend by comparing today's daily average against
- * the average of 3-4 days out in the forecast.
+ * Computes a trend by comparing the average of 3-4 days ago
+ * against today's daily average.
  *
  * @param dailyAverages - Array of daily average values.
  * @param threshold - Minimum absolute delta to count as rising/falling.
@@ -199,15 +199,14 @@ export const computeSoilTrend = (
 
   if (todayVal === null) return null;
 
-  const futureVals = dailyAverages
-    .slice(10, 12)
+  const pastVals = dailyAverages
+    .slice(3, 5)
     .filter((v): v is number => v !== null);
 
-  if (futureVals.length === 0) return null;
+  if (pastVals.length === 0) return null;
 
-  const futureAvg =
-    futureVals.reduce((sum, v) => sum + v, 0) / futureVals.length;
-  const delta = Math.round(futureAvg - todayVal);
+  const pastAvg = pastVals.reduce((sum, v) => sum + v, 0) / pastVals.length;
+  const delta = Math.round(todayVal - pastAvg);
 
   if (Math.abs(delta) < threshold) {
     return { direction: 'stable', delta: 0, icon: 'ti ti-arrow-narrow-right' };

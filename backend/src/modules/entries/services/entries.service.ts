@@ -25,14 +25,7 @@ import {
   EntryNotFound,
   InvalidDateRange,
 } from '../models/entries.errors';
-import {
-  parseISO,
-  isValid,
-  startOfDay,
-  endOfDay,
-  getYear,
-  startOfYear,
-} from 'date-fns';
+import { parseISO, isValid, endOfDay, startOfYear } from 'date-fns';
 
 @Injectable()
 export class EntriesService {

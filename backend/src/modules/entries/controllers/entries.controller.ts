@@ -242,7 +242,10 @@ export class EntriesController {
       BusinessContextKeys.controllerOperation,
       'delete_entry_image',
     );
-    LogHelpers.addBusinessContext(BusinessContextKeys.entryImageId, entryImageId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.entryImageId,
+      entryImageId,
+    );
 
     return this._entriesService.softDeleteEntryImage(entryImageId);
   }

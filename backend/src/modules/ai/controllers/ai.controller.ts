@@ -14,7 +14,7 @@ import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 import type { AiChatRequest, AiChatResponse } from "../../../types/ai.types";
 import { resultOrThrow } from "../../../utils/resultOrThrow";
-import type { AiService } from "../services/ai.service";
+import { AiService } from "../services/ai.service";
 
 @Controller("ai")
 export class AiController {

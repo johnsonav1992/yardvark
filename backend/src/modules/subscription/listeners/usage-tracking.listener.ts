@@ -8,7 +8,7 @@ import {
 	BusinessContextKeys,
 	EventNames,
 } from "../../../logger/logger-keys.constants";
-import type { SubscriptionService } from "../services/subscription.service";
+import { SubscriptionService } from "../services/subscription.service";
 
 @Injectable()
 export class UsageTrackingListener {

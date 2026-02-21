@@ -8,7 +8,7 @@ import {
 	Put,
 	Query,
 } from "@nestjs/common";
-import type { EventEmitter2 } from "@nestjs/event-emitter";
+import { EventEmitter2 } from "@nestjs/event-emitter";
 import { SubscriptionFeature } from "../../../decorators/subscription-feature.decorator";
 import { User } from "../../../decorators/user.decorator";
 import { BatchEntriesCreatedEvent } from "../../../events/batch-entries-created.event";
@@ -25,7 +25,7 @@ import type {
 	EntriesSearchRequest,
 	EntryCreationRequest,
 } from "../models/entries.types";
-import type { EntriesService } from "../services/entries.service";
+import { EntriesService } from "../services/entries.service";
 
 @Controller("entries")
 export class EntriesController {

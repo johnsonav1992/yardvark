@@ -1,4 +1,4 @@
-import type { HttpService } from "@nestjs/axios";
+import { HttpService } from "@nestjs/axios";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Inject, Injectable } from "@nestjs/common";
 import type { Cache } from "cache-manager";

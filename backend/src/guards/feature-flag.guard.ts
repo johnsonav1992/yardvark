@@ -5,8 +5,8 @@ import {
 	HttpStatus,
 	Injectable,
 } from "@nestjs/common";
-import type { ConfigService } from "@nestjs/config";
-import type { Reflector } from "@nestjs/core";
+import { ConfigService } from "@nestjs/config";
+import { Reflector } from "@nestjs/core";
 import { FEATURE_FLAG_KEY } from "../decorators/feature-flag.decorator";
 
 @Injectable()

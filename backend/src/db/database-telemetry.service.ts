@@ -1,10 +1,11 @@
 import { Injectable, type OnModuleInit } from "@nestjs/common";
+import { InjectDataSource } from "@nestjs/typeorm";
 import type { DataSource, QueryRunner, ReplicationMode } from "typeorm";
 import { LogHelpers } from "../logger/logger.helpers";
 
 @Injectable()
 export class DatabaseTelemetryService implements OnModuleInit {
-	constructor(private dataSource: DataSource) {}
+	constructor(@InjectDataSource() private dataSource: DataSource) {}
 
 	onModuleInit() {
 		const originalCreateQueryRunner = this.dataSource.createQueryRunner.bind(

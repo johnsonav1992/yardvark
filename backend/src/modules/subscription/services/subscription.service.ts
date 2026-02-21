@@ -1,11 +1,11 @@
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Inject, Injectable } from "@nestjs/common";
-import type { ConfigService } from "@nestjs/config";
+import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import type { Cache } from "cache-manager";
 import { addMonths, startOfDay, startOfMonth } from "date-fns";
 import type Stripe from "stripe";
-import type { Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { ResourceError } from "../../../errors/resource-error";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
@@ -37,7 +37,7 @@ import {
 	type SubscriptionTier,
 } from "../models/subscription.types";
 import { FeatureUsage } from "../models/usage.model";
-import type { StripeService } from "./stripe.service";
+import { StripeService } from "./stripe.service";
 
 export type FeatureAccessResult = {
 	allowed: boolean;

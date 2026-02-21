@@ -4,8 +4,8 @@ import { GqlAuthGuard } from "../../../guards/gql-auth.guard";
 import type { GqlContext } from "../../../types/gql-context";
 import { resultOrThrow } from "../../../utils/resultOrThrow";
 import { LawnSegment } from "../models/lawn-segments.model";
-import type { LawnSegmentsService } from "../services/lawn-segments.service";
-import type {
+import { LawnSegmentsService } from "../services/lawn-segments.service";
+import {
 	CreateLawnSegmentInput,
 	UpdateLawnSegmentInput,
 } from "./lawn-segments.inputs";

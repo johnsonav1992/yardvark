@@ -29,7 +29,8 @@
 				"useLiteralKeys": "off"
 			},
 			"style": {
-				"noNonNullAssertion": "off"
+				"noNonNullAssertion": "off",
+				"useImportType": "off"
 			},
 			"suspicious": {
 				"noExplicitAny": "error"

@@ -6,7 +6,7 @@ import {
 	S3Client,
 } from "@aws-sdk/client-s3";
 import { Injectable } from "@nestjs/common";
-import type { ConfigService } from "@nestjs/config";
+import { ConfigService } from "@nestjs/config";
 import * as convert from "heic-convert";
 import { LogHelpers } from "../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../logger/logger-keys.constants";

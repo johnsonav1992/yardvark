@@ -3,9 +3,9 @@ import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 import { resultOrThrow } from "../../../utils/resultOrThrow";
 import type { FeedbackRequest } from "../models/email.types";
-import type {
+import {
 	EmailService,
-	FeedbackEmailData,
+	type FeedbackEmailData,
 } from "../services/email.service";
 
 @Controller("email")

@@ -1,13 +1,16 @@
 import { Injectable } from "@nestjs/common";
+import { InjectDataSource } from "@nestjs/typeorm";
 import { getYear } from "date-fns";
-import type { DataSource } from "typeorm";
+import { DataSource } from "typeorm";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 import type { AnalyticsRes } from "../models/analytics.types";
 
 @Injectable()
 export class AnalyticsService {
-	public constructor(private readonly dataSource: DataSource) {}
+	public constructor(
+		@InjectDataSource() private readonly dataSource: DataSource,
+	) {}
 
 	public async getAnalytics(
 		userId: string,

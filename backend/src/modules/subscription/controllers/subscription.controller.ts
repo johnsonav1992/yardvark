@@ -15,7 +15,7 @@ import {
 	PURCHASABLE_TIERS,
 	type PurchasableTier,
 } from "../models/subscription.types";
-import type { SubscriptionService } from "../services/subscription.service";
+import { SubscriptionService } from "../services/subscription.service";
 
 @Controller("subscription")
 export class SubscriptionController {

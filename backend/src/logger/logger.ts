@@ -16,7 +16,7 @@ import {
 import type { Request, Response } from "express";
 import { from, Observable, of, throwError } from "rxjs";
 import { catchError, mergeMap, tap } from "rxjs/operators";
-import type { SubscriptionService } from "../modules/subscription/services/subscription.service";
+import { SubscriptionService } from "../modules/subscription/services/subscription.service";
 import type { GqlContext } from "../types/gql-context";
 import {
 	TAIL_SAMPLING_ENABLED,

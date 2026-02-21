@@ -141,9 +141,11 @@ export class EntryViewComponent {
 	public isInEditMode = signal(false);
 	public isLoading = signal<boolean>(false);
 
-	public entryTime = computed(() =>
-		convertTimeStringToDate(this.entryData()?.time!),
-	);
+	public entryTime = computed(() => {
+		const time = this.entryData()?.time;
+
+		return time ? convertTimeStringToDate(time) : null;
+	});
 
 	public currentDate = computed<Date | null>(() =>
 		this.entryDate() ? new Date(this.entryDate()!) : null,
@@ -198,7 +200,8 @@ export class EntryViewComponent {
 	});
 
 	public constructor() {
-		const entryData = this._router.getCurrentNavigation()?.extras.state?.["entry"];
+		const entryData =
+			this._router.getCurrentNavigation()?.extras.state?.["entry"];
 
 		entryData ? this.entryData.set(entryData) : this.shouldFetchEntry.set(true);
 	}
@@ -286,8 +289,10 @@ export class EntryViewComponent {
 		this.isInEditMode.update((prevMode) => !prevMode);
 
 		if (this.isInEditMode()) {
+			const time = this.entryData()?.time;
+
 			this.editForm.patchValue({
-				time: convertTimeStringToDate(this.entryData()?.time!),
+				time: time ? convertTimeStringToDate(time) : null,
 				title: this.entryData()?.title,
 				activities: this.entryData()?.activities,
 				lawnSegments: this.entryData()?.lawnSegments,
@@ -316,11 +321,13 @@ export class EntryViewComponent {
 			lawnSegmentIds:
 				this.editForm.value.lawnSegments?.map(({ id }) => id) || [],
 			products:
-				this.editForm?.value.products?.map((row) => ({
-					productId: row.product?.id!,
-					productQuantity: row.quantity!,
-					productQuantityUnit: row.quantityUnit!,
-				})) || [],
+				this.editForm?.value.products
+					?.filter((row) => row.product?.id)
+					.map((row) => ({
+						productId: row.product!.id,
+						productQuantity: row.quantity!,
+						productQuantityUnit: row.quantityUnit!,
+					})) || [],
 			notes: this.editForm.value.notes || "",
 			mowingHeight: this.editForm.value.mowingHeight ?? null,
 			mowingHeightUnit: "inches",

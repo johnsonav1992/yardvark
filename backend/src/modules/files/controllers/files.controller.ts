@@ -1,5 +1,5 @@
 import type { Readable } from "node:stream";
-import type { HttpService } from "@nestjs/axios";
+import { HttpService } from "@nestjs/axios";
 import {
 	Controller,
 	Get,
@@ -14,7 +14,7 @@ import {
 import { FilesInterceptor } from "@nestjs/platform-express";
 import type { Response } from "express";
 import { firstValueFrom, map } from "rxjs";
-import type { S3Service } from "src/modules/s3/s3.service";
+import { S3Service } from "src/modules/s3/s3.service";
 import { MAX_FILE_LARGE_UPLOAD_SIZE } from "src/utils/constants";
 import { imageFileValidator } from "src/utils/fileUtils";
 import { User } from "../../../decorators/user.decorator";

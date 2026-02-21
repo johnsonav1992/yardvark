@@ -5,7 +5,7 @@ import { GqlAuthGuard } from "../../../guards/gql-auth.guard";
 import type { GqlContext } from "../../../types/gql-context";
 import { Settings } from "../models/settings.model";
 import type { SettingsData } from "../models/settings.types";
-import type { SettingsService } from "../services/settings.service";
+import { SettingsService } from "../services/settings.service";
 import { SettingsResponse } from "./settings.types";
 
 @Resolver(() => Settings)

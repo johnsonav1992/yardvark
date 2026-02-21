@@ -15,7 +15,7 @@ import type {
 	LawnSegmentCreationRequest,
 	LawnSegmentUpdateRequest,
 } from "../models/lawn-segments.types";
-import type { LawnSegmentsService } from "../services/lawn-segments.service";
+import { LawnSegmentsService } from "../services/lawn-segments.service";
 
 @Controller("lawn-segments")
 export class LawnSegmentsController {

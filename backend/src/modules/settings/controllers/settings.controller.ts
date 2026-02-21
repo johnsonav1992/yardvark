@@ -3,7 +3,7 @@ import { User } from "../../../decorators/user.decorator";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 import type { SettingsData } from "../models/settings.types";
-import type { SettingsService } from "../services/settings.service";
+import { SettingsService } from "../services/settings.service";
 
 @Controller("settings")
 export class SettingsController {

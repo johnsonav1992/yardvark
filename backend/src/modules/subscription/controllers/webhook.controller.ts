@@ -9,13 +9,13 @@ import {
 import { InjectRepository } from "@nestjs/typeorm";
 import type { Request, Response } from "express";
 import type Stripe from "stripe";
-import type { Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { Public } from "../../../decorators/public.decorator";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 import { WebhookEvent } from "../models/webhook-event.model";
-import type { StripeService } from "../services/stripe.service";
-import type { SubscriptionService } from "../services/subscription.service";
+import { StripeService } from "../services/stripe.service";
+import { SubscriptionService } from "../services/subscription.service";
 
 @Controller("stripe")
 export class WebhookController {

@@ -11,7 +11,7 @@ import {
 	UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
-import type { S3Service } from "src/modules/s3/s3.service";
+import { S3Service } from "src/modules/s3/s3.service";
 import { imageFileValidator } from "src/utils/fileUtils";
 import { User } from "../../../decorators/user.decorator";
 import { LogHelpers } from "../../../logger/logger.helpers";
@@ -19,7 +19,7 @@ import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 import { resultOrThrow } from "../../../utils/resultOrThrow";
 import type { Equipment } from "../models/equipment.model";
 import type { EquipmentMaintenance } from "../models/equipmentMaintenance.model";
-import type { EquipmentService } from "../services/equipment.service";
+import { EquipmentService } from "../services/equipment.service";
 
 @Controller("equipment")
 export class EquipmentController {

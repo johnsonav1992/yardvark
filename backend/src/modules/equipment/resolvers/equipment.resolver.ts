@@ -5,8 +5,8 @@ import type { GqlContext } from "../../../types/gql-context";
 import { resultOrThrow } from "../../../utils/resultOrThrow";
 import { Equipment } from "../models/equipment.model";
 import { EquipmentMaintenance } from "../models/equipmentMaintenance.model";
-import type { EquipmentService } from "../services/equipment.service";
-import type {
+import { EquipmentService } from "../services/equipment.service";
+import {
 	CreateEquipmentInput,
 	CreateMaintenanceInput,
 	UpdateEquipmentInput,

@@ -4,12 +4,12 @@ import { GqlAuthGuard } from "../../../guards/gql-auth.guard";
 import type { GqlContext } from "../../../types/gql-context";
 import { resultOrThrow } from "../../../utils/resultOrThrow";
 import { Entry } from "../models/entries.model";
-import type {
+import {
 	EntriesSearchRequest,
 	EntryCreationRequest,
 } from "../models/entries.types";
-import type { EntriesService } from "../services/entries.service";
-import type {
+import { EntriesService } from "../services/entries.service";
+import {
 	CreateEntryInput,
 	SearchEntriesInput,
 	UpdateEntryInput,

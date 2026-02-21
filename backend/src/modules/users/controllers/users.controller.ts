@@ -13,7 +13,7 @@ import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 import { resultOrThrow } from "../../../utils/resultOrThrow";
 import type { User } from "../Models/user.model";
-import type { UsersService } from "../services/users.service";
+import { UsersService } from "../services/users.service";
 
 const MAX_PROFILE_PICTURE_SIZE = 5 * 1024 * 1024;
 

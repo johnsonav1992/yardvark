@@ -6,9 +6,9 @@ import type { ResourceError } from "../../../errors/resource-error";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 import { type Either, error, success } from "../../../types/either";
-import type { EntriesService } from "../../entries/services/entries.service";
-import type { SettingsService } from "../../settings/services/settings.service";
-import type { WeatherService } from "../../weather/services/weather.service";
+import { EntriesService } from "../../entries/services/entries.service";
+import { SettingsService } from "../../settings/services/settings.service";
+import { WeatherService } from "../../weather/services/weather.service";
 import {
 	GDD_BASE_TEMPERATURES,
 	GDD_CACHE_TTL,

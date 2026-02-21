@@ -15,8 +15,8 @@ import {
 	AiEmbeddingError,
 	AiQueryError,
 } from "../models/ai.errors";
-import type { EmbeddingService } from "./embedding.service";
-import type { GeminiService } from "./gemini.service";
+import { EmbeddingService } from "./embedding.service";
+import { GeminiService } from "./gemini.service";
 
 @Injectable()
 export class AiService {

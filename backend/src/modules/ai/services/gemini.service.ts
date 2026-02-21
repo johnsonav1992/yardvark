@@ -1,6 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { Injectable } from "@nestjs/common";
-import type { ConfigService } from "@nestjs/config";
+import { ConfigService } from "@nestjs/config";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 import type { AiChatResponse } from "../../../types/ai.types";

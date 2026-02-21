@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import type { Stringified } from "src/types/json-modified";
-import type { Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 import { Settings } from "../models/settings.model";

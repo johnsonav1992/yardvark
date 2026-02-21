@@ -1,4 +1,4 @@
-import type { HttpService } from "@nestjs/axios";
+import { HttpService } from "@nestjs/axios";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Inject, Injectable } from "@nestjs/common";
 import type { Cache } from "cache-manager";
@@ -6,7 +6,7 @@ import { addDays, format, isValid, parseISO, subDays } from "date-fns";
 import { firstValueFrom } from "rxjs";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { type Either, error, success } from "../../../types/either";
-import type { SettingsService } from "../../settings/services/settings.service";
+import { SettingsService } from "../../settings/services/settings.service";
 import {
 	OPEN_METEO_BASE_URL,
 	SOIL_DATA_CACHE_TTL,

@@ -9,12 +9,25 @@ import GraphQLJSON from 'graphql-type-json';
 import { GraphQLError } from 'graphql';
 
 const RequireOperationNamePlugin: ApolloServerPlugin = {
+  // eslint-disable-next-line @typescript-eslint/require-await
   async requestDidStart() {
     return {
+      // eslint-disable-next-line @typescript-eslint/require-await
       async didResolveOperation(requestContext) {
-        if (!requestContext.operationName) {
+        const operationName = requestContext.operationName;
+        const operationType = requestContext.operation?.operation;
+
+        const isDefaultName =
+          !operationName ||
+          operationName === 'Query' ||
+          operationName === 'Mutation' ||
+          operationName === 'Subscription' ||
+          (operationType &&
+            operationName.toLowerCase() === operationType.toLowerCase());
+
+        if (isDefaultName) {
           throw new GraphQLError(
-            'GraphQL operations must have a name. Anonymous operations are not allowed.',
+            'GraphQL operations must have a descriptive name. Generic names like "Query" or "Mutation" are not allowed.',
             {
               extensions: {
                 code: 'OPERATION_NAME_REQUIRED',

@@ -25,7 +25,8 @@
 			"recommended": true,
 			"complexity": {
 				"noStaticOnlyClass": "off",
-				"noThisInStatic": "off"
+				"noThisInStatic": "off",
+				"useLiteralKeys": "off"
 			},
 			"style": {
 				"noNonNullAssertion": "off"

@@ -126,14 +126,14 @@ export class SubscriptionComponent {
 				return;
 			}
 
-			if (params.success === "true") {
+			if (params["success"] === "true") {
 				this.throwSuccessToast("Subscription activated successfully!");
 				this.subscriptionService.refreshSubscription();
-			} else if (params.canceled === "true") {
+			} else if (params["canceled"] === "true") {
 				this.throwInfoToast("Subscription checkout was canceled");
 			}
 
-			if (params.success || params.canceled) {
+			if (params["success"] || params["canceled"]) {
 				this.router.navigate([], { queryParams: {} });
 			}
 		});

@@ -74,7 +74,7 @@ export class EquipmentViewComponent implements OnDestroy {
 	private imageElement = signal<HTMLElement | null>(null);
 
 	public equipmentId = toSignal(
-		this._route.params.pipe(map((params) => parseInt(params.equipmentId, 10))),
+		this._route.params.pipe(map((params) => parseInt(params["equipmentId"], 10))),
 	);
 
 	public isLoading = computed(() =>

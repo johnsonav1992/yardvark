@@ -35,7 +35,7 @@ export class ProductViewComponent {
 	public isMobile = this._globalUiService.isMobile;
 
 	public productId = toSignal(
-		this._route.params.pipe(map((params) => parseInt(params.productId, 10))),
+		this._route.params.pipe(map((params) => parseInt(params["productId"], 10))),
 	);
 
 	public isLoading = computed(() => this._productsService.products.isLoading());

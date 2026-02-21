@@ -62,14 +62,14 @@ export class EntryLogComponent implements OnInit {
 
 	public isCreateOnOpen = toSignal(
 		this._activatedRoute.queryParams.pipe(
-			map((params) => params.create === "true"),
+			map((params) => params["create"] === "true"),
 		),
 	);
 
 	public directDateNavigation = toSignal(
 		this._activatedRoute.queryParams.pipe(
 			map((params) => {
-				const date = params.date;
+				const date = params["date"];
 
 				if (date) {
 					const parsedDate = parseISO(date);

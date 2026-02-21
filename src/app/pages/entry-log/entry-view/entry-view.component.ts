@@ -125,12 +125,12 @@ export class EntryViewComponent {
 	});
 
 	public entryId = toSignal<number>(
-		this._activatedRoute.params.pipe(map((params) => params.entryId)),
+		this._activatedRoute.params.pipe(map((params) => params["entryId"])),
 	);
 
 	public entryDate = toSignal(
 		this._activatedRoute.queryParams.pipe(
-			map((params) => params.date as string),
+			map((params) => params["date"] as string),
 		),
 	);
 
@@ -198,7 +198,7 @@ export class EntryViewComponent {
 	});
 
 	public constructor() {
-		const entryData = this._router.getCurrentNavigation()?.extras.state?.entry;
+		const entryData = this._router.getCurrentNavigation()?.extras.state?.["entry"];
 
 		entryData ? this.entryData.set(entryData) : this.shouldFetchEntry.set(true);
 	}

@@ -116,7 +116,7 @@ export class AddEntryComponent implements OnInit {
 	public initialDate = toSignal(
 		this._activatedRoute.queryParams.pipe(
 			map((params) => {
-				const date = params.date;
+				const date = params["date"];
 				if (date) {
 					const parsedDate = new Date(date);
 					if (!Number.isNaN(parsedDate.getTime())) {
@@ -282,9 +282,9 @@ export class AddEntryComponent implements OnInit {
 	public submit(): void {
 		if (!this.entryForms || this.entryForms.invalid) {
 			this.entryForms.controls.forEach((form) => {
-				Object.entries(form.controls).forEach(([_, ctrl]) =>
-					ctrl.markAsDirty(),
-				);
+				Object.entries(form.controls).forEach(([_, ctrl]) => {
+					ctrl.markAsDirty();
+				});
 				form.markAllAsTouched();
 			});
 
@@ -302,11 +302,13 @@ export class AddEntryComponent implements OnInit {
 			activityIds: form.value.activities?.map(({ id }) => id) || [],
 			lawnSegmentIds: form.value.lawnSegments?.map(({ id }) => id) || [],
 			products:
-				form.value.products?.map((row) => ({
-					productId: row.product?.id!,
-					productQuantity: row.quantity!,
-					productQuantityUnit: row.quantityUnit!,
-				})) || [],
+				form.value.products
+					?.filter((row) => row.product?.id)
+					.map((row) => ({
+						productId: row.product!.id,
+						productQuantity: row.quantity!,
+						productQuantityUnit: row.quantityUnit!,
+					})) || [],
 			soilTemperatureUnit: this.temperatureUnit(),
 			mowingHeight: form.value.mowingHeight ?? null,
 			mowingHeightUnit: "inches",

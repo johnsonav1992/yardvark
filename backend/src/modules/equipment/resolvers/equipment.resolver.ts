@@ -6,6 +6,7 @@ import { EquipmentService } from '../services/equipment.service';
 import { GqlAuthGuard } from '../../../guards/gql-auth.guard';
 import { CreateEquipmentInput, UpdateEquipmentInput, CreateMaintenanceInput, UpdateMaintenanceInput } from './equipment.inputs';
 import { GqlContext } from '../../../types/gql-context';
+import { resultOrThrow } from '../../../utils/resultOrThrow';
 
 @Resolver(() => Equipment)
 @UseGuards(GqlAuthGuard)
@@ -30,12 +31,16 @@ export class EquipmentResolver {
     @Args('id', { type: () => Int }) id: number,
     @Args('input') input: UpdateEquipmentInput,
   ): Promise<Equipment> {
-    return this.equipmentService.updateEquipment(id, input);
+    const result = await this.equipmentService.updateEquipment(id, input);
+
+    return resultOrThrow(result);
   }
 
   @Mutation(() => Boolean)
   async deleteEquipment(@Args('id', { type: () => Int }) id: number): Promise<boolean> {
-    await this.equipmentService.deleteEquipment(id);
+    const result = await this.equipmentService.deleteEquipment(id);
+
+    resultOrThrow(result);
 
     return true;
   }
@@ -55,7 +60,12 @@ export class EquipmentResolver {
     @Args('equipmentId', { type: () => Int }) equipmentId: number,
     @Args('input') input: CreateMaintenanceInput,
   ): Promise<EquipmentMaintenance> {
-    return this.equipmentService.createMaintenanceRecord(equipmentId, input);
+    const result = await this.equipmentService.createMaintenanceRecord(
+      equipmentId,
+      input,
+    );
+
+    return resultOrThrow(result);
   }
 
   @Mutation(() => EquipmentMaintenance)
@@ -63,13 +73,20 @@ export class EquipmentResolver {
     @Args('id', { type: () => Int }) id: number,
     @Args('input') input: UpdateMaintenanceInput,
   ): Promise<EquipmentMaintenance> {
-    return this.equipmentService.updateMaintenanceRecord(id, input);
+    const result = await this.equipmentService.updateMaintenanceRecord(
+      id,
+      input,
+    );
+
+    return resultOrThrow(result);
   }
 
   @Mutation(() => Boolean)
   async deleteMaintenanceRecord(@Args('id', { type: () => Int }) id: number): Promise<boolean> {
-    await this.equipmentService.deleteMaintenanceRecord(id);
-    
+    const result = await this.equipmentService.deleteMaintenanceRecord(id);
+
+    resultOrThrow(result);
+
     return true;
   }
 }

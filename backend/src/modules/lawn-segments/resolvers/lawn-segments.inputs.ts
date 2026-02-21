@@ -1,4 +1,5 @@
 import { InputType, Field, Float, Int } from '@nestjs/graphql';
+import GraphQLJSON from 'graphql-type-json';
 
 @InputType()
 export class CreateLawnSegmentInput {
@@ -7,6 +8,12 @@ export class CreateLawnSegmentInput {
 
   @Field(() => Float)
   size: number;
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  coordinates?: number[][][] | null;
+
+  @Field({ nullable: true })
+  color?: string;
 }
 
 @InputType()
@@ -22,4 +29,10 @@ export class UpdateLawnSegmentInput {
 
   @Field(() => Float)
   size: number;
+
+  @Field(() => GraphQLJSON, { nullable: true })
+  coordinates?: number[][][] | null;
+
+  @Field({ nullable: true })
+  color?: string;
 }

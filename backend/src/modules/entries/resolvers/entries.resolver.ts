@@ -13,6 +13,7 @@ import {
   EntryCreationRequest,
 } from '../models/entries.types';
 import { GqlContext } from '../../../types/gql-context';
+import { resultOrThrow } from '../../../utils/resultOrThrow';
 
 @Resolver(() => Entry)
 @UseGuards(GqlAuthGuard)
@@ -25,24 +26,32 @@ export class EntriesResolver {
     @Args('startDate', { nullable: true }) startDate?: string,
     @Args('endDate', { nullable: true }) endDate?: string,
   ) {
-    return this.entriesService.getEntries(
+    const result = await this.entriesService.getEntries(
       ctx.req.user.userId,
       startDate,
       endDate,
       { raw: true },
     );
+
+    return resultOrThrow(result);
   }
 
   @Query(() => Entry, { name: 'entry', nullable: true })
   async getEntry(@Args('id', { type: () => Int }) id: number) {
-    return this.entriesService.getEntry(id, { raw: true });
+    const result = await this.entriesService.getEntry(id, { raw: true });
+
+    return resultOrThrow(result);
   }
 
   @Query(() => Entry, { name: 'entryByDate', nullable: true })
   async getEntryByDate(@Args('date') date: string, @Context() ctx: GqlContext) {
-    return this.entriesService.getEntryByDate(ctx.req.user.userId, date, {
-      raw: true,
-    });
+    const result = await this.entriesService.getEntryByDate(
+      ctx.req.user.userId,
+      date,
+      { raw: true },
+    );
+
+    return resultOrThrow(result);
   }
 
   @Query(() => Entry, { name: 'mostRecentEntry', nullable: true })
@@ -76,11 +85,13 @@ export class EntriesResolver {
       lawnSegments: input.lawnSegments || [],
       products: input.products || [],
     };
-    return this.entriesService.searchEntries(
+    const result = await this.entriesService.searchEntries(
       ctx.req.user.userId,
       searchRequest,
       { raw: true },
     );
+
+    return resultOrThrow(result);
   }
 
   @Mutation(() => Entry)
@@ -107,7 +118,7 @@ export class EntriesResolver {
     @Args('id', { type: () => Int }) id: number,
     @Args('input') input: UpdateEntryInput,
   ): Promise<Entry> {
-    return this.entriesService.updateEntry(id, {
+    const result = await this.entriesService.updateEntry(id, {
       ...input,
       activityIds: input.activityIds || [],
       lawnSegmentIds: input.lawnSegmentIds || [],
@@ -118,6 +129,8 @@ export class EntriesResolver {
       })),
       imageUrls: input.imageUrls,
     });
+
+    return resultOrThrow(result);
   }
 
   @Mutation(() => Boolean)

@@ -18,6 +18,9 @@ export class CreateEquipmentInput {
   imageUrl?: string;
 
   @Field({ nullable: true })
+  imagePosition?: string;
+
+  @Field({ nullable: true })
   serialNumber?: string;
 
   @Field({ nullable: true })
@@ -46,6 +49,9 @@ export class UpdateEquipmentInput {
 
   @Field({ nullable: true })
   imageUrl?: string;
+
+  @Field({ nullable: true })
+  imagePosition?: string;
 
   @Field({ nullable: true })
   serialNumber?: string;

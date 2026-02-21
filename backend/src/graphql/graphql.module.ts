@@ -4,6 +4,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
 import { join } from 'path';
 import { Request } from 'express';
+import GraphQLJSON from 'graphql-type-json';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { Request } from 'express';
         }),
       ],
       context: ({ req }: { req: Request }) => ({ req, user: req.user }),
+      resolvers: { JSON: GraphQLJSON },
     }),
   ],
 })

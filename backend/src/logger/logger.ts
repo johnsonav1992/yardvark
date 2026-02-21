@@ -162,7 +162,7 @@ export class LoggingInterceptor implements NestInterceptor {
                 next.handle().pipe(
                   tap(() => {
                     const duration = Date.now() - start;
-                    const statusCode = response.statusCode;
+                    const statusCode = response?.statusCode ?? 200;
 
                     span.setAttributes({
                       'http.status_code': statusCode,
@@ -355,6 +355,10 @@ export class LoggingInterceptor implements NestInterceptor {
   ): number {
     if (err instanceof HttpException) {
       return err.getStatus();
+    }
+
+    if (!response) {
+      return 500;
     }
 
     return response.statusCode >= 400 ? response.statusCode : 500;

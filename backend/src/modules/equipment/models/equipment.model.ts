@@ -39,6 +39,7 @@ export class Equipment {
   @Column({ nullable: true })
   imageUrl?: string;
 
+  @Field({ nullable: true })
   @Column({ nullable: true, default: 'center center' })
   imagePosition?: string;
 

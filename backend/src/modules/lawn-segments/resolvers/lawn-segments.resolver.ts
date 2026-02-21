@@ -8,6 +8,7 @@ import {
   UpdateLawnSegmentInput,
 } from './lawn-segments.inputs';
 import { GqlContext } from '../../../types/gql-context';
+import { resultOrThrow } from '../../../utils/resultOrThrow';
 
 @Resolver(() => LawnSegment)
 @UseGuards(GqlAuthGuard)
@@ -24,17 +25,25 @@ export class LawnSegmentsResolver {
     @Args('input') input: CreateLawnSegmentInput,
     @Context() ctx: GqlContext,
   ): Promise<LawnSegment> {
-    return this.lawnSegmentsService.createLawnSegment(
-      ctx.req.user.userId,
-      input,
-    );
+    return this.lawnSegmentsService.createLawnSegment(ctx.req.user.userId, {
+      name: input.name,
+      size: input.size,
+      coordinates: input.coordinates ?? null,
+      color: input.color ?? '#3388ff',
+    });
   }
 
   @Mutation(() => LawnSegment)
   async updateLawnSegment(
     @Args('input') input: UpdateLawnSegmentInput,
   ): Promise<LawnSegment> {
-    return this.lawnSegmentsService.updateLawnSegment(input as LawnSegment);
+    const { id, ...updateData } = input;
+    const result = await this.lawnSegmentsService.updateLawnSegment(
+      id,
+      updateData,
+    );
+
+    return resultOrThrow(result);
   }
 
   @Mutation(() => Boolean)

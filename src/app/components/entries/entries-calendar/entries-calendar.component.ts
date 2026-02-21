@@ -64,7 +64,7 @@ export class EntriesCalendarComponent {
 
 	private _dateQuery = toSignal(
 		this._router.routerState.root.queryParams.pipe(
-			map((params) => params.date as string),
+			map((params) => params["date"] as string),
 		),
 	);
 
@@ -95,7 +95,7 @@ export class EntriesCalendarComponent {
 	public isEntrySearchSidebarOpen = signal(false);
 	public isCsvExportSidebarOpen = signal(false);
 
-	public monthPicker = viewChild<any>("monthPicker");
+	public monthPicker = viewChild("monthPicker");
 
 	protected currentDate = linkedSignal(() =>
 		this._dateQuery() ? new Date(this._dateQuery()!) : startOfToday(),

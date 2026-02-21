@@ -36,6 +36,25 @@ export { getLogContext, getRequestContext } from './logger.context';
 export class LoggingInterceptor implements NestInterceptor {
   constructor(private readonly subscriptionService: SubscriptionService) {}
 
+  private getOperationLabel(
+    gqlOperationName: string | undefined,
+    gqlOperationType: string | undefined,
+    request: Request,
+  ): string {
+    if (!gqlOperationName || !gqlOperationType) {
+      return `${request.method} ${request.path}`;
+    }
+
+    const isDefaultOperationName =
+      gqlOperationName.toLowerCase() === gqlOperationType.toLowerCase();
+
+    if (isDefaultOperationName) {
+      return `${gqlOperationType} (anonymous)`;
+    }
+
+    return `${gqlOperationType} ${gqlOperationName}`;
+  }
+
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     let request: Request;
     let response: Response | undefined;
@@ -73,9 +92,11 @@ export class LoggingInterceptor implements NestInterceptor {
       externalCalls: [],
     };
 
-    const operationLabel = gqlOperationName
-      ? `${gqlOperationType} ${gqlOperationName}`
-      : `${request.method} ${request.path}`;
+    const operationLabel = this.getOperationLabel(
+      gqlOperationName,
+      gqlOperationType,
+      request,
+    );
 
     const tracer = trace.getTracer('yardvark-api');
     const span = tracer.startSpan(operationLabel, {
@@ -339,9 +360,11 @@ export class LoggingInterceptor implements NestInterceptor {
     const emoji = this.getStatusEmoji(statusCode);
     const userName = request.user?.name || 'anonymous';
 
-    const operationLabel = gqlOperationName
-      ? `${gqlOperationType} ${gqlOperationName}`
-      : `${request.method} ${request.path}`;
+    const operationLabel = this.getOperationLabel(
+      gqlOperationName,
+      gqlOperationType,
+      request,
+    );
 
     const summary = `${emoji} ${operationLabel} ${statusCode} ${duration}ms [${userName}]`;
 

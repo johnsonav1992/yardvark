@@ -1,4 +1,5 @@
 import { Component, computed, inject, ViewEncapsulation } from '@angular/core';
+import { Router } from '@angular/router';
 import { MenuDesignTokens } from '@primeuix/themes/types/menu';
 import { MenuItem } from 'primeng/api';
 import { DrawerModule } from 'primeng/drawer';
@@ -13,7 +14,13 @@ import { NAV_ITEMS } from '../../../config/navigation.config';
 
 @Component({
   selector: 'main-side-nav',
-  imports: [DrawerModule, MenuModule, ToggleSwitchModule, FormsModule, ButtonModule],
+  imports: [
+    DrawerModule,
+    MenuModule,
+    ToggleSwitchModule,
+    FormsModule,
+    ButtonModule
+  ],
   providers: [DialogService],
   templateUrl: './main-side-nav.component.html',
   styleUrl: './main-side-nav.component.scss',
@@ -22,6 +29,7 @@ import { NAV_ITEMS } from '../../../config/navigation.config';
 export class MainSideNavComponent {
   private _globalUiService = inject(GlobalUiService);
   private _dialogService = inject(DialogService);
+  private _router = inject(Router);
 
   public isMobile = this._globalUiService.isMobile;
   public isDarkMode = this._globalUiService.isDarkMode;
@@ -34,6 +42,11 @@ export class MainSideNavComponent {
 
   public toggleDarkMode = () => {
     this._globalUiService.toggleDarkMode();
+  };
+
+  public goToSubscription = () => {
+    this.closeSidebar();
+    this._router.navigate(['/subscription']);
   };
 
   public openFeedbackDialog = () => {
@@ -50,7 +63,7 @@ export class MainSideNavComponent {
     dialogRef?.onClose.subscribe();
   };
 
-  public menuItems: MenuItem[] = NAV_ITEMS.map(item => ({
+  public menuItems: MenuItem[] = NAV_ITEMS.map((item) => ({
     ...item,
     command: this.closeSidebar
   }));

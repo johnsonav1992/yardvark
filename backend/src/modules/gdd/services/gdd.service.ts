@@ -1,18 +1,19 @@
-import {
-  Inject,
-  Injectable,
-  HttpException,
-  HttpStatus,
-  Logger,
-} from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { format, differenceInDays } from 'date-fns';
 
+import { Either, error, success } from '../../../types/either';
+import { ResourceError } from '../../../errors/resource-error';
+import {
+  UserSettingsNotFound,
+  UserLocationNotConfigured,
+} from '../models/gdd.errors';
 import { EntriesService } from '../../entries/services/entries.service';
 import { SettingsService } from '../../settings/services/settings.service';
 import { WeatherService } from '../../weather/services/weather.service';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 import {
   getDailyGDDCalculation,
   calculateAccumulatedGDD,
@@ -24,6 +25,7 @@ import {
   GDD_OVERDUE_MULTIPLIER,
   GDD_OVERDUE_DAYS_THRESHOLD,
   GDD_DORMANCY_CHECK_DAYS,
+  GDD_DORMANCY_TEMPERATURES,
 } from '../models/gdd.constants';
 import {
   CurrentGddResponse,
@@ -36,8 +38,6 @@ import {
 
 @Injectable()
 export class GddService {
-  private readonly _logger = new Logger(GddService.name);
-
   constructor(
     @Inject(CACHE_MANAGER) private readonly _cacheManager: Cache,
     private readonly _entriesService: EntriesService,
@@ -45,14 +45,17 @@ export class GddService {
     private readonly _weatherService: WeatherService,
   ) {}
 
-  public async getCurrentGdd(userId: string): Promise<CurrentGddResponse> {
+  public async getCurrentGdd(
+    userId: string,
+  ): Promise<Either<ResourceError, CurrentGddResponse>> {
     const cacheKey = this.getCacheKey(userId, 'current');
 
     const cached = await this._cacheManager.get<CurrentGddResponse>(cacheKey);
 
     if (cached) {
       LogHelpers.recordCacheHit();
-      return cached;
+
+      return success(cached);
     }
 
     LogHelpers.recordCacheMiss();
@@ -60,20 +63,14 @@ export class GddService {
     const settings = await this._settingsService.getUserSettings(userId);
 
     if (!settings || Array.isArray(settings)) {
-      throw new HttpException(
-        'User settings not found',
-        HttpStatus.BAD_REQUEST,
-      );
+      return error(new UserSettingsNotFound());
     }
 
     const { location, grassType, temperatureUnit, customGddTarget } =
       settings.value;
 
     if (!location?.lat || !location?.long) {
-      throw new HttpException(
-        'User location not configured',
-        HttpStatus.BAD_REQUEST,
-      );
+      return error(new UserLocationNotConfigured());
     }
 
     const lastPgrAppDate =
@@ -97,20 +94,24 @@ export class GddService {
 
       await this._cacheManager.set(cacheKey, result, GDD_CACHE_TTL);
 
-      return result;
+      return success(result);
     }
 
+    const today = new Date();
     const startDate = format(lastPgrAppDate, 'yyyy-MM-dd');
-    const endDate = format(new Date(), 'yyyy-MM-dd');
+    const endDate = format(today, 'yyyy-MM-dd');
 
-    const temperatureData =
-      await this._weatherService.getHistoricalAirTemperatures({
-        lat: location.lat,
-        long: location.long,
-        startDate,
-        endDate,
-        temperatureUnit,
-      });
+    const tempResult = await this._weatherService.getHistoricalAirTemperatures({
+      lat: location.lat,
+      long: location.long,
+      startDate,
+      endDate,
+      temperatureUnit,
+    });
+
+    if (tempResult.isError()) return error(tempResult.value);
+
+    const temperatureData = tempResult.value;
 
     const accumulatedGdd = calculateAccumulatedGDD(
       temperatureData.map((d) => ({ high: d.maxTemp, low: d.minTemp })),
@@ -123,23 +124,58 @@ export class GddService {
       Math.round((accumulatedGdd / targetGdd) * 100),
     );
 
+    const dormancyTemperature = this.getDormancyTemperature(
+      grassType,
+      temperatureUnit,
+    );
+
     const cycleStatus = this.determineCycleStatus({
       accumulatedGdd,
       targetGdd,
       daysSinceLastApp,
       recentTemps: temperatureData.slice(-GDD_DORMANCY_CHECK_DAYS),
-      baseTemperature,
+      dormancyTemperature,
     });
 
+    if (
+      cycleStatus !== 'dormant' &&
+      this.hasDormancyOccurredInPeriod(temperatureData, dormancyTemperature)
+    ) {
+      LogHelpers.addBusinessContext(BusinessContextKeys.gddDormancyReset, true);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.gddCycleStatus,
+        'active',
+      );
+
+      const resetResult: CurrentGddResponse = {
+        accumulatedGdd: 0,
+        lastPgrAppDate: null,
+        daysSinceLastApp: null,
+        baseTemperature,
+        baseTemperatureUnit: temperatureUnit,
+        targetGdd,
+        percentageToTarget: 0,
+        grassType,
+        cycleStatus: 'active',
+      };
+
+      await this._cacheManager.set(cacheKey, resetResult, GDD_CACHE_TTL);
+
+      return success(resetResult);
+    }
+
     LogHelpers.addBusinessContext(
-      'gddAccumulated',
+      BusinessContextKeys.gddAccumulated,
       Math.round(accumulatedGdd * 10) / 10,
     );
-    LogHelpers.addBusinessContext('gddTarget', targetGdd);
-    LogHelpers.addBusinessContext('gddCycleStatus', cycleStatus);
-
-    this._logger.log(
-      `GDD calculated for user ${userId}: ${accumulatedGdd.toFixed(1)}/${targetGdd} GDD, status=${cycleStatus}, days=${daysSinceLastApp}`,
+    LogHelpers.addBusinessContext(BusinessContextKeys.gddTarget, targetGdd);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.gddCycleStatus,
+      cycleStatus,
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.gddDaysSinceLastApp,
+      daysSinceLastApp,
     );
 
     const result: CurrentGddResponse = {
@@ -156,14 +192,14 @@ export class GddService {
 
     await this._cacheManager.set(cacheKey, result, GDD_CACHE_TTL);
 
-    return result;
+    return success(result);
   }
 
   public async getHistoricalGdd(
     userId: string,
     startDate: string,
     endDate: string,
-  ): Promise<HistoricalGddResponse> {
+  ): Promise<Either<ResourceError, HistoricalGddResponse>> {
     const cacheKey = this.getCacheKey(userId, 'historical', {
       startDate,
       endDate,
@@ -174,37 +210,37 @@ export class GddService {
 
     if (cached) {
       LogHelpers.recordCacheHit();
-      return cached;
+
+      return success(cached);
     }
 
     LogHelpers.recordCacheMiss();
 
     const settings = await this._settingsService.getUserSettings(userId);
+
     if (!settings || Array.isArray(settings)) {
-      throw new HttpException(
-        'User settings not found',
-        HttpStatus.BAD_REQUEST,
-      );
+      return error(new UserSettingsNotFound());
     }
 
     const { location, grassType, temperatureUnit } = settings.value;
+
     if (!location?.lat || !location?.long) {
-      throw new HttpException(
-        'User location not configured',
-        HttpStatus.BAD_REQUEST,
-      );
+      return error(new UserLocationNotConfigured());
     }
 
     const baseTemperature = this.getBaseTemperature(grassType, temperatureUnit);
 
-    const temperatureData =
-      await this._weatherService.getHistoricalAirTemperatures({
-        lat: location.lat,
-        long: location.long,
-        startDate,
-        endDate,
-        temperatureUnit,
-      });
+    const tempResult = await this._weatherService.getHistoricalAirTemperatures({
+      lat: location.lat,
+      long: location.long,
+      startDate,
+      endDate,
+      temperatureUnit,
+    });
+
+    if (tempResult.isError()) return error(tempResult.value);
+
+    const temperatureData = tempResult.value;
 
     const dailyGdd: DailyGddDataPoint[] = temperatureData.map((day) => ({
       date: day.date,
@@ -234,48 +270,54 @@ export class GddService {
 
     await this._cacheManager.set(cacheKey, result, GDD_CACHE_TTL);
 
-    return result;
+    return success(result);
   }
 
-  public async getGddForecast(userId: string): Promise<GddForecastResponse> {
+  public async getGddForecast(
+    userId: string,
+  ): Promise<Either<ResourceError, GddForecastResponse>> {
     const cacheKey = this.getCacheKey(userId, 'forecast');
 
     const cached = await this._cacheManager.get<GddForecastResponse>(cacheKey);
 
     if (cached) {
       LogHelpers.recordCacheHit();
-      return cached;
+
+      return success(cached);
     }
 
     LogHelpers.recordCacheMiss();
 
     const settings = await this._settingsService.getUserSettings(userId);
+
     if (!settings || Array.isArray(settings)) {
-      throw new HttpException(
-        'User settings not found',
-        HttpStatus.BAD_REQUEST,
-      );
+      return error(new UserSettingsNotFound());
     }
 
     const { location, grassType, temperatureUnit, customGddTarget } =
       settings.value;
+
     if (!location?.lat || !location?.long) {
-      throw new HttpException(
-        'User location not configured',
-        HttpStatus.BAD_REQUEST,
-      );
+      return error(new UserLocationNotConfigured());
     }
 
     const baseTemperature = this.getBaseTemperature(grassType, temperatureUnit);
     const targetGdd = customGddTarget ?? GDD_TARGET_INTERVALS[grassType];
 
-    const currentGddData = await this.getCurrentGdd(userId);
-    const currentAccumulatedGdd = currentGddData.accumulatedGdd;
+    const currentGddResult = await this.getCurrentGdd(userId);
 
-    const forecast = await this._weatherService.getWeatherData(
+    if (currentGddResult.isError()) return error(currentGddResult.value);
+
+    const currentAccumulatedGdd = currentGddResult.value.accumulatedGdd;
+
+    const forecastResult = await this._weatherService.getWeatherData(
       String(location.lat),
       String(location.long),
     );
+
+    if (forecastResult.isError()) return error(forecastResult.value);
+
+    const forecast = forecastResult.value;
 
     const dailyForecasts = this.extractDailyTempsFromForecast(
       forecast.properties.periods,
@@ -322,7 +364,7 @@ export class GddService {
 
     await this._cacheManager.set(cacheKey, result, GDD_CACHE_TTL);
 
-    return result;
+    return success(result);
   }
 
   public async invalidateCache(userId: string): Promise<void> {
@@ -344,6 +386,7 @@ export class GddService {
     if (type === 'historical' && params) {
       return `gdd:${userId}:historical:start=${params.startDate}:end=${params.endDate}`;
     }
+
     return `gdd:${userId}:${type}`;
   }
 
@@ -352,14 +395,29 @@ export class GddService {
     temperatureUnit: 'fahrenheit' | 'celsius',
   ): number {
     const baseTempF = GDD_BASE_TEMPERATURES[grassType];
+
     if (temperatureUnit === 'celsius') {
       return Math.round((baseTempF - 32) * (5 / 9));
     }
+
     return baseTempF;
   }
 
+  private getDormancyTemperature(
+    grassType: 'warm' | 'cool',
+    temperatureUnit: 'fahrenheit' | 'celsius',
+  ): number {
+    const dormancyTempF = GDD_DORMANCY_TEMPERATURES[grassType];
+
+    if (temperatureUnit === 'celsius') {
+      return Math.round((dormancyTempF - 32) * (5 / 9));
+    }
+
+    return dormancyTempF;
+  }
+
   /**
-   * Determines the cycle status based on accumulated GDD, time elapsed, and recent temps
+   * Determines the cycle status based on accumulated GDD, time elapsed, and recent temps.
    * Priority: dormant > overdue > complete > active
    */
   private determineCycleStatus({
@@ -367,23 +425,19 @@ export class GddService {
     targetGdd,
     daysSinceLastApp,
     recentTemps,
-    baseTemperature,
+    dormancyTemperature,
   }: {
     accumulatedGdd: number;
     targetGdd: number;
     daysSinceLastApp: number;
     recentTemps: Array<{ maxTemp: number; minTemp: number }>;
-    baseTemperature: number;
+    dormancyTemperature: number;
   }): GddCycleStatus {
     if (recentTemps.length > 0) {
       const avgHighTemp =
         recentTemps.reduce((sum, t) => sum + t.maxTemp, 0) / recentTemps.length;
 
-      this._logger.log(
-        `Dormancy check: avgHighTemp=${avgHighTemp.toFixed(1)}, baseTemp=${baseTemperature}, highs=${JSON.stringify(recentTemps.map((t) => t.maxTemp))}`,
-      );
-
-      if (avgHighTemp < baseTemperature) return 'dormant';
+      if (avgHighTemp < dormancyTemperature) return 'dormant';
     }
 
     const isOverdue =
@@ -395,6 +449,32 @@ export class GddService {
     if (accumulatedGdd >= targetGdd) return 'complete';
 
     return 'active';
+  }
+
+  /**
+   * Checks if a dormancy period occurred within the given temperature data
+   * by scanning for any window of GDD_DORMANCY_CHECK_DAYS consecutive days
+   * where average highs fell below the dormancy threshold.
+   */
+  private hasDormancyOccurredInPeriod(
+    temperatureData: Array<{ maxTemp: number }>,
+    dormancyTemperature: number,
+  ): boolean {
+    if (temperatureData.length < GDD_DORMANCY_CHECK_DAYS) return false;
+
+    for (
+      let i = 0;
+      i <= temperatureData.length - GDD_DORMANCY_CHECK_DAYS;
+      i++
+    ) {
+      const window = temperatureData.slice(i, i + GDD_DORMANCY_CHECK_DAYS);
+      const avgHigh =
+        window.reduce((sum, t) => sum + t.maxTemp, 0) / window.length;
+
+      if (avgHigh < dormancyTemperature) return true;
+    }
+
+    return false;
   }
 
   private extractDailyTempsFromForecast(
@@ -410,7 +490,8 @@ export class GddService {
     const dailyMap = new Map<string, { high?: number; low?: number }>();
 
     periods.forEach((period) => {
-      const date = format(new Date(period.startTime), 'yyyy-MM-dd');
+      const periodDate = new Date(period.startTime);
+      const date = format(periodDate, 'yyyy-MM-dd');
       const existing = dailyMap.get(date) || {};
 
       let temp = period.temperature;

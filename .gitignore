@@ -48,3 +48,11 @@ Thumbs.db
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Scraper
+/scraper
+
+# iOS/Capacitor
+ios/App/App.xcodeproj/project.xcworkspace/
+ios/App/CapApp-SPM/
+ios/*.xcconfig

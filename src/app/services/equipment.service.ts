@@ -21,11 +21,23 @@ export class EquipmentService {
 
   public updateEquipment(
     equipmentId: number,
-    equipmentData: EquipmentFormData
+    equipmentData: EquipmentFormData | Partial<Equipment>
   ) {
-    const formData = this.buildEquipmentFormData(equipmentData!);
+    if (
+      equipmentData instanceof FormData ||
+      this.isEquipmentFormData(equipmentData)
+    ) {
+      const formData = this.buildEquipmentFormData(
+        equipmentData as EquipmentFormData
+      );
+      return putReq(apiUrl(`equipment/${equipmentId}`), formData);
+    }
 
-    return putReq(apiUrl(`equipment/${equipmentId}`), formData);
+    return putReq(apiUrl(`equipment/${equipmentId}`), equipmentData);
+  }
+
+  private isEquipmentFormData(data: any): data is EquipmentFormData {
+    return data && ('name' in data || 'brand' in data || 'image' in data);
   }
 
   public addMaintenanceRecord(

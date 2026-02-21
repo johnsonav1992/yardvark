@@ -1,5 +1,5 @@
 <page-container pageTitle="Soil data">
-  @if (!userHasALocation()) {
+  @if (shouldShowEmptyState()) {
     <p-card>
       <div class="no-loc-container">
         <h2>It looks like you haven't set your location yet!</h2>
@@ -20,10 +20,12 @@
       <p-card [style.width]="isMobile() ? '100%' : '49%'">
         <ng-template #title>Average soil temperatures</ng-template>
         <soil-temp-week-graph
+          [labels]="chartLabels()"
           [dailyAverageShallowTemps]="dailyAverageShallowTemps()"
           [dailyAverageDeepTemps]="dailyAverageDeepTemps()"
           [isLoadingChartData]="isLoadingAveragesChartData()"
           [tempUnit]="tempUnit()"
+          [todayIndex]="todayIndex()"
         />
       </p-card>
       <p-card [style.width]="isMobile() ? '100%' : '49%'">
@@ -31,14 +33,29 @@
           Average soil moisture
           <i
             class="ti ti-info-circle"
-            style="margin-left: 0.5rem; cursor: pointer;"
+            style="margin-left: 0.5rem; cursor: pointer"
             (mouseover)="popover.show($event)"
             (mouseleave)="popover.hide()"
           ></i>
         </ng-template>
         <soil-moisture-week-graph
+          [labels]="chartLabels()"
           [dailyMoistureData]="dailyMoistureData()"
           [isLoadingChartData]="isLoadingAveragesChartData()"
+          [todayIndex]="todayIndex()"
+        />
+      </p-card>
+      <p-card [style.width]="'100%'">
+        <ng-template #title>Current conditions</ng-template>
+        <soil-conditions-card
+          [shallowTemp]="currentShallowTemp()"
+          [deepTemp]="currentDeepTemp()"
+          [moisturePct]="currentMoisturePct()"
+          [tempUnit]="tempUnit()"
+          [grassType]="grassType()"
+          [tempTrend]="tempTrend()"
+          [moistureTrend]="moistureTrend()"
+          [isLoading]="isLoadingAveragesChartData()"
         />
       </p-card>
     </div>

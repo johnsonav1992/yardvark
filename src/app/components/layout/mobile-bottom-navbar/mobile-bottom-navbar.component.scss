@@ -227,5 +227,6 @@
 @media (display-mode: standalone) {
   .mobile-bottom-navbar {
     padding-bottom: max(env(safe-area-inset-bottom), 12px);
+    position: fixed;
   }
 }

@@ -24,6 +24,7 @@ html {
 body {
   height: 100%;
   overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
 }
 
 @keyframes spin {
@@ -156,4 +157,27 @@ body {
       display: none;
     }
   }
+}
+
+@media (display-mode: standalone) {
+  html,
+  body {
+    height: 100vh;
+    position: initial;
+  }
+}
+
+.sidenav .action-buttons p-button,
+.mobile-nav .action-buttons p-button {
+  display: block !important;
+  width: 100% !important;
+}
+
+.sidenav .action-buttons .p-button,
+.mobile-nav .action-buttons .p-button {
+  display: flex !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  justify-content: center !important;
 }

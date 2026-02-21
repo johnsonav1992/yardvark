@@ -12,9 +12,17 @@
       <label for="year">Year</label>
     </p-floatlabel>
   </ng-template>
-
   @if (analyticsData.isLoading()) {
-    <loading-spinner />
+    <div class="main-container">
+      @for (i of [0, 1]; track i) {
+        <p-card [style.width]="isMobile() ? '100%' : '49%'">
+          <ng-template #title>
+            <p-skeleton width="150px" height="1.5rem" />
+          </ng-template>
+          <p-skeleton width="100%" height="300px" />
+        </p-card>
+      }
+    </div>
   } @else if (!hasAnyData()) {
     <div class="empty-state-container">
       <empty-message
@@ -26,12 +34,14 @@
     </div>
   } @else {
     <em [style.font-size]="'10px'">
-      {{ `${isMobile() ? 'Click on' : 'Hover over'} segments or points of charts to see more details` }}
+      {{
+        `${isMobile() ? "Click on" : "Hover over"} segments or points of charts to see more details`
+      }}
     </em>
     <div class="main-container">
       @for (chart of charts(); track chart.title) {
         @let chartData = chart.chartData;
-        @let hasData = chartData.datasets?.[0]?.data?.length || 0;
+        @let hasData = chartData.datasets[0]?.data?.length || 0;
 
         <p-card [style.width]="isMobile() ? '100%' : '49%'">
           <ng-template #title>
@@ -54,9 +64,23 @@
               [options]="chart.options"
             />
           } @else {
-            <empty-message message="No data available" size="sm" />
+            <div class="chart-empty-state">
+              <empty-message
+                message="No data available"
+                description="Track more entries to populate this chart."
+                size="lg"
+              />
+            </div>
           }
         </p-card>
+      }
+
+      @if (!isPro()) {
+        <div [style.width]="isMobile() ? '100%' : '49%'">
+          <upgrade-prompt
+            message="Upgrade to Pro to unlock advanced analytics including average days between mowing, fertilizer timeline, and product distribution insights."
+          />
+        </div>
       }
     </div>
   }

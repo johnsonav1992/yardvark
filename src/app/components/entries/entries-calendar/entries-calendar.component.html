@@ -8,9 +8,34 @@
       severity="secondary"
     />
     <div class="title-and-loader">
-      <h2 class="month-title" [style.fontSize]="isMobile() ? '20px' : ''">
-        {{ currentMonth() }}
-      </h2>
+      <div [style.position]="'relative'">
+        <h2
+          class="month-title"
+          [style.fontSize]="isMobile() ? '20px' : ''"
+          [style.cursor]="'pointer'"
+          (click)="toggleMonthPicker()"
+        >
+          {{ currentMonth() }}
+        </h2>
+        <p-datePicker
+          #monthPicker
+          [ngModel]="currentDate()"
+          (ngModelChange)="onMonthYearSelect($event)"
+          view="month"
+          dateFormat="mm/yy"
+          appendTo="body"
+          inputId="month-picker-input"
+          [style]="{
+            opacity: '0',
+            position: 'absolute',
+            pointerEvents: 'none',
+            width: '1px',
+            height: '1px',
+            top: '0',
+            left: '0'
+          }"
+        />
+      </div>
       <div [style.display]="'flex'" [style.alignItems]="'center'">
         <p-button
           icon="ti ti-search"
@@ -85,7 +110,6 @@
     @for (day of days(); track day.date) {
       @let isSelectedDateSameAsThisDate =
         mobileDateSelected()?.getDate() === day.date.getDate();
-
       <div
         class="day"
         [class.mobile]="isMobile()"

@@ -1,0 +1,18 @@
+<p-card class="upgrade-card">
+  <div class="upgrade-content">
+    <div class="upgrade-icon-wrapper">
+      <i class="ti ti-lock upgrade-icon"></i>
+    </div>
+    <div class="upgrade-text">
+      <h4 class="upgrade-title">Pro Feature</h4>
+      <p class="upgrade-message">{{ message() }}</p>
+    </div>
+    <p-button
+      label="Upgrade to Pro"
+      icon="ti ti-crown"
+      severity="success"
+      (onClick)="navigateToSubscription()"
+      class="upgrade-button"
+    />
+  </div>
+</p-card>

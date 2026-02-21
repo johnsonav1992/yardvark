@@ -3,27 +3,36 @@ import {
   Controller,
   Post,
   Put,
-  Req,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from '../services/users.service';
-import { Request } from 'express';
 import { User } from '../Models/user.model';
+import { User as AuthUser } from '../../../decorators/user.decorator';
 import { imageFileValidator } from 'src/utils/fileUtils';
+import { resultOrThrow } from '../../../utils/resultOrThrow';
+import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 
-const MAX_PROFILE_PICTURE_SIZE = 5 * 1024 * 1024; // 5MB
+const MAX_PROFILE_PICTURE_SIZE = 5 * 1024 * 1024;
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Put()
-  public updateUser(@Req() req: Request, @Body() data: Partial<User>) {
-    const userId = req.user.userId;
+  public async updateUser(
+    @AuthUser('userId') userId: string,
+    @Body() data: Partial<User>,
+  ) {
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'update_user',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
-    return this.usersService.updateUser(userId, data);
+    return resultOrThrow(await this.usersService.updateUser(userId, data));
   }
 
   @Post('profile-picture')
@@ -31,10 +40,16 @@ export class UsersController {
   public async uploadProfilePicture(
     @UploadedFile(imageFileValidator(MAX_PROFILE_PICTURE_SIZE))
     file: Express.Multer.File,
-    @Req() req: Request,
+    @AuthUser('userId') userId: string,
   ) {
-    const userId = req.user.userId;
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'upload_profile_picture',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
-    return this.usersService.updateProfilePicture(userId, file);
+    return resultOrThrow(
+      await this.usersService.updateProfilePicture(userId, file),
+    );
   }
 }

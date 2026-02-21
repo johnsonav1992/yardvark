@@ -130,7 +130,7 @@
 
     .button-container {
       flex-direction: column;
-      bottom: 68px;
+      bottom: calc(60px + max(env(safe-area-inset-bottom), 8px));
       padding: 1rem;
       z-index: 99;
     }

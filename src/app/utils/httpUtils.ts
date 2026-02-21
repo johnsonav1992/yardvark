@@ -109,8 +109,3 @@ export const apiUrl = (
 
   return url;
 };
-
-/**
- * A quicker way to get the http client in a component or service
- */
-export const injectHttp = () => inject(HttpClient);

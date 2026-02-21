@@ -15,7 +15,6 @@
         styleClass="w-full mb-3"
       />
     }
-
     <span class="input-wrapper">
       <div style="display: flex">
         <p>Name:</p>
@@ -29,7 +28,6 @@
         [disabled]="isSubmitting()"
       />
     </span>
-
     <span class="input-wrapper">
       <div style="display: flex">
         <p>Email:</p>
@@ -44,7 +42,6 @@
         [disabled]="isSubmitting()"
       />
     </span>
-
     <span class="input-wrapper">
       <div style="display: flex">
         <p>Feedback Type:</p>
@@ -60,14 +57,14 @@
         [style.width]="'100%'"
       >
         <ng-template pTemplate="item" let-option>
-          <div style="display: flex; align-items: center; gap: 8px;">
+          <div style="display: flex; align-items: center; gap: 8px">
             <i [class]="option.icon"></i>
             <span>{{ option.label }}</span>
           </div>
         </ng-template>
         <ng-template pTemplate="selectedItem" let-option>
           @if (option) {
-            <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px">
               <i [class]="option.icon"></i>
               <span>{{ option.label }}</span>
             </div>
@@ -75,7 +72,6 @@
         </ng-template>
       </p-select>
     </span>
-
     <div class="col-input-wrapper">
       <div style="display: flex">
         <p>Message:</p>
@@ -90,7 +86,6 @@
         [style.width]="'100%'"
       ></textarea>
     </div>
-
     <div class="dialog-footer">
       <p-button
         label="Cancel"

@@ -6,23 +6,26 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { ChartModule } from 'primeng/chart';
 import { PopoverModule } from 'primeng/popover';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
-import { LoadingSpinnerComponent } from '../../components/miscellanious/loading-spinner/loading-spinner.component';
 import { GddService } from '../../services/gdd.service';
 import { LocationService } from '../../services/location.service';
 import { GlobalUiService } from '../../services/global-ui.service';
 import { getGddForecastChartConfig } from '../../utils/gddChartUtils';
 import { injectSettingsService } from '../../services/settings.service';
+import { SubscriptionService } from '../../services/subscription.service';
+import { UpgradePromptComponent } from '../../components/subscription/upgrade-prompt/upgrade-prompt.component';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'gdd-data',
   imports: [
     PageContainerComponent,
-    LoadingSpinnerComponent,
     CardModule,
     ButtonModule,
     ProgressBarModule,
     ChartModule,
-    PopoverModule
+    PopoverModule,
+    UpgradePromptComponent,
+    SkeletonModule
   ],
   templateUrl: './gdd-data.component.html',
   styleUrl: './gdd-data.component.scss'
@@ -33,9 +36,11 @@ export class GddDataComponent {
   private _settingsService = injectSettingsService();
   private _router = inject(Router);
   private _globalUiService = inject(GlobalUiService);
+  private _subscriptionService = inject(SubscriptionService);
 
   public isMobile = this._globalUiService.isMobile;
   public isDarkMode = this._globalUiService.isDarkMode;
+  public isPro = this._subscriptionService.isPro;
 
   public settingsAreLoading = this._settingsService.settings.isLoading;
 
@@ -53,7 +58,9 @@ export class GddDataComponent {
       this.forecastData.isLoading()
   );
 
-  public hasLoadedGddData = computed(() => this.currentGddData.value() !== undefined);
+  public hasLoadedGddData = computed(
+    () => this.currentGddData.value() !== undefined
+  );
 
   public accumulatedGdd = computed(
     () => this.currentGddData.value()?.accumulatedGdd ?? 0

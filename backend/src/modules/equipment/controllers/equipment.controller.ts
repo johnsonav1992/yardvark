@@ -3,24 +3,23 @@ import {
   Controller,
   Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Param,
   Post,
   Put,
   Query,
-  Req,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { Request } from 'express';
 import { EquipmentService } from '../services/equipment.service';
 import { Equipment } from '../models/equipment.model';
 import { imageFileValidator } from 'src/utils/fileUtils';
 import { S3Service } from 'src/modules/s3/s3.service';
-import { tryCatch } from 'src/utils/tryCatch';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { EquipmentMaintenance } from '../models/equipmentMaintenance.model';
+import { resultOrThrow } from '../../../utils/resultOrThrow';
+import { User } from '../../../decorators/user.decorator';
+import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 
 @Controller('equipment')
 export class EquipmentController {
@@ -30,8 +29,12 @@ export class EquipmentController {
   ) {}
 
   @Get()
-  public getAllUserEquipment(@Req() req: Request) {
-    const userId = req.user.userId;
+  public getAllUserEquipment(@User('userId') userId: string) {
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_all_equipment',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
     return this._equipmentService.getAllUserEquipment(userId);
   }
@@ -39,27 +42,20 @@ export class EquipmentController {
   @Post()
   @UseInterceptors(FileInterceptor('equipment-image'))
   public async createEquipment(
-    @Req() req: Request,
+    @User('userId') userId: string,
     @UploadedFile(imageFileValidator()) file: Express.Multer.File,
     @Body() equipmentData: Partial<Equipment>,
   ) {
-    const userId = req.user.userId;
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'create_equipment',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
-    let imageUrl: string | undefined = undefined;
+    let imageUrl: string | undefined;
 
     if (file) {
-      const { data, error } = await tryCatch(() =>
-        this._s3Service.uploadFile(file, req.user.userId),
-      );
-
-      imageUrl = data || undefined;
-
-      if (error) {
-        throw new HttpException(
-          `Error uploading file to S3 - ${error.message}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
+      imageUrl = resultOrThrow(await this._s3Service.uploadFile(file, userId));
     }
 
     return this._equipmentService.createEquipment(userId, {
@@ -71,76 +67,122 @@ export class EquipmentController {
   @Put(':equipmentId')
   @UseInterceptors(FileInterceptor('equipment-image'))
   public async updateEquipment(
-    @Req() req: Request,
+    @User('userId') userId: string,
     @Param('equipmentId') equipmentId: number,
     @UploadedFile(imageFileValidator()) file: Express.Multer.File,
     @Body() equipmentData: Partial<Equipment>,
   ) {
-    let imageUrl: string | undefined = undefined;
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'update_equipment',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
+
+    let imageUrl: string | undefined;
 
     if (file) {
-      const { data, error } = await tryCatch(() =>
-        this._s3Service.uploadFile(file, req.user.userId),
-      );
-
-      imageUrl = data || undefined;
-
-      if (error) {
-        throw new HttpException(
-          `Error uploading file to S3 - ${error.message}`,
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
+      imageUrl = resultOrThrow(await this._s3Service.uploadFile(file, userId));
     }
 
-    return this._equipmentService.updateEquipment(equipmentId, {
+    const result = await this._equipmentService.updateEquipment(equipmentId, {
       ...equipmentData,
       imageUrl,
     });
+
+    return resultOrThrow(result);
   }
 
-  @Put(':equipmentId')
-  public toggleEquipmentArchiveStatus(
+  @Put(':equipmentId/archive-status')
+  public async toggleEquipmentArchiveStatus(
     @Param('equipmentId') equipmentId: number,
     @Query('isActive') isActive: boolean,
   ) {
-    return this._equipmentService.toggleEquipmentArchiveStatus(
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'toggle_archive_status',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.isActive, isActive);
+
+    const result = await this._equipmentService.toggleEquipmentArchiveStatus(
       equipmentId,
       isActive,
     );
+
+    return resultOrThrow(result);
   }
 
   @Post(':equipmentId/maintenance')
-  public createMaintenanceRecord(
+  public async createMaintenanceRecord(
     @Param('equipmentId') equipmentId: number,
     @Body() maintenanceData: Partial<EquipmentMaintenance>,
   ) {
-    return this._equipmentService.createMaintenanceRecord(
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'create_maintenance_record',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
+
+    const result = await this._equipmentService.createMaintenanceRecord(
       equipmentId,
       maintenanceData,
     );
+
+    return resultOrThrow(result);
   }
 
   @Put('maintenance/:maintenanceId')
-  public updateMaintenanceRecord(
+  public async updateMaintenanceRecord(
     @Param('maintenanceId') maintenanceId: number,
     @Body() maintenanceData: Partial<EquipmentMaintenance>,
   ) {
-    return this._equipmentService.updateMaintenanceRecord(
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'update_maintenance_record',
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.maintenanceId,
+      maintenanceId,
+    );
+
+    const result = await this._equipmentService.updateMaintenanceRecord(
       maintenanceId,
       maintenanceData,
     );
+
+    return resultOrThrow(result);
   }
 
   @Delete(':equipmentId')
-  public deleteEquipment(@Param('equipmentId') equipmentId: number) {
-    return this._equipmentService.deleteEquipment(equipmentId);
+  public async deleteEquipment(@Param('equipmentId') equipmentId: number) {
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'delete_equipment',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
+
+    const result = await this._equipmentService.deleteEquipment(equipmentId);
+
+    return resultOrThrow(result);
   }
 
   @Delete('maintenance/:maintenanceId')
-  public deleteMaintenanceRecord(
+  public async deleteMaintenanceRecord(
     @Param('maintenanceId') maintenanceId: number,
   ) {
-    return this._equipmentService.deleteMaintenanceRecord(maintenanceId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'delete_maintenance_record',
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.maintenanceId,
+      maintenanceId,
+    );
+
+    const result =
+      await this._equipmentService.deleteMaintenanceRecord(maintenanceId);
+
+    return resultOrThrow(result);
   }
 }

@@ -5,19 +5,27 @@
       (click)="gddInfoPopover.toggle($event)"
     ></i>
   </ng-template>
-
   @if (settingsAreLoading()) {
-    <loading-spinner />
+    <p-card class="mb-4">
+      <div [style.display]="'flex'" [style.flexDirection]="'column'" [style.gap]="'1rem'">
+        <p-skeleton width="150px" height="1.5rem" />
+        <p-skeleton width="100%" height="1rem" />
+        <p-skeleton width="90%" height="1rem" />
+        <p-skeleton width="200px" height="2.5rem" borderRadius="6px" />
+      </div>
+    </p-card>
+  } @else if (!isPro()) {
+    <upgrade-prompt
+      message="Upgrade to Pro to unlock GDD (Growing Degree Days) tracking for precise PGR application timing based on heat accumulation."
+    />
   } @else if (!userHasALocation()) {
     <p-card>
       <div class="no-loc-container">
         <h2>It looks like you haven't set your location yet!</h2>
-
         <p>
           Go to settings to set your location and start tracking Growing Degree
           Days (GDD).
         </p>
-
         <p-button
           label="Go to settings"
           icon="ti ti-settings"
@@ -54,8 +62,9 @@
               <div class="banner-content">
                 <span class="banner-title">Grass is Dormant</span>
                 <span class="banner-message">
-                  Recent temperatures have been below the base temperature for your grass type.
-                  GDD tracking will resume when temperatures rise.
+                  Recent temperatures have been below the base temperature for
+                  your grass type. GDD tracking will resume when temperatures
+                  rise.
                 </span>
               </div>
             </div>
@@ -75,7 +84,9 @@
 
                 <div class="detail-content">
                   <span class="detail-label">Days Since Application</span>
-                  <span class="detail-value">{{ daysSinceLastApp() }} days</span>
+                  <span class="detail-value"
+                    >{{ daysSinceLastApp() }} days</span
+                  >
                 </div>
               </div>
 
@@ -84,7 +95,9 @@
 
                 <div class="detail-content">
                   <span class="detail-label">Grass Type</span>
-                  <span class="detail-value capitalize">{{ grassType() }}-season</span>
+                  <span class="detail-value capitalize"
+                    >{{ grassType() }}-season</span
+                  >
                 </div>
               </div>
 
@@ -94,7 +107,9 @@
                 <div class="detail-content">
                   <span class="detail-label">Base Temperature</span>
                   <span class="detail-value">
-                    {{ baseTemperature() }}°{{ temperatureUnit() === 'fahrenheit' ? 'F' : 'C' }}
+                    {{ baseTemperature() }}°{{
+                      temperatureUnit() === "fahrenheit" ? "F" : "C"
+                    }}
                   </span>
                 </div>
               </div>
@@ -107,8 +122,8 @@
               <div class="banner-content">
                 <span class="banner-title">Overdue for Application</span>
                 <span class="banner-message">
-                  You're significantly past due for a PGR application.
-                  Log a new application to restart tracking.
+                  You're significantly past due for a PGR application. Log a new
+                  application to restart tracking.
                 </span>
               </div>
             </div>
@@ -128,7 +143,9 @@
 
                 <div class="detail-content">
                   <span class="detail-label">Days Since Application</span>
-                  <span class="detail-value">{{ daysSinceLastApp() }} days</span>
+                  <span class="detail-value"
+                    >{{ daysSinceLastApp() }} days</span
+                  >
                 </div>
               </div>
 
@@ -137,7 +154,9 @@
 
                 <div class="detail-content">
                   <span class="detail-label">Grass Type</span>
-                  <span class="detail-value capitalize">{{ grassType() }}-season</span>
+                  <span class="detail-value capitalize"
+                    >{{ grassType() }}-season</span
+                  >
                 </div>
               </div>
 
@@ -147,7 +166,9 @@
                 <div class="detail-content">
                   <span class="detail-label">Base Temperature</span>
                   <span class="detail-value">
-                    {{ baseTemperature() }}°{{ temperatureUnit() === 'fahrenheit' ? 'F' : 'C' }}
+                    {{ baseTemperature() }}°{{
+                      temperatureUnit() === "fahrenheit" ? "F" : "C"
+                    }}
                   </span>
                 </div>
               </div>
@@ -167,7 +188,9 @@
                 styleClass="gdd-progress"
               />
 
-              <span class="percentage">{{ percentageToTarget() }}% to target</span>
+              <span class="percentage"
+                >{{ percentageToTarget() }}% to target</span
+              >
             </div>
 
             @if (isCycleComplete()) {
@@ -176,7 +199,8 @@
                 <div class="banner-content">
                   <span class="banner-title">Target GDD Reached!</span>
                   <span class="banner-message">
-                    Log a new PGR application in your entry log to restart tracking.
+                    Log a new PGR application in your entry log to restart
+                    tracking.
                   </span>
                 </div>
               </div>
@@ -197,7 +221,9 @@
 
                 <div class="detail-content">
                   <span class="detail-label">Days Since Application</span>
-                  <span class="detail-value">{{ daysSinceLastApp() }} days</span>
+                  <span class="detail-value"
+                    >{{ daysSinceLastApp() }} days</span
+                  >
                 </div>
               </div>
 
@@ -206,7 +232,9 @@
 
                 <div class="detail-content">
                   <span class="detail-label">Grass Type</span>
-                  <span class="detail-value capitalize">{{ grassType() }}-season</span>
+                  <span class="detail-value capitalize"
+                    >{{ grassType() }}-season</span
+                  >
                 </div>
               </div>
 
@@ -216,7 +244,9 @@
                 <div class="detail-content">
                   <span class="detail-label">Base Temperature</span>
                   <span class="detail-value">
-                    {{ baseTemperature() }}°{{ temperatureUnit() === 'fahrenheit' ? 'F' : 'C' }}
+                    {{ baseTemperature() }}°{{
+                      temperatureUnit() === "fahrenheit" ? "F" : "C"
+                    }}
                   </span>
                 </div>
               </div>
@@ -235,9 +265,15 @@
                 <i class="ti ti-calendar-event"></i>
 
                 <div class="highlight-content">
-                  <span class="highlight-label">Projected Next Application</span>
-                  <span class="highlight-value">{{ projectedNextAppDate() }}</span>
-                  <span class="highlight-sub">in {{ daysUntilTarget() }} days</span>
+                  <span class="highlight-label"
+                    >Projected Next Application</span
+                  >
+                  <span class="highlight-value">{{
+                    projectedNextAppDate()
+                  }}</span>
+                  <span class="highlight-sub"
+                    >in {{ daysUntilTarget() }} days</span
+                  >
                 </div>
               </div>
             } @else {
@@ -266,27 +302,32 @@
   <div class="gdd-info-popover">
     <h4>What is GDD?</h4>
     <p>
-      <strong>Growing Degree Days (GDD)</strong> is a measure of heat accumulation
-      used to predict plant development. It's calculated daily based on the
-      difference between the average temperature and a base temperature.
+      <strong>Growing Degree Days (GDD)</strong> is a measure of heat
+      accumulation used to predict plant development. It's calculated daily
+      based on the difference between the average temperature and a base
+      temperature.
     </p>
 
     <h4>Why track GDD for PGR?</h4>
     <p>
-      Plant Growth Regulators (PGR) like Primo Maxx or T-Nex suppress grass growth
-      for a period determined by heat accumulation, not calendar days. Tracking GDD
-      helps you:
+      Plant Growth Regulators (PGR) like Primo Maxx or T-Nex suppress grass
+      growth for a period determined by heat accumulation, not calendar days.
+      Tracking GDD helps you:
     </p>
     <ul>
       <li>Time reapplications accurately based on actual growing conditions</li>
-      <li>Avoid applying too early (wasting product) or too late (losing regulation)</li>
+      <li>
+        Avoid applying too early (wasting product) or too late (losing
+        regulation)
+      </li>
       <li>Maintain consistent turf quality throughout the growing season</li>
     </ul>
 
     <h4>Target GDD</h4>
     <p>
-      Most cool-season grasses need reapplication around <strong>200 GDD</strong>,
-      while warm-season grasses typically need it around <strong>220 GDD</strong>.
+      Most cool-season grasses need reapplication around
+      <strong>200 GDD</strong>, while warm-season grasses typically need it
+      around <strong>220 GDD</strong>.
     </p>
   </div>
 </p-popover>

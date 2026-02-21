@@ -56,14 +56,18 @@ export class ImageCropperService {
   ): Promise<Blob | null> {
     return new Promise((resolve) => {
       if (!sourceImage) {
-        return resolve(null);
+        resolve(null);
+
+        return;
       }
 
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
 
       if (!ctx) {
-        return resolve(null);
+        resolve(null);
+
+        return;
       }
 
       canvas.width = config.outputSize;

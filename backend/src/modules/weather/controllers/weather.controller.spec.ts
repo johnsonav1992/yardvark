@@ -2,6 +2,8 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { HttpException } from '@nestjs/common';
 import { WeatherController } from './weather.controller';
 import { WeatherService } from '../services/weather.service';
+import { success, error } from '../../../types/either';
+import { WeatherFetchError } from '../models/weather.errors';
 
 describe('WeatherController', () => {
   let controller: WeatherController;
@@ -43,7 +45,9 @@ describe('WeatherController', () => {
 
   describe('getForecast', () => {
     it('should return weather data for valid coordinates', async () => {
-      mockWeatherService.getWeatherData.mockResolvedValue(mockWeatherData);
+      mockWeatherService.getWeatherData.mockResolvedValue(
+        success(mockWeatherData),
+      );
 
       const result = await controller.getForecast('40.7128', '-74.0060');
 
@@ -54,21 +58,38 @@ describe('WeatherController', () => {
       expect(result).toEqual(mockWeatherData);
     });
 
-    it('should return HttpException when weather service fails', async () => {
-      mockWeatherService.getWeatherData.mockRejectedValue(
-        new Error('API error'),
+    it('should throw HttpException when weather service returns an error', async () => {
+      mockWeatherService.getWeatherData.mockResolvedValue(
+        error(new WeatherFetchError(new Error('API error'))),
       );
 
-      const result = await controller.getForecast('40.7128', '-74.0060');
+      await expect(
+        controller.getForecast('40.7128', '-74.0060'),
+      ).rejects.toThrow(HttpException);
+    });
 
-      expect(result).toBeInstanceOf(HttpException);
-      expect((result as HttpException).message).toBe(
-        'Failed to fetch weather data',
+    it('should throw HttpException with status 502 when weather service fails', async () => {
+      mockWeatherService.getWeatherData.mockResolvedValue(
+        error(new WeatherFetchError(new Error('API error'))),
       );
+
+      try {
+        await controller.getForecast('40.7128', '-74.0060');
+        fail('Expected HttpException to be thrown');
+      } catch (e) {
+        expect(e).toBeInstanceOf(HttpException);
+        expect((e as HttpException).getStatus()).toBe(502);
+        expect((e as HttpException).getResponse()).toEqual({
+          message: 'Failed to fetch weather data',
+          code: 'WEATHER_FETCH_ERROR',
+        });
+      }
     });
 
     it('should handle different coordinate formats', async () => {
-      mockWeatherService.getWeatherData.mockResolvedValue(mockWeatherData);
+      mockWeatherService.getWeatherData.mockResolvedValue(
+        success(mockWeatherData),
+      );
 
       await controller.getForecast('51.5074', '0.1278');
 

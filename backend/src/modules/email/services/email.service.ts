@@ -1,9 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MailerSend, EmailParams, Sender, Recipient } from 'mailersend';
-import { tryCatch } from '../../../utils/tryCatch';
+import * as nodemailer from 'nodemailer';
 import { generateFeedbackEmailHtml } from '../helpers/email.helpers';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
+import { Either, error, success } from '../../../types/either';
+import { EmailSendError, EmailNotConfigured } from '../models/email.errors';
 
 export interface FeedbackEmailData {
   name: string;
@@ -17,75 +19,105 @@ export interface FeedbackEmailData {
 @Injectable()
 export class EmailService {
   private readonly logger = new Logger(EmailService.name);
-  private mailerSend: MailerSend;
-  private isInitialized = false;
+  private readonly transporter: nodemailer.Transporter | null = null;
+  private readonly gmailUser: string;
+  private readonly adminEmail = 'johnsonav1992@gmail.com';
 
   constructor(private readonly configService: ConfigService) {
-    this.initializeMailerSend();
-  }
+    this.gmailUser = this.configService.get<string>('GMAIL_USER') || '';
+    const gmailAppPassword =
+      this.configService.get<string>('GMAIL_APP_PASSWORD') || '';
 
-  private initializeMailerSend() {
-    const apiKey = this.configService.get<string>('MAILERSEND_API_KEY');
+    if (!this.gmailUser || !gmailAppPassword) {
+      this.logger.warn(
+        'GMAIL_USER or GMAIL_APP_PASSWORD not configured. Email service will not function.',
+      );
 
-    if (!apiKey) {
-      this.logger.warn(
-        'MAILERSEND_API_KEY not found. Email service will not function.',
-      );
-      this.logger.warn(
-        'Get your API key from https://app.mailersend.com/api-tokens',
-      );
       return;
     }
 
-    this.mailerSend = new MailerSend({ apiKey });
-
-    this.isInitialized = true;
+    this.transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: this.gmailUser,
+        pass: gmailAppPassword,
+      },
+    });
   }
 
   public async sendFeedbackEmail(
     feedbackData: FeedbackEmailData,
-  ): Promise<boolean> {
-    if (!this.isInitialized) {
-      this.logger.error('MailerSend not initialized. Check API key.');
-
-      return false;
-    }
-
-    const adminEmail = 'johnsonav1992@gmail.com';
-    const fromEmail = 'feedback@test-q3enl6kv55742vwr.mlsender.net';
-
-    const start = Date.now();
-    const result = await tryCatch(async () => {
-      const sentFrom = new Sender(fromEmail, 'Yardvark Feedback');
-      const recipients = [new Recipient(adminEmail, 'Admin')];
-
-      const html = generateFeedbackEmailHtml(feedbackData);
-
-      const emailParams = new EmailParams()
-        .setFrom(sentFrom)
-        .setTo(recipients)
-        .setSubject(`Yardvark Feedback from ${feedbackData.name}`)
-        .setHtml(html)
-        .setReplyTo(new Sender(feedbackData.email, feedbackData.name));
-
-      return await this.mailerSend.email.send(emailParams);
-    });
-
-    LogHelpers.recordExternalCall(
-      'mailersend',
-      Date.now() - start,
-      result.success,
+  ): Promise<Either<EmailSendError | EmailNotConfigured, true>> {
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.emailOperation,
+      'send_feedback',
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.feedbackType,
+      feedbackData.feedbackType,
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.fromEmail,
+      this.gmailUser,
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.senderEmail,
+      feedbackData.email,
     );
 
-    LogHelpers.addBusinessContext('feedbackType', feedbackData.feedbackType);
-    LogHelpers.addBusinessContext('emailSent', result.success);
+    if (!this.transporter) {
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.emailError,
+        'not_initialized',
+      );
+      this.logger.error(
+        'Email transporter not initialized. Check GMAIL_USER and GMAIL_APP_PASSWORD.',
+      );
 
-    if (result.success) {
+      return error(new EmailNotConfigured());
+    }
+
+    const html = generateFeedbackEmailHtml(feedbackData);
+    const start = Date.now();
+
+    try {
+      const result = await this.transporter.sendMail({
+        from: `"Yardvark Feedback" <${this.gmailUser}>`,
+        to: this.adminEmail,
+        replyTo: `"${feedbackData.name}" <${feedbackData.email}>`,
+        subject: `Yardvark Feedback from ${feedbackData.name}`,
+        html,
+      });
+
+      LogHelpers.recordExternalCall('gmail_smtp', Date.now() - start, true);
+      LogHelpers.addBusinessContext(BusinessContextKeys.emailSent, true);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.emailMessageId,
+        result?.messageId,
+      );
       this.logger.log('Feedback email sent successfully');
-      return true;
-    } else {
-      this.logger.error('Error sending feedback email:', result.error);
-      return false;
+
+      return success(true as const);
+    } catch (err) {
+      LogHelpers.recordExternalCall('gmail_smtp', Date.now() - start, false);
+      LogHelpers.addBusinessContext(BusinessContextKeys.emailSent, false);
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.emailError,
+        (err as Error)?.message,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.emailErrorCode,
+        (err as any)?.code,
+      );
+      LogHelpers.addBusinessContext(
+        BusinessContextKeys.emailErrorResponse,
+        (err as any)?.command,
+      );
+      this.logger.error(
+        `Failed to send feedback email: ${(err as Error)?.message}`,
+      );
+
+      return error(new EmailSendError(err));
     }
   }
 }

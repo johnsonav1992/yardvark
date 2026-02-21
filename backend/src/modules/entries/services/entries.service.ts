@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   BatchEntryCreationRequest,
   BatchEntryCreationResponse,
@@ -18,6 +18,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { getEntryResponseMapping } from '../utils/entryUtils';
 import { ACTIVITY_IDS } from 'src/constants/activities.constants';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
+import { Either, error, success } from '../../../types/either';
+import {
+  EntriesNotFound,
+  EntryNotFound,
+  InvalidDateRange,
+} from '../models/entries.errors';
+import { parseISO, isValid, endOfDay, startOfYear } from 'date-fns';
 
 @Injectable()
 export class EntriesService {
@@ -34,63 +42,60 @@ export class EntriesService {
     userId: string,
     startDate?: string,
     endDate?: string,
-  ) {
-    const entries = await LogHelpers.withDatabaseTelemetry(() =>
-      this._entriesRepo.find({
-        where: {
-          userId,
-          date:
-            startDate && endDate
-              ? Between(new Date(startDate), new Date(endDate))
-              : undefined,
+  ): Promise<
+    Either<
+      EntriesNotFound | InvalidDateRange,
+      ReturnType<typeof getEntryResponseMapping>[]
+    >
+  > {
+    if (startDate && endDate) {
+      const parsedStart = parseISO(startDate);
+      const parsedEnd = parseISO(endDate);
+
+      if (!isValid(parsedStart) || !isValid(parsedEnd)) {
+        return error(new InvalidDateRange());
+      }
+    }
+
+    const entries = await this._entriesRepo.find({
+      where: {
+        userId,
+        date:
+          startDate && endDate
+            ? Between(parseISO(startDate), parseISO(endDate))
+            : undefined,
+      },
+      relations: {
+        activities: true,
+        lawnSegments: true,
+        entryProducts: {
+          product: true,
         },
-        relations: {
-          activities: true,
-          lawnSegments: true,
-          entryProducts: {
-            product: true,
-          },
-          entryImages: true,
-        },
-      }),
-    );
+        entryImages: true,
+      },
+    });
 
     if (!entries) {
-      throw new HttpException('Entries not found', HttpStatus.NOT_FOUND);
+      return error(new EntriesNotFound());
     }
 
-    LogHelpers.addBusinessContext('entriesReturned', entries.length);
-
-    return entries.map((entry) => getEntryResponseMapping(entry));
-  }
-
-  public async getEntry(entryId: number) {
-    LogHelpers.addBusinessContext('entryId', entryId);
-
-    const entry = await LogHelpers.withDatabaseTelemetry(() =>
-      this._entriesRepo.findOne({
-        where: { id: entryId },
-        relations: {
-          activities: true,
-          lawnSegments: true,
-          entryProducts: {
-            product: true,
-          },
-          entryImages: true,
-        },
-      }),
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.entriesReturned,
+      entries.length,
     );
 
-    if (!entry) {
-      throw new HttpException('Entry not found', HttpStatus.NOT_FOUND);
-    }
-
-    return getEntryResponseMapping(entry);
+    return success(entries.map((entry) => getEntryResponseMapping(entry)));
   }
 
-  public async getEntryByDate(userId: string, date: string) {
+  public async getEntry(
+    entryId: number,
+  ): Promise<
+    Either<EntryNotFound, ReturnType<typeof getEntryResponseMapping>>
+  > {
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
+
     const entry = await this._entriesRepo.findOne({
-      where: { userId, date: new Date(date) },
+      where: { id: entryId },
       relations: {
         activities: true,
         lawnSegments: true,
@@ -102,23 +107,53 @@ export class EntriesService {
     });
 
     if (!entry) {
-      throw new HttpException('Entry not found', HttpStatus.NOT_FOUND);
+      return error(new EntryNotFound());
     }
 
-    return getEntryResponseMapping(entry);
+    return success(getEntryResponseMapping(entry));
+  }
+
+  public async getEntryByDate(
+    userId: string,
+    date: string,
+  ): Promise<
+    Either<
+      EntryNotFound | InvalidDateRange,
+      ReturnType<typeof getEntryResponseMapping>
+    >
+  > {
+    const parsedDate = parseISO(date);
+
+    if (!isValid(parsedDate)) {
+      return error(new InvalidDateRange());
+    }
+
+    const entry = await this._entriesRepo.findOne({
+      where: { userId, date: parsedDate },
+      relations: {
+        activities: true,
+        lawnSegments: true,
+        entryProducts: {
+          product: true,
+        },
+        entryImages: true,
+      },
+    });
+
+    if (!entry) {
+      return error(new EntryNotFound());
+    }
+
+    return success(getEntryResponseMapping(entry));
   }
 
   public async getMostRecentEntry(userId: string) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const endOfToday = new Date();
-    endOfToday.setHours(23, 59, 59, 999);
+    const todayEnd = endOfDay(new Date());
 
     const entry = await this._entriesRepo.findOne({
       where: {
         userId,
-        date: Between(new Date(0), endOfToday),
+        date: Between(new Date(0), todayEnd),
       },
       order: {
         date: 'DESC',
@@ -210,16 +245,20 @@ export class EntriesService {
         })) || [],
     });
 
-    await LogHelpers.withDatabaseTelemetry(() =>
-      this._entriesRepo.save(newEntry),
-    );
+    await this._entriesRepo.save(newEntry);
 
-    LogHelpers.addBusinessContext('entryCreated', newEntry.id);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.entryCreated,
+      newEntry.id,
+    );
     LogHelpers.addBusinessContext(
       'activitiesCount',
       entry.activityIds?.length ?? 0,
     );
-    LogHelpers.addBusinessContext('productsCount', entry.products?.length ?? 0);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.productsCount,
+      entry.products?.length ?? 0,
+    );
 
     return newEntry;
   }
@@ -247,9 +286,18 @@ export class EntriesService {
       }
     });
 
-    LogHelpers.addBusinessContext('batchSize', body.entries.length);
-    LogHelpers.addBusinessContext('batchCreated', entries.length);
-    LogHelpers.addBusinessContext('batchFailed', errors.length);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.batchSize,
+      body.entries.length,
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.batchCreated,
+      entries.length,
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.batchFailed,
+      errors.length,
+    );
 
     return {
       created: entries.length,
@@ -262,8 +310,8 @@ export class EntriesService {
   public async updateEntry(
     entryId: number,
     entry: Partial<EntryCreationRequest>,
-  ) {
-    LogHelpers.addBusinessContext('entryId', entryId);
+  ): Promise<Either<EntryNotFound, Entry>> {
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
 
     const entryToUpdate = await this._entriesRepo.findOne({
       where: { id: entryId },
@@ -276,7 +324,7 @@ export class EntriesService {
     });
 
     if (!entryToUpdate) {
-      throw new HttpException('Entry not found', HttpStatus.NOT_FOUND);
+      return error(new EntryNotFound());
     }
 
     entryToUpdate.lawnSegments = [];
@@ -308,22 +356,26 @@ export class EntriesService {
 
     await this._entriesRepo.save(updatedEntry);
 
-    return updatedEntry;
+    return success(updatedEntry);
   }
 
-  public async softDeleteEntry(entryId: number) {
-    LogHelpers.addBusinessContext('entryId', entryId);
+  public async softDeleteEntry(
+    entryId: number,
+  ): Promise<Either<EntryNotFound, void>> {
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
 
     const entry = await this._entriesRepo.findOne({
       where: { id: entryId },
     });
 
     if (!entry) {
-      throw new HttpException('Entry not found', HttpStatus.NOT_FOUND);
+      return error(new EntryNotFound());
     }
 
     await this._entriesRepo.softDelete(entryId);
-    LogHelpers.addBusinessContext('entryDeleted', true);
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryDeleted, true);
+
+    return success(undefined);
   }
 
   public async recoverEntry(entryId: number) {
@@ -333,16 +385,22 @@ export class EntriesService {
   public async searchEntries(
     userId: string,
     searchCriteria: EntriesSearchRequest,
-  ) {
+  ): Promise<
+    Either<InvalidDateRange, ReturnType<typeof getEntryResponseMapping>[]>
+  > {
     const today = new Date();
-    const startOfYear = new Date(today.getFullYear(), 0, 1);
+    const yearStart = startOfYear(today);
 
     const startDate = searchCriteria.dateRange?.[0]
-      ? new Date(searchCriteria.dateRange[0])
-      : startOfYear;
+      ? parseISO(searchCriteria.dateRange[0])
+      : yearStart;
     const endDate = searchCriteria.dateRange?.[1]
-      ? new Date(searchCriteria.dateRange[1])
+      ? parseISO(searchCriteria.dateRange[1])
       : today;
+
+    if (!isValid(startDate) || !isValid(endDate)) {
+      return error(new InvalidDateRange());
+    }
 
     const baseConditions: FindOptionsWhere<Entry> = {
       userId,
@@ -375,24 +433,25 @@ export class EntriesService {
       ];
     }
 
-    const entries = await LogHelpers.withDatabaseTelemetry(() =>
-      this._entriesRepo.find({
-        where,
-        relations: {
-          activities: true,
-          lawnSegments: true,
-          entryProducts: { product: true },
-        },
-        order: {
-          date: 'DESC',
-          time: 'DESC',
-        },
-      }),
+    const entries = await this._entriesRepo.find({
+      where,
+      relations: {
+        activities: true,
+        lawnSegments: true,
+        entryProducts: { product: true },
+      },
+      order: {
+        date: 'DESC',
+        time: 'DESC',
+      },
+    });
+
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.searchResultsCount,
+      entries.length,
     );
 
-    LogHelpers.addBusinessContext('searchResultsCount', entries.length);
-
-    return entries.map((entry) => getEntryResponseMapping(entry));
+    return success(entries.map((entry) => getEntryResponseMapping(entry)));
   }
 
   public async softDeleteEntryImage(entryImageId: number) {
@@ -415,7 +474,7 @@ export class EntriesService {
     limit?: number;
     startDate?: string;
     endDate?: string;
-  }): Promise<Entry[]> {
+  }): Promise<Either<InvalidDateRange, Entry[]>> {
     const embeddingString = `[${queryEmbedding.join(',')}]`;
 
     let query = this._entriesRepo
@@ -429,17 +488,26 @@ export class EntriesService {
       .andWhere('entry.embedding IS NOT NULL');
 
     if (startDate && endDate) {
+      const parsedStart = parseISO(startDate);
+      const parsedEnd = parseISO(endDate);
+
+      if (!isValid(parsedStart) || !isValid(parsedEnd)) {
+        return error(new InvalidDateRange());
+      }
+
       query = query.andWhere('entry.date BETWEEN :startDate AND :endDate', {
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
+        startDate: parsedStart,
+        endDate: parsedEnd,
       });
     }
 
-    return query
+    const entries = await query
       .orderBy('entry.embedding <-> :queryEmbedding')
       .setParameter('queryEmbedding', embeddingString)
       .limit(limit)
       .getMany();
+
+    return success(entries);
   }
 
   public async updateEntryEmbedding(entryId: number, embedding: number[]) {

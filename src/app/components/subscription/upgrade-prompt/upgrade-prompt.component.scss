@@ -1,0 +1,56 @@
+:host ::ng-deep .upgrade-card {
+  border: 2px solid var(--p-green-100);
+  background: linear-gradient(
+    135deg,
+    var(--p-surface-50) 0%,
+    var(--p-green-50) 100%
+  );
+}
+
+.upgrade-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.5rem;
+  padding: 1rem;
+}
+
+.upgrade-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--p-green-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upgrade-icon {
+  font-size: 2rem;
+  color: var(--p-green-600);
+}
+
+.upgrade-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.upgrade-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--p-text-color);
+  margin: 0;
+}
+
+.upgrade-message {
+  font-size: 0.95rem;
+  color: var(--p-text-muted-color);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.upgrade-button {
+  width: 100%;
+}

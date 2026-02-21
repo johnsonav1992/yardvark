@@ -22,70 +22,82 @@
     </div>
   </ng-template>
   @if (userIsNewWithNoEntries()) {
-      <p-message
-        icon="ti ti-comet"
-        text="Welcome to Yardvark! Click below to create your first entry."
-        severity="success"
-      />
+    <p-message
+      icon="ti ti-comet"
+      text="Welcome to Yardvark! Click below to create your first entry."
+      severity="success"
+    />
   }
   @if (!userHasALocation() && !isLocationLoading()) {
-      <p-message
-        icon="ti ti-info-circle"
-        text="It looks like you haven't set your location yet! Go to settings to set your location and start receiving soil temperature data."
-        severity="warn"
-      />
+    <p-message
+      icon="ti ti-info-circle"
+      text="It looks like you haven't set your location yet! Go to settings to set your location and start receiving soil temperature data."
+      severity="warn"
+    />
   }
   @if (allWidgetsHidden()) {
-      <div class="all-widgets-hidden">
-        <i class="ti ti-eye-off"></i>
-        <h3>All dashboard widgets are hidden</h3>
-        <p>Click the button above to restore widgets to your dashboard.</p>
-      </div>
+    <div class="all-widgets-hidden">
+      <i class="ti ti-eye-off"></i>
+      <h3>All dashboard widgets are hidden</h3>
+      <p>Click the button above to restore widgets to your dashboard.</p>
+    </div>
   } @else {
-    <div class="cards-container" cdkDropList (cdkDropListDropped)="onWidgetDrop($event)" cdkDropListOrientation="mixed">
-        @for (widgetId of orderedVisibleWidgets(); track widgetId) {
-          <div cdkDrag [cdkDragDisabled]="isAnyWidgetLoading()" [cdkDragStartDelay]="0" class="widget-wrapper">
-            @switch (widgetId) {
-              @case ('recent-entry') {
-                @if (recentEntry.isLoading()) {
-                  <card-skeleton />
-                } @else {
-                  <recent-entry (onHideWidget)="hideWidget('recent-entry')" />
-                }
-              }
-              @case ('quick-stats') {
-                @if (isQuickStatsLoading()) {
-                  <card-skeleton />
-                } @else {
-                  <quick-stats (onHideWidget)="hideWidget('quick-stats')" />
-                }
-              }
-              @case ('lawn-health-score') {
-                @if (isLawnHealthScoreLoading()) {
-                  <card-skeleton />
-                } @else {
-                  <lawn-health-score (onHideWidget)="hideWidget('lawn-health-score')" />
-                }
-              }
-              @case ('weather-card') {
-                @if (isWeatherCardLoading()) {
-                  <card-skeleton />
-                } @else {
-                  <weather-card (onHideWidget)="hideWidget('weather-card')" />
-                }
+    <div
+      class="cards-container"
+      cdkDropList
+      (cdkDropListDropped)="onWidgetDrop($event)"
+      cdkDropListOrientation="mixed"
+    >
+      @for (widgetId of orderedVisibleWidgets(); track widgetId) {
+        <div
+          cdkDrag
+          [cdkDragDisabled]="isAnyWidgetLoading()"
+          [cdkDragStartDelay]="0"
+          class="widget-wrapper"
+        >
+          @switch (widgetId) {
+            @case ("recent-entry") {
+              @if (recentEntry.isLoading()) {
+                <card-skeleton />
+              } @else {
+                <recent-entry (onHideWidget)="hideWidget('recent-entry')" />
               }
             }
-          </div>
-        }
-      </div>
+            @case ("quick-stats") {
+              @if (isQuickStatsLoading()) {
+                <card-skeleton />
+              } @else {
+                <quick-stats (onHideWidget)="hideWidget('quick-stats')" />
+              }
+            }
+            @case ("lawn-health-score") {
+              @if (isLawnHealthScoreLoading()) {
+                <card-skeleton />
+              } @else {
+                <lawn-health-score
+                  (onHideWidget)="hideWidget('lawn-health-score')"
+                />
+              }
+            }
+            @case ("weather-card") {
+              @if (isWeatherCardLoading()) {
+                <card-skeleton />
+              } @else {
+                <weather-card (onHideWidget)="hideWidget('weather-card')" />
+              }
+            }
+          }
+        </div>
+      }
+    </div>
   }
   @if (isMobile()) {
-      <p-speeddial
-        icon="ti ti-plus"
-        [model]="mobileSpeedDialMenu()"
-        [style]="{ position: 'fixed', bottom: '80px', right: '20px' }"
-      />
-    }
+    <p-speeddial
+      icon="ti ti-plus"
+      [model]="mobileSpeedDialMenu()"
+      class="speed-dial"
+    />
+  }
 </page-container>
 <entry-search-sidebar [(isOpen)]="isEntrySearchSidebarOpen" />
 <hidden-widgets-sidebar

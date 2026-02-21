@@ -1,0 +1,96 @@
+@if (isLoading()) {
+  <div class="readings">
+    @for (i of [0, 1, 2]; track $index) {
+      <div class="reading">
+        <p-skeleton shape="circle" size="2.5rem" />
+        <div class="reading-text">
+          <p-skeleton width="80px" height="0.75rem" />
+          <p-skeleton width="50px" height="1.25rem" />
+        </div>
+      </div>
+    }
+  </div>
+} @else {
+  <div class="readings">
+    @if (shallowTemp() !== null) {
+      <div class="reading">
+        <i class="ti ti-thermometer reading-icon"></i>
+        <div class="reading-text">
+          <span class="reading-label">Shallow (3in)</span>
+          <span class="reading-value">
+            {{ shallowTemp() }}{{ displayTempUnit() }}
+            @if (tempTrend(); as trend) {
+              <span class="trend" [class]="'trend-' + trend.direction">
+                <i [class]="trend.icon"></i>
+                @if (trend.direction === "stable") {
+                  Stable
+                } @else {
+                  {{ trend.delta > 0 ? "+" : "" }}{{ trend.delta
+                  }}{{ displayTempUnit() }}
+                }
+              </span>
+            }
+          </span>
+        </div>
+      </div>
+    }
+
+    @if (deepTemp() !== null) {
+      <div class="reading">
+        <i class="ti ti-thermometer reading-icon"></i>
+        <div class="reading-text">
+          <span class="reading-label">Deep (7in)</span>
+          <span class="reading-value"
+            >{{ deepTemp() }}{{ displayTempUnit() }}</span
+          >
+        </div>
+      </div>
+    }
+
+    @if (moisturePct() !== null) {
+      <div class="reading">
+        <i class="ti ti-droplet reading-icon"></i>
+        <div class="reading-text">
+          <span class="reading-label">Moisture</span>
+          <span class="reading-value">
+            {{ moisturePct() }}%
+            @if (moistureTrend(); as trend) {
+              <span class="trend" [class]="'trend-' + trend.direction">
+                <i [class]="trend.icon"></i>
+                @if (trend.direction === "stable") {
+                  Stable
+                } @else {
+                  {{ trend.delta > 0 ? "+" : "" }}{{ trend.delta }}%
+                }
+              </span>
+            }
+          </span>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (temperatureInsight() || moistureInsight()) {
+    <div class="insights">
+      @if (temperatureInsight(); as insight) {
+        <div class="insight">
+          <i [class]="insight.icon + ' insight-icon'"></i>
+          <div class="insight-text">
+            <span class="insight-label">{{ insight.label }}</span>
+            <span class="insight-description">{{ insight.description }}</span>
+          </div>
+        </div>
+      }
+
+      @if (moistureInsight(); as insight) {
+        <div class="insight">
+          <i [class]="insight.icon + ' insight-icon'"></i>
+          <div class="insight-text">
+            <span class="insight-label">{{ insight.label }}</span>
+            <span class="insight-description">{{ insight.description }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+}

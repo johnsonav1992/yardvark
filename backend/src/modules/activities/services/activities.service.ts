@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Activity } from '../models/activities.model';
 import { Repository } from 'typeorm';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 
 @Injectable()
 export class ActivitiesService {
@@ -12,11 +13,12 @@ export class ActivitiesService {
   ) {}
 
   public async getActivities() {
-    const activities = await LogHelpers.withDatabaseTelemetry(() =>
-      this._activitiesRepo.find(),
-    );
+    const activities = await this._activitiesRepo.find();
 
-    LogHelpers.addBusinessContext('activitiesCount', activities.length);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.activitiesCount,
+      activities.length,
+    );
 
     return activities;
   }

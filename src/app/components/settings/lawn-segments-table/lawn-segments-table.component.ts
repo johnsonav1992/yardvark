@@ -20,9 +20,9 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { LawnSegmentsService } from '../../../services/lawn-segments.service';
 import { injectErrorToast } from '../../../utils/toastUtils';
 import { CardModule } from 'primeng/card';
-import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loading-spinner.component';
 import { DEFAULT_LAWN_SEGMENT_COLOR } from '../../../constants/lawn-segment-constants';
 import { TooltipModule } from 'primeng/tooltip';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'lawn-segments-table',
@@ -33,9 +33,9 @@ import { TooltipModule } from 'primeng/tooltip';
     InputTextModule,
     InputNumberModule,
     CardModule,
-    LoadingSpinnerComponent,
     TooltipModule,
-    DecimalPipe
+    DecimalPipe,
+    SkeletonModule
   ],
   templateUrl: './lawn-segments-table.component.html',
   styleUrl: './lawn-segments-table.component.scss'
@@ -125,6 +125,7 @@ export class LawnSegmentsTableComponent {
         if (tableSegment) {
           this.lawnSegmentTable()?.cancelRowEdit(tableSegment);
         }
+
         this.lawnSegments.update((prev) =>
           prev?.map((seg) =>
             seg.name.toLowerCase() === newSeg.name.toLowerCase() ? newSeg : seg
@@ -133,11 +134,13 @@ export class LawnSegmentsTableComponent {
       },
       error: () => {
         this._throwErrorToast('Error saving lawn segment');
+
         if (isNewSegment) {
           this.lawnSegments.update((prev) =>
             prev?.filter((seg) => seg.id !== segment.id)
           );
         }
+
         this.currentlyEditingLawnSegmentIds.set(null);
       }
     });
@@ -161,6 +164,7 @@ export class LawnSegmentsTableComponent {
       );
     } else {
       const originalName = this._originalSegmentNames.get(segment.id);
+
       if (originalName !== undefined) {
         this.lawnSegments.update((prev) =>
           prev?.map((seg) =>

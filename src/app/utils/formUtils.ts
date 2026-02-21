@@ -12,7 +12,9 @@ export const guaranteedAnalysisFieldValidator: ValidatorFn = (control) => {
       GUARANTEED_ANALYSIS_FORMAT_REGEX.test(val) ||
       val.toLowerCase() === 'N/A'.toLowerCase();
 
-    return isValid ? null : { invalidAnalysis: true };
+    if (!isValid) {
+      return { invalidAnalysis: true };
+    }
   }
 
   return null;
@@ -24,7 +26,9 @@ export const applicationRateFieldValidator: ValidatorFn = (control) => {
   if (val && val.length > 0) {
     const isValid = APPLICATION_RATE_FORMAT_REGEX.test(val);
 
-    return isValid ? null : { invalidApplicationRate: true };
+    if (!isValid) {
+      return { invalidApplicationRate: true };
+    }
   }
 
   return null;
@@ -63,11 +67,12 @@ export const websiteUrlValidator: ValidatorFn = (control) => {
   const val = control.value;
 
   if (val && val.length > 0) {
-    const isValid = /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- ./?%&=~_:();,]*)?$/.test(
-      val
-    );
+    const isValid =
+      /^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- ./?%&=~_:();,]*)?$/.test(val);
 
-    return isValid ? null : { invalidUrl: true };
+    if (!isValid) {
+      return { invalidUrl: true };
+    }
   }
 
   return null;

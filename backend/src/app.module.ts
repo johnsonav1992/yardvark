@@ -2,12 +2,13 @@ import { Module } from '@nestjs/common';
 import { SettingsModule } from './modules/settings/settings.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { ActivitiesModule } from './modules/activities/activities.module';
 import { LawnSegmentsModule } from './modules/lawn-segments/lawn-segments.module';
 import { EntriesModule } from './modules/entries/entries.module';
 import { ProductsModule } from './modules/products/products.module';
 import { JwtStrategy } from './guards/jwt.strategy';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtAuthGuard } from './guards/auth.guard';
 import { FeatureFlagGuard } from './guards/feature-flag.guard';
 import { UsersController } from './modules/users/controllers/users.controller';
@@ -21,16 +22,21 @@ import { FilesModule } from './modules/files/files.module';
 import { FilesController } from './modules/files/controllers/files.controller';
 import { S3Service } from './modules/s3/s3.service';
 import { WeatherModule } from './modules/weather/weather.module';
-import { RemindersModule } from './modules/reminders/reminders.module';
 import { AiModule } from './modules/ai/ai.module';
 import { EmailModule } from './modules/email/email.module';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { GddModule } from './modules/gdd/gdd.module';
+import { SubscriptionModule } from './modules/subscription/subscription.module';
+import { SubscriptionGuard } from './guards/subscription.guard';
+import { LoggingInterceptor } from './logger/logger';
+import { DatabaseTelemetryService } from './db/database-telemetry.service';
+import { SoilDataModule } from './modules/soil-data/soil-data.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ envFilePath: '.env' }),
     TypeOrmModule.forRoot(dataSource.options),
+    EventEmitterModule.forRoot(),
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
@@ -49,14 +55,20 @@ import { GddModule } from './modules/gdd/gdd.module';
     FilesModule,
     WeatherModule,
     HttpModule,
-    RemindersModule,
     AiModule,
     EmailModule,
     GddModule,
+    SubscriptionModule,
+    SoilDataModule,
   ],
   controllers: [UsersController, FilesController],
   providers: [
+    DatabaseTelemetryService,
     JwtStrategy,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: LoggingInterceptor,
+    },
     {
       provide: APP_GUARD,
       useClass: JwtAuthGuard,
@@ -68,6 +80,10 @@ import { GddModule } from './modules/gdd/gdd.module';
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: SubscriptionGuard,
     },
     UsersService,
     S3Service,

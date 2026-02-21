@@ -15,12 +15,18 @@
         [style]="{ fontSize: '24px' }"
       />
       <div class="bottom-controls">
-        <div class="feedback-container">
+        <div class="action-buttons">
           <p-button
             icon="ti ti-message-circle"
             label="Give feedback"
             [outlined]="true"
             (click)="openFeedbackDialog()"
+          />
+          <p-button
+            icon="ti ti-crown"
+            label="Subscription"
+            [outlined]="true"
+            (click)="goToSubscription()"
           />
         </div>
         <div class="dark-mode-container">

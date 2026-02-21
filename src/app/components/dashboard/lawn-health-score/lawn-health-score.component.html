@@ -51,10 +51,16 @@
       </div>
     </div>
   </ng-template>
-  @if (lawnHealthScore().totalScore === 0 && !lawnHealthScore().isOffSeason) {
+  @if (!isPro()) {
+    <upgrade-prompt
+      message="Upgrade to Pro to unlock AI-powered Lawn Health Score with personalized insights and recommendations."
+    />
+  } @else if (
+    lawnHealthScore().totalScore === 0 && !lawnHealthScore().isOffSeason
+  ) {
     <div class="empty-state">
       <i class="ti ti-seeding empty-icon"></i>
-      @if (lawnHealthScore().description === 'No data available') {
+      @if (lawnHealthScore().description === "No data available") {
         <h3>No Lawn Data Yet</h3>
         <p class="empty-description">
           Start tracking your lawn care activities to see your health score.
@@ -79,10 +85,12 @@
       <i class="ti ti-snowflake off-season-icon"></i>
       <h3>Off-Season</h3>
       <p class="off-season-description">
-        Your lawn is currently dormant. Scoring will resume when the growing season begins based on your location and soil temperature.
+        Your lawn is currently dormant. Scoring will resume when the growing
+        season begins based on your location and soil temperature.
       </p>
       <p class="off-season-tip">
-        This is a great time to plan for next season, maintain your equipment, and review your lawn care goals!
+        This is a great time to plan for next season, maintain your equipment,
+        and review your lawn care goals!
       </p>
     </div>
   } @else {

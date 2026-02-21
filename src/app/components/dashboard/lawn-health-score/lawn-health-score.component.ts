@@ -8,16 +8,27 @@ import { TooltipModule } from 'primeng/tooltip';
 import { DividerDesignTokens } from '@primeuix/themes/types/divider';
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
 import { LawnHealthScoreService } from '../../../services/lawn-health-score.service';
+import { SubscriptionService } from '../../../services/subscription.service';
+import { UpgradePromptComponent } from '../../subscription/upgrade-prompt/upgrade-prompt.component';
 
 @Component({
   selector: 'lawn-health-score',
-  imports: [CardModule, DividerModule, PopoverModule, ButtonModule, TooltipModule, CdkDragHandle],
+  imports: [
+    CardModule,
+    DividerModule,
+    PopoverModule,
+    ButtonModule,
+    TooltipModule,
+    CdkDragHandle,
+    UpgradePromptComponent
+  ],
   templateUrl: './lawn-health-score.component.html',
   styleUrl: './lawn-health-score.component.scss'
 })
 export class LawnHealthScoreComponent {
   private _lawnHealthScoreService = inject(LawnHealthScoreService);
   private _router = inject(Router);
+  private _subscriptionService = inject(SubscriptionService);
 
   public onHideWidget = output<void>();
 
@@ -25,12 +36,13 @@ export class LawnHealthScoreComponent {
   public finalDescription = this._lawnHealthScoreService.finalDescription;
   public scoreColor = this._lawnHealthScoreService.scoreColor;
   public isLoading = this._lawnHealthScoreService.isLoading;
+  public isPro = this._subscriptionService.isPro;
 
   public isAiGenerated = computed(() => {
     const aiResource = this._lawnHealthScoreService.aiDescriptionResource;
     const aiDescription = aiResource.hasValue() ? aiResource.value() : '';
     const currentDescription = this.finalDescription();
-    
+
     return aiDescription && currentDescription === aiDescription;
   });
 

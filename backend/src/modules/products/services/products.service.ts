@@ -4,6 +4,7 @@ import { Product } from '../models/products.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserHiddenProduct } from '../models/userHiddenProducts.model';
 import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 
 @Injectable()
 export class ProductsService {
@@ -24,21 +25,20 @@ export class ProductsService {
         ? [{ userId: 'system' }]
         : [{ userId }, { userId: 'system' }];
 
-    const products = await LogHelpers.withDatabaseTelemetry(() =>
-      this._productsRepo.find({
-        where,
-      }),
-    );
+    const products = await this._productsRepo.find({
+      where,
+    });
 
-    const hiddenProductIds = await LogHelpers.withDatabaseTelemetry(() =>
-      this._userHiddenProductsRepo.find({
-        where: { userId },
-      }),
-    );
+    const hiddenProductIds = await this._userHiddenProductsRepo.find({
+      where: { userId },
+    });
 
-    LogHelpers.addBusinessContext('productsReturned', products.length);
     LogHelpers.addBusinessContext(
-      'hiddenProductsCount',
+      BusinessContextKeys.productsReturned,
+      products.length,
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.productsCount,
       hiddenProductIds.length,
     );
 
@@ -56,32 +56,26 @@ export class ProductsService {
 
   public async addProduct(product: Product) {
     const newProduct = this._productsRepo.create(product);
-    const saved = await LogHelpers.withDatabaseTelemetry(() =>
-      this._productsRepo.save(newProduct),
-    );
+    const saved = await this._productsRepo.save(newProduct);
 
-    LogHelpers.addBusinessContext('productCreated', saved.id);
+    LogHelpers.addBusinessContext(BusinessContextKeys.productCreated, saved.id);
 
     return saved;
   }
 
   public async hideProduct(userId: string, productId: number) {
-    LogHelpers.addBusinessContext('productId', productId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.productId, productId);
 
-    await LogHelpers.withDatabaseTelemetry(() =>
-      this._userHiddenProductsRepo.save({ userId, productId }),
-    );
+    await this._userHiddenProductsRepo.save({ userId, productId });
 
-    LogHelpers.addBusinessContext('productHidden', true);
+    LogHelpers.addBusinessContext(BusinessContextKeys.productHidden, true);
   }
 
   public async unhideProduct(userId: string, productId: number) {
-    LogHelpers.addBusinessContext('productId', productId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.productId, productId);
 
-    await LogHelpers.withDatabaseTelemetry(() =>
-      this._userHiddenProductsRepo.delete({ userId, productId }),
-    );
+    await this._userHiddenProductsRepo.delete({ userId, productId });
 
-    LogHelpers.addBusinessContext('productUnhidden', true);
+    LogHelpers.addBusinessContext(BusinessContextKeys.productUnhidden, true);
   }
 }

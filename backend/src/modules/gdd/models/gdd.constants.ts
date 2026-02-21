@@ -41,8 +41,21 @@ export const GDD_OVERDUE_MULTIPLIER = 2;
 export const GDD_OVERDUE_DAYS_THRESHOLD = 45;
 
 /**
- * Number of recent days to check for dormancy detection
- * If the average high temp over this period is below base temp,
- * the grass is considered dormant
+ * Dormancy temperature thresholds by grass type (in Fahrenheit)
+ * These are separate from the GDD base temperatures — grass goes dormant
+ * well above the GDD calculation base temp.
+ *
+ * Cool-season: dormant when sustained highs < 50°F
+ * Warm-season: dormant when sustained highs < 60°F
  */
-export const GDD_DORMANCY_CHECK_DAYS = 7;
+export const GDD_DORMANCY_TEMPERATURES = {
+  cool: 50, // 10°C
+  warm: 60, // ~15.5°C
+} as const;
+
+/**
+ * Number of recent days to check for dormancy detection.
+ * 14 days smooths out brief warm/cold spells that could cause
+ * false transitions between dormant and active states.
+ */
+export const GDD_DORMANCY_CHECK_DAYS = 14;

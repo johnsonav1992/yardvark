@@ -3,7 +3,7 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { EntriesService } from '../../../services/entries.service';
-import { differenceInDays } from 'date-fns';
+import { differenceInDays, parseISO } from 'date-fns';
 import { getLawnSeasonCompletedPercentageWithTemp } from '../../../utils/lawnSeasonUtils';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { DividerModule } from 'primeng/divider';
@@ -11,13 +11,21 @@ import { DividerDesignTokens } from '@primeuix/themes/types/divider';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { LocationService } from '../../../services/location.service';
 import { CdkDragHandle } from '@angular/cdk/drag-drop';
-import { SoilTemperatureService } from '../../../services/soil-temperature.service';
-import { calculate24HourNumericAverage } from '../../../utils/soilTemperatureUtils';
+import { SoilDataService } from '../../../services/soil-data.service';
 import { GddService } from '../../../services/gdd.service';
+import { SubscriptionService } from '../../../services/subscription.service';
+import { SettingsService } from '../../../services/settings.service';
 
 @Component({
   selector: 'quick-stats',
-  imports: [CardModule, ButtonModule, TooltipModule, ProgressBarModule, DividerModule, CdkDragHandle],
+  imports: [
+    CardModule,
+    ButtonModule,
+    TooltipModule,
+    ProgressBarModule,
+    DividerModule,
+    CdkDragHandle
+  ],
   templateUrl: './quick-stats.component.html',
   styleUrl: './quick-stats.component.scss'
 })
@@ -25,23 +33,28 @@ export class QuickStatsComponent {
   private _entriesService = inject(EntriesService);
   private _locationService = inject(LocationService);
   private _globalUiService = inject(GlobalUiService);
-  private _soilTempService = inject(SoilTemperatureService);
+  private _soilDataService = inject(SoilDataService);
+  private _settingsService = inject(SettingsService);
   private _gddService = inject(GddService);
+  private _subscriptionService = inject(SubscriptionService);
 
   public isMobile = this._globalUiService.isMobile;
+  public isPro = this._subscriptionService.isPro;
 
   public onHideWidget = output<void>();
 
   public lastMowDate = this._entriesService.lastMow;
   public lastEntry = this._entriesService.recentEntry;
   public userCoords = this._locationService.userLatLong;
-  public past24HourSoilData = this._soilTempService.past24HourSoilTemperatureData;
-  public temperatureUnit = this._soilTempService.temperatureUnit;
+  public temperatureUnit = computed(
+    () => this._settingsService.currentSettings()?.temperatureUnit || 'fahrenheit'
+  );
 
-  public isLoading = computed(() =>
-    this.lastMowDate.isLoading() ||
-    this.lastEntry.isLoading() ||
-    this._entriesService.lastProductApp.isLoading()
+  public isLoading = computed(
+    () =>
+      this.lastMowDate.isLoading() ||
+      this.lastEntry.isLoading() ||
+      this._entriesService.lastProductApp.isLoading()
   );
 
   public daysSinceLastMow = computed(() => {
@@ -49,7 +62,8 @@ export class QuickStatsComponent {
 
     if (!lastMowDate) return 'N/A';
 
-    const daysSince = differenceInDays(new Date(), new Date(lastMowDate));
+    const now = new Date();
+    const daysSince = differenceInDays(now, parseISO(lastMowDate.toString()));
 
     return daysSince ?? 'N/A';
   });
@@ -59,7 +73,8 @@ export class QuickStatsComponent {
 
     if (!lastEntry) return 'N/A';
 
-    const daysSince = differenceInDays(new Date(), new Date(lastEntry.date));
+    const now = new Date();
+    const daysSince = differenceInDays(now, parseISO(lastEntry.date.toString()));
 
     return daysSince ?? 'N/A';
   });
@@ -70,19 +85,21 @@ export class QuickStatsComponent {
 
     if (!lastProductAppDate) return 'N/A';
 
+    const now = new Date();
     const daysSince = differenceInDays(
-      new Date(),
-      new Date(lastProductAppDate)
+      now,
+      parseISO(lastProductAppDate.toString())
     );
 
     return daysSince ?? 'N/A';
   });
 
   public currentSoilTemp = computed(() => {
-    const soilData = this.past24HourSoilData.value();
-    if (!soilData?.hourly?.soil_temperature_6cm) return null;
+    const soilData = this._soilDataService.rollingWeekSoilData.value();
 
-    return calculate24HourNumericAverage(soilData.hourly.soil_temperature_6cm);
+    if (!soilData) return null;
+
+    return soilData.shallowTemps[7];
   });
 
   public lawnSeasonPercentage = computed(() => {

@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { HttpException, HttpStatus } from '@nestjs/common';
 import { EntriesService } from '../services/entries.service';
 import { Entry, EntryProduct, EntryImage } from '../models/entries.model';
 import { ACTIVITY_IDS } from 'src/constants/activities.constants';
+import { EntriesNotFound, EntryNotFound } from '../models/entries.errors';
 
 describe('EntriesService', () => {
   let service: EntriesService;
@@ -126,8 +126,12 @@ describe('EntriesService', () => {
           entryImages: true,
         },
       });
-      expect(result).toHaveLength(1);
-      expect(result[0].id).toBe(mockEntry.id);
+      expect(result.isSuccess()).toBe(true);
+
+      if (result.isSuccess()) {
+        expect(result.value).toHaveLength(1);
+        expect(result.value[0].id).toBe(mockEntry.id);
+      }
     });
 
     it('should return entries within date range', async () => {
@@ -140,15 +144,20 @@ describe('EntriesService', () => {
       );
 
       expect(mockEntryRepository.find).toHaveBeenCalled();
-      expect(result).toHaveLength(1);
+      expect(result.isSuccess()).toBe(true);
+
+      if (result.isSuccess()) {
+        expect(result.value).toHaveLength(1);
+      }
     });
 
-    it('should throw NOT_FOUND when no entries exist', async () => {
+    it('should return error when no entries exist', async () => {
       mockEntryRepository.find.mockResolvedValue(null);
 
-      await expect(service.getEntries(mockUserId)).rejects.toThrow(
-        new HttpException('Entries not found', HttpStatus.NOT_FOUND),
-      );
+      const result = await service.getEntries(mockUserId);
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toBeInstanceOf(EntriesNotFound);
     });
   });
 
@@ -167,15 +176,20 @@ describe('EntriesService', () => {
           entryImages: true,
         },
       });
-      expect(result.id).toBe(1);
+      expect(result.isSuccess()).toBe(true);
+
+      if (result.isSuccess()) {
+        expect(result.value.id).toBe(1);
+      }
     });
 
-    it('should throw NOT_FOUND when entry does not exist', async () => {
+    it('should return error when entry does not exist', async () => {
       mockEntryRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.getEntry(999)).rejects.toThrow(
-        new HttpException('Entry not found', HttpStatus.NOT_FOUND),
-      );
+      const result = await service.getEntry(999);
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toBeInstanceOf(EntryNotFound);
     });
   });
 
@@ -186,17 +200,20 @@ describe('EntriesService', () => {
       const result = await service.getEntryByDate(mockUserId, '2024-06-15');
 
       expect(mockEntryRepository.findOne).toHaveBeenCalled();
-      expect(result.id).toBe(mockEntry.id);
+      expect(result.isSuccess()).toBe(true);
+
+      if (result.isSuccess()) {
+        expect(result.value.id).toBe(mockEntry.id);
+      }
     });
 
-    it('should throw NOT_FOUND when no entry exists for date', async () => {
+    it('should return error when no entry exists for date', async () => {
       mockEntryRepository.findOne.mockResolvedValue(null);
 
-      await expect(
-        service.getEntryByDate(mockUserId, '2024-01-01'),
-      ).rejects.toThrow(
-        new HttpException('Entry not found', HttpStatus.NOT_FOUND),
-      );
+      const result = await service.getEntryByDate(mockUserId, '2024-01-01');
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toBeInstanceOf(EntryNotFound);
     });
   });
 
@@ -530,15 +547,20 @@ describe('EntriesService', () => {
         },
       });
       expect(mockEntryRepository.save).toHaveBeenCalled();
-      expect(result.title).toBe('Updated title');
+      expect(result.isSuccess()).toBe(true);
+
+      if (result.isSuccess()) {
+        expect(result.value.title).toBe('Updated title');
+      }
     });
 
-    it('should throw NOT_FOUND when entry does not exist', async () => {
+    it('should return error when entry does not exist', async () => {
       mockEntryRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.updateEntry(999, { title: 'Test' })).rejects.toThrow(
-        new HttpException('Entry not found', HttpStatus.NOT_FOUND),
-      );
+      const result = await service.updateEntry(999, { title: 'Test' });
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toBeInstanceOf(EntryNotFound);
     });
 
     it('should remove existing products before updating', async () => {
@@ -570,12 +592,13 @@ describe('EntriesService', () => {
       expect(mockEntryRepository.softDelete).toHaveBeenCalledWith(1);
     });
 
-    it('should throw NOT_FOUND when entry does not exist', async () => {
+    it('should return error when entry does not exist', async () => {
       mockEntryRepository.findOne.mockResolvedValue(null);
 
-      await expect(service.softDeleteEntry(999)).rejects.toThrow(
-        new HttpException('Entry not found', HttpStatus.NOT_FOUND),
-      );
+      const result = await service.softDeleteEntry(999);
+
+      expect(result.isError()).toBe(true);
+      expect(result.value).toBeInstanceOf(EntryNotFound);
     });
   });
 

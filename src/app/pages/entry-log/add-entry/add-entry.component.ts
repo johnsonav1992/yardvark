@@ -38,7 +38,7 @@ import {
 } from 'primeng/accordion';
 import { TooltipModule } from 'primeng/tooltip';
 import { PageContainerComponent } from '../../../components/layout/page-container/page-container.component';
-import { SoilTemperatureService } from '../../../services/soil-temperature.service';
+import { SoilDataService } from '../../../services/soil-data.service';
 import { injectErrorToast } from '../../../utils/toastUtils';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { format } from 'date-fns';
@@ -49,6 +49,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { map } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ACTIVITY_IDS } from '../../../constants/activity-constants';
+import { SettingsService } from '../../../services/settings.service';
 
 export type EntryFormGroup = FormGroup<{
   title: FormControl<string>;
@@ -90,16 +91,21 @@ export type EntryFormGroup = FormGroup<{
 export class AddEntryComponent implements OnInit {
   private _router = inject(Router);
   private _destroyRef = inject(DestroyRef);
-  private _soilTempService = inject(SoilTemperatureService);
+  private _soilDataService = inject(SoilDataService);
   private _entriesService = inject(EntriesService);
   private _analyticsService = inject(AnalyticsService);
   private _globalUiService = inject(GlobalUiService);
   private _activatedRoute = inject(ActivatedRoute);
+  private _settingsService = inject(SettingsService);
 
   public activitiesResource = inject(ActivitiesService).activities;
   public lawnSegmentsResource = inject(LawnSegmentsService).lawnSegments;
 
   public throwErrorToast = injectErrorToast();
+
+  public temperatureUnit = computed(
+    () => this._settingsService.currentSettings()?.temperatureUnit || 'fahrenheit'
+  );
 
   public maxFileUploadSize = MAX_FILE_LARGE_UPLOAD_SIZE;
   public ACTIVITY_IDS = ACTIVITY_IDS;
@@ -137,11 +143,10 @@ export class AddEntryComponent implements OnInit {
   public isLoading = signal(false);
   public shouldFetchSoilData = signal(false);
   public soilTempDate = signal<Date | null>(null);
-  public pointInTimeSoilTemperature =
-    this._soilTempService.getPointInTimeSoilTemperature(
-      this.shouldFetchSoilData,
-      this.soilTempDate
-    );
+  public pointInTimeSoilData = this._soilDataService.getSoilDataForDate(
+    this.shouldFetchSoilData,
+    this.soilTempDate,
+  );
 
   public constructor() {
     this.addEntryForm();
@@ -220,6 +225,7 @@ export class AddEntryComponent implements OnInit {
 
   public duplicateEntryForm(index: number): void {
     const formToDuplicate = this.entryForms.at(index);
+
     if (formToDuplicate) {
       const duplicatedForm = this.createEntryForm();
       const value = formToDuplicate.getRawValue();
@@ -292,9 +298,7 @@ export class AddEntryComponent implements OnInit {
       time: form.value.time ? format(form.value.time!, 'HH:mm:ss') : null,
       notes: form.value.notes!,
       title: form.value.title!,
-      soilTemperature:
-        this.pointInTimeSoilTemperature.value()?.hourly
-          .soil_temperature_6cm[0] || null,
+      soilTemperature: this.pointInTimeSoilData.value()?.shallowTemp || null,
       activityIds: form.value.activities?.map(({ id }) => id) || [],
       lawnSegmentIds: form.value.lawnSegments?.map(({ id }) => id) || [],
       products:
@@ -303,7 +307,7 @@ export class AddEntryComponent implements OnInit {
           productQuantity: row.quantity!,
           productQuantityUnit: row.quantityUnit!
         })) || [],
-      soilTemperatureUnit: this._soilTempService.temperatureUnit(),
+      soilTemperatureUnit: this.temperatureUnit(),
       mowingHeight: form.value.mowingHeight ?? null,
       mowingHeightUnit: 'inches',
       images: form.value.images || []
@@ -325,9 +329,16 @@ export class AddEntryComponent implements OnInit {
             queryParams: { date: createdDate }
           });
         },
-        error: () => {
+        error: (error) => {
           this.isLoading.set(false);
-          this.throwErrorToast('Failed to create entry');
+          if (error.status === 402) {
+            this.throwErrorToast(
+              error.error.message ||
+                'Entry limit reached. Upgrade for unlimited entries.'
+            );
+          } else {
+            this.throwErrorToast('Failed to create entry');
+          }
         }
       });
     } else {
@@ -354,9 +365,16 @@ export class AddEntryComponent implements OnInit {
             queryParams: { date: latestDate.toISOString() }
           });
         },
-        error: () => {
+        error: (error) => {
           this.isLoading.set(false);
-          this.throwErrorToast('Failed to create entries');
+          if (error.status === 402) {
+            this.throwErrorToast(
+              error.error.message ||
+                'Entry limit reached. Upgrade for unlimited entries.'
+            );
+          } else {
+            this.throwErrorToast('Failed to create entries');
+          }
         }
       });
     }

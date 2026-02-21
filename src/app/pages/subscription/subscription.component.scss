@@ -1,0 +1,236 @@
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--p-text-color);
+  margin: 0 0 1.5rem 0;
+}
+
+.skeleton-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem;
+}
+
+.skeleton-features {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+
+  .skeleton-feature {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+}
+
+:host ::ng-deep .pro-banner {
+  background: var(--p-surface-50);
+  border: 1px solid var(--p-surface-200);
+
+  .p-message {
+    width: 100%;
+  }
+
+  .p-message-content {
+    background: transparent;
+    border: none;
+    width: 100%;
+    display: flex;
+  }
+
+  .p-message-text {
+    width: 100%;
+    display: flex;
+  }
+}
+
+.plan-status-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+
+  .plan-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    flex: 1;
+    min-width: 0;
+
+    > span {
+      color: var(--p-text-muted-color);
+    }
+
+    .cancel-warning {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      color: var(--p-orange-600);
+    }
+  }
+
+  > p-button {
+    flex-shrink: 0;
+  }
+}
+
+.pricing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+:host ::ng-deep .pricing-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .p-card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .p-card-content {
+    flex: 1;
+  }
+
+  &.current {
+    border: 2px solid var(--p-primary-300);
+  }
+}
+
+.card-header-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  text-align: center;
+
+  .plan-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--p-text-color);
+    margin: 0;
+  }
+
+  .plan-pricing {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+
+    .price {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--p-primary-600);
+    }
+
+    .period {
+      font-size: 1rem;
+      color: var(--p-text-muted-color);
+    }
+  }
+}
+
+.features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+
+    i {
+      color: var(--p-text-muted-color);
+      font-size: 1.25rem;
+    }
+  }
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+:host ::ng-deep .benefit-card {
+  text-align: center;
+
+  .p-card-body {
+    padding: 1.5rem;
+  }
+}
+
+.benefit-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+
+  .benefit-icon {
+    font-size: 2.5rem;
+    color: var(--p-primary-500);
+
+    &.ti-sparkles {
+      color: var(--p-violet-400);
+    }
+  }
+
+  h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--p-text-color);
+  }
+
+  p {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--p-text-muted-color);
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 768px) {
+  .plan-status-content {
+    flex-direction: column;
+    align-items: flex-start;
+
+    .plan-info {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+}
+
+:host-context(:root.yv-dark-mode) {
+  ::ng-deep {
+    .pricing-card,
+    .benefit-card {
+      .p-card {
+        background: var(--p-surface-800);
+        color: var(--p-surface-100);
+      }
+    }
+
+    .pro-banner {
+      background: var(--p-surface-800);
+      border-color: var(--p-surface-700);
+    }
+  }
+}

@@ -1,6 +1,6 @@
 import { ChartData, ChartOptions } from 'chart.js';
 import { format } from 'date-fns';
-import { GddForecastResponse, DailyGddDataPoint } from '../types/gdd.types';
+import { GddForecastResponse } from '../types/gdd.types';
 import { getPrimeNgHexColor } from './styleUtils';
 
 type UiOptions = {
@@ -59,7 +59,8 @@ export const getGddForecastChartConfig = (
       data: dailyGdd,
       backgroundColor: getPrimeNgHexColor('amber.300'),
       borderColor: getPrimeNgHexColor('amber.500'),
-      yAxisID: 'y'
+      yAxisID: 'y',
+      order: 1
     },
     {
       type: 'line' as const,
@@ -68,7 +69,8 @@ export const getGddForecastChartConfig = (
       borderColor: getPrimeNgHexColor('teal.500'),
       backgroundColor: 'transparent',
       tension: 0.3,
-      yAxisID: 'y1'
+      yAxisID: 'y1',
+      order: 0
     },
     {
       type: 'line' as const,
@@ -78,7 +80,8 @@ export const getGddForecastChartConfig = (
       borderDash: [5, 5],
       borderWidth: 2,
       pointRadius: 0,
-      yAxisID: 'y1'
+      yAxisID: 'y1',
+      order: 0
     }
   ];
 
@@ -111,93 +114,6 @@ export const getGddForecastChartConfig = (
           title: {
             display: true,
             text: 'Cumulative GDD'
-          }
-        },
-        x: { grid }
-      },
-      plugins: {
-        tooltip: {
-          callbacks: {
-            label: (context) => {
-              const value = context.raw as number;
-              return `${context.dataset.label}: ${value.toFixed(1)} GDD`;
-            }
-          }
-        }
-      }
-    }
-  };
-};
-
-export const getGddHistoricalChartConfig = (
-  dailyGddData: DailyGddDataPoint[] | undefined,
-  targetGdd: number,
-  uiOptions: UiOptions
-): GddChartConfig => {
-  if (!dailyGddData?.length) {
-    return {
-      title: 'GDD Accumulation History',
-      chartData: {
-        labels: [],
-        datasets: []
-      },
-      options: {
-        maintainAspectRatio: false,
-        aspectRatio: uiOptions.isMobile ? 1.1 : 0.75
-      }
-    };
-  }
-
-  const labels = dailyGddData.map((point) =>
-    format(new Date(point.date), 'MMM dd')
-  );
-
-  let runningGddTotal = 0;
-  const cumulativeGdd = dailyGddData.map((point) => {
-    runningGddTotal += point.gdd;
-    return runningGddTotal;
-  });
-
-  const grid = getGridOptions(uiOptions.isDarkMode);
-
-  const datasets = [
-    {
-      type: 'line' as const,
-      label: 'Accumulated GDD',
-      data: cumulativeGdd,
-      borderColor: getPrimeNgHexColor('teal.500'),
-      backgroundColor: getPrimeNgHexColor('teal.100'),
-      fill: true,
-      tension: 0.3
-    },
-    {
-      type: 'line' as const,
-      label: 'Target GDD',
-      data: Array(labels.length).fill(targetGdd),
-      borderColor: getPrimeNgHexColor('rose.500'),
-      borderDash: [5, 5],
-      borderWidth: 2,
-      pointRadius: 0
-    }
-  ];
-
-  return {
-    title: 'GDD Accumulation History',
-    desc: 'Cumulative GDD accumulation since your last PGR application',
-    chartData: {
-      labels,
-      datasets
-    },
-    options: {
-      maintainAspectRatio: false,
-      aspectRatio: uiOptions.isMobile ? 1.1 : 0.75,
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid,
-          title: {
-            display: true,
-            text: 'GDD'
           }
         },
         x: { grid }

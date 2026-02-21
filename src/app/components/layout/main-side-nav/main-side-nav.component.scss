@@ -33,13 +33,32 @@
     @include bottom-controls();
   }
 
-  .feedback-container {
-    @include bottom-control-container();
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
   }
 
   .dark-mode-container {
     @include bottom-control-container();
   }
+}
+
+.sidenav ::ng-deep .action-buttons p-button {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.sidenav ::ng-deep .action-buttons .p-button {
+  display: flex !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  justify-content: center !important;
 }
 
 .mobile-nav {
@@ -54,13 +73,32 @@
     @include bottom-controls();
   }
 
-  .feedback-container {
-    @include bottom-control-container();
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
   }
 
   .dark-mode-container {
     @include bottom-control-container();
   }
+}
+
+.mobile-nav ::ng-deep .action-buttons p-button {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+
+.mobile-nav ::ng-deep .action-buttons .p-button {
+  display: flex !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  justify-content: center !important;
 }
 
 .p-menu-item-link-active {

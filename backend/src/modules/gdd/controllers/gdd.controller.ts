@@ -1,31 +1,52 @@
-import { Controller, Get, Query, Req } from '@nestjs/common';
-import { Request } from 'express';
+import { Controller, Get, Query } from '@nestjs/common';
 import { GddService } from '../services/gdd.service';
+import { resultOrThrow } from '../../../utils/resultOrThrow';
+import { User } from '../../../decorators/user.decorator';
+import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 
 @Controller('gdd')
 export class GddController {
   constructor(private readonly _gddService: GddService) {}
 
   @Get('current')
-  public getCurrentGdd(@Req() req: Request) {
-    return this._gddService.getCurrentGdd(req.user.userId);
+  public async getCurrentGdd(@User('userId') userId: string) {
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_current_gdd',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+
+    return resultOrThrow(await this._gddService.getCurrentGdd(userId));
   }
 
   @Get('historical')
-  public getHistoricalGdd(
-    @Req() req: Request,
+  public async getHistoricalGdd(
+    @User('userId') userId: string,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {
-    return this._gddService.getHistoricalGdd(
-      req.user.userId,
-      startDate,
-      endDate,
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_historical_gdd',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.startDate, startDate);
+    LogHelpers.addBusinessContext(BusinessContextKeys.endDate, endDate);
+
+    return resultOrThrow(
+      await this._gddService.getHistoricalGdd(userId, startDate, endDate),
     );
   }
 
   @Get('forecast')
-  public getGddForecast(@Req() req: Request) {
-    return this._gddService.getGddForecast(req.user.userId);
+  public async getGddForecast(@User('userId') userId: string) {
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_gdd_forecast',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+
+    return resultOrThrow(await this._gddService.getGddForecast(userId));
   }
 }

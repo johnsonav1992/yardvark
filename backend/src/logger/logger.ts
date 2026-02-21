@@ -7,8 +7,8 @@ import {
   Scope,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { Observable, throwError, from, of } from 'rxjs';
+import { catchError, tap, mergeMap } from 'rxjs/operators';
 import { randomUUID } from 'crypto';
 import { LogContext, HttpLogEntry } from './logger.types';
 import {
@@ -18,18 +18,27 @@ import {
 } from './logger.constants';
 import { requestContext, RequestContext } from './logger.context';
 import { logToOTel } from './otel.transport';
+import { SubscriptionService } from '../modules/subscription/services/subscription.service';
+import { LogHelpers } from './logger.helpers';
+import { BusinessContextKeys } from './logger-keys.constants';
+import {
+  trace,
+  context as otelContext,
+  SpanStatusCode,
+} from '@opentelemetry/api';
 
 export { LogContext, WideEventContext } from './logger.types';
 export { getLogContext, getRequestContext } from './logger.context';
 
 @Injectable({ scope: Scope.REQUEST })
 export class LoggingInterceptor implements NestInterceptor {
+  constructor(private readonly subscriptionService: SubscriptionService) {}
+
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     const httpContext = context.switchToHttp();
     const request = httpContext.getRequest<Request>();
     const response = httpContext.getResponse<Response>();
 
-    const traceId = this.getOrCreateTraceId(request);
     const requestId = randomUUID();
 
     const logContext: LogContext = {
@@ -38,50 +47,163 @@ export class LoggingInterceptor implements NestInterceptor {
       externalCalls: [],
     };
 
+    const tracer = trace.getTracer('yardvark-api');
+    const span = tracer.startSpan(`${request.method} ${request.path}`, {
+      attributes: {
+        'http.method': request.method,
+        'http.url': request.url,
+        'http.target': request.path,
+        'http.user_agent': request.headers['user-agent'],
+        'custom.request_id': requestId,
+      },
+    });
+
+    const traceId = span.spanContext().traceId;
     const reqContext: RequestContext = { traceId, requestId, logContext };
 
     const start = Date.now();
 
+    const loadSubscriptionContext$ = request.user?.userId
+      ? from(
+          this.subscriptionService.getOrCreateSubscription(request.user.userId),
+        ).pipe(
+          tap((result) => {
+            if (result.isError()) {
+              LogHelpers.addBusinessContext(
+                BusinessContextKeys.subscriptionFetchError,
+                true,
+              );
+
+              return;
+            }
+
+            const subscription = result.value;
+
+            LogHelpers.addBusinessContext(
+              BusinessContextKeys.subscriptionTier,
+              subscription.tier,
+            );
+            LogHelpers.addBusinessContext(
+              BusinessContextKeys.subscriptionStatus,
+              subscription.status,
+            );
+            LogHelpers.addBusinessContext(
+              BusinessContextKeys.isPro,
+              subscription.tier === 'monthly' ||
+                subscription.tier === 'yearly' ||
+                subscription.tier === 'lifetime',
+            );
+
+            if (subscription.currentPeriodStart) {
+              const daysSinceSubscription = Math.floor(
+                (Date.now() -
+                  new Date(subscription.currentPeriodStart).getTime()) /
+                  (1000 * 60 * 60 * 24),
+              );
+              LogHelpers.addBusinessContext(
+                BusinessContextKeys.subscriptionDaysActive,
+                daysSinceSubscription,
+              );
+            }
+
+            if (subscription.tier === 'lifetime') {
+              const daysSinceCreation = Math.floor(
+                (Date.now() - new Date(subscription.createdAt).getTime()) /
+                  (1000 * 60 * 60 * 24),
+              );
+              LogHelpers.addBusinessContext(
+                BusinessContextKeys.lifetimeSubscriptionAgeDays,
+                daysSinceCreation,
+              );
+            }
+
+            if (subscription.cancelAtPeriodEnd) {
+              LogHelpers.addBusinessContext(
+                BusinessContextKeys.subscriptionCanceling,
+                true,
+              );
+            }
+          }),
+          catchError(() => {
+            LogHelpers.addBusinessContext(
+              BusinessContextKeys.subscriptionFetchError,
+              true,
+            );
+            return of(null);
+          }),
+        )
+      : of(null);
+
     return new Observable((subscriber) => {
+      const spanContext = trace.setSpan(otelContext.active(), span);
+
       requestContext.run(reqContext, () => {
-        next
-          .handle()
-          .pipe(
-            tap(() => {
-              const duration = Date.now() - start;
-              const statusCode = response.statusCode;
+        otelContext.with(spanContext, () => {
+          loadSubscriptionContext$
+            .pipe(
+              mergeMap(() =>
+                next.handle().pipe(
+                  tap(() => {
+                    const duration = Date.now() - start;
+                    const statusCode = response.statusCode;
 
-              if (this.shouldLogRequest(statusCode, duration, true)) {
-                this.logHttpRequest({
-                  request,
-                  statusCode,
-                  duration,
-                  traceId,
-                  requestId,
-                  success: true,
-                  logContext,
-                });
-              }
-            }),
-            catchError((error: unknown) => {
-              const duration = Date.now() - start;
-              const statusCode = this.getErrorStatusCode(response, error);
+                    span.setAttributes({
+                      'http.status_code': statusCode,
+                      'http.response_time_ms': duration,
+                    });
+                    span.setStatus({ code: SpanStatusCode.OK });
+                    span.end();
 
-              this.logHttpRequest({
-                request,
-                statusCode,
-                duration,
-                traceId,
-                requestId,
-                success: false,
-                error,
-                logContext,
-              });
+                    if (this.shouldLogRequest(statusCode, duration, true)) {
+                      this.logHttpRequest({
+                        request,
+                        statusCode,
+                        duration,
+                        traceId,
+                        requestId,
+                        success: true,
+                        logContext,
+                      });
+                    }
+                  }),
+                  catchError((error: unknown) => {
+                    const duration = Date.now() - start;
+                    const statusCode = this.getErrorStatusCode(response, error);
 
-              return throwError(() => error);
-            }),
-          )
-          .subscribe(subscriber);
+                    span.setAttributes({
+                      'http.status_code': statusCode,
+                      'http.response_time_ms': duration,
+                    });
+                    span.setStatus({
+                      code: SpanStatusCode.ERROR,
+                      message:
+                        error instanceof Error
+                          ? error.message
+                          : 'Unknown error',
+                    });
+                    span.recordException(
+                      error instanceof Error ? error : new Error(String(error)),
+                    );
+                    span.end();
+
+                    this.logHttpRequest({
+                      request,
+                      statusCode,
+                      duration,
+                      traceId,
+                      requestId,
+                      success: false,
+                      error,
+                      logContext,
+                    });
+
+                    return throwError(() => error);
+                  }),
+                ),
+              ),
+            )
+            .subscribe(subscriber);
+        });
       });
     });
   }
@@ -182,15 +304,6 @@ export class LoggingInterceptor implements NestInterceptor {
     );
   }
 
-  private getOrCreateTraceId(request: Request): string {
-    const existingTraceId =
-      request.headers['x-trace-id'] ||
-      request.headers['x-request-id'] ||
-      request.headers['x-correlation-id'];
-
-    return (existingTraceId as string) || randomUUID();
-  }
-
   private getClientIp(request: Request): string | undefined {
     const forwarded = request.headers['x-forwarded-for'];
 
@@ -223,10 +336,11 @@ export class LoggingInterceptor implements NestInterceptor {
     response: { statusCode: number },
     err: unknown,
   ): number {
-    return (
-      response.statusCode ??
-      (err instanceof HttpException ? err.getStatus() : 500)
-    );
+    if (err instanceof HttpException) {
+      return err.getStatus();
+    }
+
+    return response.statusCode >= 400 ? response.statusCode : 500;
   }
 
   private sanitizeError(err: unknown): HttpLogEntry['error'] {

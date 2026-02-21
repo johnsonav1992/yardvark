@@ -23,7 +23,6 @@ import { ButtonDesignTokens } from '@primeuix/themes/types/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { Router } from '@angular/router';
 import { GlobalUiService } from '../../services/global-ui.service';
-import { LoadingSpinnerComponent } from '../../components/miscellanious/loading-spinner/loading-spinner.component';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -33,6 +32,8 @@ import { DividerModule } from 'primeng/divider';
 import { DialogService } from 'primeng/dynamicdialog';
 import { ProductsVisibilityModalComponent } from '../../components/products/products-visibility-modal/products-visibility-modal.component';
 import { SettingsService } from '../../services/settings.service';
+import { SkeletonModule } from 'primeng/skeleton';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'products',
@@ -43,13 +44,14 @@ import { SettingsService } from '../../services/settings.service';
     EmptyMessageComponent,
     ButtonModule,
     TooltipModule,
-    LoadingSpinnerComponent,
     FloatLabelModule,
     IconFieldModule,
     InputIconModule,
     InputTextModule,
     FormsModule,
-    DividerModule
+    DividerModule,
+    SkeletonModule,
+    CardModule
   ],
   templateUrl: './products.component.html',
   styleUrl: './products.component.scss',

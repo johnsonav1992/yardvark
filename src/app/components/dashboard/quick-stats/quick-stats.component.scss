@@ -11,7 +11,7 @@
 
     .icon {
       font-size: 1.2rem;
-      color: var(--p-primary-500);
+      color: var(--p-surface-500);
     }
   }
 }
@@ -29,6 +29,10 @@
     .icon {
       font-size: 1.75rem !important;
       color: var(--p-primary-600);
+
+      &.ti-snowflake {
+        color: var(--p-cyan-400);
+      }
     }
 
     .dormant {
@@ -70,5 +74,12 @@
     &:active {
       cursor: grabbing;
     }
+  }
+}
+
+:host-context(:root.yv-dark-mode) {
+  ::ng-deep p-card .p-card {
+    background: var(--p-surface-800);
+    color: var(--p-surface-100);
   }
 }

@@ -5,6 +5,7 @@ import {
   signal,
   viewChild
 } from '@angular/core';
+import { Router } from '@angular/router';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
@@ -31,6 +32,8 @@ import { GlobalUiService } from '../../services/global-ui.service';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { UnsavedChanges } from '../../guards/unsaved-changes-guard';
 import { GDD_TARGET_INTERVALS } from '../../constants/gdd.constants';
+import { SubscriptionService } from '../../services/subscription.service';
+import { TitleCasePipe } from '@angular/common';
 
 @Component({
   selector: 'settings',
@@ -45,7 +48,8 @@ import { GDD_TARGET_INTERVALS } from '../../constants/gdd.constants';
     TooltipModule,
     LawnSegmentsTableComponent,
     LawnMapComponent,
-    ToggleSwitchModule
+    ToggleSwitchModule,
+    TitleCasePipe
   ],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.scss'
@@ -55,12 +59,16 @@ export class SettingsComponent implements UnsavedChanges {
   private _locationService = inject(LocationService);
   private _lawnSegmentsService = inject(LawnSegmentsService);
   private _globalUiService = inject(GlobalUiService);
+  private _router = inject(Router);
+  private _subscriptionService = inject(SubscriptionService);
 
   private _lawnMapComponent = viewChild(LawnMapComponent);
   private _lawnSegmentsTableComponent = viewChild(LawnSegmentsTableComponent);
 
   public isMobile = this._globalUiService.isMobile;
   public currentSettings = this._settingsService.currentSettings;
+  public isPro = this._subscriptionService.isPro;
+  public subscription = this._subscriptionService.subscription;
   public settingsAreLoading = this._settingsService.settings.isLoading;
   public lawnSegments = this._lawnSegmentsService.lawnSegments;
   public updateSetting = this._settingsService.updateSetting;
@@ -116,6 +124,7 @@ export class SettingsComponent implements UnsavedChanges {
 
   public onSegmentSave(segment: LawnSegment): void {
     const mapEdits = this._lawnMapComponent()?.saveCurrentEdit();
+
     if (mapEdits) {
       segment.coordinates = [mapEdits.coordinates];
       segment.size = mapEdits.size;
@@ -158,5 +167,9 @@ export class SettingsComponent implements UnsavedChanges {
 
   public clearCustomGddTarget(): void {
     this.updateSetting('customGddTarget', undefined);
+  }
+
+  public goToSubscription(): void {
+    this._router.navigate(['/subscription']);
   }
 }

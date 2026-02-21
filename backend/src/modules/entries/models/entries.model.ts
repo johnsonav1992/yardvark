@@ -46,7 +46,11 @@ export class Entry {
 	@Column("decimal", {
 		transformer: {
 			to: (value: number) => value,
-			from: (value: string) => parseFloat(value),
+			from: (value: string) => {
+				const parsed = parseFloat(value);
+
+				return Number.isNaN(parsed) ? null : parsed;
+			},
 		},
 		nullable: true,
 	})
@@ -60,7 +64,11 @@ export class Entry {
 	@Column("decimal", {
 		transformer: {
 			to: (value: number) => value,
-			from: (value: string) => parseFloat(value),
+			from: (value: string) => {
+				const parsed = parseFloat(value);
+
+				return Number.isNaN(parsed) ? null : parsed;
+			},
 		},
 		nullable: true,
 	})
@@ -159,7 +167,11 @@ export class EntryProduct {
 	@Column("decimal", {
 		transformer: {
 			to: (value: number) => value,
-			from: (value: string) => parseFloat(value),
+			from: (value: string) => {
+				const parsed = parseFloat(value);
+
+				return Number.isNaN(parsed) ? null : parsed;
+			},
 		},
 	})
 	productQuantity: number;

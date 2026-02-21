@@ -9,11 +9,9 @@ import GraphQLJSON from 'graphql-type-json';
 import { GraphQLError } from 'graphql';
 
 const RequireOperationNamePlugin: ApolloServerPlugin = {
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async requestDidStart() {
-    return {
-      // eslint-disable-next-line @typescript-eslint/require-await
-      async didResolveOperation(requestContext) {
+  requestDidStart() {
+    return Promise.resolve({
+      didResolveOperation(requestContext) {
         const operationName = requestContext.operationName;
         const operationType = requestContext.operation?.operation;
 
@@ -36,8 +34,10 @@ const RequireOperationNamePlugin: ApolloServerPlugin = {
             },
           );
         }
+
+        return Promise.resolve();
       },
-    };
+    });
   },
 };
 

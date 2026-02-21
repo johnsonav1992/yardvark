@@ -158,30 +158,60 @@ export class SoilDataService {
       return error(new UserLocationNotConfiguredError());
     }
 
+    const latitude = location.lat;
+    const longitude = location.long;
+
     const today = new Date();
-    const dates: Date[] = [];
+    const startDate = subDays(today, 7);
+    const endDate = addDays(today, 7);
 
-    for (let i = 7; i >= 0; i--) {
-      dates.push(subDays(today, i));
-    }
+    LogHelpers.addBusinessContext('date', format(today, 'yyyy-MM-dd'));
+    LogHelpers.addBusinessContext('latitude', latitude);
+    LogHelpers.addBusinessContext('longitude', longitude);
 
-    for (let i = 1; i <= 7; i++) {
-      dates.push(addDays(today, i));
-    }
+    const startTime = Date.now();
+    let openMeteoData: OpenMeteoSoilResponse;
 
-    const results: SoilDataResponse[] = [];
-
-    for (const date of dates) {
-      const result = await this.fetchSoilDataForDate(
-        userId,
-        format(date, 'yyyy-MM-dd'),
+    try {
+      const response = await firstValueFrom(
+        this._httpService.get<OpenMeteoSoilResponse>(OPEN_METEO_BASE_URL, {
+          params: {
+            latitude,
+            longitude,
+            hourly: SOIL_DATA_HOURLY_PARAMS.join(','),
+            temperature_unit: temperatureUnit,
+            timezone: 'auto',
+            start_date: format(startDate, 'yyyy-MM-dd'),
+            end_date: format(endDate, 'yyyy-MM-dd'),
+          },
+        }),
       );
 
-      if (result.isError()) {
-        return error(result.value);
-      }
+      openMeteoData = response.data;
+      LogHelpers.recordExternalCall('open-meteo', Date.now() - startTime, true);
+    } catch (err) {
+      LogHelpers.recordExternalCall(
+        'open-meteo',
+        Date.now() - startTime,
+        false,
+      );
+      return error(new OpenMeteoFetchError(err));
+    }
 
-      results.push(result.value);
+    const results = this.parseDailyAveragesFromRange(
+      openMeteoData,
+      temperatureUnit,
+    );
+
+    for (const result of results) {
+      const date = parseISO(result.date);
+      const cacheKey = this.getCacheKey(
+        date,
+        latitude,
+        longitude,
+        temperatureUnit,
+      );
+      await this._cacheManager.set(cacheKey, result, SOIL_DATA_CACHE_TTL);
     }
 
     return success({
@@ -220,6 +250,68 @@ export class SoilDataService {
         ),
       ),
     };
+  }
+
+  private parseDailyAveragesFromRange(
+    data: OpenMeteoSoilResponse,
+    temperatureUnit: 'fahrenheit' | 'celsius',
+  ): SoilDataResponse[] {
+    const dailyData: Map<
+      string,
+      {
+        shallowTemps: (number | null)[];
+        deepTemps: (number | null)[];
+        moistures: (number | null)[];
+      }
+    > = new Map();
+
+    for (let i = 0; i < data.hourly.time.length; i++) {
+      const dateStr = data.hourly.time[i].split('T')[0];
+
+      if (!dailyData.has(dateStr)) {
+        dailyData.set(dateStr, {
+          shallowTemps: [],
+          deepTemps: [],
+          moistures: [],
+        });
+      }
+
+      const dayData = dailyData.get(dateStr)!;
+      dayData.shallowTemps.push(data.hourly.soil_temperature_6cm[i]);
+      dayData.deepTemps.push(data.hourly.soil_temperature_18cm[i]);
+      dayData.moistures.push(data.hourly.soil_moisture_3_to_9cm[i]);
+    }
+
+    const calculateAvg = (values: (number | null)[]): number | null => {
+      const validValues = values.filter((v): v is number => v !== null);
+
+      if (validValues.length === 0) return null;
+
+      return (
+        Math.round(
+          (validValues.reduce((sum, v) => sum + v, 0) / validValues.length) *
+            10,
+        ) / 10
+      );
+    };
+
+    const results: SoilDataResponse[] = [];
+
+    for (const [dateStr, dayData] of dailyData) {
+      results.push({
+        date: dateStr,
+        shallowTemp: calculateAvg(dayData.shallowTemps),
+        deepTemp: calculateAvg(dayData.deepTemps),
+        moisturePct: calculateAvg(
+          dayData.moistures.map((v) => (v !== null ? v * 100 : null)),
+        ),
+        temperatureUnit,
+      });
+    }
+
+    results.sort((a, b) => a.date.localeCompare(b.date));
+
+    return results;
   }
 
   private getCacheKey(

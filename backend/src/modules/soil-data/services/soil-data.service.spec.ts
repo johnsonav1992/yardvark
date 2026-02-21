@@ -250,13 +250,27 @@ describe('SoilDataService', () => {
 
       mockCache.get = jest.fn().mockResolvedValue(null);
 
+      const hourlyTimes: string[] = [];
+      const hourlyShallowTemps: number[] = [];
+      const hourlyDeepTemps: number[] = [];
+      const hourlyMoistures: number[] = [];
+
+      for (const dateStr of dates) {
+        for (let hour = 0; hour < 24; hour++) {
+          hourlyTimes.push(`${dateStr}T${hour.toString().padStart(2, '0')}:00`);
+          hourlyShallowTemps.push(50);
+          hourlyDeepTemps.push(48);
+          hourlyMoistures.push(0.25);
+        }
+      }
+
       const openMeteoResponse = {
         data: {
           hourly: {
-            time: Array(24).fill('2024-01-01T00:00'),
-            soil_temperature_6cm: Array(24).fill(50),
-            soil_temperature_18cm: Array(24).fill(48),
-            soil_moisture_3_to_9cm: Array(24).fill(0.25),
+            time: hourlyTimes,
+            soil_temperature_6cm: hourlyShallowTemps,
+            soil_temperature_18cm: hourlyDeepTemps,
+            soil_moisture_3_to_9cm: hourlyMoistures,
           },
         },
       };

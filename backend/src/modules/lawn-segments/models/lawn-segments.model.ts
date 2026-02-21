@@ -1,33 +1,45 @@
-import { Entry } from '../../entries/models/entries.model';
+import { Field, Float, ID, ObjectType } from "@nestjs/graphql";
+import GraphQLJSON from "graphql-type-json";
 import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  Unique,
-  ManyToMany,
-} from 'typeorm';
+	Column,
+	Entity,
+	ManyToMany,
+	PrimaryGeneratedColumn,
+	Unique,
+} from "typeorm";
+import { Entry } from "../../entries/models/entries.model";
 
-@Entity('lawn_segments')
-@Unique(['userId', 'name'])
+@ObjectType()
+@Entity("lawn_segments")
+@Unique(["userId", "name"])
 export class LawnSegment {
-  @PrimaryGeneratedColumn()
-  id: number;
+	@Field(() => ID)
+	@PrimaryGeneratedColumn()
+	id: number;
 
-  @Column()
-  userId: string;
+	@Field()
+	@Column()
+	userId: string;
 
-  @Column()
-  name: string;
+	@Field()
+	@Column()
+	name: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
-  size: number;
+	@Field(() => Float)
+	@Column({ type: "decimal", precision: 10, scale: 2 })
+	size: number;
 
-  @Column({ type: 'jsonb', nullable: true })
-  coordinates: number[][][] | null;
+	@Field(() => GraphQLJSON, { nullable: true })
+	@Column({ type: "jsonb", nullable: true })
+	coordinates: number[][][] | null;
 
-  @Column({ type: 'varchar', length: 7, default: '#3388ff' })
-  color: string;
+	@Field({ nullable: true })
+	@Column({ type: "varchar", length: 7, default: "#3388ff" })
+	color: string;
 
-  @ManyToMany(() => Entry, (entry) => entry.lawnSegments)
-  entries: Entry[];
+	@ManyToMany(
+		() => Entry,
+		(entry) => entry.lawnSegments,
+	)
+	entries: Entry[];
 }

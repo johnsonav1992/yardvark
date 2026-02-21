@@ -1,81 +1,95 @@
-import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { Product } from '../models/products.model';
-import { InjectRepository } from '@nestjs/typeorm';
-import { UserHiddenProduct } from '../models/userHiddenProducts.model';
-import { LogHelpers } from '../../../logger/logger.helpers';
-import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { LogHelpers } from "../../../logger/logger.helpers";
+import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import { Product } from "../models/products.model";
+import { UserHiddenProduct } from "../models/userHiddenProducts.model";
 
 @Injectable()
 export class ProductsService {
-  constructor(
-    @InjectRepository(Product)
-    private readonly _productsRepo: Repository<Product>,
-    @InjectRepository(UserHiddenProduct)
-    private readonly _userHiddenProductsRepo: Repository<UserHiddenProduct>,
-  ) {}
+	constructor(
+		@InjectRepository(Product)
+		private readonly _productsRepo: Repository<Product>,
+		@InjectRepository(UserHiddenProduct)
+		private readonly _userHiddenProductsRepo: Repository<UserHiddenProduct>,
+	) {}
 
-  public async getProducts(
-    userId: string,
-    opts?: { userOnly?: boolean; systemOnly?: boolean },
-  ) {
-    const where = opts?.userOnly
-      ? [{ userId }]
-      : opts?.systemOnly
-        ? [{ userId: 'system' }]
-        : [{ userId }, { userId: 'system' }];
+	public async getProducts(
+		userId: string,
+		opts?: { userOnly?: boolean; systemOnly?: boolean },
+	) {
+		const where = opts?.userOnly
+			? [{ userId }]
+			: opts?.systemOnly
+				? [{ userId: "system" }]
+				: [{ userId }, { userId: "system" }];
 
-    const products = await this._productsRepo.find({
-      where,
-    });
+		const products = await this._productsRepo.find({
+			where,
+		});
 
-    const hiddenProductIds = await this._userHiddenProductsRepo.find({
-      where: { userId },
-    });
+		const hiddenProductIds = await this._userHiddenProductsRepo.find({
+			where: { userId },
+		});
 
-    LogHelpers.addBusinessContext(
-      BusinessContextKeys.productsReturned,
-      products.length,
-    );
-    LogHelpers.addBusinessContext(
-      BusinessContextKeys.productsCount,
-      hiddenProductIds.length,
-    );
+		LogHelpers.addBusinessContext(
+			BusinessContextKeys.productsReturned,
+			products.length,
+		);
+		LogHelpers.addBusinessContext(
+			BusinessContextKeys.productsCount,
+			hiddenProductIds.length,
+		);
 
-    return products.map((product) => {
-      const isHidden = hiddenProductIds.some(
-        (hiddenProduct) => hiddenProduct.productId === product.id,
-      );
+		return products.map((product) => {
+			const isHidden = hiddenProductIds.some(
+				(hiddenProduct) => hiddenProduct.productId === product.id,
+			);
 
-      return {
-        ...product,
-        isHidden,
-      };
-    });
-  }
+			return {
+				...product,
+				isHidden,
+			};
+		});
+	}
 
-  public async addProduct(product: Product) {
-    const newProduct = this._productsRepo.create(product);
-    const saved = await this._productsRepo.save(newProduct);
+	public async getProductById(id: number): Promise<Product | null> {
+		LogHelpers.addBusinessContext(BusinessContextKeys.productId, id);
 
-    LogHelpers.addBusinessContext(BusinessContextKeys.productCreated, saved.id);
+		return this._productsRepo.findOne({ where: { id } });
+	}
 
-    return saved;
-  }
+	public async addProduct(product: Product) {
+		const newProduct = this._productsRepo.create(product);
+		const saved = await this._productsRepo.save(newProduct);
 
-  public async hideProduct(userId: string, productId: number) {
-    LogHelpers.addBusinessContext(BusinessContextKeys.productId, productId);
+		LogHelpers.addBusinessContext(BusinessContextKeys.productCreated, saved.id);
 
-    await this._userHiddenProductsRepo.save({ userId, productId });
+		return saved;
+	}
 
-    LogHelpers.addBusinessContext(BusinessContextKeys.productHidden, true);
-  }
+	public async updateProduct(id: number, updates: Partial<Product>) {
+		LogHelpers.addBusinessContext(BusinessContextKeys.productId, id);
 
-  public async unhideProduct(userId: string, productId: number) {
-    LogHelpers.addBusinessContext(BusinessContextKeys.productId, productId);
+		await this._productsRepo.update(id, updates);
 
-    await this._userHiddenProductsRepo.delete({ userId, productId });
+		return this._productsRepo.findOne({ where: { id } });
+	}
 
-    LogHelpers.addBusinessContext(BusinessContextKeys.productUnhidden, true);
-  }
+	public async hideProduct(userId: string, productId: number) {
+		LogHelpers.addBusinessContext(BusinessContextKeys.productId, productId);
+
+		await this._userHiddenProductsRepo.save({ userId, productId });
+
+		LogHelpers.addBusinessContext(BusinessContextKeys.productHidden, true);
+	}
+
+	public async unhideProduct(userId: string, productId: number) {
+		LogHelpers.addBusinessContext(BusinessContextKeys.productId, productId);
+
+		await this._userHiddenProductsRepo.delete({ userId, productId });
+
+		LogHelpers.addBusinessContext(BusinessContextKeys.productUnhidden, true);
+	}
 }

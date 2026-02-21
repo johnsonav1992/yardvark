@@ -1,15 +1,15 @@
-import { FeedbackEmailData } from '../services/email.service';
+import type { FeedbackEmailData } from "../services/email.service";
 
 export const generateFeedbackEmailHtml = (data: FeedbackEmailData): string => {
-  const feedbackTypeConfig = {
-    general: { icon: '💬', label: 'General Feedback', color: '#3b82f6' },
-    bug: { icon: '🐛', label: 'Bug Report', color: '#ef4444' },
-    enhancement: { icon: '💡', label: 'Feature Request', color: '#8b5cf6' },
-  };
+	const feedbackTypeConfig = {
+		general: { icon: "💬", label: "General Feedback", color: "#3b82f6" },
+		bug: { icon: "🐛", label: "Bug Report", color: "#ef4444" },
+		enhancement: { icon: "💡", label: "Feature Request", color: "#8b5cf6" },
+	};
 
-  const typeInfo = feedbackTypeConfig[data.feedbackType];
+	const typeInfo = feedbackTypeConfig[data.feedbackType];
 
-  return `
+	return `
       <!DOCTYPE html>
       <html>
         <head>
@@ -123,8 +123,8 @@ export const generateFeedbackEmailHtml = (data: FeedbackEmailData): string => {
               </div>
 
               ${
-                data.url
-                  ? `
+								data.url
+									? `
                 <div class="field">
                   <div class="field-label">Page URL</div>
                   <div class="field-value">
@@ -132,12 +132,12 @@ export const generateFeedbackEmailHtml = (data: FeedbackEmailData): string => {
                   </div>
                 </div>
               `
-                  : ''
-              }
+									: ""
+							}
 
               ${
-                data.userAgent
-                  ? `
+								data.userAgent
+									? `
                 <div class="field">
                   <div class="field-label">Browser Info</div>
                   <div class="field-value">
@@ -145,8 +145,8 @@ export const generateFeedbackEmailHtml = (data: FeedbackEmailData): string => {
                   </div>
                 </div>
               `
-                  : ''
-              }
+									: ""
+							}
             </div>
           </div>
         </body>

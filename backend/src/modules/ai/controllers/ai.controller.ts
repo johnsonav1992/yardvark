@@ -1,155 +1,155 @@
 import {
-  Body,
-  Controller,
-  Post,
-  HttpException,
-  HttpStatus,
-  Res,
-} from '@nestjs/common';
-import { Response } from 'express';
-import { AiService } from '../services/ai.service';
-import { AiChatResponse, AiChatRequest } from '../../../types/ai.types';
-import { FeatureFlag } from '../../../decorators/feature-flag.decorator';
-import { SubscriptionFeature } from '../../../decorators/subscription-feature.decorator';
-import { resultOrThrow } from '../../../utils/resultOrThrow';
-import { User } from '../../../decorators/user.decorator';
-import { LogHelpers } from '../../../logger/logger.helpers';
-import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
+	Body,
+	Controller,
+	HttpException,
+	HttpStatus,
+	Post,
+	Res,
+} from "@nestjs/common";
+import type { Response } from "express";
+import { FeatureFlag } from "../../../decorators/feature-flag.decorator";
+import { SubscriptionFeature } from "../../../decorators/subscription-feature.decorator";
+import { User } from "../../../decorators/user.decorator";
+import { LogHelpers } from "../../../logger/logger.helpers";
+import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import type { AiChatRequest, AiChatResponse } from "../../../types/ai.types";
+import { resultOrThrow } from "../../../utils/resultOrThrow";
+import { AiService } from "../services/ai.service";
 
-@Controller('ai')
+@Controller("ai")
 export class AiController {
-  constructor(private readonly aiService: AiService) {}
+	constructor(private readonly aiService: AiService) {}
 
-  @Post('chat')
-  @SubscriptionFeature('ai_chat')
-  public async chat(
-    @Body() chatRequest: AiChatRequest,
-  ): Promise<AiChatResponse> {
-    LogHelpers.addBusinessContext(
-      BusinessContextKeys.controllerOperation,
-      'ai_chat',
-    );
+	@Post("chat")
+	@SubscriptionFeature("ai_chat")
+	public async chat(
+		@Body() chatRequest: AiChatRequest,
+	): Promise<AiChatResponse> {
+		LogHelpers.addBusinessContext(
+			BusinessContextKeys.controllerOperation,
+			"ai_chat",
+		);
 
-    if (!chatRequest.prompt || chatRequest.prompt.trim().length === 0) {
-      throw new HttpException('Prompt is required', HttpStatus.BAD_REQUEST);
-    }
+		if (!chatRequest.prompt || chatRequest.prompt.trim().length === 0) {
+			throw new HttpException("Prompt is required", HttpStatus.BAD_REQUEST);
+		}
 
-    return resultOrThrow(await this.aiService.chat(chatRequest.prompt));
-  }
+		return resultOrThrow(await this.aiService.chat(chatRequest.prompt));
+	}
 
-  @FeatureFlag('ENABLE_ENTRY_QUERY')
-  @SubscriptionFeature('ai_query')
-  // @Public()
-  @Post('query-entries')
-  public async queryEntries(
-    @User('userId') userId: string,
-    @Body() body: { query: string; userId?: string },
-  ): Promise<AiChatResponse> {
-    LogHelpers.addBusinessContext(
-      BusinessContextKeys.controllerOperation,
-      'ai_query_entries',
-    );
-    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+	@FeatureFlag("ENABLE_ENTRY_QUERY")
+	@SubscriptionFeature("ai_query")
+	// @Public()
+	@Post("query-entries")
+	public async queryEntries(
+		@User("userId") userId: string,
+		@Body() body: { query: string; userId?: string },
+	): Promise<AiChatResponse> {
+		LogHelpers.addBusinessContext(
+			BusinessContextKeys.controllerOperation,
+			"ai_query_entries",
+		);
+		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
-    if (!body.query || body.query.trim().length === 0) {
-      throw new HttpException('Query is required', HttpStatus.BAD_REQUEST);
-    }
+		if (!body.query || body.query.trim().length === 0) {
+			throw new HttpException("Query is required", HttpStatus.BAD_REQUEST);
+		}
 
-    const resolvedUserId =
-      body.userId || userId || 'google-oauth2|111643664660289512636';
+		const resolvedUserId =
+			body.userId || userId || "google-oauth2|111643664660289512636";
 
-    return resultOrThrow(
-      await this.aiService.queryEntries(resolvedUserId, body.query),
-    );
-  }
+		return resultOrThrow(
+			await this.aiService.queryEntries(resolvedUserId, body.query),
+		);
+	}
 
-  @FeatureFlag('ENABLE_ENTRY_QUERY')
-  @SubscriptionFeature('ai_init')
-  // @Public()
-  @Post('initialize-embeddings')
-  public async initializeEmbeddings(
-    @User('userId') userId: string,
-    @Body() body?: { userId?: string },
-  ): Promise<{ processed: number; errors: number }> {
-    LogHelpers.addBusinessContext(
-      BusinessContextKeys.controllerOperation,
-      'ai_initialize_embeddings',
-    );
-    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+	@FeatureFlag("ENABLE_ENTRY_QUERY")
+	@SubscriptionFeature("ai_init")
+	// @Public()
+	@Post("initialize-embeddings")
+	public async initializeEmbeddings(
+		@User("userId") userId: string,
+		@Body() body?: { userId?: string },
+	): Promise<{ processed: number; errors: number }> {
+		LogHelpers.addBusinessContext(
+			BusinessContextKeys.controllerOperation,
+			"ai_initialize_embeddings",
+		);
+		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
-    const resolvedUserId =
-      body?.userId || userId || 'google-oauth2|111643664660289512636';
+		const resolvedUserId =
+			body?.userId || userId || "google-oauth2|111643664660289512636";
 
-    return resultOrThrow(
-      await this.aiService.initializeEmbeddings(resolvedUserId),
-    );
-  }
+		return resultOrThrow(
+			await this.aiService.initializeEmbeddings(resolvedUserId),
+		);
+	}
 
-  @FeatureFlag('ENABLE_ENTRY_QUERY')
-  @SubscriptionFeature('ai_stream')
-  // @Public()
-  @Post('stream-query-entries')
-  public async streamQueryEntries(
-    @User('userId') userId: string,
-    @Res() res: Response,
-    @Body() body: { query: string; userId?: string },
-  ): Promise<void> {
-    LogHelpers.addBusinessContext(
-      BusinessContextKeys.controllerOperation,
-      'ai_stream_query',
-    );
-    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+	@FeatureFlag("ENABLE_ENTRY_QUERY")
+	@SubscriptionFeature("ai_stream")
+	// @Public()
+	@Post("stream-query-entries")
+	public async streamQueryEntries(
+		@User("userId") userId: string,
+		@Res() res: Response,
+		@Body() body: { query: string; userId?: string },
+	): Promise<void> {
+		LogHelpers.addBusinessContext(
+			BusinessContextKeys.controllerOperation,
+			"ai_stream_query",
+		);
+		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
-    if (!body.query || body.query.trim().length === 0) {
-      throw new HttpException('Query is required', HttpStatus.BAD_REQUEST);
-    }
+		if (!body.query || body.query.trim().length === 0) {
+			throw new HttpException("Query is required", HttpStatus.BAD_REQUEST);
+		}
 
-    const resolvedUserId = body.userId || userId;
+		const resolvedUserId = body.userId || userId;
 
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', 'Cache-Control');
+		res.setHeader("Content-Type", "text/event-stream");
+		res.setHeader("Cache-Control", "no-cache");
+		res.setHeader("Connection", "keep-alive");
+		res.setHeader("Access-Control-Allow-Origin", "*");
+		res.setHeader("Access-Control-Allow-Headers", "Cache-Control");
 
-    res.write('data: {"type":"connected"}\n\n');
+		res.write('data: {"type":"connected"}\n\n');
 
-    try {
-      const stream = this.aiService.streamQueryEntries(
-        resolvedUserId,
-        body.query,
-      );
+		try {
+			const stream = this.aiService.streamQueryEntries(
+				resolvedUserId,
+				body.query,
+			);
 
-      for await (const chunk of stream) {
-        if (chunk.content) {
-          const data = JSON.stringify({
-            type: 'chunk',
-            content: chunk.content,
-            done: chunk.done,
-          });
+			for await (const chunk of stream) {
+				if (chunk.content) {
+					const data = JSON.stringify({
+						type: "chunk",
+						content: chunk.content,
+						done: chunk.done,
+					});
 
-          res.write(`data: ${data}\n\n`);
-        }
+					res.write(`data: ${data}\n\n`);
+				}
 
-        if (chunk.done) {
-          res.write('data: {"type":"done"}\n\n');
-          break;
-        }
-      }
+				if (chunk.done) {
+					res.write('data: {"type":"done"}\n\n');
+					break;
+				}
+			}
 
-      res.end();
-    } catch (error) {
-      LogHelpers.addBusinessContext(
-        BusinessContextKeys.streamError,
-        (error as Error).message,
-      );
+			res.end();
+		} catch (error) {
+			LogHelpers.addBusinessContext(
+				BusinessContextKeys.streamError,
+				(error as Error).message,
+			);
 
-      const errorData = JSON.stringify({
-        type: 'error',
-        message: (error as Error).message || 'Unknown error',
-      });
-      res.write(`data: ${errorData}\n\n`);
-      res.end();
-    }
-  }
+			const errorData = JSON.stringify({
+				type: "error",
+				message: (error as Error).message || "Unknown error",
+			});
+			res.write(`data: ${errorData}\n\n`);
+			res.end();
+		}
+	}
 }

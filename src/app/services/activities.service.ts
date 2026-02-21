@@ -1,11 +1,11 @@
-import { Injectable } from '@angular/core';
-import { httpResource } from '@angular/common/http';
-import { apiUrl } from '../utils/httpUtils';
-import { Activity } from '../types/activities.types';
+import { httpResource } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import type { Activity } from "../types/activities.types";
+import { apiUrl } from "../utils/httpUtils";
 
 @Injectable({
-  providedIn: 'root'
+	providedIn: "root",
 })
 export class ActivitiesService {
-  public activities = httpResource<Activity[]>(() => apiUrl('activities'));
+	public activities = httpResource<Activity[]>(() => apiUrl("activities"));
 }

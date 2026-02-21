@@ -1,18 +1,18 @@
-import { AsyncLocalStorage } from 'node:async_hooks';
-import { LogContext } from './logger.types';
+import { AsyncLocalStorage } from "node:async_hooks";
+import type { LogContext } from "./logger.types";
 
 export interface RequestContext {
-  traceId: string;
-  requestId: string;
-  logContext: LogContext;
+	traceId: string;
+	requestId: string;
+	logContext: LogContext;
 }
 
 export const requestContext = new AsyncLocalStorage<RequestContext>();
 
 export function getRequestContext(): RequestContext | undefined {
-  return requestContext.getStore();
+	return requestContext.getStore();
 }
 
 export function getLogContext(): LogContext | undefined {
-  return requestContext.getStore()?.logContext;
+	return requestContext.getStore()?.logContext;
 }

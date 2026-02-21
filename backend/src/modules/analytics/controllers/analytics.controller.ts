@@ -1,25 +1,25 @@
-import { Controller, Get, Query } from '@nestjs/common';
-import { AnalyticsService } from '../services/analytics.service';
-import { User } from '../../../decorators/user.decorator';
-import { LogHelpers } from '../../../logger/logger.helpers';
-import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
+import { Controller, Get, Query } from "@nestjs/common";
+import { User } from "../../../decorators/user.decorator";
+import { LogHelpers } from "../../../logger/logger.helpers";
+import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import { AnalyticsService } from "../services/analytics.service";
 
-@Controller('analytics')
+@Controller("analytics")
 export class AnalyticsController {
-  constructor(private readonly _analyticsService: AnalyticsService) {}
+	constructor(private readonly _analyticsService: AnalyticsService) {}
 
-  @Get()
-  public async getAnalytics(
-    @User('userId') userId: string,
-    @Query('year') year?: number,
-  ) {
-    LogHelpers.addBusinessContext(
-      BusinessContextKeys.controllerOperation,
-      'get_analytics',
-    );
-    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
-    LogHelpers.addBusinessContext(BusinessContextKeys.analyticsYear, year);
+	@Get()
+	public async getAnalytics(
+		@User("userId") userId: string,
+		@Query("year") year?: number,
+	) {
+		LogHelpers.addBusinessContext(
+			BusinessContextKeys.controllerOperation,
+			"get_analytics",
+		);
+		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+		LogHelpers.addBusinessContext(BusinessContextKeys.analyticsYear, year);
 
-    return this._analyticsService.getAnalytics(userId, year);
-  }
+		return this._analyticsService.getAnalytics(userId, year);
+	}
 }

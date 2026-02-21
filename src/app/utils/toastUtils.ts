@@ -1,5 +1,5 @@
-import { inject } from '@angular/core';
-import { MessageService } from 'primeng/api';
+import { inject } from "@angular/core";
+import { MessageService } from "primeng/api";
 
 /**
  * Creates and returns a function to display error toast messages.
@@ -13,16 +13,16 @@ import { MessageService } from 'primeng/api';
  * showError('Failed to save data');
  */
 export const injectErrorToast = (): ((message: string) => void) => {
-  const toastService = inject(MessageService);
+	const toastService = inject(MessageService);
 
-  return (message: string) => {
-    toastService.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: message,
-      sticky: true
-    });
-  };
+	return (message: string) => {
+		toastService.add({
+			severity: "error",
+			summary: "Error",
+			detail: message,
+			sticky: true,
+		});
+	};
 };
 
 /**
@@ -39,37 +39,37 @@ export const injectErrorToast = (): ((message: string) => void) => {
  * showWarning('This action cannot be undone');
  */
 export const injectWarningToast = (): ((message: string) => void) => {
-  const toastService = inject(MessageService);
+	const toastService = inject(MessageService);
 
-  return (message: string) => {
-    toastService.add({
-      severity: 'warn',
-      summary: 'Warning',
-      detail: message,
-      sticky: true
-    });
-  };
+	return (message: string) => {
+		toastService.add({
+			severity: "warn",
+			summary: "Warning",
+			detail: message,
+			sticky: true,
+		});
+	};
 };
 
 export const injectSuccessToast = (): ((message: string) => void) => {
-  const toastService = inject(MessageService);
+	const toastService = inject(MessageService);
 
-  return (message: string) => {
-    toastService.add({
-      severity: 'success',
-      summary: 'Success',
-      detail: message
-    });
-  };
+	return (message: string) => {
+		toastService.add({
+			severity: "success",
+			summary: "Success",
+			detail: message,
+		});
+	};
 };
 
 export const injectInfoToast = (): ((message: string) => void) => {
-  const toastService = inject(MessageService);
+	const toastService = inject(MessageService);
 
-  return (message: string) => {
-    toastService.add({
-      severity: 'info',
-      detail: message
-    });
-  };
+	return (message: string) => {
+		toastService.add({
+			severity: "info",
+			detail: message,
+		});
+	};
 };

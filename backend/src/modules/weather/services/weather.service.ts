@@ -1,202 +1,202 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
-import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
-import { switchMap, map } from 'rxjs/operators';
+import { HttpService } from "@nestjs/axios";
+import { CACHE_MANAGER } from "@nestjs/cache-manager";
+import { Inject, Injectable } from "@nestjs/common";
+import type { Cache } from "cache-manager";
+import { firstValueFrom } from "rxjs";
+import { map, switchMap } from "rxjs/operators";
+import { LogHelpers } from "../../../logger/logger.helpers";
+import { type Either, error, success } from "../../../types/either";
 import {
-  OpenMeteoHistoricalResponse,
-  WeatherDotGovForecastResponse,
-  WeatherDotGovPointsResponse,
-} from '../models/weather.types';
-import { Either, error, success } from '../../../types/either';
-import {
-  WeatherFetchError,
-  HistoricalWeatherFetchError,
-} from '../models/weather.errors';
-import { LogHelpers } from '../../../logger/logger.helpers';
+	HistoricalWeatherFetchError,
+	WeatherFetchError,
+} from "../models/weather.errors";
+import type {
+	OpenMeteoHistoricalResponse,
+	WeatherDotGovForecastResponse,
+	WeatherDotGovPointsResponse,
+} from "../models/weather.types";
 
 @Injectable()
 export class WeatherService {
-  private readonly weatherDotGovBaseUrl = 'https://api.weather.gov';
-  private readonly openMeteoHistoricalUrl =
-    'https://historical-forecast-api.open-meteo.com/v1/forecast';
+	private readonly weatherDotGovBaseUrl = "https://api.weather.gov";
+	private readonly openMeteoHistoricalUrl =
+		"https://historical-forecast-api.open-meteo.com/v1/forecast";
 
-  constructor(
-    private readonly httpService: HttpService,
-    @Inject(CACHE_MANAGER) private readonly _cacheManager: Cache,
-    @Inject('FORECAST_CACHE_TTL') private readonly _forecastCacheTtl: number,
-    @Inject('HISTORICAL_CACHE_TTL')
-    private readonly _historicalCacheTtl: number,
-  ) {}
+	constructor(
+		private readonly httpService: HttpService,
+		@Inject(CACHE_MANAGER) private readonly _cacheManager: Cache,
+		@Inject("FORECAST_CACHE_TTL") private readonly _forecastCacheTtl: number,
+		@Inject("HISTORICAL_CACHE_TTL")
+		private readonly _historicalCacheTtl: number,
+	) {}
 
-  public async getWeatherData(
-    lat: string,
-    long: string,
-  ): Promise<Either<WeatherFetchError, WeatherDotGovForecastResponse>> {
-    const cacheKey = this.getCacheKey('forecast', { lat, long });
+	public async getWeatherData(
+		lat: string,
+		long: string,
+	): Promise<Either<WeatherFetchError, WeatherDotGovForecastResponse>> {
+		const cacheKey = this.getCacheKey("forecast", { lat, long });
 
-    const cached =
-      await this._cacheManager.get<WeatherDotGovForecastResponse>(cacheKey);
+		const cached =
+			await this._cacheManager.get<WeatherDotGovForecastResponse>(cacheKey);
 
-    if (cached) {
-      LogHelpers.recordCacheHit();
+		if (cached) {
+			LogHelpers.recordCacheHit();
 
-      return success(cached);
-    }
+			return success(cached);
+		}
 
-    LogHelpers.recordCacheMiss();
+		LogHelpers.recordCacheMiss();
 
-    const start = Date.now();
+		const start = Date.now();
 
-    try {
-      const data = await firstValueFrom(
-        this.httpService
-          .get<WeatherDotGovPointsResponse>(
-            `${this.weatherDotGovBaseUrl}/points/${lat},${long}`,
-          )
-          .pipe(
-            map((response) => response.data),
-            switchMap((pointsData) => {
-              const forecastUrl = pointsData.properties.forecast;
+		try {
+			const data = await firstValueFrom(
+				this.httpService
+					.get<WeatherDotGovPointsResponse>(
+						`${this.weatherDotGovBaseUrl}/points/${lat},${long}`,
+					)
+					.pipe(
+						map((response) => response.data),
+						switchMap((pointsData) => {
+							const forecastUrl = pointsData.properties.forecast;
 
-              if (!forecastUrl) {
-                throw new Error('Forecast URL not found in response');
-              }
+							if (!forecastUrl) {
+								throw new Error("Forecast URL not found in response");
+							}
 
-              return this.httpService.get<WeatherDotGovForecastResponse>(
-                forecastUrl,
-              );
-            }),
-            map((forecastResponse) => forecastResponse.data),
-          ),
-      );
+							return this.httpService.get<WeatherDotGovForecastResponse>(
+								forecastUrl,
+							);
+						}),
+						map((forecastResponse) => forecastResponse.data),
+					),
+			);
 
-      LogHelpers.recordExternalCall('weather.gov', Date.now() - start, true);
+			LogHelpers.recordExternalCall("weather.gov", Date.now() - start, true);
 
-      await this._cacheManager.set(cacheKey, data, this._forecastCacheTtl);
+			await this._cacheManager.set(cacheKey, data, this._forecastCacheTtl);
 
-      return success(data);
-    } catch (err) {
-      LogHelpers.recordExternalCall('weather.gov', Date.now() - start, false);
+			return success(data);
+		} catch (err) {
+			LogHelpers.recordExternalCall("weather.gov", Date.now() - start, false);
 
-      return error(new WeatherFetchError(err));
-    }
-  }
+			return error(new WeatherFetchError(err));
+		}
+	}
 
-  public async getHistoricalAirTemperatures({
-    lat,
-    long,
-    startDate,
-    endDate,
-    temperatureUnit = 'fahrenheit',
-  }: {
-    lat: number;
-    long: number;
-    startDate: string;
-    endDate: string;
-    temperatureUnit?: 'fahrenheit' | 'celsius';
-  }): Promise<
-    Either<
-      HistoricalWeatherFetchError,
-      Array<{ date: string; maxTemp: number; minTemp: number }>
-    >
-  > {
-    const cacheKey = this.getCacheKey('historical', {
-      lat,
-      long,
-      startDate,
-      endDate,
-      temperatureUnit,
-    });
+	public async getHistoricalAirTemperatures({
+		lat,
+		long,
+		startDate,
+		endDate,
+		temperatureUnit = "fahrenheit",
+	}: {
+		lat: number;
+		long: number;
+		startDate: string;
+		endDate: string;
+		temperatureUnit?: "fahrenheit" | "celsius";
+	}): Promise<
+		Either<
+			HistoricalWeatherFetchError,
+			Array<{ date: string; maxTemp: number; minTemp: number }>
+		>
+	> {
+		const cacheKey = this.getCacheKey("historical", {
+			lat,
+			long,
+			startDate,
+			endDate,
+			temperatureUnit,
+		});
 
-    type HistoricalTempResult = Array<{
-      date: string;
-      maxTemp: number;
-      minTemp: number;
-    }>;
+		type HistoricalTempResult = Array<{
+			date: string;
+			maxTemp: number;
+			minTemp: number;
+		}>;
 
-    const cached = await this._cacheManager.get<HistoricalTempResult>(cacheKey);
+		const cached = await this._cacheManager.get<HistoricalTempResult>(cacheKey);
 
-    if (cached) {
-      LogHelpers.recordCacheHit();
+		if (cached) {
+			LogHelpers.recordCacheHit();
 
-      return success(cached);
-    }
+			return success(cached);
+		}
 
-    LogHelpers.recordCacheMiss();
+		LogHelpers.recordCacheMiss();
 
-    const params = new URLSearchParams({
-      latitude: String(lat),
-      longitude: String(long),
-      start_date: startDate,
-      end_date: endDate,
-      daily: 'temperature_2m_max,temperature_2m_min',
-      temperature_unit: temperatureUnit,
-      timezone: 'auto',
-    });
+		const params = new URLSearchParams({
+			latitude: String(lat),
+			longitude: String(long),
+			start_date: startDate,
+			end_date: endDate,
+			daily: "temperature_2m_max,temperature_2m_min",
+			temperature_unit: temperatureUnit,
+			timezone: "auto",
+		});
 
-    const start = Date.now();
+		const start = Date.now();
 
-    try {
-      const result = await firstValueFrom(
-        this.httpService
-          .get<OpenMeteoHistoricalResponse>(
-            `${this.openMeteoHistoricalUrl}?${params}`,
-          )
-          .pipe(map((res) => res.data)),
-      );
+		try {
+			const result = await firstValueFrom(
+				this.httpService
+					.get<OpenMeteoHistoricalResponse>(
+						`${this.openMeteoHistoricalUrl}?${params}`,
+					)
+					.pipe(map((res) => res.data)),
+			);
 
-      LogHelpers.recordExternalCall('open-meteo', Date.now() - start, true);
+			LogHelpers.recordExternalCall("open-meteo", Date.now() - start, true);
 
-      const { daily } = result;
+			const { daily } = result;
 
-      const data: HistoricalTempResult = daily.time.map(
-        (date: string, i: number) => ({
-          date,
-          maxTemp: daily.temperature_2m_max[i],
-          minTemp: daily.temperature_2m_min[i],
-        }),
-      );
+			const data: HistoricalTempResult = daily.time.map(
+				(date: string, i: number) => ({
+					date,
+					maxTemp: daily.temperature_2m_max[i],
+					minTemp: daily.temperature_2m_min[i],
+				}),
+			);
 
-      await this._cacheManager.set(cacheKey, data, this._historicalCacheTtl);
+			await this._cacheManager.set(cacheKey, data, this._historicalCacheTtl);
 
-      return success(data);
-    } catch (err) {
-      LogHelpers.recordExternalCall('open-meteo', Date.now() - start, false);
+			return success(data);
+		} catch (err) {
+			LogHelpers.recordExternalCall("open-meteo", Date.now() - start, false);
 
-      return error(new HistoricalWeatherFetchError(err));
-    }
-  }
+			return error(new HistoricalWeatherFetchError(err));
+		}
+	}
 
-  private getCacheKey(
-    type: 'forecast',
-    params: { lat: string | number; long: string | number },
-  ): string;
-  private getCacheKey(
-    type: 'historical',
-    params: {
-      lat: string | number;
-      long: string | number;
-      startDate: string;
-      endDate: string;
-      temperatureUnit: 'fahrenheit' | 'celsius' | undefined;
-    },
-  ): string;
-  private getCacheKey(
-    type: 'forecast' | 'historical',
-    params: {
-      lat: string | number;
-      long: string | number;
-      startDate?: string;
-      endDate?: string;
-      temperatureUnit?: 'fahrenheit' | 'celsius';
-    },
-  ): string {
-    if (type === 'historical') {
-      return `weather:historical:${params.lat}:${params.long}:${params.startDate}:${params.endDate}:${params.temperatureUnit}`;
-    }
+	private getCacheKey(
+		type: "forecast",
+		params: { lat: string | number; long: string | number },
+	): string;
+	private getCacheKey(
+		type: "historical",
+		params: {
+			lat: string | number;
+			long: string | number;
+			startDate: string;
+			endDate: string;
+			temperatureUnit: "fahrenheit" | "celsius" | undefined;
+		},
+	): string;
+	private getCacheKey(
+		type: "forecast" | "historical",
+		params: {
+			lat: string | number;
+			long: string | number;
+			startDate?: string;
+			endDate?: string;
+			temperatureUnit?: "fahrenheit" | "celsius";
+		},
+	): string {
+		if (type === "historical") {
+			return `weather:historical:${params.lat}:${params.long}:${params.startDate}:${params.endDate}:${params.temperatureUnit}`;
+		}
 
-    return `weather:forecast:${params.lat}:${params.long}`;
-  }
+		return `weather:forecast:${params.lat}:${params.long}`;
+	}
 }

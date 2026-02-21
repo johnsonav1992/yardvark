@@ -1,40 +1,52 @@
+import { Field, Float, ID, ObjectType } from "@nestjs/graphql";
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  DeleteDateColumn,
-} from 'typeorm';
-import { Equipment } from './equipment.model';
+	Column,
+	DeleteDateColumn,
+	Entity,
+	JoinColumn,
+	ManyToOne,
+	PrimaryGeneratedColumn,
+} from "typeorm";
+import { Equipment } from "./equipment.model";
 
-@Entity('equipment_maintenance')
+@ObjectType()
+@Entity("equipment_maintenance")
 export class EquipmentMaintenance {
-  @PrimaryGeneratedColumn()
-  id: number;
+	@Field(() => ID)
+	@PrimaryGeneratedColumn()
+	id: number;
 
-  @Column({ type: 'timestamptz', nullable: false })
-  maintenanceDate: Date;
+	@Field()
+	@Column({ type: "timestamptz", nullable: false })
+	maintenanceDate: Date;
 
-  @Column({ type: 'text' })
-  notes: string;
+	@Field()
+	@Column({ type: "text" })
+	notes: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
-  cost?: number;
+	@Field(() => Float, { nullable: true })
+	@Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+	cost?: number;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
+	@Field()
+	@Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+	createdAt: Date;
 
-  @Column({ nullable: true })
-  updatedAt?: Date;
+	@Field({ nullable: true })
+	@Column({ nullable: true })
+	updatedAt?: Date;
 
-  @Column({ nullable: true })
-  @DeleteDateColumn()
-  deletedAt?: Date;
+	@Column({ nullable: true })
+	@DeleteDateColumn()
+	deletedAt?: Date;
 
-  @ManyToOne(() => Equipment, (equipment) => equipment.maintenanceRecords, {
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'equipment_id' })
-  equipment: Equipment;
+	@ManyToOne(
+		() => Equipment,
+		(equipment) => equipment.maintenanceRecords,
+		{
+			onDelete: "CASCADE",
+		},
+	)
+	@JoinColumn({ name: "equipment_id" })
+	equipment: Equipment;
 }

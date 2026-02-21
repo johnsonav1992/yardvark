@@ -1,10 +1,10 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import type { MigrationInterface, QueryRunner } from "typeorm";
 
 export class Analytics11AddYearParameter1767323034538
-  implements MigrationInterface
+	implements MigrationInterface
 {
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
+	public async up(queryRunner: QueryRunner): Promise<void> {
+		await queryRunner.query(`
       CREATE OR REPLACE FUNCTION get_user_analytics_v2(p_user_id VARCHAR, p_year INT DEFAULT EXTRACT(YEAR FROM CURRENT_DATE)::INT)
       RETURNS JSON AS $$
       DECLARE
@@ -178,11 +178,11 @@ export class Analytics11AddYearParameter1767323034538
       END;
       $$ LANGUAGE plpgsql;
     `);
-  }
+	}
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    // Rollback to the previous version without year parameter
-    await queryRunner.query(`
+	public async down(queryRunner: QueryRunner): Promise<void> {
+		// Rollback to the previous version without year parameter
+		await queryRunner.query(`
       CREATE OR REPLACE FUNCTION get_user_analytics_v2(p_user_id VARCHAR)
       RETURNS JSON AS $$
       DECLARE
@@ -343,5 +343,5 @@ export class Analytics11AddYearParameter1767323034538
       END;
       $$ LANGUAGE plpgsql;
     `);
-  }
+	}
 }

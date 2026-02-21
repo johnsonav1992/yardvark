@@ -1,14 +1,19 @@
-import { Entity, Column, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import { Field, ID, ObjectType } from "@nestjs/graphql";
+import { Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
 
-@Entity('settings')
-@Unique(['userId'])
+@ObjectType()
+@Entity("settings")
+@Unique(["userId"])
 export class Settings {
-  @PrimaryGeneratedColumn()
-  id: number;
+	@Field(() => ID)
+	@PrimaryGeneratedColumn()
+	id: number;
 
-  @Column()
-  userId: string;
+	@Field()
+	@Column()
+	userId: string;
 
-  @Column()
-  value: string;
+	@Field()
+	@Column()
+	value: string;
 }

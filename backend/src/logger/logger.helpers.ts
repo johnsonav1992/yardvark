@@ -1,172 +1,172 @@
-import { LogContext } from './logger.types';
-import { getLogContext } from './logger.context';
+import { getLogContext } from "./logger.context";
+import type { LogContext } from "./logger.types";
 
 export class LogHelpers {
-  private static getContext(): LogContext | undefined {
-    return getLogContext();
-  }
+	private static getContext(): LogContext | undefined {
+		return getLogContext();
+	}
 
-  static recordDatabaseCall(durationMs: number, failed = false): void {
-    const context = this.getContext();
+	static recordDatabaseCall(durationMs: number, failed = false): void {
+		const context = this.getContext();
 
-    if (!context?.database) return;
+		if (!context?.database) return;
 
-    context.database.numCalls++;
+		context.database.numCalls++;
 
-    if (failed) {
-      context.database.numFailures++;
-    }
+		if (failed) {
+			context.database.numFailures++;
+		}
 
-    if (durationMs) {
-      context.database.totalDurationMs =
-        (context.database.totalDurationMs || 0) + durationMs;
+		if (durationMs) {
+			context.database.totalDurationMs =
+				(context.database.totalDurationMs || 0) + durationMs;
 
-      context.database.slowestQueryMs = Math.max(
-        context.database.slowestQueryMs || 0,
-        durationMs,
-      );
-    }
-  }
+			context.database.slowestQueryMs = Math.max(
+				context.database.slowestQueryMs || 0,
+				durationMs,
+			);
+		}
+	}
 
-  static recordCacheHit(): void {
-    const context = this.getContext();
+	static recordCacheHit(): void {
+		const context = this.getContext();
 
-    if (!context?.cache) return;
+		if (!context?.cache) return;
 
-    context.cache.hits++;
-  }
+		context.cache.hits++;
+	}
 
-  static recordCacheMiss(): void {
-    const context = this.getContext();
+	static recordCacheMiss(): void {
+		const context = LogHelpers.getContext();
 
-    if (!context?.cache) return;
+		if (!context?.cache) return;
 
-    context.cache.misses++;
-  }
+		context.cache.misses++;
+	}
 
-  static recordExternalCall(
-    service: string,
-    durationMs: number,
-    success: boolean,
-    statusCode?: number,
-  ): void {
-    const context = this.getContext();
+	static recordExternalCall(
+		service: string,
+		durationMs: number,
+		success: boolean,
+		statusCode?: number,
+	): void {
+		const context = this.getContext();
 
-    if (!context?.externalCalls) return;
+		if (!context?.externalCalls) return;
 
-    context.externalCalls.push({
-      service,
-      durationMs,
-      success,
-      statusCode,
-    });
-  }
+		context.externalCalls.push({
+			service,
+			durationMs,
+			success,
+			statusCode,
+		});
+	}
 
-  static addBusinessContext(key: string, value: unknown): void {
-    const context = this.getContext();
+	static addBusinessContext(key: string, value: unknown): void {
+		const context = this.getContext();
 
-    if (!context) return;
+		if (!context) return;
 
-    if (!context.business) {
-      context.business = {};
-    }
+		if (!context.business) {
+			context.business = {};
+		}
 
-    context.business[key] = value;
-  }
+		context.business[key] = value;
+	}
 
-  static recordFeatureFlag(flagName: string, enabled: boolean): void {
-    const context = this.getContext();
+	static recordFeatureFlag(flagName: string, enabled: boolean): void {
+		const context = this.getContext();
 
-    if (!context) return;
+		if (!context) return;
 
-    if (!context.featureFlags) {
-      context.featureFlags = {};
-    }
+		if (!context.featureFlags) {
+			context.featureFlags = {};
+		}
 
-    context.featureFlags[flagName] = enabled;
-  }
+		context.featureFlags[flagName] = enabled;
+	}
 
-  static addMetadata(key: string, value: unknown): void {
-    const context = this.getContext();
+	static addMetadata(key: string, value: unknown): void {
+		const context = this.getContext();
 
-    if (!context) return;
+		if (!context) return;
 
-    if (!context.metadata) {
-      context.metadata = {};
-    }
+		if (!context.metadata) {
+			context.metadata = {};
+		}
 
-    context.metadata[key] = value;
-  }
+		context.metadata[key] = value;
+	}
 
-  static async withDatabaseTelemetry<T>(
-    operation: () => Promise<T>,
-  ): Promise<T> {
-    const context = this.getContext();
+	static async withDatabaseTelemetry<T>(
+		operation: () => Promise<T>,
+	): Promise<T> {
+		const context = this.getContext();
 
-    if (!context) {
-      return operation();
-    }
+		if (!context) {
+			return operation();
+		}
 
-    const start = Date.now();
+		const start = Date.now();
 
-    try {
-      const result = await operation();
+		try {
+			const result = await operation();
 
-      this.recordDatabaseCall(Date.now() - start, false);
+			this.recordDatabaseCall(Date.now() - start, false);
 
-      return result;
-    } catch (error) {
-      this.recordDatabaseCall(Date.now() - start, true);
+			return result;
+		} catch (error) {
+			this.recordDatabaseCall(Date.now() - start, true);
 
-      throw error;
-    }
-  }
+			throw error;
+		}
+	}
 
-  static async withExternalCallTelemetry<T>(
-    serviceName: string,
-    operation: () => Promise<T>,
-  ): Promise<T> {
-    const context = this.getContext();
+	static async withExternalCallTelemetry<T>(
+		serviceName: string,
+		operation: () => Promise<T>,
+	): Promise<T> {
+		const context = this.getContext();
 
-    if (!context) {
-      return operation();
-    }
+		if (!context) {
+			return operation();
+		}
 
-    const start = Date.now();
+		const start = Date.now();
 
-    try {
-      const result = await operation();
+		try {
+			const result = await operation();
 
-      this.recordExternalCall(serviceName, Date.now() - start, true);
+			this.recordExternalCall(serviceName, Date.now() - start, true);
 
-      return result;
-    } catch (error: unknown) {
-      const statusCode = this.extractStatusCode(error);
+			return result;
+		} catch (error: unknown) {
+			const statusCode = this.extractStatusCode(error);
 
-      this.recordExternalCall(
-        serviceName,
-        Date.now() - start,
-        false,
-        statusCode,
-      );
+			this.recordExternalCall(
+				serviceName,
+				Date.now() - start,
+				false,
+				statusCode,
+			);
 
-      throw error;
-    }
-  }
+			throw error;
+		}
+	}
 
-  private static extractStatusCode(error: unknown): number {
-    if (
-      error &&
-      typeof error === 'object' &&
-      'response' in error &&
-      error.response &&
-      typeof error.response === 'object' &&
-      'status' in error.response &&
-      typeof error.response.status === 'number'
-    ) {
-      return error.response.status;
-    }
+	private static extractStatusCode(error: unknown): number {
+		if (
+			error &&
+			typeof error === "object" &&
+			"response" in error &&
+			error.response &&
+			typeof error.response === "object" &&
+			"status" in error.response &&
+			typeof error.response.status === "number"
+		) {
+			return error.response.status;
+		}
 
-    return 500;
-  }
+		return 500;
+	}
 }

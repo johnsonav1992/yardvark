@@ -1,303 +1,303 @@
 import {
-  Component,
-  computed,
-  inject,
-  linkedSignal,
-  OnInit,
-  signal
-} from '@angular/core';
+	Component,
+	computed,
+	inject,
+	linkedSignal,
+	type OnInit,
+	signal,
+} from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
+import type { ButtonDesignTokens } from "@primeuix/themes/types/button";
+import { format, isSameDay, isValid, parseISO } from "date-fns";
+import { ButtonModule } from "primeng/button";
+import { CardModule } from "primeng/card";
+import { DividerModule } from "primeng/divider";
+import { TooltipModule } from "primeng/tooltip";
+import { map } from "rxjs";
+import type { SettingsData } from "../../../../backend/src/modules/settings/models/settings.types";
 import {
-  CalendarMarkerData,
-  DaySelectedEvent,
-  EntriesCalendarComponent
-} from '../../components/entries/entries-calendar/entries-calendar.component';
-import { ButtonModule } from 'primeng/button';
-import { ButtonDesignTokens } from '@primeuix/themes/types/button';
-import { injectUserData } from '../../utils/authUtils';
-import { Entry } from '../../types/entries.types';
-import { getEntryIcon } from '../../utils/entriesUtils';
-import { TooltipModule } from 'primeng/tooltip';
-import { ActivatedRoute, Router, RouterOutlet } from '@angular/router';
-import { EntriesService } from '../../services/entries.service';
-import { GlobalUiService } from '../../services/global-ui.service';
-import { DividerModule } from 'primeng/divider';
-import { format, isSameDay, parseISO, isValid } from 'date-fns';
-import { CardModule } from 'primeng/card';
-import { map } from 'rxjs';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { convertTimeStringToDate } from '../../utils/timeUtils';
-import { MobileEntryPreviewCardComponent } from '../../components/entries/mobile-entry-preview-card/mobile-entry-preview-card.component';
-import { SettingsService } from '../../services/settings.service';
-import { SettingsData } from '../../../../backend/src/modules/settings/models/settings.types';
-import { WeatherService } from '../../services/weather-service';
-import { DailyWeatherCalendarForecast } from '../../types/weather.types';
-import { getForecastMarkerIcon } from '../../utils/weatherUtils';
-import { WeatherDayMarker } from '../../components/weather/weather-day-marker/weather-day-marker';
-import { CsvExportService } from '../../services/csv-export.service';
-import { getEntryCsvConfig } from '../../utils/csvUtils';
+	type CalendarMarkerData,
+	type DaySelectedEvent,
+	EntriesCalendarComponent,
+} from "../../components/entries/entries-calendar/entries-calendar.component";
+import { MobileEntryPreviewCardComponent } from "../../components/entries/mobile-entry-preview-card/mobile-entry-preview-card.component";
+import { WeatherDayMarker } from "../../components/weather/weather-day-marker/weather-day-marker";
+import { CsvExportService } from "../../services/csv-export.service";
+import { EntriesService } from "../../services/entries.service";
+import { GlobalUiService } from "../../services/global-ui.service";
+import { SettingsService } from "../../services/settings.service";
+import { WeatherService } from "../../services/weather-service";
+import type { Entry } from "../../types/entries.types";
+import type { DailyWeatherCalendarForecast } from "../../types/weather.types";
+import { injectUserData } from "../../utils/authUtils";
+import { getEntryCsvConfig } from "../../utils/csvUtils";
+import { getEntryIcon } from "../../utils/entriesUtils";
+import { convertTimeStringToDate } from "../../utils/timeUtils";
+import { getForecastMarkerIcon } from "../../utils/weatherUtils";
 
 @Component({
-  selector: 'entry-log',
-  imports: [
-    EntriesCalendarComponent,
-    ButtonModule,
-    TooltipModule,
-    RouterOutlet,
-    DividerModule,
-    CardModule,
-    MobileEntryPreviewCardComponent,
-    WeatherDayMarker
-  ],
-  templateUrl: './entry-log.component.html',
-  styleUrl: './entry-log.component.scss'
+	selector: "entry-log",
+	imports: [
+		EntriesCalendarComponent,
+		ButtonModule,
+		TooltipModule,
+		RouterOutlet,
+		DividerModule,
+		CardModule,
+		MobileEntryPreviewCardComponent,
+		WeatherDayMarker,
+	],
+	templateUrl: "./entry-log.component.html",
+	styleUrl: "./entry-log.component.scss",
 })
 export class EntryLogComponent implements OnInit {
-  private _router = inject(Router);
-  private _activatedRoute = inject(ActivatedRoute);
-  private _entriesService = inject(EntriesService);
-  private _globalUiService = inject(GlobalUiService);
-  private _settingsService = inject(SettingsService);
-  private _weatherService = inject(WeatherService);
-  private _csvExportService = inject(CsvExportService);
+	private _router = inject(Router);
+	private _activatedRoute = inject(ActivatedRoute);
+	private _entriesService = inject(EntriesService);
+	private _globalUiService = inject(GlobalUiService);
+	private _settingsService = inject(SettingsService);
+	private _weatherService = inject(WeatherService);
+	private _csvExportService = inject(CsvExportService);
 
-  public isCreateOnOpen = toSignal(
-    this._activatedRoute.queryParams.pipe(
-      map((params) => params['create'] === 'true')
-    )
-  );
+	public isCreateOnOpen = toSignal(
+		this._activatedRoute.queryParams.pipe(
+			map((params) => params["create"] === "true"),
+		),
+	);
 
-  public directDateNavigation = toSignal(
-    this._activatedRoute.queryParams.pipe(
-      map((params) => {
-        const date = params['date'];
+	public directDateNavigation = toSignal(
+		this._activatedRoute.queryParams.pipe(
+			map((params) => {
+				const date = params["date"];
 
-        if (date) {
-          const parsedDate = parseISO(date);
+				if (date) {
+					const parsedDate = parseISO(date);
 
-          if (isValid(parsedDate)) {
-            return parsedDate;
-          }
-        }
+					if (isValid(parsedDate)) {
+						return parsedDate;
+					}
+				}
 
-        return null;
-      })
-    ),
-    {
-      initialValue: null
-    }
-  );
+				return null;
+			}),
+		),
+		{
+			initialValue: null,
+		},
+	);
 
-  public isMobile = this._globalUiService.isMobile;
-  public darkMode = this._globalUiService.isDarkMode;
+	public isMobile = this._globalUiService.isMobile;
+	public darkMode = this._globalUiService.isDarkMode;
 
-  public user = injectUserData();
+	public user = injectUserData();
 
-  public entrySortOrder = signal<'asc' | 'desc'>('desc');
-  public currentDate = signal(new Date());
-  public selectedMobileDateToView = signal<Date | null>(null);
-  public viewMode = linkedSignal<SettingsData | undefined, 'calendar' | 'list'>(
-    {
-      source: this._settingsService.currentSettings,
-      computation: (settings) => settings?.entryView || 'calendar'
-    }
-  );
+	public entrySortOrder = signal<"asc" | "desc">("desc");
+	public currentDate = signal(new Date());
+	public selectedMobileDateToView = signal<Date | null>(null);
+	public viewMode = linkedSignal<SettingsData | undefined, "calendar" | "list">(
+		{
+			source: this._settingsService.currentSettings,
+			computation: (settings) => settings?.entryView || "calendar",
+		},
+	);
 
-  public selectedMobileDateEntries = linkedSignal({
-    source: this.selectedMobileDateToView,
-    computation: (newMobileDateToView) => {
-      if (newMobileDateToView) {
-        return this.entries
-          .value()
-          ?.filter((entry) =>
-            isSameDay(parseISO(entry.date.toString()), newMobileDateToView)
-          )
-          .map((entry) => {
-            const time = entry.time
-              ? (convertTimeStringToDate(entry.time) as Date)
-              : '';
+	public selectedMobileDateEntries = linkedSignal({
+		source: this.selectedMobileDateToView,
+		computation: (newMobileDateToView) => {
+			if (newMobileDateToView) {
+				return this.entries
+					.value()
+					?.filter((entry) =>
+						isSameDay(parseISO(entry.date.toString()), newMobileDateToView),
+					)
+					.map((entry) => {
+						const time = entry.time
+							? (convertTimeStringToDate(entry.time) as Date)
+							: "";
 
-            return {
-              ...entry,
-              time: time ? format(time, 'hh:mm a') : ''
-            };
-          });
-      }
+						return {
+							...entry,
+							time: time ? format(time, "hh:mm a") : "",
+						};
+					});
+			}
 
-      return null;
-    }
-  });
+			return null;
+		},
+	});
 
-  public entryMarkers = computed<
-    CalendarMarkerData<{
-      entry: Entry;
-    }>[]
-  >(() => {
-    const currentMonthEntries = this.entries.value() || [];
+	public entryMarkers = computed<
+		CalendarMarkerData<{
+			entry: Entry;
+		}>[]
+	>(() => {
+		const currentMonthEntries = this.entries.value() || [];
 
-    return currentMonthEntries.map((entry) => {
-      const icon = getEntryIcon(entry);
+		return currentMonthEntries.map((entry) => {
+			const icon = getEntryIcon(entry);
 
-      return {
-        id: crypto.randomUUID(),
-        date: parseISO(entry.date.toString()),
-        icon,
-        data: { entry }
-      };
-    });
-  });
+			return {
+				id: crypto.randomUUID(),
+				date: parseISO(entry.date.toString()),
+				icon,
+				data: { entry },
+			};
+		});
+	});
 
-  public weatherMarkers = computed<
-    CalendarMarkerData<{
-      forecast: DailyWeatherCalendarForecast;
-    }>[]
-  >(() => {
-    const weatherForecasts = this._weatherService.dailyWeatherForecasts();
+	public weatherMarkers = computed<
+		CalendarMarkerData<{
+			forecast: DailyWeatherCalendarForecast;
+		}>[]
+	>(() => {
+		const weatherForecasts = this._weatherService.dailyWeatherForecasts();
 
-    return weatherForecasts.map((forecast) => ({
-      id: crypto.randomUUID(),
-      date: forecast.date,
-      icon: getForecastMarkerIcon(forecast),
-      data: { forecast }
-    }));
-  });
+		return weatherForecasts.map((forecast) => ({
+			id: crypto.randomUUID(),
+			date: forecast.date,
+			icon: getForecastMarkerIcon(forecast),
+			data: { forecast },
+		}));
+	});
 
-  public entries = this._entriesService.getMonthEntriesResource(
-    this.currentDate
-  );
+	public entries = this._entriesService.getMonthEntriesResource(
+		this.currentDate,
+	);
 
-  public listViewEntries = linkedSignal({
-    source: () => ({
-      entries: this.entries.value(),
-      sortOrder: this.entrySortOrder()
-    }),
-    computation: ({ entries, sortOrder }) => {
-      if (entries) {
-        const mappedEntries = entries.map((entry) => {
-          const time = entry.time
-            ? (convertTimeStringToDate(entry.time) as Date)
-            : '';
-          return {
-            ...entry,
-            time: time ? format(time, 'hh:mm a') : ''
-          };
-        });
+	public listViewEntries = linkedSignal({
+		source: () => ({
+			entries: this.entries.value(),
+			sortOrder: this.entrySortOrder(),
+		}),
+		computation: ({ entries, sortOrder }) => {
+			if (entries) {
+				const mappedEntries = entries.map((entry) => {
+					const time = entry.time
+						? (convertTimeStringToDate(entry.time) as Date)
+						: "";
+					return {
+						...entry,
+						time: time ? format(time, "hh:mm a") : "",
+					};
+				});
 
-        return mappedEntries.sort((a, b) => {
-          const dateA = new Date(a.date).getTime();
-          const dateB = new Date(b.date).getTime();
-          return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
-        });
-      }
-      return null;
-    }
-  });
+				return mappedEntries.sort((a, b) => {
+					const dateA = new Date(a.date).getTime();
+					const dateB = new Date(b.date).getTime();
+					return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+				});
+			}
+			return null;
+		},
+	});
 
-  public ngOnInit(): void {
-    if (this.isCreateOnOpen()) {
-      this.createEntry();
-    }
+	public ngOnInit(): void {
+		if (this.isCreateOnOpen()) {
+			this.createEntry();
+		}
 
-    if (this.directDateNavigation()) {
-      this.changeMonths(this.directDateNavigation()!);
+		if (this.directDateNavigation()) {
+			this.changeMonths(this.directDateNavigation()!);
 
-      if (this.isMobile()) {
-        this.selectedMobileDateToView.set(this.directDateNavigation()!);
-      }
-    }
-  }
+			if (this.isMobile()) {
+				this.selectedMobileDateToView.set(this.directDateNavigation()!);
+			}
+		}
+	}
 
-  public navigateToEntry(entry: Entry): void {
-    this._router.navigate(['entry-log', entry.id], {
-      state: {
-        ...entry,
-        time: this.entries.value()?.find((e) => e.id === entry.id)?.time
-      },
-      queryParams: { date: new Date(entry.date).toISOString() }
-    });
-  }
+	public navigateToEntry(entry: Entry): void {
+		this._router.navigate(["entry-log", entry.id], {
+			state: {
+				...entry,
+				time: this.entries.value()?.find((e) => e.id === entry.id)?.time,
+			},
+			queryParams: { date: new Date(entry.date).toISOString() },
+		});
+	}
 
-  public changeMonths(newDate: Date): void {
-    this.currentDate.set(newDate);
-    this.selectedMobileDateToView.set(null);
-  }
+	public changeMonths(newDate: Date): void {
+		this.currentDate.set(newDate);
+		this.selectedMobileDateToView.set(null);
+	}
 
-  public createEntry(date?: Date): void {
-    const queryParams = date ? { date: date.toISOString() } : {};
-    this._router.navigate(['entry-log', 'add'], { queryParams });
-  }
+	public createEntry(date?: Date): void {
+		const queryParams = date ? { date: date.toISOString() } : {};
+		this._router.navigate(["entry-log", "add"], { queryParams });
+	}
 
-  public selectDay(e: DaySelectedEvent): void {
-    const { date, type } = e;
+	public selectDay(e: DaySelectedEvent): void {
+		const { date, type } = e;
 
-    if (this.isMobile() && type !== 'double-tap') {
-      this.selectedMobileDateToView.set(date);
-    } else {
-      this.createEntry(date);
-    }
-  }
+		if (this.isMobile() && type !== "double-tap") {
+			this.selectedMobileDateToView.set(date);
+		} else {
+			this.createEntry(date);
+		}
+	}
 
-  public toggleSortOrder(): void {
-    this.entrySortOrder.set(this.entrySortOrder() === 'asc' ? 'desc' : 'asc');
-  }
+	public toggleSortOrder(): void {
+		this.entrySortOrder.set(this.entrySortOrder() === "asc" ? "desc" : "asc");
+	}
 
-  public exportCsv(): void {
-    const currentEntries = this.entries.value();
+	public exportCsv(): void {
+		const currentEntries = this.entries.value();
 
-    if (currentEntries && currentEntries.length > 0) {
-      const currentMonth = format(this.currentDate(), 'MMMM-yyyy');
-      const config = getEntryCsvConfig(`yard-entries-${currentMonth}.csv`);
+		if (currentEntries && currentEntries.length > 0) {
+			const currentMonth = format(this.currentDate(), "MMMM-yyyy");
+			const config = getEntryCsvConfig(`yard-entries-${currentMonth}.csv`);
 
-      this._csvExportService.exportToCsv(currentEntries, config);
-    }
-  }
+			this._csvExportService.exportToCsv(currentEntries, config);
+		}
+	}
 
-  public markerButtonDt: ButtonDesignTokens = {
-    root: {
-      sm: {
-        iconOnlyWidth: '2.1rem',
-        fontSize: '18px'
-      }
-    },
-    colorScheme: {
-      light: {
-        root: {
-          secondary: {
-            background: '{primary.300}',
-            borderColor: '{primary.300}',
-            hoverBackground: '{primary.200}',
-            hoverBorderColor: '{primary.200}',
-            color: '{surface.600}',
-            hoverColor: '{surface.600}'
-          }
-        }
-      },
-      dark: {
-        root: {
-          secondary: {
-            color: '{surface.700}'
-          }
-        }
-      }
-    }
-  };
+	public markerButtonDt: ButtonDesignTokens = {
+		root: {
+			sm: {
+				iconOnlyWidth: "2.1rem",
+				fontSize: "18px",
+			},
+		},
+		colorScheme: {
+			light: {
+				root: {
+					secondary: {
+						background: "{primary.300}",
+						borderColor: "{primary.300}",
+						hoverBackground: "{primary.200}",
+						hoverBorderColor: "{primary.200}",
+						color: "{surface.600}",
+						hoverColor: "{surface.600}",
+					},
+				},
+			},
+			dark: {
+				root: {
+					secondary: {
+						color: "{surface.700}",
+					},
+				},
+			},
+		},
+	};
 
-  public sortButtonDt: ButtonDesignTokens = {
-    root: {
-      iconOnlyWidth: '2.5rem',
-      lg: {
-        fontSize: '20px',
-        iconOnlyWidth: '2.5rem'
-      }
-    }
-  };
+	public sortButtonDt: ButtonDesignTokens = {
+		root: {
+			iconOnlyWidth: "2.5rem",
+			lg: {
+				fontSize: "20px",
+				iconOnlyWidth: "2.5rem",
+			},
+		},
+	};
 
-  public addButtonDt = computed<ButtonDesignTokens>(() => ({
-    root: {
-      iconOnlyWidth: this.isMobile() ? '4rem' : '5rem',
-      lg: {
-        fontSize: this.isMobile() ? '28px' : '36px',
-        iconOnlyWidth: this.isMobile() ? '4rem' : '5rem'
-      }
-    }
-  }));
+	public addButtonDt = computed<ButtonDesignTokens>(() => ({
+		root: {
+			iconOnlyWidth: this.isMobile() ? "4rem" : "5rem",
+			lg: {
+				fontSize: this.isMobile() ? "28px" : "36px",
+				iconOnlyWidth: this.isMobile() ? "4rem" : "5rem",
+			},
+		},
+	}));
 }

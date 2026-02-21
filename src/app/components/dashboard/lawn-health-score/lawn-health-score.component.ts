@@ -1,62 +1,62 @@
-import { Component, inject, computed, output } from '@angular/core';
-import { Router } from '@angular/router';
-import { CardModule } from 'primeng/card';
-import { DividerModule } from 'primeng/divider';
-import { PopoverModule } from 'primeng/popover';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
-import { DividerDesignTokens } from '@primeuix/themes/types/divider';
-import { CdkDragHandle } from '@angular/cdk/drag-drop';
-import { LawnHealthScoreService } from '../../../services/lawn-health-score.service';
-import { SubscriptionService } from '../../../services/subscription.service';
-import { UpgradePromptComponent } from '../../subscription/upgrade-prompt/upgrade-prompt.component';
+import { CdkDragHandle } from "@angular/cdk/drag-drop";
+import { Component, computed, inject, output } from "@angular/core";
+import { Router } from "@angular/router";
+import type { DividerDesignTokens } from "@primeuix/themes/types/divider";
+import { ButtonModule } from "primeng/button";
+import { CardModule } from "primeng/card";
+import { DividerModule } from "primeng/divider";
+import { PopoverModule } from "primeng/popover";
+import { TooltipModule } from "primeng/tooltip";
+import { LawnHealthScoreService } from "../../../services/lawn-health-score.service";
+import { SubscriptionService } from "../../../services/subscription.service";
+import { UpgradePromptComponent } from "../../subscription/upgrade-prompt/upgrade-prompt.component";
 
 @Component({
-  selector: 'lawn-health-score',
-  imports: [
-    CardModule,
-    DividerModule,
-    PopoverModule,
-    ButtonModule,
-    TooltipModule,
-    CdkDragHandle,
-    UpgradePromptComponent
-  ],
-  templateUrl: './lawn-health-score.component.html',
-  styleUrl: './lawn-health-score.component.scss'
+	selector: "lawn-health-score",
+	imports: [
+		CardModule,
+		DividerModule,
+		PopoverModule,
+		ButtonModule,
+		TooltipModule,
+		CdkDragHandle,
+		UpgradePromptComponent,
+	],
+	templateUrl: "./lawn-health-score.component.html",
+	styleUrl: "./lawn-health-score.component.scss",
 })
 export class LawnHealthScoreComponent {
-  private _lawnHealthScoreService = inject(LawnHealthScoreService);
-  private _router = inject(Router);
-  private _subscriptionService = inject(SubscriptionService);
+	private _lawnHealthScoreService = inject(LawnHealthScoreService);
+	private _router = inject(Router);
+	private _subscriptionService = inject(SubscriptionService);
 
-  public onHideWidget = output<void>();
+	public onHideWidget = output<void>();
 
-  public lawnHealthScore = this._lawnHealthScoreService.lawnHealthScore;
-  public finalDescription = this._lawnHealthScoreService.finalDescription;
-  public scoreColor = this._lawnHealthScoreService.scoreColor;
-  public isLoading = this._lawnHealthScoreService.isLoading;
-  public isPro = this._subscriptionService.isPro;
+	public lawnHealthScore = this._lawnHealthScoreService.lawnHealthScore;
+	public finalDescription = this._lawnHealthScoreService.finalDescription;
+	public scoreColor = this._lawnHealthScoreService.scoreColor;
+	public isLoading = this._lawnHealthScoreService.isLoading;
+	public isPro = this._subscriptionService.isPro;
 
-  public isAiGenerated = computed(() => {
-    const aiResource = this._lawnHealthScoreService.aiDescriptionResource;
-    const aiDescription = aiResource.hasValue() ? aiResource.value() : '';
-    const currentDescription = this.finalDescription();
+	public isAiGenerated = computed(() => {
+		const aiResource = this._lawnHealthScoreService.aiDescriptionResource;
+		const aiDescription = aiResource.hasValue() ? aiResource.value() : "";
+		const currentDescription = this.finalDescription();
 
-    return aiDescription && currentDescription === aiDescription;
-  });
+		return aiDescription && currentDescription === aiDescription;
+	});
 
-  public dividerDt: DividerDesignTokens = {
-    horizontal: {
-      margin: 'none'
-    }
-  };
+	public dividerDt: DividerDesignTokens = {
+		horizontal: {
+			margin: "none",
+		},
+	};
 
-  public navigateToCreateEntry(): void {
-    this._router.navigate(['/entry-log'], { queryParams: { create: true } });
-  }
+	public navigateToCreateEntry(): void {
+		this._router.navigate(["/entry-log"], { queryParams: { create: true } });
+	}
 
-  public hideWidget(): void {
-    this.onHideWidget.emit();
-  }
+	public hideWidget(): void {
+		this.onHideWidget.emit();
+	}
 }

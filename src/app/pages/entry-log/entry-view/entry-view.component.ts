@@ -1,380 +1,373 @@
+import { DatePipe } from "@angular/common";
 import {
-  Component,
-  computed,
-  effect,
-  inject,
-  linkedSignal,
-  signal
-} from '@angular/core';
-import { DatePipe } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+	Component,
+	computed,
+	effect,
+	inject,
+	linkedSignal,
+	signal,
+} from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
 import {
-  Entry,
-  EntryCreationRequest,
-  EntryProduct
-} from '../../../types/entries.types';
-import { PageContainerComponent } from '../../../components/layout/page-container/page-container.component';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { ChipModule } from 'primeng/chip';
-import { ChipDesignTokens } from '@primeuix/themes/types/chip';
-import { DividerModule } from 'primeng/divider';
-import { SkeletonModule } from 'primeng/skeleton';
-import { capitalize } from '../../../utils/stringUtils';
-import { ProductSmallCardComponent } from '../../../components/products/product-small-card/product-small-card.component';
-import { EntriesService } from '../../../services/entries.service';
-import { MultiSelectModule } from 'primeng/multiselect';
-import { ActivitiesService } from '../../../services/activities.service';
+	FormArray,
+	FormControl,
+	FormGroup,
+	ReactiveFormsModule,
+	Validators,
+} from "@angular/forms";
+import { ActivatedRoute, Router } from "@angular/router";
+import type { ChipDesignTokens } from "@primeuix/themes/types/chip";
+import { format } from "date-fns";
+import { ConfirmationService } from "primeng/api";
+import { ButtonModule } from "primeng/button";
+import { CardModule } from "primeng/card";
+import { ChipModule } from "primeng/chip";
+import { DatePickerModule } from "primeng/datepicker";
+import { DividerModule } from "primeng/divider";
+import { type FileSelectEvent, FileUploadModule } from "primeng/fileupload";
+import { GalleriaModule } from "primeng/galleria";
+import { InputTextModule } from "primeng/inputtext";
+import { MultiSelectModule } from "primeng/multiselect";
+import { SkeletonModule } from "primeng/skeleton";
+import { TextareaModule } from "primeng/textarea";
+import { map } from "rxjs";
+import { PageContainerComponent } from "../../../components/layout/page-container/page-container.component";
+import { ProductSmallCardComponent } from "../../../components/products/product-small-card/product-small-card.component";
+import { ProductsSelectorComponent } from "../../../components/products/products-selector/products-selector.component";
+import { ACTIVITY_IDS } from "../../../constants/activity-constants";
+import { MAX_FILE_LARGE_UPLOAD_SIZE } from "../../../constants/file-constants";
+import { ActivitiesService } from "../../../services/activities.service";
+import { EntriesService } from "../../../services/entries.service";
+import { FilesService } from "../../../services/files.service";
+import { GlobalUiService } from "../../../services/global-ui.service";
+import { LawnSegmentsService } from "../../../services/lawn-segments.service";
+import type { Activity } from "../../../types/activities.types";
+import type {
+	Entry,
+	EntryCreationRequest,
+	EntryProduct,
+} from "../../../types/entries.types";
+import type { LawnSegment } from "../../../types/lawnSegments.types";
 import {
-  FormArray,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
-import { Activity } from '../../../types/activities.types';
-import { LawnSegment } from '../../../types/lawnSegments.types';
-import {
-  createEntryProductRow,
-  EntryProductRow
-} from '../../../utils/entriesUtils';
-import { InputTextModule } from 'primeng/inputtext';
-import { LawnSegmentsService } from '../../../services/lawn-segments.service';
-import { ProductsSelectorComponent } from '../../../components/products/products-selector/products-selector.component';
-import { TextareaModule } from 'primeng/textarea';
-import { injectErrorToast } from '../../../utils/toastUtils';
-import { GlobalUiService } from '../../../services/global-ui.service';
-import { convertTimeStringToDate } from '../../../utils/timeUtils';
-import { DatePickerModule } from 'primeng/datepicker';
-import { format } from 'date-fns';
-import { GalleriaModule } from 'primeng/galleria';
-import { FileSelectEvent, FileUploadModule } from 'primeng/fileupload';
-import { MAX_FILE_LARGE_UPLOAD_SIZE } from '../../../constants/file-constants';
-import { FilesService } from '../../../services/files.service';
-import { ConfirmationService } from 'primeng/api';
-import { ACTIVITY_IDS } from '../../../constants/activity-constants';
+	createEntryProductRow,
+	type EntryProductRow,
+} from "../../../utils/entriesUtils";
+import { capitalize } from "../../../utils/stringUtils";
+import { convertTimeStringToDate } from "../../../utils/timeUtils";
+import { injectErrorToast } from "../../../utils/toastUtils";
 
 @Component({
-  selector: 'entry-view',
-  imports: [
-    DatePipe,
-    PageContainerComponent,
-    ButtonModule,
-    CardModule,
-    ChipModule,
-    DividerModule,
-    SkeletonModule,
-    ProductSmallCardComponent,
-    MultiSelectModule,
-    InputTextModule,
-    ProductsSelectorComponent,
-    ReactiveFormsModule,
-    TextareaModule,
-    DatePickerModule,
-    GalleriaModule,
-    FileUploadModule
-  ],
-  templateUrl: './entry-view.component.html',
-  styleUrl: './entry-view.component.scss'
+	selector: "entry-view",
+	imports: [
+		DatePipe,
+		PageContainerComponent,
+		ButtonModule,
+		CardModule,
+		ChipModule,
+		DividerModule,
+		SkeletonModule,
+		ProductSmallCardComponent,
+		MultiSelectModule,
+		InputTextModule,
+		ProductsSelectorComponent,
+		ReactiveFormsModule,
+		TextareaModule,
+		DatePickerModule,
+		GalleriaModule,
+		FileUploadModule,
+	],
+	templateUrl: "./entry-view.component.html",
+	styleUrl: "./entry-view.component.scss",
 })
 export class EntryViewComponent {
-  private _router = inject(Router);
-  private _activatedRoute = inject(ActivatedRoute);
-  private _entryService = inject(EntriesService);
-  private _activitiesService = inject(ActivitiesService);
-  private _lawnSegmentsService = inject(LawnSegmentsService);
-  private _throwErrorToast = injectErrorToast();
-  private _globalUiService = inject(GlobalUiService);
-  private _filesService = inject(FilesService);
-  private _confirmationService = inject(ConfirmationService);
+	private _router = inject(Router);
+	private _activatedRoute = inject(ActivatedRoute);
+	private _entryService = inject(EntriesService);
+	private _activitiesService = inject(ActivitiesService);
+	private _lawnSegmentsService = inject(LawnSegmentsService);
+	private _throwErrorToast = injectErrorToast();
+	private _globalUiService = inject(GlobalUiService);
+	private _filesService = inject(FilesService);
+	private _confirmationService = inject(ConfirmationService);
 
-  public isMobile = this._globalUiService.isMobile;
-  public maxFileUploadSize = MAX_FILE_LARGE_UPLOAD_SIZE;
+	public isMobile = this._globalUiService.isMobile;
+	public maxFileUploadSize = MAX_FILE_LARGE_UPLOAD_SIZE;
 
-  public selectedActivities = signal<Activity[]>([]);
+	public selectedActivities = signal<Activity[]>([]);
 
-  public hasMowingActivity = computed(() => {
-    const activities = this.selectedActivities();
-    return (
-      activities?.some((activity) => activity.id === ACTIVITY_IDS.MOW) ?? false
-    );
-  });
+	public hasMowingActivity = computed(() => {
+		const activities = this.selectedActivities();
+		return (
+			activities?.some((activity) => activity.id === ACTIVITY_IDS.MOW) ?? false
+		);
+	});
 
-  public originalMowingHeight = computed(() => this.entryData()?.mowingHeight);
+	public originalMowingHeight = computed(() => this.entryData()?.mowingHeight);
 
-  public shouldShowMowingHeight = computed(() => {
-    if (!this.isInEditMode()) {
-      return !!this.originalMowingHeight();
-    }
+	public shouldShowMowingHeight = computed(() => {
+		if (!this.isInEditMode()) {
+			return !!this.originalMowingHeight();
+		}
 
-    return this.hasMowingActivity() || !!this.originalMowingHeight();
-  });
+		return this.hasMowingActivity() || !!this.originalMowingHeight();
+	});
 
-  public editForm = new FormGroup({
-    time: new FormControl<Date | null>(null),
-    title: new FormControl<string>('', [Validators.required]),
-    activities: new FormControl<Activity[]>([]),
-    lawnSegments: new FormControl<LawnSegment[]>([]),
-    products: new FormArray<EntryProductRow>([]),
-    productsSelected: new FormControl<EntryProduct[]>([]),
-    notes: new FormControl<string | null>(null),
-    images: new FormControl<File[]>([]),
-    mowingHeight: new FormControl<number | null>(null)
-  });
+	public editForm = new FormGroup({
+		time: new FormControl<Date | null>(null),
+		title: new FormControl<string>("", [Validators.required]),
+		activities: new FormControl<Activity[]>([]),
+		lawnSegments: new FormControl<LawnSegment[]>([]),
+		products: new FormArray<EntryProductRow>([]),
+		productsSelected: new FormControl<EntryProduct[]>([]),
+		notes: new FormControl<string | null>(null),
+		images: new FormControl<File[]>([]),
+		mowingHeight: new FormControl<number | null>(null),
+	});
 
-  public entryId = toSignal<number>(
-    this._activatedRoute.params.pipe(map((params) => params['entryId']))
-  );
+	public entryId = toSignal<number>(
+		this._activatedRoute.params.pipe(map((params) => params["entryId"])),
+	);
 
-  public entryDate = toSignal(
-    this._activatedRoute.queryParams.pipe(
-      map((params) => params['date'] as string)
-    )
-  );
+	public entryDate = toSignal(
+		this._activatedRoute.queryParams.pipe(
+			map((params) => params["date"] as string),
+		),
+	);
 
-  public shouldFetchEntry = signal<boolean>(false);
-  public entryData = linkedSignal<Entry | undefined>(() =>
-    this.entryResource.value()
-  );
-  public isInEditMode = signal(false);
-  public isLoading = signal<boolean>(false);
+	public shouldFetchEntry = signal<boolean>(false);
+	public entryData = linkedSignal<Entry | undefined>(() =>
+		this.entryResource.value(),
+	);
+	public isInEditMode = signal(false);
+	public isLoading = signal<boolean>(false);
 
-  public entryTime = computed(() =>
-    convertTimeStringToDate(this.entryData()?.time!)
-  );
+	public entryTime = computed(() => {
+		const time = this.entryData()?.time;
 
-  public currentDate = computed<Date | null>(() =>
-    this.entryDate() ? new Date(this.entryDate()!) : null
-  );
+		return time ? convertTimeStringToDate(time) : null;
+	});
 
-  public allActivities = this._activitiesService.activities;
-  public allLawnSegments = this._lawnSegmentsService.lawnSegments;
-  public activities = computed(() =>
-    this.entryData()?.activities.map((act) => ({
-      ...act,
-      name: capitalize(act.name)
-    }))
-  );
+	public currentDate = computed<Date | null>(() =>
+		this.entryDate() ? new Date(this.entryDate()!) : null,
+	);
 
-  public entryResource = this._entryService.getEntryResource(
-    this.shouldFetchEntry,
-    this.entryId
-  );
+	public allActivities = this._activitiesService.activities;
+	public allLawnSegments = this._lawnSegmentsService.lawnSegments;
+	public activities = computed(() =>
+		this.entryData()?.activities.map((act) => ({
+			...act,
+			name: capitalize(act.name),
+		})),
+	);
 
-  public entryImageUrls = computed(
-    () => this.entryData()?.images.map((img) => img.imageUrl) || []
-  );
+	public entryResource = this._entryService.getEntryResource(
+		this.shouldFetchEntry,
+		this.entryId,
+	);
 
-  public downloadedFiles = signal<File[]>([]);
+	public entryImageUrls = computed(
+		() => this.entryData()?.images.map((img) => img.imageUrl) || [],
+	);
 
-  public shouldShowProductsCard = computed(
-    () => (this.entryData()?.products?.length ?? 0) > 0 || this.isInEditMode()
-  );
+	public downloadedFiles = signal<File[]>([]);
 
-  public shouldShowNotesCard = computed(
-    () => !!this.entryData()?.notes || this.isInEditMode()
-  );
+	public shouldShowProductsCard = computed(
+		() => (this.entryData()?.products?.length ?? 0) > 0 || this.isInEditMode(),
+	);
 
-  public shouldShowImagesCard = computed(
-    () => this.entryImageUrls().length > 0 || this.isInEditMode()
-  );
+	public shouldShowNotesCard = computed(
+		() => !!this.entryData()?.notes || this.isInEditMode(),
+	);
 
-  // @ts-expect-error -> using this until signal forms are ready
-  private _activitiesSubscriptionEffect = effect((onCleanup) => {
-    const activitiesControl = this.editForm.controls.activities;
+	public shouldShowImagesCard = computed(
+		() => this.entryImageUrls().length > 0 || this.isInEditMode(),
+	);
 
-    const subscription = activitiesControl.valueChanges.subscribe((values) => {
-      this.selectedActivities.set(values || []);
-    });
+	_formFileUpdater = effect(() => {
+		const entryData = this.entryData();
 
-    this.selectedActivities.set(activitiesControl.value || []);
+		if (entryData?.images.length) {
+			this._filesService
+				.downloadFiles(this.entryImageUrls())
+				.subscribe((downloadedFiles) => {
+					if (!downloadedFiles) return;
 
-    onCleanup(() => subscription.unsubscribe());
-  });
+					this.downloadedFiles.set(downloadedFiles);
+					this.editForm.controls.images.setValue(downloadedFiles);
+					this.editForm.updateValueAndValidity();
+				});
+		}
+	});
 
-  _formFileUpdater = effect(() => {
-    const entryData = this.entryData();
+	public constructor() {
+		const entryData =
+			this._router.getCurrentNavigation()?.extras.state?.["entry"];
 
-    if (entryData && entryData.images.length) {
-      this._filesService
-        .downloadFiles(this.entryImageUrls())
-        .subscribe((downloadedFiles) => {
-          if (!downloadedFiles) return;
+		entryData ? this.entryData.set(entryData) : this.shouldFetchEntry.set(true);
+	}
 
-          this.downloadedFiles.set(downloadedFiles);
-          this.editForm.controls.images.setValue(downloadedFiles);
-          this.editForm.updateValueAndValidity();
-        });
-    }
-  });
+	public openConfirmDelete(): void {
+		this._confirmationService.confirm({
+			message: "Are you sure you want to delete this entry?",
+			header: "Delete Entry",
+			icon: "ti ti-alert-triangle",
+			accept: () => {
+				this.deleteEntry();
+			},
+			reject: () => {},
+		});
+	}
 
-  public constructor() {
-    const entryData =
-      this._router.getCurrentNavigation()?.extras.state?.['entry'];
+	private deleteEntry(): void {
+		const dateOfDeletedEntry = this.entryData()?.date;
 
-    entryData ? this.entryData.set(entryData) : this.shouldFetchEntry.set(true);
-  }
+		this._entryService.deleteEntry(this.entryId()!).subscribe(() => {
+			this._entryService.recentEntry.reload();
+			this._entryService.lastMow.reload();
+			this._entryService.lastProductApp.reload();
 
-  public openConfirmDelete(): void {
-    this._confirmationService.confirm({
-      message: 'Are you sure you want to delete this entry?',
-      header: 'Delete Entry',
-      icon: 'ti ti-alert-triangle',
-      accept: () => {
-        this.deleteEntry();
-      },
-      reject: () => {}
-    });
-  }
+			this._router.navigate(["/entry-log"], {
+				queryParams: {
+					date: dateOfDeletedEntry,
+				},
+			});
+		});
+	}
 
-  private deleteEntry(): void {
-    const dateOfDeletedEntry = this.entryData()?.date;
+	public onFilesSelect(e: FileSelectEvent): void {
+		if (!e.files || e.files.length === 0) return;
 
-    this._entryService.deleteEntry(this.entryId()!).subscribe(() => {
-      this._entryService.recentEntry.reload();
-      this._entryService.lastMow.reload();
-      this._entryService.lastProductApp.reload();
+		const currentFiles = this.editForm.controls.images.value || [];
+		const existingFileNames = new Set(currentFiles.map((file) => file.name));
 
-      this._router.navigate(['/entry-log'], {
-        queryParams: {
-          date: dateOfDeletedEntry
-        }
-      });
-    });
-  }
+		const newUniqueFiles = Array.from(e.files).filter(
+			(file) => !existingFileNames.has(file.name),
+		);
 
-  public onFilesSelect(e: FileSelectEvent): void {
-    if (!e.files || e.files.length === 0) return;
+		const updatedFiles = [...currentFiles, ...newUniqueFiles];
 
-    const currentFiles = this.editForm.controls.images.value || [];
-    const existingFileNames = new Set(currentFiles.map((file) => file.name));
+		this.editForm.controls.images.setValue(updatedFiles);
+		this.downloadedFiles.set(updatedFiles);
+	}
 
-    const newUniqueFiles = Array.from(e.files).filter(
-      (file) => !existingFileNames.has(file.name)
-    );
+	public onRemoveFile(
+		file: File,
+		removeFileCallback: (file: File, index: number) => void,
+		index: number,
+	) {
+		const currentEntryImage = this.getCurrentEntryImage(file);
 
-    const updatedFiles = [...currentFiles, ...newUniqueFiles];
+		const remove = () => {
+			this.downloadedFiles.update((files) => {
+				if (!files) return [];
 
-    this.editForm.controls.images.setValue(updatedFiles);
-    this.downloadedFiles.set(updatedFiles);
-  }
+				return files.toSpliced(index, 1);
+			});
 
-  public onRemoveFile(
-    file: File,
-    removeFileCallback: (file: File, index: number) => void,
-    index: number
-  ) {
-    const currentEntryImage = this.getCurrentEntryImage(file);
+			this.editForm.controls.images.setValue(this.downloadedFiles() || []);
+			this.editForm.controls.images.updateValueAndValidity();
 
-    const remove = () => {
-      this.downloadedFiles.update((files) => {
-        if (!files) return [];
+			removeFileCallback(file, index);
+		};
 
-        return files.toSpliced(index, 1);
-      });
+		if (currentEntryImage) {
+			return this._confirmationService.confirm({
+				header: "Delete Existing Image",
+				message:
+					"Are you sure you want to delete this image? Since it already exists on this entry, you will need to upload it again if you want to keep it.",
+				accept: () => {
+					this._entryService.deleteEntryImage(currentEntryImage.id).subscribe();
+					remove();
+				},
+			});
+		}
 
-      this.editForm.controls.images.setValue(this.downloadedFiles() || []);
-      this.editForm.controls.images.updateValueAndValidity();
+		return remove();
+	}
 
-      removeFileCallback(file, index);
-    };
+	public toggleEditMode() {
+		this.isInEditMode.update((prevMode) => !prevMode);
 
-    if (currentEntryImage) {
-      return this._confirmationService.confirm({
-        header: 'Delete Existing Image',
-        message:
-          'Are you sure you want to delete this image? Since it already exists on this entry, you will need to upload it again if you want to keep it.',
-        accept: () => {
-          this._entryService.deleteEntryImage(currentEntryImage.id).subscribe();
-          remove();
-        }
-      });
-    }
+		if (this.isInEditMode()) {
+			const time = this.entryData()?.time;
 
-    return remove();
-  }
+			this.editForm.patchValue({
+				time: time ? convertTimeStringToDate(time) : null,
+				title: this.entryData()?.title,
+				activities: this.entryData()?.activities,
+				lawnSegments: this.entryData()?.lawnSegments,
+				productsSelected: this.entryData()?.products,
+				notes: this.entryData()?.notes,
+				mowingHeight: this.entryData()?.mowingHeight,
+			});
 
-  public toggleEditMode() {
-    this.isInEditMode.update((prevMode) => !prevMode);
+			if (!this.editForm.controls.products.length) {
+				this.entryData()?.products.forEach((prod) => {
+					this.editForm.controls.products.push(createEntryProductRow(prod));
+				});
+			}
 
-    if (this.isInEditMode()) {
-      this.editForm.patchValue({
-        time: convertTimeStringToDate(this.entryData()?.time!),
-        title: this.entryData()?.title,
-        activities: this.entryData()?.activities,
-        lawnSegments: this.entryData()?.lawnSegments,
-        productsSelected: this.entryData()?.products,
-        notes: this.entryData()?.notes,
-        mowingHeight: this.entryData()?.mowingHeight
-      });
+			this.editForm.updateValueAndValidity();
+		}
+	}
 
-      if (!this.editForm.controls.products.length) {
-        this.entryData()?.products.forEach((prod) => {
-          this.editForm.controls.products.push(createEntryProductRow(prod));
-        });
-      }
+	public submitEdits() {
+		const updatedEntry: Partial<EntryCreationRequest> = {
+			time: this.editForm.value.time
+				? format(this.editForm.value.time!, "HH:mm:ss")
+				: null,
+			title: this.editForm.value.title || "",
+			activityIds: this.editForm.value.activities?.map(({ id }) => id) || [],
+			lawnSegmentIds:
+				this.editForm.value.lawnSegments?.map(({ id }) => id) || [],
+			products:
+				this.editForm?.value.products
+					?.filter((row) => row.product?.id)
+					.map((row) => ({
+						productId: row.product!.id,
+						productQuantity: row.quantity!,
+						productQuantityUnit: row.quantityUnit!,
+					})) || [],
+			notes: this.editForm.value.notes || "",
+			mowingHeight: this.editForm.value.mowingHeight ?? null,
+			mowingHeightUnit: "inches",
+			images: this.editForm.value.images?.filter(
+				(img) => !this.getCurrentEntryImage(img),
+			),
+		};
 
-      this.editForm.updateValueAndValidity();
-    }
-  }
+		this.isLoading.set(true);
 
-  public submitEdits() {
-    const updatedEntry: Partial<EntryCreationRequest> = {
-      time: this.editForm.value.time
-        ? format(this.editForm.value.time!, 'HH:mm:ss')
-        : null,
-      title: this.editForm.value.title || '',
-      activityIds: this.editForm.value.activities?.map(({ id }) => id) || [],
-      lawnSegmentIds:
-        this.editForm.value.lawnSegments?.map(({ id }) => id) || [],
-      products:
-        this.editForm?.value.products?.map((row) => ({
-          productId: row.product?.id!,
-          productQuantity: row.quantity!,
-          productQuantityUnit: row.quantityUnit!
-        })) || [],
-      notes: this.editForm.value.notes || '',
-      mowingHeight: this.editForm.value.mowingHeight ?? null,
-      mowingHeightUnit: 'inches',
-      images: this.editForm.value.images?.filter(
-        (img) => !this.getCurrentEntryImage(img)
-      )
-    };
+		this._entryService.editEntry(this.entryId(), updatedEntry).subscribe({
+			next: () => {
+				this.isInEditMode.set(false);
+				this.isLoading.set(false);
+				this.entryResource.reload();
+				this._entryService.recentEntry.reload();
+			},
+			error: () => {
+				this._throwErrorToast("Failed to update entry");
+				this.isLoading.set(false);
+			},
+		});
+	}
 
-    this.isLoading.set(true);
+	private getCurrentEntryImage(file: File) {
+		const fileName = file.name;
 
-    this._entryService.editEntry(this.entryId(), updatedEntry).subscribe({
-      next: () => {
-        this.isInEditMode.set(false);
-        this.isLoading.set(false);
-        this.entryResource.reload();
-        this._entryService.recentEntry.reload();
-      },
-      error: () => {
-        this._throwErrorToast('Failed to update entry');
-        this.isLoading.set(false);
-      }
-    });
-  }
+		return (
+			this.entryData()?.images.find((img) => img.imageUrl.endsWith(fileName)) ||
+			null
+		);
+	}
 
-  private getCurrentEntryImage(file: File) {
-    const fileName = file.name;
-
-    return (
-      this.entryData()?.images.find((img) => img.imageUrl.endsWith(fileName)) ||
-      null
-    );
-  }
-
-  public soilTempChipDt: ChipDesignTokens = {
-    root: {
-      background: '{primary.200}',
-      color: '{primary.800}'
-    },
-    icon: {
-      color: '{primary.800}'
-    }
-  };
+	public soilTempChipDt: ChipDesignTokens = {
+		root: {
+			background: "{primary.200}",
+			color: "{primary.800}",
+		},
+		icon: {
+			color: "{primary.800}",
+		},
+	};
 }

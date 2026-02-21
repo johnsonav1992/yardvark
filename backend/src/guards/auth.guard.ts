@@ -1,22 +1,39 @@
-import { ExecutionContext, Injectable } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { AuthGuard } from '@nestjs/passport';
-import { IS_PUBLIC_KEY } from 'src/decorators/public.decorator';
+import { type ExecutionContext, Injectable } from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { GqlExecutionContext } from "@nestjs/graphql";
+import { AuthGuard } from "@nestjs/passport";
+import type { Request } from "express";
+import { IS_PUBLIC_KEY } from "src/decorators/public.decorator";
+import type { GqlContext } from "src/types/gql-context";
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {
-  constructor(private reflector: Reflector) {
-    super();
-  }
+export class JwtAuthGuard extends AuthGuard("jwt") {
+	constructor(private reflector: Reflector) {
+		super();
+	}
 
-  canActivate(context: ExecutionContext) {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
+	getRequest(context: ExecutionContext) {
+		if (context.getType() === "http") {
+			return context.switchToHttp().getRequest<Request>();
+		}
 
-    if (isPublic) return true;
+		const ctx = GqlExecutionContext.create(context);
 
-    return super.canActivate(context);
-  }
+		return ctx.getContext<GqlContext>().req;
+	}
+
+	canActivate(context: ExecutionContext) {
+		const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+			context.getHandler(),
+			context.getClass(),
+		]);
+
+		if (isPublic) return true;
+
+		return super.canActivate(context);
+	}
+
+	getAuthenticateOptions() {
+		return { session: false };
+	}
 }

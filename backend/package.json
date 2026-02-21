@@ -27,6 +27,7 @@
 		"@apollo/server": "^5.2.0",
 		"@as-integrations/express5": "^1.1.2",
 		"@aws-sdk/client-s3": "^3.758.0",
+		"@date-fns/utc": "^2.1.1",
 		"@google/genai": "^1.16.0",
 		"@huggingface/transformers": "^3.3.3",
 		"@nestjs/apollo": "^13.2.1",

@@ -14,11 +14,11 @@
 }
 
 .li-sprinkler:before {
-	content: "ea01";
+	content: "\ea01";
 }
 .li-shovel-dirt:before {
-	content: "ea02";
+	content: "\ea02";
 }
 .li-lawnmower:before {
-	content: "ea03";
+	content: "\ea03";
 }

@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { endOfDay, isValid, parseISO, startOfYear } from "date-fns";
+import { endOfDay, isValid, parse, startOfDay, startOfYear } from "date-fns";
+import { UTCDate } from "@date-fns/utc";
 import { ACTIVITY_IDS } from "src/constants/activities.constants";
 import {
 	Between,
@@ -50,8 +51,8 @@ export class EntriesService {
 		>
 	> {
 		if (startDate && endDate) {
-			const parsedStart = parseISO(startDate);
-			const parsedEnd = parseISO(endDate);
+			const parsedStart = this.parseDate(startDate);
+			const parsedEnd = this.parseDate(endDate);
 
 			if (!isValid(parsedStart) || !isValid(parsedEnd)) {
 				return error(new InvalidDateRange());
@@ -63,7 +64,7 @@ export class EntriesService {
 				userId,
 				date:
 					startDate && endDate
-						? Between(parseISO(startDate), parseISO(endDate))
+						? Between(this.parseDate(startDate), this.parseDate(endDate))
 						: undefined,
 			},
 			relations: {
@@ -133,14 +134,22 @@ export class EntriesService {
 			ReturnType<typeof getEntryResponseMapping> | Entry
 		>
 	> {
-		const parsedDate = parseISO(date);
+		const parsedDate = this.parseDate(date);
 
 		if (!isValid(parsedDate)) {
 			return error(new InvalidDateRange());
 		}
 
+		const dateString = parsedDate.toISOString().split("T")[0];
+		const utcDate = new UTCDate(dateString);
+		const start = startOfDay(utcDate);
+		const end = endOfDay(utcDate);
+
 		const entry = await this._entriesRepo.findOne({
-			where: { userId, date: parsedDate },
+			where: {
+				userId,
+				date: Between(start, end),
+			},
 			relations: {
 				activities: true,
 				lawnSegments: true,
@@ -415,10 +424,10 @@ export class EntriesService {
 		const yearStart = startOfYear(today);
 
 		const startDate = searchCriteria.dateRange?.[0]
-			? parseISO(searchCriteria.dateRange[0])
+			? this.parseDate(searchCriteria.dateRange[0])
 			: yearStart;
 		const endDate = searchCriteria.dateRange?.[1]
-			? parseISO(searchCriteria.dateRange[1])
+			? this.parseDate(searchCriteria.dateRange[1])
 			: today;
 
 		if (!isValid(startDate) || !isValid(endDate)) {
@@ -516,8 +525,8 @@ export class EntriesService {
 			.andWhere("entry.embedding IS NOT NULL");
 
 		if (startDate && endDate) {
-			const parsedStart = parseISO(startDate);
-			const parsedEnd = parseISO(endDate);
+			const parsedStart = this.parseDate(startDate);
+			const parsedEnd = this.parseDate(endDate);
 
 			if (!isValid(parsedStart) || !isValid(parsedEnd)) {
 				return error(new InvalidDateRange());
@@ -553,5 +562,13 @@ export class EntriesService {
 			.where("entry.userId = :userId", { userId })
 			.andWhere("entry.embedding IS NULL")
 			.getMany();
+	}
+
+	private parseDate(dateString: string): Date {
+		const dateOnly = dateString.includes("T")
+			? dateString.split("T")[0]
+			: dateString;
+
+		return parse(dateOnly, "yyyy-MM-dd", new Date());
 	}
 }

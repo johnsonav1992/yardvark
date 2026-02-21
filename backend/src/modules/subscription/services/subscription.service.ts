@@ -932,4 +932,13 @@ export class SubscriptionService {
 			);
 		}
 	}
+
+	public async getFeatureUsage(userId: string): Promise<FeatureUsage[]> {
+		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+
+		return this.usageRepo.find({
+			where: { userId },
+			order: { periodStart: "DESC" },
+		});
+	}
 }

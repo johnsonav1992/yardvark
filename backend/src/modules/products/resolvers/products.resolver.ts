@@ -4,7 +4,11 @@ import { GqlAuthGuard } from "../../../guards/gql-auth.guard";
 import type { GqlContext } from "../../../types/gql-context";
 import { Product } from "../models/products.model";
 import { ProductsService } from "../services/products.service";
-import { CreateProductInput, ProductWithHidden } from "./products.inputs";
+import {
+	CreateProductInput,
+	ProductWithHidden,
+	UpdateProductInput,
+} from "./products.inputs";
 
 @Resolver(() => Product)
 @UseGuards(GqlAuthGuard)
@@ -23,6 +27,13 @@ export class ProductsResolver {
 		});
 	}
 
+	@Query(() => Product, { name: "productById", nullable: true })
+	async getProductById(
+		@Args("id", { type: () => Int }) id: number,
+	): Promise<Product | null> {
+		return this.productsService.getProductById(id);
+	}
+
 	@Mutation(() => Product)
 	async createProduct(
 		@Args("input") input: CreateProductInput,
@@ -32,6 +43,14 @@ export class ProductsResolver {
 			...input,
 			userId: ctx.req.user.userId,
 		} as Product);
+	}
+
+	@Mutation(() => Product, { nullable: true })
+	async updateProduct(
+		@Args("id", { type: () => Int }) id: number,
+		@Args("input") input: UpdateProductInput,
+	): Promise<Product | null> {
+		return this.productsService.updateProduct(id, input);
 	}
 
 	@Mutation(() => Boolean)

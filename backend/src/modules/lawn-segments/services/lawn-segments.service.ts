@@ -29,6 +29,12 @@ export class LawnSegmentsService {
 		return segments;
 	}
 
+	public async getLawnSegmentById(id: number): Promise<LawnSegment | null> {
+		LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentId, id);
+
+		return this._lawnSegmentRepo.findOne({ where: { id } });
+	}
+
 	public async createLawnSegment(
 		userId: string,
 		lawnSegment: LawnSegmentCreationRequest,

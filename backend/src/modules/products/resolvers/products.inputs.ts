@@ -46,6 +46,51 @@ export class CreateProductInput {
 	labelUrl?: string;
 }
 
+@InputType()
+export class UpdateProductInput {
+	@Field({ nullable: true })
+	name?: string;
+
+	@Field({ nullable: true })
+	brand?: string;
+
+	@Field({ nullable: true })
+	description?: string;
+
+	@Field({ nullable: true })
+	category?: string;
+
+	@Field(() => Float, { nullable: true })
+	price?: number;
+
+	@Field({ nullable: true })
+	quantityUnit?: string;
+
+	@Field({ nullable: true })
+	applicationRate?: string;
+
+	@Field({ nullable: true })
+	applicationMethod?: string;
+
+	@Field(() => Int, { nullable: true })
+	coverage?: number;
+
+	@Field({ nullable: true })
+	coverageUnit?: string;
+
+	@Field({ nullable: true })
+	guaranteedAnalysis?: string;
+
+	@Field({ nullable: true })
+	containerType?: string;
+
+	@Field({ nullable: true })
+	imageUrl?: string;
+
+	@Field({ nullable: true })
+	labelUrl?: string;
+}
+
 @ObjectType()
 export class ProductWithHidden extends Product {
 	@Field()

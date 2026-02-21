@@ -128,6 +128,16 @@ type EquipmentMaintenance {
   updatedAt: DateTime
 }
 
+type FeatureUsage {
+  featureName: String!
+  id: ID!
+  lastUpdated: DateTime!
+  periodEnd: DateTime!
+  periodStart: DateTime!
+  usageCount: Int!
+  userId: String!
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -162,6 +172,7 @@ type Mutation {
   updateEquipment(id: Int!, input: UpdateEquipmentInput!): Equipment!
   updateLawnSegment(input: UpdateLawnSegmentInput!): LawnSegment!
   updateMaintenanceRecord(id: Int!, input: UpdateMaintenanceInput!): EquipmentMaintenance!
+  updateProduct(id: Int!, input: UpdateProductInput!): Product
   updateSettings(settings: String!): String!
 }
 
@@ -220,13 +231,18 @@ type Query {
   entry(id: Int!): Entry
   entryByDate(date: String!): Entry
   equipment: [Equipment!]!
+  equipmentById(id: Int!): Equipment
+  featureUsage: [FeatureUsage!]!
   lastMowDate: DateTime
   lastProductApplicationDate: DateTime
+  lawnSegmentById(id: Int!): LawnSegment
   lawnSegments: [LawnSegment!]!
   mostRecentEntry: Entry
+  productById(id: Int!): Product
   products(systemOnly: Boolean, userOnly: Boolean): [ProductWithHidden!]!
   searchEntries(input: SearchEntriesInput!): [Entry!]!
   settings: SettingsResponse
+  subscription: Subscription
 }
 
 input SearchEntriesInput {
@@ -241,6 +257,19 @@ type SettingsResponse {
   id: ID!
   userId: String!
   value: String!
+}
+
+type Subscription {
+  cancelAtPeriodEnd: Boolean!
+  canceledAt: DateTime
+  createdAt: DateTime!
+  currentPeriodEnd: DateTime
+  currentPeriodStart: DateTime
+  id: ID!
+  status: String!
+  tier: String!
+  updatedAt: DateTime!
+  userId: String!
 }
 
 input UpdateEntryInput {
@@ -285,4 +314,21 @@ input UpdateMaintenanceInput {
   cost: Float
   maintenanceDate: DateTime
   notes: String
+}
+
+input UpdateProductInput {
+  applicationMethod: String
+  applicationRate: String
+  brand: String
+  category: String
+  containerType: String
+  coverage: Int
+  coverageUnit: String
+  description: String
+  guaranteedAnalysis: String
+  imageUrl: String
+  labelUrl: String
+  name: String
+  price: Float
+  quantityUnit: String
 }

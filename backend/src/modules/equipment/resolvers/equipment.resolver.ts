@@ -23,6 +23,15 @@ export class EquipmentResolver {
 		return this.equipmentService.getAllUserEquipment(ctx.req.user.userId);
 	}
 
+	@Query(() => Equipment, { name: "equipmentById", nullable: true })
+	async getEquipmentById(
+		@Args("id", { type: () => Int }) id: number,
+	): Promise<Equipment | null> {
+		const result = await this.equipmentService.getEquipmentById(id);
+
+		return result.isSuccess() ? result.value : null;
+	}
+
 	@Mutation(() => Equipment)
 	async createEquipment(
 		@Args("input") input: CreateEquipmentInput,

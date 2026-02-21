@@ -20,6 +20,13 @@ export class LawnSegmentsResolver {
 		return this.lawnSegmentsService.getLawnSegments(ctx.req.user.userId);
 	}
 
+	@Query(() => LawnSegment, { name: "lawnSegmentById", nullable: true })
+	async getLawnSegmentById(
+		@Args("id", { type: () => Int }) id: number,
+	): Promise<LawnSegment | null> {
+		return this.lawnSegmentsService.getLawnSegmentById(id);
+	}
+
 	@Mutation(() => LawnSegment)
 	async createLawnSegment(
 		@Args("input") input: CreateLawnSegmentInput,

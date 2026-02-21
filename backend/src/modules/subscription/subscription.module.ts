@@ -8,6 +8,7 @@ import { UsageTrackingListener } from "./listeners/usage-tracking.listener";
 import { Subscription } from "./models/subscription.model";
 import { FeatureUsage } from "./models/usage.model";
 import { WebhookEvent } from "./models/webhook-event.model";
+import { SubscriptionResolver } from "./resolvers/subscription.resolver";
 import { StripeService } from "./services/stripe.service";
 import { SubscriptionService } from "./services/subscription.service";
 
@@ -22,6 +23,11 @@ import { SubscriptionService } from "./services/subscription.service";
 	],
 	exports: [SubscriptionService, TypeOrmModule],
 	controllers: [SubscriptionController, WebhookController],
-	providers: [SubscriptionService, StripeService, UsageTrackingListener],
+	providers: [
+		SubscriptionService,
+		StripeService,
+		UsageTrackingListener,
+		SubscriptionResolver,
+	],
 })
 export class SubscriptionModule {}

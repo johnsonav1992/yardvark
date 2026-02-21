@@ -54,6 +54,12 @@ export class ProductsService {
 		});
 	}
 
+	public async getProductById(id: number): Promise<Product | null> {
+		LogHelpers.addBusinessContext(BusinessContextKeys.productId, id);
+
+		return this._productsRepo.findOne({ where: { id } });
+	}
+
 	public async addProduct(product: Product) {
 		const newProduct = this._productsRepo.create(product);
 		const saved = await this._productsRepo.save(newProduct);
@@ -61,6 +67,14 @@ export class ProductsService {
 		LogHelpers.addBusinessContext(BusinessContextKeys.productCreated, saved.id);
 
 		return saved;
+	}
+
+	public async updateProduct(id: number, updates: Partial<Product>) {
+		LogHelpers.addBusinessContext(BusinessContextKeys.productId, id);
+
+		await this._productsRepo.update(id, updates);
+
+		return this._productsRepo.findOne({ where: { id } });
 	}
 
 	public async hideProduct(userId: string, productId: number) {

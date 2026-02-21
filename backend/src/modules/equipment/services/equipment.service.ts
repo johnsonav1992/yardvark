@@ -39,6 +39,28 @@ export class EquipmentService {
 		return equipment;
 	}
 
+	public async getEquipmentById(
+		equipmentId: number,
+	): Promise<Either<EquipmentNotFound, Equipment>> {
+		LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
+
+		const equipment = await this._equipmentRepo.findOne({
+			where: { id: equipmentId },
+			relations: { maintenanceRecords: true },
+			order: {
+				maintenanceRecords: {
+					maintenanceDate: "DESC",
+				},
+			},
+		});
+
+		if (!equipment) {
+			return error(new EquipmentNotFound());
+		}
+
+		return success(equipment);
+	}
+
 	public async createEquipment(
 		userId: string,
 		equipmentData: Partial<Equipment>,

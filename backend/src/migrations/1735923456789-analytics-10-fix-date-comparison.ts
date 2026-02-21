@@ -1,10 +1,10 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class Analytics10FixDateComparison1735923456789
-  implements MigrationInterface
+	implements MigrationInterface
 {
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
+	public async up(queryRunner: QueryRunner): Promise<void> {
+		await queryRunner.query(`
       CREATE OR REPLACE FUNCTION get_user_analytics_v2(p_user_id VARCHAR)
       RETURNS JSON AS $$
       DECLARE
@@ -165,11 +165,11 @@ export class Analytics10FixDateComparison1735923456789
       END;
       $$ LANGUAGE plpgsql;
     `);
-  }
+	}
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    // Rollback to the previous version with the original date comparison
-    await queryRunner.query(`
+	public async down(queryRunner: QueryRunner): Promise<void> {
+		// Rollback to the previous version with the original date comparison
+		await queryRunner.query(`
       CREATE OR REPLACE FUNCTION get_user_analytics_v2(p_user_id VARCHAR)
       RETURNS JSON AS $$
       DECLARE
@@ -330,5 +330,5 @@ export class Analytics10FixDateComparison1735923456789
       END;
       $$ LANGUAGE plpgsql;
     `);
-  }
+	}
 }

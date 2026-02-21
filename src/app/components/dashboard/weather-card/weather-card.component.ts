@@ -1,129 +1,129 @@
-import { Component, computed, inject, output } from '@angular/core';
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
-import { TooltipModule } from 'primeng/tooltip';
-import { CdkDragHandle } from '@angular/cdk/drag-drop';
-import { WeatherService } from '../../../services/weather-service';
-import { GlobalUiService } from '../../../services/global-ui.service';
-import { LocationService } from '../../../services/location.service';
+import { Component, computed, inject, output } from "@angular/core";
+import { CardModule } from "primeng/card";
+import { ButtonModule } from "primeng/button";
+import { TooltipModule } from "primeng/tooltip";
+import { CdkDragHandle } from "@angular/cdk/drag-drop";
+import { WeatherService } from "../../../services/weather-service";
+import { GlobalUiService } from "../../../services/global-ui.service";
+import { LocationService } from "../../../services/location.service";
 import {
-  convertPeriodToForecast,
-  getForecastMarkerIcon
-} from '../../../utils/weatherUtils';
-import type { WeatherPeriod } from '../../../types/weather.types';
-import { format, parseISO } from 'date-fns';
+	convertPeriodToForecast,
+	getForecastMarkerIcon,
+} from "../../../utils/weatherUtils";
+import type { WeatherPeriod } from "../../../types/weather.types";
+import { format, parseISO } from "date-fns";
 
 @Component({
-  selector: 'weather-card',
-  imports: [CardModule, ButtonModule, TooltipModule, CdkDragHandle],
-  templateUrl: './weather-card.component.html',
-  styleUrl: './weather-card.component.scss'
+	selector: "weather-card",
+	imports: [CardModule, ButtonModule, TooltipModule, CdkDragHandle],
+	templateUrl: "./weather-card.component.html",
+	styleUrl: "./weather-card.component.scss",
 })
 export class WeatherCardComponent {
-  private _weatherService = inject(WeatherService);
-  private _globalUiService = inject(GlobalUiService);
-  private _locationService = inject(LocationService);
+	private _weatherService = inject(WeatherService);
+	private _globalUiService = inject(GlobalUiService);
+	private _locationService = inject(LocationService);
 
-  public onHideWidget = output<void>();
+	public onHideWidget = output<void>();
 
-  public isMobile = this._globalUiService.isMobile;
-  public isDarkMode = this._globalUiService.isDarkMode;
-  public userCoords = this._locationService.userLatLong;
-  public weatherData = this._weatherService.weatherForecastData;
+	public isMobile = this._globalUiService.isMobile;
+	public isDarkMode = this._globalUiService.isDarkMode;
+	public userCoords = this._locationService.userLatLong;
+	public weatherData = this._weatherService.weatherForecastData;
 
-  public hasLocation = computed(() => !!this.userCoords());
+	public hasLocation = computed(() => !!this.userCoords());
 
-  public isLoading = computed(() =>
-    this._weatherService.weatherDataResource.isLoading()
-  );
+	public isLoading = computed(() =>
+		this._weatherService.weatherDataResource.isLoading(),
+	);
 
-  public todaysWeather = computed(() => {
-    const forecasts = this.weatherData();
-    if (!forecasts || forecasts.length === 0) return null;
+	public todaysWeather = computed(() => {
+		const forecasts = this.weatherData();
+		if (!forecasts || forecasts.length === 0) return null;
 
-    const todayDateString = this.getTodayDateString();
+		const todayDateString = this.getTodayDateString();
 
-    const todayDaytimeForecast = this.findPeriodByDate({
-      forecasts,
-      dateString: todayDateString,
-      isDaytime: true
-    });
+		const todayDaytimeForecast = this.findPeriodByDate({
+			forecasts,
+			dateString: todayDateString,
+			isDaytime: true,
+		});
 
-    if (todayDaytimeForecast) return todayDaytimeForecast;
+		if (todayDaytimeForecast) return todayDaytimeForecast;
 
-    const todayNighttimeForecast = this.findPeriodByDate({
-      forecasts,
-      dateString: todayDateString,
-      isDaytime: false
-    });
+		const todayNighttimeForecast = this.findPeriodByDate({
+			forecasts,
+			dateString: todayDateString,
+			isDaytime: false,
+		});
 
-    if (todayNighttimeForecast) return todayNighttimeForecast;
+		if (todayNighttimeForecast) return todayNighttimeForecast;
 
-    return forecasts.find((period) => period.isDaytime) || forecasts[0];
-  });
+		return forecasts.find((period) => period.isDaytime) || forecasts[0];
+	});
 
-  public tonightsWeather = computed(() => {
-    const forecasts = this.weatherData();
-    if (!forecasts || forecasts.length === 0) return null;
+	public tonightsWeather = computed(() => {
+		const forecasts = this.weatherData();
+		if (!forecasts || forecasts.length === 0) return null;
 
-    const todayDateString = this.getTodayDateString();
-    const mainWeather = this.todaysWeather();
+		const todayDateString = this.getTodayDateString();
+		const mainWeather = this.todaysWeather();
 
-    const tonightForecast = this.findPeriodByDate({
-      forecasts,
-      dateString: todayDateString,
-      isDaytime: false
-    });
+		const tonightForecast = this.findPeriodByDate({
+			forecasts,
+			dateString: todayDateString,
+			isDaytime: false,
+		});
 
-    if (
-      tonightForecast &&
-      mainWeather &&
-      tonightForecast.startTime !== mainWeather.startTime
-    ) {
-      return tonightForecast;
-    }
+		if (
+			tonightForecast &&
+			mainWeather &&
+			tonightForecast.startTime !== mainWeather.startTime
+		) {
+			return tonightForecast;
+		}
 
-    return null;
-  });
+		return null;
+	});
 
-  public todaysWeatherIcon = computed(() =>
-    this.getWeatherIconForPeriod(this.todaysWeather())
-  );
+	public todaysWeatherIcon = computed(() =>
+		this.getWeatherIconForPeriod(this.todaysWeather()),
+	);
 
-  public tonightsWeatherIcon = computed(() =>
-    this.getWeatherIconForPeriod(this.tonightsWeather())
-  );
+	public tonightsWeatherIcon = computed(() =>
+		this.getWeatherIconForPeriod(this.tonightsWeather()),
+	);
 
-  private getWeatherIconForPeriod(period: WeatherPeriod | null): string {
-    if (!period) return 'ti ti-cloud';
+	private getWeatherIconForPeriod(period: WeatherPeriod | null): string {
+		if (!period) return "ti ti-cloud";
 
-    return getForecastMarkerIcon(convertPeriodToForecast(period));
-  }
+		return getForecastMarkerIcon(convertPeriodToForecast(period));
+	}
 
-  private findPeriodByDate({
-    forecasts,
-    dateString,
-    isDaytime
-  }: {
-    forecasts: WeatherPeriod[];
-    dateString: string;
-    isDaytime?: boolean;
-  }): WeatherPeriod | undefined {
-    return forecasts.find((period) => {
-      const periodDate = parseISO(period.startTime);
-      const matchesDate = format(periodDate, 'EEE MMM dd yyyy') === dateString;
-      const matchesDayTime =
-        isDaytime === undefined || period.isDaytime === isDaytime;
+	private findPeriodByDate({
+		forecasts,
+		dateString,
+		isDaytime,
+	}: {
+		forecasts: WeatherPeriod[];
+		dateString: string;
+		isDaytime?: boolean;
+	}): WeatherPeriod | undefined {
+		return forecasts.find((period) => {
+			const periodDate = parseISO(period.startTime);
+			const matchesDate = format(periodDate, "EEE MMM dd yyyy") === dateString;
+			const matchesDayTime =
+				isDaytime === undefined || period.isDaytime === isDaytime;
 
-      return matchesDate && matchesDayTime;
-    });
-  }
+			return matchesDate && matchesDayTime;
+		});
+	}
 
-  private getTodayDateString(): string {
-    return format(new Date(), 'EEE MMM dd yyyy');
-  }
+	private getTodayDateString(): string {
+		return format(new Date(), "EEE MMM dd yyyy");
+	}
 
-  public hideWidget(): void {
-    this.onHideWidget.emit();
-  }
+	public hideWidget(): void {
+		this.onHideWidget.emit();
+	}
 }

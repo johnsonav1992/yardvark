@@ -1,189 +1,189 @@
-import { Injectable } from '@nestjs/common';
-import { Equipment } from '../models/equipment.model';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
-import { EquipmentMaintenance } from '../models/equipmentMaintenance.model';
-import { LogHelpers } from '../../../logger/logger.helpers';
-import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
-import { Either, error, success } from '../../../types/either';
+import { Injectable } from "@nestjs/common";
+import { Equipment } from "../models/equipment.model";
+import { Repository } from "typeorm";
+import { InjectRepository } from "@nestjs/typeorm";
+import { EquipmentMaintenance } from "../models/equipmentMaintenance.model";
+import { LogHelpers } from "../../../logger/logger.helpers";
+import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import { Either, error, success } from "../../../types/either";
 import {
-  EquipmentNotFound,
-  MaintenanceRecordNotFound,
-} from '../models/equipment.errors';
+	EquipmentNotFound,
+	MaintenanceRecordNotFound,
+} from "../models/equipment.errors";
 
 @Injectable()
 export class EquipmentService {
-  constructor(
-    @InjectRepository(Equipment)
-    private readonly _equipmentRepo: Repository<Equipment>,
-    @InjectRepository(EquipmentMaintenance)
-    private readonly _equipmentMaintenanceRepo: Repository<EquipmentMaintenance>,
-  ) {}
+	constructor(
+		@InjectRepository(Equipment)
+		private readonly _equipmentRepo: Repository<Equipment>,
+		@InjectRepository(EquipmentMaintenance)
+		private readonly _equipmentMaintenanceRepo: Repository<EquipmentMaintenance>,
+	) {}
 
-  public async getAllUserEquipment(userId: string): Promise<Equipment[]> {
-    const equipment = await this._equipmentRepo.find({
-      where: { userId },
-      relations: { maintenanceRecords: true },
-      order: {
-        maintenanceRecords: {
-          maintenanceDate: 'DESC',
-        },
-      },
-    });
+	public async getAllUserEquipment(userId: string): Promise<Equipment[]> {
+		const equipment = await this._equipmentRepo.find({
+			where: { userId },
+			relations: { maintenanceRecords: true },
+			order: {
+				maintenanceRecords: {
+					maintenanceDate: "DESC",
+				},
+			},
+		});
 
-    LogHelpers.addBusinessContext(
-      BusinessContextKeys.equipmentCount,
-      equipment.length,
-    );
+		LogHelpers.addBusinessContext(
+			BusinessContextKeys.equipmentCount,
+			equipment.length,
+		);
 
-    return equipment;
-  }
+		return equipment;
+	}
 
-  public async createEquipment(
-    userId: string,
-    equipmentData: Partial<Equipment>,
-  ): Promise<Equipment> {
-    const newEquipment = this._equipmentRepo.create({
-      ...equipmentData,
-      maintenanceRecords: [],
-      userId,
-    });
+	public async createEquipment(
+		userId: string,
+		equipmentData: Partial<Equipment>,
+	): Promise<Equipment> {
+		const newEquipment = this._equipmentRepo.create({
+			...equipmentData,
+			maintenanceRecords: [],
+			userId,
+		});
 
-    const saved = await this._equipmentRepo.save(newEquipment);
+		const saved = await this._equipmentRepo.save(newEquipment);
 
-    LogHelpers.addBusinessContext(
-      BusinessContextKeys.equipmentCreated,
-      saved.id,
-    );
+		LogHelpers.addBusinessContext(
+			BusinessContextKeys.equipmentCreated,
+			saved.id,
+		);
 
-    return saved;
-  }
+		return saved;
+	}
 
-  public async updateEquipment(
-    equipmentId: number,
-    equipmentData: Partial<Equipment>,
-  ): Promise<Either<EquipmentNotFound, Equipment>> {
-    const equipment = await this.findEquipmentById(equipmentId);
+	public async updateEquipment(
+		equipmentId: number,
+		equipmentData: Partial<Equipment>,
+	): Promise<Either<EquipmentNotFound, Equipment>> {
+		const equipment = await this.findEquipmentById(equipmentId);
 
-    if (!equipment) {
-      return error(new EquipmentNotFound());
-    }
+		if (!equipment) {
+			return error(new EquipmentNotFound());
+		}
 
-    const updatedEquipment = {
-      ...equipment,
-      ...equipmentData,
-      updatedAt: new Date(),
-    };
+		const updatedEquipment = {
+			...equipment,
+			...equipmentData,
+			updatedAt: new Date(),
+		};
 
-    return success(await this._equipmentRepo.save(updatedEquipment));
-  }
+		return success(await this._equipmentRepo.save(updatedEquipment));
+	}
 
-  public async toggleEquipmentArchiveStatus(
-    equipmentId: number,
-    isActive: boolean,
-  ): Promise<Either<EquipmentNotFound, void>> {
-    const equipment = await this.findEquipmentById(equipmentId);
+	public async toggleEquipmentArchiveStatus(
+		equipmentId: number,
+		isActive: boolean,
+	): Promise<Either<EquipmentNotFound, void>> {
+		const equipment = await this.findEquipmentById(equipmentId);
 
-    if (!equipment) {
-      return error(new EquipmentNotFound());
-    }
+		if (!equipment) {
+			return error(new EquipmentNotFound());
+		}
 
-    equipment.isActive = isActive;
+		equipment.isActive = isActive;
 
-    await this._equipmentRepo.save(equipment);
+		await this._equipmentRepo.save(equipment);
 
-    return success(undefined);
-  }
+		return success(undefined);
+	}
 
-  public async createMaintenanceRecord(
-    equipmentId: number,
-    maintenanceData: Partial<EquipmentMaintenance>,
-  ): Promise<Either<EquipmentNotFound, EquipmentMaintenance>> {
-    LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
+	public async createMaintenanceRecord(
+		equipmentId: number,
+		maintenanceData: Partial<EquipmentMaintenance>,
+	): Promise<Either<EquipmentNotFound, EquipmentMaintenance>> {
+		LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
 
-    const equipment = await this.findEquipmentById(equipmentId);
+		const equipment = await this.findEquipmentById(equipmentId);
 
-    if (!equipment) {
-      return error(new EquipmentNotFound());
-    }
+		if (!equipment) {
+			return error(new EquipmentNotFound());
+		}
 
-    const newMaintenanceRecord = this._equipmentMaintenanceRepo.create({
-      ...maintenanceData,
-      equipment: {
-        id: equipmentId,
-      },
-    });
+		const newMaintenanceRecord = this._equipmentMaintenanceRepo.create({
+			...maintenanceData,
+			equipment: {
+				id: equipmentId,
+			},
+		});
 
-    await this._equipmentMaintenanceRepo.save(newMaintenanceRecord);
+		await this._equipmentMaintenanceRepo.save(newMaintenanceRecord);
 
-    LogHelpers.addBusinessContext(
-      BusinessContextKeys.maintenanceRecordCreated,
-      newMaintenanceRecord.id,
-    );
+		LogHelpers.addBusinessContext(
+			BusinessContextKeys.maintenanceRecordCreated,
+			newMaintenanceRecord.id,
+		);
 
-    return success(newMaintenanceRecord);
-  }
+		return success(newMaintenanceRecord);
+	}
 
-  public async updateMaintenanceRecord(
-    maintenanceId: number,
-    maintenanceData: Partial<EquipmentMaintenance>,
-  ): Promise<Either<MaintenanceRecordNotFound, EquipmentMaintenance>> {
-    const maintenanceRecord = await this._equipmentMaintenanceRepo.findOne({
-      where: { id: maintenanceId },
-    });
+	public async updateMaintenanceRecord(
+		maintenanceId: number,
+		maintenanceData: Partial<EquipmentMaintenance>,
+	): Promise<Either<MaintenanceRecordNotFound, EquipmentMaintenance>> {
+		const maintenanceRecord = await this._equipmentMaintenanceRepo.findOne({
+			where: { id: maintenanceId },
+		});
 
-    if (!maintenanceRecord) {
-      return error(new MaintenanceRecordNotFound());
-    }
+		if (!maintenanceRecord) {
+			return error(new MaintenanceRecordNotFound());
+		}
 
-    const updated: EquipmentMaintenance = {
-      ...maintenanceRecord,
-      ...maintenanceData,
-      updatedAt: new Date(),
-    };
+		const updated: EquipmentMaintenance = {
+			...maintenanceRecord,
+			...maintenanceData,
+			updatedAt: new Date(),
+		};
 
-    return success(await this._equipmentMaintenanceRepo.save(updated));
-  }
+		return success(await this._equipmentMaintenanceRepo.save(updated));
+	}
 
-  public async deleteEquipment(
-    equipmentId: number,
-  ): Promise<Either<EquipmentNotFound, void>> {
-    LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
+	public async deleteEquipment(
+		equipmentId: number,
+	): Promise<Either<EquipmentNotFound, void>> {
+		LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
 
-    const equipment = await this.findEquipmentById(equipmentId);
+		const equipment = await this.findEquipmentById(equipmentId);
 
-    if (!equipment) {
-      return error(new EquipmentNotFound());
-    }
+		if (!equipment) {
+			return error(new EquipmentNotFound());
+		}
 
-    await this._equipmentRepo.softDelete(equipmentId);
+		await this._equipmentRepo.softDelete(equipmentId);
 
-    LogHelpers.addBusinessContext(BusinessContextKeys.equipmentDeleted, true);
+		LogHelpers.addBusinessContext(BusinessContextKeys.equipmentDeleted, true);
 
-    return success(undefined);
-  }
+		return success(undefined);
+	}
 
-  public async deleteMaintenanceRecord(
-    maintenanceId: number,
-  ): Promise<Either<MaintenanceRecordNotFound, void>> {
-    const maintenanceRecord = await this._equipmentMaintenanceRepo.findOne({
-      where: { id: maintenanceId },
-    });
+	public async deleteMaintenanceRecord(
+		maintenanceId: number,
+	): Promise<Either<MaintenanceRecordNotFound, void>> {
+		const maintenanceRecord = await this._equipmentMaintenanceRepo.findOne({
+			where: { id: maintenanceId },
+		});
 
-    if (!maintenanceRecord) {
-      return error(new MaintenanceRecordNotFound());
-    }
+		if (!maintenanceRecord) {
+			return error(new MaintenanceRecordNotFound());
+		}
 
-    await this._equipmentMaintenanceRepo.softDelete(maintenanceId);
+		await this._equipmentMaintenanceRepo.softDelete(maintenanceId);
 
-    return success(undefined);
-  }
+		return success(undefined);
+	}
 
-  private async findEquipmentById(
-    equipmentId: number,
-  ): Promise<Equipment | null> {
-    return this._equipmentRepo.findOne({
-      where: { id: equipmentId },
-    });
-  }
+	private async findEquipmentById(
+		equipmentId: number,
+	): Promise<Equipment | null> {
+		return this._equipmentRepo.findOne({
+			where: { id: equipmentId },
+		});
+	}
 }

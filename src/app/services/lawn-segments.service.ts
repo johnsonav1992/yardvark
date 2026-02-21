@@ -1,39 +1,39 @@
-import { httpResource } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { LawnSegment } from '../types/lawnSegments.types';
-import { apiUrl, deleteReq, postReq, putReq } from '../utils/httpUtils';
-import { Observable } from 'rxjs';
+import { httpResource } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { LawnSegment } from "../types/lawnSegments.types";
+import { apiUrl, deleteReq, postReq, putReq } from "../utils/httpUtils";
+import { Observable } from "rxjs";
 
 @Injectable({
-  providedIn: 'root'
+	providedIn: "root",
 })
 export class LawnSegmentsService {
-  public lawnSegments = httpResource<LawnSegment[]>(() =>
-    apiUrl('lawn-segments')
-  );
+	public lawnSegments = httpResource<LawnSegment[]>(() =>
+		apiUrl("lawn-segments"),
+	);
 
-  public addLawnSegment(newSegment: LawnSegment): Observable<LawnSegment> {
-    return postReq<LawnSegment>(apiUrl('lawn-segments'), {
-      name: newSegment.name,
-      size: newSegment.size,
-      coordinates: newSegment.coordinates,
-      color: newSegment.color
-    });
-  }
+	public addLawnSegment(newSegment: LawnSegment): Observable<LawnSegment> {
+		return postReq<LawnSegment>(apiUrl("lawn-segments"), {
+			name: newSegment.name,
+			size: newSegment.size,
+			coordinates: newSegment.coordinates,
+			color: newSegment.color,
+		});
+	}
 
-  public updateLawnSegment(segment: LawnSegment): Observable<LawnSegment> {
-    return putReq<LawnSegment>(
-      apiUrl('lawn-segments', { params: [segment.id] }),
-      {
-        name: segment.name,
-        size: segment.size,
-        coordinates: segment.coordinates,
-        color: segment.color
-      }
-    );
-  }
+	public updateLawnSegment(segment: LawnSegment): Observable<LawnSegment> {
+		return putReq<LawnSegment>(
+			apiUrl("lawn-segments", { params: [segment.id] }),
+			{
+				name: segment.name,
+				size: segment.size,
+				coordinates: segment.coordinates,
+				color: segment.color,
+			},
+		);
+	}
 
-  public deleteLawnSegment(id: number): Observable<void> {
-    return deleteReq(apiUrl(`lawn-segments`, { params: [id] }));
-  }
+	public deleteLawnSegment(id: number): Observable<void> {
+		return deleteReq(apiUrl(`lawn-segments`, { params: [id] }));
+	}
 }

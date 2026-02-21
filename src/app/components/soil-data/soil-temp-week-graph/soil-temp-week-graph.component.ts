@@ -1,108 +1,108 @@
-import { Component, computed, inject, input } from '@angular/core';
-import { Chart, ChartData, ChartOptions } from 'chart.js';
-import { ChartModule } from 'primeng/chart';
-import { getPrimeNgHexColor } from '../../../utils/styleUtils';
-import { ChartLoaderComponent } from '../../miscellanious/chart-loader/chart-loader.component';
-import { GlobalUiService } from '../../../services/global-ui.service';
-import { DARK_MODE_CHART_GRID_COLOR } from '../../../constants/chart-constants';
-import { CardModule } from 'primeng/card';
-import { NgTemplateOutlet } from '@angular/common';
-import annotationPlugin from 'chartjs-plugin-annotation';
+import { Component, computed, inject, input } from "@angular/core";
+import { Chart, ChartData, ChartOptions } from "chart.js";
+import { ChartModule } from "primeng/chart";
+import { getPrimeNgHexColor } from "../../../utils/styleUtils";
+import { ChartLoaderComponent } from "../../miscellanious/chart-loader/chart-loader.component";
+import { GlobalUiService } from "../../../services/global-ui.service";
+import { DARK_MODE_CHART_GRID_COLOR } from "../../../constants/chart-constants";
+import { CardModule } from "primeng/card";
+import { NgTemplateOutlet } from "@angular/common";
+import annotationPlugin from "chartjs-plugin-annotation";
 
 Chart.register(annotationPlugin);
 
 @Component({
-  selector: 'soil-temp-week-graph',
-  imports: [ChartModule, ChartLoaderComponent, CardModule, NgTemplateOutlet],
-  templateUrl: './soil-temp-week-graph.component.html',
-  styleUrl: './soil-temp-week-graph.component.scss'
+	selector: "soil-temp-week-graph",
+	imports: [ChartModule, ChartLoaderComponent, CardModule, NgTemplateOutlet],
+	templateUrl: "./soil-temp-week-graph.component.html",
+	styleUrl: "./soil-temp-week-graph.component.scss",
 })
 export class SoilTempWeekGraphComponent {
-  private _globalUiService = inject(GlobalUiService);
+	private _globalUiService = inject(GlobalUiService);
 
-  public isDarkMode = this._globalUiService.isDarkMode;
-  public isMobile = this._globalUiService.isMobile;
+	public isDarkMode = this._globalUiService.isDarkMode;
+	public isMobile = this._globalUiService.isMobile;
 
-  public labels = input.required<string[]>();
-  public dailyAverageShallowTemps = input.required<number[]>();
-  public dailyAverageDeepTemps = input.required<number[]>();
-  public tempUnit = input.required<'fahrenheit' | 'celsius'>();
-  public isLoadingChartData = input<boolean>(false);
-  public todayIndex = input<number>(-1);
+	public labels = input.required<string[]>();
+	public dailyAverageShallowTemps = input.required<number[]>();
+	public dailyAverageDeepTemps = input.required<number[]>();
+	public tempUnit = input.required<"fahrenheit" | "celsius">();
+	public isLoadingChartData = input<boolean>(false);
+	public todayIndex = input<number>(-1);
 
-  public displayTempUnit = computed(
-    () => `${this.tempUnit() === 'fahrenheit' ? '°F' : '°C'}`
-  );
+	public displayTempUnit = computed(
+		() => `${this.tempUnit() === "fahrenheit" ? "°F" : "°C"}`,
+	);
 
-  public tempsChartData = computed<ChartData<'line'>>(() => ({
-    labels: this.labels(),
-    datasets: [
-      {
-        type: 'line',
-        label: `3in. depth ${this.displayTempUnit()}`,
-        data: this.dailyAverageShallowTemps(),
-        borderColor: getPrimeNgHexColor('indigo.400'),
-        tension: 0.4
-      },
-      {
-        type: 'line',
-        label: `7in. depth ${this.displayTempUnit()}`,
-        data: this.dailyAverageDeepTemps(),
-        borderColor: getPrimeNgHexColor('lime.400'),
-        tension: 0.4
-      }
-    ]
-  }));
+	public tempsChartData = computed<ChartData<"line">>(() => ({
+		labels: this.labels(),
+		datasets: [
+			{
+				type: "line",
+				label: `3in. depth ${this.displayTempUnit()}`,
+				data: this.dailyAverageShallowTemps(),
+				borderColor: getPrimeNgHexColor("indigo.400"),
+				tension: 0.4,
+			},
+			{
+				type: "line",
+				label: `7in. depth ${this.displayTempUnit()}`,
+				data: this.dailyAverageDeepTemps(),
+				borderColor: getPrimeNgHexColor("lime.400"),
+				tension: 0.4,
+			},
+		],
+	}));
 
-  public options = computed<ChartOptions<'line'>>(() => ({
-    maintainAspectRatio: false,
-    aspectRatio: this.isMobile() ? 1.1 : 0.75,
-    scales: {
-      y: {
-        beginAtZero: true,
-        min: 0,
-        max: 100,
-        ticks: {
-          stepSize: 20
-        },
-        grid: this.isDarkMode()
-          ? {
-              color: DARK_MODE_CHART_GRID_COLOR
-            }
-          : undefined
-      },
-      x: {
-        ticks: {
-          maxRotation: this.isMobile() ? 25 : 0,
-          minRotation: this.isMobile() ? 25 : 0
-        }
-      }
-    },
-    plugins: {
-      legend: {
-        position: 'chartArea',
-        align: 'end'
-      },
-      annotation: {
-        annotations:
-          this.todayIndex() >= 0
-            ? {
-                todayLine: {
-                  type: 'line',
-                  xMin: this.todayIndex(),
-                  xMax: this.todayIndex(),
-                  borderColor: this.isDarkMode()
-                    ? 'rgba(156, 163, 175, 0.6)'
-                    : 'rgba(107, 114, 128, 0.5)',
-                  borderWidth: 2,
-                  borderDash: [5, 5],
-                  label: {
-                    display: false
-                  }
-                }
-              }
-            : {}
-      }
-    }
-  }));
+	public options = computed<ChartOptions<"line">>(() => ({
+		maintainAspectRatio: false,
+		aspectRatio: this.isMobile() ? 1.1 : 0.75,
+		scales: {
+			y: {
+				beginAtZero: true,
+				min: 0,
+				max: 100,
+				ticks: {
+					stepSize: 20,
+				},
+				grid: this.isDarkMode()
+					? {
+							color: DARK_MODE_CHART_GRID_COLOR,
+						}
+					: undefined,
+			},
+			x: {
+				ticks: {
+					maxRotation: this.isMobile() ? 25 : 0,
+					minRotation: this.isMobile() ? 25 : 0,
+				},
+			},
+		},
+		plugins: {
+			legend: {
+				position: "chartArea",
+				align: "end",
+			},
+			annotation: {
+				annotations:
+					this.todayIndex() >= 0
+						? {
+								todayLine: {
+									type: "line",
+									xMin: this.todayIndex(),
+									xMax: this.todayIndex(),
+									borderColor: this.isDarkMode()
+										? "rgba(156, 163, 175, 0.6)"
+										: "rgba(107, 114, 128, 0.5)",
+									borderWidth: 2,
+									borderDash: [5, 5],
+									label: {
+										display: false,
+									},
+								},
+							}
+						: {},
+			},
+		},
+	}));
 }

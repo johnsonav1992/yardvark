@@ -1,38 +1,38 @@
-import { InputType, Field, Float, Int } from '@nestjs/graphql';
-import GraphQLJSON from 'graphql-type-json';
+import { InputType, Field, Float, Int } from "@nestjs/graphql";
+import GraphQLJSON from "graphql-type-json";
 
 @InputType()
 export class CreateLawnSegmentInput {
-  @Field()
-  name: string;
+	@Field()
+	name: string;
 
-  @Field(() => Float)
-  size: number;
+	@Field(() => Float)
+	size: number;
 
-  @Field(() => GraphQLJSON, { nullable: true })
-  coordinates?: number[][][] | null;
+	@Field(() => GraphQLJSON, { nullable: true })
+	coordinates?: number[][][] | null;
 
-  @Field({ nullable: true })
-  color?: string;
+	@Field({ nullable: true })
+	color?: string;
 }
 
 @InputType()
 export class UpdateLawnSegmentInput {
-  @Field(() => Int)
-  id: number;
+	@Field(() => Int)
+	id: number;
 
-  @Field()
-  userId: string;
+	@Field()
+	userId: string;
 
-  @Field()
-  name: string;
+	@Field()
+	name: string;
 
-  @Field(() => Float)
-  size: number;
+	@Field(() => Float)
+	size: number;
 
-  @Field(() => GraphQLJSON, { nullable: true })
-  coordinates?: number[][][] | null;
+	@Field(() => GraphQLJSON, { nullable: true })
+	coordinates?: number[][][] | null;
 
-  @Field({ nullable: true })
-  color?: string;
+	@Field({ nullable: true })
+	color?: string;
 }

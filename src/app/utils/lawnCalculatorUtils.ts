@@ -1,6 +1,6 @@
-import { LawnSegment } from '../types/lawnSegments.types';
-import { Product } from '../types/products.types';
-import { convertToPounds } from './generalUtils';
+import { LawnSegment } from "../types/lawnSegments.types";
+import { Product } from "../types/products.types";
+import { convertToPounds } from "./generalUtils";
 
 /**
  * Returns the number of pounds of nitrogen in a fertilizer application
@@ -10,24 +10,24 @@ import { convertToPounds } from './generalUtils';
  * @returns The number of pounds of nitrogen in the fertilizer application
  */
 export const getPoundsOfNInFertilizerApp = ({
-  poundsOfProduct,
-  guaranteedAnalysisOfProduct,
-  totalSquareFeet
+	poundsOfProduct,
+	guaranteedAnalysisOfProduct,
+	totalSquareFeet,
 }: {
-  poundsOfProduct: number;
-  guaranteedAnalysisOfProduct: string;
-  totalSquareFeet?: number;
+	poundsOfProduct: number;
+	guaranteedAnalysisOfProduct: string;
+	totalSquareFeet?: number;
 }) => {
-  const nRateOfProduct = +guaranteedAnalysisOfProduct.split('-')[0];
-  const nPercent = nRateOfProduct / 100;
-  const poundsOfN = poundsOfProduct * nPercent;
+	const nRateOfProduct = +guaranteedAnalysisOfProduct.split("-")[0];
+	const nPercent = nRateOfProduct / 100;
+	const poundsOfN = poundsOfProduct * nPercent;
 
-  if (totalSquareFeet && totalSquareFeet > 0) {
-    const poundsOfNPer1000SqFt = poundsOfN * (1000 / totalSquareFeet);
-    return Math.round(poundsOfNPer1000SqFt * 100) / 100;
-  }
+	if (totalSquareFeet && totalSquareFeet > 0) {
+		const poundsOfNPer1000SqFt = poundsOfN * (1000 / totalSquareFeet);
+		return Math.round(poundsOfNPer1000SqFt * 100) / 100;
+	}
 
-  return Math.round(poundsOfN * 100) / 100;
+	return Math.round(poundsOfN * 100) / 100;
 };
 
 /**
@@ -49,24 +49,24 @@ export const getPoundsOfNInFertilizerApp = ({
  * // result: 25
  */
 export const getPoundsOfProductForDesiredN = ({
-  desiredLbsOfNPer1000SqFt,
-  guaranteedAnalysisOfProduct,
-  totalSquareFeet
+	desiredLbsOfNPer1000SqFt,
+	guaranteedAnalysisOfProduct,
+	totalSquareFeet,
 }: {
-  desiredLbsOfNPer1000SqFt: number;
-  guaranteedAnalysisOfProduct: string;
-  totalSquareFeet: number;
+	desiredLbsOfNPer1000SqFt: number;
+	guaranteedAnalysisOfProduct: string;
+	totalSquareFeet: number;
 }) => {
-  const nRateOfProduct = +guaranteedAnalysisOfProduct.split('-')[0];
-  const nPercent = nRateOfProduct / 100;
+	const nRateOfProduct = +guaranteedAnalysisOfProduct.split("-")[0];
+	const nPercent = nRateOfProduct / 100;
 
-  if (totalSquareFeet > 0) {
-    const poundsOfProduct =
-      (desiredLbsOfNPer1000SqFt * totalSquareFeet) / (nPercent * 1000);
-    return Math.round(poundsOfProduct * 100) / 100;
-  }
+	if (totalSquareFeet > 0) {
+		const poundsOfProduct =
+			(desiredLbsOfNPer1000SqFt * totalSquareFeet) / (nPercent * 1000);
+		return Math.round(poundsOfProduct * 100) / 100;
+	}
 
-  return null;
+	return null;
 };
 
 /**
@@ -79,22 +79,22 @@ export const getPoundsOfProductForDesiredN = ({
  * @returns The calculated nitrogen rate or the provided nitrogen rate if applicable
  */
 export const getNitrogenRateFromFields = ({
-  totalLawnSize,
-  poundsOfN,
-  fertilizerAmount
+	totalLawnSize,
+	poundsOfN,
+	fertilizerAmount,
 }: {
-  totalLawnSize: number | null;
-  poundsOfN: number | null;
-  fertilizerAmount: number | null;
+	totalLawnSize: number | null;
+	poundsOfN: number | null;
+	fertilizerAmount: number | null;
 }): number | undefined => {
-  if (totalLawnSize && poundsOfN && fertilizerAmount) {
-    const poundsOfNPer1000SqFt = (poundsOfN * 1000) / (totalLawnSize || 1);
-    const nRate = (poundsOfNPer1000SqFt / fertilizerAmount) * 100;
+	if (totalLawnSize && poundsOfN && fertilizerAmount) {
+		const poundsOfNPer1000SqFt = (poundsOfN * 1000) / (totalLawnSize || 1);
+		const nRate = (poundsOfNPer1000SqFt / fertilizerAmount) * 100;
 
-    return Math.round(nRate * 100) / 100;
-  }
+		return Math.round(nRate * 100) / 100;
+	}
 
-  return undefined;
+	return undefined;
 };
 
 /**
@@ -104,12 +104,12 @@ export const getNitrogenRateFromFields = ({
  * @returns The total square footage across all segments
  */
 export const getTotalSquareFeetForSegments = (
-  lawnSegments: Array<{ size: number }>
+	lawnSegments: Array<{ size: number }>,
 ): number => {
-  return lawnSegments.reduce(
-    (total, segment) => total + Number(segment.size),
-    0
-  );
+	return lawnSegments.reduce(
+		(total, segment) => total + Number(segment.size),
+		0,
+	);
 };
 
 /**
@@ -120,35 +120,35 @@ export const getTotalSquareFeetForSegments = (
  * @returns Total nitrogen in pounds per 1000 square feet
  */
 export const calculateNitrogenForProducts = (
-  selectedProducts: Array<{
-    product: Product;
-    quantity: number;
-    quantityUnit: string;
-  }>,
-  lawnSegments: LawnSegment[]
+	selectedProducts: Array<{
+		product: Product;
+		quantity: number;
+		quantityUnit: string;
+	}>,
+	lawnSegments: LawnSegment[],
 ): number => {
-  const totalSquareFeet = getTotalSquareFeetForSegments(lawnSegments);
+	const totalSquareFeet = getTotalSquareFeetForSegments(lawnSegments);
 
-  if (!totalSquareFeet) return 0;
+	if (!totalSquareFeet) return 0;
 
-  return selectedProducts.reduce((total, productRow) => {
-    const product = productRow.product;
-    const quantity = productRow.quantity;
-    const quantityUnit = productRow.quantityUnit;
+	return selectedProducts.reduce((total, productRow) => {
+		const product = productRow.product;
+		const quantity = productRow.quantity;
+		const quantityUnit = productRow.quantityUnit;
 
-    if (!product || !quantity || !product.guaranteedAnalysis) return total;
+		if (!product || !quantity || !product.guaranteedAnalysis) return total;
 
-    if ('category' in product && product.category !== 'fertilizer')
-      return total;
+		if ("category" in product && product.category !== "fertilizer")
+			return total;
 
-    const quantityInPounds = convertToPounds(quantity, quantityUnit);
+		const quantityInPounds = convertToPounds(quantity, quantityUnit);
 
-    const nitrogenPounds = getPoundsOfNInFertilizerApp({
-      poundsOfProduct: quantityInPounds,
-      guaranteedAnalysisOfProduct: product.guaranteedAnalysis,
-      totalSquareFeet
-    });
+		const nitrogenPounds = getPoundsOfNInFertilizerApp({
+			poundsOfProduct: quantityInPounds,
+			guaranteedAnalysisOfProduct: product.guaranteedAnalysis,
+			totalSquareFeet,
+		});
 
-    return total + nitrogenPounds;
-  }, 0);
+		return total + nitrogenPounds;
+	}, 0);
 };

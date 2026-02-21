@@ -1,6 +1,6 @@
-import { Injector, Signal } from '@angular/core';
-import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { debounceTime } from 'rxjs';
+import { Injector, Signal } from "@angular/core";
+import { toObservable, toSignal } from "@angular/core/rxjs-interop";
+import { debounceTime } from "rxjs";
 
 /**
  * Debounces a signal by a given debounce time.
@@ -22,13 +22,13 @@ import { debounceTime } from 'rxjs';
  * ```
  */
 export const debouncedSignal = <TSignalValue>(
-  signal: Signal<TSignalValue>,
-  debounceMs: number,
-  opts?: { injector?: Injector }
+	signal: Signal<TSignalValue>,
+	debounceMs: number,
+	opts?: { injector?: Injector },
 ) => {
-  const debouncedObservable$ = toObservable(signal, {
-    injector: opts?.injector
-  }).pipe(debounceTime(debounceMs));
+	const debouncedObservable$ = toObservable(signal, {
+		injector: opts?.injector,
+	}).pipe(debounceTime(debounceMs));
 
-  return toSignal(debouncedObservable$);
+	return toSignal(debouncedObservable$);
 };

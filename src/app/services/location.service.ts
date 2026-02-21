@@ -1,54 +1,54 @@
-import { Injectable, linkedSignal } from '@angular/core';
-import { getReq } from '../utils/httpUtils';
-import { LatLong, MapboxGeocodingResponse } from '../types/location.types';
-import { map } from 'rxjs';
-import { Observable } from 'rxjs';
-import { injectSettingsService } from './settings.service';
-import { environment } from '../../environments/environment';
+import { Injectable, linkedSignal } from "@angular/core";
+import { getReq } from "../utils/httpUtils";
+import { LatLong, MapboxGeocodingResponse } from "../types/location.types";
+import { map } from "rxjs";
+import { Observable } from "rxjs";
+import { injectSettingsService } from "./settings.service";
+import { environment } from "../../environments/environment";
 
 @Injectable({
-  providedIn: 'root'
+	providedIn: "root",
 })
 export class LocationService {
-  private _settingsService = injectSettingsService();
+	private _settingsService = injectSettingsService();
 
-  private readonly _mapboxGeocodingUrl =
-    'https://api.mapbox.com/search/geocode/v6/forward';
+	private readonly _mapboxGeocodingUrl =
+		"https://api.mapbox.com/search/geocode/v6/forward";
 
-  public searchForLocation(query: string) {
-    return getReq<MapboxGeocodingResponse>(this._mapboxGeocodingUrl, {
-      params: {
-        proximity: 'ip',
-        q: query,
-        access_token: environment.mapBoxPublicKey
-      }
-    }).pipe(map((response) => response.features));
-  }
+	public searchForLocation(query: string) {
+		return getReq<MapboxGeocodingResponse>(this._mapboxGeocodingUrl, {
+			params: {
+				proximity: "ip",
+				q: query,
+				access_token: environment.mapBoxPublicKey,
+			},
+		}).pipe(map((response) => response.features));
+	}
 
-  public userLatLong = linkedSignal<LatLong | null>(
-    () => {
-      const location = this._settingsService.currentSettings()?.location;
+	public userLatLong = linkedSignal<LatLong | null>(
+		() => {
+			const location = this._settingsService.currentSettings()?.location;
 
-      return location ? { lat: location.lat, long: location.long } : null;
-    },
-    { equal: (a, b) => a?.lat === b?.lat && a?.long === b?.long }
-  );
+			return location ? { lat: location.lat, long: location.long } : null;
+		},
+		{ equal: (a, b) => a?.lat === b?.lat && a?.long === b?.long },
+	);
 
-  public getLatLongFromCurrentPosition(): Observable<LatLong | null> {
-    return new Observable((observer) => {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          observer.next({
-            lat: position.coords.latitude,
-            long: position.coords.longitude
-          });
+	public getLatLongFromCurrentPosition(): Observable<LatLong | null> {
+		return new Observable((observer) => {
+			navigator.geolocation.getCurrentPosition(
+				(position) => {
+					observer.next({
+						lat: position.coords.latitude,
+						long: position.coords.longitude,
+					});
 
-          observer.complete();
-        },
-        (error) => {
-          observer.error(`Error fetching user location: ${error}`);
-        }
-      );
-    });
-  }
+					observer.complete();
+				},
+				(error) => {
+					observer.error(`Error fetching user location: ${error}`);
+				},
+			);
+		});
+	}
 }

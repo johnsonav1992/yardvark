@@ -1,45 +1,45 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal } from "@angular/core";
 import {
-  injectBreakpointObserver,
-  injectScreenWidthObserver
-} from '../utils/styleUtils';
+	injectBreakpointObserver,
+	injectScreenWidthObserver,
+} from "../utils/styleUtils";
 import {
-  MD_BREAKPOINT,
-  YV_DARK_MODE_SELECTOR
-} from '../constants/style-constants';
+	MD_BREAKPOINT,
+	YV_DARK_MODE_SELECTOR,
+} from "../constants/style-constants";
 
 @Injectable({
-  providedIn: 'root'
+	providedIn: "root",
 })
 export class GlobalUiService {
-  public isMobileSidebarOpen = signal(false);
-  public isDarkMode = signal(false);
+	public isMobileSidebarOpen = signal(false);
+	public isDarkMode = signal(false);
 
-  public isMobile = injectBreakpointObserver(`(max-width: ${MD_BREAKPOINT})`);
-  public screenWidth = injectScreenWidthObserver();
+	public isMobile = injectBreakpointObserver(`(max-width: ${MD_BREAKPOINT})`);
+	public screenWidth = injectScreenWidthObserver();
 
-  constructor() {
-    this.initializeDarkMode();
-  }
+	constructor() {
+		this.initializeDarkMode();
+	}
 
-  public toggleDarkMode() {
-    this.isDarkMode.update((prevMode) => !prevMode);
+	public toggleDarkMode() {
+		this.isDarkMode.update((prevMode) => !prevMode);
 
-    document.querySelector('html')?.classList.toggle(YV_DARK_MODE_SELECTOR);
+		document.querySelector("html")?.classList.toggle(YV_DARK_MODE_SELECTOR);
 
-    if (this.isDarkMode()) {
-      localStorage.setItem(YV_DARK_MODE_SELECTOR, 'true');
-    } else {
-      localStorage.removeItem(YV_DARK_MODE_SELECTOR);
-    }
-  }
+		if (this.isDarkMode()) {
+			localStorage.setItem(YV_DARK_MODE_SELECTOR, "true");
+		} else {
+			localStorage.removeItem(YV_DARK_MODE_SELECTOR);
+		}
+	}
 
-  public initializeDarkMode() {
-    const darkMode = localStorage.getItem(YV_DARK_MODE_SELECTOR);
+	public initializeDarkMode() {
+		const darkMode = localStorage.getItem(YV_DARK_MODE_SELECTOR);
 
-    if (darkMode) {
-      this.isDarkMode.set(true);
-      document.querySelector('html')?.classList.add(YV_DARK_MODE_SELECTOR);
-    }
-  }
+		if (darkMode) {
+			this.isDarkMode.set(true);
+			document.querySelector("html")?.classList.add(YV_DARK_MODE_SELECTOR);
+		}
+	}
 }

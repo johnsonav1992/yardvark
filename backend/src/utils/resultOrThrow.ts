@@ -1,6 +1,6 @@
-import { HttpException } from '@nestjs/common';
-import { Either } from '../types/either';
-import { ResourceError } from '../errors/resource-error';
+import { HttpException } from "@nestjs/common";
+import { Either } from "../types/either";
+import { ResourceError } from "../errors/resource-error";
 
 /**
  * Utility function to properly unwrap an `Either` result. If the result is an error,
@@ -8,14 +8,14 @@ import { ResourceError } from '../errors/resource-error';
  * If it's a success, it returns the value.
  */
 export const resultOrThrow = <L extends ResourceError, A>(
-  result: Either<L, A>,
+	result: Either<L, A>,
 ): A => {
-  if (result.isError()) {
-    throw new HttpException(
-      { message: result.value.message, code: result.value.code },
-      result.value.statusCode,
-    );
-  }
+	if (result.isError()) {
+		throw new HttpException(
+			{ message: result.value.message, code: result.value.code },
+			result.value.statusCode,
+		);
+	}
 
-  return result.value;
+	return result.value;
 };

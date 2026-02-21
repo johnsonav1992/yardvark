@@ -1,10 +1,10 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class Analytics9FixFertilizerQuery1753523360245
-  implements MigrationInterface
+	implements MigrationInterface
 {
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
+	public async up(queryRunner: QueryRunner): Promise<void> {
+		await queryRunner.query(`
       CREATE OR REPLACE FUNCTION get_user_analytics_v2(p_user_id VARCHAR)
       RETURNS JSON AS $$
       DECLARE
@@ -165,10 +165,10 @@ export class Analytics9FixFertilizerQuery1753523360245
       END;
       $$ LANGUAGE plpgsql;
     `);
-  }
+	}
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
+	public async down(queryRunner: QueryRunner): Promise<void> {
+		await queryRunner.query(`
       CREATE OR REPLACE FUNCTION get_user_analytics_v2(p_user_id VARCHAR)
       RETURNS JSON AS $$
       DECLARE
@@ -308,5 +308,5 @@ export class Analytics9FixFertilizerQuery1753523360245
       END;
       $$ LANGUAGE plpgsql;
     `);
-  }
+	}
 }

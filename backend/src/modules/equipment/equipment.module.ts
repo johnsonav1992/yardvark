@@ -1,20 +1,20 @@
-import { Module } from '@nestjs/common';
-import { EquipmentController } from './controllers/equipment.controller';
-import { EquipmentService } from './services/equipment.service';
-import { EquipmentResolver } from './resolvers/equipment.resolver';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Equipment } from './models/equipment.model';
-import { EquipmentMaintenance } from './models/equipmentMaintenance.model';
-import { S3Service } from 'src/modules/s3/s3.service';
-import { ConfigService } from '@nestjs/config';
-import { HttpModule } from '@nestjs/axios';
+import { Module } from "@nestjs/common";
+import { EquipmentController } from "./controllers/equipment.controller";
+import { EquipmentService } from "./services/equipment.service";
+import { EquipmentResolver } from "./resolvers/equipment.resolver";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { Equipment } from "./models/equipment.model";
+import { EquipmentMaintenance } from "./models/equipmentMaintenance.model";
+import { S3Service } from "src/modules/s3/s3.service";
+import { ConfigService } from "@nestjs/config";
+import { HttpModule } from "@nestjs/axios";
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Equipment, EquipmentMaintenance]),
-    HttpModule,
-  ],
-  controllers: [EquipmentController],
-  providers: [EquipmentService, EquipmentResolver, S3Service, ConfigService],
+	imports: [
+		TypeOrmModule.forFeature([Equipment, EquipmentMaintenance]),
+		HttpModule,
+	],
+	controllers: [EquipmentController],
+	providers: [EquipmentService, EquipmentResolver, S3Service, ConfigService],
 })
 export class EquipmentModule {}

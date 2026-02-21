@@ -1,36 +1,36 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { UsersController } from './users.controller';
-import { UsersService } from '../services/users.service';
+import { Test, TestingModule } from "@nestjs/testing";
+import { UsersController } from "./users.controller";
+import { UsersService } from "../services/users.service";
 
-describe('UsersController', () => {
-  let controller: UsersController;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  let service: UsersService;
+describe("UsersController", () => {
+	let controller: UsersController;
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	let service: UsersService;
 
-  const mockUsersService = {
-    getUserProfile: jest.fn(),
-    updateUserProfile: jest.fn(),
-    deleteUser: jest.fn(),
-    getUserStats: jest.fn(),
-  };
+	const mockUsersService = {
+		getUserProfile: jest.fn(),
+		updateUserProfile: jest.fn(),
+		deleteUser: jest.fn(),
+		getUserStats: jest.fn(),
+	};
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      controllers: [UsersController],
-      providers: [
-        {
-          provide: UsersService,
-          useValue: mockUsersService,
-        },
-      ],
-    }).compile();
+	beforeEach(async () => {
+		const module: TestingModule = await Test.createTestingModule({
+			controllers: [UsersController],
+			providers: [
+				{
+					provide: UsersService,
+					useValue: mockUsersService,
+				},
+			],
+		}).compile();
 
-    controller = module.get<UsersController>(UsersController);
-    service = module.get<UsersService>(UsersService);
-    jest.clearAllMocks();
-  });
+		controller = module.get<UsersController>(UsersController);
+		service = module.get<UsersService>(UsersService);
+		jest.clearAllMocks();
+	});
 
-  it('should be defined', () => {
-    expect(controller).toBeDefined();
-  });
+	it("should be defined", () => {
+		expect(controller).toBeDefined();
+	});
 });

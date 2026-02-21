@@ -1,10 +1,10 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class Analytics8AverageDaysBetween1753523279834
-  implements MigrationInterface
+	implements MigrationInterface
 {
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
+	public async up(queryRunner: QueryRunner): Promise<void> {
+		await queryRunner.query(`
       CREATE OR REPLACE FUNCTION get_user_analytics_v2(p_user_id VARCHAR)
       RETURNS JSON AS $$
       DECLARE
@@ -148,11 +148,11 @@ export class Analytics8AverageDaysBetween1753523279834
       END;
       $$ LANGUAGE plpgsql;
     `);
-  }
+	}
 
-  public async down(queryRunner: QueryRunner): Promise<void> {
-    // Revert to the previous version of the function (analytics-7)
-    await queryRunner.query(`
+	public async down(queryRunner: QueryRunner): Promise<void> {
+		// Revert to the previous version of the function (analytics-7)
+		await queryRunner.query(`
       CREATE OR REPLACE FUNCTION get_user_analytics_v2(p_user_id VARCHAR)
       RETURNS JSON AS $$
       DECLARE
@@ -230,5 +230,5 @@ export class Analytics8AverageDaysBetween1753523279834
       END;
       $$ LANGUAGE plpgsql;
     `);
-  }
+	}
 }

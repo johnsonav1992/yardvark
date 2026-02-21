@@ -1,5 +1,5 @@
-import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import { ExtractedUserRequestData } from '../types/request';
+import { createParamDecorator, ExecutionContext } from "@nestjs/common";
+import { ExtractedUserRequestData } from "../types/request";
 
 /**
  * Custom decorator to extract user information from the request object.
@@ -17,14 +17,14 @@ import { ExtractedUserRequestData } from '../types/request';
  * ```
  */
 export const User = createParamDecorator(
-  (data: keyof ExtractedUserRequestData | undefined, ctx: ExecutionContext) => {
-    const request = ctx.switchToHttp().getRequest();
-    const user = request.user as ExtractedUserRequestData;
+	(data: keyof ExtractedUserRequestData | undefined, ctx: ExecutionContext) => {
+		const request = ctx.switchToHttp().getRequest();
+		const user = request.user as ExtractedUserRequestData;
 
-    if (data) {
-      return user[data];
-    }
+		if (data) {
+			return user[data];
+		}
 
-    return user;
-  },
+		return user;
+	},
 );

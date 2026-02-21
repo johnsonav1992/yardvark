@@ -1,5 +1,5 @@
-import { Pipe, PipeTransform } from '@angular/core';
-import { capitalize } from '../utils/stringUtils';
+import { Pipe, PipeTransform } from "@angular/core";
+import { capitalize } from "../utils/stringUtils";
 
 /**
  * A pipe that capitalizes a string.
@@ -10,10 +10,10 @@ import { capitalize } from '../utils/stringUtils';
  * @implements {PipeTransform}
  */
 @Pipe({
-  name: 'capitalize'
+	name: "capitalize",
 })
 export class CapitalizePipe implements PipeTransform {
-  transform(value: string | null | undefined): unknown {
-    return value && capitalize(value);
-  }
+	transform(value: string | null | undefined): unknown {
+		return value && capitalize(value);
+	}
 }

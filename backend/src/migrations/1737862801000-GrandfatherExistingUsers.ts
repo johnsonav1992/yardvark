@@ -1,12 +1,12 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class GrandfatherExistingUsers1737862801000
-  implements MigrationInterface
+	implements MigrationInterface
 {
-  name = 'GrandfatherExistingUsers1737862801000';
+	name = "GrandfatherExistingUsers1737862801000";
 
-  public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`
+	public async up(queryRunner: QueryRunner): Promise<void> {
+		await queryRunner.query(`
       INSERT INTO subscriptions (user_id, tier, status, created_at, updated_at)
       SELECT DISTINCT
         user_id,
@@ -19,7 +19,7 @@ export class GrandfatherExistingUsers1737862801000
         AND user_id NOT IN (SELECT user_id FROM subscriptions)
       ON CONFLICT (user_id) DO NOTHING;
     `);
-  }
+	}
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+	public async down(queryRunner: QueryRunner): Promise<void> {}
 }

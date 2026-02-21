@@ -1,15 +1,25 @@
-import { Controller, Get, Req } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { AnalyticsService } from '../services/analytics.service';
-import { Request } from 'express';
+import { User } from '../../../decorators/user.decorator';
+import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 
 @Controller('analytics')
 export class AnalyticsController {
   constructor(private readonly _analyticsService: AnalyticsService) {}
 
   @Get()
-  async getAnalytics(@Req() req: Request) {
-    const userId = req.user.userId;
+  public async getAnalytics(
+    @User('userId') userId: string,
+    @Query('year') year?: number,
+  ) {
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_analytics',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.analyticsYear, year);
 
-    return this._analyticsService.getAnalytics(userId);
+    return this._analyticsService.getAnalytics(userId, year);
   }
 }

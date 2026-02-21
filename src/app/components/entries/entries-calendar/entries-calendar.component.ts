@@ -9,7 +9,8 @@ import {
   model,
   output,
   signal,
-  TemplateRef
+  TemplateRef,
+  viewChild
 } from '@angular/core';
 import { addMonths, format, startOfToday, subMonths } from 'date-fns';
 import { getCalendarDaysData } from './utils';
@@ -30,6 +31,7 @@ import { MenuItem } from 'primeng/api';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { SettingsService } from '../../../services/settings.service';
 import { getSpecificDayOfMonth } from '../../../utils/timeUtils';
+import { DatePickerModule } from 'primeng/datepicker';
 
 @Component({
   selector: 'entries-calendar',
@@ -47,7 +49,8 @@ import { getSpecificDayOfMonth } from '../../../utils/timeUtils';
     CsvExportSidebarComponent,
     MenuModule,
     FormsModule,
-    ToggleSwitchModule
+    ToggleSwitchModule,
+    DatePickerModule
   ]
 })
 export class EntriesCalendarComponent {
@@ -91,6 +94,8 @@ export class EntriesCalendarComponent {
 
   public isEntrySearchSidebarOpen = signal(false);
   public isCsvExportSidebarOpen = signal(false);
+
+  public monthPicker = viewChild<any>('monthPicker');
 
   protected currentDate = linkedSignal(() =>
     this._dateQuery() ? new Date(this._dateQuery()!) : startOfToday()
@@ -141,6 +146,22 @@ export class EntriesCalendarComponent {
   public toCurrentMonth(): void {
     this.currentDate.set(startOfToday());
     this.monthChange.emit(this.currentDate());
+  }
+
+  public toggleMonthPicker(): void {
+    const inputElement = document.getElementById('month-picker-input');
+
+    if (inputElement) {
+      inputElement.click();
+      inputElement.focus();
+    }
+  }
+
+  public onMonthYearSelect(date: Date): void {
+    this.currentDate.set(getSpecificDayOfMonth(date, 2));
+    this.monthChange.emit(this.currentDate());
+
+    this.navToMonth();
   }
 
   public getMarkerMapKey(date: Date): string {

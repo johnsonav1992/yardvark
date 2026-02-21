@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
@@ -11,7 +9,12 @@ import {
   WeatherDotGovForecastResponse,
   WeatherDotGovPointsResponse,
 } from '../models/weather.types';
-import { tryCatch } from '../../../utils/tryCatch';
+import { Either, error, success } from '../../../types/either';
+import {
+  WeatherFetchError,
+  HistoricalWeatherFetchError,
+} from '../models/weather.errors';
+import { LogHelpers } from '../../../logger/logger.helpers';
 
 @Injectable()
 export class WeatherService {
@@ -19,14 +22,35 @@ export class WeatherService {
   private readonly openMeteoHistoricalUrl =
     'https://historical-forecast-api.open-meteo.com/v1/forecast';
 
-  constructor(private readonly httpService: HttpService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    @Inject(CACHE_MANAGER) private readonly _cacheManager: Cache,
+    @Inject('FORECAST_CACHE_TTL') private readonly _forecastCacheTtl: number,
+    @Inject('HISTORICAL_CACHE_TTL')
+    private readonly _historicalCacheTtl: number,
+  ) {}
 
-  async getWeatherData(
+  public async getWeatherData(
     lat: string,
     long: string,
-  ): Promise<WeatherDotGovForecastResponse> {
-    const result = await tryCatch(() =>
-      firstValueFrom(
+  ): Promise<Either<WeatherFetchError, WeatherDotGovForecastResponse>> {
+    const cacheKey = this.getCacheKey('forecast', { lat, long });
+
+    const cached =
+      await this._cacheManager.get<WeatherDotGovForecastResponse>(cacheKey);
+
+    if (cached) {
+      LogHelpers.recordCacheHit();
+
+      return success(cached);
+    }
+
+    LogHelpers.recordCacheMiss();
+
+    const start = Date.now();
+
+    try {
+      const data = await firstValueFrom(
         this.httpService
           .get<WeatherDotGovPointsResponse>(
             `${this.weatherDotGovBaseUrl}/points/${lat},${long}`,
@@ -46,23 +70,62 @@ export class WeatherService {
             }),
             map((forecastResponse) => forecastResponse.data),
           ),
-      ),
-    );
+      );
 
-    if (!result.success) {
-      throw new Error(`Failed to fetch weather data: ${result.error.message}`);
+      LogHelpers.recordExternalCall('weather.gov', Date.now() - start, true);
+
+      await this._cacheManager.set(cacheKey, data, this._forecastCacheTtl);
+
+      return success(data);
+    } catch (err) {
+      LogHelpers.recordExternalCall('weather.gov', Date.now() - start, false);
+
+      return error(new WeatherFetchError(err));
     }
-
-    return result.data;
   }
 
-  async getHistoricalAirTemperatures(
-    lat: number,
-    long: number,
-    startDate: string,
-    endDate: string,
-    temperatureUnit: 'fahrenheit' | 'celsius' = 'fahrenheit',
-  ): Promise<Array<{ date: string; maxTemp: number; minTemp: number }>> {
+  public async getHistoricalAirTemperatures({
+    lat,
+    long,
+    startDate,
+    endDate,
+    temperatureUnit = 'fahrenheit',
+  }: {
+    lat: number;
+    long: number;
+    startDate: string;
+    endDate: string;
+    temperatureUnit?: 'fahrenheit' | 'celsius';
+  }): Promise<
+    Either<
+      HistoricalWeatherFetchError,
+      Array<{ date: string; maxTemp: number; minTemp: number }>
+    >
+  > {
+    const cacheKey = this.getCacheKey('historical', {
+      lat,
+      long,
+      startDate,
+      endDate,
+      temperatureUnit,
+    });
+
+    type HistoricalTempResult = Array<{
+      date: string;
+      maxTemp: number;
+      minTemp: number;
+    }>;
+
+    const cached = await this._cacheManager.get<HistoricalTempResult>(cacheKey);
+
+    if (cached) {
+      LogHelpers.recordCacheHit();
+
+      return success(cached);
+    }
+
+    LogHelpers.recordCacheMiss();
+
     const params = new URLSearchParams({
       latitude: String(lat),
       longitude: String(long),
@@ -73,28 +136,67 @@ export class WeatherService {
       timezone: 'auto',
     });
 
-    const result = await tryCatch(() =>
-      firstValueFrom(
+    const start = Date.now();
+
+    try {
+      const result = await firstValueFrom(
         this.httpService
           .get<OpenMeteoHistoricalResponse>(
             `${this.openMeteoHistoricalUrl}?${params}`,
           )
           .pipe(map((res) => res.data)),
-      ),
-    );
-
-    if (!result.success) {
-      throw new Error(
-        `Failed to fetch historical temperatures: ${result.error.message}`,
       );
+
+      LogHelpers.recordExternalCall('open-meteo', Date.now() - start, true);
+
+      const { daily } = result;
+
+      const data: HistoricalTempResult = daily.time.map(
+        (date: string, i: number) => ({
+          date,
+          maxTemp: daily.temperature_2m_max[i],
+          minTemp: daily.temperature_2m_min[i],
+        }),
+      );
+
+      await this._cacheManager.set(cacheKey, data, this._historicalCacheTtl);
+
+      return success(data);
+    } catch (err) {
+      LogHelpers.recordExternalCall('open-meteo', Date.now() - start, false);
+
+      return error(new HistoricalWeatherFetchError(err));
+    }
+  }
+
+  private getCacheKey(
+    type: 'forecast',
+    params: { lat: string | number; long: string | number },
+  ): string;
+  private getCacheKey(
+    type: 'historical',
+    params: {
+      lat: string | number;
+      long: string | number;
+      startDate: string;
+      endDate: string;
+      temperatureUnit: 'fahrenheit' | 'celsius' | undefined;
+    },
+  ): string;
+  private getCacheKey(
+    type: 'forecast' | 'historical',
+    params: {
+      lat: string | number;
+      long: string | number;
+      startDate?: string;
+      endDate?: string;
+      temperatureUnit?: 'fahrenheit' | 'celsius';
+    },
+  ): string {
+    if (type === 'historical') {
+      return `weather:historical:${params.lat}:${params.long}:${params.startDate}:${params.endDate}:${params.temperatureUnit}`;
     }
 
-    const { daily } = result.data;
-
-    return daily.time.map((date: string, i: number) => ({
-      date,
-      maxTemp: daily.temperature_2m_max[i],
-      minTemp: daily.temperature_2m_min[i],
-    }));
+    return `weather:forecast:${params.lat}:${params.long}`;
   }
 }

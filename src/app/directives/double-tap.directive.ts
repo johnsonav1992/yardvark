@@ -35,7 +35,7 @@ export class DoubleTapDirective {
    */
   public onDoubleTap = output();
 
-  constructor() {
+  public constructor() {
     this.tap$
       .pipe(
         takeUntilDestroyed(),

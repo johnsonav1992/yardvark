@@ -16,3 +16,133 @@
     color: var(--text-color);
   }
 }
+
+.color-cell {
+  display: flex;
+  align-items: center;
+
+  .color-indicator {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: 2px solid var(--p-content-border-color);
+
+    &.not-mapped {
+      opacity: 0.3;
+      border-style: dashed;
+    }
+  }
+}
+
+.size-display {
+  .not-mapped-text {
+    color: var(--p-text-muted-color);
+    font-style: italic;
+    font-size: 0.9rem;
+  }
+}
+
+:host ::ng-deep {
+  .p-card-body {
+    padding: 0.75rem;
+  }
+
+  .p-datatable-table-container {
+    position: relative;
+  }
+
+  .p-datatable-tbody > tr:last-child > td {
+    padding-bottom: 1rem !important;
+  }
+
+  .p-datatable-tfoot > tr > td {
+    border: none !important;
+    padding: 0.5rem 0 0 0 !important;
+    border-top: 1px solid var(--p-content-border-color) !important;
+  }
+}
+
+.table-footer {
+  display: flex;
+  align-items: center;
+  margin-top: 0.75rem;
+
+  .total-size {
+    position: absolute;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .total-label {
+      font-weight: 600;
+      color: var(--p-text-muted-color);
+    }
+
+    .total-value {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--p-primary-color);
+    }
+  }
+}
+
+// Mobile styles
+@media (max-width: 768px) {
+  :host ::ng-deep {
+    .p-datatable {
+      font-size: 0.75rem;
+
+      .p-datatable-thead > tr > th {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.7rem;
+      }
+
+      .p-datatable-tbody > tr > td {
+        padding: 0.5rem 0.25rem;
+        font-size: 0.75rem;
+      }
+
+      .p-button {
+        padding: 0.25rem;
+        width: 1.75rem;
+        height: 1.75rem;
+
+        .p-button-icon {
+          font-size: 0.75rem;
+        }
+      }
+
+      .p-inputtext {
+        font-size: 0.75rem;
+        padding: 0.375rem 0.5rem;
+      }
+    }
+  }
+
+  .buttons-container {
+    gap: 0.25rem;
+  }
+
+  .color-cell {
+    .color-indicator {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .size-display {
+    font-size: 0.75rem;
+
+    .not-mapped-text {
+      font-size: 0.7rem;
+    }
+  }
+}
+
+:host-context(:root.yv-dark-mode) {
+  ::ng-deep .p-card {
+    background: var(--p-surface-800);
+    color: var(--p-surface-100);
+  }
+}

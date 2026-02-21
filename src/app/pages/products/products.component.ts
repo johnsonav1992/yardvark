@@ -7,7 +7,10 @@ import {
 } from '@angular/core';
 import { TabsModule } from 'primeng/tabs';
 import { Tab } from '../../types/components.types';
-import { ProductCategories } from '../../types/products.types';
+import {
+  ProductCategories,
+  ProductCategoryValues
+} from '../../types/products.types';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
 import {
   ProductCardComponent,
@@ -20,7 +23,6 @@ import { ButtonDesignTokens } from '@primeuix/themes/types/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { Router } from '@angular/router';
 import { GlobalUiService } from '../../services/global-ui.service';
-import { LoadingSpinnerComponent } from '../../components/miscellanious/loading-spinner/loading-spinner.component';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
@@ -30,6 +32,8 @@ import { DividerModule } from 'primeng/divider';
 import { DialogService } from 'primeng/dynamicdialog';
 import { ProductsVisibilityModalComponent } from '../../components/products/products-visibility-modal/products-visibility-modal.component';
 import { SettingsService } from '../../services/settings.service';
+import { SkeletonModule } from 'primeng/skeleton';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'products',
@@ -40,13 +44,14 @@ import { SettingsService } from '../../services/settings.service';
     EmptyMessageComponent,
     ButtonModule,
     TooltipModule,
-    LoadingSpinnerComponent,
     FloatLabelModule,
     IconFieldModule,
     InputIconModule,
     InputTextModule,
     FormsModule,
-    DividerModule
+    DividerModule,
+    SkeletonModule,
+    CardModule
   ],
   templateUrl: './products.component.html',
   styleUrl: './products.component.scss',
@@ -63,11 +68,12 @@ export class ProductsComponent {
 
   public isMobile = this._globalUiService.isMobile;
 
-  public tabs: Tab<ProductCategories>[] = [
+  public tabs: Tab<ProductCategories, ProductCategoryValues>[] = [
     { title: 'Fertilizer', value: 'fertilizer' },
     { title: 'Pre-emergent', value: 'pre-emergent' },
     { title: 'Post-emergent', value: 'post-emergent' },
     { title: 'Bio-stimulant', value: 'bio-stimulant' },
+    { title: 'PGR', value: 'pgr' },
     { title: 'Plant-fertilizer', value: 'plant-fertilizer' },
     { title: 'Fungus-control', value: 'fungus-control' },
     { title: 'Insect-control', value: 'insect-control' },
@@ -78,7 +84,7 @@ export class ProductsComponent {
   public products = this._productsService.products;
   public optimisticProducts = this._productsService.optimisticProducts;
 
-  public selectedTab = signal<Uncapitalize<ProductCategories>>('fertilizer');
+  public selectedTab = signal<ProductCategoryValues>('fertilizer');
   public searchQuery = signal('');
 
   public productsToShow = linkedSignal(() => {
@@ -111,7 +117,7 @@ export class ProductsComponent {
   public onTabChange(tab: string | number | undefined): void {
     if (tab === undefined) return;
 
-    const selectedTab = tab as Uncapitalize<ProductCategories>;
+    const selectedTab = tab as ProductCategoryValues;
 
     this.selectedTab.set(selectedTab);
   }

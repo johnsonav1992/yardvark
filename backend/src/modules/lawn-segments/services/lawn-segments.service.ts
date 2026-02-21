@@ -2,33 +2,77 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LawnSegment } from '../models/lawn-segments.model';
 import { Repository } from 'typeorm';
-import { LawnSegmentCreationRequest } from '../models/lawn-segments.types';
+import {
+  LawnSegmentCreationRequest,
+  LawnSegmentUpdateRequest,
+} from '../models/lawn-segments.types';
+import { LogHelpers } from '../../../logger/logger.helpers';
+import { Either, error, success } from '../../../types/either';
+import { LawnSegmentNotFound } from '../models/lawn-segments.errors';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 
 @Injectable()
 export class LawnSegmentsService {
   constructor(
     @InjectRepository(LawnSegment)
-    private _lawnSegmentRepo: Repository<LawnSegment>,
+    private readonly _lawnSegmentRepo: Repository<LawnSegment>,
   ) {}
 
-  async getLawnSegments(userId: string) {
-    return this._lawnSegmentRepo.findBy({ userId });
+  public async getLawnSegments(userId: string) {
+    const segments = await this._lawnSegmentRepo.findBy({ userId });
+
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.lawnSegmentsCount,
+      segments.length,
+    );
+
+    return segments;
   }
 
-  async createLawnSegment(
+  public async createLawnSegment(
     userId: string,
     lawnSegment: LawnSegmentCreationRequest,
   ) {
     const lawnSeg = this._lawnSegmentRepo.create({ ...lawnSegment, userId });
 
-    return this._lawnSegmentRepo.save(lawnSeg);
+    const saved = await this._lawnSegmentRepo.save(lawnSeg);
+
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.lawnSegmentCreated,
+      saved.id,
+    );
+
+    return saved;
   }
 
-  async updateLawnSegment(lawnSegment: LawnSegment) {
-    return this._lawnSegmentRepo.save(lawnSegment);
+  public async updateLawnSegment(
+    id: number,
+    updateData: LawnSegmentUpdateRequest,
+  ): Promise<Either<LawnSegmentNotFound, LawnSegment>> {
+    LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentId, id);
+
+    const segment = await this._lawnSegmentRepo.findOneBy({ id });
+
+    if (!segment) {
+      return error(new LawnSegmentNotFound());
+    }
+
+    Object.assign(segment, updateData);
+
+    const saved = await this._lawnSegmentRepo.save(segment);
+
+    LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentUpdated, true);
+
+    return success(saved);
   }
 
-  async deleteLawnSegment(id: number) {
-    return this._lawnSegmentRepo.delete({ id });
+  public async deleteLawnSegment(id: number) {
+    LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentId, id);
+
+    const result = await this._lawnSegmentRepo.delete({ id });
+
+    LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentDeleted, true);
+
+    return result;
   }
 }

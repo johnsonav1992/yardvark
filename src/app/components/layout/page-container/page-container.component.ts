@@ -24,7 +24,9 @@ export class PageContainerComponent {
   public hideBackButton = input<boolean>(false);
   public gap = input<string>('1.5rem');
   public useNormalBack = input<boolean>(false);
+  public titleClass = input<string>('');
 
+  public titleSuffix = contentChild<TemplateRef<any> | null>('titleSuffix');
   public action1 = contentChild<TemplateRef<any> | null>('action1');
   public action2 = contentChild<TemplateRef<any> | null>('action2');
 

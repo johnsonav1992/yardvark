@@ -46,6 +46,30 @@
         {{ daysSinceLastProductApplication() }}
       </b>
     </p>
+    @if (isPro() && hasGddData()) {
+      <p-divider [dt]="dividerDt" />
+      <div class="gdd-progress">
+        @if (isGddDormant()) {
+          <p class="stat">
+            <i class="ti ti-snowflake icon"></i> GDD Status:
+            <b class="dormant">Dormant</b>
+          </p>
+        } @else if (isGddOverdue()) {
+          <p class="stat">
+            <i class="ti ti-alert-triangle icon"></i> GDD Status:
+            <b class="overdue">Overdue</b>
+          </p>
+        } @else {
+          <p class="stat">
+            <i class="ti ti-flame icon"></i> GDD Progress:
+            <b [class.complete]="isGddComplete()"
+              >{{ gddAccumulated() }} / {{ gddTarget() }}</b
+            >
+          </p>
+          <p-progressbar [value]="gddPercentage()" [showValue]="false" />
+        }
+      </div>
+    }
     @if (lawnSeasonPercentage()) {
       <p-divider [dt]="dividerDt" />
       <div class="season-progress">

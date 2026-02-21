@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   BatchEntryCreationRequest,
   BatchEntryCreationResponse,
@@ -17,30 +17,54 @@ import { Entry, EntryImage, EntryProduct } from '../models/entries.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { getEntryResponseMapping } from '../utils/entryUtils';
 import { ACTIVITY_IDS } from 'src/constants/activities.constants';
+import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
+import { Either, error, success } from '../../../types/either';
+import {
+  EntriesNotFound,
+  EntryNotFound,
+  InvalidDateRange,
+} from '../models/entries.errors';
+import { parseISO, isValid, endOfDay, startOfYear } from 'date-fns';
 
 @Injectable()
 export class EntriesService {
   constructor(
     @InjectRepository(Entry)
-    private _entriesRepo: Repository<Entry>,
+    private readonly _entriesRepo: Repository<Entry>,
     @InjectRepository(EntryProduct)
-    private _entryProductsRepo: Repository<EntryProduct>,
+    private readonly _entryProductsRepo: Repository<EntryProduct>,
     @InjectRepository(EntryImage)
-    private _entryImagesRepo: Repository<EntryImage>,
+    private readonly _entryImagesRepo: Repository<EntryImage>,
   ) {}
 
-  async getEntries(
+  public async getEntries(
     userId: string,
     startDate?: string,
     endDate?: string,
     options?: { raw?: boolean },
-  ) {
+  ): Promise<
+    Either<
+      EntriesNotFound | InvalidDateRange,
+      ReturnType<typeof getEntryResponseMapping>[] | Entry[]
+    >
+  > {
+    if (startDate && endDate) {
+      const parsedStart = parseISO(startDate);
+      const parsedEnd = parseISO(endDate);
+
+      if (!isValid(parsedStart) || !isValid(parsedEnd)) {
+        return error(new InvalidDateRange());
+      }
+    }
+
+
     const entries = await this._entriesRepo.find({
       where: {
         userId,
         date:
           startDate && endDate
-            ? Between(new Date(startDate), new Date(endDate))
+            ? Between(parseISO(startDate), parseISO(endDate))
             : undefined,
       },
       relations: {
@@ -54,17 +78,30 @@ export class EntriesService {
     });
 
     if (!entries) {
-      throw new HttpException('Entries not found', HttpStatus.NOT_FOUND);
+      return error(new EntriesNotFound());
     }
+
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.entriesReturned,
+      entries.length,
+    );
 
     if (options?.raw) {
-      return entries;
+      return success(entries);
     }
 
-    return entries.map((entry) => getEntryResponseMapping(entry));
+    return success(entries.map((entry) => getEntryResponseMapping(entry)));
   }
 
-  async getEntry(entryId: number, options?: { raw?: boolean }) {
+  public async getEntry(
+    entryId: number,
+    options?: { raw?: boolean },
+  ): Promise<
+    Either<EntryNotFound, ReturnType<typeof getEntryResponseMapping> | Entry>
+  > {
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
+
+
     const entry = await this._entriesRepo.findOne({
       where: { id: entryId },
       relations: {
@@ -78,23 +115,35 @@ export class EntriesService {
     });
 
     if (!entry) {
-      throw new HttpException('Entry not found', HttpStatus.NOT_FOUND);
+      return error(new EntryNotFound());
     }
 
     if (options?.raw) {
-      return entry;
+      return success(entry);
     }
 
-    return getEntryResponseMapping(entry);
+    return success(getEntryResponseMapping(entry));
   }
 
-  async getEntryByDate(
+  public async getEntryByDate(
     userId: string,
     date: string,
     options?: { raw?: boolean },
-  ) {
+  ): Promise<
+    Either<
+      EntryNotFound | InvalidDateRange,
+      ReturnType<typeof getEntryResponseMapping> | Entry
+    >
+  > {
+    const parsedDate = parseISO(date);
+
+    if (!isValid(parsedDate)) {
+      return error(new InvalidDateRange());
+    }
+
+
     const entry = await this._entriesRepo.findOne({
-      where: { userId, date: new Date(date) },
+      where: { userId, date: parsedDate },
       relations: {
         activities: true,
         lawnSegments: true,
@@ -106,27 +155,26 @@ export class EntriesService {
     });
 
     if (!entry) {
-      throw new HttpException('Entry not found', HttpStatus.NOT_FOUND);
+      return error(new EntryNotFound());
     }
 
     if (options?.raw) {
-      return entry;
+      return success(entry);
     }
 
-    return getEntryResponseMapping(entry);
+    return success(getEntryResponseMapping(entry));
   }
 
-  async getMostRecentEntry(userId: string, options?: { raw?: boolean }) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const endOfToday = new Date();
-    endOfToday.setHours(23, 59, 59, 999);
+  public async getMostRecentEntry(
+    userId: string,
+    options?: { raw?: boolean },
+  ) {
+    const todayEnd = endOfDay(new Date());
 
     const entry = await this._entriesRepo.findOne({
       where: {
         userId,
-        date: Between(new Date(0), endOfToday),
+        date: Between(new Date(0), todayEnd),
       },
       order: {
         date: 'DESC',
@@ -149,7 +197,7 @@ export class EntriesService {
     return getEntryResponseMapping(entry);
   }
 
-  async getLastMowDate(userId: string) {
+  public async getLastMowDate(userId: string) {
     const entry = await this._entriesRepo.findOne({
       where: {
         userId,
@@ -165,7 +213,7 @@ export class EntriesService {
     return entry?.date || null;
   }
 
-  async getLastProductApplicationDate(userId: string) {
+  public async getLastProductApplicationDate(userId: string) {
     const entry = await this._entriesRepo
       .createQueryBuilder('entry')
       .leftJoin('entry.activities', 'activity')
@@ -190,11 +238,11 @@ export class EntriesService {
    * Gets the date of the most recent entry with a PGR (Plant Growth Regulator) product
    * Used for GDD (Growing Degree Days) calculation
    */
-  async getLastPgrApplicationDate(userId: string) {
+  public async getLastPgrApplicationDate(userId: string): Promise<Date | null> {
     const entry = await this._entriesRepo
       .createQueryBuilder('entry')
-      .leftJoin('entry.entryProducts', 'entryProduct')
-      .leftJoin('entryProduct.product', 'product')
+      .innerJoin('entry.entryProducts', 'entryProduct')
+      .innerJoin('entryProduct.product', 'product')
       .where('entry.userId = :userId', { userId })
       .andWhere('entry.date <= :today', { today: new Date() })
       .andWhere('product.category = :category', { category: 'pgr' })
@@ -205,7 +253,7 @@ export class EntriesService {
     return entry?.date || null;
   }
 
-  async createEntry(userId: string, entry: EntryCreationRequest) {
+  public async createEntry(userId: string, entry: EntryCreationRequest) {
     const newEntry = this._entriesRepo.create({
       ...entry,
       userId,
@@ -224,10 +272,23 @@ export class EntriesService {
 
     await this._entriesRepo.save(newEntry);
 
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.entryCreated,
+      newEntry.id,
+    );
+    LogHelpers.addBusinessContext(
+      'activitiesCount',
+      entry.activityIds?.length ?? 0,
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.productsCount,
+      entry.products?.length ?? 0,
+    );
+
     return newEntry;
   }
 
-  async createEntriesBatch(
+  public async createEntriesBatch(
     userId: string,
     body: BatchEntryCreationRequest,
   ): Promise<BatchEntryCreationResponse> {
@@ -250,6 +311,19 @@ export class EntriesService {
       }
     });
 
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.batchSize,
+      body.entries.length,
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.batchCreated,
+      entries.length,
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.batchFailed,
+      errors.length,
+    );
+
     return {
       created: entries.length,
       failed: errors.length,
@@ -258,7 +332,12 @@ export class EntriesService {
     };
   }
 
-  async updateEntry(entryId: number, entry: Partial<EntryCreationRequest>) {
+  public async updateEntry(
+    entryId: number,
+    entry: Partial<EntryCreationRequest>,
+  ): Promise<Either<EntryNotFound, Entry>> {
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
+
     const entryToUpdate = await this._entriesRepo.findOne({
       where: { id: entryId },
       relations: {
@@ -270,7 +349,7 @@ export class EntriesService {
     });
 
     if (!entryToUpdate) {
-      throw new HttpException('Entry not found', HttpStatus.NOT_FOUND);
+      return error(new EntryNotFound());
     }
 
     entryToUpdate.lawnSegments = [];
@@ -302,39 +381,52 @@ export class EntriesService {
 
     await this._entriesRepo.save(updatedEntry);
 
-    return updatedEntry;
+    return success(updatedEntry);
   }
 
-  async softDeleteEntry(entryId: number) {
+  public async softDeleteEntry(
+    entryId: number,
+  ): Promise<Either<EntryNotFound, void>> {
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
+
     const entry = await this._entriesRepo.findOne({
       where: { id: entryId },
     });
 
     if (!entry) {
-      throw new HttpException('Entry not found', HttpStatus.NOT_FOUND);
+      return error(new EntryNotFound());
     }
 
     await this._entriesRepo.softDelete(entryId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryDeleted, true);
+
+    return success(undefined);
   }
 
-  async recoverEntry(entryId: number) {
+  public async recoverEntry(entryId: number) {
     await this._entriesRepo.restore(entryId);
   }
 
-  async searchEntries(
+  public async searchEntries(
     userId: string,
     searchCriteria: EntriesSearchRequest,
     options?: { raw?: boolean },
-  ) {
+  ): Promise<
+    Either<InvalidDateRange, ReturnType<typeof getEntryResponseMapping>[] | Entry[]>
+  > {
     const today = new Date();
-    const startOfYear = new Date(today.getFullYear(), 0, 1);
+    const yearStart = startOfYear(today);
 
     const startDate = searchCriteria.dateRange?.[0]
-      ? new Date(searchCriteria.dateRange[0])
-      : startOfYear;
+      ? parseISO(searchCriteria.dateRange[0])
+      : yearStart;
     const endDate = searchCriteria.dateRange?.[1]
-      ? new Date(searchCriteria.dateRange[1])
+      ? parseISO(searchCriteria.dateRange[1])
       : today;
+
+    if (!isValid(startDate) || !isValid(endDate)) {
+      return error(new InvalidDateRange());
+    }
 
     const baseConditions: FindOptionsWhere<Entry> = {
       userId,
@@ -381,22 +473,27 @@ export class EntriesService {
       },
     });
 
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.searchResultsCount,
+      entries.length,
+    );
+
     if (options?.raw) {
-      return entries;
+      return success(entries);
     }
 
-    return entries.map((entry) => getEntryResponseMapping(entry));
+    return success(entries.map((entry) => getEntryResponseMapping(entry)));
   }
 
-  async softDeleteEntryImage(entryImageId: number) {
+  public async softDeleteEntryImage(entryImageId: number) {
     await this._entryImagesRepo.softDelete(entryImageId);
   }
 
-  async recoverEntryImage(entryImageId: number) {
+  public async recoverEntryImage(entryImageId: number) {
     await this._entryImagesRepo.restore(entryImageId);
   }
 
-  async searchEntriesByVector({
+  public async searchEntriesByVector({
     userId,
     queryEmbedding,
     limit = 200,
@@ -408,7 +505,7 @@ export class EntriesService {
     limit?: number;
     startDate?: string;
     endDate?: string;
-  }): Promise<Entry[]> {
+  }): Promise<Either<InvalidDateRange, Entry[]>> {
     const embeddingString = `[${queryEmbedding.join(',')}]`;
 
     let query = this._entriesRepo
@@ -422,25 +519,34 @@ export class EntriesService {
       .andWhere('entry.embedding IS NOT NULL');
 
     if (startDate && endDate) {
+      const parsedStart = parseISO(startDate);
+      const parsedEnd = parseISO(endDate);
+
+      if (!isValid(parsedStart) || !isValid(parsedEnd)) {
+        return error(new InvalidDateRange());
+      }
+
       query = query.andWhere('entry.date BETWEEN :startDate AND :endDate', {
-        startDate: new Date(startDate),
-        endDate: new Date(endDate),
+        startDate: parsedStart,
+        endDate: parsedEnd,
       });
     }
 
-    return query
+    const entries = await query
       .orderBy('entry.embedding <-> :queryEmbedding')
       .setParameter('queryEmbedding', embeddingString)
       .limit(limit)
       .getMany();
+
+    return success(entries);
   }
 
-  async updateEntryEmbedding(entryId: number, embedding: number[]) {
+  public async updateEntryEmbedding(entryId: number, embedding: number[]) {
     const embeddingString = `[${embedding.join(',')}]`;
     await this._entriesRepo.update(entryId, { embedding: embeddingString });
   }
 
-  async getEntriesWithoutEmbeddings(userId: string): Promise<Entry[]> {
+  public async getEntriesWithoutEmbeddings(userId: string): Promise<Entry[]> {
     return this._entriesRepo
       .createQueryBuilder('entry')
       .leftJoinAndSelect('entry.activities', 'activities')

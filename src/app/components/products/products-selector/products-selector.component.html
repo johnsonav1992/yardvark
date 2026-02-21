@@ -24,18 +24,17 @@
       }
     </ng-template>
   </p-multiSelect>
-
   @let selectedProducts = productsControl().value;
-
   @if (selectedProductNitrogen()) {
     <div class="nitrogen-display">
       <p-message
         severity="info"
-        [text]="'Est. N: ' + selectedProductNitrogen()!.toFixed(2) + ' lbs/1000 sqft'"
+        [text]="
+          'Est. N: ' + selectedProductNitrogen()!.toFixed(2) + ' lbs/1000 sqft'
+        "
       />
     </div>
   }
-
   @if (selectedProducts?.length) {
     <div
       class="products-wrapper"
@@ -44,10 +43,7 @@
     >
       @for (item of selectedProducts; track item.product?.name) {
         <div [formGroupName]="$index">
-          <product-small-card
-            [product]="item.product!"
-            [hideSubtitle]="isMobile()"
-          >
+          <product-small-card [product]="item.product!" [hideSubtitle]="true">
             <ng-template #actions>
               <div class="product-input-wrapper">
                 <p-inputNumber

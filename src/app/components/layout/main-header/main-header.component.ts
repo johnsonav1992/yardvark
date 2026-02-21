@@ -41,7 +41,7 @@ export class MainHeaderComponent {
 
     fixOverlayPositionForScroll(() =>
       this.authMenu().visible
-        ? this.authMenu().containerViewChild?.nativeElement
+        ? this.authMenu().containerViewChild()?.nativeElement
         : null
     );
   }

@@ -5,7 +5,9 @@ import { AnalyticsService } from './analytics.service';
 import { EntriesService } from './entries.service';
 import { AiService } from './ai.service';
 import { LocationService } from './location.service';
-import { SoilTemperatureService } from './soil-temperature.service';
+import { SoilDataService } from './soil-data.service';
+import { SubscriptionService } from './subscription.service';
+import { SettingsService } from './settings.service';
 import {
   calculateLawnHealthScore,
   isCurrentlyGrowingSeason
@@ -23,7 +25,9 @@ import {
   getYear,
   isSameMonth,
   isSameYear,
-  differenceInDays
+  differenceInDays,
+  parseISO,
+  format
 } from 'date-fns';
 
 @Injectable({
@@ -34,41 +38,40 @@ export class LawnHealthScoreService {
   private _entriesService = inject(EntriesService);
   private _aiService = inject(AiService);
   private _locationService = inject(LocationService);
-  private _soilTempService = inject(SoilTemperatureService);
+  private _soilDataService = inject(SoilDataService);
+  private _settingsService = inject(SettingsService);
+  private _subscriptionService = inject(SubscriptionService);
 
   public analyticsData = this._analyticsService.analyticsData;
   public lastMowDate = this._entriesService.lastMow;
   public lastProductApp = this._entriesService.lastProductApp;
   public userCoords = this._locationService.userLatLong;
-  public past24HourSoilData =
-    this._soilTempService.past24HourSoilTemperatureData;
-  public temperatureUnit = this._soilTempService.temperatureUnit;
+  public temperatureUnit = computed(
+    () =>
+      this._settingsService.currentSettings()?.temperatureUnit || 'fahrenheit'
+  );
 
   public isLoading = computed(
     () =>
       this.analyticsData.isLoading() ||
       this.lastMowDate.isLoading() ||
       this.lastProductApp.isLoading() ||
-      this.past24HourSoilData.isLoading()
+      this._soilDataService.rollingWeekSoilData.isLoading()
   );
 
   public currentSoilTemp = computed(() => {
-    const soilData = this.past24HourSoilData.value();
-    if (!soilData?.hourly?.soil_temperature_6cm) return null;
+    const soilData = this._soilDataService.rollingWeekSoilData.value();
 
-    const temps = soilData.hourly.soil_temperature_6cm.filter(
-      (t): t is number => t !== null
-    );
-    if (temps.length === 0) return null;
+    if (!soilData) return null;
 
-    return temps.reduce((sum, temp) => sum + temp, 0) / temps.length;
+    return soilData.shallowTemps[7];
   });
 
   public healthScoreFactors = computed((): LawnHealthScoreFactors => {
     const lastMow = this.lastMowDate.value();
     const lastProductAppData = this.lastProductApp.value();
-
-    const currentMonth = getMonth(new Date()) + 1;
+    const now = new Date();
+    const currentMonth = getMonth(now) + 1;
     const coords = this.userCoords();
     const soilTemp = this.currentSoilTemp();
     const tempUnit = this.temperatureUnit();
@@ -79,14 +82,11 @@ export class LawnHealthScoreService {
     );
 
     const daysSinceLastMow = lastMow?.lastMowDate
-      ? differenceInDays(new Date(), lastMow.lastMowDate.toString())
+      ? differenceInDays(now, lastMow.lastMowDate.toString())
       : 999;
 
     const daysSinceLastFertilizer = lastProductAppData?.lastProductAppDate
-      ? differenceInDays(
-          new Date(),
-          lastProductAppData.lastProductAppDate.toString()
-        )
+      ? differenceInDays(now, lastProductAppData.lastProductAppDate.toString())
       : 999;
 
     const monthlyData = this.getLast3MonthsData();
@@ -122,6 +122,9 @@ export class LawnHealthScoreService {
     params: () => {
       if (this.isLoading()) return undefined;
 
+      const isPro = this._subscriptionService.isPro();
+      if (!isPro) return undefined;
+
       const scoreData = this.lawnHealthScore();
       return scoreData.totalScore > 0 && !scoreData.isOffSeason
         ? {
@@ -139,11 +142,7 @@ export class LawnHealthScoreService {
 
       if (cached) return of(cached);
 
-      const currentDate = new Date().toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      });
+      const currentDate = format(new Date(), 'MMMM d, yyyy');
 
       const prompt = `Today is ${currentDate}. Generate a brief, encouraging lawn care description (max 30 words) for someone with a lawn health score of ${params.totalScore}/100 (Grade: ${params.grade}). Individual scores: Mowing ${params.mowingScore}/30, Fertilization ${params.fertilizationScore}/25, Consistency ${params.consistencyScore}/20, Recency ${params.recencyScore}/25. Focus on positive reinforcement and specific improvement areas based on the lowest scores or potentially seasonal factors. Also, don't use any language that specifically includes the letter or number grade they got, as the user can already see that.`;
 
@@ -289,8 +288,8 @@ export class LawnHealthScoreService {
 
     return analyticsData.fertilizerTimelineData
       .filter((app) => {
-        const appDate = new Date(app.applicationDate);
-        const targetDate = new Date(year, month - 1, 1);
+        const appDate = parseISO(app.applicationDate);
+        const targetDate = new Date(year, month - 1);
 
         return (
           isSameMonth(appDate, targetDate) && isSameYear(appDate, targetDate)
@@ -322,8 +321,8 @@ export class LawnHealthScoreService {
     if (!analyticsData?.fertilizerTimelineData) return 0;
 
     return analyticsData.fertilizerTimelineData.filter((app) => {
-      const appDate = new Date(app.applicationDate);
-      const targetDate = new Date(year, month - 1, 1);
+      const appDate = parseISO(app.applicationDate);
+      const targetDate = new Date(year, month - 1);
 
       return (
         isSameMonth(appDate, targetDate) && isSameYear(appDate, targetDate)
@@ -347,8 +346,8 @@ export class LawnHealthScoreService {
 
     const fertilizerEntries =
       analyticsData?.fertilizerTimelineData?.filter((app) => {
-        const appDate = new Date(app.applicationDate);
-        const targetDate = new Date(year, month - 1, 1);
+        const appDate = parseISO(app.applicationDate);
+        const targetDate = new Date(year, month - 1);
 
         return (
           isSameMonth(appDate, targetDate) && isSameYear(appDate, targetDate)

@@ -17,11 +17,35 @@
       flex-wrap: wrap;
     }
 
-    .inner-title,
+    .inner-title {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex: 1;
+      min-width: 0;
+
+      h1 {
+        margin: 0;
+        font-size: 1.75rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        min-width: 0;
+
+        @media (max-width: 768px) {
+          font-size: 1.25rem;
+          white-space: normal;
+          overflow: visible;
+          text-overflow: unset;
+        }
+      }
+    }
+
     .actions {
       display: flex;
       gap: 0.5rem;
       align-items: center;
+      flex-shrink: 0;
     }
   }
 }

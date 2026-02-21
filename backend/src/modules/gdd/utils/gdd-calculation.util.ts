@@ -1,11 +1,17 @@
+import { GDD_MAX_TEMPERATURE } from '../models/gdd.constants';
+
 /**
  * Calculates the Growing Degree Days (GDD) for a single day.
- * Uses the simple averaging method: ((max + min) / 2) - base
+ * Uses the standard averaging method with temperature capping:
+ * - Min temperature floored at base temp (no negative growth)
+ * - Max temperature capped at 86°F/30°C (plants don't grow faster above this)
+ * - Max temperature also floored at base temp (handles cold winter days)
+ * - Result floored at 0 (no negative GDD)
  *
  * @param params.baseTemperature - Minimum temperature threshold for growth
  * @param params.maxTemperature - Maximum temperature for the day
  * @param params.minTemperature - Minimum temperature for the day
- * @returns Daily GDD value (minimum of 0)
+ * @returns Daily GDD value (minimum 0)
  */
 export const getDailyGDDCalculation = ({
   baseTemperature,
@@ -16,9 +22,15 @@ export const getDailyGDDCalculation = ({
   maxTemperature: number;
   minTemperature: number;
 }): number => {
-  const averageTemp = (maxTemperature + minTemperature) / 2;
+  // Floor temps at base (no growth below base), cap max at 86°F
+  const cappedMinTemp = Math.max(minTemperature, baseTemperature);
+  const cappedMaxTemp = Math.max(
+    Math.min(maxTemperature, GDD_MAX_TEMPERATURE),
+    baseTemperature,
+  );
+  const averageTemp = (cappedMaxTemp + cappedMinTemp) / 2;
 
-  return Math.max(0, averageTemp - baseTemperature);
+  return averageTemp - baseTemperature;
 };
 
 /**

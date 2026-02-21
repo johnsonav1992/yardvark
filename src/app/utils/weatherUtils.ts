@@ -12,6 +12,7 @@ import {
   DailyWeatherCalendarForecast,
   WeatherPeriod
 } from '../types/weather.types';
+import { getHours } from 'date-fns';
 
 /**
  * Determines if the forecast is for night-time based on isDaytime property or time-based fallback logic
@@ -19,8 +20,9 @@ import {
 const isNightTime = (forecast: DailyWeatherCalendarForecast): boolean => {
   if (forecast.isDaytime != null) return !forecast.isDaytime;
 
-  const hour = forecast.date.getHours();
-  return hour < 6 || hour >= 20; // Consider 8PM to 6AM as night-time
+  const hour = getHours(forecast.date);
+
+  return hour < 6 || hour >= 20;
 };
 
 export const convertPeriodToForecast = (

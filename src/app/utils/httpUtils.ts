@@ -48,7 +48,7 @@ const createHttpUtil = <T, TArgs extends any[]>(
 };
 
 export const postReq = createHttpUtil(
-  <T, D = unknown>(
+  <T, _D = unknown>(
     http: HttpClient,
     ...postArgs: Parameters<HttpClient['post']>
   ) => {
@@ -63,7 +63,7 @@ export const getReq = createHttpUtil(
 );
 
 export const putReq = createHttpUtil(
-  <T, D = unknown>(
+  <T, _D = unknown>(
     http: HttpClient,
     ...putArgs: Parameters<HttpClient['put']>
   ) => {
@@ -109,8 +109,3 @@ export const apiUrl = (
 
   return url;
 };
-
-/**
- * A quicker way to get the http client in a component or service
- */
-export const injectHttp = () => inject(HttpClient);

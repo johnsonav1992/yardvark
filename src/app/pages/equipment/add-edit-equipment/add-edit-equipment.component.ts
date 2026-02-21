@@ -23,6 +23,7 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { EquipmentFormData } from '../../../types/equipment.types';
 import { ActivatedRoute } from '@angular/router';
 import { MAX_FILE_UPLOAD_SIZE } from '../../../constants/file-constants';
+import { parseISO } from 'date-fns';
 
 @Component({
   selector: 'add-edit-equipment',
@@ -77,6 +78,7 @@ export class AddEditEquipmentComponent implements OnInit {
         ?.find((equipment) => equipment.id === +this.equipmentId!)
     : null;
 
+  public currentImageUrl = signal<string | null>(null);
   public isLoading = signal(false);
 
   public ngOnInit(): void {
@@ -84,10 +86,14 @@ export class AddEditEquipmentComponent implements OnInit {
       this.form.patchValue({
         ...this.equipmentToEdit,
         purchaseDate: this.equipmentToEdit.purchaseDate
-          ? new Date(this.equipmentToEdit.purchaseDate)
+          ? parseISO(this.equipmentToEdit.purchaseDate.toString())
           : null,
-        image: null // TODO
+        image: null
       });
+
+      if (this.equipmentToEdit.imageUrl) {
+        this.currentImageUrl.set(this.equipmentToEdit.imageUrl);
+      }
     }
   }
 
@@ -95,10 +101,15 @@ export class AddEditEquipmentComponent implements OnInit {
     const file = e.files[0];
 
     this.form.patchValue({ image: file });
+    this.currentImageUrl.set(null);
   }
 
   public fileClear(): void {
     this.form.patchValue({ image: null });
+
+    if (this.equipmentToEdit?.imageUrl) {
+      this.currentImageUrl.set(this.equipmentToEdit.imageUrl);
+    }
   }
 
   public back(): void {

@@ -62,6 +62,7 @@ export class CsvExportSidebarComponent {
     if (this.form.invalid) return;
 
     const dates = this.form.value.dates;
+
     if (!dates || dates.length !== 2 || !dates[0] || !dates[1]) {
       this.errorMessage.set('Please select a valid date range');
       return;

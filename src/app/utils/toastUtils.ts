@@ -50,3 +50,26 @@ export const injectWarningToast = (): ((message: string) => void) => {
     });
   };
 };
+
+export const injectSuccessToast = (): ((message: string) => void) => {
+  const toastService = inject(MessageService);
+
+  return (message: string) => {
+    toastService.add({
+      severity: 'success',
+      summary: 'Success',
+      detail: message
+    });
+  };
+};
+
+export const injectInfoToast = (): ((message: string) => void) => {
+  const toastService = inject(MessageService);
+
+  return (message: string) => {
+    toastService.add({
+      severity: 'info',
+      detail: message
+    });
+  };
+};

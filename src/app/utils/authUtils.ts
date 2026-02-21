@@ -4,6 +4,9 @@ import { AuthService } from '@auth0/auth0-angular';
 import { MASTER_USER, ROLES_CLAIM } from '../constants/auth-constants';
 import { Maybe } from '../types/utils.types';
 import { YVUser } from '../types/user.types';
+import { Capacitor } from '@capacitor/core';
+import config from '../../../capacitor.config';
+import { environment } from '../../environments/environment';
 
 /**
  * Retrieves the user data from the authentication service and stores it in a signal.
@@ -21,7 +24,9 @@ export const isMasterUser = (user: Maybe<YVUser>): boolean => {
 };
 
 export const getUserInitials = (user: Maybe<YVUser>): string => {
-  if (!user?.name) return '';
+  if (!user?.name) {
+    return '';
+  }
 
   const nameParts = user.name.split(' ');
 
@@ -33,4 +38,12 @@ export const getUserInitials = (user: Maybe<YVUser>): string => {
       nameParts[nameParts.length - 1].charAt(0).toUpperCase()
     );
   }
+};
+
+export const getRedirectUri = () => {
+  if (Capacitor.isNativePlatform()) {
+    return `${config.appId}://${environment.auth0Domain}/capacitor/${config.appId}/callback`;
+  }
+
+  return window.location.origin;
 };

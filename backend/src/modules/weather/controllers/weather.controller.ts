@@ -1,25 +1,25 @@
-import { Controller, Get, HttpException, Query } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { WeatherService } from '../services/weather.service';
-import { tryCatch } from 'src/utils/tryCatch';
-import { HttpStatusCode } from 'axios';
+import { resultOrThrow } from '../../../utils/resultOrThrow';
+import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
 
 @Controller('weather')
 export class WeatherController {
   constructor(private readonly weatherService: WeatherService) {}
 
   @Get('forecast')
-  async getForecast(@Query('lat') lat: string, @Query('long') long: string) {
-    const { data, error } = await tryCatch(() =>
-      this.weatherService.getWeatherData(lat, long),
+  public async getForecast(
+    @Query('lat') lat: string,
+    @Query('long') long: string,
+  ) {
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_forecast',
     );
+    LogHelpers.addBusinessContext(BusinessContextKeys.forecastLat, lat);
+    LogHelpers.addBusinessContext(BusinessContextKeys.forecastLong, long);
 
-    if (error) {
-      return new HttpException(
-        'Failed to fetch weather data',
-        HttpStatusCode.InternalServerError,
-      );
-    }
-
-    return data;
+    return resultOrThrow(await this.weatherService.getWeatherData(lat, long));
   }
 }

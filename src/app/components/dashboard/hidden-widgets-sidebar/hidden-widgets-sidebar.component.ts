@@ -18,10 +18,10 @@ export class HiddenWidgetsSidebarComponent {
   private _globalUiService = inject(GlobalUiService);
 
   public isMobile = this._globalUiService.isMobile;
-  
+
   public isOpen = input.required<boolean>();
   public hiddenWidgets = input.required<HiddenWidget[]>();
-  
+
   public onToggleSidebar = output<boolean>();
   public onShowWidget = output<string>();
 

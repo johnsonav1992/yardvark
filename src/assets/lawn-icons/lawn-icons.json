@@ -1,1 +1,8 @@
-{"name":"lawn-icons","icons":{"li-sprinkler":"ea01","li-shovel-dirt":"ea02","li-lawnmower":"ea03"}}
+{
+  "name": "lawn-icons",
+  "icons": {
+    "li-sprinkler": "ea01",
+    "li-shovel-dirt": "ea02",
+    "li-lawnmower": "ea03"
+  }
+}

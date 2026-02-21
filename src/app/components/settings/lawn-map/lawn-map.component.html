@@ -1,0 +1,170 @@
+<p-card>
+  <div class="map-header">
+    <h4>Lawn Map</h4>
+    @if (!currentSettings()?.location) {
+      <small class="location-warning">
+        <i class="ti ti-alert-circle"></i>
+        Set your location in the settings above to see your property on the map
+      </small>
+    }
+    @if (targetSegmentForDrawing()) {
+      <div class="color-picker-wrapper">
+        <label>Segment Color:</label>
+        <input
+          type="color"
+          [ngModel]="selectedColor()"
+          (ngModelChange)="onColorChange($event)"
+          class="color-input"
+        />
+      </div>
+    }
+  </div>
+  @if (targetSegmentForDrawing(); as targetSegment) {
+    @let isNewSegment = targetSegment.id < 1;
+    <div class="drawing-mode-banner">
+      <div class="banner-content">
+        <i class="ti ti-map-pin"></i>
+        <div class="banner-text">
+          @if (isNewSegment) {
+            <strong>Creating new segment</strong>
+            <span>
+              @if (targetSegment.coordinates) {
+                Adjust the shape and color, then click Save
+              } @else {
+                Click on the map to place points, click the first point to close
+              }
+            </span>
+          } @else if (!targetSegment.coordinates) {
+            <strong>Drawing "{{ targetSegment.name }}"</strong>
+            <span
+              >Click on the map to place points, click the first point to
+              close</span
+            >
+          } @else {
+            <strong>Editing "{{ targetSegment.name }}"</strong>
+            <span>
+              @switch (editMode()) {
+                @case ("move") {
+                  Drag points to reposition them
+                }
+                @case ("add") {
+                  Tap a <strong>+</strong> marker to add a new point
+                }
+                @case ("remove") {
+                  Tap a point to remove it
+                }
+              }
+            </span>
+          }
+        </div>
+      </div>
+      @if (!targetSegment.coordinates) {
+        <p-button
+          [icon]="'ti ti-x'"
+          [text]="true"
+          severity="secondary"
+          size="small"
+          (onClick)="cancelEditing()"
+        />
+      }
+      @if (showEditToolbar()) {
+        <div class="edit-toolbar">
+          <div class="mode-buttons">
+            <p-button
+              [icon]="'ti ti-arrows-move'"
+              [outlined]="editMode() !== 'move'"
+              [severity]="editMode() === 'move' ? 'primary' : 'secondary'"
+              (onClick)="setEditMode('move')"
+              pTooltip="Move points"
+              [tooltipPosition]="'bottom'"
+            />
+            <p-button
+              [icon]="'ti ti-plus'"
+              [outlined]="editMode() !== 'add'"
+              [severity]="editMode() === 'add' ? 'primary' : 'secondary'"
+              (onClick)="setEditMode('add')"
+              pTooltip="Add points"
+              [tooltipPosition]="'bottom'"
+            />
+            <p-button
+              [icon]="'ti ti-trash'"
+              [outlined]="editMode() !== 'remove'"
+              [severity]="editMode() === 'remove' ? 'primary' : 'secondary'"
+              (onClick)="setEditMode('remove')"
+              pTooltip="Remove points"
+              [tooltipPosition]="'bottom'"
+            />
+          </div>
+          <p-button
+            [icon]="'ti ti-check'"
+            [label]="isMobile() ? 'Save' : ''"
+            [disabled]="!canSave()"
+            (onClick)="requestSave()"
+            [pTooltip]="!canSave() ? 'Enter a name to save' : 'Save changes'"
+            [tooltipPosition]="'bottom'"
+            severity="success"
+            [styleClass]="isMobile() ? 'mobile-save' : ''"
+          />
+        </div>
+      }
+    </div>
+  } @else if (hasAnySegments()) {
+    <div class="map-instructions">
+      <small>
+        <i class="ti ti-info-circle"></i>
+        Click the <strong>edit icon</strong> in the table to draw or modify a
+        segment on the map.
+      </small>
+    </div>
+  }
+  <div
+    class="map-container"
+    [style]="{ height: isMobile() ? '400px' : '600px' }"
+  >
+    <div id="lawn-map" [style]="{ height: '100%' }"></div>
+    @if (showEmptyOverlay()) {
+      <div class="empty-map-overlay">
+        <div class="empty-map-content">
+          <div class="empty-map-icon">
+            <i class="ti ti-map-2"></i>
+          </div>
+          <h3>Map Your Lawn Segments</h3>
+          <p class="empty-map-description">
+            Draw your lawn segments on the map to track their size and visualize
+            your property.
+          </p>
+          <div class="getting-started-steps">
+            <div class="step">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <strong>Add a segment</strong>
+                <span>Click "Add Lawn Segment" in the table above</span>
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <strong>Draw on the map</strong>
+                <span
+                  >Click to place points, click the first point to close the
+                  shape</span
+                >
+              </div>
+            </div>
+            <div class="step">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <strong>Save your segment</strong>
+                <span>Give it a name and click Save</span>
+              </div>
+            </div>
+          </div>
+          <div class="empty-map-preview">
+            <i class="ti ti-arrow-up"></i>
+            <span>Start by adding a segment in the table above</span>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</p-card>

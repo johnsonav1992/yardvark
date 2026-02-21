@@ -1,8 +1,15 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Equipment } from '../models/equipment.model';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EquipmentMaintenance } from '../models/equipmentMaintenance.model';
+import { LogHelpers } from '../../../logger/logger.helpers';
+import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
+import { Either, error, success } from '../../../types/either';
+import {
+  EquipmentNotFound,
+  MaintenanceRecordNotFound,
+} from '../models/equipment.errors';
 
 @Injectable()
 export class EquipmentService {
@@ -13,8 +20,8 @@ export class EquipmentService {
     private readonly _equipmentMaintenanceRepo: Repository<EquipmentMaintenance>,
   ) {}
 
-  async getAllUserEquipment(userId: string): Promise<Equipment[]> {
-    return this._equipmentRepo.find({
+  public async getAllUserEquipment(userId: string): Promise<Equipment[]> {
+    const equipment = await this._equipmentRepo.find({
       where: { userId },
       relations: { maintenanceRecords: true },
       order: {
@@ -23,9 +30,16 @@ export class EquipmentService {
         },
       },
     });
+
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.equipmentCount,
+      equipment.length,
+    );
+
+    return equipment;
   }
 
-  async createEquipment(
+  public async createEquipment(
     userId: string,
     equipmentData: Partial<Equipment>,
   ): Promise<Equipment> {
@@ -35,17 +49,24 @@ export class EquipmentService {
       userId,
     });
 
-    return this._equipmentRepo.save(newEquipment);
+    const saved = await this._equipmentRepo.save(newEquipment);
+
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.equipmentCreated,
+      saved.id,
+    );
+
+    return saved;
   }
 
-  async updateEquipment(
+  public async updateEquipment(
     equipmentId: number,
     equipmentData: Partial<Equipment>,
-  ): Promise<Equipment> {
+  ): Promise<Either<EquipmentNotFound, Equipment>> {
     const equipment = await this.findEquipmentById(equipmentId);
 
     if (!equipment) {
-      throw new HttpException('Equipment not found', HttpStatus.NOT_FOUND);
+      return error(new EquipmentNotFound());
     }
 
     const updatedEquipment = {
@@ -54,32 +75,36 @@ export class EquipmentService {
       updatedAt: new Date(),
     };
 
-    return this._equipmentRepo.save(updatedEquipment);
+    return success(await this._equipmentRepo.save(updatedEquipment));
   }
 
-  async toggleEquipmentArchiveStatus(
+  public async toggleEquipmentArchiveStatus(
     equipmentId: number,
     isActive: boolean,
-  ): Promise<void> {
+  ): Promise<Either<EquipmentNotFound, void>> {
     const equipment = await this.findEquipmentById(equipmentId);
 
     if (!equipment) {
-      throw new HttpException('Equipment not found', HttpStatus.NOT_FOUND);
+      return error(new EquipmentNotFound());
     }
 
     equipment.isActive = isActive;
 
     await this._equipmentRepo.save(equipment);
+
+    return success(undefined);
   }
 
-  async createMaintenanceRecord(
+  public async createMaintenanceRecord(
     equipmentId: number,
     maintenanceData: Partial<EquipmentMaintenance>,
-  ): Promise<EquipmentMaintenance> {
+  ): Promise<Either<EquipmentNotFound, EquipmentMaintenance>> {
+    LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
+
     const equipment = await this.findEquipmentById(equipmentId);
 
     if (!equipment) {
-      throw new HttpException('Equipment not found', HttpStatus.NOT_FOUND);
+      return error(new EquipmentNotFound());
     }
 
     const newMaintenanceRecord = this._equipmentMaintenanceRepo.create({
@@ -91,22 +116,24 @@ export class EquipmentService {
 
     await this._equipmentMaintenanceRepo.save(newMaintenanceRecord);
 
-    return newMaintenanceRecord;
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.maintenanceRecordCreated,
+      newMaintenanceRecord.id,
+    );
+
+    return success(newMaintenanceRecord);
   }
 
-  async updateMaintenanceRecord(
+  public async updateMaintenanceRecord(
     maintenanceId: number,
     maintenanceData: Partial<EquipmentMaintenance>,
-  ): Promise<EquipmentMaintenance> {
+  ): Promise<Either<MaintenanceRecordNotFound, EquipmentMaintenance>> {
     const maintenanceRecord = await this._equipmentMaintenanceRepo.findOne({
       where: { id: maintenanceId },
     });
 
     if (!maintenanceRecord) {
-      throw new HttpException(
-        'Maintenance record not found',
-        HttpStatus.NOT_FOUND,
-      );
+      return error(new MaintenanceRecordNotFound());
     }
 
     const updated: EquipmentMaintenance = {
@@ -115,32 +142,41 @@ export class EquipmentService {
       updatedAt: new Date(),
     };
 
-    return this._equipmentMaintenanceRepo.save(updated);
+    return success(await this._equipmentMaintenanceRepo.save(updated));
   }
 
-  async deleteEquipment(equipmentId: number): Promise<void> {
+  public async deleteEquipment(
+    equipmentId: number,
+  ): Promise<Either<EquipmentNotFound, void>> {
+    LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
+
     const equipment = await this.findEquipmentById(equipmentId);
 
     if (!equipment) {
-      throw new HttpException('Equipment not found', HttpStatus.NOT_FOUND);
+      return error(new EquipmentNotFound());
     }
 
     await this._equipmentRepo.softDelete(equipmentId);
+
+    LogHelpers.addBusinessContext(BusinessContextKeys.equipmentDeleted, true);
+
+    return success(undefined);
   }
 
-  async deleteMaintenanceRecord(maintenanceId: number): Promise<void> {
+  public async deleteMaintenanceRecord(
+    maintenanceId: number,
+  ): Promise<Either<MaintenanceRecordNotFound, void>> {
     const maintenanceRecord = await this._equipmentMaintenanceRepo.findOne({
       where: { id: maintenanceId },
     });
 
     if (!maintenanceRecord) {
-      throw new HttpException(
-        'Maintenance record not found',
-        HttpStatus.NOT_FOUND,
-      );
+      return error(new MaintenanceRecordNotFound());
     }
 
     await this._equipmentMaintenanceRepo.softDelete(maintenanceId);
+
+    return success(undefined);
   }
 
   private async findEquipmentById(

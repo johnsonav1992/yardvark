@@ -1,7 +1,29 @@
 <page-container [pageTitle]="product()?.name || ''">
   <div class="main-container">
     @if (isLoading()) {
-      <loading-spinner />
+      @if (isMobile()) {
+        <p-skeleton width="60%" height="250px" [style.alignSelf]="'center'" />
+      }
+      <div class="top-container">
+        @if (!isMobile()) {
+          <p-skeleton width="40%" height="400px" />
+        }
+        <div class="top-details">
+          <div class="name-container">
+            <p-skeleton width="200px" height="2rem" />
+            <p-skeleton width="150px" height="1.5rem" />
+          </div>
+          <p-skeleton width="100%" height="1rem" />
+          <p-skeleton width="95%" height="1rem" />
+          <p-skeleton width="80%" height="1rem" />
+          <p-divider [dt]="dividerDt" />
+          <p-skeleton width="70%" height="1rem" />
+          <p-skeleton width="75%" height="1rem" />
+          <p-skeleton width="65%" height="1rem" />
+          <p-skeleton width="70%" height="1rem" />
+          <p-skeleton width="60%" height="1rem" />
+        </div>
+      </div>
     } @else {
       @if (isMobile()) {
         <img

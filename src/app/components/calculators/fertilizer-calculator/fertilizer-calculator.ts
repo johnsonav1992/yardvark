@@ -39,6 +39,7 @@ export class FertilizerCalculator {
       });
       return result;
     }
+
     return null;
   });
 
@@ -58,6 +59,7 @@ export class FertilizerCalculator {
       });
       return result;
     }
+
     return null;
   });
 
@@ -77,6 +79,7 @@ export class FertilizerCalculator {
       });
       return result;
     }
+
     return null;
   });
 

@@ -1,4 +1,7 @@
-<page-container [pageTitle]="equipment()?.name || ''">
+<page-container
+  [pageTitle]="equipment()?.name || ''"
+  [titleClass]="'equipment-title'"
+>
   <ng-template #action1>
     <p-button
       icon="ti ti-pencil"
@@ -15,164 +18,461 @@
       (onClick)="openConfirmDelete()"
     />
   </ng-template>
-  <div class="main-container">
-    @if (isLoading()) {
-      <loading-spinner />
-    } @else {
-      @if (isMobile()) {
-        <img
-          [src]="equipment()?.imageUrl || noImageUrl"
-          alt="{{ equipment()?.name }}"
-          width="60%"
-          [style]="{ alignSelf: 'center', marginBottom: '1rem' }"
-        />
-      }
-      <div class="top-container">
-        @if (!isMobile()) {
-          <img
-            [src]="equipment()?.imageUrl || noImageUrl"
-            alt="{{ equipment()?.name }}"
-            width="40%"
-          />
+
+  @if (isLoading()) {
+    <div class="equipment-detail-container">
+      <div class="hero-section">
+        <p-skeleton width="100%" height="100%" />
+      </div>
+      <div class="info-cards-grid">
+        @for (card of skeletonInfoCards; track $index) {
+          <p-card class="info-card">
+            <ng-template pTemplate="header">
+              <div class="card-header">
+                <p-skeleton shape="circle" size="1.25rem" />
+                <p-skeleton width="120px" height="1rem" />
+              </div>
+            </ng-template>
+            <div class="info-items">
+              @for (i of [0, 1, 2]; track i) {
+                <div class="info-item">
+                  <p-skeleton shape="circle" size="1.25rem" />
+                  <div class="info-content">
+                    <p-skeleton width="80px" height="0.875rem" />
+                    <p-skeleton width="120px" height="1rem" />
+                  </div>
+                </div>
+              }
+            </div>
+          </p-card>
         }
-        <div class="top-details">
-          <div class="name-container">
-            <h2>{{ equipment()?.name }}</h2>
-            <h3>{{ equipment()?.brand }}</h3>
+      </div>
+      <p-card class="description-card">
+        <ng-template pTemplate="header">
+          <div class="card-header">
+            <p-skeleton shape="circle" size="1.25rem" />
+            <p-skeleton width="100px" height="1rem" />
           </div>
-          <p>{{ equipment()?.description }}</p>
-          <p-divider [dt]="dividerDt" />
-          <p><strong>Brand:</strong> {{ equipment()?.brand | titlecase }}</p>
-          <p>
-            <strong>Model:</strong>
-            {{ equipment()?.model | titlecase }}
-          </p>
-          <p>
-            <strong>Purchase Date:</strong>
-            {{ (equipment()?.purchaseDate | date: "M/dd/yyyy") || "N/A" }}
-          </p>
-          <p>
-            <strong>Purchase Price:</strong>
-            {{ (equipment()?.purchasePrice | currency) || "N/A" }}
-          </p>
-          <p>
-            <strong>Fuel Type:</strong>
-            {{ (equipment()?.fuelType | titlecase) || "N/A" }}
-          </p>
+        </ng-template>
+        <div class="skeleton-description-content">
+          <p-skeleton width="100%" height="0.9rem" />
+          <p-skeleton width="95%" height="0.9rem" />
+          <p-skeleton width="70%" height="0.9rem" />
         </div>
-      </div>
-      <div class="maintenance-title-container">
-        <h3 [style]="{ marginBottom: '.75rem' }">Maintenance History</h3>
-        @if (isMobile()) {
-          <p-button
-            icon="ti ti-plus"
-            (click)="openEquipmentModal()"
-            rounded
-            size="small"
-            [dt]="mobileAddMaintenanceButtonDt"
-          />
-        }
-      </div>
-      @if (isMobile()) {
-        <p-divider [dt]="mobileBottomDividerDt" />
-        @for (record of equipment()?.maintenanceRecords; track record.id) {
-          <p-card>
-            <div class="mobile-card-top-row">
-              {{
-                (record.maintenanceDate | date: "M/dd/yyyy") +
-                  (record.cost ? " - " + (record.cost | currency) : "")
-              }}
-              <div class="action-buttons">
-                <p-button
-                  icon="ti ti-pencil"
-                  severity="secondary"
-                  outlined
-                  rounded
-                  (click)="openEquipmentModal(record)"
-                />
-                <p-button
-                  icon="ti ti-trash"
-                  severity="danger"
-                  outlined
-                  rounded
-                  (click)="deleteMaintenanceRecord(record.id)"
-                />
+      </p-card>
+      <p-card class="stats-summary-card">
+        <div class="stats-summary">
+          @for (i of [0, 1]; track i) {
+            <div class="stat-item">
+              <p-skeleton shape="circle" size="4rem" />
+              <div class="stat-content">
+                <p-skeleton width="60px" height="1.75rem" />
+                <p-skeleton width="140px" height="0.875rem" />
               </div>
             </div>
-            <p>{{ record.notes }}</p>
-          </p-card>
-        } @empty {
-          <div [style]="{ margin: '.75rem' }">
-            No Records found. Click on the button to add a new record.
+          }
+        </div>
+      </p-card>
+      <div class="maintenance-section">
+        <div class="maintenance-header">
+          <p-skeleton width="200px" height="1.5rem" />
+          <p-skeleton
+            width="110px"
+            height="2.25rem"
+            borderRadius="var(--p-button-border-radius)"
+          />
+        </div>
+        <p-card>
+          <div class="skeleton-maintenance-rows">
+            @for (i of [0, 1, 2]; track i) {
+              <div class="skeleton-maintenance-row">
+                <p-skeleton width="100px" height="1rem" />
+                <p-skeleton width="70px" height="1rem" />
+                <p-skeleton width="60%" height="1rem" />
+                <p-skeleton
+                  width="80px"
+                  height="2rem"
+                  borderRadius="var(--p-button-border-radius)"
+                />
+              </div>
+            }
           </div>
-        }
-      } @else {
-        <ng-container [ngTemplateOutlet]="table"></ng-container>
-      }
-    }
-  </div>
-</page-container>
-
-<ng-template #table>
-  <p-card [dt]="cardDt">
-    <p-table [value]="equipment()?.maintenanceRecords || []">
-      <ng-template pTemplate="header">
-        <tr>
-          <th>Service Date</th>
-          <th>Service Cost</th>
-          <th>Notes</th>
-          <th></th>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="body" let-record>
-        <tr>
-          <td>{{ record.maintenanceDate | date: "M/dd/yyyy" }}</td>
-          <td>{{ (record.cost | currency) || "N/A" }}</td>
-          <td>{{ record.notes }}</td>
-          <td>
-            <div class="action-buttons">
+        </p-card>
+      </div>
+    </div>
+  } @else {
+    <div class="equipment-detail-container">
+      <div class="hero-section">
+        @if (equipment()?.imageUrl) {
+          <img
+            [src]="equipment()!.imageUrl"
+            [alt]="equipment()?.name"
+            class="hero-image"
+            [class.adjusting]="isAdjustingPosition()"
+            [style.object-position]="imagePosition()"
+            (mousedown)="onImageMouseDown($event)"
+            (touchstart)="onImageTouchStart($event)"
+          />
+          @if (!isAdjustingPosition()) {
+            <button
+              class="adjust-position-button"
+              pButton
+              icon="ti ti-arrows-move"
+              [rounded]="true"
+              severity="secondary"
+              pTooltip="Adjust Image Position"
+              tooltipPosition="left"
+              (click)="togglePositionAdjustment()"
+            ></button>
+          } @else {
+            <div class="position-controls">
               <p-button
-                icon="ti ti-pencil"
+                label="Save"
+                icon="ti ti-check"
+                size="small"
+                (onClick)="saveImagePosition()"
+              />
+              <p-button
+                label="Cancel"
+                icon="ti ti-x"
+                size="small"
                 severity="secondary"
                 outlined
-                rounded
-                (click)="openEquipmentModal(record)"
-              />
-              <p-button
-                icon="ti ti-trash"
-                severity="danger"
-                outlined
-                rounded
-                (click)="deleteMaintenanceRecord(record.id)"
+                (onClick)="cancelPositionAdjustment()"
               />
             </div>
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template pTemplate="footer">
-        <tr>
-          <td
-            colspan="4"
-            style="
-              text-align: right;
-              border-bottom: none;
-              padding: 0;
-              padding-top: 1rem;
-            "
-          >
+          }
+        } @else {
+          <div class="no-image-container">
+            <i class="li li-lawnmower no-image-icon"></i>
+          </div>
+        }
+      </div>
+
+      <div class="info-cards-grid">
+        <p-card class="info-card">
+          <ng-template pTemplate="header">
+            <div class="card-header">
+              <i class="ti ti-info-circle"></i>
+              <h3>Overview</h3>
+            </div>
+          </ng-template>
+          <div class="info-items">
+            <div class="info-item">
+              <i class="ti ti-tag"></i>
+              <div class="info-content">
+                <span class="info-label">Brand</span>
+                <span class="info-value">{{
+                  equipment()?.brand | titlecase
+                }}</span>
+              </div>
+            </div>
+            <div class="info-item">
+              <i class="ti ti-box"></i>
+              <div class="info-content">
+                <span class="info-label">Model</span>
+                <span class="info-value">{{
+                  equipment()?.model || "N/A"
+                }}</span>
+              </div>
+            </div>
+            @if (equipment()?.fuelType) {
+              <div class="info-item">
+                <i class="ti ti-gas-station"></i>
+                <div class="info-content">
+                  <span class="info-label">Fuel Type</span>
+                  <p-tag [value]="equipment()?.fuelType" severity="secondary">
+                    <ng-template pTemplate="icon">
+                      <i class="ti ti-gas-station"></i>
+                    </ng-template>
+                  </p-tag>
+                </div>
+              </div>
+            }
+            @if (equipment()?.serialNumber) {
+              <div class="info-item">
+                <i class="ti ti-barcode"></i>
+                <div class="info-content">
+                  <span class="info-label">Serial Number</span>
+                  <span class="info-value">{{
+                    equipment()?.serialNumber
+                  }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </p-card>
+
+        <p-card class="info-card">
+          <ng-template pTemplate="header">
+            <div class="card-header">
+              <i class="ti ti-shopping-cart"></i>
+              <h3>Purchase Information</h3>
+            </div>
+          </ng-template>
+          <div class="info-items">
+            <div class="info-item">
+              <i class="ti ti-calendar"></i>
+              <div class="info-content">
+                <span class="info-label">Purchase Date</span>
+                <span class="info-value">
+                  {{ (equipment()?.purchaseDate | date: "M/dd/yyyy") || "N/A" }}
+                </span>
+              </div>
+            </div>
+            <div class="info-item">
+              <i class="ti ti-currency-dollar"></i>
+              <div class="info-content">
+                <span class="info-label">Purchase Price</span>
+                <span class="info-value">
+                  {{ (equipment()?.purchasePrice | currency) || "N/A" }}
+                </span>
+              </div>
+            </div>
+            @if (ownedForDisplay(); as ownedFor) {
+              <div class="info-item">
+                <i class="ti ti-clock"></i>
+                <div class="info-content">
+                  <span class="info-label">Owned For</span>
+                  <span class="info-value">{{ ownedFor }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </p-card>
+
+        <p-card class="info-card">
+          <ng-template pTemplate="header">
+            <div class="card-header">
+              <i class="ti ti-wrench"></i>
+              <h3>Status & Maintenance</h3>
+            </div>
+          </ng-template>
+          <div class="info-items">
+            @if (maintenanceStatusConfig(); as config) {
+              <div class="info-item">
+                <i [class]="config.icon"></i>
+                <div class="info-content">
+                  <span class="info-label">Status</span>
+                  <p-tag [value]="config.label" [severity]="config.severity">
+                    <ng-template pTemplate="icon">
+                      <i [class]="config.icon"></i>
+                    </ng-template>
+                  </p-tag>
+                </div>
+              </div>
+            }
+            @if (
+              equipment()?.maintenanceRecords &&
+              equipment()!.maintenanceRecords.length > 0
+            ) {
+              <div class="info-item">
+                <i class="ti ti-calendar-check"></i>
+                <div class="info-content">
+                  <span class="info-label">Last Service</span>
+                  <span class="info-value">
+                    {{
+                      equipment()!.maintenanceRecords[0].maintenanceDate
+                        | date: "M/dd/yyyy"
+                    }}
+                  </span>
+                </div>
+              </div>
+              @if (daysSinceLastService(); as days) {
+                <div class="info-item">
+                  <i class="ti ti-clock-hour-4"></i>
+                  <div class="info-content">
+                    <span class="info-label">Days Since Service</span>
+                    <span class="info-value">{{ days }} days</span>
+                  </div>
+                </div>
+              }
+            } @else {
+              <div class="info-item">
+                <i class="ti ti-calendar-x"></i>
+                <div class="info-content">
+                  <span class="info-label">Last Service</span>
+                  <span class="info-value">No service records</span>
+                </div>
+              </div>
+            }
+          </div>
+        </p-card>
+      </div>
+
+      @if (equipment()?.description) {
+        <p-card class="description-card">
+          <ng-template pTemplate="header">
+            <div class="card-header">
+              <i class="ti ti-file-text"></i>
+              <h3>Description</h3>
+            </div>
+          </ng-template>
+          <p class="description-text">{{ equipment()?.description }}</p>
+        </p-card>
+      }
+
+      <p-card class="stats-summary-card">
+        <div class="stats-summary">
+          <div class="stat-item">
+            <i class="ti ti-tool"></i>
+            <div class="stat-content">
+              <span class="stat-value">{{
+                equipment()?.maintenanceRecords?.length || 0
+              }}</span>
+              <span class="stat-label">Service Records</span>
+            </div>
+          </div>
+          <div class="stat-item">
+            <i class="ti ti-currency-dollar"></i>
+            <div class="stat-content">
+              <span class="stat-value">{{
+                totalMaintenanceCost() | currency
+              }}</span>
+              <span class="stat-label">Total Maintenance Cost</span>
+            </div>
+          </div>
+        </div>
+      </p-card>
+
+      <div class="maintenance-section">
+        <div class="maintenance-header">
+          <h2>Maintenance History</h2>
+          @if (isMobile()) {
+            <p-button
+              icon="ti ti-plus"
+              [rounded]="true"
+              size="small"
+              pTooltip="Add Record"
+              tooltipPosition="left"
+              (click)="openEquipmentModal()"
+            />
+          } @else {
             <p-button
               icon="ti ti-plus"
               label="Add Record"
               (click)="openEquipmentModal()"
             />
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template #emptymessage>
-        <div [style]="{ margin: '.75rem' }">
-          No Records found. Click on the button to add a new record.
+          }
         </div>
-      </ng-template>
-    </p-table>
-  </p-card>
-</ng-template>
+
+        @if (isMobile()) {
+          @for (record of equipment()?.maintenanceRecords; track record.id) {
+            <p-card class="maintenance-mobile-card">
+              <div class="mobile-card-header">
+                <div class="mobile-card-date">
+                  <i class="ti ti-calendar"></i>
+                  {{ record.maintenanceDate | date: "M/dd/yyyy" }}
+                </div>
+                <div class="action-buttons">
+                  <p-button
+                    icon="ti ti-pencil"
+                    severity="secondary"
+                    outlined
+                    rounded
+                    size="small"
+                    (click)="openEquipmentModal(record)"
+                  />
+                  <p-button
+                    icon="ti ti-trash"
+                    severity="danger"
+                    outlined
+                    rounded
+                    size="small"
+                    (click)="deleteMaintenanceRecord(record.id)"
+                  />
+                </div>
+              </div>
+              @if (record.cost) {
+                <div class="mobile-card-cost">
+                  <i class="ti ti-currency-dollar"></i>
+                  <strong>{{ record.cost | currency }}</strong>
+                </div>
+              }
+              <div class="mobile-card-notes">
+                <p>{{ record.notes }}</p>
+              </div>
+            </p-card>
+          } @empty {
+            <p-card>
+              <div class="empty-maintenance">
+                <i class="ti ti-tools"></i>
+                <p>No maintenance records found</p>
+                <p class="empty-subtext">
+                  Add your first service record to get started
+                </p>
+              </div>
+            </p-card>
+          }
+        } @else {
+          <p-card class="maintenance-table-card">
+            <p-table [value]="equipment()?.maintenanceRecords || []">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Service Date</th>
+                  <th>Service Cost</th>
+                  <th>Notes</th>
+                  <th style="width: 120px">Actions</th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-record>
+                <tr class="maintenance-row">
+                  <td>
+                    <div class="date-cell">
+                      <i class="ti ti-calendar"></i>
+                      {{ record.maintenanceDate | date: "M/dd/yyyy" }}
+                    </div>
+                  </td>
+                  <td>
+                    @if (record.cost) {
+                      <div class="cost-cell">
+                        <i class="ti ti-currency-dollar"></i>
+                        {{ record.cost | currency }}
+                      </div>
+                    } @else {
+                      <span class="no-data">N/A</span>
+                    }
+                  </td>
+                  <td class="notes-cell">{{ record.notes }}</td>
+                  <td>
+                    <div class="action-buttons">
+                      <p-button
+                        icon="ti ti-pencil"
+                        severity="secondary"
+                        outlined
+                        rounded
+                        size="small"
+                        (click)="openEquipmentModal(record)"
+                      />
+                      <p-button
+                        icon="ti ti-trash"
+                        severity="danger"
+                        outlined
+                        rounded
+                        size="small"
+                        (click)="deleteMaintenanceRecord(record.id)"
+                      />
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="4">
+                    <div class="empty-maintenance">
+                      <i class="ti ti-tools"></i>
+                      <p>No maintenance records found</p>
+                      <p class="empty-subtext">
+                        Add your first service record to get started
+                      </p>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </p-card>
+        }
+      </div>
+    </div>
+  }
+</page-container>

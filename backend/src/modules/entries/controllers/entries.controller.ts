@@ -7,8 +7,8 @@ import {
   Post,
   Put,
   Query,
-  Req,
 } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { EntriesService } from '../services/entries.service';
 import {
   BatchEntryCreationRequest,
@@ -16,103 +16,237 @@ import {
   EntriesSearchRequest,
   EntryCreationRequest,
 } from '../models/entries.types';
-import { Request } from 'express';
+import { User } from '../../../decorators/user.decorator';
+import { SubscriptionFeature } from '../../../decorators/subscription-feature.decorator';
+import { resultOrThrow } from '../../../utils/resultOrThrow';
+import { LogHelpers } from '../../../logger/logger.helpers';
+import {
+  EventNames,
+  BusinessContextKeys,
+} from '../../../logger/logger-keys.constants';
+import { EntryCreatedEvent } from '../../../events/entry-created.event';
+import { BatchEntriesCreatedEvent } from '../../../events/batch-entries-created.event';
 
 @Controller('entries')
 export class EntriesController {
-  constructor(private _entriesService: EntriesService) {}
+  constructor(
+    private readonly _entriesService: EntriesService,
+    private readonly _eventEmitter: EventEmitter2,
+  ) {}
 
   @Get()
-  getEntries(
-    @Req() req: Request,
+  public async getEntries(
+    @User('userId') userId: string,
     @Query('startDate') startDate: string,
     @Query('endDate') endDate: string,
   ) {
-    return this._entriesService.getEntries(req.user.userId, startDate, endDate);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_entries',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.startDate, startDate);
+    LogHelpers.addBusinessContext(BusinessContextKeys.endDate, endDate);
+
+    return resultOrThrow(
+      await this._entriesService.getEntries(userId, startDate, endDate),
+    );
   }
 
   @Get('single/most-recent')
-  getMostRecentEntry(@Req() req: Request) {
-    return this._entriesService.getMostRecentEntry(req.user.userId);
+  public getMostRecentEntry(@User('userId') userId: string) {
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_most_recent_entry',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+
+    return this._entriesService.getMostRecentEntry(userId);
   }
 
   @Get('last-mow')
-  async getLastMowDate(@Req() req: Request) {
-    const lastMowDate = await this._entriesService.getLastMowDate(
-      req.user.userId,
+  public async getLastMowDate(@User('userId') userId: string) {
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_last_mow_date',
     );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+
+    const lastMowDate = await this._entriesService.getLastMowDate(userId);
 
     return { lastMowDate };
   }
 
   @Get('last-product-app')
-  async getLastProductAppDate(@Req() req: Request) {
+  public async getLastProductAppDate(@User('userId') userId: string) {
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_last_product_app_date',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+
     const lastProductAppDate =
-      await this._entriesService.getLastProductApplicationDate(req.user.userId);
+      await this._entriesService.getLastProductApplicationDate(userId);
 
     return { lastProductAppDate };
   }
 
   @Get('last-pgr-app')
-  async getLastPgrAppDate(@Req() req: Request) {
-    const lastPgrAppDate = await this._entriesService.getLastPgrApplicationDate(
-      req.user.userId,
+  public async getLastPgrAppDate(@User('userId') userId: string) {
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_last_pgr_app_date',
     );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+
+    const lastPgrAppDate =
+      await this._entriesService.getLastPgrApplicationDate(userId);
 
     return { lastPgrAppDate };
   }
 
   @Get('single/by-date/:date')
-  getEntryByDate(@Req() req: Request, @Param('date') date: string) {
-    return this._entriesService.getEntryByDate(req.user.userId, date);
+  public async getEntryByDate(
+    @User('userId') userId: string,
+    @Param('date') date: string,
+  ) {
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_entry_by_date',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+    LogHelpers.addBusinessContext(BusinessContextKeys.date, date);
+
+    return resultOrThrow(
+      await this._entriesService.getEntryByDate(userId, date),
+    );
   }
 
   @Get('single/:entryId')
-  getEntry(@Param('entryId') entryId: number) {
-    return this._entriesService.getEntry(entryId);
+  public async getEntry(@Param('entryId') entryId: number) {
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'get_entry',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
+
+    return resultOrThrow(await this._entriesService.getEntry(entryId));
   }
 
   @Post()
-  async createEntry(@Req() req: Request, @Body() entry: EntryCreationRequest) {
-    return this._entriesService.createEntry(req.user.userId, entry);
+  @SubscriptionFeature('entry_creation')
+  public async createEntry(
+    @User('userId') userId: string,
+    @Body() entry: EntryCreationRequest,
+  ) {
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'create_entry',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+
+    const result = await this._entriesService.createEntry(userId, entry);
+
+    this._eventEmitter.emit(
+      EventNames.entryCreated,
+      new EntryCreatedEvent(userId, result.id),
+    );
+
+    return result;
   }
 
   @Post('batch')
-  async createEntriesBatch(
-    @Req() req: Request,
+  public async createEntriesBatch(
+    @User('userId') userId: string,
     @Body() body: BatchEntryCreationRequest,
   ): Promise<BatchEntryCreationResponse> {
-    return this._entriesService.createEntriesBatch(req.user.userId, body);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'create_entries_batch',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.batchSize,
+      body.entries.length,
+    );
+
+    const result = await this._entriesService.createEntriesBatch(userId, body);
+
+    if (result.created > 0) {
+      this._eventEmitter.emit(
+        EventNames.batchEntriesCreated,
+        new BatchEntriesCreatedEvent(userId, result.created),
+      );
+    }
+
+    return result;
   }
 
   @Put(':entryId')
-  updateEntry(
+  public async updateEntry(
     @Param('entryId') entryId: number,
     @Body() entry: Partial<EntryCreationRequest>,
   ) {
-    return this._entriesService.updateEntry(entryId, entry);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'update_entry',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
+
+    return resultOrThrow(
+      await this._entriesService.updateEntry(entryId, entry),
+    );
   }
 
   @Delete(':entryId')
-  softDeleteEntry(@Param('entryId') entryId: number) {
-    return this._entriesService.softDeleteEntry(entryId);
+  public async softDeleteEntry(@Param('entryId') entryId: number) {
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'delete_entry',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
+
+    return resultOrThrow(await this._entriesService.softDeleteEntry(entryId));
   }
 
   @Post('recover/:entryId')
-  recoverEntry(@Param('entryId') entryId: number) {
+  public recoverEntry(@Param('entryId') entryId: number) {
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'recover_entry',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
+
     return this._entriesService.recoverEntry(entryId);
   }
 
   @Post('search')
-  searchEntries(
-    @Req() req: Request,
+  public async searchEntries(
+    @User('userId') userId: string,
     @Body() searchCriteria: EntriesSearchRequest,
   ) {
-    return this._entriesService.searchEntries(req.user.userId, searchCriteria);
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'search_entries',
+    );
+    LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+
+    return resultOrThrow(
+      await this._entriesService.searchEntries(userId, searchCriteria),
+    );
   }
 
   @Delete('entry-image/:entryImageId')
-  deleteEntryImage(@Param('entryImageId') entryImageId: number) {
+  public deleteEntryImage(@Param('entryImageId') entryImageId: number) {
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.controllerOperation,
+      'delete_entry_image',
+    );
+    LogHelpers.addBusinessContext(
+      BusinessContextKeys.entryImageId,
+      entryImageId,
+    );
+
     return this._entriesService.softDeleteEntryImage(entryImageId);
   }
 }

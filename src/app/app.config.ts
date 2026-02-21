@@ -11,7 +11,6 @@ import {
 
 import { mainRoutes } from './app.routes';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import { authHttpInterceptorFn, provideAuth0 } from '@auth0/auth0-angular';
 import { theme } from './theme/theme';
@@ -20,6 +19,8 @@ import { provideHttpUtils } from './utils/httpUtils';
 import { YV_DARK_MODE_SELECTOR } from './constants/style-constants';
 import { environment } from '../environments/environment';
 import { provideServiceWorker } from '@angular/service-worker';
+import { getRedirectUri } from './utils/authUtils';
+import { CustomAuth0Cache } from './config/auth0Cache.config';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -32,7 +33,6 @@ export const appConfig: ApplicationConfig = {
       withViewTransitions({ skipInitialTransition: true })
     ),
     provideHttpClient(withInterceptors([authHttpInterceptorFn])),
-    provideAnimationsAsync(),
     providePrimeNG({
       theme: {
         preset: theme,
@@ -46,9 +46,12 @@ export const appConfig: ApplicationConfig = {
       domain: environment.auth0Domain,
       clientId: environment.auth0ClientId,
       authorizationParams: {
-        redirect_uri: window.location.origin,
+        redirect_uri: getRedirectUri(),
         audience: `https://${environment.auth0Domain}/api/v2/`
       },
+      cache: new CustomAuth0Cache(),
+      useRefreshTokens: true,
+      useRefreshTokensFallback: false,
       httpInterceptor: {
         allowedList: [
           {

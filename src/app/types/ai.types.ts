@@ -14,14 +14,3 @@ export interface AiChatResponse {
     [key: string]: any;
   };
 }
-
-export interface AiChatRequest {
-  prompt: string;
-  systemPrompt?: string;
-  options?: {
-    model?: string;
-    temperature?: number;
-    maxTokens?: number;
-    [key: string]: any;
-  };
-}

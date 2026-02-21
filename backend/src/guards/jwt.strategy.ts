@@ -8,7 +8,7 @@ import { ExtractedUserRequestData } from 'src/types/request';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-  constructor(private configService: ConfigService) {
+  constructor(private readonly configService: ConfigService) {
     const domain = configService.get<string>('AUTH0_DOMAIN');
 
     super({

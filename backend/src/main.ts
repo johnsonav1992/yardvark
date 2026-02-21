@@ -1,12 +1,26 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { LoggingInterceptor } from './logger/logger';
 import { ValidationPipe } from '@nestjs/common';
 import helmet from 'helmet';
+import {
+  initializeOTelLogger,
+  OTelConfig,
+  parseOTelHeaders,
+} from './logger/otel.transport';
+import { initializeOTelTracing } from './logger/otel.tracing';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const otelConfig: OTelConfig = {
+    endpoint: process.env.OTEL_EXPORTER_OTLP_ENDPOINT || '',
+    headers: parseOTelHeaders(process.env.OTEL_EXPORTER_OTLP_HEADERS),
+    enabled: process.env.OTEL_ENABLED === 'true',
+  };
+
+  initializeOTelTracing(otelConfig);
+  initializeOTelLogger(otelConfig);
+
+  const app = await NestFactory.create(AppModule, { rawBody: true });
 
   app.use(
     helmet({
@@ -42,8 +56,6 @@ async function bootstrap() {
     }),
   );
 
-  app.useGlobalInterceptors(new LoggingInterceptor());
-
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -59,8 +71,10 @@ async function bootstrap() {
     origin: [
       'https://yardvark.netlify.app',
       'http://localhost:4200',
+      'capacitor://localhost',
       /^https:\/\/deploy-preview-\d+--yardvark\.netlify\.app$/,
       /^https:\/\/[a-zA-Z0-9-]+--yardvark\.netlify\.app$/,
+      'https://t8x2587c-4200.usw3.devtunnels.ms',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],

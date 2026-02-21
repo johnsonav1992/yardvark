@@ -12,7 +12,7 @@
 
     .icon {
       font-size: 1.2rem;
-      color: var(--p-primary-500);
+      color: var(--p-surface-500);
     }
   }
 }
@@ -63,7 +63,7 @@
 
     .ai-icon {
       font-size: 1.3rem;
-      color: var(--p-primary-500);
+      color: var(--p-violet-400);
     }
 
     .ai-title {
@@ -231,5 +231,33 @@
     line-height: 1.4;
     font-style: italic;
     max-width: 300px;
+  }
+}
+
+::ng-deep upgrade-prompt .upgrade-card {
+  border: none;
+  box-shadow: none;
+}
+
+::ng-deep upgrade-prompt .upgrade-content {
+  padding: 2rem 1rem;
+}
+
+:host-context(:root.yv-dark-mode) {
+  ::ng-deep p-card .p-card {
+    background: var(--p-surface-800);
+    color: var(--p-surface-100);
+  }
+
+  .empty-state,
+  .off-season-state {
+    h3 {
+      color: var(--p-surface-100);
+    }
+  }
+
+  .off-season-tip {
+    background: var(--p-surface-700);
+    color: var(--p-surface-100);
   }
 }

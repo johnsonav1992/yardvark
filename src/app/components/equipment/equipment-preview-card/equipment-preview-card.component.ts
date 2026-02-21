@@ -1,20 +1,29 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { CardModule } from 'primeng/card';
 import { Equipment } from '../../../types/equipment.types';
 import { DatePipe } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
+import { TagModule } from 'primeng/tag';
+import { DividerModule } from 'primeng/divider';
 import { TooltipOptions } from 'primeng/api';
 import { Router } from '@angular/router';
 import { DialogService } from 'primeng/dynamicdialog';
 import { EquipmentMaintenanceAddEditModalComponent } from '../equipment-maintenance-add-edit-modal/equipment-maintenance-add-edit-modal.component';
 import { GlobalUiService } from '../../../services/global-ui.service';
 import { EquipmentService } from '../../../services/equipment.service';
-import { NO_IMAGE_URL } from '../../../constants/style-constants';
+import { differenceInDays, differenceInMonths, parseISO } from 'date-fns';
 
 @Component({
   selector: 'equipment-preview-card',
-  imports: [CardModule, DatePipe, ButtonModule, TooltipModule],
+  imports: [
+    CardModule,
+    DatePipe,
+    ButtonModule,
+    TooltipModule,
+    TagModule,
+    DividerModule
+  ],
   templateUrl: './equipment-preview-card.component.html',
   styleUrl: './equipment-preview-card.component.scss',
   providers: [DialogService]
@@ -23,9 +32,10 @@ export class EquipmentPreviewCardComponent {
   private _router = inject(Router);
   private _dialogService = inject(DialogService);
   private _equipmentService = inject(EquipmentService);
-  public isMobile = inject(GlobalUiService).isMobile;
+  private _globalUiService = inject(GlobalUiService);
 
-  public noImageUrl = NO_IMAGE_URL;
+  public isMobile = this._globalUiService.isMobile;
+  public screenWidth = this._globalUiService.screenWidth;
 
   public equipment = input.required<Equipment>();
 
@@ -33,6 +43,74 @@ export class EquipmentPreviewCardComponent {
     appendTo: 'body',
     positionStyle: 'absolute'
   };
+
+  public maintenanceStatus = computed(() => {
+    const equipmentData = this.equipment();
+    const records = equipmentData.maintenanceRecords;
+    const now = new Date();
+    const createdAt = parseISO(equipmentData.createdAt.toString());
+    const daysSinceCreation = differenceInDays(now, createdAt);
+
+    if (daysSinceCreation <= 2) return 'new';
+
+    if (!records || records.length === 0) {
+      const monthsSinceCreation = differenceInMonths(now, createdAt);
+
+      if (monthsSinceCreation >= 1) return 'never';
+
+      return 'none';
+    }
+
+    const lastMaintenance = parseISO(records[0].maintenanceDate.toString());
+    const monthsSince = differenceInMonths(now, lastMaintenance);
+
+    if (monthsSince <= 1) return 'recent';
+
+    if (monthsSince >= 3 && monthsSince < 6) return 'warning';
+
+    if (monthsSince >= 6) return 'due';
+
+    return 'none';
+  });
+
+  public maintenanceStatusConfig = computed(() => {
+    const status = this.maintenanceStatus();
+
+    switch (status) {
+      case 'new':
+        return {
+          label: 'Newly Added',
+          severity: 'info' as const,
+          icon: 'ti ti-sparkles'
+        };
+      case 'recent':
+        return {
+          label: 'Recently Serviced',
+          severity: 'success' as const,
+          icon: 'ti ti-circle-check'
+        };
+      case 'warning':
+        return {
+          label: 'Service Soon',
+          severity: 'warn' as const,
+          icon: 'ti ti-clock-exclamation'
+        };
+      case 'due':
+        return {
+          label: 'Maintenance Due',
+          severity: 'danger' as const,
+          icon: 'ti ti-alert-triangle'
+        };
+      case 'never':
+        return {
+          label: 'Never Serviced',
+          severity: 'info' as const,
+          icon: 'ti ti-help-circle'
+        };
+      default:
+        return null;
+    }
+  });
 
   public goToEquipment(): void {
     this._router.navigate(['equipment', this.equipment().id]);

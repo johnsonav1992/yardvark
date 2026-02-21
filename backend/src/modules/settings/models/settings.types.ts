@@ -39,6 +39,10 @@ export type SettingsData = {
    * Array of navigation item IDs for mobile bottom navbar (4 items)
    */
   mobileNavbarItems: string[];
+  /**
+   * Custom GDD target override (optional). If set, uses this instead of default.
+   */
+  customGddTarget?: number;
 };
 
 export type SettingsResponse = {

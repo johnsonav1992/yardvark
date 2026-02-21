@@ -1,17 +1,16 @@
-/**
- * Gets the start and end dates of a full week centered around the current date.
- *
- * @returns An object containing the start and end dates of the week.
- * @property {Date} startDate - The start date of the week (3 days before today).
- * @property {Date} endDate - The end date of the week (3 days after today).
- */
-export const getRollingWeekStartAndEndDates = () => {
-  const today = new Date();
-  const startDate = new Date(today);
-  const endDate = new Date(today);
+import { subDays, addDays, getDay, getMonth, getDate, getYear, setHours, setMinutes, setSeconds, setMilliseconds } from 'date-fns';
 
-  startDate.setDate(today.getDate() - 3);
-  endDate.setDate(today.getDate() + 3);
+/**
+ * Gets the start and end dates of a rolling two-week window centered around the current date.
+ *
+ * @returns An object containing the start and end dates.
+ * @property {Date} startDate - 7 days before today.
+ * @property {Date} endDate - 7 days after today.
+ */
+export const getRollingDateWindowAroundToday = () => {
+  const today = new Date();
+  const startDate = subDays(today, 7);
+  const endDate = addDays(today, 7);
 
   return {
     startDate,
@@ -20,25 +19,25 @@ export const getRollingWeekStartAndEndDates = () => {
 };
 
 /**
- * Gets the labels for the days of the week, centered around the current day.
+ * Gets day labels for a rolling two-week window centered around the current day.
  *
- * @param {Object} [opts] - Optional parameters.
- * @param {boolean} [opts.includeDates] - Whether to include dates in the labels.
- * @param {boolean} [opts.shortDayNames] - Whether to use short day names (e.g., Mon, Tue).
- * @returns {string[]} An array of strings representing the days of the week.
+ * @param opts - Optional parameters for label formatting.
+ * @param opts.includeDates - Whether to include dates in the labels.
+ * @param opts.shortDayNames - Whether to use short day names (e.g., Mon, Tue).
+ * @param opts.tinyDayNames - Whether to use tiny day names (e.g., M, Tu).
+ * @returns An array of strings representing the days in the window.
  */
-export const getFullWeekOfDayLabelsCenteredAroundCurrentDay = (opts?: {
+export const getDayLabelsCenteredAroundToday = (opts?: {
   includeDates?: boolean;
   shortDayNames?: boolean;
   tinyDayNames?: boolean;
 }) => {
   const today = new Date();
-  const todayIndex = today.getDay();
+  const todayIndex = getDay(today);
   const labels = [];
 
-  for (let i = -3; i <= 3; i++) {
-    const currentDate = new Date(today);
-    currentDate.setDate(today.getDate() + i);
+  for (let i = -7; i <= 7; i++) {
+    const currentDate = addDays(today, i);
     const dayIndex = (todayIndex + i + 7) % 7;
 
     let label;
@@ -53,7 +52,7 @@ export const getFullWeekOfDayLabelsCenteredAroundCurrentDay = (opts?: {
     }
 
     if (opts?.includeDates) {
-      const dateStr = `${currentDate.getMonth() + 1}/${currentDate.getDate()}`;
+      const dateStr = `${getMonth(currentDate) + 1}/${getDate(currentDate)}`;
       label += ` ${dateStr}`;
     }
 
@@ -107,21 +106,18 @@ export const debounce = <T extends (...args: any[]) => void>(
 export const convertTimeStringToDate = (
   timeString: string | null
 ): Date | null => {
-  if (!timeString) return null;
+  if (!timeString) {
+    return null;
+  }
 
   const today = new Date();
   const [hours, minutes, seconds] = timeString.split(':').map(Number);
+  let result = setHours(today, hours || 0);
+  result = setMinutes(result, minutes || 0);
+  result = setSeconds(result, seconds || 0);
+  result = setMilliseconds(result, 0);
 
-  today.setHours(hours || 0, minutes || 0, seconds || 0, 0);
-  return today;
-};
-
-/**
- * Checks to see if a string is a valid time string in the format HH:mm:ss.
- */
-export const isTimeString = (value: string): boolean => {
-  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d):([0-5]\d)$/;
-  return timeRegex.test(value);
+  return result;
 };
 
 /**
@@ -130,5 +126,9 @@ export const isTimeString = (value: string): boolean => {
  * @param day The day of the month to get.
  * @returns A Date object for the specified day in the given month.
  */
-export const getSpecificDayOfMonth = (monthDate: Date, day: number): Date =>
-  new Date(monthDate.getFullYear(), monthDate.getMonth(), day);
+export const getSpecificDayOfMonth = (monthDate: Date, day: number): Date => {
+  const year = getYear(monthDate);
+  const month = getMonth(monthDate);
+
+  return new Date(year, month, day);
+};

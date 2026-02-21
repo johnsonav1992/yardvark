@@ -33,6 +33,14 @@ export const NAV_ITEMS: NavItem[] = [
     routerLinkActiveOptions: { exact: true }
   },
   {
+    id: 'gdd-tracking',
+    label: 'GDD Tracking',
+    shortLabel: 'GDD',
+    icon: 'ti ti-flame',
+    routerLink: '/gdd-tracking',
+    routerLinkActiveOptions: { exact: true }
+  },
+  {
     id: 'products',
     label: 'Products',
     shortLabel: 'Products',

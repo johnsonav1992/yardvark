@@ -1,4 +1,13 @@
 /**
+ * GDD cycle status
+ * - 'active': Currently tracking, below target GDD
+ * - 'complete': Target reached, ready for reapplication
+ * - 'overdue': Target was reached long ago, significantly past due for reapplication
+ * - 'dormant': Grass is dormant (temps consistently below base temp), tracking paused
+ */
+export type GddCycleStatus = 'active' | 'complete' | 'overdue' | 'dormant';
+
+/**
  * Returns accumulated GDD since last PGR application
  */
 export interface CurrentGddResponse {
@@ -10,6 +19,7 @@ export interface CurrentGddResponse {
   targetGdd: number;
   percentageToTarget: number;
   grassType: 'warm' | 'cool';
+  cycleStatus: GddCycleStatus;
 }
 
 /**

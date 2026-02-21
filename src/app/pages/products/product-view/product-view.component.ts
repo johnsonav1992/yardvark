@@ -8,9 +8,9 @@ import { TitleCasePipe } from '@angular/common';
 import { DividerModule } from 'primeng/divider';
 import { DividerDesignTokens } from '@primeuix/themes/types/divider';
 import { GlobalUiService } from '../../../services/global-ui.service';
-import { LoadingSpinnerComponent } from '../../../components/miscellanious/loading-spinner/loading-spinner.component';
 import { NO_IMAGE_URL } from '../../../constants/style-constants';
 import { ButtonModule } from 'primeng/button';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'product-view',
@@ -18,9 +18,9 @@ import { ButtonModule } from 'primeng/button';
     PageContainerComponent,
     TitleCasePipe,
     DividerModule,
-    LoadingSpinnerComponent,
     TitleCasePipe,
-    ButtonModule
+    ButtonModule,
+    SkeletonModule
   ],
   templateUrl: './product-view.component.html',
   styleUrl: './product-view.component.scss'

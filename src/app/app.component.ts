@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, NgZone, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { AuthService } from '@auth0/auth0-angular';
 import { MainHeaderComponent } from './components/layout/main-header/main-header.component';
@@ -14,6 +14,10 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
 import { SwUpdate } from '@angular/service-worker';
 import { ConfirmationService } from 'primeng/api';
 import { ChangelogService } from './services/changelog.service';
+import { Browser } from '@capacitor/browser';
+import { App } from '@capacitor/app';
+import config from '../../capacitor.config';
+import { catchError, mergeMap, of } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -35,6 +39,7 @@ export class AppComponent {
   private _swUpdate = inject(SwUpdate);
   private _confirmationService = inject(ConfirmationService);
   private _changelogService = inject(ChangelogService);
+  private _ngZone = inject(NgZone);
 
   public isMobile = this._globalUiService.isMobile;
 
@@ -87,12 +92,33 @@ export class AppComponent {
   }
 
   public ngOnInit(): void {
+    App.addListener('appUrlOpen', ({ url }) => {
+      this._ngZone.run(() => {
+        if (
+          url?.startsWith(
+            `${config.appId}://${environment.auth0Domain}/capacitor/${config.appId}/callback`
+          ) &&
+          url.includes('state=') &&
+          (url.includes('error=') || url.includes('code='))
+        ) {
+          this._auth
+            .handleRedirectCallback(url)
+            .pipe(
+              mergeMap(() => Browser.close()),
+              catchError((err) => {
+                console.log(err);
+                return of(null);
+              })
+            )
+            .subscribe();
+        } else {
+          Browser.close();
+        }
+      });
+    });
+
     this._auth.isAuthenticated$.subscribe((isAuthenticated) => {
       this.isLoggedIn.set(isAuthenticated);
-
-      if (!isAuthenticated) {
-        this._auth.loginWithRedirect();
-      }
     });
 
     environment.production &&

@@ -9,3 +9,32 @@
   gap: 0.25rem;
   align-items: center;
 }
+
+.gdd-target-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.subscription-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+
+  .subscription-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .pro-icon {
+      color: var(--p-amber-500);
+      font-size: 1.25rem;
+    }
+
+    .subscription-tier {
+      font-weight: 600;
+      color: var(--p-text-color);
+    }
+  }
+}

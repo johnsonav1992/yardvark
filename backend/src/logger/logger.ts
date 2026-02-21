@@ -39,6 +39,8 @@ export class LoggingInterceptor implements NestInterceptor {
   intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
     let request: Request;
     let response: Response | undefined;
+    let gqlOperationName: string | undefined;
+    let gqlOperationType: string | undefined;
 
     if (context.getType() === 'http') {
       const httpContext = context.switchToHttp();
@@ -50,6 +52,13 @@ export class LoggingInterceptor implements NestInterceptor {
 
       request = ctx.req;
       response = ctx.req?.res;
+
+      const info = gqlContext.getInfo();
+
+      if (info) {
+        gqlOperationName = info.operation.name?.value;
+        gqlOperationType = info.operation.operation;
+      }
     }
 
     if (!request) {
@@ -64,14 +73,22 @@ export class LoggingInterceptor implements NestInterceptor {
       externalCalls: [],
     };
 
+    const operationLabel = gqlOperationName
+      ? `${gqlOperationType} ${gqlOperationName}`
+      : `${request.method} ${request.path}`;
+
     const tracer = trace.getTracer('yardvark-api');
-    const span = tracer.startSpan(`${request.method} ${request.path}`, {
+    const span = tracer.startSpan(operationLabel, {
       attributes: {
         'http.method': request.method,
         'http.url': request.url,
         'http.target': request.path,
         'http.user_agent': request.headers['user-agent'],
         'custom.request_id': requestId,
+        ...(gqlOperationName && { 'graphql.operation.name': gqlOperationName }),
+        ...(gqlOperationType && {
+          'graphql.operation.type': gqlOperationType,
+        }),
       },
     });
 
@@ -180,6 +197,8 @@ export class LoggingInterceptor implements NestInterceptor {
                         requestId,
                         success: true,
                         logContext,
+                        gqlOperationName,
+                        gqlOperationType,
                       });
                     }
                   }),
@@ -212,6 +231,8 @@ export class LoggingInterceptor implements NestInterceptor {
                       success: false,
                       error,
                       logContext,
+                      gqlOperationName,
+                      gqlOperationType,
                     });
 
                     return throwError(() => error);
@@ -254,6 +275,8 @@ export class LoggingInterceptor implements NestInterceptor {
     success: boolean;
     error?: unknown;
     logContext: LogContext;
+    gqlOperationName?: string;
+    gqlOperationType?: string;
   }): void {
     const {
       request,
@@ -264,6 +287,8 @@ export class LoggingInterceptor implements NestInterceptor {
       success,
       error,
       logContext,
+      gqlOperationName,
+      gqlOperationType,
     } = params;
 
     const logEntry: HttpLogEntry = {
@@ -307,12 +332,18 @@ export class LoggingInterceptor implements NestInterceptor {
       eventType: 'http_request',
       environment: process.env.NODE_ENV || 'development',
       service: 'yardvark-api',
+      ...(gqlOperationName && { graphqlOperation: gqlOperationName }),
+      ...(gqlOperationType && { graphqlOperationType: gqlOperationType }),
     };
 
     const emoji = this.getStatusEmoji(statusCode);
     const userName = request.user?.name || 'anonymous';
 
-    const summary = `${emoji} ${request.method} ${request.path} ${statusCode} ${duration}ms [${userName}]`;
+    const operationLabel = gqlOperationName
+      ? `${gqlOperationType} ${gqlOperationName}`
+      : `${request.method} ${request.path}`;
+
+    const summary = `${emoji} ${operationLabel} ${statusCode} ${duration}ms [${userName}]`;
 
     logToOTel(
       success ? 'info' : 'error',

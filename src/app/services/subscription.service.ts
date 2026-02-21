@@ -1,12 +1,12 @@
-import { Injectable, computed } from "@angular/core";
 import { httpResource } from "@angular/common/http";
-import { apiUrl, postReq } from "../utils/httpUtils";
-import {
-	Subscription,
+import { computed, Injectable } from "@angular/core";
+import type {
 	FeatureAccess,
-	PurchasableTier,
 	PricingResponse,
+	PurchasableTier,
+	Subscription,
 } from "../types/subscription.types";
+import { apiUrl, postReq } from "../utils/httpUtils";
 
 @Injectable({ providedIn: "root" })
 export class SubscriptionService {

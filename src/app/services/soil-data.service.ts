@@ -1,5 +1,5 @@
-import { Injectable, Signal } from "@angular/core";
 import { httpResource } from "@angular/common/http";
+import { Injectable, type Signal } from "@angular/core";
 import { format } from "date-fns";
 import { apiUrl } from "../utils/httpUtils";
 

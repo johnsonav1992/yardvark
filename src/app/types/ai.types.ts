@@ -11,6 +11,6 @@ export interface AiChatResponse {
 		temperature?: number;
 		maxTokens?: number;
 		finishReason?: string;
-		[key: string]: any;
+		[key: string]: unknown;
 	};
 }

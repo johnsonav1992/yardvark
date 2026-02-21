@@ -1,17 +1,17 @@
-import { Component, computed, inject, output } from "@angular/core";
-import { CardModule } from "primeng/card";
-import { ButtonModule } from "primeng/button";
-import { TooltipModule } from "primeng/tooltip";
 import { CdkDragHandle } from "@angular/cdk/drag-drop";
-import { WeatherService } from "../../../services/weather-service";
+import { Component, computed, inject, output } from "@angular/core";
+import { format, parseISO } from "date-fns";
+import { ButtonModule } from "primeng/button";
+import { CardModule } from "primeng/card";
+import { TooltipModule } from "primeng/tooltip";
 import { GlobalUiService } from "../../../services/global-ui.service";
 import { LocationService } from "../../../services/location.service";
+import { WeatherService } from "../../../services/weather-service";
+import type { WeatherPeriod } from "../../../types/weather.types";
 import {
 	convertPeriodToForecast,
 	getForecastMarkerIcon,
 } from "../../../utils/weatherUtils";
-import type { WeatherPeriod } from "../../../types/weather.types";
-import { format, parseISO } from "date-fns";
 
 @Component({
 	selector: "weather-card",

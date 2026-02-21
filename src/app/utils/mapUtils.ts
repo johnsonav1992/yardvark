@@ -1,6 +1,6 @@
 import * as L from "leaflet";
-import { EditableLayer, ShapeData } from "../types/map.types";
 import { MAP_CONSTANTS } from "../constants/map-constants";
+import type { EditableLayer, ShapeData } from "../types/map.types";
 
 const EARTH_RADIUS_METERS = 6371000;
 const SQ_METERS_TO_SQ_FEET = 10.7639;

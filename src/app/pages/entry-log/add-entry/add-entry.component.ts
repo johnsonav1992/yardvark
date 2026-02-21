@@ -3,9 +3,10 @@ import {
 	computed,
 	DestroyRef,
 	inject,
-	OnInit,
+	type OnInit,
 	signal,
 } from "@angular/core";
+import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
 import {
 	FormArray,
 	FormControl,
@@ -14,42 +15,40 @@ import {
 	ReactiveFormsModule,
 	Validators,
 } from "@angular/forms";
-import { DatePickerModule } from "primeng/datepicker";
-import { MultiSelectModule } from "primeng/multiselect";
-import { TextareaModule } from "primeng/textarea";
-import { ActivitiesService } from "../../../services/activities.service";
-import { capitalize } from "../../../utils/stringUtils";
-import { Activity } from "../../../types/activities.types";
-import { LawnSegment } from "../../../types/lawnSegments.types";
-import { LawnSegmentsService } from "../../../services/lawn-segments.service";
-import { InputTextModule } from "primeng/inputtext";
-import { Product } from "../../../types/products.types";
-import { SelectModule } from "primeng/select";
-import { EntryProductRow } from "../../../utils/entriesUtils";
-import { ProductsSelectorComponent } from "../../../components/products/products-selector/products-selector.component";
-import { FileSelectEvent, FileUploadModule } from "primeng/fileupload";
-import { MAX_FILE_LARGE_UPLOAD_SIZE } from "../../../constants/file-constants";
-import { ButtonModule } from "primeng/button";
+import { ActivatedRoute, Router } from "@angular/router";
+import { format } from "date-fns";
 import {
 	Accordion,
-	AccordionPanel,
-	AccordionHeader,
 	AccordionContent,
+	AccordionHeader,
+	AccordionPanel,
 } from "primeng/accordion";
+import { ButtonModule } from "primeng/button";
+import { DatePickerModule } from "primeng/datepicker";
+import { type FileSelectEvent, FileUploadModule } from "primeng/fileupload";
+import { InputTextModule } from "primeng/inputtext";
+import { MultiSelectModule } from "primeng/multiselect";
+import { SelectModule } from "primeng/select";
+import { TextareaModule } from "primeng/textarea";
 import { TooltipModule } from "primeng/tooltip";
-import { PageContainerComponent } from "../../../components/layout/page-container/page-container.component";
-import { SoilDataService } from "../../../services/soil-data.service";
-import { injectErrorToast } from "../../../utils/toastUtils";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { format } from "date-fns";
-import { EntriesService } from "../../../services/entries.service";
-import { AnalyticsService } from "../../../services/analytics.service";
-import { GlobalUiService } from "../../../services/global-ui.service";
-import { ActivatedRoute, Router } from "@angular/router";
 import { map } from "rxjs";
-import { toSignal } from "@angular/core/rxjs-interop";
+import { PageContainerComponent } from "../../../components/layout/page-container/page-container.component";
+import { ProductsSelectorComponent } from "../../../components/products/products-selector/products-selector.component";
 import { ACTIVITY_IDS } from "../../../constants/activity-constants";
+import { MAX_FILE_LARGE_UPLOAD_SIZE } from "../../../constants/file-constants";
+import { ActivitiesService } from "../../../services/activities.service";
+import { AnalyticsService } from "../../../services/analytics.service";
+import { EntriesService } from "../../../services/entries.service";
+import { GlobalUiService } from "../../../services/global-ui.service";
+import { LawnSegmentsService } from "../../../services/lawn-segments.service";
 import { SettingsService } from "../../../services/settings.service";
+import { SoilDataService } from "../../../services/soil-data.service";
+import type { Activity } from "../../../types/activities.types";
+import type { LawnSegment } from "../../../types/lawnSegments.types";
+import type { Product } from "../../../types/products.types";
+import type { EntryProductRow } from "../../../utils/entriesUtils";
+import { capitalize } from "../../../utils/stringUtils";
+import { injectErrorToast } from "../../../utils/toastUtils";
 
 export type EntryFormGroup = FormGroup<{
 	title: FormControl<string>;
@@ -117,10 +116,10 @@ export class AddEntryComponent implements OnInit {
 	public initialDate = toSignal(
 		this._activatedRoute.queryParams.pipe(
 			map((params) => {
-				const date = params["date"];
+				const date = params.date;
 				if (date) {
 					const parsedDate = new Date(date);
-					if (!isNaN(parsedDate.getTime())) {
+					if (!Number.isNaN(parsedDate.getTime())) {
 						return parsedDate;
 					}
 				}

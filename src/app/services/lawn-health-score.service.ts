@@ -1,34 +1,34 @@
-import { Injectable, inject, computed } from "@angular/core";
+import { computed, Injectable, inject } from "@angular/core";
 import { rxResource } from "@angular/core/rxjs-interop";
-import { of, map } from "rxjs";
-import { AnalyticsService } from "./analytics.service";
-import { EntriesService } from "./entries.service";
-import { AiService } from "./ai.service";
-import { LocationService } from "./location.service";
-import { SoilDataService } from "./soil-data.service";
-import { SubscriptionService } from "./subscription.service";
-import { SettingsService } from "./settings.service";
 import {
-	calculateLawnHealthScore,
-	isCurrentlyGrowingSeason,
-} from "../utils/lawnHealthUtils";
-import { getPoundsOfNInFertilizerApp } from "../utils/lawnCalculatorUtils";
-import {
-	LawnHealthScoreFactors,
-	LawnHealthScoreMonthlyData,
-	LawnHealthScoreBreakdown,
-	ScoreBreakdown,
-} from "../types/lawnHealthScore.types";
-import {
-	subMonths,
+	differenceInDays,
+	format,
 	getMonth,
 	getYear,
 	isSameMonth,
 	isSameYear,
-	differenceInDays,
 	parseISO,
-	format,
+	subMonths,
 } from "date-fns";
+import { map, of } from "rxjs";
+import type {
+	LawnHealthScoreBreakdown,
+	LawnHealthScoreFactors,
+	LawnHealthScoreMonthlyData,
+	ScoreBreakdown,
+} from "../types/lawnHealthScore.types";
+import { getPoundsOfNInFertilizerApp } from "../utils/lawnCalculatorUtils";
+import {
+	calculateLawnHealthScore,
+	isCurrentlyGrowingSeason,
+} from "../utils/lawnHealthUtils";
+import { AiService } from "./ai.service";
+import { AnalyticsService } from "./analytics.service";
+import { EntriesService } from "./entries.service";
+import { LocationService } from "./location.service";
+import { SettingsService } from "./settings.service";
+import { SoilDataService } from "./soil-data.service";
+import { SubscriptionService } from "./subscription.service";
 
 @Injectable({
 	providedIn: "root",

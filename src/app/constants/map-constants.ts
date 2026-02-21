@@ -1,4 +1,4 @@
-import * as L from "leaflet";
+import type * as L from "leaflet";
 
 export const MAP_CONSTANTS = {
 	DEFAULT_US_CENTER: [39.8283, -98.5795] as L.LatLngTuple,

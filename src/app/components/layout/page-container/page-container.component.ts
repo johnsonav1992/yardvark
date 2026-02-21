@@ -4,7 +4,7 @@ import {
 	contentChild,
 	inject,
 	input,
-	TemplateRef,
+	type TemplateRef,
 } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { ButtonModule } from "primeng/button";

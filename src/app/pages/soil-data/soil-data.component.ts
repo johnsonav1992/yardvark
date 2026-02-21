@@ -1,17 +1,17 @@
 import { Component, computed, inject } from "@angular/core";
-import { SoilDataService } from "../../services/soil-data.service";
-import { SoilTempWeekGraphComponent } from "../../components/soil-data/soil-temp-week-graph/soil-temp-week-graph.component";
-import { computeSoilTrend } from "../../utils/soilTemperatureUtils";
-import { SoilMoistureWeekGraphComponent } from "../../components/soil-data/soil-moisture-week-graph/soil-moisture-week-graph.component";
-import { SoilConditionsCardComponent } from "../../components/soil-data/soil-conditions-card/soil-conditions-card.component";
-import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
-import { LocationService } from "../../services/location.service";
-import { ButtonModule } from "primeng/button";
 import { Router } from "@angular/router";
+import { ButtonModule } from "primeng/button";
 import { CardModule } from "primeng/card";
 import { PopoverModule } from "primeng/popover";
+import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
+import { SoilConditionsCardComponent } from "../../components/soil-data/soil-conditions-card/soil-conditions-card.component";
+import { SoilMoistureWeekGraphComponent } from "../../components/soil-data/soil-moisture-week-graph/soil-moisture-week-graph.component";
+import { SoilTempWeekGraphComponent } from "../../components/soil-data/soil-temp-week-graph/soil-temp-week-graph.component";
 import { GlobalUiService } from "../../services/global-ui.service";
+import { LocationService } from "../../services/location.service";
 import { SettingsService } from "../../services/settings.service";
+import { SoilDataService } from "../../services/soil-data.service";
+import { computeSoilTrend } from "../../utils/soilTemperatureUtils";
 import { getDayLabelsCenteredAroundToday } from "../../utils/timeUtils";
 
 @Component({

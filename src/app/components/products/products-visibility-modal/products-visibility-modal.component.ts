@@ -1,10 +1,10 @@
 import { Component, computed, inject } from "@angular/core";
+import { GlobalUiService } from "../../../services/global-ui.service";
 import { ProductsService } from "../../../services/products.service";
 import { EmptyMessageComponent } from "../../miscellanious/empty-message/empty-message.component";
-import { GlobalUiService } from "../../../services/global-ui.service";
 import {
 	HiddenProductRowComponent,
-	HiddenProductToggleEvent,
+	type HiddenProductToggleEvent,
 } from "../hidden-product-row/hidden-product-row.component";
 
 @Component({

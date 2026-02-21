@@ -1,5 +1,5 @@
 import { Component, computed, input } from "@angular/core";
-import { ProgressSpinnerDesignTokens } from "@primeuix/themes/types/progressspinner";
+import type { ProgressSpinnerDesignTokens } from "@primeuix/themes/types/progressspinner";
 import { ProgressSpinnerModule } from "primeng/progressspinner";
 
 @Component({
@@ -19,7 +19,7 @@ export class LoadingSpinnerComponent {
 			l: "100px",
 		};
 
-		return sizeMap[this.size()] || sizeMap["l"];
+		return sizeMap[this.size()] || sizeMap.l;
 	});
 
 	public spinnerDt: ProgressSpinnerDesignTokens = {

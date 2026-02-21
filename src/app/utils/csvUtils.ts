@@ -1,8 +1,8 @@
 import { format, parse } from "date-fns";
-import { Entry, EntryProduct } from "../types/entries.types";
-import { Activity } from "../types/activities.types";
-import { LawnSegment } from "../types/lawnSegments.types";
-import { CsvExportConfig } from "../types/csv.types";
+import type { Activity } from "../types/activities.types";
+import type { CsvExportConfig } from "../types/csv.types";
+import type { Entry, EntryProduct } from "../types/entries.types";
+import type { LawnSegment } from "../types/lawnSegments.types";
 
 export const formatDateForCsv = (dateString: string): string => {
 	if (!dateString) return "";

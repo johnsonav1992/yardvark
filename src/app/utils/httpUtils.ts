@@ -2,11 +2,11 @@ import { HttpClient } from "@angular/common/http";
 import {
 	EnvironmentInjector,
 	inject,
-	runInInjectionContext,
 	provideAppInitializer,
+	runInInjectionContext,
 } from "@angular/core";
-import { ApiEndpointRoutes } from "../types/endpoints.types";
 import { environment } from "../../environments/environment";
+import type { ApiEndpointRoutes } from "../types/endpoints.types";
 
 let environmentInjector: EnvironmentInjector | null = null;
 
@@ -94,7 +94,7 @@ export const apiUrl = (
 	let url = `${environment.apiUrl}/${path}`;
 
 	if (opts?.params) {
-		url += "/" + opts.params.join("/");
+		url += `/${opts.params.join("/")}`;
 	}
 
 	if (opts?.queryParams) {

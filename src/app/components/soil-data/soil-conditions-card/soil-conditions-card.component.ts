@@ -4,8 +4,8 @@ import { SkeletonModule } from "primeng/skeleton";
 import {
 	getSoilMoistureInsight,
 	getSoilTemperatureInsight,
-	SoilConditionInsight,
-	SoilTrend,
+	type SoilConditionInsight,
+	type SoilTrend,
 } from "../../../utils/soilTemperatureUtils";
 
 @Component({

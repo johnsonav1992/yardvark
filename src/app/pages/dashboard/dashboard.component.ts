@@ -1,32 +1,32 @@
-import { Component, computed, inject, signal } from "@angular/core";
-import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
-import { RecentEntryComponent } from "../../components/dashboard/recent-entry/recent-entry.component";
-import { EntriesService } from "../../services/entries.service";
-import { MessageModule } from "primeng/message";
-import { injectUserData } from "../../utils/authUtils";
-import { YVUser } from "../../types/user.types";
-import { isToday } from "date-fns";
-import { SpeedDialModule } from "primeng/speeddial";
-import { MenuItem } from "primeng/api";
-import { GlobalUiService } from "../../services/global-ui.service";
-import { Router } from "@angular/router";
-import { LocationService } from "../../services/location.service";
-import { SettingsService } from "../../services/settings.service";
-import { QuickStatsComponent } from "../../components/dashboard/quick-stats/quick-stats.component";
-import { LawnHealthScoreComponent } from "../../components/dashboard/lawn-health-score/lawn-health-score.component";
-import { WeatherService } from "../../services/weather-service";
-import { ButtonModule } from "primeng/button";
-import { EntrySearchSidebarComponent } from "../../components/entries/entry-search-sidebar/entry-search-sidebar.component";
-import { WeatherCardComponent } from "../../components/dashboard/weather-card/weather-card.component";
-import { HiddenWidgetsSidebarComponent } from "../../components/dashboard/hidden-widgets-sidebar/hidden-widgets-sidebar.component";
 import {
-	CdkDragDrop,
-	CdkDropList,
 	CdkDrag,
+	type CdkDragDrop,
+	CdkDropList,
 	moveItemInArray,
 } from "@angular/cdk/drag-drop";
+import { Component, computed, inject, signal } from "@angular/core";
+import { Router } from "@angular/router";
+import { isToday } from "date-fns";
+import type { MenuItem } from "primeng/api";
+import { ButtonModule } from "primeng/button";
+import { MessageModule } from "primeng/message";
+import { SpeedDialModule } from "primeng/speeddial";
+import { HiddenWidgetsSidebarComponent } from "../../components/dashboard/hidden-widgets-sidebar/hidden-widgets-sidebar.component";
+import { LawnHealthScoreComponent } from "../../components/dashboard/lawn-health-score/lawn-health-score.component";
+import { QuickStatsComponent } from "../../components/dashboard/quick-stats/quick-stats.component";
+import { RecentEntryComponent } from "../../components/dashboard/recent-entry/recent-entry.component";
+import { WeatherCardComponent } from "../../components/dashboard/weather-card/weather-card.component";
+import { EntrySearchSidebarComponent } from "../../components/entries/entry-search-sidebar/entry-search-sidebar.component";
+import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
 import { CardSkeletonComponent } from "../../components/miscellanious/card-skeleton/card-skeleton.component";
+import { EntriesService } from "../../services/entries.service";
+import { GlobalUiService } from "../../services/global-ui.service";
 import { LawnHealthScoreService } from "../../services/lawn-health-score.service";
+import { LocationService } from "../../services/location.service";
+import { SettingsService } from "../../services/settings.service";
+import { WeatherService } from "../../services/weather-service";
+import type { YVUser } from "../../types/user.types";
+import { injectUserData } from "../../utils/authUtils";
 
 @Component({
 	selector: "dashboard",

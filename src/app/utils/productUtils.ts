@@ -1,4 +1,4 @@
-import { Product } from "../types/products.types";
+import type { Product } from "../types/products.types";
 
 /**
  * Gets the default app rate of a product if available for quickly filling form data

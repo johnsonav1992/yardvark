@@ -5,35 +5,35 @@ import {
 	linkedSignal,
 	signal,
 } from "@angular/core";
-import { TabsModule } from "primeng/tabs";
-import { Tab } from "../../types/components.types";
-import {
-	ProductCategories,
-	ProductCategoryValues,
-} from "../../types/products.types";
-import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
-import {
-	ProductCardComponent,
-	ProductVisibilityToggleEvent,
-} from "../../components/products/product-card/product-card.component";
-import { EmptyMessageComponent } from "../../components/miscellanious/empty-message/empty-message.component";
-import { ProductsService } from "../../services/products.service";
-import { ButtonModule } from "primeng/button";
-import { ButtonDesignTokens } from "@primeuix/themes/types/button";
-import { TooltipModule } from "primeng/tooltip";
+import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
-import { GlobalUiService } from "../../services/global-ui.service";
+import type { ButtonDesignTokens } from "@primeuix/themes/types/button";
+import { ButtonModule } from "primeng/button";
+import { CardModule } from "primeng/card";
+import { DividerModule } from "primeng/divider";
+import { DialogService } from "primeng/dynamicdialog";
 import { FloatLabelModule } from "primeng/floatlabel";
 import { IconFieldModule } from "primeng/iconfield";
 import { InputIconModule } from "primeng/inputicon";
 import { InputTextModule } from "primeng/inputtext";
-import { FormsModule } from "@angular/forms";
-import { DividerModule } from "primeng/divider";
-import { DialogService } from "primeng/dynamicdialog";
-import { ProductsVisibilityModalComponent } from "../../components/products/products-visibility-modal/products-visibility-modal.component";
-import { SettingsService } from "../../services/settings.service";
 import { SkeletonModule } from "primeng/skeleton";
-import { CardModule } from "primeng/card";
+import { TabsModule } from "primeng/tabs";
+import { TooltipModule } from "primeng/tooltip";
+import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
+import { EmptyMessageComponent } from "../../components/miscellanious/empty-message/empty-message.component";
+import {
+	ProductCardComponent,
+	type ProductVisibilityToggleEvent,
+} from "../../components/products/product-card/product-card.component";
+import { ProductsVisibilityModalComponent } from "../../components/products/products-visibility-modal/products-visibility-modal.component";
+import { GlobalUiService } from "../../services/global-ui.service";
+import { ProductsService } from "../../services/products.service";
+import { SettingsService } from "../../services/settings.service";
+import type { Tab } from "../../types/components.types";
+import type {
+	ProductCategories,
+	ProductCategoryValues,
+} from "../../types/products.types";
 
 @Component({
 	selector: "products",

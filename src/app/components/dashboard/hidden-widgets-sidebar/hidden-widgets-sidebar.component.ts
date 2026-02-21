@@ -1,6 +1,6 @@
 import { Component, inject, input, output } from "@angular/core";
-import { DrawerModule } from "primeng/drawer";
 import { ButtonModule } from "primeng/button";
+import { DrawerModule } from "primeng/drawer";
 import { GlobalUiService } from "../../../services/global-ui.service";
 
 export interface HiddenWidget {

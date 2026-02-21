@@ -1,27 +1,27 @@
+import { DatePipe } from "@angular/common";
 import { Component, computed, inject, signal } from "@angular/core";
-import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
-import { EquipmentService } from "../../services/equipment.service";
-import { EquipmentPreviewCardComponent } from "../../components/equipment/equipment-preview-card/equipment-preview-card.component";
-import { CardModule } from "primeng/card";
-import { SkeletonModule } from "primeng/skeleton";
-import { ButtonModule } from "primeng/button";
-import { TooltipModule } from "primeng/tooltip";
-import { GlobalUiService } from "../../services/global-ui.service";
-import { ButtonDesignTokens } from "@primeuix/themes/types/button";
+import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
+import type { ButtonDesignTokens } from "@primeuix/themes/types/button";
+import { differenceInDays, differenceInMonths, parseISO } from "date-fns";
+import { ButtonModule } from "primeng/button";
+import { CardModule } from "primeng/card";
+import { DialogService } from "primeng/dynamicdialog";
 import { FloatLabelModule } from "primeng/floatlabel";
 import { IconFieldModule } from "primeng/iconfield";
-import { InputTextModule } from "primeng/inputtext";
 import { InputIconModule } from "primeng/inputicon";
-import { FormsModule } from "@angular/forms";
+import { InputTextModule } from "primeng/inputtext";
+import { SkeletonModule } from "primeng/skeleton";
 import { TableModule } from "primeng/table";
 import { TagModule } from "primeng/tag";
-import { DatePipe } from "@angular/common";
-import { DialogService } from "primeng/dynamicdialog";
+import { TooltipModule } from "primeng/tooltip";
 import { EquipmentMaintenanceAddEditModalComponent } from "../../components/equipment/equipment-maintenance-add-edit-modal/equipment-maintenance-add-edit-modal.component";
-import { differenceInDays, differenceInMonths, parseISO } from "date-fns";
-import { Equipment } from "../../types/equipment.types";
+import { EquipmentPreviewCardComponent } from "../../components/equipment/equipment-preview-card/equipment-preview-card.component";
+import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
 import { NO_IMAGE_URL } from "../../constants/style-constants";
+import { EquipmentService } from "../../services/equipment.service";
+import { GlobalUiService } from "../../services/global-ui.service";
+import type { Equipment } from "../../types/equipment.types";
 
 @Component({
 	selector: "equipment",

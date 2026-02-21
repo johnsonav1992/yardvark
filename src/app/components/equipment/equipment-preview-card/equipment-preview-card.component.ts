@@ -1,18 +1,18 @@
-import { Component, computed, inject, input } from "@angular/core";
-import { CardModule } from "primeng/card";
-import { Equipment } from "../../../types/equipment.types";
 import { DatePipe } from "@angular/common";
-import { ButtonModule } from "primeng/button";
-import { TooltipModule } from "primeng/tooltip";
-import { TagModule } from "primeng/tag";
-import { DividerModule } from "primeng/divider";
-import { TooltipOptions } from "primeng/api";
+import { Component, computed, inject, input } from "@angular/core";
 import { Router } from "@angular/router";
-import { DialogService } from "primeng/dynamicdialog";
-import { EquipmentMaintenanceAddEditModalComponent } from "../equipment-maintenance-add-edit-modal/equipment-maintenance-add-edit-modal.component";
-import { GlobalUiService } from "../../../services/global-ui.service";
-import { EquipmentService } from "../../../services/equipment.service";
 import { differenceInDays, differenceInMonths, parseISO } from "date-fns";
+import type { TooltipOptions } from "primeng/api";
+import { ButtonModule } from "primeng/button";
+import { CardModule } from "primeng/card";
+import { DividerModule } from "primeng/divider";
+import { DialogService } from "primeng/dynamicdialog";
+import { TagModule } from "primeng/tag";
+import { TooltipModule } from "primeng/tooltip";
+import { EquipmentService } from "../../../services/equipment.service";
+import { GlobalUiService } from "../../../services/global-ui.service";
+import type { Equipment } from "../../../types/equipment.types";
+import { EquipmentMaintenanceAddEditModalComponent } from "../equipment-maintenance-add-edit-modal/equipment-maintenance-add-edit-modal.component";
 
 @Component({
 	selector: "equipment-preview-card",

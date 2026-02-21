@@ -1,16 +1,16 @@
+import { TitleCasePipe } from "@angular/common";
 import { Component, computed, inject } from "@angular/core";
-import { PageContainerComponent } from "../../../components/layout/page-container/page-container.component";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { ActivatedRoute } from "@angular/router";
-import { map } from "rxjs";
-import { ProductsService } from "../../../services/products.service";
-import { TitleCasePipe } from "@angular/common";
-import { DividerModule } from "primeng/divider";
-import { DividerDesignTokens } from "@primeuix/themes/types/divider";
-import { GlobalUiService } from "../../../services/global-ui.service";
-import { NO_IMAGE_URL } from "../../../constants/style-constants";
+import type { DividerDesignTokens } from "@primeuix/themes/types/divider";
 import { ButtonModule } from "primeng/button";
+import { DividerModule } from "primeng/divider";
 import { SkeletonModule } from "primeng/skeleton";
+import { map } from "rxjs";
+import { PageContainerComponent } from "../../../components/layout/page-container/page-container.component";
+import { NO_IMAGE_URL } from "../../../constants/style-constants";
+import { GlobalUiService } from "../../../services/global-ui.service";
+import { ProductsService } from "../../../services/products.service";
 
 @Component({
 	selector: "product-view",
@@ -35,7 +35,7 @@ export class ProductViewComponent {
 	public isMobile = this._globalUiService.isMobile;
 
 	public productId = toSignal(
-		this._route.params.pipe(map((params) => parseInt(params["productId"]))),
+		this._route.params.pipe(map((params) => parseInt(params.productId, 10))),
 	);
 
 	public isLoading = computed(() => this._productsService.products.isLoading());

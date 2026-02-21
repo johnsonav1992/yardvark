@@ -1,7 +1,12 @@
-import { Component, signal, computed } from "@angular/core";
-import { InputTextModule } from "primeng/inputtext";
-import { CardModule } from "primeng/card";
+import {
+	Component,
+	computed,
+	signal,
+	type WritableSignal,
+} from "@angular/core";
 import { ButtonModule } from "primeng/button";
+import { CardModule } from "primeng/card";
+import { InputTextModule } from "primeng/inputtext";
 import { PopoverModule } from "primeng/popover";
 import {
 	getNitrogenRateFromFields,
@@ -92,14 +97,17 @@ export class FertilizerCalculator {
 		if (strValue === "") return null;
 
 		const normalizedValue = strValue.startsWith(".")
-			? "0" + strValue
+			? `0${strValue}`
 			: strValue;
 
 		const parsed = parseFloat(normalizedValue);
-		return isNaN(parsed) ? null : parsed;
+		return Number.isNaN(parsed) ? null : parsed;
 	}
 
-	private updateFieldFromEvent(signal: any, event: Event): void {
+	private updateFieldFromEvent(
+		signal: WritableSignal<number | null>,
+		event: Event,
+	): void {
 		const value = (event.target as HTMLInputElement).value;
 		signal.set(this.parseNumber(value));
 	}

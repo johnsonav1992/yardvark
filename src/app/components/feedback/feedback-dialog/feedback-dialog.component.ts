@@ -1,20 +1,20 @@
-import { Component, inject, signal, computed } from "@angular/core";
 import { CommonModule } from "@angular/common";
+import type { HttpErrorResponse } from "@angular/common/http";
+import { Component, computed, inject, signal } from "@angular/core";
 import {
 	FormControl,
 	FormGroup,
-	Validators,
 	ReactiveFormsModule,
+	Validators,
 } from "@angular/forms";
-import { DynamicDialogRef } from "primeng/dynamicdialog";
 import { ButtonModule } from "primeng/button";
+import { DynamicDialogRef } from "primeng/dynamicdialog";
 import { InputTextModule } from "primeng/inputtext";
-import { TextareaModule } from "primeng/textarea";
-import { SelectModule } from "primeng/select";
 import { MessageModule } from "primeng/message";
+import { SelectModule } from "primeng/select";
+import { TextareaModule } from "primeng/textarea";
 import { showAllFormErrorsOnSubmit } from "../../../utils/formUtils";
-import { postReq, apiUrl } from "../../../utils/httpUtils";
-import { HttpErrorResponse } from "@angular/common/http";
+import { apiUrl, postReq } from "../../../utils/httpUtils";
 
 @Component({
 	selector: "feedback-dialog",

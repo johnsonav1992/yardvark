@@ -1,3 +1,4 @@
+import { TitleCasePipe } from "@angular/common";
 import {
 	Component,
 	inject,
@@ -5,35 +6,34 @@ import {
 	signal,
 	viewChild,
 } from "@angular/core";
-import { Router } from "@angular/router";
-import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
-import { FormsModule } from "@angular/forms";
-import { SelectModule } from "primeng/select";
-import { injectSettingsService } from "../../services/settings.service";
-import { InputNumber } from "primeng/inputnumber";
-import { debounce } from "../../utils/timeUtils";
-import {
-	AutoCompleteCompleteEvent,
-	AutoCompleteModule,
-	AutoCompleteSelectEvent,
-} from "primeng/autocomplete";
-import { Feature } from "../../types/location.types";
-import { LocationService } from "../../services/location.service";
 import { rxResource } from "@angular/core/rxjs-interop";
-import { debouncedSignal } from "../../utils/signalUtils";
-import { LawnSegmentsService } from "../../services/lawn-segments.service";
-import { LawnSegment } from "../../types/lawnSegments.types";
+import { FormsModule } from "@angular/forms";
+import { Router } from "@angular/router";
+import {
+	type AutoCompleteCompleteEvent,
+	AutoCompleteModule,
+	type AutoCompleteSelectEvent,
+} from "primeng/autocomplete";
 import { ButtonModule } from "primeng/button";
+import { InputNumber } from "primeng/inputnumber";
 import { InputTextModule } from "primeng/inputtext";
-import { TooltipModule } from "primeng/tooltip";
-import { LawnSegmentsTableComponent } from "../../components/settings/lawn-segments-table/lawn-segments-table.component";
-import { LawnMapComponent } from "../../components/settings/lawn-map/lawn-map.component";
-import { GlobalUiService } from "../../services/global-ui.service";
+import { SelectModule } from "primeng/select";
 import { ToggleSwitchModule } from "primeng/toggleswitch";
-import { UnsavedChanges } from "../../guards/unsaved-changes-guard";
+import { TooltipModule } from "primeng/tooltip";
+import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
+import { LawnMapComponent } from "../../components/settings/lawn-map/lawn-map.component";
+import { LawnSegmentsTableComponent } from "../../components/settings/lawn-segments-table/lawn-segments-table.component";
 import { GDD_TARGET_INTERVALS } from "../../constants/gdd.constants";
+import type { UnsavedChanges } from "../../guards/unsaved-changes-guard";
+import { GlobalUiService } from "../../services/global-ui.service";
+import { LawnSegmentsService } from "../../services/lawn-segments.service";
+import { LocationService } from "../../services/location.service";
+import { injectSettingsService } from "../../services/settings.service";
 import { SubscriptionService } from "../../services/subscription.service";
-import { TitleCasePipe } from "@angular/common";
+import type { LawnSegment } from "../../types/lawnSegments.types";
+import type { Feature } from "../../types/location.types";
+import { debouncedSignal } from "../../utils/signalUtils";
+import { debounce } from "../../utils/timeUtils";
 
 @Component({
 	selector: "settings",

@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import type { Observable } from "rxjs";
 import { catchError, map } from "rxjs/operators";
 import { getReq } from "../utils/httpUtils";
 

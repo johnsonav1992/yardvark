@@ -1,5 +1,5 @@
-import { Cacheable } from "@auth0/auth0-angular";
-import { ICache, MaybePromise } from "@auth0/auth0-spa-js";
+import type { Cacheable } from "@auth0/auth0-angular";
+import type { ICache, MaybePromise } from "@auth0/auth0-spa-js";
 import { Capacitor } from "@capacitor/core";
 import { Preferences } from "@capacitor/preferences";
 

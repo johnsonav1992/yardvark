@@ -1,6 +1,6 @@
 import { differenceInDays, getYear } from "date-fns";
-import { LatLong } from "../types/location.types";
 import { lawnSeasonDatesAndTemperaturesReference } from "../constants/soil-temperature-constants";
+import type { LatLong } from "../types/location.types";
 
 const SOIL_TEMP_SEASON_THRESHOLD = 50;
 

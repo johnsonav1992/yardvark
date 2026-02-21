@@ -1,21 +1,20 @@
+import { Location } from "@angular/common";
 import { Component, computed, inject, signal } from "@angular/core";
-import { PageContainerComponent } from "../../../components/layout/page-container/page-container.component";
-import { InputTextModule } from "primeng/inputtext";
-import { TextareaModule } from "primeng/textarea";
-import { InputNumberModule } from "primeng/inputnumber";
-import { FileSelectEvent, FileUploadModule } from "primeng/fileupload";
-import { ButtonModule } from "primeng/button";
 import {
 	FormControl,
 	FormGroup,
 	ReactiveFormsModule,
 	Validators,
 } from "@angular/forms";
-import {
-	applicationRateFieldValidator,
-	guaranteedAnalysisFieldValidator,
-	websiteUrlValidator,
-} from "../../../utils/formUtils";
+import { ButtonModule } from "primeng/button";
+import { CheckboxModule } from "primeng/checkbox";
+import { type FileSelectEvent, FileUploadModule } from "primeng/fileupload";
+import { InputNumberModule } from "primeng/inputnumber";
+import { InputTextModule } from "primeng/inputtext";
+import { SelectModule } from "primeng/select";
+import { TextareaModule } from "primeng/textarea";
+import { PageContainerComponent } from "../../../components/layout/page-container/page-container.component";
+import { MAX_FILE_UPLOAD_SIZE } from "../../../constants/file-constants";
 import {
 	APPLICATION_METHODS,
 	CONTAINER_TYPES,
@@ -23,16 +22,17 @@ import {
 	PRODUCT_CATEGORIES,
 	QUANTITY_UNITS,
 } from "../../../constants/product-constants";
-import { SelectModule } from "primeng/select";
-import { Location } from "@angular/common";
-import { ProductsService } from "../../../services/products.service";
-import { injectErrorToast } from "../../../utils/toastUtils";
 import { GlobalUiService } from "../../../services/global-ui.service";
-import { CheckboxModule } from "primeng/checkbox";
+import { ProductsService } from "../../../services/products.service";
+import type { ProductFormData } from "../../../types/products.types";
+import type { YVUser } from "../../../types/user.types";
 import { injectUserData, isMasterUser } from "../../../utils/authUtils";
-import { ProductFormData } from "../../../types/products.types";
-import { YVUser } from "../../../types/user.types";
-import { MAX_FILE_UPLOAD_SIZE } from "../../../constants/file-constants";
+import {
+	applicationRateFieldValidator,
+	guaranteedAnalysisFieldValidator,
+	websiteUrlValidator,
+} from "../../../utils/formUtils";
+import { injectErrorToast } from "../../../utils/toastUtils";
 
 @Component({
 	selector: "add-product",

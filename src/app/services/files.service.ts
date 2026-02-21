@@ -1,7 +1,7 @@
+import type { HttpResponse } from "@angular/common/http";
 import { Injectable } from "@angular/core";
+import { from, map, mergeMap, type Observable, scan } from "rxjs";
 import { apiUrl, getReq, postReq } from "../utils/httpUtils";
-import { from, map, mergeMap, Observable, scan } from "rxjs";
-import { HttpResponse } from "@angular/common/http";
 
 @Injectable({
 	providedIn: "root",
@@ -30,7 +30,7 @@ export class FilesService {
 						const filename = url.split("-").pop() || "downloaded-file";
 
 						return new File([response.body!], filename, {
-							type: response.body!.type,
+							type: response.body?.type,
 						});
 					}),
 				),

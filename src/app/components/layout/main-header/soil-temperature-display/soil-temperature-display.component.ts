@@ -1,15 +1,15 @@
 import { Component, computed, inject, signal, viewChild } from "@angular/core";
-import { TooltipModule } from "primeng/tooltip";
-import { ToggleSwitchModule } from "primeng/toggleswitch";
-import { PopoverModule, Popover } from "primeng/popover";
 import { FormsModule } from "@angular/forms";
-import { SoilDataService } from "../../../../services/soil-data.service";
-import { getSoilTemperatureDisplayColor } from "../../../../utils/soilTemperatureUtils";
-import { SettingsService } from "../../../../services/settings.service";
-import { DegreesDisplay } from "../../../../types/temperature.styles";
+import { type Popover, PopoverModule } from "primeng/popover";
+import { ToggleSwitchModule } from "primeng/toggleswitch";
+import { TooltipModule } from "primeng/tooltip";
 import { GlobalUiService } from "../../../../services/global-ui.service";
 import { LocationService } from "../../../../services/location.service";
+import { SettingsService } from "../../../../services/settings.service";
+import { SoilDataService } from "../../../../services/soil-data.service";
+import type { DegreesDisplay } from "../../../../types/temperature.styles";
 import { fixOverlayPositionForScroll } from "../../../../utils/overlayPositioningUtils";
+import { getSoilTemperatureDisplayColor } from "../../../../utils/soilTemperatureUtils";
 
 @Component({
 	selector: "soil-temperature-display",

@@ -1,8 +1,8 @@
 import { Component, inject, input } from "@angular/core";
-import { Popover, PopoverModule } from "primeng/popover";
+import { type Popover, PopoverModule } from "primeng/popover";
 import { GlobalUiService } from "../../../services/global-ui.service";
-import { CalendarMarkerData } from "../../entries/entries-calendar/entries-calendar.component";
-import { DailyWeatherCalendarForecast } from "../../../types/weather.types";
+import type { DailyWeatherCalendarForecast } from "../../../types/weather.types";
+import type { CalendarMarkerData } from "../../entries/entries-calendar/entries-calendar.component";
 
 @Component({
 	selector: "weather-day-marker",

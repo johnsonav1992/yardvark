@@ -1,4 +1,4 @@
-import { PrimeNGColorToken } from "../types/style.types";
+import type { PrimeNGColorToken } from "../types/style.types";
 import { getPrimeNgHexColor } from "./styleUtils";
 import { HOURS_IN_A_DAY } from "./timeUtils";
 
@@ -259,8 +259,7 @@ export const calculate24HourNumericAverage = (
 	const precision = options?.precision ?? 1;
 
 	return (
-		Math.round((total / validData.length) * Math.pow(10, precision)) /
-		Math.pow(10, precision)
+		Math.round((total / validData.length) * 10 ** precision) / 10 ** precision
 	);
 };
 

@@ -1,7 +1,7 @@
 import { Component, inject, input } from "@angular/core";
 import { Router } from "@angular/router";
-import { CardModule } from "primeng/card";
 import { ButtonModule } from "primeng/button";
+import { CardModule } from "primeng/card";
 
 @Component({
 	selector: "upgrade-prompt",

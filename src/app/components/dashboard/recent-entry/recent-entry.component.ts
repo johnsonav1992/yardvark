@@ -1,13 +1,13 @@
-import { Component, inject, output } from "@angular/core";
-import { CardModule } from "primeng/card";
-import { ProductSmallCardComponent } from "../../products/product-small-card/product-small-card.component";
-import { EntriesService } from "../../../services/entries.service";
-import { DatePipe, NgTemplateOutlet } from "@angular/common";
-import { ButtonModule } from "primeng/button";
-import { TooltipModule } from "primeng/tooltip";
-import { Router } from "@angular/router";
-import { GlobalUiService } from "../../../services/global-ui.service";
 import { CdkDragHandle } from "@angular/cdk/drag-drop";
+import { DatePipe, NgTemplateOutlet } from "@angular/common";
+import { Component, inject, output } from "@angular/core";
+import { Router } from "@angular/router";
+import { ButtonModule } from "primeng/button";
+import { CardModule } from "primeng/card";
+import { TooltipModule } from "primeng/tooltip";
+import { EntriesService } from "../../../services/entries.service";
+import { GlobalUiService } from "../../../services/global-ui.service";
+import { ProductSmallCardComponent } from "../../products/product-small-card/product-small-card.component";
 
 @Component({
 	selector: "recent-entry",

@@ -1,12 +1,12 @@
 import { Injectable, signal } from "@angular/core";
 import {
-	injectBreakpointObserver,
-	injectScreenWidthObserver,
-} from "../utils/styleUtils";
-import {
 	MD_BREAKPOINT,
 	YV_DARK_MODE_SELECTOR,
 } from "../constants/style-constants";
+import {
+	injectBreakpointObserver,
+	injectScreenWidthObserver,
+} from "../utils/styleUtils";
 
 @Injectable({
 	providedIn: "root",

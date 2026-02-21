@@ -1,24 +1,24 @@
 import { Component, computed, inject } from "@angular/core";
-import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
+import { FormsModule } from "@angular/forms";
+import { getYear } from "date-fns";
 import { CardModule } from "primeng/card";
 import { ChartModule } from "primeng/chart";
+import { DatePickerModule } from "primeng/datepicker";
+import { FloatLabelModule } from "primeng/floatlabel";
+import { PopoverModule } from "primeng/popover";
+import { SkeletonModule } from "primeng/skeleton";
+import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
+import { EmptyMessageComponent } from "../../components/miscellanious/empty-message/empty-message.component";
+import { UpgradePromptComponent } from "../../components/subscription/upgrade-prompt/upgrade-prompt.component";
+import { AnalyticsService } from "../../services/analytics.service";
 import { GlobalUiService } from "../../services/global-ui.service";
+import { SubscriptionService } from "../../services/subscription.service";
 import {
 	getAverageDaysBetweenChartConfig,
 	getFertilizerTimelineChartConfig,
 	getMonthlyMowingChartConfig,
 	getProductTypeDistributionChartConfig,
 } from "../../utils/analyticsUtils";
-import { AnalyticsService } from "../../services/analytics.service";
-import { EmptyMessageComponent } from "../../components/miscellanious/empty-message/empty-message.component";
-import { DatePickerModule } from "primeng/datepicker";
-import { FormsModule } from "@angular/forms";
-import { FloatLabelModule } from "primeng/floatlabel";
-import { PopoverModule } from "primeng/popover";
-import { SubscriptionService } from "../../services/subscription.service";
-import { UpgradePromptComponent } from "../../components/subscription/upgrade-prompt/upgrade-prompt.component";
-import { getYear } from "date-fns";
-import { SkeletonModule } from "primeng/skeleton";
 
 @Component({
 	selector: "analytics",

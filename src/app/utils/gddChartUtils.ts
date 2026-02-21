@@ -1,6 +1,6 @@
-import { ChartData, ChartOptions } from "chart.js";
+import type { ChartData, ChartOptions } from "chart.js";
 import { format } from "date-fns";
-import { GddForecastResponse } from "../types/gdd.types";
+import type { GddForecastResponse } from "../types/gdd.types";
 import { getPrimeNgHexColor } from "./styleUtils";
 
 type UiOptions = {

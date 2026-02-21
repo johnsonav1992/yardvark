@@ -1,19 +1,19 @@
+import { CommonModule } from "@angular/common";
 import {
 	Component,
-	ElementRef,
+	computed,
+	type ElementRef,
 	inject,
 	signal,
 	viewChild,
-	computed,
 } from "@angular/core";
-import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
-import { DynamicDialogRef } from "primeng/dynamicdialog";
 import { ButtonModule } from "primeng/button";
+import { DynamicDialogRef } from "primeng/dynamicdialog";
 import { MessageModule } from "primeng/message";
 import { SliderModule } from "primeng/slider";
-import { postReq, apiUrl } from "../../../utils/httpUtils";
 import { ImageCropperService } from "../../../services/image-cropper.service";
+import { apiUrl, postReq } from "../../../utils/httpUtils";
 
 const ACCEPTED_IMAGE_TYPES = [
 	"image/jpeg",

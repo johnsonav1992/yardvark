@@ -1,4 +1,4 @@
-import { GrassType } from "../types/gdd.types";
+import type { GrassType } from "../types/gdd.types";
 
 /**
  * Default target GDD intervals between PGR applications

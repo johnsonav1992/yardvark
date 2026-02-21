@@ -1,29 +1,29 @@
 import { Component, computed, inject, model, signal } from "@angular/core";
+import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
+import { format } from "date-fns";
+import { ButtonModule } from "primeng/button";
+import { CardModule } from "primeng/card";
+import { DatePickerModule } from "primeng/datepicker";
 import { DividerModule } from "primeng/divider";
 import { DrawerModule } from "primeng/drawer";
+import { FloatLabelModule } from "primeng/floatlabel";
 import { IconFieldModule } from "primeng/iconfield";
 import { InputIconModule } from "primeng/inputicon";
 import { InputTextModule } from "primeng/inputtext";
 import { MultiSelectModule } from "primeng/multiselect";
+import { SkeletonModule } from "primeng/skeleton";
+import { TooltipModule } from "primeng/tooltip";
 import { ActivitiesService } from "../../../services/activities.service";
-import { FloatLabelModule } from "primeng/floatlabel";
+import { EntriesService } from "../../../services/entries.service";
+import { GlobalUiService } from "../../../services/global-ui.service";
 import { LawnSegmentsService } from "../../../services/lawn-segments.service";
 import { ProductsService } from "../../../services/products.service";
-import { GlobalUiService } from "../../../services/global-ui.service";
-import { DatePickerModule } from "primeng/datepicker";
-import { ButtonModule } from "primeng/button";
-import { FormControl, FormGroup, ReactiveFormsModule } from "@angular/forms";
-import { Activity } from "../../../types/activities.types";
-import { LawnSegment } from "../../../types/lawnSegments.types";
-import { Product } from "../../../types/products.types";
-import { EntriesService } from "../../../services/entries.service";
-import { TooltipModule } from "primeng/tooltip";
-import { MobileEntryPreviewCardComponent } from "../mobile-entry-preview-card/mobile-entry-preview-card.component";
+import type { Activity } from "../../../types/activities.types";
+import type { Entry } from "../../../types/entries.types";
+import type { LawnSegment } from "../../../types/lawnSegments.types";
+import type { Product } from "../../../types/products.types";
 import { convertTimeStringToDate } from "../../../utils/timeUtils";
-import { format } from "date-fns";
-import { Entry } from "../../../types/entries.types";
-import { SkeletonModule } from "primeng/skeleton";
-import { CardModule } from "primeng/card";
+import { MobileEntryPreviewCardComponent } from "../mobile-entry-preview-card/mobile-entry-preview-card.component";
 
 @Component({
 	selector: "entry-search-sidebar",

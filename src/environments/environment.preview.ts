@@ -1,4 +1,4 @@
-import { Environment } from "../app/types/environments.types";
+import type { Environment } from "../app/types/environments.types";
 
 // Staging backend URL for all preview deployments
 const STAGING_BE_API_URL = "https://yardvark-backend-staging.up.railway.app";

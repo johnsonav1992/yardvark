@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit } from "@angular/core";
+import { Component, inject, input, type OnInit } from "@angular/core";
 import {
 	FormControl,
 	FormGroup,
@@ -7,15 +7,15 @@ import {
 } from "@angular/forms";
 import { ButtonModule } from "primeng/button";
 import { DatePickerModule } from "primeng/datepicker";
+import { DynamicDialogRef } from "primeng/dynamicdialog";
 import { FloatLabelModule } from "primeng/floatlabel";
 import { IconFieldModule } from "primeng/iconfield";
 import { InputIconModule } from "primeng/inputicon";
 import { InputNumberModule } from "primeng/inputnumber";
 import { InputTextModule } from "primeng/inputtext";
 import { TextareaModule } from "primeng/textarea";
-import { showAllFormErrorsOnSubmit } from "../../../utils/formUtils";
 import { EquipmentService } from "../../../services/equipment.service";
-import { DynamicDialogRef } from "primeng/dynamicdialog";
+import { showAllFormErrorsOnSubmit } from "../../../utils/formUtils";
 import { injectErrorToast } from "../../../utils/toastUtils";
 
 @Component({

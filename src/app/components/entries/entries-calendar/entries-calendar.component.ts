@@ -9,29 +9,29 @@ import {
 	model,
 	output,
 	signal,
-	TemplateRef,
+	type TemplateRef,
 	viewChild,
 } from "@angular/core";
-import { addMonths, format, startOfToday, subMonths } from "date-fns";
-import { getCalendarDaysData } from "./utils";
-import { ButtonModule } from "primeng/button";
-import { ActivatedRoute, Router } from "@angular/router";
-import { map } from "rxjs";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { GlobalUiService } from "../../../services/global-ui.service";
-import { LoadingSpinnerComponent } from "../../miscellanious/loading-spinner/loading-spinner.component";
+import { FormsModule } from "@angular/forms";
+import { ActivatedRoute, Router } from "@angular/router";
+import type { ButtonDesignTokens } from "@primeuix/themes/types/button";
+import { addMonths, format, startOfToday, subMonths } from "date-fns";
+import type { MenuItem } from "primeng/api";
+import { ButtonModule } from "primeng/button";
+import { DatePickerModule } from "primeng/datepicker";
+import { MenuModule } from "primeng/menu";
+import { ToggleSwitchModule } from "primeng/toggleswitch";
+import { map } from "rxjs";
 import { DoubleTapDirective } from "../../../directives/double-tap.directive";
 import { SwipeDirective } from "../../../directives/swipe.directive";
-import { EntrySearchSidebarComponent } from "../entry-search-sidebar/entry-search-sidebar.component";
-import { CsvExportSidebarComponent } from "../csv-export-sidebar/csv-export-sidebar.component";
-import { ButtonDesignTokens } from "@primeuix/themes/types/button";
-import { MenuModule } from "primeng/menu";
-import { FormsModule } from "@angular/forms";
-import { MenuItem } from "primeng/api";
-import { ToggleSwitchModule } from "primeng/toggleswitch";
+import { GlobalUiService } from "../../../services/global-ui.service";
 import { SettingsService } from "../../../services/settings.service";
 import { getSpecificDayOfMonth } from "../../../utils/timeUtils";
-import { DatePickerModule } from "primeng/datepicker";
+import { LoadingSpinnerComponent } from "../../miscellanious/loading-spinner/loading-spinner.component";
+import { CsvExportSidebarComponent } from "../csv-export-sidebar/csv-export-sidebar.component";
+import { EntrySearchSidebarComponent } from "../entry-search-sidebar/entry-search-sidebar.component";
+import { getCalendarDaysData } from "./utils";
 
 @Component({
 	selector: "entries-calendar",
@@ -64,7 +64,7 @@ export class EntriesCalendarComponent {
 
 	private _dateQuery = toSignal(
 		this._router.routerState.root.queryParams.pipe(
-			map((params) => params["date"] as string),
+			map((params) => params.date as string),
 		),
 	);
 

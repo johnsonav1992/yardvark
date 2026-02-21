@@ -1,20 +1,20 @@
+import { CdkDragHandle } from "@angular/cdk/drag-drop";
 import { Component, computed, inject, output } from "@angular/core";
-import { CardModule } from "primeng/card";
+import type { DividerDesignTokens } from "@primeuix/themes/types/divider";
+import { differenceInDays, parseISO } from "date-fns";
 import { ButtonModule } from "primeng/button";
+import { CardModule } from "primeng/card";
+import { DividerModule } from "primeng/divider";
+import { ProgressBarModule } from "primeng/progressbar";
 import { TooltipModule } from "primeng/tooltip";
 import { EntriesService } from "../../../services/entries.service";
-import { differenceInDays, parseISO } from "date-fns";
-import { getLawnSeasonCompletedPercentageWithTemp } from "../../../utils/lawnSeasonUtils";
-import { ProgressBarModule } from "primeng/progressbar";
-import { DividerModule } from "primeng/divider";
-import { DividerDesignTokens } from "@primeuix/themes/types/divider";
+import { GddService } from "../../../services/gdd.service";
 import { GlobalUiService } from "../../../services/global-ui.service";
 import { LocationService } from "../../../services/location.service";
-import { CdkDragHandle } from "@angular/cdk/drag-drop";
-import { SoilDataService } from "../../../services/soil-data.service";
-import { GddService } from "../../../services/gdd.service";
-import { SubscriptionService } from "../../../services/subscription.service";
 import { SettingsService } from "../../../services/settings.service";
+import { SoilDataService } from "../../../services/soil-data.service";
+import { SubscriptionService } from "../../../services/subscription.service";
+import { getLawnSeasonCompletedPercentageWithTemp } from "../../../utils/lawnSeasonUtils";
 
 @Component({
 	selector: "quick-stats",

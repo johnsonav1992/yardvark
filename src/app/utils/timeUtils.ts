@@ -1,14 +1,14 @@
 import {
-	subDays,
 	addDays,
+	getDate,
 	getDay,
 	getMonth,
-	getDate,
 	getYear,
 	setHours,
+	setMilliseconds,
 	setMinutes,
 	setSeconds,
-	setMilliseconds,
+	subDays,
 } from "date-fns";
 
 /**
@@ -51,7 +51,7 @@ export const getDayLabelsCenteredAroundToday = (opts?: {
 		const currentDate = addDays(today, i);
 		const dayIndex = (todayIndex + i + 7) % 7;
 
-		let label;
+		let label: string;
 
 		if (opts?.tinyDayNames) {
 			const tinyDayNames = ["Su", "M", "Tu", "W", "Th", "F", "Sa"];
@@ -97,6 +97,8 @@ export const HOURS_IN_A_DAY = 24;
  * @param delay The delay in milliseconds.
  * @returns The debounced function.
  */
+
+// biome-ignore lint/suspicious/noExplicitAny: intended any here
 export const debounce = <T extends (...args: any[]) => void>(
 	func: T,
 	delay: number,

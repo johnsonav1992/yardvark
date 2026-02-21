@@ -1,10 +1,10 @@
-import { AnalyticsRes } from "../types/analytics.types";
-import {
+import { getDate, getMonth, getYear } from "date-fns";
+import type { AnalyticsRes } from "../types/analytics.types";
+import type {
 	LawnHealthScoreBreakdown,
 	LawnHealthScoreFactors,
 	LawnHealthScoreMonthlyData,
 } from "../types/lawnHealthScore.types";
-import { getMonth, getYear, getDate } from "date-fns";
 import { getLawnSeasonCompletedPercentageWithTemp } from "./lawnSeasonUtils";
 
 export const calculateLawnHealthScore = (
@@ -44,7 +44,7 @@ export const calculateLawnHealthScore = (
 
 	const totalMowingEntries =
 		analyticsData.mowingAnalyticsData?.reduce(
-			(sum, month) => sum + parseInt(month.mowCount),
+			(sum, month) => sum + parseInt(month.mowCount, 10),
 			0,
 		) || 0;
 

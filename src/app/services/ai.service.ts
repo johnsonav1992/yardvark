@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
-import { Observable, of, catchError, map, timeout } from "rxjs";
-import { postReq, apiUrl } from "../utils/httpUtils";
-import { AiChatResponse } from "../types/ai.types";
+import { catchError, map, type Observable, of, timeout } from "rxjs";
+import type { AiChatResponse } from "../types/ai.types";
+import { apiUrl, postReq } from "../utils/httpUtils";
 
 @Injectable({
 	providedIn: "root",

@@ -1,8 +1,8 @@
-import { Component, inject, input } from "@angular/core";
-import { CardModule } from "primeng/card";
-import { Entry } from "../../../types/entries.types";
-import { Router } from "@angular/router";
 import { DatePipe } from "@angular/common";
+import { Component, inject, input } from "@angular/core";
+import { Router } from "@angular/router";
+import { CardModule } from "primeng/card";
+import type { Entry } from "../../../types/entries.types";
 
 @Component({
 	selector: "mobile-entry-preview-card",

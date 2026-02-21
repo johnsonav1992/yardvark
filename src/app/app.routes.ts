@@ -1,23 +1,23 @@
-import { Routes } from "@angular/router";
+import type { Routes } from "@angular/router";
+import { hybridAuthGuard } from "./guards/hybrid-auth.guard";
+import { unsavedChangesGuard } from "./guards/unsaved-changes-guard";
+import { AnalyticsComponent } from "./pages/analytics/analytics.component";
+import { CalculatorsPage } from "./pages/calculators/calculators-page";
 import { DashboardComponent } from "./pages/dashboard/dashboard.component";
-import { ProfileComponent } from "./pages/profile/profile.component";
-import { SoilDataComponent } from "./pages/soil-data/soil-data.component";
-import { GddDataComponent } from "./pages/gdd-data/gdd-data.component";
+import { AddEntryComponent } from "./pages/entry-log/add-entry/add-entry.component";
 import { EntryLogComponent } from "./pages/entry-log/entry-log.component";
-import { SettingsComponent } from "./pages/settings/settings.component";
-import { ProductsComponent } from "./pages/products/products.component";
-import { EquipmentComponent } from "./pages/equipment/equipment.component";
 import { EntryViewComponent } from "./pages/entry-log/entry-view/entry-view.component";
+import { AddEditEquipmentComponent } from "./pages/equipment/add-edit-equipment/add-edit-equipment.component";
+import { EquipmentComponent } from "./pages/equipment/equipment.component";
+import { EquipmentViewComponent } from "./pages/equipment/equipment-view/equipment-view.component";
+import { GddDataComponent } from "./pages/gdd-data/gdd-data.component";
 import { AddProductComponent } from "./pages/products/add-product/add-product.component";
 import { ProductViewComponent } from "./pages/products/product-view/product-view.component";
-import { EquipmentViewComponent } from "./pages/equipment/equipment-view/equipment-view.component";
-import { AddEditEquipmentComponent } from "./pages/equipment/add-edit-equipment/add-edit-equipment.component";
-import { AnalyticsComponent } from "./pages/analytics/analytics.component";
-import { unsavedChangesGuard } from "./guards/unsaved-changes-guard";
-import { CalculatorsPage } from "./pages/calculators/calculators-page";
-import { AddEntryComponent } from "./pages/entry-log/add-entry/add-entry.component";
+import { ProductsComponent } from "./pages/products/products.component";
+import { ProfileComponent } from "./pages/profile/profile.component";
+import { SettingsComponent } from "./pages/settings/settings.component";
+import { SoilDataComponent } from "./pages/soil-data/soil-data.component";
 import { SubscriptionComponent } from "./pages/subscription/subscription.component";
-import { hybridAuthGuard } from "./guards/hybrid-auth.guard";
 
 export const mainRoutes: Routes = [
 	{

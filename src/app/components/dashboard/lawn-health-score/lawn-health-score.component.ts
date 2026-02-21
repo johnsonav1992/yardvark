@@ -1,12 +1,12 @@
-import { Component, inject, computed, output } from "@angular/core";
+import { CdkDragHandle } from "@angular/cdk/drag-drop";
+import { Component, computed, inject, output } from "@angular/core";
 import { Router } from "@angular/router";
+import type { DividerDesignTokens } from "@primeuix/themes/types/divider";
+import { ButtonModule } from "primeng/button";
 import { CardModule } from "primeng/card";
 import { DividerModule } from "primeng/divider";
 import { PopoverModule } from "primeng/popover";
-import { ButtonModule } from "primeng/button";
 import { TooltipModule } from "primeng/tooltip";
-import { DividerDesignTokens } from "@primeuix/themes/types/divider";
-import { CdkDragHandle } from "@angular/cdk/drag-drop";
 import { LawnHealthScoreService } from "../../../services/lawn-health-score.service";
 import { SubscriptionService } from "../../../services/subscription.service";
 import { UpgradePromptComponent } from "../../subscription/upgrade-prompt/upgrade-prompt.component";

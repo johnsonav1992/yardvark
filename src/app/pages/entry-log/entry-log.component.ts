@@ -3,38 +3,38 @@ import {
 	computed,
 	inject,
 	linkedSignal,
-	OnInit,
+	type OnInit,
 	signal,
 } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
+import type { ButtonDesignTokens } from "@primeuix/themes/types/button";
+import { format, isSameDay, isValid, parseISO } from "date-fns";
+import { ButtonModule } from "primeng/button";
+import { CardModule } from "primeng/card";
+import { DividerModule } from "primeng/divider";
+import { TooltipModule } from "primeng/tooltip";
+import { map } from "rxjs";
+import type { SettingsData } from "../../../../backend/src/modules/settings/models/settings.types";
 import {
-	CalendarMarkerData,
-	DaySelectedEvent,
+	type CalendarMarkerData,
+	type DaySelectedEvent,
 	EntriesCalendarComponent,
 } from "../../components/entries/entries-calendar/entries-calendar.component";
-import { ButtonModule } from "primeng/button";
-import { ButtonDesignTokens } from "@primeuix/themes/types/button";
-import { injectUserData } from "../../utils/authUtils";
-import { Entry } from "../../types/entries.types";
-import { getEntryIcon } from "../../utils/entriesUtils";
-import { TooltipModule } from "primeng/tooltip";
-import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
-import { EntriesService } from "../../services/entries.service";
-import { GlobalUiService } from "../../services/global-ui.service";
-import { DividerModule } from "primeng/divider";
-import { format, isSameDay, parseISO, isValid } from "date-fns";
-import { CardModule } from "primeng/card";
-import { map } from "rxjs";
-import { toSignal } from "@angular/core/rxjs-interop";
-import { convertTimeStringToDate } from "../../utils/timeUtils";
 import { MobileEntryPreviewCardComponent } from "../../components/entries/mobile-entry-preview-card/mobile-entry-preview-card.component";
-import { SettingsService } from "../../services/settings.service";
-import { SettingsData } from "../../../../backend/src/modules/settings/models/settings.types";
-import { WeatherService } from "../../services/weather-service";
-import { DailyWeatherCalendarForecast } from "../../types/weather.types";
-import { getForecastMarkerIcon } from "../../utils/weatherUtils";
 import { WeatherDayMarker } from "../../components/weather/weather-day-marker/weather-day-marker";
 import { CsvExportService } from "../../services/csv-export.service";
+import { EntriesService } from "../../services/entries.service";
+import { GlobalUiService } from "../../services/global-ui.service";
+import { SettingsService } from "../../services/settings.service";
+import { WeatherService } from "../../services/weather-service";
+import type { Entry } from "../../types/entries.types";
+import type { DailyWeatherCalendarForecast } from "../../types/weather.types";
+import { injectUserData } from "../../utils/authUtils";
 import { getEntryCsvConfig } from "../../utils/csvUtils";
+import { getEntryIcon } from "../../utils/entriesUtils";
+import { convertTimeStringToDate } from "../../utils/timeUtils";
+import { getForecastMarkerIcon } from "../../utils/weatherUtils";
 
 @Component({
 	selector: "entry-log",
@@ -62,14 +62,14 @@ export class EntryLogComponent implements OnInit {
 
 	public isCreateOnOpen = toSignal(
 		this._activatedRoute.queryParams.pipe(
-			map((params) => params["create"] === "true"),
+			map((params) => params.create === "true"),
 		),
 	);
 
 	public directDateNavigation = toSignal(
 		this._activatedRoute.queryParams.pipe(
 			map((params) => {
-				const date = params["date"];
+				const date = params.date;
 
 				if (date) {
 					const parsedDate = parseISO(date);

@@ -1,29 +1,29 @@
-import { Component, inject, OnInit, signal } from "@angular/core";
-import { PageContainerComponent } from "../../../components/layout/page-container/page-container.component";
-import { InputTextModule } from "primeng/inputtext";
-import { TextareaModule } from "primeng/textarea";
-import { InputNumberModule } from "primeng/inputnumber";
-import { FileSelectEvent, FileUploadModule } from "primeng/fileupload";
-import { ButtonModule } from "primeng/button";
+import { Location } from "@angular/common";
+import { Component, inject, type OnInit, signal } from "@angular/core";
 import {
 	FormControl,
 	FormGroup,
 	ReactiveFormsModule,
 	Validators,
 } from "@angular/forms";
-import { showAllFormErrorsOnSubmit } from "../../../utils/formUtils";
-import { SelectModule } from "primeng/select";
-import { Location } from "@angular/common";
-import { injectErrorToast } from "../../../utils/toastUtils";
-import { GlobalUiService } from "../../../services/global-ui.service";
-import { CheckboxModule } from "primeng/checkbox";
-import { injectUserData } from "../../../utils/authUtils";
-import { EquipmentService } from "../../../services/equipment.service";
-import { DatePickerModule } from "primeng/datepicker";
-import { EquipmentFormData } from "../../../types/equipment.types";
 import { ActivatedRoute } from "@angular/router";
-import { MAX_FILE_UPLOAD_SIZE } from "../../../constants/file-constants";
 import { parseISO } from "date-fns";
+import { ButtonModule } from "primeng/button";
+import { CheckboxModule } from "primeng/checkbox";
+import { DatePickerModule } from "primeng/datepicker";
+import { type FileSelectEvent, FileUploadModule } from "primeng/fileupload";
+import { InputNumberModule } from "primeng/inputnumber";
+import { InputTextModule } from "primeng/inputtext";
+import { SelectModule } from "primeng/select";
+import { TextareaModule } from "primeng/textarea";
+import { PageContainerComponent } from "../../../components/layout/page-container/page-container.component";
+import { MAX_FILE_UPLOAD_SIZE } from "../../../constants/file-constants";
+import { EquipmentService } from "../../../services/equipment.service";
+import { GlobalUiService } from "../../../services/global-ui.service";
+import type { EquipmentFormData } from "../../../types/equipment.types";
+import { injectUserData } from "../../../utils/authUtils";
+import { showAllFormErrorsOnSubmit } from "../../../utils/formUtils";
+import { injectErrorToast } from "../../../utils/toastUtils";
 
 @Component({
 	selector: "add-edit-equipment",

@@ -1,3 +1,4 @@
+import { DatePipe } from "@angular/common";
 import {
 	Component,
 	computed,
@@ -6,27 +7,7 @@ import {
 	linkedSignal,
 	signal,
 } from "@angular/core";
-import { DatePipe } from "@angular/common";
-import { ActivatedRoute, Router } from "@angular/router";
-import {
-	Entry,
-	EntryCreationRequest,
-	EntryProduct,
-} from "../../../types/entries.types";
-import { PageContainerComponent } from "../../../components/layout/page-container/page-container.component";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { map } from "rxjs";
-import { ButtonModule } from "primeng/button";
-import { CardModule } from "primeng/card";
-import { ChipModule } from "primeng/chip";
-import { ChipDesignTokens } from "@primeuix/themes/types/chip";
-import { DividerModule } from "primeng/divider";
-import { SkeletonModule } from "primeng/skeleton";
-import { capitalize } from "../../../utils/stringUtils";
-import { ProductSmallCardComponent } from "../../../components/products/product-small-card/product-small-card.component";
-import { EntriesService } from "../../../services/entries.service";
-import { MultiSelectModule } from "primeng/multiselect";
-import { ActivitiesService } from "../../../services/activities.service";
 import {
 	FormArray,
 	FormControl,
@@ -34,27 +15,46 @@ import {
 	ReactiveFormsModule,
 	Validators,
 } from "@angular/forms";
-import { Activity } from "../../../types/activities.types";
-import { LawnSegment } from "../../../types/lawnSegments.types";
+import { ActivatedRoute, Router } from "@angular/router";
+import type { ChipDesignTokens } from "@primeuix/themes/types/chip";
+import { format } from "date-fns";
+import { ConfirmationService } from "primeng/api";
+import { ButtonModule } from "primeng/button";
+import { CardModule } from "primeng/card";
+import { ChipModule } from "primeng/chip";
+import { DatePickerModule } from "primeng/datepicker";
+import { DividerModule } from "primeng/divider";
+import { type FileSelectEvent, FileUploadModule } from "primeng/fileupload";
+import { GalleriaModule } from "primeng/galleria";
+import { InputTextModule } from "primeng/inputtext";
+import { MultiSelectModule } from "primeng/multiselect";
+import { SkeletonModule } from "primeng/skeleton";
+import { TextareaModule } from "primeng/textarea";
+import { map } from "rxjs";
+import { PageContainerComponent } from "../../../components/layout/page-container/page-container.component";
+import { ProductSmallCardComponent } from "../../../components/products/product-small-card/product-small-card.component";
+import { ProductsSelectorComponent } from "../../../components/products/products-selector/products-selector.component";
+import { ACTIVITY_IDS } from "../../../constants/activity-constants";
+import { MAX_FILE_LARGE_UPLOAD_SIZE } from "../../../constants/file-constants";
+import { ActivitiesService } from "../../../services/activities.service";
+import { EntriesService } from "../../../services/entries.service";
+import { FilesService } from "../../../services/files.service";
+import { GlobalUiService } from "../../../services/global-ui.service";
+import { LawnSegmentsService } from "../../../services/lawn-segments.service";
+import type { Activity } from "../../../types/activities.types";
+import type {
+	Entry,
+	EntryCreationRequest,
+	EntryProduct,
+} from "../../../types/entries.types";
+import type { LawnSegment } from "../../../types/lawnSegments.types";
 import {
 	createEntryProductRow,
-	EntryProductRow,
+	type EntryProductRow,
 } from "../../../utils/entriesUtils";
-import { InputTextModule } from "primeng/inputtext";
-import { LawnSegmentsService } from "../../../services/lawn-segments.service";
-import { ProductsSelectorComponent } from "../../../components/products/products-selector/products-selector.component";
-import { TextareaModule } from "primeng/textarea";
-import { injectErrorToast } from "../../../utils/toastUtils";
-import { GlobalUiService } from "../../../services/global-ui.service";
+import { capitalize } from "../../../utils/stringUtils";
 import { convertTimeStringToDate } from "../../../utils/timeUtils";
-import { DatePickerModule } from "primeng/datepicker";
-import { format } from "date-fns";
-import { GalleriaModule } from "primeng/galleria";
-import { FileSelectEvent, FileUploadModule } from "primeng/fileupload";
-import { MAX_FILE_LARGE_UPLOAD_SIZE } from "../../../constants/file-constants";
-import { FilesService } from "../../../services/files.service";
-import { ConfirmationService } from "primeng/api";
-import { ACTIVITY_IDS } from "../../../constants/activity-constants";
+import { injectErrorToast } from "../../../utils/toastUtils";
 
 @Component({
 	selector: "entry-view",
@@ -125,12 +125,12 @@ export class EntryViewComponent {
 	});
 
 	public entryId = toSignal<number>(
-		this._activatedRoute.params.pipe(map((params) => params["entryId"])),
+		this._activatedRoute.params.pipe(map((params) => params.entryId)),
 	);
 
 	public entryDate = toSignal(
 		this._activatedRoute.queryParams.pipe(
-			map((params) => params["date"] as string),
+			map((params) => params.date as string),
 		),
 	);
 
@@ -181,23 +181,10 @@ export class EntryViewComponent {
 		() => this.entryImageUrls().length > 0 || this.isInEditMode(),
 	);
 
-	// @ts-expect-error -> using this until signal forms are ready
-	private _activitiesSubscriptionEffect = effect((onCleanup) => {
-		const activitiesControl = this.editForm.controls.activities;
-
-		const subscription = activitiesControl.valueChanges.subscribe((values) => {
-			this.selectedActivities.set(values || []);
-		});
-
-		this.selectedActivities.set(activitiesControl.value || []);
-
-		onCleanup(() => subscription.unsubscribe());
-	});
-
 	_formFileUpdater = effect(() => {
 		const entryData = this.entryData();
 
-		if (entryData && entryData.images.length) {
+		if (entryData?.images.length) {
 			this._filesService
 				.downloadFiles(this.entryImageUrls())
 				.subscribe((downloadedFiles) => {
@@ -211,8 +198,7 @@ export class EntryViewComponent {
 	});
 
 	public constructor() {
-		const entryData =
-			this._router.getCurrentNavigation()?.extras.state?.["entry"];
+		const entryData = this._router.getCurrentNavigation()?.extras.state?.entry;
 
 		entryData ? this.entryData.set(entryData) : this.shouldFetchEntry.set(true);
 	}

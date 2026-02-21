@@ -1,16 +1,16 @@
+import { NgTemplateOutlet } from "@angular/common";
 import {
 	Component,
 	contentChild,
-	effect,
 	ElementRef,
+	effect,
 	inject,
 	input,
-	TemplateRef,
+	type TemplateRef,
 } from "@angular/core";
-import { Product } from "../../../types/products.types";
-import { NgTemplateOutlet } from "@angular/common";
-import { CapitalizePipe } from "../../../pipes/capitalize.pipe";
 import { NO_IMAGE_URL } from "../../../constants/style-constants";
+import { CapitalizePipe } from "../../../pipes/capitalize.pipe";
+import type { Product } from "../../../types/products.types";
 
 @Component({
 	selector: "product-small-card",

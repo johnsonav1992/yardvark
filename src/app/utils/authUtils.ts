@@ -1,12 +1,12 @@
 import { inject } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { AuthService } from "@auth0/auth0-angular";
-import { MASTER_USER, ROLES_CLAIM } from "../constants/auth-constants";
-import { Maybe } from "../types/utils.types";
-import { YVUser } from "../types/user.types";
 import { Capacitor } from "@capacitor/core";
 import config from "../../../capacitor.config";
 import { environment } from "../../environments/environment";
+import { MASTER_USER, ROLES_CLAIM } from "../constants/auth-constants";
+import type { YVUser } from "../types/user.types";
+import type { Maybe } from "../types/utils.types";
 
 /**
  * Retrieves the user data from the authentication service and stores it in a signal.

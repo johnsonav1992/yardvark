@@ -1,14 +1,14 @@
-import { Component, computed, inject, signal } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { ButtonModule } from "primeng/button";
-import { ToggleButtonModule } from "primeng/togglebutton";
+import { Component, computed, inject, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { ButtonModule } from "primeng/button";
 import { DynamicDialogRef } from "primeng/dynamicdialog";
-import { SettingsService } from "../../../services/settings.service";
+import { ToggleButtonModule } from "primeng/togglebutton";
 import {
-	NAV_ITEMS,
 	DEFAULT_MOBILE_NAV_ITEMS,
+	NAV_ITEMS,
 } from "../../../config/navigation.config";
+import { SettingsService } from "../../../services/settings.service";
 
 interface SelectableNavItem {
 	id: string;

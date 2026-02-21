@@ -1,12 +1,15 @@
 import { Component, computed, inject, input, output } from "@angular/core";
+import { Router } from "@angular/router";
 import { ButtonModule } from "primeng/button";
 import { CardModule } from "primeng/card";
-import { Product, ProductWithVisibility } from "../../../types/products.types";
 import { NO_IMAGE_URL } from "../../../constants/style-constants";
-import { Router } from "@angular/router";
 import { GlobalUiService } from "../../../services/global-ui.service";
+import type {
+	Product,
+	ProductWithVisibility,
+} from "../../../types/products.types";
+import type { YVUser } from "../../../types/user.types";
 import { injectUserData, isMasterUser } from "../../../utils/authUtils";
-import { YVUser } from "../../../types/user.types";
 
 @Component({
 	selector: "product-card",

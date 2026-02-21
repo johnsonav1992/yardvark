@@ -6,19 +6,19 @@
 		url("../fonts/lawn-icons.woff") format("woff");
 }
 .li {
-	font-family: "lawn-icons" !important;
-	font-size: 20px !important;
+	font-family: "lawn-icons";
+	font-size: 20px;
 	font-style: normal;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
 
 .li-sprinkler:before {
-	content: "\ea01";
+	content: "ea01";
 }
 .li-shovel-dirt:before {
-	content: "\ea02";
+	content: "ea02";
 }
 .li-lawnmower:before {
-	content: "\ea03";
+	content: "ea03";
 }

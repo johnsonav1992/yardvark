@@ -1,4 +1,4 @@
-import * as L from "leaflet";
+import type * as L from "leaflet";
 
 export type LeafletShape = L.Rectangle | L.Polygon;
 

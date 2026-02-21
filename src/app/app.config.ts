@@ -1,26 +1,25 @@
+import { provideHttpClient, withInterceptors } from "@angular/common/http";
 import {
-	ApplicationConfig,
-	provideZonelessChangeDetection,
+	type ApplicationConfig,
 	isDevMode,
+	provideZonelessChangeDetection,
 } from "@angular/core";
 import {
 	provideRouter,
 	withInMemoryScrolling,
 	withViewTransitions,
 } from "@angular/router";
-
-import { mainRoutes } from "./app.routes";
-import { provideHttpClient, withInterceptors } from "@angular/common/http";
-import { providePrimeNG } from "primeng/config";
-import { authHttpInterceptorFn, provideAuth0 } from "@auth0/auth0-angular";
-import { theme } from "./theme/theme";
-import { ConfirmationService, MessageService } from "primeng/api";
-import { provideHttpUtils } from "./utils/httpUtils";
-import { YV_DARK_MODE_SELECTOR } from "./constants/style-constants";
-import { environment } from "../environments/environment";
 import { provideServiceWorker } from "@angular/service-worker";
-import { getRedirectUri } from "./utils/authUtils";
+import { authHttpInterceptorFn, provideAuth0 } from "@auth0/auth0-angular";
+import { ConfirmationService, MessageService } from "primeng/api";
+import { providePrimeNG } from "primeng/config";
+import { environment } from "../environments/environment";
+import { mainRoutes } from "./app.routes";
 import { CustomAuth0Cache } from "./config/auth0Cache.config";
+import { YV_DARK_MODE_SELECTOR } from "./constants/style-constants";
+import { theme } from "./theme/theme";
+import { getRedirectUri } from "./utils/authUtils";
+import { provideHttpUtils } from "./utils/httpUtils";
 
 export const appConfig: ApplicationConfig = {
 	providers: [
@@ -55,7 +54,7 @@ export const appConfig: ApplicationConfig = {
 			httpInterceptor: {
 				allowedList: [
 					{
-						uri: environment.apiUrl + "/*",
+						uri: `${environment.apiUrl}/*`,
 						tokenOptions: {
 							authorizationParams: {
 								audience: `https://${environment.auth0Domain}/api/v2/`,

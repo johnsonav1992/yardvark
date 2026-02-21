@@ -5,16 +5,16 @@ import {
 	ReactiveFormsModule,
 	Validators,
 } from "@angular/forms";
-import { DrawerModule } from "primeng/drawer";
+import { format } from "date-fns";
 import { ButtonModule } from "primeng/button";
 import { DatePickerModule } from "primeng/datepicker";
+import { DrawerModule } from "primeng/drawer";
 import { MessageModule } from "primeng/message";
-import { format } from "date-fns";
-import { EntriesService } from "../../../services/entries.service";
 import { CsvExportService } from "../../../services/csv-export.service";
-import { getEntryCsvConfig } from "../../../utils/csvUtils";
+import { EntriesService } from "../../../services/entries.service";
 import { GlobalUiService } from "../../../services/global-ui.service";
-import { Entry, EntriesSearchRequest } from "../../../types/entries.types";
+import type { EntriesSearchRequest, Entry } from "../../../types/entries.types";
+import { getEntryCsvConfig } from "../../../utils/csvUtils";
 import { LoadingSpinnerComponent } from "../../miscellanious/loading-spinner/loading-spinner.component";
 
 @Component({

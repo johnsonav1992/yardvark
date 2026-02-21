@@ -1,6 +1,6 @@
 import { httpResource } from "@angular/common/http";
-import { Injectable, Signal } from "@angular/core";
-import {
+import { Injectable, type Signal } from "@angular/core";
+import type {
 	CurrentGddResponse,
 	GddForecastResponse,
 	HistoricalGddResponse,

@@ -1,11 +1,11 @@
 import { httpResource } from "@angular/common/http";
-import { computed, inject, Injectable } from "@angular/core";
-import { LocationService } from "./location.service";
-import { apiUrl } from "../utils/httpUtils";
-import {
+import { computed, Injectable, inject } from "@angular/core";
+import type {
 	DailyWeatherCalendarForecast,
 	WeatherDotGovForecastResponse,
 } from "../types/weather.types";
+import { apiUrl } from "../utils/httpUtils";
+import { LocationService } from "./location.service";
 
 @Injectable({
 	providedIn: "root",

@@ -1,8 +1,8 @@
 import { httpResource } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { LawnSegment } from "../types/lawnSegments.types";
+import type { Observable } from "rxjs";
+import type { LawnSegment } from "../types/lawnSegments.types";
 import { apiUrl, deleteReq, postReq, putReq } from "../utils/httpUtils";
-import { Observable } from "rxjs";
 
 @Injectable({
 	providedIn: "root",

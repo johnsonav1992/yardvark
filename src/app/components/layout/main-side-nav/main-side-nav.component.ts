@@ -1,16 +1,16 @@
 import { Component, computed, inject, ViewEncapsulation } from "@angular/core";
-import { Router } from "@angular/router";
-import { MenuDesignTokens } from "@primeuix/themes/types/menu";
-import { MenuItem } from "primeng/api";
-import { DrawerModule } from "primeng/drawer";
-import { MenuModule } from "primeng/menu";
-import { GlobalUiService } from "../../../services/global-ui.service";
-import { ToggleSwitchModule } from "primeng/toggleswitch";
 import { FormsModule } from "@angular/forms";
+import { Router } from "@angular/router";
+import type { MenuDesignTokens } from "@primeuix/themes/types/menu";
+import type { MenuItem } from "primeng/api";
 import { ButtonModule } from "primeng/button";
+import { DrawerModule } from "primeng/drawer";
 import { DialogService } from "primeng/dynamicdialog";
-import { FeedbackDialogComponent } from "../../feedback/feedback-dialog/feedback-dialog.component";
+import { MenuModule } from "primeng/menu";
+import { ToggleSwitchModule } from "primeng/toggleswitch";
 import { NAV_ITEMS } from "../../../config/navigation.config";
+import { GlobalUiService } from "../../../services/global-ui.service";
+import { FeedbackDialogComponent } from "../../feedback/feedback-dialog/feedback-dialog.component";
 
 @Component({
 	selector: "main-side-nav",

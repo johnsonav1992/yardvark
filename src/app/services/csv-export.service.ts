@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { CsvExportConfig } from "../types/csv.types";
+import type { CsvExportConfig } from "../types/csv.types";
 
 @Injectable({
 	providedIn: "root",

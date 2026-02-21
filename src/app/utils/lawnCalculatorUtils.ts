@@ -1,5 +1,5 @@
-import { LawnSegment } from "../types/lawnSegments.types";
-import { Product } from "../types/products.types";
+import type { LawnSegment } from "../types/lawnSegments.types";
+import type { Product } from "../types/products.types";
 import { convertToPounds } from "./generalUtils";
 
 /**

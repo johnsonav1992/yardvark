@@ -1,3 +1,4 @@
+import { CommonModule } from "@angular/common";
 import {
 	Component,
 	computed,
@@ -6,26 +7,25 @@ import {
 	signal,
 	ViewEncapsulation,
 } from "@angular/core";
-import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
 import { Router, RouterModule } from "@angular/router";
+import { SplashScreen } from "@capacitor/splash-screen";
+import type { MenuDesignTokens } from "@primeuix/themes/types/menu";
+import type { MenuItem } from "primeng/api";
 import { ButtonModule } from "primeng/button";
 import { DrawerModule } from "primeng/drawer";
+import { DialogService } from "primeng/dynamicdialog";
 import { MenuModule } from "primeng/menu";
 import { ToggleSwitchModule } from "primeng/toggleswitch";
-import { FormsModule } from "@angular/forms";
-import { MenuItem } from "primeng/api";
+import {
+	DEFAULT_MOBILE_NAV_ITEMS,
+	NAV_ITEMS,
+	type NavItem,
+} from "../../../config/navigation.config";
 import { GlobalUiService } from "../../../services/global-ui.service";
 import { SettingsService } from "../../../services/settings.service";
-import { DialogService } from "primeng/dynamicdialog";
 import { FeedbackDialogComponent } from "../../feedback/feedback-dialog/feedback-dialog.component";
 import { NavbarCustomizationDialogComponent } from "../navbar-customization-dialog/navbar-customization-dialog.component";
-import { MenuDesignTokens } from "@primeuix/themes/types/menu";
-import {
-	NAV_ITEMS,
-	DEFAULT_MOBILE_NAV_ITEMS,
-	NavItem,
-} from "../../../config/navigation.config";
-import { SplashScreen } from "@capacitor/splash-screen";
 
 @Component({
 	selector: "mobile-bottom-navbar",

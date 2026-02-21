@@ -1,5 +1,5 @@
-import { inject, Signal } from "@angular/core";
-import { CanDeactivateFn } from "@angular/router";
+import { inject, type Signal } from "@angular/core";
+import type { CanDeactivateFn } from "@angular/router";
 import { ConfirmationService } from "primeng/api";
 
 export type UnsavedChanges = {

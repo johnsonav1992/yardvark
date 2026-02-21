@@ -1,4 +1,4 @@
-import { Injector, Signal } from "@angular/core";
+import type { Injector, Signal } from "@angular/core";
 import { toObservable, toSignal } from "@angular/core/rxjs-interop";
 import { debounceTime } from "rxjs";
 

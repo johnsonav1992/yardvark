@@ -1,4 +1,4 @@
-import { PRODUCT_TYPES } from "../../../backend/src/modules/products/models/products.types";
+import type { PRODUCT_TYPES } from "../../../backend/src/modules/products/models/products.types";
 
 export type Product = {
 	id: number;

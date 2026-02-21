@@ -1,4 +1,4 @@
-import { FormGroup, ValidatorFn } from "@angular/forms";
+import type { FormGroup, ValidatorFn } from "@angular/forms";
 
 export const GUARANTEED_ANALYSIS_FORMAT_REGEX =
 	/^([0-9](\.\d{1,2})?|[1-9][0-9](\.\d{1,2})?|100(\.0{1,2})?)-([0-9](\.\d{1,2})?|[1-9][0-9](\.\d{1,2})?|100(\.0{1,2})?)-([0-9](\.\d{1,2})?|[1-9][0-9](\.\d{1,2})?|100(\.0{1,2})?)$/;

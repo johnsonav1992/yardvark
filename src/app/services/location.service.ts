@@ -1,10 +1,9 @@
 import { Injectable, linkedSignal } from "@angular/core";
-import { getReq } from "../utils/httpUtils";
-import { LatLong, MapboxGeocodingResponse } from "../types/location.types";
-import { map } from "rxjs";
-import { Observable } from "rxjs";
-import { injectSettingsService } from "./settings.service";
+import { map, Observable } from "rxjs";
 import { environment } from "../../environments/environment";
+import type { LatLong, MapboxGeocodingResponse } from "../types/location.types";
+import { getReq } from "../utils/httpUtils";
+import { injectSettingsService } from "./settings.service";
 
 @Injectable({
 	providedIn: "root",

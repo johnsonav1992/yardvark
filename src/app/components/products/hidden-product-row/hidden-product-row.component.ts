@@ -1,6 +1,6 @@
 import { Component, input, output } from "@angular/core";
-import { Product } from "../../../types/products.types";
 import { NO_IMAGE_URL } from "../../../constants/style-constants";
+import type { Product } from "../../../types/products.types";
 
 export interface HiddenProductToggleEvent {
 	id: number;

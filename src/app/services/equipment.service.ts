@@ -1,11 +1,11 @@
 import { httpResource } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { apiUrl, deleteReq, postReq, putReq } from "../utils/httpUtils";
-import {
+import type {
 	Equipment,
 	EquipmentFormData,
 	EquipmentMaintenance,
 } from "../types/equipment.types";
+import { apiUrl, deleteReq, postReq, putReq } from "../utils/httpUtils";
 
 @Injectable({
 	providedIn: "root",

@@ -11,7 +11,8 @@
 			"!!**/dist",
 			"!!**/coverage",
 			"!!**/*.min.js",
-			"!!**/*.min.css"
+			"!!**/*.min.css",
+			"!!**/*.html"
 		]
 	},
 	"formatter": {
@@ -25,6 +26,9 @@
 			"complexity": {
 				"noStaticOnlyClass": "off",
 				"noThisInStatic": "off"
+			},
+			"style": {
+				"noNonNullAssertion": "off"
 			},
 			"suspicious": {
 				"noExplicitAny": "error"
@@ -49,7 +53,7 @@
 	},
 	"overrides": [
 		{
-			"includes": ["**/*.spec.ts"],
+			"includes": ["**/*.spec.ts", "src/**/*.d.ts"],
 			"linter": {
 				"rules": {
 					"suspicious": {

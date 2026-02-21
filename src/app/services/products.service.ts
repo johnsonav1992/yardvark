@@ -1,8 +1,11 @@
 import { httpResource } from "@angular/common/http";
 import { Injectable, linkedSignal } from "@angular/core";
+import type { Observable } from "rxjs";
+import type {
+	GetProductsResponse,
+	ProductFormData,
+} from "../types/products.types";
 import { apiUrl, postReq, putReq } from "../utils/httpUtils";
-import { GetProductsResponse, ProductFormData } from "../types/products.types";
-import { Observable } from "rxjs";
 
 @Injectable({
 	providedIn: "root",

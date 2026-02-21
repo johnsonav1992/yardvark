@@ -1,19 +1,19 @@
 import { Component, computed, inject } from "@angular/core";
 import { Router } from "@angular/router";
-import { CardModule } from "primeng/card";
 import { ButtonModule } from "primeng/button";
-import { ProgressBarModule } from "primeng/progressbar";
+import { CardModule } from "primeng/card";
 import { ChartModule } from "primeng/chart";
 import { PopoverModule } from "primeng/popover";
+import { ProgressBarModule } from "primeng/progressbar";
+import { SkeletonModule } from "primeng/skeleton";
 import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
+import { UpgradePromptComponent } from "../../components/subscription/upgrade-prompt/upgrade-prompt.component";
 import { GddService } from "../../services/gdd.service";
-import { LocationService } from "../../services/location.service";
 import { GlobalUiService } from "../../services/global-ui.service";
-import { getGddForecastChartConfig } from "../../utils/gddChartUtils";
+import { LocationService } from "../../services/location.service";
 import { injectSettingsService } from "../../services/settings.service";
 import { SubscriptionService } from "../../services/subscription.service";
-import { UpgradePromptComponent } from "../../components/subscription/upgrade-prompt/upgrade-prompt.component";
-import { SkeletonModule } from "primeng/skeleton";
+import { getGddForecastChartConfig } from "../../utils/gddChartUtils";
 
 @Component({
 	selector: "gdd-data",

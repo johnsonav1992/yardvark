@@ -1,5 +1,5 @@
-import { Activity } from "./activities.types";
-import { LawnSegment } from "./lawnSegments.types";
+import type { Activity } from "./activities.types";
+import type { LawnSegment } from "./lawnSegments.types";
 
 export type Entry = {
 	id: number;

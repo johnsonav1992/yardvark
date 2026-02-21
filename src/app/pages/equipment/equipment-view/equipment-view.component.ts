@@ -1,35 +1,35 @@
+import { CurrencyPipe, DatePipe, TitleCasePipe } from "@angular/common";
 import {
 	Component,
 	computed,
 	effect,
 	inject,
 	NgZone,
-	OnDestroy,
+	type OnDestroy,
 	signal,
 } from "@angular/core";
-import { PageContainerComponent } from "../../../components/layout/page-container/page-container.component";
-import { SkeletonModule } from "primeng/skeleton";
-import { DividerModule } from "primeng/divider";
-import { GlobalUiService } from "../../../services/global-ui.service";
-import { EquipmentService } from "../../../services/equipment.service";
-import { DividerDesignTokens } from "@primeuix/themes/types/divider";
-import { ActivatedRoute, Router } from "@angular/router";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { map } from "rxjs";
-import { CurrencyPipe, DatePipe, TitleCasePipe } from "@angular/common";
-import { TableModule } from "primeng/table";
-import { CardModule } from "primeng/card";
-import { CardDesignTokens } from "@primeuix/themes/types/card";
-import { ButtonModule } from "primeng/button";
-import { TooltipModule } from "primeng/tooltip";
-import { DialogService } from "primeng/dynamicdialog";
-import { EquipmentMaintenanceAddEditModalComponent } from "../../../components/equipment/equipment-maintenance-add-edit-modal/equipment-maintenance-add-edit-modal.component";
-import { EquipmentMaintenance } from "../../../types/equipment.types";
-import { injectErrorToast } from "../../../utils/toastUtils";
-import { ConfirmationService } from "primeng/api";
-import { ButtonDesignTokens } from "@primeuix/themes/types/button";
-import { TagModule } from "primeng/tag";
+import { ActivatedRoute, Router } from "@angular/router";
+import type { ButtonDesignTokens } from "@primeuix/themes/types/button";
+import type { CardDesignTokens } from "@primeuix/themes/types/card";
+import type { DividerDesignTokens } from "@primeuix/themes/types/divider";
 import { differenceInDays, differenceInMonths, parseISO } from "date-fns";
+import { ConfirmationService } from "primeng/api";
+import { ButtonModule } from "primeng/button";
+import { CardModule } from "primeng/card";
+import { DividerModule } from "primeng/divider";
+import { DialogService } from "primeng/dynamicdialog";
+import { SkeletonModule } from "primeng/skeleton";
+import { TableModule } from "primeng/table";
+import { TagModule } from "primeng/tag";
+import { TooltipModule } from "primeng/tooltip";
+import { map } from "rxjs";
+import { EquipmentMaintenanceAddEditModalComponent } from "../../../components/equipment/equipment-maintenance-add-edit-modal/equipment-maintenance-add-edit-modal.component";
+import { PageContainerComponent } from "../../../components/layout/page-container/page-container.component";
+import { EquipmentService } from "../../../services/equipment.service";
+import { GlobalUiService } from "../../../services/global-ui.service";
+import type { EquipmentMaintenance } from "../../../types/equipment.types";
+import { injectErrorToast } from "../../../utils/toastUtils";
 
 @Component({
 	selector: "equipment-view",
@@ -74,7 +74,7 @@ export class EquipmentViewComponent implements OnDestroy {
 	private imageElement = signal<HTMLElement | null>(null);
 
 	public equipmentId = toSignal(
-		this._route.params.pipe(map((params) => parseInt(params["equipmentId"]))),
+		this._route.params.pipe(map((params) => parseInt(params.equipmentId, 10))),
 	);
 
 	public isLoading = computed(() =>
@@ -333,8 +333,8 @@ export class EquipmentViewComponent implements OnDestroy {
 		const currentPos = this.imagePosition().split(" ");
 		const x = currentPos[0] === "center" ? 50 : parseFloat(currentPos[0]);
 		const y = currentPos[1] === "center" ? 50 : parseFloat(currentPos[1]);
-		this.startPositionX.set(isNaN(x) ? 50 : x);
-		this.startPositionY.set(isNaN(y) ? 50 : y);
+		this.startPositionX.set(Number.isNaN(x) ? 50 : x);
+		this.startPositionY.set(Number.isNaN(y) ? 50 : y);
 
 		document.addEventListener("mousemove", this.onDocumentMouseMove);
 		document.addEventListener("mouseup", this.onDocumentMouseUp);
@@ -353,8 +353,8 @@ export class EquipmentViewComponent implements OnDestroy {
 		const currentPos = this.imagePosition().split(" ");
 		const x = currentPos[0] === "center" ? 50 : parseFloat(currentPos[0]);
 		const y = currentPos[1] === "center" ? 50 : parseFloat(currentPos[1]);
-		this.startPositionX.set(isNaN(x) ? 50 : x);
-		this.startPositionY.set(isNaN(y) ? 50 : y);
+		this.startPositionX.set(Number.isNaN(x) ? 50 : x);
+		this.startPositionY.set(Number.isNaN(y) ? 50 : y);
 
 		document.addEventListener("touchmove", this.onDocumentTouchMove, {
 			passive: false,

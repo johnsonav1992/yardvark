@@ -1,3 +1,4 @@
+import { getHours } from "date-fns";
 import {
 	FREEZING_TEMPERATURE_F,
 	HIGH_TEMPERATURE_F,
@@ -8,11 +9,10 @@ import {
 	RAIN_CHANCE_MEDIUM_THRESHOLD,
 	WEATHER_ICONS,
 } from "../constants/weather-constant";
-import {
+import type {
 	DailyWeatherCalendarForecast,
 	WeatherPeriod,
 } from "../types/weather.types";
-import { getHours } from "date-fns";
 
 /**
  * Determines if the forecast is for night-time based on isDaytime property or time-based fallback logic

@@ -1,10 +1,10 @@
-import { inject, Injectable, linkedSignal } from "@angular/core";
-import { apiUrl, putReq } from "../utils/httpUtils";
 import { httpResource } from "@angular/common/http";
-import {
+import { Injectable, inject, linkedSignal } from "@angular/core";
+import type {
 	SettingsData,
 	SettingsResponse,
 } from "../../../backend/src/modules/settings/models/settings.types";
+import { apiUrl, putReq } from "../utils/httpUtils";
 
 @Injectable({
 	providedIn: "root",

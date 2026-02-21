@@ -1,17 +1,17 @@
 import { Component, computed, inject, viewChild } from "@angular/core";
-import { AuthService } from "@auth0/auth0-angular";
-import { MenuItem } from "primeng/api";
-import { AvatarModule } from "primeng/avatar";
-import { Menu, MenuModule } from "primeng/menu";
-import { SoilTemperatureDisplayComponent } from "./soil-temperature-display/soil-temperature-display.component";
-import { getUserInitials, injectUserData } from "../../../utils/authUtils";
 import { RouterLink } from "@angular/router";
+import { AuthService } from "@auth0/auth0-angular";
+import type { AvatarDesignTokens } from "@primeuix/themes/types/avatar";
+import type { MenuItem } from "primeng/api";
+import { AvatarModule } from "primeng/avatar";
 import { ButtonModule } from "primeng/button";
-import { GlobalUiService } from "../../../services/global-ui.service";
-import { AvatarDesignTokens } from "@primeuix/themes/types/avatar";
+import { type Menu, MenuModule } from "primeng/menu";
 import { environment } from "../../../../environments/environment";
-import { YVUser } from "../../../types/user.types";
+import { GlobalUiService } from "../../../services/global-ui.service";
+import type { YVUser } from "../../../types/user.types";
+import { getUserInitials, injectUserData } from "../../../utils/authUtils";
 import { fixOverlayPositionForScroll } from "../../../utils/overlayPositioningUtils";
+import { SoilTemperatureDisplayComponent } from "./soil-temperature-display/soil-temperature-display.component";
 
 @Component({
 	selector: "main-header",

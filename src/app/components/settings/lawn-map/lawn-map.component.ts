@@ -5,32 +5,32 @@ import {
 	effect,
 	inject,
 	input,
-	OnDestroy,
+	type OnDestroy,
 	output,
 	signal,
 	untracked,
 } from "@angular/core";
 import * as L from "leaflet";
 import "@geoman-io/leaflet-geoman-free";
-import { LawnSegment } from "../../../types/lawnSegments.types";
-import { CardModule } from "primeng/card";
-import { ButtonModule } from "primeng/button";
 import { FormsModule } from "@angular/forms";
+import { ButtonModule } from "primeng/button";
+import { CardModule } from "primeng/card";
 import { TooltipModule } from "primeng/tooltip";
-import { GlobalUiService } from "../../../services/global-ui.service";
-import { injectErrorToast } from "../../../utils/toastUtils";
-import { injectSettingsService } from "../../../services/settings.service";
 import { DEFAULT_LAWN_SEGMENT_COLOR } from "../../../constants/lawn-segment-constants";
 import { MAP_CONSTANTS } from "../../../constants/map-constants";
+import { GlobalUiService } from "../../../services/global-ui.service";
+import { injectSettingsService } from "../../../services/settings.service";
+import type { LawnSegment } from "../../../types/lawnSegments.types";
+import type { EditableLayer, ShapeData } from "../../../types/map.types";
 import {
-	createShapeFromCoordinates,
 	createLocationMarkerIcon,
-	createVertexMarkerIcon,
 	createMidpointMarkerIcon,
+	createShapeFromCoordinates,
+	createVertexMarkerIcon,
+	type EditMode,
 	getPolygonData,
-	EditMode,
 } from "../../../utils/mapUtils";
-import { EditableLayer, ShapeData } from "../../../types/map.types";
+import { injectErrorToast } from "../../../utils/toastUtils";
 
 @Component({
 	selector: "lawn-map",

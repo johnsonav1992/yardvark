@@ -1,4 +1,4 @@
-import { ChartData, ChartOptions, ChartType } from "chart.js";
+import type { ChartData, ChartOptions, ChartType } from "chart.js";
 
 export type MowingAnalyticsRowRes = {
 	month: number;

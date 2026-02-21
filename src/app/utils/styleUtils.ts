@@ -1,9 +1,9 @@
-import { $dt } from "@primeuix/themes";
-import { PrimeNGColorToken } from "../types/style.types";
-import { inject } from "@angular/core";
 import { BreakpointObserver } from "@angular/cdk/layout";
-import { fromEvent, map, startWith } from "rxjs";
+import { inject } from "@angular/core";
 import { takeUntilDestroyed, toSignal } from "@angular/core/rxjs-interop";
+import { $dt } from "@primeuix/themes";
+import { fromEvent, map, startWith } from "rxjs";
+import type { PrimeNGColorToken } from "../types/style.types";
 
 /**
  * Returns the hex color value of a PrimeNG color token.

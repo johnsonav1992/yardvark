@@ -1,28 +1,28 @@
+import { Component, computed, inject, input, signal } from "@angular/core";
 import {
-	Component,
-	computed,
-	inject,
-	input,
-	signal,
-	effect,
-} from "@angular/core";
-import { FormArray, FormGroup, ReactiveFormsModule } from "@angular/forms";
-import { MultiSelectChangeEvent, MultiSelectModule } from "primeng/multiselect";
-import { MessageModule } from "primeng/message";
-import { ProductsService } from "../../../services/products.service";
-import { ProductSmallCardComponent } from "../product-small-card/product-small-card.component";
+	type FormArray,
+	type FormGroup,
+	ReactiveFormsModule,
+} from "@angular/forms";
 import { InputNumberModule } from "primeng/inputnumber";
+import { MessageModule } from "primeng/message";
+import {
+	type MultiSelectChangeEvent,
+	MultiSelectModule,
+} from "primeng/multiselect";
 import { SelectModule } from "primeng/select";
 import { QUANTITY_UNITS } from "../../../constants/product-constants";
-import { Product } from "../../../types/products.types";
+import { GlobalUiService } from "../../../services/global-ui.service";
+import { ProductsService } from "../../../services/products.service";
+import type { EntryProduct } from "../../../types/entries.types";
+import type { LawnSegment } from "../../../types/lawnSegments.types";
+import type { Product } from "../../../types/products.types";
 import {
 	createEntryProductRow,
-	EntryProductRow,
+	type EntryProductRow,
 } from "../../../utils/entriesUtils";
-import { GlobalUiService } from "../../../services/global-ui.service";
-import { LawnSegment } from "../../../types/lawnSegments.types";
-import { EntryProduct } from "../../../types/entries.types";
 import { calculateNitrogenForProducts } from "../../../utils/lawnCalculatorUtils";
+import { ProductSmallCardComponent } from "../product-small-card/product-small-card.component";
 
 @Component({
 	selector: "products-selector",
@@ -63,19 +63,6 @@ export class ProductsSelectorComponent {
 	);
 
 	public productsFormValues = signal<ProductFormValue[]>([]);
-
-	// @ts-expect-error -> using this until signal forms are ready
-	private _formSubscriptionEffect = effect((onCleanup) => {
-		const formArray = this.productsControl();
-
-		const subscription = formArray.valueChanges.subscribe((values) => {
-			this.productsFormValues.set(values || []);
-		});
-
-		this.productsFormValues.set(formArray.value || []);
-
-		onCleanup(() => subscription.unsubscribe());
-	});
 
 	public selectedProductNitrogen = computed(() => {
 		const selectedProducts = this.productsFormValues();

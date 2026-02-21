@@ -1,24 +1,24 @@
-import { Component, inject, signal, effect, computed } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { ActivatedRoute, Router } from "@angular/router";
+import { Component, computed, effect, inject, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
+import { ActivatedRoute, Router } from "@angular/router";
+import { format, parseISO } from "date-fns";
 import { ButtonModule } from "primeng/button";
 import { CardModule } from "primeng/card";
-import { TagModule } from "primeng/tag";
 import { DividerModule } from "primeng/divider";
 import { MessageModule } from "primeng/message";
 import { SkeletonModule } from "primeng/skeleton";
+import { TagModule } from "primeng/tag";
+import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
+import { FREE_TIER_ENTRY_LIMIT } from "../../constants/subscription.constants";
+import { GlobalUiService } from "../../services/global-ui.service";
 import { SubscriptionService } from "../../services/subscription.service";
-import { PurchasableTier } from "../../types/subscription.types";
+import type { PurchasableTier } from "../../types/subscription.types";
 import {
-	injectSuccessToast,
 	injectErrorToast,
 	injectInfoToast,
+	injectSuccessToast,
 } from "../../utils/toastUtils";
-import { GlobalUiService } from "../../services/global-ui.service";
-import { FREE_TIER_ENTRY_LIMIT } from "../../constants/subscription.constants";
-import { format, parseISO } from "date-fns";
 
 @Component({
 	selector: "subscription",
@@ -126,14 +126,14 @@ export class SubscriptionComponent {
 				return;
 			}
 
-			if (params["success"] === "true") {
+			if (params.success === "true") {
 				this.throwSuccessToast("Subscription activated successfully!");
 				this.subscriptionService.refreshSubscription();
-			} else if (params["canceled"] === "true") {
+			} else if (params.canceled === "true") {
 				this.throwInfoToast("Subscription checkout was canceled");
 			}
 
-			if (params["success"] || params["canceled"]) {
+			if (params.success || params.canceled) {
 				this.router.navigate([], { queryParams: {} });
 			}
 		});

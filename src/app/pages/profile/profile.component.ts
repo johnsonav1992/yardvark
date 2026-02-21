@@ -4,26 +4,26 @@ import {
 	inject,
 	linkedSignal,
 	signal,
-	WritableSignal,
+	type WritableSignal,
 } from "@angular/core";
-import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
-import { getUserInitials, injectUserData } from "../../utils/authUtils";
-import { AvatarModule } from "primeng/avatar";
-import { AvatarDesignTokens } from "@primeuix/themes/types/avatar";
-import { InputTextModule } from "primeng/inputtext";
-import { ButtonModule } from "primeng/button";
 import { FormsModule } from "@angular/forms";
-import { AuthService, User } from "@auth0/auth0-angular";
-import { YVUser } from "../../types/user.types";
-import { apiUrl, putReq } from "../../utils/httpUtils";
-import { injectErrorToast, injectSuccessToast } from "../../utils/toastUtils";
-import { switchMap } from "rxjs";
-import { finalize } from "rxjs/operators";
+import { AuthService, type User } from "@auth0/auth0-angular";
+import type { AvatarDesignTokens } from "@primeuix/themes/types/avatar";
+import { AvatarModule } from "primeng/avatar";
+import { ButtonModule } from "primeng/button";
+import { DialogService } from "primeng/dynamicdialog";
+import { InputTextModule } from "primeng/inputtext";
 import { MessageModule } from "primeng/message";
 import { TooltipModule } from "primeng/tooltip";
-import { DialogService } from "primeng/dynamicdialog";
+import { switchMap } from "rxjs";
+import { finalize } from "rxjs/operators";
+import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
 import { ProfilePictureDialogComponent } from "../../components/profile/profile-picture-dialog/profile-picture-dialog.component";
 import { GlobalUiService } from "../../services/global-ui.service";
+import type { YVUser } from "../../types/user.types";
+import { getUserInitials, injectUserData } from "../../utils/authUtils";
+import { apiUrl, putReq } from "../../utils/httpUtils";
+import { injectErrorToast, injectSuccessToast } from "../../utils/toastUtils";
 
 @Component({
 	selector: "profile",

@@ -1,6 +1,15 @@
+import { formatDate } from "@angular/common";
 import { httpResource } from "@angular/common/http";
-import { inject, Injectable, Signal } from "@angular/core";
+import { Injectable, inject, type Signal } from "@angular/core";
+import { endOfMonth, startOfMonth } from "date-fns";
 import {
+	forkJoin,
+	type Observable,
+	type ObservableInput,
+	of,
+	switchMap,
+} from "rxjs";
+import type {
 	BatchEntryCreationRequest,
 	BatchEntryCreationResponse,
 	EntriesSearchRequest,
@@ -9,9 +18,6 @@ import {
 	EntryCreationRequestFormInput,
 } from "../types/entries.types";
 import { apiUrl, deleteReq, postReq, putReq } from "../utils/httpUtils";
-import { endOfMonth, startOfMonth } from "date-fns";
-import { formatDate } from "@angular/common";
-import { forkJoin, Observable, ObservableInput, of, switchMap } from "rxjs";
 import { FilesService } from "./files.service";
 
 @Injectable({

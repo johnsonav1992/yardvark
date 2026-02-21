@@ -1,9 +1,12 @@
-import { TooltipItem } from "chart.js";
-import { shortMonthNames } from "../constants/time-constants";
-import { AnalyticsChartConfig, AnalyticsRes } from "../types/analytics.types";
-import { getPrimeNgHexColor } from "./styleUtils";
+import type { TooltipItem } from "chart.js";
 import { format, getMonth } from "date-fns";
+import { shortMonthNames } from "../constants/time-constants";
+import type {
+	AnalyticsChartConfig,
+	AnalyticsRes,
+} from "../types/analytics.types";
 import { getPoundsOfNInFertilizerApp } from "./lawnCalculatorUtils";
+import { getPrimeNgHexColor } from "./styleUtils";
 
 export const LIQUID_OZ_AS_WEIGHT_IN_POUNDS = 0.1;
 

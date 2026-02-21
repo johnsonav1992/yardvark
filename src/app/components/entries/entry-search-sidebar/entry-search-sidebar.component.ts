@@ -18,11 +18,12 @@ import { LawnSegment } from '../../../types/lawnSegments.types';
 import { Product } from '../../../types/products.types';
 import { EntriesService } from '../../../services/entries.service';
 import { TooltipModule } from 'primeng/tooltip';
-import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loading-spinner.component';
 import { MobileEntryPreviewCardComponent } from '../mobile-entry-preview-card/mobile-entry-preview-card.component';
 import { convertTimeStringToDate } from '../../../utils/timeUtils';
 import { format } from 'date-fns';
 import { Entry } from '../../../types/entries.types';
+import { SkeletonModule } from 'primeng/skeleton';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'entry-search-sidebar',
@@ -38,8 +39,9 @@ import { Entry } from '../../../types/entries.types';
     ButtonModule,
     ReactiveFormsModule,
     TooltipModule,
-    LoadingSpinnerComponent,
-    MobileEntryPreviewCardComponent
+    MobileEntryPreviewCardComponent,
+    SkeletonModule,
+    CardModule
   ],
   templateUrl: './entry-search-sidebar.component.html',
   styleUrl: './entry-search-sidebar.component.scss'

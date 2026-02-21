@@ -116,12 +116,25 @@
       </td>
     </ng-template>
     <ng-template #loadingbody>
-      <td colspan="4">
-        <div class="empty-or-loading">
-          <loading-spinner size="s" />
-          <h3 [style]="{ margin: 0 }">Loading lawn segments...</h3>
-        </div>
-      </td>
+      @for (i of [0, 1, 2]; track i) {
+        <tr>
+          <td>
+            <p-skeleton shape="circle" size="2rem" />
+          </td>
+          <td>
+            <p-skeleton width="120px" height="1rem" />
+          </td>
+          <td>
+            <p-skeleton width="80px" height="1rem" />
+          </td>
+          <td>
+            <div [style.display]="'flex'" [style.gap]="'0.5rem'">
+              <p-skeleton shape="circle" size="2.5rem" />
+              <p-skeleton shape="circle" size="2.5rem" />
+            </div>
+          </td>
+        </tr>
+      }
     </ng-template>
     @if (lawnSegments()?.length) {
       <ng-template #footer>

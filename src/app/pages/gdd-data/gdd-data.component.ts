@@ -6,7 +6,6 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { ChartModule } from 'primeng/chart';
 import { PopoverModule } from 'primeng/popover';
 import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
-import { LoadingSpinnerComponent } from '../../components/miscellanious/loading-spinner/loading-spinner.component';
 import { GddService } from '../../services/gdd.service';
 import { LocationService } from '../../services/location.service';
 import { GlobalUiService } from '../../services/global-ui.service';
@@ -14,18 +13,19 @@ import { getGddForecastChartConfig } from '../../utils/gddChartUtils';
 import { injectSettingsService } from '../../services/settings.service';
 import { SubscriptionService } from '../../services/subscription.service';
 import { UpgradePromptComponent } from '../../components/subscription/upgrade-prompt/upgrade-prompt.component';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'gdd-data',
   imports: [
     PageContainerComponent,
-    LoadingSpinnerComponent,
     CardModule,
     ButtonModule,
     ProgressBarModule,
     ChartModule,
     PopoverModule,
-    UpgradePromptComponent
+    UpgradePromptComponent,
+    SkeletonModule
   ],
   templateUrl: './gdd-data.component.html',
   styleUrl: './gdd-data.component.scss'

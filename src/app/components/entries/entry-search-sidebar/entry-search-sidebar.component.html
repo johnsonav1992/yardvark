@@ -94,7 +94,14 @@
         Search for entries to view them here.
       } @else {
         @if (isLoading()) {
-          <loading-spinner size="m" />
+          @for (i of [0, 1, 2]; track i) {
+            <p-card>
+              <div [style.display]="'flex'" [style.gap]="'0.5rem'" [style.alignItems]="'center'">
+                <p-skeleton shape="circle" size="1.5rem" />
+                <p-skeleton width="200px" height="1rem" />
+              </div>
+            </p-card>
+          }
         } @else {
           @for (entry of displayedEntries(); track entry.id) {
             <mobile-entry-preview-card [entry]="entry" />

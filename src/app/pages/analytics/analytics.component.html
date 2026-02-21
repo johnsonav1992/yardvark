@@ -13,7 +13,16 @@
     </p-floatlabel>
   </ng-template>
   @if (analyticsData.isLoading()) {
-    <loading-spinner />
+    <div class="main-container">
+      @for (i of [0, 1]; track i) {
+        <p-card [style.width]="isMobile() ? '100%' : '49%'">
+          <ng-template #title>
+            <p-skeleton width="150px" height="1.5rem" />
+          </ng-template>
+          <p-skeleton width="100%" height="300px" />
+        </p-card>
+      }
+    </div>
   } @else if (!hasAnyData()) {
     <div class="empty-state-container">
       <empty-message

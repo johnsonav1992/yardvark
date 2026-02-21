@@ -20,9 +20,9 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { LawnSegmentsService } from '../../../services/lawn-segments.service';
 import { injectErrorToast } from '../../../utils/toastUtils';
 import { CardModule } from 'primeng/card';
-import { LoadingSpinnerComponent } from '../../miscellanious/loading-spinner/loading-spinner.component';
 import { DEFAULT_LAWN_SEGMENT_COLOR } from '../../../constants/lawn-segment-constants';
 import { TooltipModule } from 'primeng/tooltip';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'lawn-segments-table',
@@ -33,9 +33,9 @@ import { TooltipModule } from 'primeng/tooltip';
     InputTextModule,
     InputNumberModule,
     CardModule,
-    LoadingSpinnerComponent,
     TooltipModule,
-    DecimalPipe
+    DecimalPipe,
+    SkeletonModule
   ],
   templateUrl: './lawn-segments-table.component.html',
   styleUrl: './lawn-segments-table.component.scss'

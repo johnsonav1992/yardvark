@@ -6,7 +6,14 @@
     ></i>
   </ng-template>
   @if (settingsAreLoading()) {
-    <loading-spinner />
+    <p-card class="mb-4">
+      <div [style.display]="'flex'" [style.flexDirection]="'column'" [style.gap]="'1rem'">
+        <p-skeleton width="150px" height="1.5rem" />
+        <p-skeleton width="100%" height="1rem" />
+        <p-skeleton width="90%" height="1rem" />
+        <p-skeleton width="200px" height="2.5rem" borderRadius="6px" />
+      </div>
+    </p-card>
   } @else if (!isPro()) {
     <upgrade-prompt
       message="Upgrade to Pro to unlock GDD (Growing Degree Days) tracking for precise PGR application timing based on heat accumulation."

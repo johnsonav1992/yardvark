@@ -11,7 +11,6 @@ import {
 } from '../../utils/analyticsUtils';
 import { AnalyticsService } from '../../services/analytics.service';
 import { EmptyMessageComponent } from '../../components/miscellanious/empty-message/empty-message.component';
-import { LoadingSpinnerComponent } from '../../components/miscellanious/loading-spinner/loading-spinner.component';
 import { DatePickerModule } from 'primeng/datepicker';
 import { FormsModule } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
@@ -19,6 +18,7 @@ import { PopoverModule } from 'primeng/popover';
 import { SubscriptionService } from '../../services/subscription.service';
 import { UpgradePromptComponent } from '../../components/subscription/upgrade-prompt/upgrade-prompt.component';
 import { getYear } from 'date-fns';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @Component({
   selector: 'analytics',
@@ -27,12 +27,12 @@ import { getYear } from 'date-fns';
     CardModule,
     ChartModule,
     EmptyMessageComponent,
-    LoadingSpinnerComponent,
     DatePickerModule,
     FormsModule,
     FloatLabelModule,
     PopoverModule,
-    UpgradePromptComponent
+    UpgradePromptComponent,
+    SkeletonModule
   ],
   templateUrl: './analytics.component.html',
   styleUrl: './analytics.component.scss'

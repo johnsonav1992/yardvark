@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+import type { ConfigService } from "@nestjs/config";
 import Stripe from "stripe";
-import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 import { LogHelpers } from "../../../logger/logger.helpers";
+import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 
 @Injectable()
 export class StripeService {

@@ -1,10 +1,10 @@
-import { Module } from "@nestjs/common";
-import { CacheModule } from "@nestjs/cache-manager";
 import { HttpModule } from "@nestjs/axios";
-import { SoilDataController } from "./controllers/soil-data.controller";
-import { SoilDataService } from "./services/soil-data.service";
+import { CacheModule } from "@nestjs/cache-manager";
+import { Module } from "@nestjs/common";
 import { SettingsModule } from "../settings/settings.module";
+import { SoilDataController } from "./controllers/soil-data.controller";
 import { SOIL_DATA_CACHE_TTL } from "./models/soil-data.constants";
+import { SoilDataService } from "./services/soil-data.service";
 
 @Module({
 	imports: [

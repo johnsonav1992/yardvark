@@ -1,13 +1,13 @@
-import { ObjectType, Field, ID, Float } from "@nestjs/graphql";
+import { Field, Float, ID, ObjectType } from "@nestjs/graphql";
 import GraphQLJSON from "graphql-type-json";
-import { Entry } from "../../entries/models/entries.model";
 import {
-	Entity,
 	Column,
+	Entity,
+	ManyToMany,
 	PrimaryGeneratedColumn,
 	Unique,
-	ManyToMany,
 } from "typeorm";
+import { Entry } from "../../entries/models/entries.model";
 
 @ObjectType()
 @Entity("lawn_segments")

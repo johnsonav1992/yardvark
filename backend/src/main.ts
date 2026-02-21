@@ -1,14 +1,15 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import { NestFactory } from "@nestjs/core";
-import { AppModule } from "./app.module";
+
 import { ValidationPipe } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
 import helmet from "helmet";
+import { AppModule } from "./app.module";
+import { initializeOTelTracing } from "./logger/otel.tracing";
 import {
 	initializeOTelLogger,
-	OTelConfig,
+	type OTelConfig,
 	parseOTelHeaders,
 } from "./logger/otel.transport";
-import { initializeOTelTracing } from "./logger/otel.tracing";
 
 async function bootstrap() {
 	const otelConfig: OTelConfig = {

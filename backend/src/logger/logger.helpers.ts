@@ -1,5 +1,5 @@
-import { LogContext } from "./logger.types";
 import { getLogContext } from "./logger.context";
+import type { LogContext } from "./logger.types";
 
 export class LogHelpers {
 	private static getContext(): LogContext | undefined {
@@ -37,7 +37,7 @@ export class LogHelpers {
 	}
 
 	static recordCacheMiss(): void {
-		const context = this.getContext();
+		const context = LogHelpers.getContext();
 
 		if (!context?.cache) return;
 

@@ -1,36 +1,36 @@
+import { randomUUID } from "node:crypto";
 import {
-	CallHandler,
-	ExecutionContext,
+	type CallHandler,
+	type ExecutionContext,
 	HttpException,
 	Injectable,
-	NestInterceptor,
+	type NestInterceptor,
 	Scope,
 } from "@nestjs/common";
 import { GqlExecutionContext } from "@nestjs/graphql";
-import { Request, Response } from "express";
-import { Observable, throwError, from, of } from "rxjs";
-import { catchError, tap, mergeMap } from "rxjs/operators";
-import { randomUUID } from "crypto";
-import { GqlContext } from "../types/gql-context";
-import { LogContext, HttpLogEntry } from "./logger.types";
 import {
-	TAIL_SAMPLING_ENABLED,
-	TAIL_SAMPLING_SUCCESS_RATE,
-	TAIL_SAMPLING_SLOW_THRESHOLD_MS,
-} from "./logger.constants";
-import { requestContext, RequestContext } from "./logger.context";
-import { logToOTel } from "./otel.transport";
-import { SubscriptionService } from "../modules/subscription/services/subscription.service";
-import { LogHelpers } from "./logger.helpers";
-import { BusinessContextKeys } from "./logger-keys.constants";
-import {
-	trace,
 	context as otelContext,
 	SpanStatusCode,
+	trace,
 } from "@opentelemetry/api";
+import type { Request, Response } from "express";
+import { from, Observable, of, throwError } from "rxjs";
+import { catchError, mergeMap, tap } from "rxjs/operators";
+import type { SubscriptionService } from "../modules/subscription/services/subscription.service";
+import type { GqlContext } from "../types/gql-context";
+import {
+	TAIL_SAMPLING_ENABLED,
+	TAIL_SAMPLING_SLOW_THRESHOLD_MS,
+	TAIL_SAMPLING_SUCCESS_RATE,
+} from "./logger.constants";
+import { type RequestContext, requestContext } from "./logger.context";
+import { LogHelpers } from "./logger.helpers";
+import type { HttpLogEntry, LogContext } from "./logger.types";
+import { BusinessContextKeys } from "./logger-keys.constants";
+import { logToOTel } from "./otel.transport";
 
-export { LogContext, WideEventContext } from "./logger.types";
 export { getLogContext, getRequestContext } from "./logger.context";
+export { LogContext, WideEventContext } from "./logger.types";
 
 @Injectable({ scope: Scope.REQUEST })
 export class LoggingInterceptor implements NestInterceptor {

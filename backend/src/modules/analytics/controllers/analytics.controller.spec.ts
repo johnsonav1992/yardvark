@@ -1,11 +1,11 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { AnalyticsController } from "./analytics.controller";
+import { Test, type TestingModule } from "@nestjs/testing";
 import { AnalyticsService } from "../services/analytics.service";
+import { AnalyticsController } from "./analytics.controller";
 
 describe("AnalyticsController", () => {
 	let controller: AnalyticsController;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let service: AnalyticsService;
+	let _service: AnalyticsService;
 
 	const mockAnalyticsService = {
 		getTopActivities: jest.fn(),
@@ -26,7 +26,7 @@ describe("AnalyticsController", () => {
 		}).compile();
 
 		controller = module.get<AnalyticsController>(AnalyticsController);
-		service = module.get<AnalyticsService>(AnalyticsService);
+		_service = module.get<AnalyticsService>(AnalyticsService);
 		jest.clearAllMocks();
 	});
 

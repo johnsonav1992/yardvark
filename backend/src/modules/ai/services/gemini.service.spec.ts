@@ -1,10 +1,10 @@
-import { Test, TestingModule } from "@nestjs/testing";
 import { ConfigService } from "@nestjs/config";
+import { Test, type TestingModule } from "@nestjs/testing";
 import { GeminiService } from "./gemini.service";
 
 describe("GeminiService", () => {
 	let service: GeminiService;
-	let configService: ConfigService;
+	let _configService: ConfigService;
 
 	beforeEach(async () => {
 		const mockConfigService = {
@@ -28,7 +28,7 @@ describe("GeminiService", () => {
 		}).compile();
 
 		service = module.get<GeminiService>(GeminiService);
-		configService = module.get<ConfigService>(ConfigService);
+		_configService = module.get<ConfigService>(ConfigService);
 	});
 
 	it("should be defined", () => {

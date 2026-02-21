@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
-import { Repository } from "typeorm";
-import { Product } from "../models/products.model";
 import { InjectRepository } from "@nestjs/typeorm";
-import { UserHiddenProduct } from "../models/userHiddenProducts.model";
+import type { Repository } from "typeorm";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import { Product } from "../models/products.model";
+import { UserHiddenProduct } from "../models/userHiddenProducts.model";
 
 @Injectable()
 export class ProductsService {

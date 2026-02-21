@@ -1,8 +1,8 @@
 import { Controller, Get, Query } from "@nestjs/common";
-import { AnalyticsService } from "../services/analytics.service";
 import { User } from "../../../decorators/user.decorator";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import type { AnalyticsService } from "../services/analytics.service";
 
 @Controller("analytics")
 export class AnalyticsController {

@@ -1,15 +1,15 @@
 import { Injectable } from "@nestjs/common";
-import { Equipment } from "../models/equipment.model";
-import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
-import { EquipmentMaintenance } from "../models/equipmentMaintenance.model";
+import type { Repository } from "typeorm";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
-import { Either, error, success } from "../../../types/either";
+import { type Either, error, success } from "../../../types/either";
 import {
 	EquipmentNotFound,
 	MaintenanceRecordNotFound,
 } from "../models/equipment.errors";
+import { Equipment } from "../models/equipment.model";
+import { EquipmentMaintenance } from "../models/equipmentMaintenance.model";
 
 @Injectable()
 export class EquipmentService {

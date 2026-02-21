@@ -1,9 +1,9 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { HttpException, HttpStatus } from "@nestjs/common";
-import { AiController } from "./ai.controller";
-import { AiService } from "../services/ai.service";
-import { success, error } from "../../../types/either";
+import { HttpException } from "@nestjs/common";
+import { Test, type TestingModule } from "@nestjs/testing";
+import { error, success } from "../../../types/either";
 import { AiChatError } from "../models/ai.errors";
+import { AiService } from "../services/ai.service";
+import { AiController } from "./ai.controller";
 
 describe("AiController", () => {
 	let controller: AiController;

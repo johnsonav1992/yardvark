@@ -1,5 +1,5 @@
-import { ObjectType, Field, ID } from "@nestjs/graphql";
-import { Entity, Column, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { Field, ID, ObjectType } from "@nestjs/graphql";
+import { Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 @ObjectType()
 @Entity("settings")

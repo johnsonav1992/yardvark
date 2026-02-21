@@ -1,14 +1,14 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { ProductsController } from "./products.controller";
-import { ProductsService } from "../services/products.service";
+import { Test, type TestingModule } from "@nestjs/testing";
 import { S3Service } from "src/modules/s3/s3.service";
+import { ProductsService } from "../services/products.service";
+import { ProductsController } from "./products.controller";
 
 describe("ProductsController", () => {
 	let controller: ProductsController;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let productsService: ProductsService;
+	let _productsService: ProductsService;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let s3Service: S3Service;
+	let _s3Service: S3Service;
 
 	const mockProductsService = {
 		getProducts: jest.fn(),
@@ -40,8 +40,8 @@ describe("ProductsController", () => {
 		}).compile();
 
 		controller = module.get<ProductsController>(ProductsController);
-		productsService = module.get<ProductsService>(ProductsService);
-		s3Service = module.get<S3Service>(S3Service);
+		_productsService = module.get<ProductsService>(ProductsService);
+		_s3Service = module.get<S3Service>(S3Service);
 		jest.clearAllMocks();
 	});
 

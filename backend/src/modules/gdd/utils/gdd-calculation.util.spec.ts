@@ -1,8 +1,8 @@
-import {
-	getDailyGDDCalculation,
-	calculateAccumulatedGDD,
-} from "./gdd-calculation.util";
 import { GDD_MAX_TEMPERATURE } from "../models/gdd.constants";
+import {
+	calculateAccumulatedGDD,
+	getDailyGDDCalculation,
+} from "./gdd-calculation.util";
 
 describe("GDD Calculation Utilities", () => {
 	describe("getDailyGDDCalculation", () => {

@@ -1,31 +1,31 @@
 import { Injectable } from "@nestjs/common";
-import {
-	BatchEntryCreationRequest,
-	BatchEntryCreationResponse,
-	EntriesSearchRequest,
-	EntryCreationRequest,
-} from "../models/entries.types";
+import { InjectRepository } from "@nestjs/typeorm";
+import { endOfDay, isValid, parseISO, startOfYear } from "date-fns";
+import { ACTIVITY_IDS } from "src/constants/activities.constants";
 import {
 	Between,
-	In,
-	Repository,
-	ILike,
-	FindOptionsWhere,
 	Brackets,
+	type FindOptionsWhere,
+	ILike,
+	In,
+	type Repository,
 } from "typeorm";
-import { Entry, EntryImage, EntryProduct } from "../models/entries.model";
-import { InjectRepository } from "@nestjs/typeorm";
-import { getEntryResponseMapping } from "../utils/entryUtils";
-import { ACTIVITY_IDS } from "src/constants/activities.constants";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
-import { Either, error, success } from "../../../types/either";
+import { type Either, error, success } from "../../../types/either";
 import {
 	EntriesNotFound,
 	EntryNotFound,
 	InvalidDateRange,
 } from "../models/entries.errors";
-import { parseISO, isValid, endOfDay, startOfYear } from "date-fns";
+import { Entry, EntryImage, EntryProduct } from "../models/entries.model";
+import type {
+	BatchEntryCreationRequest,
+	BatchEntryCreationResponse,
+	EntriesSearchRequest,
+	EntryCreationRequest,
+} from "../models/entries.types";
+import { getEntryResponseMapping } from "../utils/entryUtils";
 
 @Injectable()
 export class EntriesService {

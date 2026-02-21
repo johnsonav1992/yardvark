@@ -1,22 +1,22 @@
-import { Entry } from "../models/entries.model";
-import { getEntryResponseMapping } from "./entryUtils";
 import {
-	MONTH_MAP,
-	SEASON_MAP,
-	ACTIVITY_SYNONYM_MAP,
-	QUERY_PATTERNS,
-	QUERY_REPLACEMENTS,
-	ACTIVITY_ENHANCEMENTS,
-} from "./entryRagConstants";
-import {
-	getYear,
-	getMonth,
-	startOfMonth,
 	endOfMonth,
-	startOfYear,
 	endOfYear,
 	format as formatDate,
+	getMonth,
+	getYear,
+	startOfMonth,
+	startOfYear,
 } from "date-fns";
+import type { Entry } from "../models/entries.model";
+import {
+	ACTIVITY_ENHANCEMENTS,
+	ACTIVITY_SYNONYM_MAP,
+	MONTH_MAP,
+	QUERY_PATTERNS,
+	QUERY_REPLACEMENTS,
+	SEASON_MAP,
+} from "./entryRagConstants";
+import { getEntryResponseMapping } from "./entryUtils";
 
 export function extractDateRange(
 	query: string,
@@ -40,7 +40,7 @@ export function extractDateRange(
 		const monthNum = MONTH_MAP[monthYearMatch[1] as keyof typeof MONTH_MAP];
 
 		if (monthNum !== undefined) {
-			return createRange(parseInt(monthYearMatch[2]), monthNum);
+			return createRange(parseInt(monthYearMatch[2], 10), monthNum);
 		}
 	}
 
@@ -57,7 +57,7 @@ export function extractDateRange(
 	const yearMatch = lowerQuery.match(QUERY_PATTERNS.YEAR_ONLY);
 
 	if (yearMatch) {
-		const year = parseInt(yearMatch[1]);
+		const year = parseInt(yearMatch[1], 10);
 		const yearStart = startOfYear(new Date(year, 0));
 		const yearEnd = endOfYear(new Date(year, 0));
 

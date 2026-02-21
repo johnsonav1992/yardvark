@@ -1,19 +1,19 @@
 import { trace } from "@opentelemetry/api";
-import { NodeTracerProvider } from "@opentelemetry/sdk-trace-node";
-import {
-	SimpleSpanProcessor,
-	ConsoleSpanExporter,
-	BatchSpanProcessor,
-	SpanProcessor,
-} from "@opentelemetry/sdk-trace-base";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { registerInstrumentations } from "@opentelemetry/instrumentation";
+import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
 import { resourceFromAttributes } from "@opentelemetry/resources";
+import {
+	BatchSpanProcessor,
+	ConsoleSpanExporter,
+	SimpleSpanProcessor,
+	type SpanProcessor,
+} from "@opentelemetry/sdk-trace-base";
+import { NodeTracerProvider } from "@opentelemetry/sdk-trace-node";
 import {
 	ATTR_SERVICE_NAME,
 	ATTR_SERVICE_VERSION,
 } from "@opentelemetry/semantic-conventions";
-import { HttpInstrumentation } from "@opentelemetry/instrumentation-http";
-import { registerInstrumentations } from "@opentelemetry/instrumentation";
 
 export interface OTelTracingConfig {
 	endpoint: string;

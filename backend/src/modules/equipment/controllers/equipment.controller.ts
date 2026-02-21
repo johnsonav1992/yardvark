@@ -10,16 +10,16 @@ import {
 	UploadedFile,
 	UseInterceptors,
 } from "@nestjs/common";
-import { EquipmentService } from "../services/equipment.service";
-import { Equipment } from "../models/equipment.model";
-import { imageFileValidator } from "src/utils/fileUtils";
-import { S3Service } from "src/modules/s3/s3.service";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { EquipmentMaintenance } from "../models/equipmentMaintenance.model";
-import { resultOrThrow } from "../../../utils/resultOrThrow";
+import type { S3Service } from "src/modules/s3/s3.service";
+import { imageFileValidator } from "src/utils/fileUtils";
 import { User } from "../../../decorators/user.decorator";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import { resultOrThrow } from "../../../utils/resultOrThrow";
+import type { Equipment } from "../models/equipment.model";
+import type { EquipmentMaintenance } from "../models/equipmentMaintenance.model";
+import type { EquipmentService } from "../services/equipment.service";
 
 @Controller("equipment")
 export class EquipmentController {

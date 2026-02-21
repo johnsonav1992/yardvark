@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import type { MigrationInterface, QueryRunner } from "typeorm";
 
 export class AddWebhookEventsTable1770468039000 implements MigrationInterface {
 	name = "AddWebhookEventsTable1770468039000";

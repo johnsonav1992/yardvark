@@ -1,9 +1,12 @@
 import { Body, Controller, Post } from "@nestjs/common";
-import { EmailService, FeedbackEmailData } from "../services/email.service";
-import { FeedbackRequest } from "../models/email.types";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 import { resultOrThrow } from "../../../utils/resultOrThrow";
+import type { FeedbackRequest } from "../models/email.types";
+import type {
+	EmailService,
+	FeedbackEmailData,
+} from "../services/email.service";
 
 @Controller("email")
 export class EmailController {

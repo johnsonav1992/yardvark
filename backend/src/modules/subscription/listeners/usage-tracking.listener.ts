@@ -1,14 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import { OnEvent } from "@nestjs/event-emitter";
-import { SubscriptionService } from "../services/subscription.service";
-import { EntryCreatedEvent } from "../../../events/entry-created.event";
-import { BatchEntriesCreatedEvent } from "../../../events/batch-entries-created.event";
-import { LogHelpers } from "../../../logger/logger.helpers";
+import type { BatchEntriesCreatedEvent } from "../../../events/batch-entries-created.event";
+import type { EntryCreatedEvent } from "../../../events/entry-created.event";
 import { EventHandlerHelpers } from "../../../logger/event-handler.helpers";
+import { LogHelpers } from "../../../logger/logger.helpers";
 import {
-	EventNames,
 	BusinessContextKeys,
+	EventNames,
 } from "../../../logger/logger-keys.constants";
+import type { SubscriptionService } from "../services/subscription.service";
 
 @Injectable()
 export class UsageTrackingListener {

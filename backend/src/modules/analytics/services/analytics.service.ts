@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { DataSource } from "typeorm";
-import { AnalyticsRes } from "../models/analytics.types";
+import { getYear } from "date-fns";
+import type { DataSource } from "typeorm";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
-import { getYear } from "date-fns";
+import type { AnalyticsRes } from "../models/analytics.types";
 
 @Injectable()
 export class AnalyticsService {

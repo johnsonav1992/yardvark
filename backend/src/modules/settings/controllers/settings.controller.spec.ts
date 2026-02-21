@@ -1,12 +1,12 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { SettingsController } from "./settings.controller";
+import { Test, type TestingModule } from "@nestjs/testing";
+import type { SettingsData, SettingsResponse } from "../models/settings.types";
 import { SettingsService } from "../services/settings.service";
-import { SettingsData, SettingsResponse } from "../models/settings.types";
+import { SettingsController } from "./settings.controller";
 
 describe("SettingsController", () => {
 	let controller: SettingsController;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let settingsService: SettingsService;
+	let _settingsService: SettingsService;
 
 	const mockUserId = "user-123";
 
@@ -49,7 +49,7 @@ describe("SettingsController", () => {
 		}).compile();
 
 		controller = module.get<SettingsController>(SettingsController);
-		settingsService = module.get<SettingsService>(SettingsService);
+		_settingsService = module.get<SettingsService>(SettingsService);
 
 		jest.clearAllMocks();
 	});

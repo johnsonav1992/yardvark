@@ -1,12 +1,12 @@
 import { HttpException } from "@nestjs/common";
-import { resultOrThrow } from "./resultOrThrow";
-import { error, success } from "../types/either";
 import {
+	ExternalServiceError,
 	ResourceError,
 	ResourceNotFound,
-	ExternalServiceError,
 	ResourceValidationError,
 } from "../errors/resource-error";
+import { error, success } from "../types/either";
+import { resultOrThrow } from "./resultOrThrow";
 
 describe("unwrapResult", () => {
 	describe("Ok results", () => {

@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import type { MigrationInterface, QueryRunner } from "typeorm";
 
 export class Analytics21747306620816 implements MigrationInterface {
 	public async up(queryRunner: QueryRunner): Promise<void> {

@@ -1,13 +1,13 @@
 import {
-	Injectable,
-	CanActivate,
-	ExecutionContext,
+	type CanActivate,
+	type ExecutionContext,
 	HttpException,
 	HttpStatus,
+	Injectable,
 } from "@nestjs/common";
-import { Reflector } from "@nestjs/core";
+import type { Reflector } from "@nestjs/core";
 import { SUBSCRIPTION_FEATURE_KEY } from "../decorators/subscription-feature.decorator";
-import { SubscriptionService } from "../modules/subscription/services/subscription.service";
+import type { SubscriptionService } from "../modules/subscription/services/subscription.service";
 
 @Injectable()
 export class SubscriptionGuard implements CanActivate {

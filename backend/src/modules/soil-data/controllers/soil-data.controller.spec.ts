@@ -1,14 +1,14 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { SoilDataController } from "./soil-data.controller";
-import { SoilDataService } from "../services/soil-data.service";
-import { success, error } from "../../../types/either";
+import { HttpException } from "@nestjs/common";
+import { Test, type TestingModule } from "@nestjs/testing";
+import { error, success } from "../../../types/either";
 import {
 	InvalidDateFormatError,
-	UserSettingsNotFoundError,
-	UserLocationNotConfiguredError,
 	OpenMeteoFetchError,
+	UserLocationNotConfiguredError,
+	UserSettingsNotFoundError,
 } from "../models/soil-data.errors";
-import { HttpException } from "@nestjs/common";
+import { SoilDataService } from "../services/soil-data.service";
+import { SoilDataController } from "./soil-data.controller";
 
 describe("SoilDataController", () => {
 	let controller: SoilDataController;

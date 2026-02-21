@@ -1,10 +1,10 @@
-import { ObjectType, Field, ID, Float } from "@nestjs/graphql";
+import { Field, Float, ID, ObjectType } from "@nestjs/graphql";
 import {
 	Column,
 	DeleteDateColumn,
 	Entity,
-	PrimaryGeneratedColumn,
 	OneToMany,
+	PrimaryGeneratedColumn,
 } from "typeorm";
 import { EquipmentMaintenance } from "./equipmentMaintenance.model";
 

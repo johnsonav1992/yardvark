@@ -1,9 +1,9 @@
-import { Test, TestingModule } from "@nestjs/testing";
 import { HttpException } from "@nestjs/common";
-import { WeatherController } from "./weather.controller";
-import { WeatherService } from "../services/weather.service";
-import { success, error } from "../../../types/either";
+import { Test, type TestingModule } from "@nestjs/testing";
+import { error, success } from "../../../types/either";
 import { WeatherFetchError } from "../models/weather.errors";
+import { WeatherService } from "../services/weather.service";
+import { WeatherController } from "./weather.controller";
 
 describe("WeatherController", () => {
 	let controller: WeatherController;

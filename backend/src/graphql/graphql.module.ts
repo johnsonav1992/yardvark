@@ -1,12 +1,12 @@
+import { join } from "node:path";
+import type { ApolloServerPlugin } from "@apollo/server";
+import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin/landingPage/default";
+import { ApolloDriver, type ApolloDriverConfig } from "@nestjs/apollo";
 import { Module } from "@nestjs/common";
 import { GraphQLModule } from "@nestjs/graphql";
-import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
-import { ApolloServerPlugin } from "@apollo/server";
-import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin/landingPage/default";
-import { join } from "path";
-import { Request } from "express";
-import GraphQLJSON from "graphql-type-json";
+import type { Request } from "express";
 import { GraphQLError } from "graphql";
+import GraphQLJSON from "graphql-type-json";
 
 const RequireOperationNamePlugin: ApolloServerPlugin = {
 	requestDidStart() {

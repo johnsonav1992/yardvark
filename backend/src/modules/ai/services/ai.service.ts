@@ -1,22 +1,22 @@
-import { Injectable, Inject, forwardRef } from "@nestjs/common";
-import { GeminiService } from "./gemini.service";
-import { EmbeddingService } from "./embedding.service";
-import { EntriesService } from "../../entries/services/entries.service";
-import { Either, error, success } from "../../../types/either";
-import { resultOrThrow } from "../../../utils/resultOrThrow";
-import { AiChatResponse } from "../../../types/ai.types";
-import {
-	AiChatError,
-	AiQueryError,
-	AiEmbeddingError,
-} from "../models/ai.errors";
-import {
-	extractDateRange,
-	preprocessQuery,
-	buildContextFromEntries,
-} from "../../entries/utils/entryRagUtils";
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import type { AiChatResponse } from "../../../types/ai.types";
+import { type Either, error, success } from "../../../types/either";
+import { resultOrThrow } from "../../../utils/resultOrThrow";
+import { EntriesService } from "../../entries/services/entries.service";
+import {
+	buildContextFromEntries,
+	extractDateRange,
+	preprocessQuery,
+} from "../../entries/utils/entryRagUtils";
+import {
+	AiChatError,
+	AiEmbeddingError,
+	AiQueryError,
+} from "../models/ai.errors";
+import type { EmbeddingService } from "./embedding.service";
+import type { GeminiService } from "./gemini.service";
 
 @Injectable()
 export class AiService {

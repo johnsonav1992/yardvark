@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from "node:async_hooks";
-import { LogContext } from "./logger.types";
+import type { LogContext } from "./logger.types";
 
 export interface RequestContext {
 	traceId: string;

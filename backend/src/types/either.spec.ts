@@ -1,4 +1,4 @@
-import { Either, Err, Ok, error, success } from "./either";
+import { type Either, Err, error, Ok, success } from "./either";
 
 describe("Either", () => {
 	describe("error()", () => {

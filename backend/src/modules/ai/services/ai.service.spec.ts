@@ -1,8 +1,8 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { AiService } from "./ai.service";
-import { GeminiService } from "./gemini.service";
-import { EmbeddingService } from "./embedding.service";
+import { Test, type TestingModule } from "@nestjs/testing";
 import { EntriesService } from "../../entries/services/entries.service";
+import { AiService } from "./ai.service";
+import { EmbeddingService } from "./embedding.service";
+import { GeminiService } from "./gemini.service";
 
 jest.mock("../../entries/utils/entryRagUtils", () => ({
 	extractDateRange: jest.fn(() => null),

@@ -1,23 +1,23 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { getRepositoryToken } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { ConfigService } from "@nestjs/config";
-import { SubscriptionService } from "./subscription.service";
+import { Test, type TestingModule } from "@nestjs/testing";
+import { getRepositoryToken } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
 import { Subscription } from "../models/subscription.model";
+import {
+	SUBSCRIPTION_STATUSES,
+	SUBSCRIPTION_TIERS,
+} from "../models/subscription.types";
 import { FeatureUsage } from "../models/usage.model";
 import { StripeService } from "./stripe.service";
-import {
-	SUBSCRIPTION_TIERS,
-	SUBSCRIPTION_STATUSES,
-} from "../models/subscription.types";
+import { SubscriptionService } from "./subscription.service";
 
 describe("SubscriptionService", () => {
 	let service: SubscriptionService;
 	let subscriptionRepo: Repository<Subscription>;
 	let usageRepo: Repository<FeatureUsage>;
-	let stripeService: StripeService;
-	let configService: ConfigService;
+	let _stripeService: StripeService;
+	let _configService: ConfigService;
 	let cacheManager: any;
 
 	beforeEach(async () => {
@@ -78,8 +78,8 @@ describe("SubscriptionService", () => {
 		usageRepo = module.get<Repository<FeatureUsage>>(
 			getRepositoryToken(FeatureUsage),
 		);
-		stripeService = module.get<StripeService>(StripeService);
-		configService = module.get<ConfigService>(ConfigService);
+		_stripeService = module.get<StripeService>(StripeService);
+		_configService = module.get<ConfigService>(ConfigService);
 		cacheManager = module.get(CACHE_MANAGER);
 	});
 

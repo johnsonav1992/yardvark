@@ -1,5 +1,5 @@
+import type { FeedbackEmailData } from "../services/email.service";
 import { generateFeedbackEmailHtml } from "./email.helpers";
-import { FeedbackEmailData } from "../services/email.service";
 
 describe("Email Helpers", () => {
 	describe("generateFeedbackEmailHtml", () => {
@@ -255,7 +255,7 @@ describe("Email Helpers", () => {
 			});
 
 			it("should handle very long URL", () => {
-				const longUrl = "https://yardvark.app/" + "a".repeat(500);
+				const longUrl = `https://yardvark.app/${"a".repeat(500)}`;
 				const feedbackWithLongUrl: FeedbackEmailData = {
 					...baseFeedbackData,
 					url: longUrl,
@@ -267,7 +267,7 @@ describe("Email Helpers", () => {
 			});
 
 			it("should handle very long userAgent", () => {
-				const longUserAgent = "Mozilla/" + "x".repeat(500);
+				const longUserAgent = `Mozilla/${"x".repeat(500)}`;
 				const feedbackWithLongUserAgent: FeedbackEmailData = {
 					...baseFeedbackData,
 					userAgent: longUserAgent,

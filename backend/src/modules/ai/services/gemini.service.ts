@@ -1,9 +1,9 @@
-import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { GoogleGenAI } from "@google/genai";
-import { AiChatResponse } from "../../../types/ai.types";
+import { Injectable } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import type { AiChatResponse } from "../../../types/ai.types";
 
 interface GeminiChatMessage {
 	role: "user" | "system" | "assistant";

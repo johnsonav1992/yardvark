@@ -1,4 +1,4 @@
-import { FeedbackEmailData } from "../services/email.service";
+import type { FeedbackEmailData } from "../services/email.service";
 
 export const generateFeedbackEmailHtml = (data: FeedbackEmailData): string => {
 	const feedbackTypeConfig = {

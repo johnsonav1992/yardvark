@@ -1,10 +1,10 @@
-import { ExecutionContext, Injectable } from "@nestjs/common";
-import { Reflector } from "@nestjs/core";
-import { AuthGuard } from "@nestjs/passport";
+import { type ExecutionContext, Injectable } from "@nestjs/common";
+import type { Reflector } from "@nestjs/core";
 import { GqlExecutionContext } from "@nestjs/graphql";
+import { AuthGuard } from "@nestjs/passport";
+import type { Request } from "express";
 import { IS_PUBLIC_KEY } from "src/decorators/public.decorator";
-import { Request } from "express";
-import { GqlContext } from "src/types/gql-context";
+import type { GqlContext } from "src/types/gql-context";
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard("jwt") {

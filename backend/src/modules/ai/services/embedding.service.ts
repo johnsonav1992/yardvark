@@ -1,9 +1,12 @@
-import { Injectable, OnModuleInit } from "@nestjs/common";
-import { Entry } from "../../entries/models/entries.model";
-import { FeatureExtractionPipeline, pipeline } from "@huggingface/transformers";
-import { createEntryEmbeddingText } from "../../entries/utils/entryRagUtils";
-import { ConfigService } from "@nestjs/config";
+import {
+	type FeatureExtractionPipeline,
+	pipeline,
+} from "@huggingface/transformers";
+import { Injectable, type OnModuleInit } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
 import { LogHelpers } from "../../../logger/logger.helpers";
+import type { Entry } from "../../entries/models/entries.model";
+import { createEntryEmbeddingText } from "../../entries/utils/entryRagUtils";
 
 @Injectable()
 export class EmbeddingService implements OnModuleInit {

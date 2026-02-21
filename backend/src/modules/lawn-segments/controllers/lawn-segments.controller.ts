@@ -7,15 +7,15 @@ import {
 	Post,
 	Put,
 } from "@nestjs/common";
-import { LawnSegmentsService } from "../services/lawn-segments.service";
-import {
-	LawnSegmentCreationRequest,
-	LawnSegmentUpdateRequest,
-} from "../models/lawn-segments.types";
-import { resultOrThrow } from "../../../utils/resultOrThrow";
 import { User } from "../../../decorators/user.decorator";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import { resultOrThrow } from "../../../utils/resultOrThrow";
+import type {
+	LawnSegmentCreationRequest,
+	LawnSegmentUpdateRequest,
+} from "../models/lawn-segments.types";
+import type { LawnSegmentsService } from "../services/lawn-segments.service";
 
 @Controller("lawn-segments")
 export class LawnSegmentsController {

@@ -1,10 +1,10 @@
-import { Resolver, Query, Mutation, Args, Context, Int } from "@nestjs/graphql";
 import { UseGuards } from "@nestjs/common";
-import { Product } from "../models/products.model";
-import { ProductsService } from "../services/products.service";
+import { Args, Context, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { GqlAuthGuard } from "../../../guards/gql-auth.guard";
-import { CreateProductInput, ProductWithHidden } from "./products.inputs";
-import { GqlContext } from "../../../types/gql-context";
+import type { GqlContext } from "../../../types/gql-context";
+import { Product } from "../models/products.model";
+import type { ProductsService } from "../services/products.service";
+import { type CreateProductInput, ProductWithHidden } from "./products.inputs";
 
 @Resolver(() => Product)
 @UseGuards(GqlAuthGuard)

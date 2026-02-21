@@ -1,11 +1,11 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { UsersController } from "./users.controller";
+import { Test, type TestingModule } from "@nestjs/testing";
 import { UsersService } from "../services/users.service";
+import { UsersController } from "./users.controller";
 
 describe("UsersController", () => {
 	let controller: UsersController;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let service: UsersService;
+	let _service: UsersService;
 
 	const mockUsersService = {
 		getUserProfile: jest.fn(),
@@ -26,7 +26,7 @@ describe("UsersController", () => {
 		}).compile();
 
 		controller = module.get<UsersController>(UsersController);
-		service = module.get<UsersService>(UsersService);
+		_service = module.get<UsersService>(UsersService);
 		jest.clearAllMocks();
 	});
 

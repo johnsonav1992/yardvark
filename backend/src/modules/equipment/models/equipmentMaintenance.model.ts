@@ -1,11 +1,11 @@
-import { ObjectType, Field, ID, Float } from "@nestjs/graphql";
+import { Field, Float, ID, ObjectType } from "@nestjs/graphql";
 import {
-	Entity,
-	PrimaryGeneratedColumn,
 	Column,
-	ManyToOne,
-	JoinColumn,
 	DeleteDateColumn,
+	Entity,
+	JoinColumn,
+	ManyToOne,
+	PrimaryGeneratedColumn,
 } from "typeorm";
 import { Equipment } from "./equipment.model";
 

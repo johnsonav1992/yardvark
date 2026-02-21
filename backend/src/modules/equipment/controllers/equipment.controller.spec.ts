@@ -1,14 +1,14 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { EquipmentController } from "./equipment.controller";
-import { EquipmentService } from "../services/equipment.service";
+import { Test, type TestingModule } from "@nestjs/testing";
 import { S3Service } from "src/modules/s3/s3.service";
+import { EquipmentService } from "../services/equipment.service";
+import { EquipmentController } from "./equipment.controller";
 
 describe("EquipmentController", () => {
 	let controller: EquipmentController;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let equipmentService: EquipmentService;
+	let _equipmentService: EquipmentService;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let s3Service: S3Service;
+	let _s3Service: S3Service;
 
 	const mockEquipmentService = {
 		getEquipment: jest.fn(),
@@ -42,8 +42,8 @@ describe("EquipmentController", () => {
 		}).compile();
 
 		controller = module.get<EquipmentController>(EquipmentController);
-		equipmentService = module.get<EquipmentService>(EquipmentService);
-		s3Service = module.get<S3Service>(S3Service);
+		_equipmentService = module.get<EquipmentService>(EquipmentService);
+		_s3Service = module.get<S3Service>(S3Service);
 		jest.clearAllMocks();
 	});
 

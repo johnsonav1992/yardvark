@@ -1,15 +1,15 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import type { Repository } from "typeorm";
+import { LogHelpers } from "../../../logger/logger.helpers";
+import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import { type Either, error, success } from "../../../types/either";
+import { LawnSegmentNotFound } from "../models/lawn-segments.errors";
 import { LawnSegment } from "../models/lawn-segments.model";
-import { Repository } from "typeorm";
-import {
+import type {
 	LawnSegmentCreationRequest,
 	LawnSegmentUpdateRequest,
 } from "../models/lawn-segments.types";
-import { LogHelpers } from "../../../logger/logger.helpers";
-import { Either, error, success } from "../../../types/either";
-import { LawnSegmentNotFound } from "../models/lawn-segments.errors";
-import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 
 @Injectable()
 export class LawnSegmentsService {

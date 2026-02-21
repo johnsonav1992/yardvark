@@ -1,11 +1,11 @@
-import { Module } from "@nestjs/common";
 import { CacheModule } from "@nestjs/cache-manager";
-import { GddController } from "./controllers/gdd.controller";
-import { GddService } from "./services/gdd.service";
+import { Module } from "@nestjs/common";
 import { EntriesModule } from "../entries/entries.module";
 import { SettingsModule } from "../settings/settings.module";
 import { WeatherModule } from "../weather/weather.module";
+import { GddController } from "./controllers/gdd.controller";
 import { GDD_CACHE_TTL } from "./models/gdd.constants";
+import { GddService } from "./services/gdd.service";
 
 @Module({
 	imports: [

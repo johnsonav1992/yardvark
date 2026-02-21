@@ -1,43 +1,43 @@
-import { Injectable, Inject } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
-import { Cache } from "cache-manager";
-import { Subscription } from "../models/subscription.model";
-import {
-	SUBSCRIPTION_TIERS,
-	SUBSCRIPTION_STATUSES,
-	SubscriptionTier,
-	SubscriptionStatus,
-	PurchasableTier,
-	PricingResponse,
-} from "../models/subscription.types";
-import { FeatureUsage } from "../models/usage.model";
-import { StripeService } from "./stripe.service";
-import { ConfigService } from "@nestjs/config";
-import Stripe from "stripe";
+import { Inject, Injectable } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
+import type { Cache } from "cache-manager";
+import { addMonths, startOfDay, startOfMonth } from "date-fns";
+import type Stripe from "stripe";
+import type { Repository } from "typeorm";
+import { ResourceError } from "../../../errors/resource-error";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
-import { Either, error, success } from "../../../types/either";
-import { ResourceError } from "../../../errors/resource-error";
+import { type Either, error, success } from "../../../types/either";
 import {
-	StripeCustomerVerificationError,
-	StripeCustomerCreationError,
-	PriceIdNotConfigured,
 	CheckoutSessionCreationError,
 	CheckoutUrlMissing,
-	SubscriptionNotFound,
-	StripeCustomerNotFound,
+	FeatureAccessError,
+	MissingPriceId,
+	MissingUserId,
 	PortalSessionCreationError,
 	PortalUrlMissing,
-	MissingUserId,
-	MissingPriceId,
-	SubscriptionUpdateError,
-	SubscriptionFetchError,
-	FeatureAccessError,
+	PriceIdNotConfigured,
 	PricingFetchError,
+	StripeCustomerCreationError,
+	StripeCustomerNotFound,
+	StripeCustomerVerificationError,
+	SubscriptionFetchError,
+	SubscriptionNotFound,
+	SubscriptionUpdateError,
 } from "../models/subscription.errors";
-import { startOfMonth, addMonths, startOfDay } from "date-fns";
+import { Subscription } from "../models/subscription.model";
+import {
+	type PricingResponse,
+	type PurchasableTier,
+	SUBSCRIPTION_STATUSES,
+	SUBSCRIPTION_TIERS,
+	type SubscriptionStatus,
+	type SubscriptionTier,
+} from "../models/subscription.types";
+import { FeatureUsage } from "../models/usage.model";
+import type { StripeService } from "./stripe.service";
 
 export type FeatureAccessResult = {
 	allowed: boolean;

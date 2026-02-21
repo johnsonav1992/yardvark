@@ -1,11 +1,11 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { SoilDataService } from "./soil-data.service";
 import { HttpService } from "@nestjs/axios";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
-import { SettingsService } from "../../settings/services/settings.service";
+import { Test, type TestingModule } from "@nestjs/testing";
+import type { Cache } from "cache-manager";
+import { addDays, format, subDays } from "date-fns";
 import { of, throwError } from "rxjs";
-import { Cache } from "cache-manager";
-import { format, subDays, addDays } from "date-fns";
+import { SettingsService } from "../../settings/services/settings.service";
+import { SoilDataService } from "./soil-data.service";
 
 describe("SoilDataService", () => {
 	let service: SoilDataService;

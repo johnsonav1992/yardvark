@@ -1,4 +1,5 @@
-import { HttpService } from "@nestjs/axios";
+import type { Readable } from "node:stream";
+import type { HttpService } from "@nestjs/axios";
 import {
 	Controller,
 	Get,
@@ -11,16 +12,15 @@ import {
 	UseInterceptors,
 } from "@nestjs/common";
 import { FilesInterceptor } from "@nestjs/platform-express";
-import { Response } from "express";
+import type { Response } from "express";
 import { firstValueFrom, map } from "rxjs";
-import { S3Service } from "src/modules/s3/s3.service";
+import type { S3Service } from "src/modules/s3/s3.service";
 import { MAX_FILE_LARGE_UPLOAD_SIZE } from "src/utils/constants";
 import { imageFileValidator } from "src/utils/fileUtils";
-import { resultOrThrow } from "../../../utils/resultOrThrow";
-import { Readable } from "stream";
 import { User } from "../../../decorators/user.decorator";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import { resultOrThrow } from "../../../utils/resultOrThrow";
 
 @Controller("files")
 export class FilesController {

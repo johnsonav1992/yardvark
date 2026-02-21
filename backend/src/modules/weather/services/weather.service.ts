@@ -1,20 +1,20 @@
-import { Inject, Injectable } from "@nestjs/common";
+import type { HttpService } from "@nestjs/axios";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
-import { Cache } from "cache-manager";
-import { HttpService } from "@nestjs/axios";
+import { Inject, Injectable } from "@nestjs/common";
+import type { Cache } from "cache-manager";
 import { firstValueFrom } from "rxjs";
-import { switchMap, map } from "rxjs/operators";
+import { map, switchMap } from "rxjs/operators";
+import { LogHelpers } from "../../../logger/logger.helpers";
+import { type Either, error, success } from "../../../types/either";
 import {
+	HistoricalWeatherFetchError,
+	WeatherFetchError,
+} from "../models/weather.errors";
+import type {
 	OpenMeteoHistoricalResponse,
 	WeatherDotGovForecastResponse,
 	WeatherDotGovPointsResponse,
 } from "../models/weather.types";
-import { Either, error, success } from "../../../types/either";
-import {
-	WeatherFetchError,
-	HistoricalWeatherFetchError,
-} from "../models/weather.errors";
-import { LogHelpers } from "../../../logger/logger.helpers";
 
 @Injectable()
 export class WeatherService {

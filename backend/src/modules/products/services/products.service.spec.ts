@@ -1,16 +1,16 @@
-import { Test, TestingModule } from "@nestjs/testing";
+import { Test, type TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { ProductsService } from "./products.service";
+import type { Repository } from "typeorm";
 import { Product } from "../models/products.model";
 import { UserHiddenProduct } from "../models/userHiddenProducts.model";
+import { ProductsService } from "./products.service";
 
 describe("ProductsService", () => {
 	let service: ProductsService;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let productRepository: Repository<Product>;
+	let _productRepository: Repository<Product>;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let userHiddenProductRepository: Repository<UserHiddenProduct>;
+	let _userHiddenProductRepository: Repository<UserHiddenProduct>;
 	let module: TestingModule;
 
 	const mockProductRepository = {
@@ -43,10 +43,10 @@ describe("ProductsService", () => {
 		}).compile();
 
 		service = module.get<ProductsService>(ProductsService);
-		productRepository = module.get<Repository<Product>>(
+		_productRepository = module.get<Repository<Product>>(
 			getRepositoryToken(Product),
 		);
-		userHiddenProductRepository = module.get<Repository<UserHiddenProduct>>(
+		_userHiddenProductRepository = module.get<Repository<UserHiddenProduct>>(
 			getRepositoryToken(UserHiddenProduct),
 		);
 	});

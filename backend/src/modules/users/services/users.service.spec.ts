@@ -1,11 +1,11 @@
-import { Test, TestingModule } from "@nestjs/testing";
 import { HttpService } from "@nestjs/axios";
 import { ConfigService } from "@nestjs/config";
+import { Test, type TestingModule } from "@nestjs/testing";
 import { of, throwError } from "rxjs";
-import { UsersService } from "../services/users.service";
 import { S3Service } from "src/modules/s3/s3.service";
-import { success, error } from "../../../types/either";
+import { error, success } from "../../../types/either";
 import { S3UploadError } from "../../s3/s3.errors";
+import { UsersService } from "../services/users.service";
 
 describe("UsersService", () => {
 	let service: UsersService;

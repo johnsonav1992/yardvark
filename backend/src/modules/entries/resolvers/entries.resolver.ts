@@ -1,19 +1,19 @@
-import { Resolver, Query, Mutation, Args, Context, Int } from "@nestjs/graphql";
 import { UseGuards } from "@nestjs/common";
-import { Entry } from "../models/entries.model";
-import { EntriesService } from "../services/entries.service";
+import { Args, Context, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { GqlAuthGuard } from "../../../guards/gql-auth.guard";
-import {
-	CreateEntryInput,
-	UpdateEntryInput,
-	SearchEntriesInput,
-} from "./entries.inputs";
-import {
+import type { GqlContext } from "../../../types/gql-context";
+import { resultOrThrow } from "../../../utils/resultOrThrow";
+import { Entry } from "../models/entries.model";
+import type {
 	EntriesSearchRequest,
 	EntryCreationRequest,
 } from "../models/entries.types";
-import { GqlContext } from "../../../types/gql-context";
-import { resultOrThrow } from "../../../utils/resultOrThrow";
+import type { EntriesService } from "../services/entries.service";
+import type {
+	CreateEntryInput,
+	SearchEntriesInput,
+	UpdateEntryInput,
+} from "./entries.inputs";
 
 @Resolver(() => Entry)
 @UseGuards(GqlAuthGuard)

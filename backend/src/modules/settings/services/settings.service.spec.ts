@@ -1,14 +1,14 @@
-import { Test, TestingModule } from "@nestjs/testing";
+import { Test, type TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { SettingsService } from "./settings.service";
+import type { Repository } from "typeorm";
 import { Settings } from "../models/settings.model";
-import { SettingsData } from "../models/settings.types";
+import type { SettingsData } from "../models/settings.types";
+import { SettingsService } from "./settings.service";
 
 describe("SettingsService", () => {
 	let service: SettingsService;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let repository: Repository<Settings>;
+	let _repository: Repository<Settings>;
 
 	const mockRepository = {
 		findOneBy: jest.fn(),
@@ -51,7 +51,9 @@ describe("SettingsService", () => {
 		}).compile();
 
 		service = module.get<SettingsService>(SettingsService);
-		repository = module.get<Repository<Settings>>(getRepositoryToken(Settings));
+		_repository = module.get<Repository<Settings>>(
+			getRepositoryToken(Settings),
+		);
 
 		jest.clearAllMocks();
 	});

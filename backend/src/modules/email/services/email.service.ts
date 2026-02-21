@@ -1,11 +1,11 @@
 import { Injectable, Logger } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
+import type { ConfigService } from "@nestjs/config";
 import * as nodemailer from "nodemailer";
-import { generateFeedbackEmailHtml } from "../helpers/email.helpers";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
-import { Either, error, success } from "../../../types/either";
-import { EmailSendError, EmailNotConfigured } from "../models/email.errors";
+import { type Either, error, success } from "../../../types/either";
+import { generateFeedbackEmailHtml } from "../helpers/email.helpers";
+import { EmailNotConfigured, EmailSendError } from "../models/email.errors";
 
 export interface FeedbackEmailData {
 	name: string;

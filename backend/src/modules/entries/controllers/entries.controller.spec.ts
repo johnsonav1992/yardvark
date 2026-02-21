@@ -1,5 +1,5 @@
-import { Test, TestingModule } from "@nestjs/testing";
 import { EventEmitter2 } from "@nestjs/event-emitter";
+import { Test, type TestingModule } from "@nestjs/testing";
 import { EntriesController } from "../controllers/entries.controller";
 import { EntriesService } from "../services/entries.service";
 

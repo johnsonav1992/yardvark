@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
-import { SettingsController } from "./controllers/settings.controller";
-import { SettingsService } from "./services/settings.service";
-import { SettingsResolver } from "./resolvers/settings.resolver";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { SettingsController } from "./controllers/settings.controller";
 import { Settings } from "./models/settings.model";
+import { SettingsResolver } from "./resolvers/settings.resolver";
+import { SettingsService } from "./services/settings.service";
 
 @Module({
 	imports: [TypeOrmModule.forFeature([Settings])],

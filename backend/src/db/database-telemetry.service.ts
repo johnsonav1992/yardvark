@@ -1,5 +1,5 @@
-import { Injectable, OnModuleInit } from "@nestjs/common";
-import { DataSource, QueryRunner, ReplicationMode } from "typeorm";
+import { Injectable, type OnModuleInit } from "@nestjs/common";
+import type { DataSource, QueryRunner, ReplicationMode } from "typeorm";
 import { LogHelpers } from "../logger/logger.helpers";
 
 @Injectable()

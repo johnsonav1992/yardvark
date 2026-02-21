@@ -1,6 +1,6 @@
 import { HttpException } from "@nestjs/common";
-import { Either } from "../types/either";
-import { ResourceError } from "../errors/resource-error";
+import type { ResourceError } from "../errors/resource-error";
+import type { Either } from "../types/either";
 
 /**
  * Utility function to properly unwrap an `Either` result. If the result is an error,

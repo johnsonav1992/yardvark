@@ -1,11 +1,14 @@
 import {
-	Entity,
-	PrimaryGeneratedColumn,
 	Column,
 	CreateDateColumn,
+	Entity,
+	PrimaryGeneratedColumn,
 	UpdateDateColumn,
 } from "typeorm";
-import { SubscriptionTier, SubscriptionStatus } from "./subscription.types";
+import type {
+	SubscriptionStatus,
+	SubscriptionTier,
+} from "./subscription.types";
 
 @Entity("subscriptions")
 export class Subscription {

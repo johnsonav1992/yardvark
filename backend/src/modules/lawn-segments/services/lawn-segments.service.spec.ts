@@ -1,16 +1,16 @@
-import { Test, TestingModule } from "@nestjs/testing";
+import { Test, type TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { Repository, DeleteResult } from "typeorm";
-import { LawnSegmentsService } from "../services/lawn-segments.service";
-import { LawnSegment } from "../models/lawn-segments.model";
-import { LawnSegmentCreationRequest } from "../models/lawn-segments.types";
+import type { DeleteResult, Repository } from "typeorm";
 import { DEFAULT_LAWN_SEGMENT_COLOR } from "../../../constants/lawn-segments.constants";
 import { LawnSegmentNotFound } from "../models/lawn-segments.errors";
+import { LawnSegment } from "../models/lawn-segments.model";
+import type { LawnSegmentCreationRequest } from "../models/lawn-segments.types";
+import { LawnSegmentsService } from "../services/lawn-segments.service";
 
 describe("LawnSegmentsService", () => {
 	let service: LawnSegmentsService;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let repository: Repository<LawnSegment>;
+	let _repository: Repository<LawnSegment>;
 
 	const mockRepository = {
 		findBy: jest.fn(),
@@ -71,7 +71,7 @@ describe("LawnSegmentsService", () => {
 		}).compile();
 
 		service = module.get<LawnSegmentsService>(LawnSegmentsService);
-		repository = module.get<Repository<LawnSegment>>(
+		_repository = module.get<Repository<LawnSegment>>(
 			getRepositoryToken(LawnSegment),
 		);
 

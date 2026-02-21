@@ -1,12 +1,12 @@
-import { Test, TestingModule } from "@nestjs/testing";
+import { HttpStatus } from "@nestjs/common";
+import { Test, type TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { HttpStatus } from "@nestjs/common";
-import { WebhookController } from "./webhook.controller";
+import { success } from "../../../types/either";
+import { WebhookEvent } from "../models/webhook-event.model";
 import { StripeService } from "../services/stripe.service";
 import { SubscriptionService } from "../services/subscription.service";
-import { WebhookEvent } from "../models/webhook-event.model";
-import { success } from "../../../types/either";
+import { WebhookController } from "./webhook.controller";
 
 describe("WebhookController", () => {
 	let controller: WebhookController;

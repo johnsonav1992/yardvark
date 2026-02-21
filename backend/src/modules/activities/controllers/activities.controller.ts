@@ -1,7 +1,7 @@
 import { Controller, Get } from "@nestjs/common";
-import { ActivitiesService } from "../services/activities.service";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import type { ActivitiesService } from "../services/activities.service";
 
 @Controller("activities")
 export class ActivitiesController {

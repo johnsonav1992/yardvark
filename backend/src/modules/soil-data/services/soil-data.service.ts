@@ -1,27 +1,27 @@
-import { Injectable, Inject } from "@nestjs/common";
+import type { HttpService } from "@nestjs/axios";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
-import { Cache } from "cache-manager";
-import { HttpService } from "@nestjs/axios";
+import { Inject, Injectable } from "@nestjs/common";
+import type { Cache } from "cache-manager";
+import { addDays, format, isValid, parseISO, subDays } from "date-fns";
 import { firstValueFrom } from "rxjs";
-import { format, parseISO, isValid, subDays, addDays } from "date-fns";
-import { Either, error, success } from "../../../types/either";
 import { LogHelpers } from "../../../logger/logger.helpers";
+import { type Either, error, success } from "../../../types/either";
+import type { SettingsService } from "../../settings/services/settings.service";
 import {
-	SoilDataResponse,
-	RollingWeekSoilDataResponse,
-} from "../models/soil-data.types";
-import {
-	OpenMeteoFetchError,
-	InvalidDateFormatError,
-	UserSettingsNotFoundError,
-	UserLocationNotConfiguredError,
-} from "../models/soil-data.errors";
-import {
-	SOIL_DATA_CACHE_TTL,
 	OPEN_METEO_BASE_URL,
+	SOIL_DATA_CACHE_TTL,
 	SOIL_DATA_HOURLY_PARAMS,
 } from "../models/soil-data.constants";
-import { SettingsService } from "../../settings/services/settings.service";
+import {
+	InvalidDateFormatError,
+	OpenMeteoFetchError,
+	UserLocationNotConfiguredError,
+	UserSettingsNotFoundError,
+} from "../models/soil-data.errors";
+import type {
+	RollingWeekSoilDataResponse,
+	SoilDataResponse,
+} from "../models/soil-data.types";
 
 interface OpenMeteoSoilResponse {
 	hourly: {

@@ -1,12 +1,12 @@
-import { logs, SeverityNumber } from "@opentelemetry/api-logs";
 import { context as otelContext } from "@opentelemetry/api";
-import {
-	LoggerProvider,
-	SimpleLogRecordProcessor,
-	ConsoleLogRecordExporter,
-} from "@opentelemetry/sdk-logs";
+import { logs, SeverityNumber } from "@opentelemetry/api-logs";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { resourceFromAttributes } from "@opentelemetry/resources";
+import {
+	ConsoleLogRecordExporter,
+	LoggerProvider,
+	SimpleLogRecordProcessor,
+} from "@opentelemetry/sdk-logs";
 import {
 	ATTR_SERVICE_NAME,
 	ATTR_SERVICE_VERSION,
@@ -119,7 +119,6 @@ function flattenAttributes(
 		const newKey = prefix ? `${prefix}.${key}` : key;
 
 		if (value === null || value === undefined) {
-			continue;
 		} else if (typeof value === "object" && !Array.isArray(value)) {
 			Object.assign(
 				result,

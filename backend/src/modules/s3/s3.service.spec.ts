@@ -1,5 +1,5 @@
-import { Test, TestingModule } from "@nestjs/testing";
 import { ConfigService } from "@nestjs/config";
+import { Test, type TestingModule } from "@nestjs/testing";
 import { S3Service } from "./s3.service";
 
 const mockSend = jest.fn();
@@ -24,7 +24,7 @@ jest.mock("heic-convert", () =>
 describe("S3Service", () => {
 	let service: S3Service;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let configService: ConfigService;
+	let _configService: ConfigService;
 
 	const mockConfigService = {
 		get: jest.fn(),
@@ -69,7 +69,7 @@ describe("S3Service", () => {
 		}).compile();
 
 		service = module.get<S3Service>(S3Service);
-		configService = module.get<ConfigService>(ConfigService);
+		_configService = module.get<ConfigService>(ConfigService);
 	});
 
 	afterEach(() => {

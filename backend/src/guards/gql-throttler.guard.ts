@@ -1,7 +1,7 @@
-import { ExecutionContext, Injectable } from "@nestjs/common";
-import { ThrottlerGuard } from "@nestjs/throttler";
+import { type ExecutionContext, Injectable } from "@nestjs/common";
 import { GqlExecutionContext } from "@nestjs/graphql";
-import { GqlContext } from "src/types/gql-context";
+import { ThrottlerGuard } from "@nestjs/throttler";
+import type { GqlContext } from "src/types/gql-context";
 
 type ThrottlerRequestResponse = {
 	req: Record<string, unknown>;

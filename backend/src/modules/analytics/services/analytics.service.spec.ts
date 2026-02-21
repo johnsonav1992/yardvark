@@ -1,11 +1,11 @@
-import { Test, TestingModule } from "@nestjs/testing";
+import { Test, type TestingModule } from "@nestjs/testing";
 import { DataSource } from "typeorm";
 import { AnalyticsService } from "./analytics.service";
 
 describe("AnalyticsService", () => {
 	let service: AnalyticsService;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let dataSource: DataSource;
+	let _dataSource: DataSource;
 
 	const mockDataSource = {
 		query: jest.fn(),
@@ -31,7 +31,7 @@ describe("AnalyticsService", () => {
 		}).compile();
 
 		service = module.get<AnalyticsService>(AnalyticsService);
-		dataSource = module.get<DataSource>(DataSource);
+		_dataSource = module.get<DataSource>(DataSource);
 		jest.clearAllMocks();
 	});
 

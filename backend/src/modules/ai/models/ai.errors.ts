@@ -1,7 +1,4 @@
-import {
-	ResourceError,
-	ResourceValidationError,
-} from "../../../errors/resource-error";
+import { ResourceError } from "../../../errors/resource-error";
 
 export class AiChatError extends ResourceError {
 	constructor(originalError?: Error | unknown) {

@@ -1,21 +1,21 @@
 import {
-	Controller,
-	Post,
-	Get,
 	Body,
+	Controller,
+	Get,
 	HttpException,
 	HttpStatus,
+	Post,
 } from "@nestjs/common";
-import { SubscriptionService } from "../services/subscription.service";
-import {
-	PurchasableTier,
-	PURCHASABLE_TIERS,
-} from "../models/subscription.types";
+import { User } from "../../../decorators/user.decorator";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import type { ExtractedUserRequestData } from "../../../types/request";
 import { resultOrThrow } from "../../../utils/resultOrThrow";
-import { User } from "../../../decorators/user.decorator";
-import { ExtractedUserRequestData } from "../../../types/request";
+import {
+	PURCHASABLE_TIERS,
+	type PurchasableTier,
+} from "../models/subscription.types";
+import type { SubscriptionService } from "../services/subscription.service";
 
 @Controller("subscription")
 export class SubscriptionController {

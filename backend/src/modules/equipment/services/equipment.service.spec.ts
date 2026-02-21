@@ -1,12 +1,12 @@
-import { Test, TestingModule } from "@nestjs/testing";
+import { Test, type TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { EquipmentService } from "./equipment.service";
-import { Equipment } from "../models/equipment.model";
-import { EquipmentMaintenance } from "../models/equipmentMaintenance.model";
 import {
 	EquipmentNotFound,
 	MaintenanceRecordNotFound,
 } from "../models/equipment.errors";
+import { Equipment } from "../models/equipment.model";
+import { EquipmentMaintenance } from "../models/equipmentMaintenance.model";
+import { EquipmentService } from "./equipment.service";
 
 describe("EquipmentService", () => {
 	let service: EquipmentService;

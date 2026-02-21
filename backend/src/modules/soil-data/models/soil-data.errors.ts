@@ -1,7 +1,7 @@
 import {
 	ExternalServiceError,
-	ResourceValidationError,
 	ResourceNotFound,
+	ResourceValidationError,
 } from "../../../errors/resource-error";
 
 export class OpenMeteoFetchError extends ExternalServiceError {

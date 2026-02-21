@@ -1,20 +1,20 @@
 import {
 	Body,
 	Controller,
-	Post,
 	HttpException,
 	HttpStatus,
+	Post,
 	Res,
 } from "@nestjs/common";
-import { Response } from "express";
-import { AiService } from "../services/ai.service";
-import { AiChatResponse, AiChatRequest } from "../../../types/ai.types";
+import type { Response } from "express";
 import { FeatureFlag } from "../../../decorators/feature-flag.decorator";
 import { SubscriptionFeature } from "../../../decorators/subscription-feature.decorator";
-import { resultOrThrow } from "../../../utils/resultOrThrow";
 import { User } from "../../../decorators/user.decorator";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import type { AiChatRequest, AiChatResponse } from "../../../types/ai.types";
+import { resultOrThrow } from "../../../utils/resultOrThrow";
+import type { AiService } from "../services/ai.service";
 
 @Controller("ai")
 export class AiController {

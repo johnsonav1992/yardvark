@@ -1,20 +1,20 @@
-import { Test, TestingModule } from "@nestjs/testing";
 import { HttpService } from "@nestjs/axios";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
-import { WeatherService } from "./weather.service";
-import {
-	WeatherDotGovPointsResponse,
-	WeatherDotGovForecastResponse,
+import { Test, type TestingModule } from "@nestjs/testing";
+import type { AxiosResponse } from "axios";
+import { of, throwError } from "rxjs";
+import type {
 	Period,
 	ProbabilityOfPrecipitation,
+	WeatherDotGovForecastResponse,
+	WeatherDotGovPointsResponse,
 } from "../models/weather.types";
-import { of, throwError } from "rxjs";
-import { AxiosResponse } from "axios";
+import { WeatherService } from "./weather.service";
 
 describe("WeatherService", () => {
 	let service: WeatherService;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let httpService: HttpService;
+	let _httpService: HttpService;
 
 	const mockHttpService = {
 		get: jest.fn(),
@@ -168,7 +168,7 @@ describe("WeatherService", () => {
 		}).compile();
 
 		service = module.get<WeatherService>(WeatherService);
-		httpService = module.get<HttpService>(HttpService);
+		_httpService = module.get<HttpService>(HttpService);
 
 		jest.clearAllMocks();
 		mockCacheManager.get.mockResolvedValue(null); // Default to cache miss

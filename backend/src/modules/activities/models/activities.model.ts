@@ -1,6 +1,6 @@
-import { ObjectType, Field, ID } from "@nestjs/graphql";
+import { Field, ID, ObjectType } from "@nestjs/graphql";
+import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Entry } from "../../entries/models/entries.model";
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from "typeorm";
 
 @ObjectType()
 @Entity("activities")

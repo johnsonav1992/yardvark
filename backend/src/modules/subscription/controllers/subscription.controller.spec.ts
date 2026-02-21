@@ -1,13 +1,13 @@
-import { Test, TestingModule } from "@nestjs/testing";
 import { HttpException } from "@nestjs/common";
-import { SubscriptionController } from "./subscription.controller";
-import { SubscriptionService } from "../services/subscription.service";
-import { success, error } from "../../../types/either";
-import {
-	SUBSCRIPTION_TIERS,
-	SUBSCRIPTION_STATUSES,
-} from "../models/subscription.types";
+import { Test, type TestingModule } from "@nestjs/testing";
+import { error, success } from "../../../types/either";
 import { SubscriptionFetchError } from "../models/subscription.errors";
+import {
+	SUBSCRIPTION_STATUSES,
+	SUBSCRIPTION_TIERS,
+} from "../models/subscription.types";
+import { SubscriptionService } from "../services/subscription.service";
+import { SubscriptionController } from "./subscription.controller";
 
 describe("SubscriptionController", () => {
 	let controller: SubscriptionController;

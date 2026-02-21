@@ -1,14 +1,14 @@
 import { Injectable } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
-import { ExtractJwt, Strategy } from "passport-jwt";
-import { ConfigService } from "@nestjs/config";
 import { passportJwtSecret } from "jwks-rsa";
-import { Auth0TokenPayload } from "src/types/auth.types";
-import { ExtractedUserRequestData } from "src/types/request";
+import { ExtractJwt, Strategy } from "passport-jwt";
+import type { Auth0TokenPayload } from "src/types/auth.types";
+import type { ExtractedUserRequestData } from "src/types/request";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
-	constructor(private readonly configService: ConfigService) {
+	constructor(readonly configService: ConfigService) {
 		const domain = configService.get<string>("AUTH0_DOMAIN");
 
 		super({

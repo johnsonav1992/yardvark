@@ -1,7 +1,7 @@
 import {
+	ExternalServiceError,
 	ResourceError,
 	ResourceNotFound,
-	ExternalServiceError,
 	ResourceValidationError,
 } from "./resource-error";
 

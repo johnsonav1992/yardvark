@@ -1,15 +1,18 @@
-import { Test, TestingModule } from "@nestjs/testing";
 import { HttpException } from "@nestjs/common";
+import { Test, type TestingModule } from "@nestjs/testing";
+import { error, success } from "../../../types/either";
+import { EmailNotConfigured, EmailSendError } from "../models/email.errors";
+import type { FeedbackRequest } from "../models/email.types";
+import {
+	EmailService,
+	type FeedbackEmailData,
+} from "../services/email.service";
 import { EmailController } from "./email.controller";
-import { EmailService, FeedbackEmailData } from "../services/email.service";
-import { FeedbackRequest } from "../models/email.types";
-import { success, error } from "../../../types/either";
-import { EmailSendError, EmailNotConfigured } from "../models/email.errors";
 
 describe("EmailController", () => {
 	let controller: EmailController;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let emailService: EmailService;
+	let _emailService: EmailService;
 
 	const mockEmailService = {
 		sendFeedbackEmail: jest.fn(),
@@ -34,7 +37,7 @@ describe("EmailController", () => {
 		}).compile();
 
 		controller = module.get<EmailController>(EmailController);
-		emailService = module.get<EmailService>(EmailService);
+		_emailService = module.get<EmailService>(EmailService);
 
 		jest.clearAllMocks();
 	});

@@ -1,4 +1,4 @@
-import { InputType, Field, Float, Int, ObjectType } from "@nestjs/graphql";
+import { Field, Float, InputType, Int, ObjectType } from "@nestjs/graphql";
 import { Product } from "../models/products.model";
 
 @InputType()

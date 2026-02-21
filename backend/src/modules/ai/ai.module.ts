@@ -1,12 +1,12 @@
-import { Module, forwardRef } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { EntriesModule } from "../entries/entries.module";
+import { Entry } from "../entries/models/entries.model";
 import { AiController } from "./controllers/ai.controller";
 import { AiService } from "./services/ai.service";
-import { GeminiService } from "./services/gemini.service";
 import { EmbeddingService } from "./services/embedding.service";
-import { Entry } from "../entries/models/entries.model";
-import { EntriesModule } from "../entries/entries.module";
+import { GeminiService } from "./services/gemini.service";
 
 @Module({
 	imports: [

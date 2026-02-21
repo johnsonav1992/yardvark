@@ -8,12 +8,12 @@
  * These are public products available to all users.
  */
 
+import * as fs from "node:fs";
+import * as path from "node:path";
+import * as dotenv from "dotenv";
 import { DataSource } from "typeorm";
 import { SnakeNamingStrategy } from "typeorm-naming-strategies";
 import { Product } from "../src/modules/products/models/products.model";
-import * as fs from "fs";
-import * as path from "path";
-import * as dotenv from "dotenv";
 
 // Load environment variables
 dotenv.config();
@@ -61,12 +61,12 @@ async function importProducts(filePath: string) {
 	const dataSource = new DataSource({
 		type: "postgres",
 		host: process.env.PRODPGHOST || "localhost",
-		port: parseInt(process.env.PRODPGPORT || "5432"),
+		port: parseInt(process.env.PRODPGPORT || "5432", 10),
 		username: process.env.PRODPGUSER,
 		password: process.env.PRODPGPASSWORD,
 		database: process.env.PRODPGDATABASE,
 		ssl: true, // Required for hosted databases
-		entities: [__dirname + "/../src/**/models/*.model.{ts,js}"], // Load all entities
+		entities: [`${__dirname}/../src/**/models/*.model.{ts,js}`], // Load all entities
 		synchronize: false, // Don't auto-sync schema
 		namingStrategy: new SnakeNamingStrategy(), // Use snake_case for database columns
 	});
@@ -117,13 +117,13 @@ async function importProducts(filePath: string) {
 
 	await dataSource.destroy();
 
-	console.log("\n" + "=".repeat(60));
+	console.log(`\n${"=".repeat(60)}`);
 	console.log("📊 Import Summary:");
 	console.log("=".repeat(60));
 	console.log(`✅ Imported:  ${imported} products`);
 	console.log(`⏭️  Skipped:   ${skipped} products (already exist)`);
 	console.log(`❌ Errors:    ${errors} products`);
-	console.log("=".repeat(60) + "\n");
+	console.log(`${"=".repeat(60)}\n`);
 }
 
 // Main

@@ -1,8 +1,8 @@
 import {
+	ExternalServiceError,
 	ResourceError,
 	ResourceNotFound,
 	ResourceValidationError,
-	ExternalServiceError,
 } from "../../../errors/resource-error";
 
 export class SubscriptionNotFound extends ResourceNotFound {

@@ -1,17 +1,17 @@
-import { randomUUID } from "crypto";
+import { randomUUID } from "node:crypto";
 import {
-	trace,
 	context as otelContext,
 	SpanStatusCode,
+	trace,
 } from "@opentelemetry/api";
-import { requestContext, RequestContext } from "./logger.context";
-import { LogContext } from "./logger.types";
-import { logToOTel } from "./otel.transport";
 import {
 	TAIL_SAMPLING_ENABLED,
-	TAIL_SAMPLING_SUCCESS_RATE,
 	TAIL_SAMPLING_SLOW_THRESHOLD_MS,
+	TAIL_SAMPLING_SUCCESS_RATE,
 } from "./logger.constants";
+import { type RequestContext, requestContext } from "./logger.context";
+import type { LogContext } from "./logger.types";
+import { logToOTel } from "./otel.transport";
 
 export class EventHandlerHelpers {
 	static async withLoggingContext<T>(
@@ -53,8 +53,8 @@ export class EventHandlerHelpers {
 			span.setStatus({ code: SpanStatusCode.OK });
 			span.end();
 
-			if (this.shouldLogEvent(duration, true)) {
-				this.logEventExecution({
+			if (EventHandlerHelpers.shouldLogEvent(duration, true)) {
+				EventHandlerHelpers.logEventExecution({
 					eventName,
 					traceId,
 					requestId,
@@ -77,8 +77,8 @@ export class EventHandlerHelpers {
 			);
 			span.end();
 
-			if (this.shouldLogEvent(duration, false)) {
-				this.logEventExecution({
+			if (EventHandlerHelpers.shouldLogEvent(duration, false)) {
+				EventHandlerHelpers.logEventExecution({
 					eventName,
 					traceId,
 					requestId,

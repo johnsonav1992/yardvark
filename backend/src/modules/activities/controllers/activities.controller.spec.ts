@@ -1,9 +1,9 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { ActivitiesController } from "./activities.controller";
-import { ActivitiesService } from "../services/activities.service";
+import { Test, type TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { Activity } from "../models/activities.model";
 import { Repository } from "typeorm";
+import { Activity } from "../models/activities.model";
+import { ActivitiesService } from "../services/activities.service";
+import { ActivitiesController } from "./activities.controller";
 
 describe("ActivitiesController", () => {
 	let controller: ActivitiesController;

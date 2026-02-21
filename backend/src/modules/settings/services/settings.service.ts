@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Settings } from "../models/settings.model";
-import { Repository } from "typeorm";
-import { SettingsData, SettingsResponse } from "../models/settings.types";
-import { Stringified } from "src/types/json-modified";
+import type { Stringified } from "src/types/json-modified";
+import type { Repository } from "typeorm";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import { Settings } from "../models/settings.model";
+import type { SettingsData, SettingsResponse } from "../models/settings.types";
 
 @Injectable()
 export class SettingsService {

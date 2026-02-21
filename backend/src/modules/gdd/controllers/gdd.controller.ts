@@ -1,9 +1,9 @@
 import { Controller, Get, Query } from "@nestjs/common";
-import { GddService } from "../services/gdd.service";
-import { resultOrThrow } from "../../../utils/resultOrThrow";
 import { User } from "../../../decorators/user.decorator";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import { resultOrThrow } from "../../../utils/resultOrThrow";
+import type { GddService } from "../services/gdd.service";
 
 @Controller("gdd")
 export class GddController {

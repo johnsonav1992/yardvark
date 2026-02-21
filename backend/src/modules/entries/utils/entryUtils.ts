@@ -1,4 +1,4 @@
-import { Entry, EntryProduct } from "../models/entries.model";
+import type { Entry, EntryProduct } from "../models/entries.model";
 
 export const getEntryProductMapping = (entryProducts: EntryProduct[]) => {
 	return entryProducts.map(

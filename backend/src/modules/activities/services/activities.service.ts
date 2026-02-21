@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Activity } from "../models/activities.model";
-import { Repository } from "typeorm";
+import type { Repository } from "typeorm";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import { Activity } from "../models/activities.model";
 
 @Injectable()
 export class ActivitiesService {

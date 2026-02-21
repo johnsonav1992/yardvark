@@ -1,6 +1,6 @@
-import { Resolver, Query } from "@nestjs/graphql";
+import { Query, Resolver } from "@nestjs/graphql";
 import { Activity } from "../models/activities.model";
-import { ActivitiesService } from "../services/activities.service";
+import type { ActivitiesService } from "../services/activities.service";
 
 @Resolver(() => Activity)
 export class ActivitiesResolver {

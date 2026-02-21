@@ -1,18 +1,19 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { Test, TestingModule } from "@nestjs/testing";
+
 import { HttpException } from "@nestjs/common";
-import { success, error } from "../../../types/either";
+import { Test, type TestingModule } from "@nestjs/testing";
+import { error, success } from "../../../types/either";
 import {
-	UserSettingsNotFound,
 	UserLocationNotConfigured,
+	UserSettingsNotFound,
 } from "../models/gdd.errors";
-import { GddController } from "./gdd.controller";
-import { GddService } from "../services/gdd.service";
-import {
+import type {
 	CurrentGddResponse,
-	HistoricalGddResponse,
 	GddForecastResponse,
+	HistoricalGddResponse,
 } from "../models/gdd.types";
+import { GddService } from "../services/gdd.service";
+import { GddController } from "./gdd.controller";
 
 describe("GddController", () => {
 	let controller: GddController;

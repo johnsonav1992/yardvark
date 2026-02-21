@@ -1,14 +1,14 @@
-import { Resolver, Query, Mutation, Args, Context, Int } from "@nestjs/graphql";
 import { UseGuards } from "@nestjs/common";
-import { LawnSegment } from "../models/lawn-segments.model";
-import { LawnSegmentsService } from "../services/lawn-segments.service";
+import { Args, Context, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { GqlAuthGuard } from "../../../guards/gql-auth.guard";
-import {
+import type { GqlContext } from "../../../types/gql-context";
+import { resultOrThrow } from "../../../utils/resultOrThrow";
+import { LawnSegment } from "../models/lawn-segments.model";
+import type { LawnSegmentsService } from "../services/lawn-segments.service";
+import type {
 	CreateLawnSegmentInput,
 	UpdateLawnSegmentInput,
 } from "./lawn-segments.inputs";
-import { GqlContext } from "../../../types/gql-context";
-import { resultOrThrow } from "../../../utils/resultOrThrow";
 
 @Resolver(() => LawnSegment)
 @UseGuards(GqlAuthGuard)

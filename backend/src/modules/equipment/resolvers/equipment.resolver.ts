@@ -1,25 +1,17 @@
-import {
-	Resolver,
-	Query,
-	Mutation,
-	Args,
-	Context,
-	Int,
-	Float,
-} from "@nestjs/graphql";
 import { UseGuards } from "@nestjs/common";
+import { Args, Context, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { GqlAuthGuard } from "../../../guards/gql-auth.guard";
+import type { GqlContext } from "../../../types/gql-context";
+import { resultOrThrow } from "../../../utils/resultOrThrow";
 import { Equipment } from "../models/equipment.model";
 import { EquipmentMaintenance } from "../models/equipmentMaintenance.model";
-import { EquipmentService } from "../services/equipment.service";
-import { GqlAuthGuard } from "../../../guards/gql-auth.guard";
-import {
+import type { EquipmentService } from "../services/equipment.service";
+import type {
 	CreateEquipmentInput,
-	UpdateEquipmentInput,
 	CreateMaintenanceInput,
+	UpdateEquipmentInput,
 	UpdateMaintenanceInput,
 } from "./equipment.inputs";
-import { GqlContext } from "../../../types/gql-context";
-import { resultOrThrow } from "../../../utils/resultOrThrow";
 
 @Resolver(() => Equipment)
 @UseGuards(GqlAuthGuard)

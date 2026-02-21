@@ -1,18 +1,18 @@
-import { ObjectType, Field, ID, Float } from "@nestjs/graphql";
+import { Field, Float, ID, ObjectType } from "@nestjs/graphql";
 import {
-	Entity,
 	Column,
-	PrimaryGeneratedColumn,
-	ManyToMany,
-	JoinTable,
 	DeleteDateColumn,
-	PrimaryColumn,
-	ManyToOne,
+	Entity,
 	JoinColumn,
+	JoinTable,
+	ManyToMany,
+	ManyToOne,
 	OneToMany,
+	PrimaryColumn,
+	PrimaryGeneratedColumn,
 } from "typeorm";
-import { LawnSegment } from "../../lawn-segments/models/lawn-segments.model";
 import { Activity } from "../../activities/models/activities.model";
+import { LawnSegment } from "../../lawn-segments/models/lawn-segments.model";
 import { Product } from "../../products/models/products.model";
 
 @ObjectType()

@@ -7,13 +7,13 @@ import {
 	UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { UsersService } from "../services/users.service";
-import { User } from "../Models/user.model";
-import { User as AuthUser } from "../../../decorators/user.decorator";
 import { imageFileValidator } from "src/utils/fileUtils";
-import { resultOrThrow } from "../../../utils/resultOrThrow";
+import { User as AuthUser } from "../../../decorators/user.decorator";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import { resultOrThrow } from "../../../utils/resultOrThrow";
+import type { User } from "../Models/user.model";
+import type { UsersService } from "../services/users.service";
 
 const MAX_PROFILE_PICTURE_SIZE = 5 * 1024 * 1024;
 

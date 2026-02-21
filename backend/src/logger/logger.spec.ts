@@ -1,10 +1,14 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { LoggingInterceptor } from "./logger";
-import { ExecutionContext, CallHandler, HttpException } from "@nestjs/common";
-import { of, throwError, lastValueFrom } from "rxjs";
-import { Request, Response } from "express";
+import {
+	type CallHandler,
+	type ExecutionContext,
+	HttpException,
+} from "@nestjs/common";
+import { Test, type TestingModule } from "@nestjs/testing";
+import type { Request, Response } from "express";
+import { lastValueFrom, of, throwError } from "rxjs";
 import { SubscriptionService } from "../modules/subscription/services/subscription.service";
 import { Ok } from "../types/either";
+import { LoggingInterceptor } from "./logger";
 import * as otelTransport from "./otel.transport";
 
 interface LogAttributes {

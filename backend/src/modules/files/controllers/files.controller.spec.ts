@@ -1,14 +1,14 @@
-import { Test, TestingModule } from "@nestjs/testing";
 import { HttpService } from "@nestjs/axios";
-import { FilesController } from "../../../modules/files/controllers/files.controller";
+import { Test, type TestingModule } from "@nestjs/testing";
 import { S3Service } from "src/modules/s3/s3.service";
+import { FilesController } from "../../../modules/files/controllers/files.controller";
 
 describe("FilesController", () => {
 	let controller: FilesController;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let s3Service: S3Service;
+	let _s3Service: S3Service;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let httpService: HttpService;
+	let _httpService: HttpService;
 
 	const mockS3Service = {
 		uploadFile: jest.fn(),
@@ -40,8 +40,8 @@ describe("FilesController", () => {
 		}).compile();
 
 		controller = module.get<FilesController>(FilesController);
-		s3Service = module.get<S3Service>(S3Service);
-		httpService = module.get<HttpService>(HttpService);
+		_s3Service = module.get<S3Service>(S3Service);
+		_httpService = module.get<HttpService>(HttpService);
 		jest.clearAllMocks();
 	});
 

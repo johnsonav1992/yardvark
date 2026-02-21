@@ -1,5 +1,5 @@
-import { createParamDecorator, ExecutionContext } from "@nestjs/common";
-import { ExtractedUserRequestData } from "../types/request";
+import { createParamDecorator, type ExecutionContext } from "@nestjs/common";
+import type { ExtractedUserRequestData } from "../types/request";
 
 /**
  * Custom decorator to extract user information from the request object.

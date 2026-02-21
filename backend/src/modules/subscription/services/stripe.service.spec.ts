@@ -1,10 +1,10 @@
-import { Test, TestingModule } from "@nestjs/testing";
 import { ConfigService } from "@nestjs/config";
+import { Test, type TestingModule } from "@nestjs/testing";
 import { StripeService } from "./stripe.service";
 
 describe("StripeService", () => {
 	let service: StripeService;
-	let configService: ConfigService;
+	let _configService: ConfigService;
 
 	beforeEach(async () => {
 		const mockConfigService = {
@@ -28,7 +28,7 @@ describe("StripeService", () => {
 		}).compile();
 
 		service = module.get<StripeService>(StripeService);
-		configService = module.get<ConfigService>(ConfigService);
+		_configService = module.get<ConfigService>(ConfigService);
 	});
 
 	it("should be defined", () => {

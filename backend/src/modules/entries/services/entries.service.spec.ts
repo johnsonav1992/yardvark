@@ -1,9 +1,9 @@
-import { Test, TestingModule } from "@nestjs/testing";
+import { Test, type TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import { EntriesService } from "../services/entries.service";
-import { Entry, EntryProduct, EntryImage } from "../models/entries.model";
 import { ACTIVITY_IDS } from "src/constants/activities.constants";
 import { EntriesNotFound, EntryNotFound } from "../models/entries.errors";
+import { Entry, EntryImage, EntryProduct } from "../models/entries.model";
+import { EntriesService } from "../services/entries.service";
 
 describe("EntriesService", () => {
 	let service: EntriesService;

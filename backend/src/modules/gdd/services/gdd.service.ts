@@ -1,40 +1,39 @@
-import { Inject, Injectable } from "@nestjs/common";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
-import { Cache } from "cache-manager";
-import { format, differenceInDays } from "date-fns";
-
-import { Either, error, success } from "../../../types/either";
-import { ResourceError } from "../../../errors/resource-error";
-import {
-	UserSettingsNotFound,
-	UserLocationNotConfigured,
-} from "../models/gdd.errors";
-import { EntriesService } from "../../entries/services/entries.service";
-import { SettingsService } from "../../settings/services/settings.service";
-import { WeatherService } from "../../weather/services/weather.service";
+import { Inject, Injectable } from "@nestjs/common";
+import type { Cache } from "cache-manager";
+import { differenceInDays, format } from "date-fns";
+import type { ResourceError } from "../../../errors/resource-error";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
-import {
-	getDailyGDDCalculation,
-	calculateAccumulatedGDD,
-} from "../utils/gdd-calculation.util";
+import { type Either, error, success } from "../../../types/either";
+import type { EntriesService } from "../../entries/services/entries.service";
+import type { SettingsService } from "../../settings/services/settings.service";
+import type { WeatherService } from "../../weather/services/weather.service";
 import {
 	GDD_BASE_TEMPERATURES,
-	GDD_TARGET_INTERVALS,
 	GDD_CACHE_TTL,
-	GDD_OVERDUE_MULTIPLIER,
-	GDD_OVERDUE_DAYS_THRESHOLD,
 	GDD_DORMANCY_CHECK_DAYS,
 	GDD_DORMANCY_TEMPERATURES,
+	GDD_OVERDUE_DAYS_THRESHOLD,
+	GDD_OVERDUE_MULTIPLIER,
+	GDD_TARGET_INTERVALS,
 } from "../models/gdd.constants";
 import {
+	UserLocationNotConfigured,
+	UserSettingsNotFound,
+} from "../models/gdd.errors";
+import type {
 	CurrentGddResponse,
-	HistoricalGddResponse,
-	GddForecastResponse,
 	DailyGddDataPoint,
 	ForecastGddDataPoint,
 	GddCycleStatus,
+	GddForecastResponse,
+	HistoricalGddResponse,
 } from "../models/gdd.types";
+import {
+	calculateAccumulatedGDD,
+	getDailyGDDCalculation,
+} from "../utils/gdd-calculation.util";
 
 @Injectable()
 export class GddService {

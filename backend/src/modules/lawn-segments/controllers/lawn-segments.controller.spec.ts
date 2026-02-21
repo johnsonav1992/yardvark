@@ -1,11 +1,11 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { LawnSegmentsController } from "./lawn-segments.controller";
+import { Test, type TestingModule } from "@nestjs/testing";
 import { LawnSegmentsService } from "../services/lawn-segments.service";
+import { LawnSegmentsController } from "./lawn-segments.controller";
 
 describe("LawnSegmentsController", () => {
 	let controller: LawnSegmentsController;
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	let service: LawnSegmentsService;
+	let _service: LawnSegmentsService;
 
 	const mockLawnSegmentsService = {
 		getLawnSegments: jest.fn(),
@@ -26,7 +26,7 @@ describe("LawnSegmentsController", () => {
 		}).compile();
 
 		controller = module.get<LawnSegmentsController>(LawnSegmentsController);
-		service = module.get<LawnSegmentsService>(LawnSegmentsService);
+		_service = module.get<LawnSegmentsService>(LawnSegmentsService);
 		jest.clearAllMocks();
 	});
 

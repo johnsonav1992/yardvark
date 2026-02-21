@@ -1,24 +1,24 @@
-import { Injectable } from "@nestjs/common";
+import { randomUUID } from "node:crypto";
+import * as path from "node:path";
 import {
-	S3Client,
 	PutObjectCommand,
-	PutObjectCommandInput,
+	type PutObjectCommandInput,
+	S3Client,
 } from "@aws-sdk/client-s3";
-import { ConfigService } from "@nestjs/config";
-import { randomUUID } from "crypto";
+import { Injectable } from "@nestjs/common";
+import type { ConfigService } from "@nestjs/config";
 import * as convert from "heic-convert";
-import * as path from "path";
-import { Either, error, success } from "../../types/either";
-import { S3UploadError, HeicConversionError } from "./s3.errors";
 import { LogHelpers } from "../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../logger/logger-keys.constants";
+import { type Either, error, success } from "../../types/either";
+import { HeicConversionError, S3UploadError } from "./s3.errors";
 
 @Injectable()
 export class S3Service {
 	private readonly s3: S3Client;
 	private readonly bucketName: string;
 
-	constructor(private readonly configService: ConfigService) {
+	constructor(readonly _configService: ConfigService) {
 		this.s3 = new S3Client({
 			region: process.env.AWS_REGION_YARDVARK,
 			credentials: {

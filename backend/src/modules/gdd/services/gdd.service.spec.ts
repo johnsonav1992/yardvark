@@ -1,24 +1,28 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-import { Test, TestingModule } from "@nestjs/testing";
+
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
-import { Cache } from "cache-manager";
-import { success, error } from "../../../types/either";
-import {
-	UserSettingsNotFound,
-	UserLocationNotConfigured,
-} from "../models/gdd.errors";
-import { HistoricalWeatherFetchError } from "../../weather/models/weather.errors";
-import { GddService } from "./gdd.service";
+import { Test, type TestingModule } from "@nestjs/testing";
+import type { Cache } from "cache-manager";
+import { error, success } from "../../../types/either";
 import { EntriesService } from "../../entries/services/entries.service";
 import { SettingsService } from "../../settings/services/settings.service";
+import { HistoricalWeatherFetchError } from "../../weather/models/weather.errors";
 import { WeatherService } from "../../weather/services/weather.service";
 import {
 	GDD_BASE_TEMPERATURES,
-	GDD_TARGET_INTERVALS,
 	GDD_CACHE_TTL,
+	GDD_TARGET_INTERVALS,
 } from "../models/gdd.constants";
-import { CurrentGddResponse, GddForecastResponse } from "../models/gdd.types";
+import {
+	UserLocationNotConfigured,
+	UserSettingsNotFound,
+} from "../models/gdd.errors";
+import type {
+	CurrentGddResponse,
+	GddForecastResponse,
+} from "../models/gdd.types";
+import { GddService } from "./gdd.service";
 
 describe("GddService", () => {
 	let service: GddService;

@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, Float, Int } from "@nestjs/graphql";
+import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
 import {
 	Column,
 	DeleteDateColumn,
@@ -6,8 +6,8 @@ import {
 	OneToMany,
 	PrimaryGeneratedColumn,
 } from "typeorm";
-import { productTypesArray } from "./products.types";
 import { EntryProduct } from "../../entries/models/entries.model";
+import { productTypesArray } from "./products.types";
 
 @ObjectType()
 @Entity("products")

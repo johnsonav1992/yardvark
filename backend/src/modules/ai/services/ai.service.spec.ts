@@ -1,4 +1,6 @@
 import { Test, type TestingModule } from "@nestjs/testing";
+import { success } from "../../../types/either";
+import type { Entry } from "../../entries/models/entries.model";
 import { EntriesService } from "../../entries/services/entries.service";
 import { AiService } from "./ai.service";
 import { EmbeddingService } from "./embedding.service";
@@ -166,7 +168,7 @@ describe("AiService", () => {
 
 			jest
 				.spyOn(entriesService, "searchEntriesByVector")
-				.mockResolvedValue(mockEntries as any);
+				.mockResolvedValue(success(mockEntries as unknown as Entry[]));
 
 			jest
 				.spyOn(geminiService, "chatWithSystem")
@@ -232,7 +234,7 @@ describe("AiService", () => {
 
 			jest
 				.spyOn(entriesService, "getEntriesWithoutEmbeddings")
-				.mockResolvedValue(mockEntries as any);
+				.mockResolvedValue(mockEntries as unknown as Entry[]);
 
 			jest
 				.spyOn(embeddingService, "embedEntry")
@@ -287,7 +289,7 @@ describe("AiService", () => {
 
 			jest
 				.spyOn(entriesService, "getEntriesWithoutEmbeddings")
-				.mockResolvedValue(mockEntries as any);
+				.mockResolvedValue(mockEntries as unknown as Entry[]);
 
 			jest
 				.spyOn(embeddingService, "embedEntry")

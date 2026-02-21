@@ -22,12 +22,12 @@ export class S3Service {
 		this.s3 = new S3Client({
 			region: process.env.AWS_REGION_YARDVARK,
 			credentials: {
-				accessKeyId: process.env.AWS_ACCESS_KEY_ID_YARDVARK!,
-				secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY_YARDVARK!,
+				accessKeyId: process.env.AWS_ACCESS_KEY_ID_YARDVARK ?? "",
+				secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY_YARDVARK ?? "",
 			},
 		});
 
-		this.bucketName = process.env.AWS_S3_BUCKET_YARDVARK!;
+		this.bucketName = process.env.AWS_S3_BUCKET_YARDVARK ?? "";
 	}
 
 	public async uploadFile(

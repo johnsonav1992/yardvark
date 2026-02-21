@@ -25,11 +25,11 @@ export class UsersService {
 		private readonly configService: ConfigService,
 		private readonly s3Service: S3Service,
 	) {
-		this.auth0Domain = this.configService.get<string>("AUTH0_DOMAIN")!;
-		this.clientId = this.configService.get<string>("AUTH0_BACKEND_CLIENT_ID")!;
-		this.clientSecret = this.configService.get<string>(
-			"AUTH0_BACKEND_CLIENT_SECRET",
-		)!;
+		this.auth0Domain = this.configService.get<string>("AUTH0_DOMAIN") ?? "";
+		this.clientId =
+			this.configService.get<string>("AUTH0_BACKEND_CLIENT_ID") ?? "";
+		this.clientSecret =
+			this.configService.get<string>("AUTH0_BACKEND_CLIENT_SECRET") ?? "";
 		this.usersUrl = `https://${this.auth0Domain}/api/v2/users`;
 	}
 
@@ -67,7 +67,7 @@ export class UsersService {
 	public async updateUser(
 		userId: string,
 		userData: Partial<User>,
-	): Promise<Either<UserUpdateError, any>> {
+	): Promise<Either<UserUpdateError, User>> {
 		const tokenResult = await this.getManagementToken();
 
 		if (tokenResult.isError()) {

@@ -14,7 +14,7 @@ export const camelizeKeys: CamelizeKeysFn = <T extends Record<string, unknown>>(
 				/_([a-z])/g,
 				(_: string, letter: string) => letter.toUpperCase(),
 			);
-			(camelCaseObj as Record<string, any>)[camelCaseKey] = value;
+			(camelCaseObj as Record<string, unknown>)[camelCaseKey] = value;
 		});
 
 		return camelCaseObj;

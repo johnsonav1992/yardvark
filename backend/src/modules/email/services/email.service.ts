@@ -105,13 +105,15 @@ export class EmailService {
 				BusinessContextKeys.emailError,
 				(err as Error)?.message,
 			);
+
+			const smtpError = err as { code?: string; command?: string };
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.emailErrorCode,
-				(err as any)?.code,
+				smtpError?.code,
 			);
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.emailErrorResponse,
-				(err as any)?.command,
+				smtpError?.command,
 			);
 			this.logger.error(
 				`Failed to send feedback email: ${(err as Error)?.message}`,

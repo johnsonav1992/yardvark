@@ -519,8 +519,8 @@ export class GddService {
 			)
 			.map(([date, temps]) => ({
 				date,
-				high: temps.high!,
-				low: temps.low!,
+				high: temps.high as number,
+				low: temps.low as number,
 			}))
 			.slice(0, 7);
 	}

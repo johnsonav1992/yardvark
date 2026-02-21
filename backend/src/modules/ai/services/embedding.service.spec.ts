@@ -1,5 +1,6 @@
 import { ConfigService } from "@nestjs/config";
 import { Test, type TestingModule } from "@nestjs/testing";
+import type { Entry } from "../../entries/models/entries.model";
 import { EmbeddingService } from "./embedding.service";
 
 describe("EmbeddingService", () => {
@@ -64,9 +65,9 @@ describe("EmbeddingService", () => {
 				userId: "user1",
 				date: new Date("2024-01-01"),
 				notes: "Test entry",
-			};
+			} as unknown as Entry;
 
-			await expect(service.embedEntry(mockEntry as any)).rejects.toThrow(
+			await expect(service.embedEntry(mockEntry)).rejects.toThrow(
 				"Embedding model not initialized",
 			);
 		});

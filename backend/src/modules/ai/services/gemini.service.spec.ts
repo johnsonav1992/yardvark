@@ -38,10 +38,10 @@ describe("GeminiService", () => {
 	it("should throw error when API key is not configured", () => {
 		const mockConfigServiceNoKey = {
 			get: jest.fn(() => undefined),
-		};
+		} as unknown as ConfigService;
 
 		expect(() => {
-			new GeminiService(mockConfigServiceNoKey as any);
+			new GeminiService(mockConfigServiceNoKey);
 		}).toThrow("GEMINI_API_KEY is required");
 	});
 

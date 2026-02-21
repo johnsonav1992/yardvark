@@ -268,15 +268,17 @@ export class SoilDataService {
 		for (let i = 0; i < data.hourly.time.length; i++) {
 			const dateStr = data.hourly.time[i].split("T")[0];
 
-			if (!dailyData.has(dateStr)) {
-				dailyData.set(dateStr, {
+			let dayData = dailyData.get(dateStr);
+
+			if (!dayData) {
+				dayData = {
 					shallowTemps: [],
 					deepTemps: [],
 					moistures: [],
-				});
+				};
+				dailyData.set(dateStr, dayData);
 			}
 
-			const dayData = dailyData.get(dateStr)!;
 			dayData.shallowTemps.push(data.hourly.soil_temperature_6cm[i]);
 			dayData.deepTemps.push(data.hourly.soil_temperature_18cm[i]);
 			dayData.moistures.push(data.hourly.soil_moisture_3_to_9cm[i]);

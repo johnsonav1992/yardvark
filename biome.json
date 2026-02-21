@@ -25,6 +25,9 @@
 			"complexity": {
 				"noStaticOnlyClass": "off",
 				"noThisInStatic": "off"
+			},
+			"suspicious": {
+				"noExplicitAny": "error"
 			}
 		}
 	},
@@ -43,5 +46,17 @@
 				"organizeImports": "on"
 			}
 		}
-	}
+	},
+	"overrides": [
+		{
+			"includes": ["**/*.spec.ts"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noExplicitAny": "off"
+					}
+				}
+			}
+		}
+	]
 }

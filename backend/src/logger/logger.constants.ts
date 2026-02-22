@@ -8,9 +8,11 @@ export const TAIL_SAMPLING_ENABLED =
 
 export const TAIL_SAMPLING_SUCCESS_RATE = (() => {
 	const rate = parseFloat(process.env.LOG_TAIL_SAMPLING_SUCCESS_RATE || "0.1");
+
 	if (Number.isNaN(rate) || rate < 0 || rate > 1) {
 		return 0.1;
 	}
+
 	return rate;
 })();
 
@@ -19,9 +21,11 @@ export const TAIL_SAMPLING_SLOW_THRESHOLD_MS = (() => {
 		process.env.LOG_TAIL_SAMPLING_SLOW_THRESHOLD_MS || "1000",
 		10,
 	);
+
 	if (Number.isNaN(threshold) || threshold < 0) {
 		return 1000;
 	}
+
 	return threshold;
 })();
 

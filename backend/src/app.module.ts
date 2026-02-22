@@ -6,7 +6,7 @@ import { EventEmitterModule } from "@nestjs/event-emitter";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { DatabaseTelemetryService } from "./db/database-telemetry.service";
-import { dataSource } from "./db.config";
+import { dataSource } from "./db/db.config";
 import { AppGraphQLModule } from "./graphql/graphql.module";
 import { JwtAuthGuard } from "./guards/auth.guard";
 import { FeatureFlagGuard } from "./guards/feature-flag.guard";

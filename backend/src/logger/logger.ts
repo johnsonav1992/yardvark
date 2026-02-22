@@ -99,6 +99,7 @@ export class LoggingInterceptor implements NestInterceptor {
 		);
 
 		const tracer = trace.getTracer("yardvark-api");
+
 		const span = tracer.startSpan(operationLabel, {
 			attributes: {
 				"http.method": request.method,
@@ -272,17 +273,11 @@ export class LoggingInterceptor implements NestInterceptor {
 		durationMs: number,
 		success: boolean,
 	): boolean {
-		if (!TAIL_SAMPLING_ENABLED) {
-			return true;
-		}
+		if (!TAIL_SAMPLING_ENABLED) return true;
 
-		if (!success || statusCode >= 400) {
-			return true;
-		}
+		if (!success || statusCode >= 400) return true;
 
-		if (durationMs >= TAIL_SAMPLING_SLOW_THRESHOLD_MS) {
-			return true;
-		}
+		if (durationMs >= TAIL_SAMPLING_SLOW_THRESHOLD_MS) return true;
 
 		return Math.random() < TAIL_SAMPLING_SUCCESS_RATE;
 	}
@@ -411,9 +406,7 @@ export class LoggingInterceptor implements NestInterceptor {
 			return err.getStatus();
 		}
 
-		if (!response) {
-			return 500;
-		}
+		if (!response) return 500;
 
 		return response.statusCode >= 400 ? response.statusCode : 500;
 	}

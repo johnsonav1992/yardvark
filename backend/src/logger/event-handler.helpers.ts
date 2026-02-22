@@ -94,17 +94,11 @@ export class EventHandlerHelpers {
 	}
 
 	private static shouldLogEvent(durationMs: number, success: boolean): boolean {
-		if (!TAIL_SAMPLING_ENABLED) {
-			return true;
-		}
+		if (!TAIL_SAMPLING_ENABLED) return true;
 
-		if (!success) {
-			return true;
-		}
+		if (!success) return true;
 
-		if (durationMs >= TAIL_SAMPLING_SLOW_THRESHOLD_MS) {
-			return true;
-		}
+		if (durationMs >= TAIL_SAMPLING_SLOW_THRESHOLD_MS) return true;
 
 		return Math.random() < TAIL_SAMPLING_SUCCESS_RATE;
 	}

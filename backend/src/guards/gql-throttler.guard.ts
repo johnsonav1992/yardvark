@@ -10,7 +10,9 @@ type ThrottlerRequestResponse = {
 
 @Injectable()
 export class GqlThrottlerGuard extends ThrottlerGuard {
-	getRequestResponse(context: ExecutionContext): ThrottlerRequestResponse {
+	public getRequestResponse(
+		context: ExecutionContext,
+	): ThrottlerRequestResponse {
 		if (context.getType() === "http") {
 			return {
 				req: context.switchToHttp().getRequest(),

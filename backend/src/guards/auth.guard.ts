@@ -12,7 +12,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
 		super();
 	}
 
-	getRequest(context: ExecutionContext) {
+	public getRequest(context: ExecutionContext) {
 		if (context.getType() === "http") {
 			return context.switchToHttp().getRequest<Request>();
 		}
@@ -22,7 +22,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
 		return ctx.getContext<GqlContext>().req;
 	}
 
-	canActivate(context: ExecutionContext) {
+	public canActivate(context: ExecutionContext) {
 		const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
 			context.getHandler(),
 			context.getClass(),
@@ -33,7 +33,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
 		return super.canActivate(context);
 	}
 
-	getAuthenticateOptions() {
+	public getAuthenticateOptions() {
 		return { session: false };
 	}
 }

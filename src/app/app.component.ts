@@ -5,7 +5,6 @@ import { SwUpdate } from "@angular/service-worker";
 import { AuthService } from "@auth0/auth0-angular";
 import { App } from "@capacitor/app";
 import { Browser } from "@capacitor/browser";
-import LogRocket from "logrocket";
 import { ConfirmationService } from "primeng/api";
 import { ConfirmDialog } from "primeng/confirmdialog";
 import { ToastModule } from "primeng/toast";
@@ -121,14 +120,17 @@ export class AppComponent {
 			this.isLoggedIn.set(isAuthenticated);
 		});
 
-		environment.production &&
-			this._auth.user$.subscribe((user) => {
+		if (environment.production) {
+			this._auth.user$.subscribe(async (user) => {
 				if (user) {
-					LogRocket.identify(user.sub!, {
+					const LogRocket = await import("logrocket");
+
+					LogRocket.default.identify(user.sub!, {
 						name: user.name!,
 						email: user.email!,
 					});
 				}
 			});
+		}
 	}
 }

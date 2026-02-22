@@ -1,23 +1,7 @@
 import type { Routes } from "@angular/router";
 import { hybridAuthGuard } from "./guards/hybrid-auth.guard";
 import { unsavedChangesGuard } from "./guards/unsaved-changes-guard";
-import { AnalyticsComponent } from "./pages/analytics/analytics.component";
-import { CalculatorsPage } from "./pages/calculators/calculators-page";
 import { DashboardComponent } from "./pages/dashboard/dashboard.component";
-import { AddEntryComponent } from "./pages/entry-log/add-entry/add-entry.component";
-import { EntryLogComponent } from "./pages/entry-log/entry-log.component";
-import { EntryViewComponent } from "./pages/entry-log/entry-view/entry-view.component";
-import { AddEditEquipmentComponent } from "./pages/equipment/add-edit-equipment/add-edit-equipment.component";
-import { EquipmentComponent } from "./pages/equipment/equipment.component";
-import { EquipmentViewComponent } from "./pages/equipment/equipment-view/equipment-view.component";
-import { GddDataComponent } from "./pages/gdd-data/gdd-data.component";
-import { AddProductComponent } from "./pages/products/add-product/add-product.component";
-import { ProductViewComponent } from "./pages/products/product-view/product-view.component";
-import { ProductsComponent } from "./pages/products/products.component";
-import { ProfileComponent } from "./pages/profile/profile.component";
-import { SettingsComponent } from "./pages/settings/settings.component";
-import { SoilDataComponent } from "./pages/soil-data/soil-data.component";
-import { SubscriptionComponent } from "./pages/subscription/subscription.component";
 
 export const mainRoutes: Routes = [
 	{
@@ -32,89 +16,140 @@ export const mainRoutes: Routes = [
 	},
 	{
 		path: "profile",
-		component: ProfileComponent,
+		loadComponent: () =>
+			import("./pages/profile/profile.component").then(
+				(m) => m.ProfileComponent,
+			),
 		canActivate: [hybridAuthGuard],
 	},
 	{
 		path: "entry-log",
-		component: EntryLogComponent,
+		loadComponent: () =>
+			import("./pages/entry-log/entry-log.component").then(
+				(m) => m.EntryLogComponent,
+			),
 		canActivate: [hybridAuthGuard],
 	},
 	{
 		path: "entry-log/add",
-		component: AddEntryComponent,
+		loadComponent: () =>
+			import("./pages/entry-log/add-entry/add-entry.component").then(
+				(m) => m.AddEntryComponent,
+			),
 		canActivate: [hybridAuthGuard],
 	},
 	{
 		path: "entry-log/:entryId",
-		component: EntryViewComponent,
+		loadComponent: () =>
+			import("./pages/entry-log/entry-view/entry-view.component").then(
+				(m) => m.EntryViewComponent,
+			),
 		canActivate: [hybridAuthGuard],
 	},
 	{
 		path: "soil-data",
-		component: SoilDataComponent,
+		loadComponent: () =>
+			import("./pages/soil-data/soil-data.component").then(
+				(m) => m.SoilDataComponent,
+			),
 		canActivate: [hybridAuthGuard],
 	},
 	{
 		path: "gdd-tracking",
-		component: GddDataComponent,
+		loadComponent: () =>
+			import("./pages/gdd-data/gdd-data.component").then(
+				(m) => m.GddDataComponent,
+			),
 		canActivate: [hybridAuthGuard],
 	},
 	{
 		path: "products/add",
-		component: AddProductComponent,
+		loadComponent: () =>
+			import("./pages/products/add-product/add-product.component").then(
+				(m) => m.AddProductComponent,
+			),
 		canActivate: [hybridAuthGuard],
 	},
 	{
 		path: "products/:productId",
-		component: ProductViewComponent,
+		loadComponent: () =>
+			import("./pages/products/product-view/product-view.component").then(
+				(m) => m.ProductViewComponent,
+			),
 		canActivate: [hybridAuthGuard],
 	},
 	{
 		path: "products",
-		component: ProductsComponent,
+		loadComponent: () =>
+			import("./pages/products/products.component").then(
+				(m) => m.ProductsComponent,
+			),
 		canActivate: [hybridAuthGuard],
 	},
 	{
 		path: "equipment",
-		component: EquipmentComponent,
+		loadComponent: () =>
+			import("./pages/equipment/equipment.component").then(
+				(m) => m.EquipmentComponent,
+			),
 		canActivate: [hybridAuthGuard],
 		pathMatch: "full",
 	},
 	{
 		path: "equipment/add",
-		component: AddEditEquipmentComponent,
+		loadComponent: () =>
+			import(
+				"./pages/equipment/add-edit-equipment/add-edit-equipment.component"
+			).then((m) => m.AddEditEquipmentComponent),
 		canActivate: [hybridAuthGuard],
 	},
 	{
 		path: "equipment/edit/:equipmentId",
-		component: AddEditEquipmentComponent,
+		loadComponent: () =>
+			import(
+				"./pages/equipment/add-edit-equipment/add-edit-equipment.component"
+			).then((m) => m.AddEditEquipmentComponent),
 		canActivate: [hybridAuthGuard],
 	},
 	{
 		path: "equipment/:equipmentId",
-		component: EquipmentViewComponent,
+		loadComponent: () =>
+			import(
+				"./pages/equipment/equipment-view/equipment-view.component"
+			).then((m) => m.EquipmentViewComponent),
 		canActivate: [hybridAuthGuard],
 	},
 	{
 		path: "settings",
-		component: SettingsComponent,
+		loadComponent: () =>
+			import("./pages/settings/settings.component").then(
+				(m) => m.SettingsComponent,
+			),
 		canActivate: [hybridAuthGuard],
 		canDeactivate: [unsavedChangesGuard],
 	},
 	{
 		path: "analytics",
-		component: AnalyticsComponent,
+		loadComponent: () =>
+			import("./pages/analytics/analytics.component").then(
+				(m) => m.AnalyticsComponent,
+			),
 		canActivate: [hybridAuthGuard],
 	},
 	{
 		path: "calculators",
-		component: CalculatorsPage,
+		loadComponent: () =>
+			import("./pages/calculators/calculators-page").then(
+				(m) => m.CalculatorsPage,
+			),
 		canActivate: [hybridAuthGuard],
 	},
 	{
 		path: "subscription",
-		component: SubscriptionComponent,
+		loadComponent: () =>
+			import("./pages/subscription/subscription.component").then(
+				(m) => m.SubscriptionComponent,
+			),
 		canActivate: [hybridAuthGuard],
 	},
 ];

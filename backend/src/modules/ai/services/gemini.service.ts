@@ -1,4 +1,4 @@
-import { GoogleGenAI } from "@google/genai";
+import { FunctionDeclaration, GoogleGenAI } from "@google/genai";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { LogHelpers } from "../../../logger/logger.helpers";
@@ -35,7 +35,7 @@ export class GeminiService {
 
 		this.defaultModel =
 			this.configService.get<string>("GEMINI_DEFAULT_MODEL") ||
-			"gemini-2.0-flash";
+			"gemini-2.5-flash-lite";
 	}
 
 	public get genAIInstance(): GoogleGenAI {
@@ -201,5 +201,92 @@ export class GeminiService {
 			],
 			options,
 		);
+	}
+
+	public async chatWithTools(
+		prompt: string,
+		tools: Array<{
+			name: string;
+			description: string;
+			parameters: Record<string, unknown>;
+		}>,
+		systemPrompt?: string,
+		options?: GeminiChatOptions,
+	): Promise<{
+		response?: string;
+		toolCalls?: Array<{
+			name: string;
+			args: Record<string, unknown>;
+		}>;
+	}> {
+		const modelName = options?.model || this.defaultModel;
+		LogHelpers.addBusinessContext(BusinessContextKeys.aiModel, modelName);
+		LogHelpers.addBusinessContext(BusinessContextKeys.aiProvider, "gemini");
+		LogHelpers.addBusinessContext("aiToolsEnabled", true);
+
+		const start = Date.now();
+		let success = true;
+
+		try {
+			const functionDeclarations: FunctionDeclaration[] = tools.map((tool) => ({
+				name: tool.name,
+				description: tool.description,
+				parameters: tool.parameters,
+			}));
+
+			const contents = systemPrompt
+				? `System: ${systemPrompt}\n\nUser: ${prompt}`
+				: `User: ${prompt}`;
+
+			const response = await this.genAI.models.generateContent({
+				model: modelName,
+				contents,
+				config: {
+					temperature: options?.temperature ?? 0.7,
+					maxOutputTokens: options?.maxOutputTokens ?? 800,
+					topP: options?.topP,
+					topK: options?.topK,
+					stopSequences: options?.stopSequences,
+					tools: [{ functionDeclarations }],
+				},
+			});
+
+			LogHelpers.addBusinessContext(
+				"aiTokensUsed",
+				response.usageMetadata?.totalTokenCount,
+			);
+
+			const functionCalls = response.functionCalls;
+
+			if (functionCalls && functionCalls.length > 0) {
+				return {
+					toolCalls: functionCalls.map((fc) => ({
+						name: fc.name || "",
+						args: (fc.args as Record<string, unknown>) || {},
+					})),
+				};
+			}
+
+			const content = response.text;
+
+			if (!content) {
+				throw new Error("No content or function calls in Gemini response");
+			}
+
+			return {
+				response: content,
+			};
+		} catch (error) {
+			success = false;
+			const message = error instanceof Error ? error.message : "Unknown error";
+			console.error("Gemini tool calling error:", error);
+			throw new Error(`Gemini tool calling error: ${message}`);
+		} finally {
+			LogHelpers.recordExternalCall(
+				"gemini-tools",
+				Date.now() - start,
+				success,
+			);
+		}
 	}
 }

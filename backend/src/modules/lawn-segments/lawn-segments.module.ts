@@ -7,7 +7,7 @@ import { LawnSegmentsService } from "./services/lawn-segments.service";
 
 @Module({
 	imports: [TypeOrmModule.forFeature([LawnSegment])],
-	exports: [TypeOrmModule],
+	exports: [TypeOrmModule, LawnSegmentsService],
 	controllers: [LawnSegmentsController],
 	providers: [LawnSegmentsService, LawnSegmentsResolver],
 })

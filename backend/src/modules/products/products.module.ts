@@ -13,5 +13,6 @@ import { ProductsService } from "./services/products.service";
 	imports: [TypeOrmModule.forFeature([Product, UserHiddenProduct]), HttpModule],
 	controllers: [ProductsController],
 	providers: [ProductsService, ProductsResolver, S3Service, ConfigService],
+	exports: [ProductsService],
 })
 export class ProductsModule {}

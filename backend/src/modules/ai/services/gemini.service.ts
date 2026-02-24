@@ -5,6 +5,8 @@ import { ConfigService } from "@nestjs/config";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 import type { AiChatResponse, AiStreamEvent } from "../../../types/ai.types";
+import type { AiToolDefinition } from "../models/ai-tool.types";
+import { ENTRY_QUERY_TOOL_STATUS_MESSAGES } from "../utils/entry-query-tools.config";
 
 interface GeminiChatMessage {
 	role: "user" | "system" | "assistant";
@@ -207,11 +209,7 @@ export class GeminiService {
 
 	public async chatWithTools(
 		prompt: string,
-		tools: Array<{
-			name: string;
-			description: string;
-			parameters: Record<string, unknown>;
-		}>,
+		tools: AiToolDefinition[],
 		toolExecutor: (
 			name: string,
 			args: Record<string, unknown>,
@@ -228,17 +226,13 @@ export class GeminiService {
 		let success = true;
 
 		try {
-			const functionDeclarations: FunctionDeclaration[] = tools.map(
-				(tool) => ({
-					name: tool.name,
-					description: tool.description,
-					parameters: tool.parameters,
-				}),
-			);
+			const functionDeclarations: FunctionDeclaration[] = tools.map((tool) => ({
+				name: tool.name,
+				description: tool.description,
+				parameters: tool.parameters,
+			}));
 
-			const contents: Content[] = [
-				{ role: "user", parts: [{ text: prompt }] },
-			];
+			const contents: Content[] = [{ role: "user", parts: [{ text: prompt }] }];
 
 			const maxIterations = 5;
 
@@ -320,11 +314,7 @@ export class GeminiService {
 
 	public async *streamChatWithTools(
 		prompt: string,
-		tools: Array<{
-			name: string;
-			description: string;
-			parameters: Record<string, unknown>;
-		}>,
+		tools: AiToolDefinition[],
 		toolExecutor: (
 			name: string,
 			args: Record<string, unknown>,
@@ -342,17 +332,13 @@ export class GeminiService {
 		let success = true;
 
 		try {
-			const functionDeclarations: FunctionDeclaration[] = tools.map(
-				(tool) => ({
-					name: tool.name,
-					description: tool.description,
-					parameters: tool.parameters,
-				}),
-			);
+			const functionDeclarations: FunctionDeclaration[] = tools.map((tool) => ({
+				name: tool.name,
+				description: tool.description,
+				parameters: tool.parameters,
+			}));
 
-			const contents: Content[] = [
-				{ role: "user", parts: [{ text: prompt }] },
-			];
+			const contents: Content[] = [{ role: "user", parts: [{ text: prompt }] }];
 
 			const maxIterations = 5;
 
@@ -438,14 +424,6 @@ export class GeminiService {
 	}
 
 	private getToolStatusMessage(toolName: string): string {
-		const messages: Record<string, string> = {
-			search_entries: "Searching your entries...",
-			get_last_activity_date: "Checking activity history...",
-			list_products: "Looking up your products...",
-			list_lawn_segments: "Loading your lawn areas...",
-			get_entry_by_id: "Loading entry details...",
-		};
-
-		return messages[toolName] ?? "Thinking...";
+		return ENTRY_QUERY_TOOL_STATUS_MESSAGES[toolName] ?? "Thinking...";
 	}
 }

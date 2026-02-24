@@ -10,6 +10,7 @@ import {
 import { ButtonModule } from "primeng/button";
 import { DrawerModule } from "primeng/drawer";
 import { InputTextModule } from "primeng/inputtext";
+import { ENTRY_AI_CHAT_SUGGESTIONS } from "../../../constants/ai-constants";
 import { GlobalUiService } from "../../../services/global-ui.service";
 import { injectAiChat } from "../../../utils/aiChatUtils";
 
@@ -32,12 +33,7 @@ export class EntryAiChatComponent {
 	public readonly isStreaming = this._chat.isStreaming;
 	public readonly statusMessage = this._chat.statusMessage;
 
-	public readonly suggestions = [
-		"When did I last mow?",
-		"What products did I use this year?",
-		"How many times did I fertilize last year?",
-		"What activities did I do last month?",
-	];
+	public readonly suggestions = ENTRY_AI_CHAT_SUGGESTIONS;
 
 	constructor() {
 		effect(() => {

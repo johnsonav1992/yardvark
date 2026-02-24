@@ -2,6 +2,12 @@ import type { Signal } from "@angular/core";
 import { DestroyRef, inject, signal } from "@angular/core";
 import { AiService } from "../services/ai.service";
 import type { AiStreamEvent } from "../types/ai.types";
+import {
+	addPendingAiChatMessage,
+	addUserChatMessage,
+	appendToLastAiChatMessage,
+	applyAiChatErrorToLastMessage,
+} from "./aiChatMessageUtils";
 
 export interface AiChatMessage {
 	role: "user" | "ai";
@@ -41,10 +47,10 @@ export function injectAiChat(streamFn?: AiStreamFn): AiChatHook {
 			return;
 		}
 
-		messages.update((msgs) => [...msgs, { role: "user", content: query }]);
+		messages.update((msgs) => addUserChatMessage(msgs, query));
 		isStreaming.set(true);
 		statusMessage.set(null);
-		messages.update((msgs) => [...msgs, { role: "ai", content: "" }]);
+		messages.update(addPendingAiChatMessage);
 
 		abortController = new AbortController();
 
@@ -57,28 +63,11 @@ export function injectAiChat(streamFn?: AiStreamFn): AiChatHook {
 					statusMessage.set(event.message);
 				} else if (event.type === "chunk") {
 					statusMessage.set(null);
-					messages.update((msgs) => {
-						const last = msgs[msgs.length - 1];
-
-						return [
-							...msgs.slice(0, -1),
-							{ ...last, content: last.content + event.text },
-						];
-					});
+					messages.update((msgs) =>
+						appendToLastAiChatMessage(msgs, event.text),
+					);
 				} else if (event.type === "error") {
-					messages.update((msgs) => {
-						const last = msgs[msgs.length - 1];
-
-						return [
-							...msgs.slice(0, -1),
-							{
-								...last,
-								content:
-									last.content ||
-									"Sorry, something went wrong. Please try again.",
-							},
-						];
-					});
+					messages.update(applyAiChatErrorToLastMessage);
 				}
 			}
 		} finally {

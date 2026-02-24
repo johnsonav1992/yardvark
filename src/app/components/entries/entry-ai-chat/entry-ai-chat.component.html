@@ -1,0 +1,71 @@
+<p-drawer
+  [(visible)]="isOpen"
+  [modal]="true"
+  position="right"
+  styleClass="ai-chat-drawer"
+  [fullScreen]="isMobile()"
+  appendTo="body"
+  (onHide)="onClose()"
+>
+  <ng-template pTemplate="header">
+    <div class="drawer-header">
+      <i class="ti ti-sparkles header-icon"></i>
+      <span>Ask Varky</span>
+    </div>
+  </ng-template>
+  <div class="chat-container">
+    <div class="messages-area">
+      @if (messages().length === 0) {
+        <div class="empty-state">
+          <i class="ti ti-message-chatbot empty-icon"></i>
+          <p class="empty-title">Ask about your lawn care history</p>
+          <p class="empty-subtitle">I can look up entries, products, and activities for you.</p>
+          <div class="suggestions">
+            @for (suggestion of suggestions; track suggestion) {
+              <button class="suggestion-chip" (click)="sendSuggestion(suggestion)">
+                {{ suggestion }}
+              </button>
+            }
+          </div>
+        </div>
+      }
+      @for (msg of messages(); track $index) {
+        <div class="message-row" [class.user-row]="msg.role === 'user'">
+          <div class="bubble" [class.user-bubble]="msg.role === 'user'" [class.ai-bubble]="msg.role === 'ai'">
+            @if (msg.role === 'ai' && isStreaming() && $last && !msg.content) {
+              <div class="status-content">
+                <span class="status-spinner"></span>
+                <span>{{ statusMessage() ?? 'Thinking...' }}</span>
+              </div>
+            } @else {
+              <span class="message-text">{{ msg.content }}</span>
+              @if (msg.role === 'ai' && isStreaming() && $last && msg.content) {
+                <span class="cursor"></span>
+              }
+            }
+          </div>
+        </div>
+      }
+      <div #messagesEnd></div>
+    </div>
+    <div class="input-area">
+      <input
+        class="query-input"
+        pInputText
+        [value]="currentInput()"
+        (input)="onQueryInput($event)"
+        (keydown.enter)="send()"
+        [disabled]="isStreaming()"
+        placeholder="Ask about your lawn..."
+        aria-label="Chat input"
+      />
+      <p-button
+        icon="ti ti-send-2"
+        rounded
+        [disabled]="!currentInput().trim() || isStreaming()"
+        (onClick)="send()"
+        aria-label="Send"
+      />
+    </div>
+  </div>
+</p-drawer>

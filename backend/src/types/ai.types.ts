@@ -25,3 +25,9 @@ export interface AiChatRequest {
 		[key: string]: unknown;
 	};
 }
+
+export type AiStreamEvent =
+	| { type: "status"; message: string }
+	| { type: "chunk"; text: string }
+	| { type: "done" }
+	| { type: "error"; message: string };

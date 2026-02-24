@@ -1,9 +1,10 @@
-import { FunctionDeclaration, GoogleGenAI } from "@google/genai";
+import type { Content, FunctionDeclaration, Part } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
-import type { AiChatResponse } from "../../../types/ai.types";
+import type { AiChatResponse, AiStreamEvent } from "../../../types/ai.types";
 
 interface GeminiChatMessage {
 	role: "user" | "system" | "assistant";
@@ -170,6 +171,7 @@ export class GeminiService {
 
 			for await (const chunk of stream) {
 				const content = chunk.text;
+
 				if (content) {
 					yield { content, done: false };
 				}
@@ -210,15 +212,13 @@ export class GeminiService {
 			description: string;
 			parameters: Record<string, unknown>;
 		}>,
+		toolExecutor: (
+			name: string,
+			args: Record<string, unknown>,
+		) => Promise<unknown>,
 		systemPrompt?: string,
 		options?: GeminiChatOptions,
-	): Promise<{
-		response?: string;
-		toolCalls?: Array<{
-			name: string;
-			args: Record<string, unknown>;
-		}>;
-	}> {
+	): Promise<string> {
 		const modelName = options?.model || this.defaultModel;
 		LogHelpers.addBusinessContext(BusinessContextKeys.aiModel, modelName);
 		LogHelpers.addBusinessContext(BusinessContextKeys.aiProvider, "gemini");
@@ -228,58 +228,86 @@ export class GeminiService {
 		let success = true;
 
 		try {
-			const functionDeclarations: FunctionDeclaration[] = tools.map((tool) => ({
-				name: tool.name,
-				description: tool.description,
-				parameters: tool.parameters,
-			}));
-
-			const contents = systemPrompt
-				? `System: ${systemPrompt}\n\nUser: ${prompt}`
-				: `User: ${prompt}`;
-
-			const response = await this.genAI.models.generateContent({
-				model: modelName,
-				contents,
-				config: {
-					temperature: options?.temperature ?? 0.7,
-					maxOutputTokens: options?.maxOutputTokens ?? 800,
-					topP: options?.topP,
-					topK: options?.topK,
-					stopSequences: options?.stopSequences,
-					tools: [{ functionDeclarations }],
-				},
-			});
-
-			LogHelpers.addBusinessContext(
-				"aiTokensUsed",
-				response.usageMetadata?.totalTokenCount,
+			const functionDeclarations: FunctionDeclaration[] = tools.map(
+				(tool) => ({
+					name: tool.name,
+					description: tool.description,
+					parameters: tool.parameters,
+				}),
 			);
 
-			const functionCalls = response.functionCalls;
+			const contents: Content[] = [
+				{ role: "user", parts: [{ text: prompt }] },
+			];
 
-			if (functionCalls && functionCalls.length > 0) {
-				return {
-					toolCalls: functionCalls.map((fc) => ({
-						name: fc.name || "",
-						args: (fc.args as Record<string, unknown>) || {},
-					})),
-				};
+			const maxIterations = 5;
+
+			for (let iteration = 0; iteration < maxIterations; iteration++) {
+				const response = await this.genAI.models.generateContent({
+					model: modelName,
+					contents,
+					config: {
+						systemInstruction: systemPrompt,
+						temperature: options?.temperature ?? 0.7,
+						maxOutputTokens: options?.maxOutputTokens ?? 800,
+						topP: options?.topP,
+						topK: options?.topK,
+						stopSequences: options?.stopSequences,
+						tools: [{ functionDeclarations }],
+					},
+				});
+
+				const candidate = response.candidates?.[0];
+
+				if (!candidate?.content) {
+					throw new Error("No candidate content in Gemini response");
+				}
+
+				contents.push(candidate.content);
+
+				const functionCallParts = (candidate.content.parts ?? []).filter(
+					(p): p is Part & Required<Pick<Part, "functionCall">> =>
+						p.functionCall != null,
+				);
+
+				if (functionCallParts.length === 0) {
+					const text = response.text;
+
+					if (!text) {
+						throw new Error("No text or function calls in Gemini response");
+					}
+
+					LogHelpers.addBusinessContext(
+						"aiTokensUsed",
+						response.usageMetadata?.totalTokenCount,
+					);
+
+					return text;
+				}
+
+				const functionResponseParts: Part[] = await Promise.all(
+					functionCallParts.map(async (part) => {
+						const name = part.functionCall.name ?? "";
+						const args =
+							(part.functionCall.args as Record<string, unknown>) ?? {};
+						const result = await toolExecutor(name, args);
+
+						return {
+							functionResponse: {
+								name,
+								response: { result },
+							},
+						};
+					}),
+				);
+
+				contents.push({ role: "user", parts: functionResponseParts });
 			}
 
-			const content = response.text;
-
-			if (!content) {
-				throw new Error("No content or function calls in Gemini response");
-			}
-
-			return {
-				response: content,
-			};
+			throw new Error("Max iterations reached without a final response");
 		} catch (error) {
 			success = false;
 			const message = error instanceof Error ? error.message : "Unknown error";
-			console.error("Gemini tool calling error:", error);
 			throw new Error(`Gemini tool calling error: ${message}`);
 		} finally {
 			LogHelpers.recordExternalCall(
@@ -288,5 +316,154 @@ export class GeminiService {
 				success,
 			);
 		}
+	}
+
+	public async *streamChatWithTools(
+		prompt: string,
+		tools: Array<{
+			name: string;
+			description: string;
+			parameters: Record<string, unknown>;
+		}>,
+		toolExecutor: (
+			name: string,
+			args: Record<string, unknown>,
+		) => Promise<unknown>,
+		systemPrompt?: string,
+		options?: GeminiChatOptions,
+	): AsyncGenerator<AiStreamEvent> {
+		const modelName = options?.model || this.defaultModel;
+		LogHelpers.addBusinessContext(BusinessContextKeys.aiModel, modelName);
+		LogHelpers.addBusinessContext(BusinessContextKeys.aiProvider, "gemini");
+		LogHelpers.addBusinessContext("aiToolsEnabled", true);
+		LogHelpers.addBusinessContext("aiStreaming", true);
+
+		const start = Date.now();
+		let success = true;
+
+		try {
+			const functionDeclarations: FunctionDeclaration[] = tools.map(
+				(tool) => ({
+					name: tool.name,
+					description: tool.description,
+					parameters: tool.parameters,
+				}),
+			);
+
+			const contents: Content[] = [
+				{ role: "user", parts: [{ text: prompt }] },
+			];
+
+			const maxIterations = 5;
+
+			for (let iteration = 0; iteration < maxIterations; iteration++) {
+				const stream = await this.genAI.models.generateContentStream({
+					model: modelName,
+					contents,
+					config: {
+						systemInstruction: systemPrompt,
+						temperature: options?.temperature ?? 0.7,
+						maxOutputTokens: options?.maxOutputTokens ?? 800,
+						topP: options?.topP,
+						topK: options?.topK,
+						stopSequences: options?.stopSequences,
+						tools: [{ functionDeclarations }],
+					},
+				});
+
+				const accumulatedParts: Part[] = [];
+				let hasText = false;
+
+				for await (const chunk of stream) {
+					const parts = chunk.candidates?.[0]?.content?.parts ?? [];
+
+					for (const part of parts) {
+						if (part.text) {
+							hasText = true;
+
+							const existing = accumulatedParts.find(
+								(p) => p.text !== undefined,
+							);
+
+							if (existing) {
+								existing.text = (existing.text ?? "") + part.text;
+							} else {
+								accumulatedParts.push({ text: part.text });
+							}
+
+							yield { type: "chunk", text: part.text };
+						} else if (part.functionCall) {
+							accumulatedParts.push(part);
+						}
+					}
+				}
+
+				contents.push({ role: "model", parts: accumulatedParts });
+
+				if (hasText) {
+					yield { type: "done" };
+					LogHelpers.recordExternalCall(
+						"gemini-stream-tools",
+						Date.now() - start,
+						success,
+					);
+					return;
+				}
+
+				const functionCallParts = accumulatedParts.filter(
+					(p): p is Part & Required<Pick<Part, "functionCall">> =>
+						p.functionCall != null,
+				);
+
+				if (functionCallParts.length === 0) {
+					throw new Error("No text or function calls in Gemini response");
+				}
+
+				const functionResponseParts: Part[] = [];
+
+				for (const part of functionCallParts) {
+					const name = part.functionCall.name ?? "";
+					const args =
+						(part.functionCall.args as Record<string, unknown>) ?? {};
+
+					yield { type: "status", message: this.getToolStatusMessage(name) };
+
+					const result = await toolExecutor(name, args);
+
+					functionResponseParts.push({
+						functionResponse: {
+							name,
+							response: { result },
+						},
+					});
+				}
+
+				contents.push({ role: "user", parts: functionResponseParts });
+			}
+
+			throw new Error("Max iterations reached without a final response");
+		} catch (error) {
+			success = false;
+			const message = error instanceof Error ? error.message : "Unknown error";
+			yield { type: "error", message };
+		} finally {
+			LogHelpers.recordExternalCall(
+				"gemini-stream-tools",
+				Date.now() - start,
+				success,
+			);
+		}
+	}
+
+	private getToolStatusMessage(toolName: string): string {
+		const messages: Record<string, string> = {
+			search_entries: "Searching your entries...",
+			get_last_activity_date: "Checking activity history...",
+			list_products: "Looking up your products...",
+			list_lawn_segments: "Loading your lawn areas...",
+			get_entry_by_id: "Loading entry details...",
+		};
+
+		return messages[toolName] ?? "Thinking...";
 	}
 }

@@ -1,8 +1,14 @@
 import { Injectable } from "@nestjs/common";
+import { format } from "date-fns";
 import { ACTIVITY_IDS } from "../../../constants/activities.constants";
 import { EntriesService } from "../../entries/services/entries.service";
+import type { getEntryResponseMapping } from "../../entries/utils/entryUtils";
 import { LawnSegmentsService } from "../../lawn-segments/services/lawn-segments.service";
 import { ProductsService } from "../../products/services/products.service";
+
+const FULL_DETAIL_THRESHOLD = 50;
+
+type MappedEntry = ReturnType<typeof getEntryResponseMapping>;
 
 @Injectable()
 export class EntryQueryToolsService {
@@ -11,6 +17,45 @@ export class EntryQueryToolsService {
 		private readonly productsService: ProductsService,
 		private readonly lawnSegmentsService: LawnSegmentsService,
 	) {}
+
+	private sanitizeEntry(entry: MappedEntry) {
+		return {
+			id: entry.id,
+			date: format(entry.date, "yyyy-MM-dd"),
+			time: entry.time,
+			title: entry.title,
+			notes: entry.notes,
+			soilTemperature: entry.soilTemperature,
+			soilTemperatureUnit: entry.soilTemperatureUnit,
+			mowingHeight: entry.mowingHeight,
+			mowingHeightUnit: entry.mowingHeightUnit,
+			activities: entry.activities.map((a) => ({ id: a.id, name: a.name })),
+			lawnSegments: entry.lawnSegments.map((s) => ({
+				id: s.id,
+				name: s.name,
+				size: s.size,
+			})),
+			products: entry.products.map((p) => ({
+				id: p.id,
+				name: p.name,
+				brand: p.brand,
+				category: p.category,
+				quantity: p.quantity,
+				quantityUnit: p.quantityUnit,
+				guaranteedAnalysis: p.guaranteedAnalysis,
+			})),
+		};
+	}
+
+	private sanitizeEntryLean(entry: MappedEntry) {
+		return {
+			id: entry.id,
+			date: format(entry.date, "yyyy-MM-dd"),
+			activities: entry.activities.map((a) => a.name),
+			lawnSegments: entry.lawnSegments.map((s) => s.name),
+			hasProducts: entry.products.length > 0,
+		};
+	}
 
 	public async searchEntries(
 		userId: string,
@@ -36,7 +81,21 @@ export class EntryQueryToolsService {
 			throw new Error("Failed to search entries");
 		}
 
-		return result.value;
+		const entries = result.value as MappedEntry[];
+		const totalCount = entries.length;
+
+		if (totalCount > FULL_DETAIL_THRESHOLD) {
+			return {
+				totalCount,
+				note: "Large result set — returning lean format. Call get_entry_by_id for full details on a specific entry.",
+				entries: entries.map((e) => this.sanitizeEntryLean(e)),
+			};
+		}
+
+		return {
+			totalCount,
+			entries: entries.map((e) => this.sanitizeEntry(e)),
+		};
 	}
 
 	public async getLastActivityDate(
@@ -57,7 +116,7 @@ export class EntryQueryToolsService {
 				break;
 		}
 
-		return date ? { date: date.toISOString() } : { date: null };
+		return date ? { date: format(date, "yyyy-MM-dd") } : { date: null };
 	}
 
 	public async listProducts(userId: string, category?: string) {
@@ -94,15 +153,13 @@ export class EntryQueryToolsService {
 			throw new Error("Failed to get entry");
 		}
 
-		const entry = result.value;
+		const entry = result.value as MappedEntry;
 
-		if (typeof entry === "object" && "userId" in entry) {
-			if (entry.userId !== userId) {
-				throw new Error("Unauthorized access to entry");
-			}
+		if (entry.userId !== userId) {
+			throw new Error("Unauthorized access to entry");
 		}
 
-		return result.value;
+		return this.sanitizeEntry(entry);
 	}
 
 	public getToolDefinitions() {
@@ -110,7 +167,7 @@ export class EntryQueryToolsService {
 			{
 				name: "search_entries",
 				description:
-					"Search user's lawn care entries with flexible filtering. Returns entries sorted by date (newest first).",
+					"Search user's lawn care entries with flexible filtering. Returns entries sorted by date (newest first). IMPORTANT: If no dateRange is provided, results are limited to the current year. You MUST explicitly provide dateRange when the user asks about a past year, specific year, or any timeframe outside the current year.",
 				parameters: {
 					type: "object" as const,
 					properties: {
@@ -229,7 +286,10 @@ export class EntryQueryToolsService {
 	): Promise<unknown> {
 		switch (toolName) {
 			case "search_entries":
-				return this.searchEntries(userId, args as Parameters<typeof this.searchEntries>[1]);
+				return this.searchEntries(
+					userId,
+					args as Parameters<typeof this.searchEntries>[1],
+				);
 			case "get_last_activity_date":
 				return this.getLastActivityDate(
 					userId,

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { format } from "date-fns";
-import type { AiChatResponse } from "../../../types/ai.types";
+import type { AiChatResponse, AiStreamEvent } from "../../../types/ai.types";
 import { type Either, error, success } from "../../../types/either";
 import { AiChatError } from "../models/ai.errors";
 import { EntryQueryToolsService } from "./entry-query-tools.service";
@@ -46,12 +46,64 @@ export class AiService {
 		query: string,
 	): Promise<Either<AiChatError, AiChatResponse & { toolsUsed?: string[] }>> {
 		try {
-			console.log("Starting queryEntriesWithTools for userId:", userId, "query:", query);
 			const tools = this.entryQueryToolsService.getToolDefinitions();
-			console.log("Got tool definitions, count:", tools.length);
-			const currentDate = format(new Date(), "MMMM do, yyyy");
+			const systemPrompt = this.buildSystemPrompt();
+			const toolsUsed: string[] = [];
 
-			const systemPrompt = `You are a helpful lawn care assistant for Yardvark. Users will ask questions about their lawn care history.
+			const toolExecutor = async (
+				name: string,
+				args: Record<string, unknown>,
+			) => {
+				toolsUsed.push(name);
+
+				return this.entryQueryToolsService.executeTool(userId, name, args);
+			};
+
+			const content = await this.geminiService.chatWithTools(
+				query,
+				tools,
+				toolExecutor,
+				systemPrompt,
+				{ maxOutputTokens: 800 },
+			);
+
+			return success({
+				content,
+				provider: "gemini",
+				toolsUsed,
+			});
+		} catch (err) {
+			return error(new AiChatError(err));
+		}
+	}
+
+	public async *streamQueryEntriesWithTools(
+		userId: string,
+		query: string,
+	): AsyncGenerator<AiStreamEvent> {
+		const tools = this.entryQueryToolsService.getToolDefinitions();
+		const systemPrompt = this.buildSystemPrompt();
+
+		const toolExecutor = async (
+			name: string,
+			args: Record<string, unknown>,
+		) => {
+			return this.entryQueryToolsService.executeTool(userId, name, args);
+		};
+
+		yield* this.geminiService.streamChatWithTools(
+			query,
+			tools,
+			toolExecutor,
+			systemPrompt,
+			{ maxOutputTokens: 800 },
+		);
+	}
+
+	private buildSystemPrompt(): string {
+		const currentDate = format(new Date(), "MMMM do, yyyy");
+
+		return `You are a helpful lawn care assistant for Yardvark. You are talking TO the user about THEIR lawn care history.
 
 Your role:
 1. Use the provided tools to query the user's lawn care entries
@@ -64,71 +116,13 @@ Your role:
 
 Guidelines:
 - Always use tools rather than guessing
+- Always refer to the user's activities using "you/your" — e.g., "You last mowed on June 15th", never "I mowed on June 15th"
 - Format dates in a friendly way (e.g., "June 15th" not "2024-06-15")
 - Use natural language for counts (e.g., "three times" not "3")
 - When listing multiple items, format them nicely
 - If the user's question is ambiguous, make reasonable assumptions based on context
+- When the user mentions a past year, "last year", or any specific year, ALWAYS pass an explicit dateRange in search_entries (e.g., for last year: startDate "YYYY-01-01", endDate "YYYY-12-31"). Never rely on the default date range for past-year queries.
 
 Today's date: ${currentDate}`;
-
-			const maxIterations = 5;
-			let iteration = 0;
-			const toolsUsed: string[] = [];
-			let currentPrompt = query;
-			const toolResults: string[] = [];
-
-			while (iteration < maxIterations) {
-				iteration++;
-
-				const fullPrompt =
-					toolResults.length > 0
-						? `${currentPrompt}\n\nPrevious tool results:\n${toolResults.join("\n")}`
-						: currentPrompt;
-
-				const response = await this.geminiService.chatWithTools(
-					fullPrompt,
-					tools,
-					systemPrompt,
-					{ maxOutputTokens: 800 },
-				);
-
-				console.log("Gemini response:", JSON.stringify(response, null, 2));
-
-				if (response.response) {
-					return success({
-						content: response.response,
-						provider: "gemini",
-						toolsUsed,
-					});
-				}
-
-				if (response.toolCalls && response.toolCalls.length > 0) {
-					for (const toolCall of response.toolCalls) {
-						toolsUsed.push(toolCall.name);
-
-						const result = await this.entryQueryToolsService.executeTool(
-							userId,
-							toolCall.name,
-							toolCall.args,
-						);
-
-						toolResults.push(
-							`Tool: ${toolCall.name}\nResult: ${JSON.stringify(result, null, 2)}`,
-						);
-					}
-
-					currentPrompt = query;
-				} else {
-					throw new Error(
-						"AI did not return a response or tool calls - this should not happen",
-					);
-				}
-			}
-
-			throw new Error("Max iterations reached without a final response");
-		} catch (err) {
-			console.error("Error in queryEntriesWithTools:", err);
-			return error(new AiChatError(err));
-		}
 	}
 }

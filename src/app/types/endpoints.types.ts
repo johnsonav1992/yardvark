@@ -50,7 +50,7 @@ type FileRoutes = "files/upload" | "files/download";
 
 type WeatherRoutes = "weather/forecast";
 
-type AiRoutes = "ai/chat";
+type AiRoutes = "ai/chat" | "ai/query-entries/stream";
 
 type EmailRoutes = "email/feedback";
 

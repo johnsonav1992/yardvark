@@ -104,15 +104,29 @@
       </p>
     }
   }
-  <p-button
-    icon="ti ti-clipboard-plus"
-    class="speed-dial"
-    rounded
-    raised
-    size="large"
-    [dt]="addButtonDt()"
-    [pTooltip]="'Create entry'"
-    (click)="createEntry()"
-  />
+  <div class="fab-container">
+    <p-button
+      icon="ti ti-sparkles"
+      rounded
+      raised
+      severity="secondary"
+      size="large"
+      [dt]="addButtonDt()"
+      pTooltip="Ask AI"
+      tooltipPosition="left"
+      (click)="isAiChatOpen.set(true)"
+    />
+    <p-button
+      icon="ti ti-clipboard-plus"
+      rounded
+      raised
+      size="large"
+      [dt]="addButtonDt()"
+      pTooltip="Create entry"
+      tooltipPosition="left"
+      (click)="createEntry()"
+    />
+  </div>
+  <entry-ai-chat [(isOpen)]="isAiChatOpen" />
 </div>
 <router-outlet></router-outlet>

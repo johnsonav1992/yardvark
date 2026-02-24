@@ -21,6 +21,7 @@ import {
 	type DaySelectedEvent,
 	EntriesCalendarComponent,
 } from "../../components/entries/entries-calendar/entries-calendar.component";
+import { EntryAiChatComponent } from "../../components/entries/entry-ai-chat/entry-ai-chat.component";
 import { MobileEntryPreviewCardComponent } from "../../components/entries/mobile-entry-preview-card/mobile-entry-preview-card.component";
 import { WeatherDayMarker } from "../../components/weather/weather-day-marker/weather-day-marker";
 import { CsvExportService } from "../../services/csv-export.service";
@@ -40,6 +41,7 @@ import { getForecastMarkerIcon } from "../../utils/weatherUtils";
 	selector: "entry-log",
 	imports: [
 		EntriesCalendarComponent,
+		EntryAiChatComponent,
 		ButtonModule,
 		TooltipModule,
 		RouterOutlet,
@@ -92,6 +94,7 @@ export class EntryLogComponent implements OnInit {
 
 	public user = injectUserData();
 
+	public isAiChatOpen = signal(false);
 	public entrySortOrder = signal<"asc" | "desc">("desc");
 	public currentDate = signal(new Date());
 	public selectedMobileDateToView = signal<Date | null>(null);
@@ -300,4 +303,5 @@ export class EntryLogComponent implements OnInit {
 			},
 		},
 	}));
+
 }

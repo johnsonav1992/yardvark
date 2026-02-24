@@ -36,7 +36,7 @@ export class GeminiService {
 
 		this.defaultModel =
 			this.configService.get<string>("GEMINI_DEFAULT_MODEL") ||
-			"gemini-2.5-flash-lite";
+			"gemini-2.0-flash";
 	}
 
 	public get genAIInstance(): GoogleGenAI {
@@ -357,7 +357,7 @@ export class GeminiService {
 			const maxIterations = 5;
 
 			for (let iteration = 0; iteration < maxIterations; iteration++) {
-				const stream = await this.genAI.models.generateContentStream({
+				const response = await this.genAI.models.generateContent({
 					model: modelName,
 					contents,
 					config: {
@@ -371,52 +371,34 @@ export class GeminiService {
 					},
 				});
 
-				const accumulatedParts: Part[] = [];
-				let hasText = false;
+				const candidate = response.candidates?.[0];
 
-				for await (const chunk of stream) {
-					const parts = chunk.candidates?.[0]?.content?.parts ?? [];
-
-					for (const part of parts) {
-						if (part.text) {
-							hasText = true;
-
-							const existing = accumulatedParts.find(
-								(p) => p.text !== undefined,
-							);
-
-							if (existing) {
-								existing.text = (existing.text ?? "") + part.text;
-							} else {
-								accumulatedParts.push({ text: part.text });
-							}
-
-							yield { type: "chunk", text: part.text };
-						} else if (part.functionCall) {
-							accumulatedParts.push(part);
-						}
-					}
+				if (!candidate?.content) {
+					throw new Error("No candidate content in Gemini response");
 				}
 
-				contents.push({ role: "model", parts: accumulatedParts });
+				contents.push(candidate.content);
 
-				if (hasText) {
-					yield { type: "done" };
-					LogHelpers.recordExternalCall(
-						"gemini-stream-tools",
-						Date.now() - start,
-						success,
-					);
-					return;
-				}
-
-				const functionCallParts = accumulatedParts.filter(
+				const functionCallParts = (candidate.content.parts ?? []).filter(
 					(p): p is Part & Required<Pick<Part, "functionCall">> =>
 						p.functionCall != null,
 				);
 
 				if (functionCallParts.length === 0) {
-					throw new Error("No text or function calls in Gemini response");
+					const text = response.text;
+
+					if (!text) {
+						throw new Error("No text or function calls in Gemini response");
+					}
+
+					LogHelpers.addBusinessContext(
+						"aiTokensUsed",
+						response.usageMetadata?.totalTokenCount,
+					);
+
+					yield { type: "chunk", text };
+					yield { type: "done" };
+					return;
 				}
 
 				const functionResponseParts: Part[] = [];

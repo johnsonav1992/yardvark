@@ -64,16 +64,32 @@ export class EntryQueryToolsService {
 			activities?: number[];
 			lawnSegments?: number[];
 			products?: number[];
+			productCategories?: string[];
 			titleOrNotes?: string;
 		},
 	) {
+		let productIds = params.products || ([] as number[]);
+
+		if (params.productCategories?.length) {
+			const categoryProducts = await Promise.all(
+				params.productCategories.map((cat) => this.listProducts(userId, cat)),
+			);
+
+			const categoryIds = categoryProducts
+				.flat()
+				.map((p) => p.id)
+				.filter((id): id is number => id != null);
+
+			productIds = [...new Set([...productIds, ...categoryIds])];
+		}
+
 		const result = await this.entriesService.searchEntries(userId, {
 			dateRange: params.dateRange
 				? [params.dateRange.startDate, params.dateRange.endDate]
 				: ([] as string[]),
 			activities: params.activities || ([] as number[]),
 			lawnSegments: params.lawnSegments || ([] as number[]),
-			products: params.products || ([] as number[]),
+			products: productIds,
 			titleOrNotes: params.titleOrNotes || "",
 		});
 
@@ -199,8 +215,28 @@ export class EntryQueryToolsService {
 						products: {
 							type: "array" as const,
 							description:
-								"Filter by product IDs (get from list_products first)",
+								"Filter by specific product IDs (get from list_products first, only when the user asks about a specific product by name)",
 							items: { type: "number" as const },
+						},
+						productCategories: {
+							type: "array" as const,
+							description:
+								"Filter by product categories — use this when the user asks about a type of product (e.g. 'fertilizer', 'pre-emergent'). Prefer this over list_products + products for category-based queries.",
+							items: {
+								type: "string" as const,
+								enum: [
+									"fertilizer",
+									"pre-emergent",
+									"post-emergent",
+									"bio-stimulant",
+									"insect-control",
+									"plant-fertilizer",
+									"seed",
+									"fungus-control",
+									"pgr",
+									"other",
+								],
+							},
 						},
 						titleOrNotes: {
 							type: "string" as const,
@@ -229,7 +265,7 @@ export class EntryQueryToolsService {
 			{
 				name: "list_products",
 				description:
-					"List all products the user has in their inventory. Use this before searching entries by product.",
+					"List all products the user has in their inventory. Only use this when you need the specific product name or ID for a product the user mentioned by name.",
 				parameters: {
 					type: "object" as const,
 					properties: {

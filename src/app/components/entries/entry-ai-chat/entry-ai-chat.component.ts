@@ -1,7 +1,6 @@
 import type { ElementRef } from "@angular/core";
 import {
 	Component,
-	DestroyRef,
 	effect,
 	inject,
 	model,
@@ -11,13 +10,8 @@ import {
 import { ButtonModule } from "primeng/button";
 import { DrawerModule } from "primeng/drawer";
 import { InputTextModule } from "primeng/inputtext";
-import { AiService } from "../../../services/ai.service";
 import { GlobalUiService } from "../../../services/global-ui.service";
-
-interface ChatMessage {
-	role: "user" | "ai";
-	content: string;
-}
+import { injectAiChat } from "../../../utils/aiChatUtils";
 
 @Component({
 	selector: "entry-ai-chat",
@@ -26,18 +20,17 @@ interface ChatMessage {
 	styleUrl: "./entry-ai-chat.component.scss",
 })
 export class EntryAiChatComponent {
-	private readonly _aiService = inject(AiService);
 	private readonly _globalUiService = inject(GlobalUiService);
-	private readonly _destroyRef = inject(DestroyRef);
-	private readonly _messagesEnd = viewChild<ElementRef<HTMLDivElement>>("messagesEnd");
-	private _abortController: AbortController | null = null;
+	private readonly _messagesEnd =
+		viewChild<ElementRef<HTMLDivElement>>("messagesEnd");
+	private readonly _chat = injectAiChat();
 
 	public isOpen = model(false);
 	public isMobile = this._globalUiService.isMobile;
-	public messages = signal<ChatMessage[]>([]);
 	public currentInput = signal("");
-	public isStreaming = signal(false);
-	public statusMessage = signal<string | null>(null);
+	public readonly messages = this._chat.messages;
+	public readonly isStreaming = this._chat.isStreaming;
+	public readonly statusMessage = this._chat.statusMessage;
 
 	public readonly suggestions = [
 		"When did I last mow?",
@@ -47,23 +40,20 @@ export class EntryAiChatComponent {
 	];
 
 	constructor() {
-		this._destroyRef.onDestroy(() => this._abortController?.abort());
-
 		effect(() => {
 			this.messages();
 			this.statusMessage();
 
 			setTimeout(() => {
-				this._messagesEnd()?.nativeElement?.scrollIntoView({ behavior: "smooth" });
+				this._messagesEnd()?.nativeElement?.scrollIntoView({
+					behavior: "smooth",
+				});
 			}, 0);
 		});
 	}
 
 	public onClose(): void {
-		this._abortController?.abort();
-		this._abortController = null;
-		this.isStreaming.set(false);
-		this.statusMessage.set(null);
+		this._chat.abort();
 	}
 
 	public onQueryInput(event: Event): void {
@@ -73,56 +63,12 @@ export class EntryAiChatComponent {
 	public async send(): Promise<void> {
 		const query = this.currentInput().trim();
 
-		if (!query || this.isStreaming()) {
+		if (!query) {
 			return;
 		}
 
-		this.messages.update((msgs) => [...msgs, { role: "user", content: query }]);
 		this.currentInput.set("");
-		this.isStreaming.set(true);
-		this.statusMessage.set(null);
-		this.messages.update((msgs) => [...msgs, { role: "ai", content: "" }]);
-
-		this._abortController = new AbortController();
-
-		try {
-			for await (const event of this._aiService.streamQueryEntries(
-				query,
-				this._abortController.signal,
-			)) {
-				if (event.type === "status") {
-					this.statusMessage.set(event.message);
-				} else if (event.type === "chunk") {
-					this.statusMessage.set(null);
-					this.messages.update((msgs) => {
-						const last = msgs[msgs.length - 1];
-
-						return [
-							...msgs.slice(0, -1),
-							{ ...last, content: last.content + event.text },
-						];
-					});
-				} else if (event.type === "error") {
-					this.messages.update((msgs) => {
-						const last = msgs[msgs.length - 1];
-
-						return [
-							...msgs.slice(0, -1),
-							{
-								...last,
-								content:
-									last.content ||
-									"Sorry, something went wrong. Please try again.",
-							},
-						];
-					});
-				}
-			}
-		} finally {
-			this.isStreaming.set(false);
-			this.statusMessage.set(null);
-			this._abortController = null;
-		}
+		await this._chat.send(query);
 	}
 
 	public async sendSuggestion(text: string): Promise<void> {

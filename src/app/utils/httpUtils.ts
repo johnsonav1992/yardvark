@@ -29,7 +29,7 @@ export const provideHttpUtils = () => {
 	});
 };
 
-const createHttpUtil = <T, TArgs extends any[]>(
+const createHttpUtil = <T, TArgs extends unknown[]>(
 	utilFn: (http: HttpClient, ...args: TArgs) => T,
 ) => {
 	return (...args: TArgs): T => {

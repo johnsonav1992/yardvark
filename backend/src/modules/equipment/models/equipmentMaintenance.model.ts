@@ -25,7 +25,16 @@ export class EquipmentMaintenance {
 	notes: string;
 
 	@Field(() => Float, { nullable: true })
-	@Column({ type: "decimal", precision: 10, scale: 2, nullable: true })
+	@Column({
+		type: "decimal",
+		precision: 10,
+		scale: 2,
+		nullable: true,
+		transformer: {
+			to: (value?: number) => value,
+			from: (value?: string) => (value != null ? parseFloat(value) : null),
+		},
+	})
 	cost?: number;
 
 	@Field()

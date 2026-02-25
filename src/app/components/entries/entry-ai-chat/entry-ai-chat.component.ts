@@ -1,6 +1,7 @@
 import type { ElementRef } from "@angular/core";
 import {
 	Component,
+	computed,
 	effect,
 	inject,
 	model,
@@ -32,10 +33,58 @@ export class EntryAiChatComponent {
 	public readonly messages = this._chat.messages;
 	public readonly isStreaming = this._chat.isStreaming;
 	public readonly statusMessage = this._chat.statusMessage;
+	public readonly limitStatus = this._chat.limitStatus;
+	public readonly isLimitReached = computed(
+		() => (this.limitStatus()?.remaining ?? 1) <= 0,
+	);
+	public readonly isInputDisabled = computed(
+		() => this.isStreaming() || this.isLimitReached(),
+	);
+	public readonly isSendDisabled = computed(
+		() => !this.currentInput().trim() || this.isInputDisabled(),
+	);
+	public readonly limitResetHint = computed(() => {
+		const resetAt = this.limitStatus()?.resetAt;
+
+		if (!resetAt) {
+			return "";
+		}
+
+		const resetDate = new Date(resetAt);
+
+		if (Number.isNaN(resetDate.getTime())) {
+			return "";
+		}
+
+		return `Resets at ${resetDate.toLocaleTimeString([], {
+			hour: "numeric",
+			minute: "2-digit",
+		})}.`;
+	});
+	public readonly disabledReason = computed(() => {
+		if (this.isStreaming()) {
+			return "Varky is still responding. Please wait.";
+		}
+
+		if (this.isLimitReached()) {
+			const resetHint = this.limitResetHint();
+			return resetHint
+				? `You've reached your daily message limit. ${resetHint}`
+				: "You've reached your daily message limit.";
+		}
+
+		return null;
+	});
 
 	public readonly suggestions = ENTRY_AI_CHAT_SUGGESTIONS;
 
 	constructor() {
+		effect(() => {
+			if (this.isOpen()) {
+				void this._chat.refreshLimitStatus();
+			}
+		});
+
 		effect(() => {
 			this.messages();
 			this.statusMessage();
@@ -59,7 +108,7 @@ export class EntryAiChatComponent {
 	public async send(): Promise<void> {
 		const query = this.currentInput().trim();
 
-		if (!query) {
+		if (!query || this.isInputDisabled()) {
 			return;
 		}
 

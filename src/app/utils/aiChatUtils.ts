@@ -1,7 +1,7 @@
 import type { Signal } from "@angular/core";
 import { DestroyRef, inject, signal } from "@angular/core";
 import { AiService } from "../services/ai.service";
-import type { AiStreamEvent } from "../types/ai.types";
+import type { AiEntryQueryLimitStatus, AiStreamEvent } from "../types/ai.types";
 import {
 	addPendingAiChatMessage,
 	addUserChatMessage,
@@ -18,8 +18,10 @@ interface AiChatHook {
 	messages: Signal<AiChatMessage[]>;
 	isStreaming: Signal<boolean>;
 	statusMessage: Signal<string | null>;
+	limitStatus: Signal<AiEntryQueryLimitStatus | null>;
 	send: (query: string) => Promise<void>;
 	abort: () => void;
+	refreshLimitStatus: () => Promise<void>;
 }
 
 export type AiStreamFn = (
@@ -37,13 +39,18 @@ export function injectAiChat(streamFn?: AiStreamFn): AiChatHook {
 	const messages = signal<AiChatMessage[]>([]);
 	const isStreaming = signal(false);
 	const statusMessage = signal<string | null>(null);
+	const limitStatus = signal<AiEntryQueryLimitStatus | null>(null);
 
 	let abortController: AbortController | null = null;
 
 	destroyRef.onDestroy(() => abortController?.abort());
 
 	const send = async (query: string): Promise<void> => {
-		if (!query.trim() || isStreaming()) {
+		if (
+			!query.trim() ||
+			isStreaming() ||
+			(limitStatus()?.remaining ?? 1) <= 0
+		) {
 			return;
 		}
 
@@ -61,13 +68,17 @@ export function injectAiChat(streamFn?: AiStreamFn): AiChatHook {
 			)) {
 				if (event.type === "status") {
 					statusMessage.set(event.message);
+				} else if (event.type === "limit") {
+					limitStatus.set(event.data);
 				} else if (event.type === "chunk") {
 					statusMessage.set(null);
 					messages.update((msgs) =>
 						appendToLastAiChatMessage(msgs, event.text),
 					);
 				} else if (event.type === "error") {
-					messages.update(applyAiChatErrorToLastMessage);
+					messages.update((msgs) =>
+						applyAiChatErrorToLastMessage(msgs, event.message),
+					);
 				}
 			}
 		} finally {
@@ -84,5 +95,18 @@ export function injectAiChat(streamFn?: AiStreamFn): AiChatHook {
 		statusMessage.set(null);
 	};
 
-	return { messages, isStreaming, statusMessage, send, abort };
+	const refreshLimitStatus = async (): Promise<void> => {
+		const status = await aiService.getQueryEntriesLimitStatusAsync();
+		limitStatus.set(status);
+	};
+
+	return {
+		messages,
+		isStreaming,
+		statusMessage,
+		limitStatus,
+		send,
+		abort,
+		refreshLimitStatus,
+	};
 }

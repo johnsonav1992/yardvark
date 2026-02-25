@@ -15,8 +15,16 @@ export interface AiChatResponse {
 	};
 }
 
+export interface AiEntryQueryLimitStatus {
+	limit: number;
+	used: number;
+	remaining: number;
+	resetAt: string;
+}
+
 export type AiStreamEvent =
 	| { type: "status"; message: string }
+	| { type: "limit"; data: AiEntryQueryLimitStatus }
 	| { type: "chunk"; text: string }
 	| { type: "done" }
 	| { type: "error"; message: string };

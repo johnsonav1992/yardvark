@@ -32,6 +32,17 @@
   overflow: hidden;
 }
 
+.limit-banner {
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--p-surface-200);
+  background: var(--p-surface-50);
+}
+
+.limit-text {
+  font-size: 0.78rem;
+  color: var(--p-surface-600);
+}
+
 .messages-area {
   flex: 1;
   overflow-y: auto;
@@ -174,6 +185,13 @@
     flex: 1;
     min-width: 0;
   }
+}
+
+.input-disabled-reason {
+  margin: 0;
+  padding: 0 1rem calc(0.5rem + env(safe-area-inset-bottom));
+  font-size: 0.75rem;
+  color: var(--p-surface-600);
 }
 
 @keyframes spin {

@@ -2,6 +2,7 @@ import { Test, type TestingModule } from "@nestjs/testing";
 import { AiService } from "./ai.service";
 import { EntryQueryToolsService } from "./entry-query-tools.service";
 import { GeminiService } from "./gemini.service";
+import { SubscriptionService } from "../../subscription/services/subscription.service";
 
 describe("AiService", () => {
 	let service: AiService;
@@ -16,6 +17,11 @@ describe("AiService", () => {
 			getToolDefinitions: jest.fn(),
 			executeTool: jest.fn(),
 		};
+		const mockSubscriptionService = {
+			checkFeatureAccess: jest.fn(),
+			incrementUsage: jest.fn(),
+			getCurrentFeatureUsage: jest.fn(),
+		};
 
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [
@@ -27,6 +33,10 @@ describe("AiService", () => {
 				{
 					provide: EntryQueryToolsService,
 					useValue: mockEntryQueryToolsService,
+				},
+				{
+					provide: SubscriptionService,
+					useValue: mockSubscriptionService,
 				},
 			],
 		}).compile();

@@ -3,12 +3,17 @@ import { AuthService } from "@auth0/auth0-angular";
 import {
 	catchError,
 	firstValueFrom,
+	from,
 	map,
 	type Observable,
 	of,
 	timeout,
 } from "rxjs";
-import type { AiChatResponse, AiStreamEvent } from "../types/ai.types";
+import type {
+	AiChatResponse,
+	AiEntryQueryLimitStatus,
+	AiStreamEvent,
+} from "../types/ai.types";
 import { streamSseDataLines } from "../utils/aiStreamUtils";
 import { apiUrl, postReq } from "../utils/httpUtils";
 
@@ -31,6 +36,41 @@ export class AiService {
 			catchError(() => of(null)),
 			map((response: AiChatResponse | null) => response?.content || ""),
 		);
+	}
+
+	public getQueryEntriesLimitStatus(): Observable<AiEntryQueryLimitStatus | null> {
+		return from(this.getQueryEntriesLimitStatusAsync()).pipe(
+			catchError(() => of(null)),
+		);
+	}
+
+	public async getQueryEntriesLimitStatusAsync(): Promise<AiEntryQueryLimitStatus | null> {
+		let token: string;
+
+		try {
+			token = await firstValueFrom(this._auth.getAccessTokenSilently());
+		} catch {
+			return null;
+		}
+
+		const url = apiUrl("ai/query-entries/limit");
+
+		try {
+			const response = await fetch(url, {
+				method: "GET",
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+			});
+
+			if (!response.ok) {
+				return null;
+			}
+
+			return (await response.json()) as AiEntryQueryLimitStatus;
+		} catch {
+			return null;
+		}
 	}
 
 	public async *streamQueryEntries(
@@ -68,7 +108,19 @@ export class AiService {
 		}
 
 		if (!response.ok || !response.body) {
-			yield { type: "error", message: "AI service returned an error" };
+			let message = "AI service returned an error";
+
+			try {
+				const errorBody = (await response.json()) as {
+					message?: string;
+					code?: string;
+				};
+				message = errorBody.message || message;
+			} catch {
+				// no-op
+			}
+
+			yield { type: "error", message };
 			return;
 		}
 

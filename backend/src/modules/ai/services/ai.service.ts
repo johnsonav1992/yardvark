@@ -1,8 +1,20 @@
 import { Injectable } from "@nestjs/common";
-import type { AiChatResponse, AiStreamEvent } from "../../../types/ai.types";
+import type {
+	AiChatResponse,
+	AiEntryQueryLimitStatus,
+	AiStreamEvent,
+} from "../../../types/ai.types";
 import { type Either, error, success } from "../../../types/either";
-import { AiChatError } from "../models/ai.errors";
-import { getEntryQueryChatOptions } from "../utils/entry-query-ai.config";
+import { SubscriptionService } from "../../subscription/services/subscription.service";
+import {
+	AiChatAccessDeniedError,
+	AiChatDailyLimitReachedError,
+	AiChatError,
+} from "../models/ai.errors";
+import {
+	ENTRY_QUERY_DAILY_LIMIT_FEATURE,
+	getEntryQueryChatOptions,
+} from "../utils/entry-query-ai.config";
 import { buildEntryQuerySystemPrompt } from "../utils/entry-query-prompt.utils";
 import { isEntryQueryToolName } from "../utils/entry-query-tools.config";
 import { EntryQueryToolsService } from "./entry-query-tools.service";
@@ -13,6 +25,7 @@ export class AiService {
 	constructor(
 		private readonly geminiService: GeminiService,
 		private readonly entryQueryToolsService: EntryQueryToolsService,
+		private readonly subscriptionService: SubscriptionService,
 	) {}
 
 	public async chat(
@@ -82,6 +95,84 @@ export class AiService {
 			buildEntryQuerySystemPrompt(),
 			getEntryQueryChatOptions(),
 		);
+	}
+
+	public async getEntryQueryLimitStatus(
+		userId: string,
+	): Promise<Either<AiChatError, AiEntryQueryLimitStatus>> {
+		try {
+			const accessResult = await this.subscriptionService.checkFeatureAccess(
+				userId,
+				ENTRY_QUERY_DAILY_LIMIT_FEATURE,
+			);
+
+			if (accessResult.isError()) {
+				return error(new AiChatError(accessResult.value.error));
+			}
+
+			const access = accessResult.value;
+			const usageResult = await this.subscriptionService.getCurrentFeatureUsage(
+				userId,
+				ENTRY_QUERY_DAILY_LIMIT_FEATURE,
+			);
+
+			if (usageResult.isError()) {
+				return error(new AiChatError(usageResult.value.error));
+			}
+
+			const usage = usageResult.value;
+			const limit = access.limit ?? 0;
+			const used = usage.usage;
+
+			return success({
+				limit,
+				used,
+				remaining: Math.max(limit - used, 0),
+				resetAt: usage.periodEnd.toISOString(),
+			});
+		} catch (err) {
+			return error(new AiChatError(err));
+		}
+	}
+
+	public async reserveEntryQueryMessage(
+		userId: string,
+	): Promise<Either<AiChatError, AiEntryQueryLimitStatus>> {
+		try {
+			const accessResult = await this.subscriptionService.checkFeatureAccess(
+				userId,
+				ENTRY_QUERY_DAILY_LIMIT_FEATURE,
+			);
+
+			if (accessResult.isError()) {
+				return error(new AiChatError(accessResult.value.error));
+			}
+
+			const access = accessResult.value;
+
+			if (!access.allowed) {
+				if (access.limit !== undefined && access.usage !== undefined) {
+					return error(
+						new AiChatDailyLimitReachedError(access.usage, access.limit),
+					);
+				}
+
+				return error(new AiChatAccessDeniedError());
+			}
+
+			const incrementResult = await this.subscriptionService.incrementUsage(
+				userId,
+				ENTRY_QUERY_DAILY_LIMIT_FEATURE,
+			);
+
+			if (incrementResult.isError()) {
+				return error(new AiChatError(incrementResult.value.error));
+			}
+
+			return this.getEntryQueryLimitStatus(userId);
+		} catch (err) {
+			return error(new AiChatError(err));
+		}
 	}
 
 	private createEntryQueryToolExecutor(

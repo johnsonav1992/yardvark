@@ -14,6 +14,15 @@
     </div>
   </ng-template>
   <div class="chat-container">
+    <div class="limit-banner">
+      @if (limitStatus(); as limit) {
+        <span class="limit-text">
+          {{ limit.remaining }} of {{ limit.limit }} messages left today
+        </span>
+      } @else {
+        <span class="limit-text">Loading message limit...</span>
+      }
+    </div>
     <div class="messages-area">
       @if (messages().length === 0) {
         <div class="empty-state">
@@ -55,17 +64,20 @@
         [value]="currentInput()"
         (input)="onQueryInput($event)"
         (keydown.enter)="send()"
-        [disabled]="isStreaming()"
+        [disabled]="isInputDisabled()"
         placeholder="Ask about your lawn..."
         aria-label="Chat input"
       />
       <p-button
         icon="ti ti-send-2"
         rounded
-        [disabled]="!currentInput().trim() || isStreaming()"
+        [disabled]="isSendDisabled()"
         (onClick)="send()"
         aria-label="Send"
       />
     </div>
+    @if (disabledReason(); as reason) {
+      <p class="input-disabled-reason">{{ reason }}</p>
+    }
   </div>
 </p-drawer>

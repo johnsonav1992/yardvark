@@ -3,7 +3,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { InjectRepository } from "@nestjs/typeorm";
 import type { Cache } from "cache-manager";
-import { addMonths, startOfDay, startOfMonth } from "date-fns";
+import { addDays, addMonths, startOfDay, startOfMonth } from "date-fns";
 import type Stripe from "stripe";
 import { Repository } from "typeorm";
 import { ResourceError } from "../../../errors/resource-error";
@@ -45,9 +45,17 @@ export type FeatureAccessResult = {
 	usage?: number;
 };
 
+export type FeatureUsageStatus = {
+	usage: number;
+	periodStart: Date;
+	periodEnd: Date;
+};
+
 @Injectable()
 export class SubscriptionService {
 	private readonly FREE_TIER_ENTRY_LIMIT = 6;
+	private readonly DEFAULT_PRO_AI_DAILY_MESSAGE_LIMIT = 5;
+	private readonly AI_ENTRY_DAILY_LIMIT_FEATURE = "ai_query_entries_daily";
 
 	constructor(
 		@InjectRepository(Subscription)
@@ -128,6 +136,39 @@ export class SubscriptionService {
 		const end = addMonths(start, 1);
 
 		return { start, end };
+	}
+
+	private getCurrentDayPeriod(): { start: Date; end: Date } {
+		const start = startOfDay(new Date());
+		const end = addDays(start, 1);
+
+		return { start, end };
+	}
+
+	private getCurrentUsagePeriod(feature: string): { start: Date; end: Date } {
+		if (feature === this.AI_ENTRY_DAILY_LIMIT_FEATURE) {
+			return this.getCurrentDayPeriod();
+		}
+
+		return this.getCurrentMonthPeriod();
+	}
+
+	private getProAiDailyMessageLimit(): number {
+		const rawLimit = this.configService.get<string>(
+			"PRO_AI_DAILY_MESSAGE_LIMIT",
+		);
+
+		if (!rawLimit) {
+			return this.DEFAULT_PRO_AI_DAILY_MESSAGE_LIMIT;
+		}
+
+		const parsedLimit = Number.parseInt(rawLimit, 10);
+
+		if (!Number.isFinite(parsedLimit) || parsedLimit <= 0) {
+			return this.DEFAULT_PRO_AI_DAILY_MESSAGE_LIMIT;
+		}
+
+		return parsedLimit;
 	}
 
 	private getTierFromPriceId(priceId: string | undefined): SubscriptionTier {
@@ -671,6 +712,30 @@ export class SubscriptionService {
 			LogHelpers.addBusinessContext(BusinessContextKeys.isPro, isPro);
 
 			if (feature.startsWith("ai_")) {
+				if (feature === this.AI_ENTRY_DAILY_LIMIT_FEATURE) {
+					if (!isPro) {
+						return success({ allowed: false });
+					}
+
+					const { start: periodStart } = this.getCurrentUsagePeriod(feature);
+					const usage = await this.usageRepo.findOne({
+						where: {
+							userId,
+							featureName: feature,
+							periodStart,
+						},
+					});
+
+					const usageCount = usage?.usageCount || 0;
+					const limit = this.getProAiDailyMessageLimit();
+
+					return success({
+						allowed: usageCount < limit,
+						limit,
+						usage: usageCount,
+					});
+				}
+
 				return success({ allowed: isPro });
 			}
 
@@ -794,7 +859,8 @@ export class SubscriptionService {
 		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 		LogHelpers.addBusinessContext(BusinessContextKeys.feature, feature);
 
-		const { start: periodStart, end: periodEnd } = this.getCurrentMonthPeriod();
+		const { start: periodStart, end: periodEnd } =
+			this.getCurrentUsagePeriod(feature);
 
 		try {
 			const existingUsage = await this.usageRepo.findOne({
@@ -872,7 +938,8 @@ export class SubscriptionService {
 			return success(undefined);
 		}
 
-		const { start: periodStart, end: periodEnd } = this.getCurrentMonthPeriod();
+		const { start: periodStart, end: periodEnd } =
+			this.getCurrentUsagePeriod(feature);
 
 		try {
 			const existingUsage = await this.usageRepo.findOne({
@@ -940,5 +1007,38 @@ export class SubscriptionService {
 			where: { userId },
 			order: { periodStart: "DESC" },
 		});
+	}
+
+	public async getCurrentFeatureUsage(
+		userId: string,
+		feature: string,
+	): Promise<Either<ResourceError, FeatureUsageStatus>> {
+		const { start: periodStart, end: periodEnd } =
+			this.getCurrentUsagePeriod(feature);
+
+		try {
+			const usage = await this.usageRepo.findOne({
+				where: {
+					userId,
+					featureName: feature,
+					periodStart,
+				},
+			});
+
+			return success({
+				usage: usage?.usageCount || 0,
+				periodStart,
+				periodEnd,
+			});
+		} catch (err) {
+			return error(
+				new ResourceError({
+					message: `Failed to fetch usage: ${(err as Error).message}`,
+					code: "USAGE_FETCH_ERROR",
+					statusCode: 500,
+					error: err,
+				}),
+			);
+		}
 	}
 }

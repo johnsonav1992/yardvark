@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import type { AiChatResponse, AiStreamEvent } from "../../../types/ai.types";
 import { type Either, error, success } from "../../../types/either";
 import { AiChatError } from "../models/ai.errors";
+import { getEntryQueryChatOptions } from "../utils/entry-query-ai.config";
 import { buildEntryQuerySystemPrompt } from "../utils/entry-query-prompt.utils";
 import { isEntryQueryToolName } from "../utils/entry-query-tools.config";
 import { EntryQueryToolsService } from "./entry-query-tools.service";
@@ -50,25 +51,12 @@ export class AiService {
 			const tools = this.entryQueryToolsService.getToolDefinitions();
 			const toolsUsed: string[] = [];
 
-			const toolExecutor = async (
-				name: string,
-				args: Record<string, unknown>,
-			) => {
-				if (!isEntryQueryToolName(name)) {
-					throw new Error(`Unknown tool: ${name}`);
-				}
-
-				toolsUsed.push(name);
-
-				return this.entryQueryToolsService.executeTool(userId, name, args);
-			};
-
 			const content = await this.geminiService.chatWithTools(
 				query,
 				tools,
-				toolExecutor,
+				this.createEntryQueryToolExecutor(userId, toolsUsed),
 				buildEntryQuerySystemPrompt(),
-				{ maxOutputTokens: 800 },
+				getEntryQueryChatOptions(),
 			);
 
 			return success({
@@ -87,23 +75,41 @@ export class AiService {
 	): AsyncGenerator<AiStreamEvent> {
 		const tools = this.entryQueryToolsService.getToolDefinitions();
 
-		const toolExecutor = async (
-			name: string,
-			args: Record<string, unknown>,
-		) => {
+		yield* this.geminiService.streamChatWithTools(
+			query,
+			tools,
+			this.createEntryQueryToolExecutor(userId),
+			buildEntryQuerySystemPrompt(),
+			getEntryQueryChatOptions(),
+		);
+	}
+
+	private createEntryQueryToolExecutor(
+		userId: string,
+		toolsUsed?: string[],
+	): (name: string, args: Record<string, unknown>) => Promise<unknown> {
+		return async (name: string, args: Record<string, unknown>) => {
 			if (!isEntryQueryToolName(name)) {
 				throw new Error(`Unknown tool: ${name}`);
 			}
 
-			return this.entryQueryToolsService.executeTool(userId, name, args);
-		};
+			toolsUsed?.push(name);
+			const toolResult = await this.entryQueryToolsService.executeTool(
+				userId,
+				name,
+				args,
+			);
 
-		yield* this.geminiService.streamChatWithTools(
-			query,
-			tools,
-			toolExecutor,
-			buildEntryQuerySystemPrompt(),
-			{ maxOutputTokens: 800 },
-		);
+			if (toolResult.isError()) {
+				const originalError = toolResult.value.error;
+				const errorMessage =
+					originalError instanceof Error
+						? originalError.message
+						: toolResult.value.message;
+				throw new Error(errorMessage);
+			}
+
+			return toolResult.value;
+		};
 	}
 }

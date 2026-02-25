@@ -72,10 +72,14 @@ export const mapEntrySearchParamsToEntriesSearch = (
 	params: EntrySearchParams,
 	productIds: number[],
 ) => {
+	const defaultDateRange: EntryQueryDateRange = {
+		startDate: "1970-01-01",
+		endDate: format(new Date(), "yyyy-MM-dd"),
+	};
+	const effectiveDateRange = params.dateRange ?? defaultDateRange;
+
 	return {
-		dateRange: params.dateRange
-			? [params.dateRange.startDate, params.dateRange.endDate]
-			: ([] as string[]),
+		dateRange: [effectiveDateRange.startDate, effectiveDateRange.endDate],
 		activities: params.activities || ([] as number[]),
 		lawnSegments: params.lawnSegments || ([] as number[]),
 		products: productIds,

@@ -49,7 +49,7 @@ export const getEntryQueryToolDefinitions =
 		{
 			name: "search_entries",
 			description:
-				"Search user's lawn care entries with flexible filtering. Returns entries sorted by date (newest first). IMPORTANT: If no dateRange is provided, results are limited to the current year. You MUST explicitly provide dateRange when the user asks about a past year, specific year, or any timeframe outside the current year.",
+				"Search user's lawn care entries with flexible filtering. Returns entries sorted by date (newest first). If no dateRange is provided, the full entry history is searched.",
 			parameters: {
 				type: "object",
 				properties: {

@@ -1,5 +1,6 @@
 import { Test, type TestingModule } from "@nestjs/testing";
 import { AiService } from "./ai.service";
+import { EntryQueryToolsService } from "./entry-query-tools.service";
 import { GeminiService } from "./gemini.service";
 
 describe("AiService", () => {
@@ -11,6 +12,10 @@ describe("AiService", () => {
 			simpleChat: jest.fn(),
 			chatWithSystem: jest.fn(),
 		};
+		const mockEntryQueryToolsService = {
+			getToolDefinitions: jest.fn(),
+			executeTool: jest.fn(),
+		};
 
 		const module: TestingModule = await Test.createTestingModule({
 			providers: [
@@ -18,6 +23,10 @@ describe("AiService", () => {
 				{
 					provide: GeminiService,
 					useValue: mockGeminiService,
+				},
+				{
+					provide: EntryQueryToolsService,
+					useValue: mockEntryQueryToolsService,
 				},
 			],
 		}).compile();

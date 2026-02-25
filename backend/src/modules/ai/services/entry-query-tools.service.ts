@@ -1,9 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { format } from "date-fns";
+import { type Either, error, success } from "../../../types/either";
 import { EntriesService } from "../../entries/services/entries.service";
 import type { getEntryResponseMapping } from "../../entries/utils/entryUtils";
 import { LawnSegmentsService } from "../../lawn-segments/services/lawn-segments.service";
 import { ProductsService } from "../../products/services/products.service";
+import { AiChatError } from "../models/ai.errors";
 import {
 	ENTRY_QUERY_FULL_DETAIL_THRESHOLD,
 	type EntryQueryToolName,
@@ -146,23 +148,38 @@ export class EntryQueryToolsService {
 		userId: string,
 		toolName: EntryQueryToolName,
 		args: Record<string, unknown>,
-	): Promise<unknown> {
-		switch (toolName) {
-			case "search_entries":
-				return this.searchEntries(userId, args as EntrySearchParams);
-			case "get_last_activity_date":
-				return this.getLastActivityDate(
-					userId,
-					args.activityType as "mow" | "product_application" | "pgr",
-				);
-			case "list_products":
-				return this.listProducts(userId, args.category as string | undefined);
-			case "list_lawn_segments":
-				return this.listLawnSegments(userId);
-			case "get_entry_by_id":
-				return this.getEntryById(userId, args.entryId as number);
-			default:
-				throw new Error(`Unknown tool: ${toolName}`);
+	): Promise<Either<AiChatError, unknown>> {
+		try {
+			switch (toolName) {
+				case "search_entries":
+					return success(
+						await this.searchEntries(userId, args as EntrySearchParams),
+					);
+				case "get_last_activity_date":
+					return success(
+						await this.getLastActivityDate(
+							userId,
+							args.activityType as "mow" | "product_application" | "pgr",
+						),
+					);
+				case "list_products":
+					return success(
+						await this.listProducts(
+							userId,
+							args.category as string | undefined,
+						),
+					);
+				case "list_lawn_segments":
+					return success(await this.listLawnSegments(userId));
+				case "get_entry_by_id":
+					return success(
+						await this.getEntryById(userId, args.entryId as number),
+					);
+				default:
+					return error(new AiChatError(new Error(`Unknown tool: ${toolName}`)));
+			}
+		} catch (err) {
+			return error(new AiChatError(err));
 		}
 	}
 }

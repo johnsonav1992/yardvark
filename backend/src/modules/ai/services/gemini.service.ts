@@ -1,5 +1,5 @@
-import type { Content, FunctionDeclaration, Part } from "@google/genai";
-import { GoogleGenAI } from "@google/genai";
+import type { Content } from "@google/genai";
+import { FunctionCallingConfigMode, GoogleGenAI } from "@google/genai";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { LogHelpers } from "../../../logger/logger.helpers";
@@ -7,6 +7,11 @@ import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 import type { AiChatResponse, AiStreamEvent } from "../../../types/ai.types";
 import type { AiToolDefinition } from "../models/ai-tool.types";
 import { ENTRY_QUERY_TOOL_STATUS_MESSAGES } from "../utils/entry-query-tools.config";
+import {
+	buildFunctionDeclarations,
+	executeToolCallsToResponseParts,
+	getFunctionCallParts,
+} from "../utils/gemini-tool-calling.utils";
 
 interface GeminiChatMessage {
 	role: "user" | "system" | "assistant";
@@ -21,6 +26,8 @@ interface GeminiChatOptions {
 	topK?: number;
 	stopSequences?: string[];
 }
+
+const TOOL_CALL_MAX_ITERATIONS = 8;
 
 @Injectable()
 export class GeminiService {
@@ -123,6 +130,20 @@ export class GeminiService {
 			.join("\n\n");
 	}
 
+	private getModelName(options?: GeminiChatOptions): string {
+		return options?.model || this.defaultModel;
+	}
+
+	private getBaseGenerationConfig(options?: GeminiChatOptions) {
+		return {
+			temperature: options?.temperature ?? 0.7,
+			maxOutputTokens: options?.maxOutputTokens ?? 800,
+			topP: options?.topP,
+			topK: options?.topK,
+			stopSequences: options?.stopSequences,
+		};
+	}
+
 	public async simpleChat(
 		prompt: string,
 		options?: GeminiChatOptions,
@@ -217,7 +238,7 @@ export class GeminiService {
 		systemPrompt?: string,
 		options?: GeminiChatOptions,
 	): Promise<string> {
-		const modelName = options?.model || this.defaultModel;
+		const modelName = this.getModelName(options);
 		LogHelpers.addBusinessContext(BusinessContextKeys.aiModel, modelName);
 		LogHelpers.addBusinessContext(BusinessContextKeys.aiProvider, "gemini");
 		LogHelpers.addBusinessContext("aiToolsEnabled", true);
@@ -226,28 +247,27 @@ export class GeminiService {
 		let success = true;
 
 		try {
-			const functionDeclarations: FunctionDeclaration[] = tools.map((tool) => ({
-				name: tool.name,
-				description: tool.description,
-				parameters: tool.parameters,
-			}));
+			const functionDeclarations = buildFunctionDeclarations(tools);
 
 			const contents: Content[] = [{ role: "user", parts: [{ text: prompt }] }];
 
-			const maxIterations = 5;
-
-			for (let iteration = 0; iteration < maxIterations; iteration++) {
+			for (
+				let iteration = 0;
+				iteration < TOOL_CALL_MAX_ITERATIONS;
+				iteration++
+			) {
 				const response = await this.genAI.models.generateContent({
 					model: modelName,
 					contents,
 					config: {
 						systemInstruction: systemPrompt,
-						temperature: options?.temperature ?? 0.7,
-						maxOutputTokens: options?.maxOutputTokens ?? 800,
-						topP: options?.topP,
-						topK: options?.topK,
-						stopSequences: options?.stopSequences,
+						...this.getBaseGenerationConfig(options),
 						tools: [{ functionDeclarations }],
+						toolConfig: {
+							functionCallingConfig: {
+								mode: FunctionCallingConfigMode.AUTO,
+							},
+						},
 					},
 				});
 
@@ -259,10 +279,7 @@ export class GeminiService {
 
 				contents.push(candidate.content);
 
-				const functionCallParts = (candidate.content.parts ?? []).filter(
-					(p): p is Part & Required<Pick<Part, "functionCall">> =>
-						p.functionCall != null,
-				);
+				const functionCallParts = getFunctionCallParts(candidate.content.parts);
 
 				if (functionCallParts.length === 0) {
 					const text = response.text;
@@ -279,20 +296,9 @@ export class GeminiService {
 					return text;
 				}
 
-				const functionResponseParts: Part[] = await Promise.all(
-					functionCallParts.map(async (part) => {
-						const name = part.functionCall.name ?? "";
-						const args =
-							(part.functionCall.args as Record<string, unknown>) ?? {};
-						const result = await toolExecutor(name, args);
-
-						return {
-							functionResponse: {
-								name,
-								response: { result },
-							},
-						};
-					}),
+				const functionResponseParts = await executeToolCallsToResponseParts(
+					functionCallParts,
+					toolExecutor,
 				);
 
 				contents.push({ role: "user", parts: functionResponseParts });
@@ -322,7 +328,7 @@ export class GeminiService {
 		systemPrompt?: string,
 		options?: GeminiChatOptions,
 	): AsyncGenerator<AiStreamEvent> {
-		const modelName = options?.model || this.defaultModel;
+		const modelName = this.getModelName(options);
 		LogHelpers.addBusinessContext(BusinessContextKeys.aiModel, modelName);
 		LogHelpers.addBusinessContext(BusinessContextKeys.aiProvider, "gemini");
 		LogHelpers.addBusinessContext("aiToolsEnabled", true);
@@ -332,28 +338,27 @@ export class GeminiService {
 		let success = true;
 
 		try {
-			const functionDeclarations: FunctionDeclaration[] = tools.map((tool) => ({
-				name: tool.name,
-				description: tool.description,
-				parameters: tool.parameters,
-			}));
+			const functionDeclarations = buildFunctionDeclarations(tools);
 
 			const contents: Content[] = [{ role: "user", parts: [{ text: prompt }] }];
 
-			const maxIterations = 5;
-
-			for (let iteration = 0; iteration < maxIterations; iteration++) {
+			for (
+				let iteration = 0;
+				iteration < TOOL_CALL_MAX_ITERATIONS;
+				iteration++
+			) {
 				const response = await this.genAI.models.generateContent({
 					model: modelName,
 					contents,
 					config: {
 						systemInstruction: systemPrompt,
-						temperature: options?.temperature ?? 0.7,
-						maxOutputTokens: options?.maxOutputTokens ?? 800,
-						topP: options?.topP,
-						topK: options?.topK,
-						stopSequences: options?.stopSequences,
+						...this.getBaseGenerationConfig(options),
 						tools: [{ functionDeclarations }],
+						toolConfig: {
+							functionCallingConfig: {
+								mode: FunctionCallingConfigMode.AUTO,
+							},
+						},
 					},
 				});
 
@@ -365,10 +370,7 @@ export class GeminiService {
 
 				contents.push(candidate.content);
 
-				const functionCallParts = (candidate.content.parts ?? []).filter(
-					(p): p is Part & Required<Pick<Part, "functionCall">> =>
-						p.functionCall != null,
-				);
+				const functionCallParts = getFunctionCallParts(candidate.content.parts);
 
 				if (functionCallParts.length === 0) {
 					const text = response.text;
@@ -387,24 +389,19 @@ export class GeminiService {
 					return;
 				}
 
-				const functionResponseParts: Part[] = [];
-
 				for (const part of functionCallParts) {
-					const name = part.functionCall.name ?? "";
-					const args =
-						(part.functionCall.args as Record<string, unknown>) ?? {};
-
-					yield { type: "status", message: this.getToolStatusMessage(name) };
-
-					const result = await toolExecutor(name, args);
-
-					functionResponseParts.push({
-						functionResponse: {
-							name,
-							response: { result },
-						},
-					});
+					yield {
+						type: "status",
+						message: this.getToolStatusMessage(
+							part.functionCall.name ?? "unknown_tool",
+						),
+					};
 				}
+
+				const functionResponseParts = await executeToolCallsToResponseParts(
+					functionCallParts,
+					toolExecutor,
+				);
 
 				contents.push({ role: "user", parts: functionResponseParts });
 			}

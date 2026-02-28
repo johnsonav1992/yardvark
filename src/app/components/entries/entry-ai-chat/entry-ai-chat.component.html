@@ -15,7 +15,9 @@
   </ng-template>
   <div class="chat-container">
     <div class="limit-banner">
-      @if (limitStatus(); as limit) {
+      @if (isMaster()) {
+        <span class="limit-text">Unlimited messages</span>
+      } @else if (limitStatus(); as limit) {
         <span class="limit-text">
           {{ limit.remaining }} of {{ limit.limit }} messages left today
         </span>

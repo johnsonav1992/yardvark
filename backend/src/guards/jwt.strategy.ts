@@ -32,6 +32,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
 		const firstName = payload["https://yardvark.netlify.app/first-name"];
 		const lastName = payload["https://yardvark.netlify.app/last-name"];
 		const fullName = payload["https://yardvark.netlify.app/name"];
+		const roles = payload["https://yardvark.netlify.app/roles"] ?? [];
 
 		const name =
 			fullName ||
@@ -43,6 +44,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
 			userId: payload.sub,
 			email,
 			name,
+			isMaster: roles.includes("Master User"),
 		};
 	}
 }

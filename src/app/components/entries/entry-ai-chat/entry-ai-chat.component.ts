@@ -14,7 +14,10 @@ import { DrawerModule } from "primeng/drawer";
 import { InputTextModule } from "primeng/inputtext";
 import { ENTRY_AI_CHAT_SUGGESTIONS } from "../../../constants/ai-constants";
 import { GlobalUiService } from "../../../services/global-ui.service";
+import type { YVUser } from "../../../types/user.types";
+import type { Maybe } from "../../../types/utils.types";
 import { injectAiChat } from "../../../utils/aiChatUtils";
+import { injectUserData, isMasterUser } from "../../../utils/authUtils";
 
 @Component({
 	selector: "entry-ai-chat",
@@ -27,6 +30,7 @@ export class EntryAiChatComponent {
 	private readonly _messagesEnd =
 		viewChild<ElementRef<HTMLDivElement>>("messagesEnd");
 	private readonly _chat = injectAiChat();
+	private readonly _userData = injectUserData();
 
 	public isOpen = model(false);
 	public isMobile = this._globalUiService.isMobile;
@@ -35,8 +39,11 @@ export class EntryAiChatComponent {
 	public readonly isStreaming = this._chat.isStreaming;
 	public readonly statusMessage = this._chat.statusMessage;
 	public readonly limitStatus = this._chat.limitStatus;
+	public readonly isMaster = computed(() =>
+		isMasterUser(this._userData() as Maybe<YVUser>),
+	);
 	public readonly isLimitReached = computed(
-		() => (this.limitStatus()?.remaining ?? 1) <= 0,
+		() => !this.isMaster() && (this.limitStatus()?.remaining ?? 1) <= 0,
 	);
 	public readonly isInputDisabled = computed(
 		() => this.isStreaming() || this.isLimitReached(),

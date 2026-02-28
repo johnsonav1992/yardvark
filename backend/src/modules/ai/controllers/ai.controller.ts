@@ -15,8 +15,10 @@ import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 import type {
 	AiChatRequest,
 	AiChatResponse,
+	AiEntryQueryLimitStatus,
 	AiStreamEvent,
 } from "../../../types/ai.types";
+import type { ExtractedUserRequestData } from "../../../types/request";
 import { resultOrThrow } from "../../../utils/resultOrThrow";
 import { AiService } from "../services/ai.service";
 
@@ -43,23 +45,25 @@ export class AiController {
 
 	@Post("query-entries")
 	public async queryEntries(
-		@User("userId") userId: string,
+		@User() user: ExtractedUserRequestData,
 		@Body() body: { query: string },
 	): Promise<AiChatResponse & { toolsUsed?: string[] }> {
 		LogHelpers.addBusinessContext(
 			BusinessContextKeys.controllerOperation,
 			"ai_query_entries",
 		);
-		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+		LogHelpers.addBusinessContext(BusinessContextKeys.userId, user.userId);
 
 		if (!body.query || body.query.trim().length === 0) {
 			throw new HttpException("Query is required", HttpStatus.BAD_REQUEST);
 		}
 
-		resultOrThrow(await this.aiService.reserveEntryQueryMessage(userId));
+		if (!user.isMaster) {
+			resultOrThrow(await this.aiService.reserveEntryQueryMessage(user.userId));
+		}
 
 		return resultOrThrow(
-			await this.aiService.queryEntriesWithTools(userId, body.query),
+			await this.aiService.queryEntriesWithTools(user.userId, body.query),
 		);
 	}
 
@@ -70,7 +74,7 @@ export class AiController {
 
 	@Post("query-entries/stream")
 	public async streamQueryEntries(
-		@User("userId") userId: string,
+		@User() user: ExtractedUserRequestData,
 		@Body() body: { query: string },
 		@Res() res: Response,
 	): Promise<void> {
@@ -78,21 +82,29 @@ export class AiController {
 			BusinessContextKeys.controllerOperation,
 			"ai_query_entries_stream",
 		);
-		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+		LogHelpers.addBusinessContext(BusinessContextKeys.userId, user.userId);
 
 		if (!body.query || body.query.trim().length === 0) {
 			res.status(HttpStatus.BAD_REQUEST).json({ message: "Query is required" });
 			return;
 		}
 
-		const reservationResult =
-			await this.aiService.reserveEntryQueryMessage(userId);
+		let limitStatus: AiEntryQueryLimitStatus;
 
-		if (reservationResult.isError()) {
-			res
-				.status(reservationResult.value.statusCode)
-				.json({ message: reservationResult.value.message });
-			return;
+		if (user.isMaster) {
+			limitStatus = { limit: 9999, used: 0, remaining: 9999, resetAt: new Date().toISOString() };
+		} else {
+			const reservationResult =
+				await this.aiService.reserveEntryQueryMessage(user.userId);
+
+			if (reservationResult.isError()) {
+				res
+					.status(reservationResult.value.statusCode)
+					.json({ message: reservationResult.value.message });
+				return;
+			}
+
+			limitStatus = reservationResult.value;
 		}
 
 		res.setHeader("Content-Type", "text/event-stream");
@@ -103,12 +115,12 @@ export class AiController {
 		try {
 			const limitEvent: AiStreamEvent = {
 				type: "limit",
-				data: reservationResult.value,
+				data: limitStatus,
 			};
 			res.write(`data: ${JSON.stringify(limitEvent)}\n\n`);
 
 			for await (const event of this.aiService.streamQueryEntriesWithTools(
-				userId,
+				user.userId,
 				body.query,
 			)) {
 				res.write(`data: ${JSON.stringify(event)}\n\n`);

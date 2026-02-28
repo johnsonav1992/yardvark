@@ -215,7 +215,11 @@ export class AiService {
 
 				onSideEvent?.({ type: "entry_draft", data: draft });
 
-				return { proposed: true };
+				return {
+					proposed: true,
+					instruction:
+						"The entry draft has been shown to the user for confirmation. Write a brief message telling them what you've prepared (date and activities) and ask them to confirm or let you know if anything needs to change.",
+				};
 			}
 
 			const toolResult = await this.entryQueryToolsService.executeTool(

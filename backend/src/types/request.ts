@@ -8,4 +8,5 @@ export type ExtractedUserRequestData = {
 	userId: string;
 	email: string;
 	name: string;
+	isMaster: boolean;
 };

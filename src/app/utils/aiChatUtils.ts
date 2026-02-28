@@ -1,5 +1,5 @@
 import type { Signal } from "@angular/core";
-import { DestroyRef, inject, signal } from "@angular/core";
+import { DestroyRef, computed, inject, signal } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 import { AiService } from "../services/ai.service";
 import { EntriesService } from "../services/entries.service";
@@ -10,6 +10,8 @@ import type {
 	AiStreamEvent,
 } from "../types/ai.types";
 import type { EntryCreationRequestFormInput } from "../types/entries.types";
+import type { YVUser } from "../types/user.types";
+import type { Maybe } from "../types/utils.types";
 import {
 	addPendingAiChatMessage,
 	addUserChatMessage,
@@ -18,6 +20,7 @@ import {
 	attachDraftToLastAiMessage,
 	updateMessageDraftStatus,
 } from "./aiChatMessageUtils";
+import { injectUserData, isMasterUser } from "./authUtils";
 
 export interface AiChatMessage {
 	role: "user" | "ai";
@@ -47,6 +50,7 @@ export function injectAiChat(streamFn?: AiStreamFn): AiChatHook {
 	const aiService = inject(AiService);
 	const entriesService = inject(EntriesService);
 	const destroyRef = inject(DestroyRef);
+	const userData = injectUserData();
 
 	const resolvedStreamFn =
 		streamFn ?? aiService.streamQueryEntries.bind(aiService);
@@ -55,6 +59,7 @@ export function injectAiChat(streamFn?: AiStreamFn): AiChatHook {
 	const isStreaming = signal(false);
 	const statusMessage = signal<string | null>(null);
 	const limitStatus = signal<AiEntryQueryLimitStatus | null>(null);
+	const isMaster = computed(() => isMasterUser(userData() as Maybe<YVUser>));
 
 	let abortController: AbortController | null = null;
 
@@ -64,7 +69,7 @@ export function injectAiChat(streamFn?: AiStreamFn): AiChatHook {
 		if (
 			!query.trim() ||
 			isStreaming() ||
-			(limitStatus()?.remaining ?? 1) <= 0
+			(!isMaster() && (limitStatus()?.remaining ?? 1) <= 0)
 		) {
 			return;
 		}
@@ -95,9 +100,7 @@ export function injectAiChat(streamFn?: AiStreamFn): AiChatHook {
 						attachDraftToLastAiMessage(msgs, event.data),
 					);
 				} else if (event.type === "error") {
-					messages.update((msgs) =>
-						applyAiChatErrorToLastMessage(msgs, event.message),
-					);
+					messages.update(applyAiChatErrorToLastMessage);
 				}
 			}
 		} finally {

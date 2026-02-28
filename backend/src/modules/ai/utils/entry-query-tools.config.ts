@@ -138,7 +138,7 @@ export const getEntryQueryToolDefinitions =
 		{
 			name: "list_lawn_segments",
 			description:
-				"List all lawn segments/areas the user has defined. Use this before searching entries by lawn segment.",
+				"List all lawn segments/areas the user has defined. Use this before searching entries by lawn segment, and before propose_entry whenever the user mentions any lawn area — whether a specific area (e.g. 'front yard') or the whole lawn (e.g. 'whole lawn', 'entire yard', 'full yard').",
 			parameters: {
 				type: "object",
 				properties: {},
@@ -195,7 +195,7 @@ export const getEntryQueryToolDefinitions =
 					lawnSegmentIds: {
 						type: "array",
 						description:
-							"Lawn segment IDs from list_lawn_segments. Only include if the user specified particular areas.",
+							"Lawn segment IDs from list_lawn_segments. Include when the user mentions specific areas (e.g. 'front yard') — include only those IDs. Include ALL segment IDs when the user means the whole lawn (e.g. 'whole lawn', 'entire yard', 'full yard', 'entire lawn'). Always call list_lawn_segments first to get the IDs.",
 						items: { type: "number" },
 					},
 					products: {

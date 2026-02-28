@@ -318,16 +318,24 @@ export class GeminiService {
 		}
 	}
 
-	public async *streamChatWithTools(
-		prompt: string,
-		tools: AiToolDefinition[],
+	public async *streamChatWithTools({
+		prompt,
+		tools,
+		toolExecutor,
+		systemPrompt,
+		options,
+		priorContents,
+	}: {
+		prompt: string;
+		tools: AiToolDefinition[];
 		toolExecutor: (
 			name: string,
 			args: Record<string, unknown>,
-		) => Promise<unknown>,
-		systemPrompt?: string,
-		options?: GeminiChatOptions,
-	): AsyncGenerator<AiStreamEvent> {
+		) => Promise<unknown>;
+		systemPrompt?: string;
+		options?: GeminiChatOptions;
+		priorContents?: Content[];
+	}): AsyncGenerator<AiStreamEvent> {
 		const modelName = this.getModelName(options);
 		LogHelpers.addBusinessContext(BusinessContextKeys.aiModel, modelName);
 		LogHelpers.addBusinessContext(BusinessContextKeys.aiProvider, "gemini");

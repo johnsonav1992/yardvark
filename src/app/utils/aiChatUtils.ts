@@ -1,5 +1,5 @@
 import type { Signal } from "@angular/core";
-import { DestroyRef, computed, inject, signal } from "@angular/core";
+import { computed, DestroyRef, inject, signal } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 import { AiService } from "../services/ai.service";
 import { EntriesService } from "../services/entries.service";
@@ -51,9 +51,12 @@ export function injectAiChat(streamFn?: AiStreamFn): AiChatHook {
 	const entriesService = inject(EntriesService);
 	const destroyRef = inject(DestroyRef);
 	const userData = injectUserData();
+	const sessionId = crypto.randomUUID();
 
 	const resolvedStreamFn =
-		streamFn ?? aiService.streamQueryEntries.bind(aiService);
+		streamFn ??
+		((q: string, signal: AbortSignal) =>
+			aiService.streamQueryEntries(q, sessionId, signal));
 
 	const messages = signal<AiChatMessage[]>([]);
 	const isStreaming = signal(false);

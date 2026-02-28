@@ -9,6 +9,7 @@ import { Product } from "../products/models/products.model";
 import { ProductsModule } from "../products/products.module";
 import { SubscriptionModule } from "../subscription/subscription.module";
 import { AiController } from "./controllers/ai.controller";
+import { AiSessionService } from "./services/ai-session.service";
 import { AiService } from "./services/ai.service";
 import { EntryQueryToolsService } from "./services/entry-query-tools.service";
 import { GeminiService } from "./services/gemini.service";
@@ -23,7 +24,7 @@ import { GeminiService } from "./services/gemini.service";
 		SubscriptionModule,
 	],
 	controllers: [AiController],
-	providers: [AiService, GeminiService, EntryQueryToolsService],
+	providers: [AiService, AiSessionService, GeminiService, EntryQueryToolsService],
 	exports: [AiService, GeminiService],
 })
 export class AiModule {}

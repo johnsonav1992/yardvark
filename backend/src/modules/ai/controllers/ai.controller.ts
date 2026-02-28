@@ -75,7 +75,7 @@ export class AiController {
 	@Post("query-entries/stream")
 	public async streamQueryEntries(
 		@User() user: ExtractedUserRequestData,
-		@Body() body: { query: string },
+		@Body() body: { query: string; sessionId?: string },
 		@Res() res: Response,
 	): Promise<void> {
 		LogHelpers.addBusinessContext(
@@ -122,6 +122,7 @@ export class AiController {
 			for await (const event of this.aiService.streamQueryEntriesWithTools(
 				user.userId,
 				body.query,
+				body.sessionId,
 			)) {
 				res.write(`data: ${JSON.stringify(event)}\n\n`);
 			}

@@ -75,6 +75,7 @@ export class AiService {
 
 	public async *streamQueryEntries(
 		query: string,
+		sessionId: string,
 		signal?: AbortSignal,
 	): AsyncGenerator<AiStreamEvent> {
 		let token: string;
@@ -96,7 +97,7 @@ export class AiService {
 					"Content-Type": "application/json",
 					Authorization: `Bearer ${token}`,
 				},
-				body: JSON.stringify({ query }),
+				body: JSON.stringify({ query, sessionId }),
 				signal,
 			});
 		} catch (err) {

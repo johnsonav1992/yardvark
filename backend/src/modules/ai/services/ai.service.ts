@@ -18,6 +18,7 @@ import {
 import { buildEntryQuerySystemPrompt } from "../utils/entry-query-prompt.utils";
 import { isEntryQueryToolName } from "../utils/entry-query-tools.config";
 import type { ProposeEntryParams } from "../utils/entry-query-tools.utils";
+import { AiSessionService } from "./ai-session.service";
 import { EntryQueryToolsService } from "./entry-query-tools.service";
 import { GeminiService } from "./gemini.service";
 
@@ -27,6 +28,7 @@ export class AiService {
 		private readonly geminiService: GeminiService,
 		private readonly entryQueryToolsService: EntryQueryToolsService,
 		private readonly subscriptionService: SubscriptionService,
+		private readonly sessionService: AiSessionService,
 	) {}
 
 	public async chat(
@@ -86,9 +88,12 @@ export class AiService {
 	public async *streamQueryEntriesWithTools(
 		userId: string,
 		query: string,
+		sessionId?: string,
 	): AsyncGenerator<AiStreamEvent> {
 		const tools = this.entryQueryToolsService.getToolDefinitions();
 		const sideEvents: AiStreamEvent[] = [];
+		const priorContents = sessionId ? this.sessionService.getHistory(sessionId) : [];
+		let finalText = "";
 
 		const toolExecutor = this.createEntryQueryToolExecutor(
 			userId,
@@ -98,15 +103,20 @@ export class AiService {
 			},
 		);
 
-		for await (const event of this.geminiService.streamChatWithTools(
-			query,
+		for await (const event of this.geminiService.streamChatWithTools({
+			prompt: query,
 			tools,
 			toolExecutor,
-			buildEntryQuerySystemPrompt(),
-			getEntryQueryChatOptions(),
-		)) {
+			systemPrompt: buildEntryQuerySystemPrompt(),
+			options: getEntryQueryChatOptions(),
+			priorContents,
+		})) {
 			while (sideEvents.length > 0) {
 				yield sideEvents.shift()!;
+			}
+
+			if (event.type === "chunk") {
+				finalText += event.text;
 			}
 
 			yield event;
@@ -114,6 +124,14 @@ export class AiService {
 
 		while (sideEvents.length > 0) {
 			yield sideEvents.shift()!;
+		}
+
+		if (sessionId && finalText) {
+			this.sessionService.appendTurn(
+				sessionId,
+				{ role: "user", parts: [{ text: query }] },
+				{ role: "model", parts: [{ text: finalText }] },
+			);
 		}
 	}
 

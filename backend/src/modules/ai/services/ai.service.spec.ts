@@ -3,6 +3,7 @@ import { AiService } from "./ai.service";
 import { EntryQueryToolsService } from "./entry-query-tools.service";
 import { GeminiService } from "./gemini.service";
 import { SubscriptionService } from "../../subscription/services/subscription.service";
+import { AiSessionService } from "./ai-session.service";
 
 describe("AiService", () => {
 	let service: AiService;
@@ -12,6 +13,8 @@ describe("AiService", () => {
 		const mockGeminiService = {
 			simpleChat: jest.fn(),
 			chatWithSystem: jest.fn(),
+			chatWithTools: jest.fn(),
+			streamChatWithTools: jest.fn(),
 		};
 		const mockEntryQueryToolsService = {
 			getToolDefinitions: jest.fn(),
@@ -21,6 +24,10 @@ describe("AiService", () => {
 			checkFeatureAccess: jest.fn(),
 			incrementUsage: jest.fn(),
 			getCurrentFeatureUsage: jest.fn(),
+		};
+		const mockSessionService = {
+			getHistory: jest.fn(),
+			appendTurn: jest.fn(),
 		};
 
 		const module: TestingModule = await Test.createTestingModule({
@@ -37,6 +44,10 @@ describe("AiService", () => {
 				{
 					provide: SubscriptionService,
 					useValue: mockSubscriptionService,
+				},
+				{
+					provide: AiSessionService,
+					useValue: mockSessionService,
 				},
 			],
 		}).compile();

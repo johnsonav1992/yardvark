@@ -67,13 +67,13 @@ export class AiService {
 			const tools = this.entryQueryToolsService.getToolDefinitions();
 			const toolsUsed: string[] = [];
 
-			const content = await this.geminiService.chatWithTools(
-				query,
+			const content = await this.geminiService.chatWithTools({
+				prompt: query,
 				tools,
-				this.createEntryQueryToolExecutor(userId, toolsUsed),
-				buildEntryQuerySystemPrompt(),
-				getEntryQueryChatOptions(),
-			);
+				toolExecutor: this.createEntryQueryToolExecutor(userId, toolsUsed),
+				systemPrompt: buildEntryQuerySystemPrompt(),
+				options: getEntryQueryChatOptions(),
+			});
 
 			return success({
 				content,

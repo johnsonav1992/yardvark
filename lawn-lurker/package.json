@@ -1,0 +1,27 @@
+{
+  "name": "lawn-lurker",
+  "version": "0.1.0",
+  "description": "Standalone Crawlee scraper for lawncare products from department stores",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "crawl": "tsx src/index.ts",
+    "build": "tsc --project tsconfig.json",
+    "typecheck": "tsc --project tsconfig.json --noEmit"
+  },
+  "keywords": [
+    "crawlee",
+    "scraper",
+    "lawncare",
+    "typescript"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "crawlee": "^3.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.2",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

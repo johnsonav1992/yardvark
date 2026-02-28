@@ -1,5 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { format } from "date-fns";
+import { ACTIVITY_IDS } from "../../../constants/activities.constants";
+import type { AiEntryDraftData, AiEntryDraftProduct } from "../../../types/ai.types";
 import { type Either, error, success } from "../../../types/either";
 import { EntriesService } from "../../entries/services/entries.service";
 import type { getEntryResponseMapping } from "../../entries/utils/entryUtils";
@@ -13,11 +15,24 @@ import {
 } from "../utils/entry-query-tools.config";
 import {
 	type EntrySearchParams,
+	type ProposeEntryParams,
 	mapEntrySearchParamsToEntriesSearch,
 	mergeUniqueNumberIds,
 	sanitizeEntry,
 	sanitizeEntryLean,
 } from "../utils/entry-query-tools.utils";
+
+const ACTIVITY_NAMES: Record<number, string> = {
+	[ACTIVITY_IDS.MOW]: "Mow",
+	[ACTIVITY_IDS.EDGE]: "Edge",
+	[ACTIVITY_IDS.TRIM]: "Trim",
+	[ACTIVITY_IDS.DETHATCH]: "Dethatch",
+	[ACTIVITY_IDS.BLOW]: "Blow",
+	[ACTIVITY_IDS.AERATE]: "Aerate",
+	[ACTIVITY_IDS.WATER]: "Water",
+	[ACTIVITY_IDS.LAWN_LEVELING]: "Lawn Leveling",
+	[ACTIVITY_IDS.PRODUCT_APPLICATION]: "Product Application",
+};
 
 type MappedEntry = ReturnType<typeof getEntryResponseMapping>;
 
@@ -140,6 +155,75 @@ export class EntryQueryToolsService {
 		return sanitizeEntry(entry);
 	}
 
+	public async proposeEntry(
+		userId: string,
+		params: ProposeEntryParams,
+	): Promise<AiEntryDraftData> {
+		const lawnSegmentIds = params.lawnSegmentIds ?? [];
+		const proposedProducts = params.products ?? [];
+
+		let lawnSegmentNames: string[] = [];
+
+		if (lawnSegmentIds.length > 0) {
+			const allSegments = await this.listLawnSegments(userId);
+			const segmentMap = new Map(allSegments.map((s) => [s.id, s.name]));
+
+			for (const id of lawnSegmentIds) {
+				if (!segmentMap.has(id)) {
+					throw new Error(
+						`Lawn segment ${id} not found or does not belong to this user`,
+					);
+				}
+			}
+
+			lawnSegmentNames = lawnSegmentIds.map((id) => segmentMap.get(id)!);
+		}
+
+		let resolvedProducts: AiEntryDraftProduct[] = [];
+
+		if (proposedProducts.length > 0) {
+			const allProducts = await this.listProducts(userId);
+			const productMap = new Map(allProducts.map((p) => [p.id, p.name]));
+
+			resolvedProducts = proposedProducts.map((p) => {
+				const name = productMap.get(p.productId);
+
+				if (!name) {
+					throw new Error(
+						`Product ${p.productId} not found or does not belong to this user`,
+					);
+				}
+
+				return {
+					productId: p.productId,
+					productName: name,
+					productQuantity: p.productQuantity,
+					productQuantityUnit: p.productQuantityUnit,
+				};
+			});
+		}
+
+		const activityNames = params.activityIds.map(
+			(id) => ACTIVITY_NAMES[id] ?? `Activity ${id}`,
+		);
+
+		return {
+			date: params.date,
+			time: params.time,
+			title: params.title,
+			notes: params.notes ?? "",
+			activityIds: params.activityIds,
+			activityNames,
+			lawnSegmentIds,
+			lawnSegmentNames,
+			products: resolvedProducts,
+			mowingHeight: params.mowingHeight,
+			mowingHeightUnit: params.mowingHeightUnit,
+			soilTemperature: params.soilTemperature,
+			soilTemperatureUnit: params.soilTemperatureUnit,
+		};
+	}
+
 	public getToolDefinitions() {
 		return getEntryQueryToolDefinitions();
 	}
@@ -174,6 +258,10 @@ export class EntryQueryToolsService {
 				case "get_entry_by_id":
 					return success(
 						await this.getEntryById(userId, args.entryId as number),
+					);
+				case "propose_entry":
+					return success(
+						await this.proposeEntry(userId, args as unknown as ProposeEntryParams),
 					);
 				default:
 					return error(new AiChatError(new Error(`Unknown tool: ${toolName}`)));

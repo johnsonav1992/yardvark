@@ -52,6 +52,75 @@
                 <span class="cursor"></span>
               }
             }
+            @if (msg.entryDraft && msg.draftStatus !== 'rejected') {
+              <div class="entry-draft-card">
+                @if (msg.draftStatus === 'confirmed') {
+                  <div class="draft-confirmed">
+                    <i class="ti ti-circle-check-filled"></i>
+                    <span>Entry logged!</span>
+                  </div>
+                } @else if (msg.draftStatus === 'confirming') {
+                  <div class="draft-confirming">
+                    <span class="status-spinner"></span>
+                    <span>Creating entry...</span>
+                  </div>
+                } @else {
+                  <div class="draft-header">Entry to log</div>
+                  <div class="draft-details">
+                    <div class="draft-row">
+                      <i class="ti ti-calendar"></i>
+                      <span>{{ formatDraftDate(msg.entryDraft.date) }}</span>
+                    </div>
+                    <div class="draft-row">
+                      <i class="ti ti-leaf"></i>
+                      <span>{{ msg.entryDraft.activityNames.join(', ') }}</span>
+                    </div>
+                    @if (msg.entryDraft.lawnSegmentNames.length > 0) {
+                      <div class="draft-row">
+                        <i class="ti ti-map-pin"></i>
+                        <span>{{ msg.entryDraft.lawnSegmentNames.join(', ') }}</span>
+                      </div>
+                    }
+                    @for (product of msg.entryDraft.products; track product.productId) {
+                      <div class="draft-row">
+                        <i class="ti ti-flask"></i>
+                        <span>{{ product.productName }} — {{ product.productQuantity }} {{ product.productQuantityUnit }}</span>
+                      </div>
+                    }
+                    @if (msg.entryDraft.mowingHeight) {
+                      <div class="draft-row">
+                        <i class="ti ti-cut"></i>
+                        <span>{{ msg.entryDraft.mowingHeight }}{{ msg.entryDraft.mowingHeightUnit ?? 'in' }} cut height</span>
+                      </div>
+                    }
+                    @if (msg.entryDraft.notes) {
+                      <div class="draft-row draft-notes">
+                        <i class="ti ti-notes"></i>
+                        <span>{{ msg.entryDraft.notes }}</span>
+                      </div>
+                    }
+                  </div>
+                  @if (msg.draftStatus === 'error') {
+                    <p class="draft-error">Failed to create entry. Please try again.</p>
+                  }
+                  <div class="draft-actions">
+                    <p-button
+                      label="Create Entry"
+                      size="small"
+                      [disabled]="isStreaming()"
+                      (onClick)="confirmDraft($index)"
+                    />
+                    <p-button
+                      label="Cancel"
+                      size="small"
+                      severity="secondary"
+                      [disabled]="isStreaming()"
+                      (onClick)="rejectDraft($index)"
+                    />
+                  </div>
+                }
+              </div>
+            }
           </div>
         </div>
       }

@@ -17,6 +17,7 @@ import {
 } from "../utils/entry-query-ai.config";
 import { buildEntryQuerySystemPrompt } from "../utils/entry-query-prompt.utils";
 import { isEntryQueryToolName } from "../utils/entry-query-tools.config";
+import type { ProposeEntryParams } from "../utils/entry-query-tools.utils";
 import { EntryQueryToolsService } from "./entry-query-tools.service";
 import { GeminiService } from "./gemini.service";
 
@@ -87,14 +88,33 @@ export class AiService {
 		query: string,
 	): AsyncGenerator<AiStreamEvent> {
 		const tools = this.entryQueryToolsService.getToolDefinitions();
+		const sideEvents: AiStreamEvent[] = [];
 
-		yield* this.geminiService.streamChatWithTools(
+		const toolExecutor = this.createEntryQueryToolExecutor(
+			userId,
+			undefined,
+			(event) => {
+				sideEvents.push(event);
+			},
+		);
+
+		for await (const event of this.geminiService.streamChatWithTools(
 			query,
 			tools,
-			this.createEntryQueryToolExecutor(userId),
+			toolExecutor,
 			buildEntryQuerySystemPrompt(),
 			getEntryQueryChatOptions(),
-		);
+		)) {
+			while (sideEvents.length > 0) {
+				yield sideEvents.shift()!;
+			}
+
+			yield event;
+		}
+
+		while (sideEvents.length > 0) {
+			yield sideEvents.shift()!;
+		}
 	}
 
 	public async getEntryQueryLimitStatus(
@@ -178,6 +198,7 @@ export class AiService {
 	private createEntryQueryToolExecutor(
 		userId: string,
 		toolsUsed?: string[],
+		onSideEvent?: (event: AiStreamEvent) => void,
 	): (name: string, args: Record<string, unknown>) => Promise<unknown> {
 		return async (name: string, args: Record<string, unknown>) => {
 			if (!isEntryQueryToolName(name)) {
@@ -185,6 +206,18 @@ export class AiService {
 			}
 
 			toolsUsed?.push(name);
+
+			if (name === "propose_entry") {
+				const draft = await this.entryQueryToolsService.proposeEntry(
+					userId,
+					args as unknown as ProposeEntryParams,
+				);
+
+				onSideEvent?.({ type: "entry_draft", data: draft });
+
+				return { proposed: true };
+			}
+
 			const toolResult = await this.entryQueryToolsService.executeTool(
 				userId,
 				name,
@@ -197,6 +230,7 @@ export class AiService {
 					originalError instanceof Error
 						? originalError.message
 						: toolResult.value.message;
+
 				throw new Error(errorMessage);
 			}
 

@@ -8,6 +8,7 @@ import {
 	signal,
 	viewChild,
 } from "@angular/core";
+import { format } from "date-fns";
 import { ButtonModule } from "primeng/button";
 import { DrawerModule } from "primeng/drawer";
 import { InputTextModule } from "primeng/inputtext";
@@ -119,5 +120,17 @@ export class EntryAiChatComponent {
 	public async sendSuggestion(text: string): Promise<void> {
 		this.currentInput.set(text);
 		await this.send();
+	}
+
+	public formatDraftDate(dateStr: string): string {
+		return format(new Date(`${dateStr}T12:00:00`), "MMMM do, yyyy");
+	}
+
+	public async confirmDraft(messageIndex: number): Promise<void> {
+		await this._chat.confirmEntryDraft(messageIndex);
+	}
+
+	public rejectDraft(messageIndex: number): void {
+		this._chat.rejectEntryDraft(messageIndex);
 	}
 }

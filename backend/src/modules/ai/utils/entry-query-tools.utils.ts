@@ -17,6 +17,26 @@ export interface EntrySearchParams {
 	titleOrNotes?: string;
 }
 
+export interface ProposeEntryProduct {
+	productId: number;
+	productQuantity: number;
+	productQuantityUnit: string;
+}
+
+export interface ProposeEntryParams {
+	date: string;
+	time?: string;
+	title?: string;
+	notes?: string;
+	activityIds: number[];
+	lawnSegmentIds?: number[];
+	products?: ProposeEntryProduct[];
+	mowingHeight?: number;
+	mowingHeightUnit?: string;
+	soilTemperature?: number;
+	soilTemperatureUnit?: string;
+}
+
 export const sanitizeEntry = (entry: MappedEntry) => {
 	return {
 		id: entry.id,

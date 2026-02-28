@@ -1,4 +1,5 @@
 import { AI_CHAT_FALLBACK_ERROR_MESSAGE } from "../constants/ai-constants";
+import type { AiEntryDraftData, AiChatMessageDraftStatus } from "../types/ai.types";
 import type { AiChatMessage } from "./aiChatUtils";
 
 export const addUserChatMessage = (
@@ -41,3 +42,26 @@ export const applyAiChatErrorToLastMessage = (
 		{ ...last, content: last.content || errorMessage },
 	];
 };
+
+export const attachDraftToLastAiMessage = (
+	messages: AiChatMessage[],
+	draft: AiEntryDraftData,
+): AiChatMessage[] => {
+	const last = messages[messages.length - 1];
+
+	if (!last || last.role !== "ai") {
+		return messages;
+	}
+
+	return [
+		...messages.slice(0, -1),
+		{ ...last, entryDraft: draft, draftStatus: "pending" as AiChatMessageDraftStatus },
+	];
+};
+
+export const updateMessageDraftStatus = (
+	messages: AiChatMessage[],
+	index: number,
+	status: AiChatMessageDraftStatus,
+): AiChatMessage[] =>
+	messages.map((msg, i) => (i === index ? { ...msg, draftStatus: status } : msg));

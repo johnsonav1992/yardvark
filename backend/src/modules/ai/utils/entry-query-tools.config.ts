@@ -22,6 +22,7 @@ export const ENTRY_QUERY_TOOL_STATUS_MESSAGES: Record<string, string> = {
 	list_products: "Looking up your products...",
 	list_lawn_segments: "Loading your lawn areas...",
 	get_entry_by_id: "Loading entry details...",
+	propose_entry: "Preparing your entry draft...",
 };
 
 export type EntryQueryToolName =
@@ -29,7 +30,8 @@ export type EntryQueryToolName =
 	| "get_last_activity_date"
 	| "list_products"
 	| "list_lawn_segments"
-	| "get_entry_by_id";
+	| "get_entry_by_id"
+	| "propose_entry";
 
 const ENTRY_QUERY_TOOL_NAMES: EntryQueryToolName[] = [
 	"search_entries",
@@ -37,6 +39,7 @@ const ENTRY_QUERY_TOOL_NAMES: EntryQueryToolName[] = [
 	"list_products",
 	"list_lawn_segments",
 	"get_entry_by_id",
+	"propose_entry",
 ];
 
 export const isEntryQueryToolName = (
@@ -152,6 +155,88 @@ export const getEntryQueryToolDefinitions =
 					entryId: {
 						type: "number",
 						description: "The ID of the entry to retrieve",
+					},
+				},
+			},
+		},
+		{
+			name: "propose_entry",
+			description:
+				"Propose a new lawn care entry for the user to review and confirm before it is created. Call this once you have all required information. Do not call this if critical information is still missing (e.g., which product was applied when activity 9 is included). The user will see a preview and can confirm or reject it.",
+			parameters: {
+				type: "object",
+				required: ["date", "activityIds"],
+				properties: {
+					date: {
+						type: "string",
+						description:
+							"Entry date in YYYY-MM-DD format. Use today's date if the user did not specify one.",
+					},
+					time: {
+						type: "string",
+						description:
+							"Optional time in HH:MM (24-hour) format. Only include if the user specified a time.",
+					},
+					title: {
+						type: "string",
+						description:
+							"Optional entry title. Only include if the user provided one.",
+					},
+					notes: {
+						type: "string",
+						description:
+							"Optional notes about the entry. Only include if the user provided specific details worth noting.",
+					},
+					activityIds: {
+						type: "array",
+						description: `Activity IDs to log. ${ACTIVITY_IDS.MOW}=Mow, ${ACTIVITY_IDS.EDGE}=Edge, ${ACTIVITY_IDS.TRIM}=Trim, ${ACTIVITY_IDS.DETHATCH}=Dethatch, ${ACTIVITY_IDS.BLOW}=Blow, ${ACTIVITY_IDS.AERATE}=Aerate, ${ACTIVITY_IDS.WATER}=Water, ${ACTIVITY_IDS.LAWN_LEVELING}=Lawn Leveling, ${ACTIVITY_IDS.PRODUCT_APPLICATION}=Product Application. Include all activities the user mentioned.`,
+						items: { type: "number" },
+					},
+					lawnSegmentIds: {
+						type: "array",
+						description:
+							"Lawn segment IDs from list_lawn_segments. Only include if the user specified particular areas.",
+						items: { type: "number" },
+					},
+					products: {
+						type: "array",
+						description: `Products applied. Required if activityIds includes ${ACTIVITY_IDS.PRODUCT_APPLICATION}. Call list_products first to get product IDs.`,
+						items: {
+							type: "object",
+							required: ["productId", "productQuantity", "productQuantityUnit"],
+							properties: {
+								productId: {
+									type: "number",
+									description: "Product ID from list_products",
+								},
+								productQuantity: {
+									type: "number",
+									description: "Quantity used",
+								},
+								productQuantityUnit: {
+									type: "string",
+									description: "Unit, e.g. 'lbs', 'oz', 'gallons'",
+								},
+							},
+						},
+					},
+					mowingHeight: {
+						type: "number",
+						description:
+							"Mowing height. Only include if the user mentioned it.",
+					},
+					mowingHeightUnit: {
+						type: "string",
+						description: "Mowing height unit: 'in' or 'cm'.",
+					},
+					soilTemperature: {
+						type: "number",
+						description:
+							"Soil temperature. Only include if the user mentioned it.",
+					},
+					soilTemperatureUnit: {
+						type: "string",
+						description: "Temperature unit: 'F' or 'C'.",
 					},
 				},
 			},

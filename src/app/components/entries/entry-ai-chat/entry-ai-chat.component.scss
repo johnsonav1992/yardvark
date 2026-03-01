@@ -21,8 +21,11 @@
   flex: 1;
 
   .varky-avatar {
-    width: 28px;
-    height: 28px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top center;
     flex-shrink: 0;
   }
 

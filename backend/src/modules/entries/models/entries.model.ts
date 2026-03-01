@@ -122,9 +122,6 @@ export class Entry {
 	)
 	entryImages: EntryImage[];
 
-	@Column("vector", { nullable: true })
-	embedding?: string;
-
 	@DeleteDateColumn()
 	deletedAt?: Date;
 }

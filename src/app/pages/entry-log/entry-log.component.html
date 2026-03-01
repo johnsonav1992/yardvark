@@ -127,6 +127,6 @@
       (click)="createEntry()"
     />
   </div>
-  <entry-ai-chat [(isOpen)]="isAiChatOpen" />
+  <entry-ai-chat [(isOpen)]="isAiChatOpen" (entryConfirmed)="onAiEntryConfirmed()" />
 </div>
 <router-outlet></router-outlet>

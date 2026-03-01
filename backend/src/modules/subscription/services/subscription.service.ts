@@ -54,7 +54,7 @@ export type FeatureUsageStatus = {
 @Injectable()
 export class SubscriptionService {
 	private readonly FREE_TIER_ENTRY_LIMIT = 6;
-	private readonly DEFAULT_PRO_AI_DAILY_MESSAGE_LIMIT = 5;
+	private readonly DEFAULT_PRO_AI_DAILY_MESSAGE_LIMIT = 10;
 	private readonly AI_ENTRY_DAILY_LIMIT_FEATURE = "ai_query_entries_daily";
 
 	constructor(

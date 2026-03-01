@@ -36,6 +36,7 @@ interface AiChatHook {
 	limitStatus: Signal<AiEntryQueryLimitStatus | null>;
 	send: (query: string) => Promise<void>;
 	abort: () => void;
+	clearChat: () => void;
 	refreshLimitStatus: () => Promise<void>;
 	confirmEntryDraft: (messageIndex: number) => Promise<void>;
 	rejectEntryDraft: (messageIndex: number) => void;
@@ -46,12 +47,12 @@ export type AiStreamFn = (
 	signal: AbortSignal,
 ) => AsyncGenerator<AiStreamEvent>;
 
-export function injectAiChat(streamFn?: AiStreamFn): AiChatHook {
+export function injectAiChat(streamFn?: AiStreamFn, onEntryCreated?: () => void): AiChatHook {
 	const aiService = inject(AiService);
 	const entriesService = inject(EntriesService);
 	const destroyRef = inject(DestroyRef);
 	const userData = injectUserData();
-	const sessionId = crypto.randomUUID();
+	let sessionId = crypto.randomUUID();
 
 	const resolvedStreamFn =
 		streamFn ??
@@ -120,6 +121,12 @@ export function injectAiChat(streamFn?: AiStreamFn): AiChatHook {
 		statusMessage.set(null);
 	};
 
+	const clearChat = (): void => {
+		abort();
+		messages.set([]);
+		sessionId = crypto.randomUUID();
+	};
+
 	const refreshLimitStatus = async (): Promise<void> => {
 		const status = await aiService.getQueryEntriesLimitStatusAsync();
 		limitStatus.set(status);
@@ -161,6 +168,7 @@ export function injectAiChat(streamFn?: AiStreamFn): AiChatHook {
 			messages.update((msgs) =>
 				updateMessageDraftStatus(msgs, messageIndex, "confirmed"),
 			);
+			onEntryCreated?.();
 		} catch {
 			messages.update((msgs) =>
 				updateMessageDraftStatus(msgs, messageIndex, "error"),
@@ -181,6 +189,7 @@ export function injectAiChat(streamFn?: AiStreamFn): AiChatHook {
 		limitStatus,
 		send,
 		abort,
+		clearChat,
 		refreshLimitStatus,
 		confirmEntryDraft,
 		rejectEntryDraft,

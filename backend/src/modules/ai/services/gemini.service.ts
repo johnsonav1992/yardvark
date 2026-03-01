@@ -1,6 +1,6 @@
 import type { Content } from "@google/genai";
 import { FunctionCallingConfigMode, GoogleGenAI } from "@google/genai";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
@@ -33,6 +33,7 @@ const DEFAULT_STREAM_MAX_OUTPUT_TOKENS = 800;
 
 @Injectable()
 export class GeminiService {
+	private readonly logger = new Logger(GeminiService.name);
 	private readonly genAI: GoogleGenAI;
 	private readonly defaultModel: string;
 
@@ -100,8 +101,7 @@ export class GeminiService {
 				},
 				metadata: {
 					temperature: options?.temperature ?? DEFAULT_TEMPERATURE,
-					maxTokens:
-						options?.maxOutputTokens ?? DEFAULT_CHAT_MAX_OUTPUT_TOKENS,
+					maxTokens: options?.maxOutputTokens ?? DEFAULT_CHAT_MAX_OUTPUT_TOKENS,
 					finishReason: response.candidates?.[0]?.finishReason,
 				},
 			};
@@ -304,6 +304,7 @@ export class GeminiService {
 		} catch (error) {
 			success = false;
 			const message = error instanceof Error ? error.message : "Unknown error";
+			this.logger.error(`streamChatWithTools failed: ${message}`, error instanceof Error ? error.stack : undefined);
 			yield { type: "error", message };
 		} finally {
 			LogHelpers.recordExternalCall(
@@ -378,6 +379,8 @@ export class GeminiService {
 			{ role: "user", parts: [{ text: prompt }] },
 		];
 
+		let emptyResponseNudged = false;
+
 		for (let iteration = 0; iteration < TOOL_CALL_MAX_ITERATIONS; iteration++) {
 			const response = await this.genAI.models.generateContent({
 				model: modelName,
@@ -390,43 +393,58 @@ export class GeminiService {
 			});
 
 			const candidate = response.candidates?.[0];
+			const finishReason = candidate?.finishReason;
 
 			if (!candidate?.content) {
-				throw new Error("No candidate content in Gemini response");
+				throw new Error(`No candidate content in Gemini response (finishReason=${finishReason})`);
+			}
+
+			const functionCallParts = getFunctionCallParts(candidate.content.parts);
+
+			if (functionCallParts.length > 0) {
+				contents.push(candidate.content);
+
+				for (const part of functionCallParts) {
+					yield {
+						type: "tool_call",
+						toolName: part.functionCall.name ?? "unknown_tool",
+					};
+				}
+
+				const functionResponseParts = await executeToolCallsToResponseParts(
+					functionCallParts,
+					toolExecutor,
+				);
+
+				contents.push({ role: "user", parts: functionResponseParts });
+				continue;
+			}
+
+			const text = response.text;
+
+			if (!text) {
+				if (!emptyResponseNudged) {
+					emptyResponseNudged = true;
+					contents.push({
+						role: "user",
+						parts: [{ text: "Please respond to the user now." }],
+					});
+					continue;
+				}
+
+				const partTypes = candidate.content.parts?.map((p) => Object.keys(p).join(",")).join(" | ") ?? "none";
+				throw new Error(`No text or function calls in Gemini response (finishReason=${finishReason}, partTypes=${partTypes})`);
 			}
 
 			contents.push(candidate.content);
 
-			const functionCallParts = getFunctionCallParts(candidate.content.parts);
+			yield {
+				type: "final",
+				text,
+				totalTokens: response.usageMetadata?.totalTokenCount,
+			};
 
-			if (functionCallParts.length === 0) {
-				const text = response.text;
-
-				if (!text) {
-					throw new Error("No text or function calls in Gemini response");
-				}
-
-				yield {
-					type: "final",
-					text,
-					totalTokens: response.usageMetadata?.totalTokenCount,
-				};
-				return;
-			}
-
-			for (const part of functionCallParts) {
-				yield {
-					type: "tool_call",
-					toolName: part.functionCall.name ?? "unknown_tool",
-				};
-			}
-
-			const functionResponseParts = await executeToolCallsToResponseParts(
-				functionCallParts,
-				toolExecutor,
-			);
-
-			contents.push({ role: "user", parts: functionResponseParts });
+			return;
 		}
 
 		throw new Error("Max iterations reached without a final response");

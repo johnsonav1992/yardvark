@@ -11,6 +11,17 @@
     <div class="drawer-header">
       <i class="ti ti-sparkles header-icon"></i>
       <span>Ask Varky</span>
+      @if (messages().length > 0) {
+        <p-button
+          label="New chat"
+          icon="ti ti-plus"
+          size="small"
+          severity="secondary"
+          outlined
+          class="new-chat-btn"
+          (onClick)="clearChat()"
+        />
+      }
     </div>
   </ng-template>
   <div class="chat-container">
@@ -29,14 +40,27 @@
       @if (messages().length === 0) {
         <div class="empty-state">
           <i class="ti ti-message-chatbot empty-icon"></i>
-          <p class="empty-title">Ask about your lawn care history</p>
-          <p class="empty-subtitle">I can look up entries, products, and activities for you.</p>
-          <div class="suggestions">
-            @for (suggestion of suggestions; track suggestion) {
-              <button class="suggestion-chip" (click)="sendSuggestion(suggestion)">
-                {{ suggestion }}
-              </button>
-            }
+          <p class="empty-title">What can I help you with?</p>
+          <p class="empty-subtitle">Ask about your lawn care history, or tell me what you did and I'll log it for you.</p>
+          <div class="suggestions-group">
+            <span class="suggestions-label">Ask a question</span>
+            <div class="suggestions">
+              @for (suggestion of suggestions; track suggestion) {
+                <button class="suggestion-chip" (click)="sendSuggestion(suggestion)">
+                  {{ suggestion }}
+                </button>
+              }
+            </div>
+          </div>
+          <div class="suggestions-group">
+            <span class="suggestions-label">Log an activity</span>
+            <div class="suggestions">
+              @for (suggestion of creationSuggestions; track suggestion) {
+                <button class="suggestion-chip" (click)="sendSuggestion(suggestion)">
+                  {{ suggestion }}
+                </button>
+              }
+            </div>
           </div>
         </div>
       }

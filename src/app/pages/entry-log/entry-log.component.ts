@@ -243,6 +243,13 @@ export class EntryLogComponent implements OnInit {
 		this.entrySortOrder.set(this.entrySortOrder() === "asc" ? "desc" : "asc");
 	}
 
+	public onAiEntryConfirmed(): void {
+		this.entries.reload();
+		this._entriesService.lastMow.reload();
+		this._entriesService.recentEntry.reload();
+		this._entriesService.lastProductApp.reload();
+	}
+
 	public exportCsv(): void {
 		const currentEntries = this.entries.value();
 

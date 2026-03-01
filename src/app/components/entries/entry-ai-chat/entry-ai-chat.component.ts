@@ -5,6 +5,7 @@ import {
 	effect,
 	inject,
 	model,
+	output,
 	signal,
 	viewChild,
 } from "@angular/core";
@@ -12,7 +13,10 @@ import { format } from "date-fns";
 import { ButtonModule } from "primeng/button";
 import { DrawerModule } from "primeng/drawer";
 import { InputTextModule } from "primeng/inputtext";
-import { ENTRY_AI_CHAT_SUGGESTIONS } from "../../../constants/ai-constants";
+import {
+	ENTRY_AI_CHAT_CREATION_SUGGESTIONS,
+	ENTRY_AI_CHAT_SUGGESTIONS,
+} from "../../../constants/ai-constants";
 import { GlobalUiService } from "../../../services/global-ui.service";
 import type { YVUser } from "../../../types/user.types";
 import type { Maybe } from "../../../types/utils.types";
@@ -29,8 +33,13 @@ export class EntryAiChatComponent {
 	private readonly _globalUiService = inject(GlobalUiService);
 	private readonly _messagesEnd =
 		viewChild<ElementRef<HTMLDivElement>>("messagesEnd");
-	private readonly _chat = injectAiChat();
 	private readonly _userData = injectUserData();
+
+	public readonly entryConfirmed = output<void>();
+
+	private readonly _chat = injectAiChat(undefined, () =>
+		this.entryConfirmed.emit(),
+	);
 
 	public isOpen = model(false);
 	public isMobile = this._globalUiService.isMobile;
@@ -85,6 +94,8 @@ export class EntryAiChatComponent {
 	});
 
 	public readonly suggestions = ENTRY_AI_CHAT_SUGGESTIONS;
+	public readonly creationSuggestions = ENTRY_AI_CHAT_CREATION_SUGGESTIONS;
+	public readonly clearChat = this._chat.clearChat;
 
 	constructor() {
 		effect(() => {

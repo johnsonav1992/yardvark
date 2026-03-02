@@ -70,11 +70,14 @@
         }
       </div>
     }
-    @if (lawnSeasonPercentage()) {
+    @if (lawnSeasonPercentage() !== null) {
       <p-divider [dt]="dividerDt" />
       <div class="season-progress">
-        <p class="stat">Season progress:</p>
-        <p-progressbar [value]="lawnSeasonPercentage()" />
+        <p class="stat">
+          Season progress:
+          <b>{{ lawnSeasonPercentageLabel() }}</b>
+        </p>
+        <p-progressbar [value]="lawnSeasonPercentage()" [showValue]="false" />
       </div>
     }
   </div>

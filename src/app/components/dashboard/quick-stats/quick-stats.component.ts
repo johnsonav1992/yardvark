@@ -127,6 +127,11 @@ export class QuickStatsComponent {
 		return progressPercentage;
 	});
 
+	public lawnSeasonPercentageLabel = computed(() => {
+		const progress = this.lawnSeasonPercentage();
+		return progress === null ? null : `${Math.round(progress)}%`;
+	});
+
 	public currentGddData = this._gddService.currentGdd;
 
 	public hasGddData = computed(() => {

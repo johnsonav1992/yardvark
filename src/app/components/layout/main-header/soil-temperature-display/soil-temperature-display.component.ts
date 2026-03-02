@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal, viewChild } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { type Popover, PopoverModule } from "primeng/popover";
+import { SkeletonModule } from "primeng/skeleton";
 import { ToggleSwitchModule } from "primeng/toggleswitch";
 import { TooltipModule } from "primeng/tooltip";
 import { GlobalUiService } from "../../../../services/global-ui.service";
@@ -13,7 +14,13 @@ import { getSoilTemperatureDisplayColor } from "../../../../utils/soilTemperatur
 
 @Component({
 	selector: "soil-temperature-display",
-	imports: [TooltipModule, ToggleSwitchModule, FormsModule, PopoverModule],
+	imports: [
+		TooltipModule,
+		ToggleSwitchModule,
+		FormsModule,
+		PopoverModule,
+		SkeletonModule,
+	],
 	templateUrl: "./soil-temperature-display.component.html",
 	styleUrl: "./soil-temperature-display.component.scss",
 })

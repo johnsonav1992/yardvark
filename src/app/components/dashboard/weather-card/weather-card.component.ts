@@ -94,10 +94,33 @@ export class WeatherCardComponent {
 		this.getWeatherIconForPeriod(this.tonightsWeather()),
 	);
 
+	public todaysWeatherIconColor = computed(() =>
+		this.getWeatherIconColor(this.todaysWeatherIcon()),
+	);
+
+	public tonightsWeatherIconColor = computed(() =>
+		this.getWeatherIconColor(this.tonightsWeatherIcon()),
+	);
+
 	private getWeatherIconForPeriod(period: WeatherPeriod | null): string {
 		if (!period) return "ti ti-cloud";
 
 		return getForecastMarkerIcon(convertPeriodToForecast(period));
+	}
+
+	private getWeatherIconColor(iconClass: string): string {
+		if (iconClass.includes("ti-snowflake")) return "var(--p-cyan-400)";
+		if (iconClass.includes("ti-cloud-rain")) return "var(--p-blue-500)";
+		if (iconClass.includes("ti-cloud-storm")) return "var(--p-slate-500)";
+		if (iconClass.includes("ti-cloud-moon")) return "var(--p-indigo-400)";
+		if (iconClass.includes("ti-cloud")) return "var(--p-surface-500)";
+		if (iconClass.includes("ti-temperature-sun")) return "var(--p-red-500)";
+		if (iconClass.includes("ti-sun-high")) return "var(--p-orange-500)";
+		if (iconClass.includes("ti-sun")) return "var(--p-amber-500)";
+		if (iconClass.includes("ti-moon-stars")) return "var(--p-indigo-400)";
+		if (iconClass.includes("ti-moon")) return "var(--p-blue-400)";
+
+		return "var(--p-sky-500)";
 	}
 
 	private findPeriodByDate({

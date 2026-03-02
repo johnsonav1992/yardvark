@@ -21,6 +21,12 @@
     font-weight: 500;
     cursor: pointer;
   }
+
+  .temp-skeleton {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
 }
 
 ::ng-deep .depth-overlay-inner {

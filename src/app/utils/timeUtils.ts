@@ -4,6 +4,7 @@ import {
 	getDay,
 	getMonth,
 	getYear,
+	parse,
 	setHours,
 	setMilliseconds,
 	setMinutes,
@@ -128,6 +129,20 @@ export const convertTimeStringToDate = (
 	let result = setHours(today, hours || 0);
 	result = setMinutes(result, minutes || 0);
 	result = setSeconds(result, seconds || 0);
+	result = setMilliseconds(result, 0);
+
+	return result;
+};
+
+/**
+ * Parses a YYYY-MM-DD date string and normalizes it to local noon
+ * to avoid timezone-related day shifts when serialized.
+ */
+export const parseYyyyMmDdToLocalNoon = (dateString: string): Date => {
+	let result = parse(dateString, "yyyy-MM-dd", new Date());
+	result = setHours(result, 12);
+	result = setMinutes(result, 0);
+	result = setSeconds(result, 0);
 	result = setMilliseconds(result, 0);
 
 	return result;

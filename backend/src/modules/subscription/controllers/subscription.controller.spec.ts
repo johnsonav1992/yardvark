@@ -77,6 +77,7 @@ describe("SubscriptionController", () => {
 				userId: "user1",
 				email: "test@example.com",
 				name: "Test User",
+				isMaster: false,
 			};
 
 			const mockBody = {
@@ -111,6 +112,7 @@ describe("SubscriptionController", () => {
 				userId: "user1",
 				email: "test@example.com",
 				name: "Test User",
+				isMaster: false,
 			};
 
 			const mockBody = {

@@ -21,6 +21,7 @@ import {
 	updateMessageDraftStatus,
 } from "./aiChatMessageUtils";
 import { injectUserData, isMasterUser } from "./authUtils";
+import { parseYyyyMmDdToLocalNoon } from "./timeUtils";
 
 export interface AiChatMessage {
 	role: "user" | "ai";
@@ -104,7 +105,9 @@ export function injectAiChat(streamFn?: AiStreamFn, onEntryCreated?: () => void)
 						attachDraftToLastAiMessage(msgs, event.data),
 					);
 				} else if (event.type === "error") {
-					messages.update(applyAiChatErrorToLastMessage);
+					messages.update((msgs) =>
+						applyAiChatErrorToLastMessage(msgs, event.message),
+					);
 				}
 			}
 		} finally {
@@ -145,7 +148,7 @@ export function injectAiChat(streamFn?: AiStreamFn, onEntryCreated?: () => void)
 
 		const draft = msg.entryDraft;
 		const request: EntryCreationRequestFormInput = {
-			date: new Date(`${draft.date}T12:00:00`),
+			date: parseYyyyMmDdToLocalNoon(draft.date),
 			time: draft.time ?? null,
 			title: draft.title ?? "",
 			notes: draft.notes,

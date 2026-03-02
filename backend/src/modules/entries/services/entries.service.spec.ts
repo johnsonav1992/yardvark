@@ -631,7 +631,10 @@ describe("EntriesService", () => {
 			);
 
 			expect(mockEntryRepository.find).toHaveBeenCalled();
-			expect(result).toHaveLength(1);
+			expect(result.isSuccess()).toBe(true);
+			if (result.isSuccess()) {
+				expect(result.value).toHaveLength(1);
+			}
 		});
 
 		it("should search entries with custom date range", async () => {
@@ -645,7 +648,10 @@ describe("EntriesService", () => {
 			);
 
 			expect(mockEntryRepository.find).toHaveBeenCalled();
-			expect(result).toHaveLength(1);
+			expect(result.isSuccess()).toBe(true);
+			if (result.isSuccess()) {
+				expect(result.value).toHaveLength(1);
+			}
 		});
 
 		it("should search entries by activities", async () => {
@@ -665,7 +671,10 @@ describe("EntriesService", () => {
 					}),
 				}),
 			);
-			expect(result).toHaveLength(1);
+			expect(result.isSuccess()).toBe(true);
+			if (result.isSuccess()) {
+				expect(result.value).toHaveLength(1);
+			}
 		});
 
 		it("should search entries by lawn segments", async () => {
@@ -685,7 +694,10 @@ describe("EntriesService", () => {
 					}),
 				}),
 			);
-			expect(result).toHaveLength(1);
+			expect(result.isSuccess()).toBe(true);
+			if (result.isSuccess()) {
+				expect(result.value).toHaveLength(1);
+			}
 		});
 
 		it("should search entries by products", async () => {
@@ -699,7 +711,10 @@ describe("EntriesService", () => {
 			);
 
 			expect(mockEntryRepository.find).toHaveBeenCalled();
-			expect(result).toHaveLength(1);
+			expect(result.isSuccess()).toBe(true);
+			if (result.isSuccess()) {
+				expect(result.value).toHaveLength(1);
+			}
 		});
 
 		it("should search entries by title or notes", async () => {
@@ -720,7 +735,10 @@ describe("EntriesService", () => {
 					]),
 				}),
 			);
-			expect(result).toHaveLength(1);
+			expect(result.isSuccess()).toBe(true);
+			if (result.isSuccess()) {
+				expect(result.value).toHaveLength(1);
+			}
 		});
 	});
 

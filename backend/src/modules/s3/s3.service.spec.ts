@@ -13,7 +13,7 @@ jest.mock("@aws-sdk/client-s3", () => {
 	};
 });
 
-jest.mock("crypto", () => ({
+jest.mock("node:crypto", () => ({
 	randomUUID: jest.fn().mockReturnValue("abcd-1234-5678-efgh"),
 }));
 

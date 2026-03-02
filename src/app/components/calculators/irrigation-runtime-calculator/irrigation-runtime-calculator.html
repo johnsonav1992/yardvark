@@ -1,0 +1,165 @@
+<p-card class="irrigation-calculator-card">
+  <ng-template #title>
+    <div class="title-container">
+      <div class="title-with-icon">
+        <span>Irrigation Runtime Calculator</span>
+        <p-button
+          [text]="true"
+          [rounded]="true"
+          size="small"
+          class="info-icon"
+          (click)="helpPopover.toggle($event)"
+          icon="ti ti-info-circle"
+          severity="secondary"
+        />
+        <p-popover #helpPopover>
+          <div class="help-popover-content">
+            <div class="help-popover-header">
+              <i class="ti ti-droplet help-icon"></i>
+              <span class="help-title">How to Use</span>
+            </div>
+            <p class="help-description">
+              Enter your weekly target water amount, recent rainfall, watering
+              days, and each zone's precipitation rate (in/hr). We'll calculate
+              runtime per zone per watering day.
+            </p>
+          </div>
+        </p-popover>
+      </div>
+    </div>
+  </ng-template>
+
+  <div class="input-grid">
+    <div class="input-group">
+      <label class="input-label">Target Weekly Water</label>
+      <div class="input-with-suffix">
+        <input
+          pInputText
+          type="text"
+          placeholder="e.g., 1.0"
+          [value]="targetWeeklyWaterInches() ?? ''"
+          (input)="onTargetWeeklyWaterChange($event)"
+          class="number-input"
+        />
+        <span class="input-suffix">inches</span>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">Rain This Week</label>
+      <div class="input-with-suffix">
+        <input
+          pInputText
+          type="text"
+          placeholder="e.g., 0.35"
+          [value]="rainfallThisWeekInches() ?? ''"
+          (input)="onRainfallThisWeekChange($event)"
+          class="number-input"
+        />
+        <span class="input-suffix">inches</span>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">Watering Days / Week</label>
+      <div class="input-with-suffix">
+        <input
+          pInputText
+          type="text"
+          placeholder="e.g., 3"
+          [value]="wateringDaysPerWeek() ?? ''"
+          (input)="onWateringDaysChange($event)"
+          class="number-input"
+        />
+        <span class="input-suffix">days</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="summary-card">
+    <p class="summary-line">
+      <span>Remaining irrigation needed:</span>
+      <strong>{{ remainingIrrigationInches() }} in</strong>
+    </p>
+    @if (rainfallMeetsTarget()) {
+      <p class="summary-note">
+        Rainfall already covers your weekly target.
+      </p>
+    }
+  </div>
+
+  <div class="zones-header">
+    <h4>Zones</h4>
+    <p-button
+      label="Add zone"
+      icon="ti ti-plus"
+      size="small"
+      severity="secondary"
+      outlined
+      (click)="addZone()"
+    />
+  </div>
+
+  <div class="zones-grid">
+    @for (zone of zones(); track zone.id) {
+      <div class="zone-row">
+        <input
+          pInputText
+          type="text"
+          class="zone-name"
+          [value]="zone.name"
+          (input)="onZoneNameChange(zone.id, $event)"
+          placeholder="Zone name"
+        />
+        <div class="input-with-suffix zone-rate">
+          <input
+            pInputText
+            type="text"
+            class="number-input"
+            [value]="zone.precipRate ?? ''"
+            (input)="onZoneRateChange(zone.id, $event)"
+            placeholder="Rate"
+          />
+          <span class="input-suffix">in/hr</span>
+        </div>
+        <p-button
+          icon="ti ti-trash"
+          size="small"
+          severity="danger"
+          text
+          [disabled]="zones().length === 1"
+          (click)="removeZone(zone.id)"
+          pTooltip="Remove zone"
+        />
+      </div>
+    }
+  </div>
+
+  @if (shouldShowZoneHint()) {
+    <p class="zone-hint">
+      Add a valid precipitation rate for each zone to calculate runtimes.
+    </p>
+  }
+
+  @if (shouldShowResults()) {
+    <div class="results-card">
+      @for (zoneResult of zoneRuntimeResults(); track zoneResult.id) {
+        <div class="result-row">
+          <div class="result-zone">
+            <span class="zone-name">{{ zoneResult.name }}</span>
+            <span class="zone-rate">{{ zoneResult.precipRate }} in/hr</span>
+          </div>
+          <div class="result-times">
+            <strong>{{ zoneResult.minutesPerDay }} min/day</strong>
+            <span>{{ zoneResult.minutesPerWeek }} min/week</span>
+          </div>
+        </div>
+      }
+      <div class="result-total">
+        <span>Total runtime (all zones):</span>
+        <strong>{{ totalWeeklyMinutes() }} min/week</strong>
+      </div>
+    </div>
+  }
+</p-card>
+

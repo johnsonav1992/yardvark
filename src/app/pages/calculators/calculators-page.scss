@@ -1,9 +1,16 @@
-.grid {
-  .col-12 {
-    max-width: 500px;
+.calculators-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  width: 100%;
+}
 
-    @media (max-width: 768px) {
-      max-width: 100%;
-    }
+.calculator-slot {
+  flex: 0 1 500px;
+  width: 100%;
+
+  @media (max-width: 768px) {
+    flex-basis: 100%;
+    max-width: 100%;
   }
 }

@@ -152,3 +152,26 @@ export const calculateNitrogenForProducts = (
 		return total + nitrogenPounds;
 	}, 0);
 };
+
+/**
+ * Calculates sprinkler runtime in minutes to apply a target water depth.
+ *
+ * @param params - Runtime calculation inputs
+ * @param params.targetDepthInches - Desired water depth (inches)
+ * @param params.precipitationRateInchesPerHour - Sprinkler precipitation rate (in/hr)
+ * @returns Runtime in minutes, rounded to nearest whole minute. Returns null for invalid inputs.
+ */
+export const getIrrigationRuntimeMinutes = ({
+	targetDepthInches,
+	precipitationRateInchesPerHour,
+}: {
+	targetDepthInches: number;
+	precipitationRateInchesPerHour: number;
+}): number | null => {
+	if (targetDepthInches < 0 || precipitationRateInchesPerHour <= 0) {
+		return null;
+	}
+
+	const hoursNeeded = targetDepthInches / precipitationRateInchesPerHour;
+	return Math.round(hoursNeeded * 60);
+};

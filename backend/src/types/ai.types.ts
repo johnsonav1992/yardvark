@@ -62,4 +62,4 @@ export type AiStreamEvent =
 	| { type: "chunk"; text: string }
 	| { type: "entry_draft"; data: AiEntryDraftData }
 	| { type: "done" }
-	| { type: "error"; message: string };
+	| { type: "error"; message: string; code?: string };

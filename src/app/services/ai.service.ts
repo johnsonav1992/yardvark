@@ -83,7 +83,11 @@ export class AiService {
 		try {
 			token = await firstValueFrom(this._auth.getAccessTokenSilently());
 		} catch {
-			yield { type: "error", message: "Authentication failed" };
+			yield {
+				type: "error",
+				message: "Authentication failed",
+				code: "AI_CHAT_AUTH_ERROR",
+			};
 			return;
 		}
 
@@ -102,7 +106,11 @@ export class AiService {
 			});
 		} catch (err) {
 			if (err instanceof Error && err.name !== "AbortError") {
-				yield { type: "error", message: "Failed to connect to AI service" };
+				yield {
+					type: "error",
+					message: "Failed to connect to AI service",
+					code: "AI_CHAT_CONNECTION_ERROR",
+				};
 			}
 
 			return;
@@ -117,12 +125,12 @@ export class AiService {
 					code?: string;
 				};
 				message = errorBody.message || message;
+				yield { type: "error", message, code: errorBody.code };
+				return;
 			} catch {
-				// no-op
+				yield { type: "error", message, code: "AI_CHAT_HTTP_ERROR" };
+				return;
 			}
-
-			yield { type: "error", message };
-			return;
 		}
 
 		try {
@@ -135,7 +143,11 @@ export class AiService {
 			}
 		} catch (err) {
 			if (err instanceof Error && err.name !== "AbortError") {
-				yield { type: "error", message: "Stream interrupted" };
+				yield {
+					type: "error",
+					message: "Stream interrupted",
+					code: "AI_CHAT_STREAM_INTERRUPTED",
+				};
 			}
 		}
 	}

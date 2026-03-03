@@ -305,7 +305,7 @@ export class GeminiService {
 			success = false;
 			const message = error instanceof Error ? error.message : "Unknown error";
 			this.logger.error(`streamChatWithTools failed: ${message}`, error instanceof Error ? error.stack : undefined);
-			yield { type: "error", message };
+			yield { type: "error", message, code: "AI_CHAT_ERROR" };
 		} finally {
 			LogHelpers.recordExternalCall(
 				"gemini-stream-tools",

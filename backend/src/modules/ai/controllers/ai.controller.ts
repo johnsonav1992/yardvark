@@ -1,15 +1,8 @@
-import {
-	Body,
-	Controller,
-	Get,
-	HttpException,
-	HttpStatus,
-	Post,
-	Res,
-} from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Post, Res } from "@nestjs/common";
 import type { Response } from "express";
 import { SubscriptionFeature } from "../../../decorators/subscription-feature.decorator";
 import { User } from "../../../decorators/user.decorator";
+import { ResourceValidationError } from "../../../errors/resource-error";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 import type {
@@ -18,6 +11,7 @@ import type {
 	AiEntryQueryLimitStatus,
 	AiStreamEvent,
 } from "../../../types/ai.types";
+import { error } from "../../../types/either";
 import type { ExtractedUserRequestData } from "../../../types/request";
 import { resultOrThrow } from "../../../utils/resultOrThrow";
 import { AiService } from "../services/ai.service";
@@ -37,7 +31,7 @@ export class AiController {
 		);
 
 		if (!chatRequest.prompt || chatRequest.prompt.trim().length === 0) {
-			throw new HttpException("Prompt is required", HttpStatus.BAD_REQUEST);
+			this.throwValidationError("Prompt is required");
 		}
 
 		return resultOrThrow(await this.aiService.chat(chatRequest.prompt));
@@ -56,7 +50,7 @@ export class AiController {
 		LogHelpers.addBusinessContext(BusinessContextKeys.userId, user.userId);
 
 		if (!body.query || body.query.trim().length === 0) {
-			throw new HttpException("Query is required", HttpStatus.BAD_REQUEST);
+			this.throwValidationError("Query is required");
 		}
 
 		if (!user.isMaster) {
@@ -88,22 +82,32 @@ export class AiController {
 		LogHelpers.addBusinessContext(BusinessContextKeys.userId, user.userId);
 
 		if (!body.query || body.query.trim().length === 0) {
-			res.status(HttpStatus.BAD_REQUEST).json({ message: "Query is required" });
+			res.status(HttpStatus.BAD_REQUEST).json({
+				message: "Query is required",
+				code: "AI_CHAT_VALIDATION_ERROR",
+			});
 			return;
 		}
 
 		let limitStatus: AiEntryQueryLimitStatus;
 
 		if (user.isMaster) {
-			limitStatus = { limit: 9999, used: 0, remaining: 9999, resetAt: new Date().toISOString() };
+			limitStatus = {
+				limit: 9999,
+				used: 0,
+				remaining: 9999,
+				resetAt: new Date().toISOString(),
+			};
 		} else {
-			const reservationResult =
-				await this.aiService.reserveEntryQueryMessage(user.userId);
+			const reservationResult = await this.aiService.reserveEntryQueryMessage(
+				user.userId,
+			);
 
 			if (reservationResult.isError()) {
-				res
-					.status(reservationResult.value.statusCode)
-					.json({ message: reservationResult.value.message });
+				res.status(reservationResult.value.statusCode).json({
+					message: reservationResult.value.message,
+					code: reservationResult.value.code,
+				});
 				return;
 			}
 
@@ -129,8 +133,28 @@ export class AiController {
 			)) {
 				res.write(`data: ${JSON.stringify(event)}\n\n`);
 			}
+		} catch (err) {
+			const message =
+				err instanceof Error ? err.message : "Failed to stream AI response";
+			const errorEvent: AiStreamEvent = {
+				type: "error",
+				message,
+				code: "AI_CHAT_STREAM_ERROR",
+			};
+			res.write(`data: ${JSON.stringify(errorEvent)}\n\n`);
 		} finally {
 			res.end();
 		}
+	}
+
+	private throwValidationError(message: string): never {
+		return resultOrThrow(
+			error(
+				new ResourceValidationError({
+					message,
+					code: "AI_CHAT_VALIDATION_ERROR",
+				}),
+			),
+		);
 	}
 }

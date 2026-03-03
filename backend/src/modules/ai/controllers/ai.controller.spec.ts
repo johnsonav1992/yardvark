@@ -119,7 +119,10 @@ describe("AiController", () => {
 			await controller.streamQueryEntries(user, { query: "   " }, res as never);
 
 			expect(res.status).toHaveBeenCalledWith(400);
-			expect(res.json).toHaveBeenCalledWith({ message: "Query is required" });
+			expect(res.json).toHaveBeenCalledWith({
+				message: "Query is required",
+				code: "AI_CHAT_VALIDATION_ERROR",
+			});
 			expect(aiService.reserveEntryQueryMessage).not.toHaveBeenCalled();
 		});
 
@@ -140,6 +143,7 @@ describe("AiController", () => {
 			expect(res.status).toHaveBeenCalledWith(402);
 			expect(res.json).toHaveBeenCalledWith({
 				message: "Daily AI message limit reached (10/10). Try again tomorrow.",
+				code: "AI_CHAT_DAILY_LIMIT_REACHED",
 			});
 		});
 

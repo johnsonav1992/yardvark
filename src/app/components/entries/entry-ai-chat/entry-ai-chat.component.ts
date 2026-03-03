@@ -2,6 +2,7 @@ import type { ElementRef } from "@angular/core";
 import {
 	Component,
 	computed,
+	DestroyRef,
 	effect,
 	inject,
 	model,
@@ -22,6 +23,13 @@ import type { YVUser } from "../../../types/user.types";
 import type { Maybe } from "../../../types/utils.types";
 import { injectAiChat } from "../../../utils/aiChatUtils";
 import { injectUserData, isMasterUser } from "../../../utils/authUtils";
+import {
+	buildTranscriptFromSpeechResults,
+	getSpeechRecognitionCtor,
+	isSpeechPermissionDeniedError,
+	shouldIgnoreSpeechError,
+} from "../../../utils/speechRecognitionUtils";
+import { injectErrorToast } from "../../../utils/toastUtils";
 
 @Component({
 	selector: "entry-ai-chat",
@@ -31,9 +39,12 @@ import { injectUserData, isMasterUser } from "../../../utils/authUtils";
 })
 export class EntryAiChatComponent {
 	private readonly _globalUiService = inject(GlobalUiService);
+	private readonly _destroyRef = inject(DestroyRef);
 	private readonly _messagesEnd =
 		viewChild<ElementRef<HTMLDivElement>>("messagesEnd");
 	private readonly _userData = injectUserData();
+	private readonly _throwErrorToast = injectErrorToast();
+	private _recognition: SpeechRecognition | null = null;
 
 	public readonly entryConfirmed = output<void>();
 
@@ -48,6 +59,10 @@ export class EntryAiChatComponent {
 	public readonly isStreaming = this._chat.isStreaming;
 	public readonly statusMessage = this._chat.statusMessage;
 	public readonly limitStatus = this._chat.limitStatus;
+	public readonly micSupported = computed(
+		() => getSpeechRecognitionCtor() !== null,
+	);
+	public readonly isListening = signal(false);
 	public readonly isMaster = computed(() =>
 		isMasterUser(this._userData() as Maybe<YVUser>),
 	);
@@ -98,6 +113,12 @@ export class EntryAiChatComponent {
 	public readonly clearChat = this._chat.clearChat;
 
 	constructor() {
+		this.initSpeechRecognition();
+
+		this._destroyRef.onDestroy(() => {
+			this.stopListening();
+		});
+
 		effect(() => {
 			if (this.isOpen()) {
 				void this._chat.refreshLimitStatus();
@@ -117,6 +138,7 @@ export class EntryAiChatComponent {
 	}
 
 	public onClose(): void {
+		this.stopListening();
 		this.currentInput.set("");
 		this._chat.clearChat();
 	}
@@ -141,6 +163,33 @@ export class EntryAiChatComponent {
 		await this.send();
 	}
 
+	public toggleListening(): void {
+		if (!this.micSupported()) {
+			this._throwErrorToast(
+				"Microphone input is not supported on this device/browser.",
+			);
+			return;
+		}
+
+		if (this.isListening()) {
+			this.stopListening();
+			return;
+		}
+
+		const recognition = this._recognition;
+
+		if (!recognition) {
+			this._throwErrorToast("Microphone input is unavailable right now.");
+			return;
+		}
+
+		try {
+			recognition.start();
+		} catch {
+			this._throwErrorToast("Unable to start microphone input.");
+		}
+	}
+
 	public formatDraftDate(dateStr: string): string {
 		return format(new Date(`${dateStr}T12:00:00`), "MMMM do, yyyy");
 	}
@@ -151,5 +200,59 @@ export class EntryAiChatComponent {
 
 	public rejectDraft(messageIndex: number): void {
 		this._chat.rejectEntryDraft(messageIndex);
+	}
+
+	private initSpeechRecognition(): void {
+		const Ctor = getSpeechRecognitionCtor();
+
+		if (!Ctor) return;
+
+		const recognition = new Ctor();
+		recognition.continuous = false;
+		recognition.interimResults = true;
+		recognition.lang = "en-US";
+
+		recognition.onstart = () => {
+			this.isListening.set(true);
+		};
+
+		recognition.onend = () => {
+			this.isListening.set(false);
+		};
+
+		recognition.onresult = (event: SpeechRecognitionEvent) => {
+			const transcript = buildTranscriptFromSpeechResults(event);
+
+			if (transcript.trim().length > 0) {
+				this.currentInput.set(transcript);
+			}
+		};
+
+		recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+			this.isListening.set(false);
+
+			if (isSpeechPermissionDeniedError(event.error)) {
+				this._throwErrorToast("Microphone permission was denied.");
+				return;
+			}
+
+			if (!shouldIgnoreSpeechError(event.error)) {
+				this._throwErrorToast("Microphone input failed. Please try again.");
+			}
+		};
+
+		this._recognition = recognition;
+	}
+
+	private stopListening(): void {
+		if (!this._recognition || !this.isListening()) {
+			return;
+		}
+
+		try {
+			this._recognition.stop();
+		} finally {
+			this.isListening.set(false);
+		}
 	}
 }

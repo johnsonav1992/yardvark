@@ -163,6 +163,18 @@
         placeholder="Ask about your lawn..."
         aria-label="Chat input"
       />
+      @if (micSupported()) {
+        <p-button
+          icon="ti ti-microphone"
+          rounded
+          [severity]="isListening() ? 'primary' : 'secondary'"
+          [text]="!isListening()"
+          [disabled]="isInputDisabled()"
+          (onClick)="toggleListening()"
+          [ariaLabel]="isListening() ? 'Stop microphone input' : 'Start microphone input'"
+          [styleClass]="isListening() ? 'mic-btn mic-btn-active' : 'mic-btn'"
+        />
+      }
       <p-button
         icon="ti ti-send-2"
         rounded

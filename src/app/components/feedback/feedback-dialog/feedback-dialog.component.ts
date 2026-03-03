@@ -94,7 +94,8 @@ export class FeedbackDialogComponent {
 
 	public onSubmit(): void {
 		if (this.form.invalid) {
-			return showAllFormErrorsOnSubmit(this.form);
+			showAllFormErrorsOnSubmit(this.form);
+			return;
 		}
 
 		this.isSubmitting.set(true);

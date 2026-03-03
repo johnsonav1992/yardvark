@@ -57,10 +57,11 @@ export const applicationRateFieldValidator: ValidatorFn = (control) => {
  * }
  * ```
  */
-export const showAllFormErrorsOnSubmit = (form: FormGroup) => {
-	Object.entries(form.controls).forEach(([_, ctrl]) => ctrl.markAsDirty());
-
-	return form.markAllAsTouched();
+export const showAllFormErrorsOnSubmit = (form: FormGroup): void => {
+	Object.values(form.controls).forEach((ctrl) => {
+		ctrl.markAsDirty();
+	});
+	form.markAllAsTouched();
 };
 
 export const websiteUrlValidator: ValidatorFn = (control) => {

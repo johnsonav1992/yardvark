@@ -1,12 +1,12 @@
 import { Test, type TestingModule } from "@nestjs/testing";
 import { ResourceError } from "../../../errors/resource-error";
 import { error, success } from "../../../types/either";
+import { SubscriptionService } from "../../subscription/services/subscription.service";
 import { AiChatDailyLimitReachedError } from "../models/ai.errors";
 import { AiService } from "./ai.service";
+import { AiSessionService } from "./ai-session.service";
 import { EntryQueryToolsService } from "./entry-query-tools.service";
 import { GeminiService } from "./gemini.service";
-import { SubscriptionService } from "../../subscription/services/subscription.service";
-import { AiSessionService } from "./ai-session.service";
 
 describe("AiService", () => {
 	let service: AiService;
@@ -163,19 +163,19 @@ describe("AiService", () => {
 				.spyOn(entryQueryToolsService, "getToolDefinitions")
 				.mockReturnValue([]);
 			jest.spyOn(sessionService, "getHistory").mockReturnValue([]);
-			jest.spyOn(entryQueryToolsService, "proposeEntry").mockResolvedValue(
-				draft,
-			);
-			jest.spyOn(geminiService, "streamChatWithTools").mockImplementation(
-				async function* ({ toolExecutor }) {
+			jest
+				.spyOn(entryQueryToolsService, "proposeEntry")
+				.mockResolvedValue(draft);
+			jest
+				.spyOn(geminiService, "streamChatWithTools")
+				.mockImplementation(async function* ({ toolExecutor }) {
 					await toolExecutor("propose_entry", {
 						date: "2026-03-01",
 						activityIds: [1, 2],
 					});
 					yield { type: "chunk", text: "Draft ready." };
 					yield { type: "done" };
-				},
-			);
+				});
 
 			const events = [];
 			for await (const event of service.streamQueryEntriesWithTools(
@@ -201,15 +201,13 @@ describe("AiService", () => {
 
 	describe("getEntryQueryLimitStatus", () => {
 		it("should return computed limit status", async () => {
-			jest
-				.spyOn(subscriptionService, "checkFeatureAccess")
-				.mockResolvedValue(
-					success({
-						allowed: true,
-						limit: 10,
-						usage: 4,
-					}),
-				);
+			jest.spyOn(subscriptionService, "checkFeatureAccess").mockResolvedValue(
+				success({
+					allowed: true,
+					limit: 10,
+					usage: 4,
+				}),
+			);
 			jest
 				.spyOn(subscriptionService, "getCurrentFeatureUsage")
 				.mockResolvedValue(
@@ -236,15 +234,13 @@ describe("AiService", () => {
 
 	describe("reserveEntryQueryMessage", () => {
 		it("should return limit reached error when access is denied by quota", async () => {
-			jest
-				.spyOn(subscriptionService, "checkFeatureAccess")
-				.mockResolvedValue(
-					success({
-						allowed: false,
-						limit: 10,
-						usage: 10,
-					}),
-				);
+			jest.spyOn(subscriptionService, "checkFeatureAccess").mockResolvedValue(
+				success({
+					allowed: false,
+					limit: 10,
+					usage: 10,
+				}),
+			);
 
 			const result = await service.reserveEntryQueryMessage("user-1");
 
@@ -255,15 +251,13 @@ describe("AiService", () => {
 		});
 
 		it("should increment usage and return refreshed limit status", async () => {
-			jest
-				.spyOn(subscriptionService, "checkFeatureAccess")
-				.mockResolvedValue(
-					success({
-						allowed: true,
-						limit: 10,
-						usage: 4,
-					}),
-				);
+			jest.spyOn(subscriptionService, "checkFeatureAccess").mockResolvedValue(
+				success({
+					allowed: true,
+					limit: 10,
+					usage: 4,
+				}),
+			);
 			jest
 				.spyOn(subscriptionService, "incrementUsage")
 				.mockResolvedValue(success(undefined));
@@ -287,25 +281,21 @@ describe("AiService", () => {
 		});
 
 		it("should return wrapped error when increment usage fails", async () => {
-			jest
-				.spyOn(subscriptionService, "checkFeatureAccess")
-				.mockResolvedValue(
-					success({
-						allowed: true,
-						limit: 10,
-						usage: 4,
+			jest.spyOn(subscriptionService, "checkFeatureAccess").mockResolvedValue(
+				success({
+					allowed: true,
+					limit: 10,
+					usage: 4,
+				}),
+			);
+			jest.spyOn(subscriptionService, "incrementUsage").mockResolvedValue(
+				error(
+					new ResourceError({
+						message: "DB down",
+						code: "INCREMENT_USAGE_ERROR",
 					}),
-				);
-			jest
-				.spyOn(subscriptionService, "incrementUsage")
-				.mockResolvedValue(
-					error(
-						new ResourceError({
-							message: "DB down",
-							code: "INCREMENT_USAGE_ERROR",
-						}),
-					),
-				);
+				),
+			);
 
 			const result = await service.reserveEntryQueryMessage("user-1");
 

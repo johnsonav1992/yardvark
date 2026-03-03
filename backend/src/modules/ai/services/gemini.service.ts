@@ -304,7 +304,10 @@ export class GeminiService {
 		} catch (error) {
 			success = false;
 			const message = error instanceof Error ? error.message : "Unknown error";
-			this.logger.error(`streamChatWithTools failed: ${message}`, error instanceof Error ? error.stack : undefined);
+			this.logger.error(
+				`streamChatWithTools failed: ${message}`,
+				error instanceof Error ? error.stack : undefined,
+			);
 			yield { type: "error", message, code: "AI_CHAT_ERROR" };
 		} finally {
 			LogHelpers.recordExternalCall(
@@ -396,7 +399,9 @@ export class GeminiService {
 			const finishReason = candidate?.finishReason;
 
 			if (!candidate?.content) {
-				throw new Error(`No candidate content in Gemini response (finishReason=${finishReason})`);
+				throw new Error(
+					`No candidate content in Gemini response (finishReason=${finishReason})`,
+				);
 			}
 
 			const functionCallParts = getFunctionCallParts(candidate.content.parts);
@@ -432,8 +437,13 @@ export class GeminiService {
 					continue;
 				}
 
-				const partTypes = candidate.content.parts?.map((p) => Object.keys(p).join(",")).join(" | ") ?? "none";
-				throw new Error(`No text or function calls in Gemini response (finishReason=${finishReason}, partTypes=${partTypes})`);
+				const partTypes =
+					candidate.content.parts
+						?.map((p) => Object.keys(p).join(","))
+						.join(" | ") ?? "none";
+				throw new Error(
+					`No text or function calls in Gemini response (finishReason=${finishReason}, partTypes=${partTypes})`,
+				);
 			}
 
 			contents.push(candidate.content);

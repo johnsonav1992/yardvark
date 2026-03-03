@@ -74,12 +74,12 @@ describe("LoggingInterceptor - Wide Events", () => {
 			url: "/test?query=value",
 			path: "/test",
 			headers: { "user-agent": "test-agent" },
-				user: {
-					userId: "user-123",
-					email: "test@example.com",
-					name: "Test User",
-					isMaster: false,
-				},
+			user: {
+				userId: "user-123",
+				email: "test@example.com",
+				name: "Test User",
+				isMaster: false,
+			},
 			query: { query: "value" },
 			params: {},
 			ip: "127.0.0.1",
@@ -91,13 +91,13 @@ describe("LoggingInterceptor - Wide Events", () => {
 			getHeader: jest.fn().mockReturnValue(undefined),
 		};
 
-			mockExecutionContext = {
-				getType: jest.fn().mockReturnValue("http"),
-				switchToHttp: jest.fn().mockReturnValue({
-					getRequest: () => mockRequest,
-					getResponse: () => mockResponse,
-				}),
-			} as unknown as ExecutionContext;
+		mockExecutionContext = {
+			getType: jest.fn().mockReturnValue("http"),
+			switchToHttp: jest.fn().mockReturnValue({
+				getRequest: () => mockRequest,
+				getResponse: () => mockResponse,
+			}),
+		} as unknown as ExecutionContext;
 
 		mockCallHandler = {
 			handle: jest.fn().mockReturnValue(of({})),

@@ -89,9 +89,15 @@ export class ProductsSelectorComponent {
 		const product = e.itemValue as Product | undefined;
 		const fullList = e.value as Product[];
 
-		if (fullList.length === 0) return this.productsControl().clear();
+		if (fullList.length === 0) {
+			this.productsControl().clear();
+			return;
+		}
 
-		if (!product && fullList.length) return this._handleBulkSelection(fullList);
+		if (!product && fullList.length) {
+			this._handleBulkSelection(fullList);
+			return;
+		}
 
 		this._toggleSingleProduct(product);
 	}

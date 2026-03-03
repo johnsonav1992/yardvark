@@ -36,8 +36,12 @@ export class EquipmentService {
 		return putReq(apiUrl(`equipment/${equipmentId}`), equipmentData);
 	}
 
-	private isEquipmentFormData(data: any): data is EquipmentFormData {
-		return data && ("name" in data || "brand" in data || "image" in data);
+	private isEquipmentFormData(data: unknown): data is EquipmentFormData {
+		if (!data || typeof data !== "object") {
+			return false;
+		}
+
+		return "name" in data || "brand" in data || "image" in data;
 	}
 
 	public addMaintenanceRecord(

@@ -114,9 +114,9 @@ export const mainRoutes: Routes = [
 	{
 		path: "equipment/:equipmentId",
 		loadComponent: () =>
-			import(
-				"./pages/equipment/equipment-view/equipment-view.component"
-			).then((m) => m.EquipmentViewComponent),
+			import("./pages/equipment/equipment-view/equipment-view.component").then(
+				(m) => m.EquipmentViewComponent,
+			),
 		canActivate: [hybridAuthGuard],
 	},
 	{

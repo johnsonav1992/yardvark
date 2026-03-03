@@ -363,7 +363,8 @@ export class LawnMapComponent implements OnDestroy {
 		const targetSegment = this.targetSegmentForDrawing();
 
 		if (!targetSegment?.id) {
-			return this._throwErrorToast("Invalid segment. Please try again.");
+			this._throwErrorToast("Invalid segment. Please try again.");
+			return;
 		}
 
 		const color = this.selectedColor();
@@ -405,7 +406,9 @@ export class LawnMapComponent implements OnDestroy {
 		const drawnItems = this._drawnItems();
 		const currentLayers = this._segmentLayers();
 
-		currentLayers.forEach((layer) => drawnItems.removeLayer(layer));
+		currentLayers.forEach((layer) => {
+			drawnItems.removeLayer(layer);
+		});
 
 		const newLayers = new Map<number, EditableLayer>();
 
@@ -487,8 +490,12 @@ export class LawnMapComponent implements OnDestroy {
 		const map = this._map();
 		if (!map) return;
 
-		this._vertexMarkers().forEach((marker) => map.removeLayer(marker));
-		this._midpointMarkers().forEach((marker) => map.removeLayer(marker));
+		this._vertexMarkers().forEach((marker) => {
+			map.removeLayer(marker);
+		});
+		this._midpointMarkers().forEach((marker) => {
+			map.removeLayer(marker);
+		});
 
 		this._vertexMarkers.set([]);
 		this._midpointMarkers.set([]);

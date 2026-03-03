@@ -9,7 +9,9 @@ import { apiUrl, getReq, postReq } from "../utils/httpUtils";
 export class FilesService {
 	public uploadFiles(files: File[]) {
 		const formData = new FormData();
-		files.forEach((file) => formData.append("file", file));
+		files.forEach((file) => {
+			formData.append("file", file);
+		});
 
 		return postReq<string[]>(apiUrl("files/upload"), formData);
 	}

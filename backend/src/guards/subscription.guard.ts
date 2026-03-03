@@ -37,10 +37,10 @@ export class SubscriptionGuard implements CanActivate {
 	}
 
 	private getFeatureName(context: ExecutionContext): string | undefined {
-		return this.reflector.getAllAndOverride<string>(
-			SUBSCRIPTION_FEATURE_KEY,
-			[context.getHandler(), context.getClass()],
-		);
+		return this.reflector.getAllAndOverride<string>(SUBSCRIPTION_FEATURE_KEY, [
+			context.getHandler(),
+			context.getClass(),
+		]);
 	}
 
 	private getUserIdFromRequest(context: ExecutionContext): string {

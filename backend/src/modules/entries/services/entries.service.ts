@@ -1,7 +1,7 @@
+import { UTCDate } from "@date-fns/utc";
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { endOfDay, isValid, parse, startOfDay, startOfYear } from "date-fns";
-import { UTCDate } from "@date-fns/utc";
 import { ACTIVITY_IDS } from "src/constants/activities.constants";
 import {
 	Between,

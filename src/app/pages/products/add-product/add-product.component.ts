@@ -30,6 +30,7 @@ import { injectUserData, isMasterUser } from "../../../utils/authUtils";
 import {
 	applicationRateFieldValidator,
 	guaranteedAnalysisFieldValidator,
+	showAllFormErrorsOnSubmit,
 	websiteUrlValidator,
 } from "../../../utils/formUtils";
 import { injectErrorToast } from "../../../utils/toastUtils";
@@ -107,11 +108,8 @@ export class AddProductComponent {
 
 	public submit(): void {
 		if (this.form.invalid) {
-			Object.entries(this.form.controls).forEach(([_, ctrl]) =>
-				ctrl.markAsDirty(),
-			);
-
-			return this.form.markAllAsTouched();
+			showAllFormErrorsOnSubmit(this.form);
+			return;
 		}
 
 		this.isLoading.set(true);

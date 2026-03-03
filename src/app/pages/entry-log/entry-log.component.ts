@@ -310,5 +310,4 @@ export class EntryLogComponent implements OnInit {
 			},
 		},
 	}));
-
 }

@@ -48,7 +48,10 @@ export type AiStreamFn = (
 	signal: AbortSignal,
 ) => AsyncGenerator<AiStreamEvent>;
 
-export function injectAiChat(streamFn?: AiStreamFn, onEntryCreated?: () => void): AiChatHook {
+export function injectAiChat(
+	streamFn?: AiStreamFn,
+	onEntryCreated?: () => void,
+): AiChatHook {
 	const aiService = inject(AiService);
 	const entriesService = inject(EntriesService);
 	const destroyRef = inject(DestroyRef);

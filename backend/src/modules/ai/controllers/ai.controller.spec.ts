@@ -87,7 +87,9 @@ describe("AiController", () => {
 			const result = await controller.getQueryEntriesLimit("user-123");
 
 			expect(result).toEqual(limitStatus);
-			expect(aiService.getEntryQueryLimitStatus).toHaveBeenCalledWith("user-123");
+			expect(aiService.getEntryQueryLimitStatus).toHaveBeenCalledWith(
+				"user-123",
+			);
 		});
 	});
 
@@ -130,9 +132,7 @@ describe("AiController", () => {
 			const res = createMockResponse();
 			jest
 				.spyOn(aiService, "reserveEntryQueryMessage")
-				.mockResolvedValue(
-					error(new AiChatDailyLimitReachedError(10, 10)),
-				);
+				.mockResolvedValue(error(new AiChatDailyLimitReachedError(10, 10)));
 
 			await controller.streamQueryEntries(
 				user,
@@ -159,13 +159,13 @@ describe("AiController", () => {
 			jest
 				.spyOn(aiService, "reserveEntryQueryMessage")
 				.mockResolvedValue(success(limitStatus));
-			jest.spyOn(aiService, "streamQueryEntriesWithTools").mockImplementation(
-				async function* () {
+			jest
+				.spyOn(aiService, "streamQueryEntriesWithTools")
+				.mockImplementation(async function* () {
 					yield { type: "status", message: "Searching entries..." };
 					yield { type: "chunk", text: "You last mowed on Feb 28." };
 					yield { type: "done" };
-				},
-			);
+				});
 
 			await controller.streamQueryEntries(
 				user,

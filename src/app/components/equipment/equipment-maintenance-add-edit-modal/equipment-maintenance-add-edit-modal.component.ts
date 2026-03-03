@@ -65,7 +65,8 @@ export class EquipmentMaintenanceAddEditModalComponent implements OnInit {
 
 	public submit(): void {
 		if (this.form.invalid) {
-			return showAllFormErrorsOnSubmit(this.form);
+			showAllFormErrorsOnSubmit(this.form);
+			return;
 		}
 
 		const maintenanceId = this.maintenanceId();

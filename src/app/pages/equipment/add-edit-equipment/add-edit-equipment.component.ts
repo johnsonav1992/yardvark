@@ -117,7 +117,10 @@ export class AddEditEquipmentComponent implements OnInit {
 	}
 
 	public submit(): void {
-		if (this.form.invalid) return showAllFormErrorsOnSubmit(this.form);
+		if (this.form.invalid) {
+			showAllFormErrorsOnSubmit(this.form);
+			return;
+		}
 
 		this.isLoading.set(true);
 

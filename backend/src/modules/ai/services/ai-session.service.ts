@@ -1,5 +1,5 @@
-import { Injectable } from "@nestjs/common";
 import type { Content } from "@google/genai";
+import { Injectable } from "@nestjs/common";
 
 const SESSION_TTL_MS = 30 * 60 * 1000;
 const MAX_HISTORY_TURNS = 20;

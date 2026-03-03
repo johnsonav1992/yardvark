@@ -26,9 +26,9 @@ export class PageContainerComponent {
 	public useNormalBack = input<boolean>(false);
 	public titleClass = input<string>("");
 
-	public titleSuffix = contentChild<TemplateRef<any> | null>("titleSuffix");
-	public action1 = contentChild<TemplateRef<any> | null>("action1");
-	public action2 = contentChild<TemplateRef<any> | null>("action2");
+	public titleSuffix = contentChild<TemplateRef<unknown> | null>("titleSuffix");
+	public action1 = contentChild<TemplateRef<unknown> | null>("action1");
+	public action2 = contentChild<TemplateRef<unknown> | null>("action2");
 
 	public back() {
 		if (this.useNormalBack()) {

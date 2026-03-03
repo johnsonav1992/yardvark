@@ -228,13 +228,15 @@ export class ProfilePictureDialogComponent {
 		this.error.set(null);
 
 		if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-			return this.error.set(
+			this.error.set(
 				"Please select a valid image file (JPEG, PNG, GIF, or WebP)",
 			);
+			return;
 		}
 
 		if (file.size > MAX_FILE_SIZE) {
-			return this.error.set("File size must be less than 5MB");
+			this.error.set("File size must be less than 5MB");
+			return;
 		}
 
 		this.selectedFile.set(file);

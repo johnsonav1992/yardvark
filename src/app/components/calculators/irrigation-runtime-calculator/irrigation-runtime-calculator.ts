@@ -100,7 +100,10 @@ export class IrrigationRuntimeCalculator {
 	});
 
 	public totalWeeklyMinutes = computed(() =>
-		this.zoneRuntimeResults().reduce((total, zone) => total + zone.minutesPerWeek, 0),
+		this.zoneRuntimeResults().reduce(
+			(total, zone) => total + zone.minutesPerWeek,
+			0,
+		),
 	);
 
 	public rainfallMeetsTarget = computed(
@@ -150,7 +153,9 @@ export class IrrigationRuntimeCalculator {
 	public onZoneNameChange(zoneId: number, event: Event): void {
 		const value = (event.target as HTMLInputElement).value;
 		this.zones.update((zones) =>
-			zones.map((zone) => (zone.id === zoneId ? { ...zone, name: value } : zone)),
+			zones.map((zone) =>
+				zone.id === zoneId ? { ...zone, name: value } : zone,
+			),
 		);
 	}
 

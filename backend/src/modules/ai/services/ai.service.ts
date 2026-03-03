@@ -92,7 +92,9 @@ export class AiService {
 	): AsyncGenerator<AiStreamEvent> {
 		const tools = this.entryQueryToolsService.getToolDefinitions();
 		const sideEvents: AiStreamEvent[] = [];
-		const priorContents = sessionId ? this.sessionService.getHistory(sessionId) : [];
+		const priorContents = sessionId
+			? this.sessionService.getHistory(sessionId)
+			: [];
 		let finalText = "";
 
 		const toolExecutor = this.createEntryQueryToolExecutor(

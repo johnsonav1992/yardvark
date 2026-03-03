@@ -117,7 +117,8 @@ export class EntryAiChatComponent {
 	}
 
 	public onClose(): void {
-		this._chat.abort();
+		this.currentInput.set("");
+		this._chat.clearChat();
 	}
 
 	public onQueryInput(event: Event): void {

@@ -1,7 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { format } from "date-fns";
 import { ACTIVITY_IDS } from "../../../constants/activities.constants";
-import type { AiEntryDraftData, AiEntryDraftProduct } from "../../../types/ai.types";
+import type {
+	AiEntryDraftData,
+	AiEntryDraftProduct,
+} from "../../../types/ai.types";
 import { type Either, error, success } from "../../../types/either";
 import { EntriesService } from "../../entries/services/entries.service";
 import type { getEntryResponseMapping } from "../../entries/utils/entryUtils";
@@ -15,9 +18,9 @@ import {
 } from "../utils/entry-query-tools.config";
 import {
 	type EntrySearchParams,
-	type ProposeEntryParams,
 	mapEntrySearchParamsToEntriesSearch,
 	mergeUniqueNumberIds,
+	type ProposeEntryParams,
 	sanitizeEntry,
 	sanitizeEntryLean,
 } from "../utils/entry-query-tools.utils";
@@ -261,7 +264,10 @@ export class EntryQueryToolsService {
 					);
 				case "propose_entry":
 					return success(
-						await this.proposeEntry(userId, args as unknown as ProposeEntryParams),
+						await this.proposeEntry(
+							userId,
+							args as unknown as ProposeEntryParams,
+						),
 					);
 				default:
 					return error(new AiChatError(new Error(`Unknown tool: ${toolName}`)));

@@ -1,5 +1,8 @@
 import { AI_CHAT_FALLBACK_ERROR_MESSAGE } from "../constants/ai-constants";
-import type { AiEntryDraftData, AiChatMessageDraftStatus } from "../types/ai.types";
+import type {
+	AiChatMessageDraftStatus,
+	AiEntryDraftData,
+} from "../types/ai.types";
 import type { AiChatMessage } from "./aiChatUtils";
 
 export const addUserChatMessage = (
@@ -55,7 +58,11 @@ export const attachDraftToLastAiMessage = (
 
 	return [
 		...messages.slice(0, -1),
-		{ ...last, entryDraft: draft, draftStatus: "pending" as AiChatMessageDraftStatus },
+		{
+			...last,
+			entryDraft: draft,
+			draftStatus: "pending" as AiChatMessageDraftStatus,
+		},
 	];
 };
 
@@ -64,4 +71,6 @@ export const updateMessageDraftStatus = (
 	index: number,
 	status: AiChatMessageDraftStatus,
 ): AiChatMessage[] =>
-	messages.map((msg, i) => (i === index ? { ...msg, draftStatus: status } : msg));
+	messages.map((msg, i) =>
+		i === index ? { ...msg, draftStatus: status } : msg,
+	);

@@ -94,6 +94,80 @@
   margin-bottom: 1rem;
 }
 
+.estimate-card {
+  background: var(--p-blue-50);
+  border: 1px solid var(--p-blue-200);
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  h4 {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+}
+
+.estimate-description {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--p-text-color);
+}
+
+.estimate-input {
+  max-width: 220px;
+}
+
+.calibration-helper {
+  border-top: 1px dashed var(--p-blue-300);
+  padding-top: 0.55rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.calibration-title {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.calibration-toggle {
+  border: 0;
+  background: transparent;
+  color: var(--p-text-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
+  padding: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.calibration-copy {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--p-text-color);
+}
+
+.calibration-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.calibration-result {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+}
+
 .summary-line {
   margin: 0;
   display: flex;
@@ -132,10 +206,15 @@
   grid-template-columns: minmax(0, 1fr) 150px auto;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.55rem;
+  border: 1px solid var(--p-surface-300);
+  border-radius: 8px;
+  background: var(--p-surface-0);
 
   @media (max-width: 768px) {
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 0.4rem;
+    grid-template-columns: minmax(0, 1fr) 112px auto;
+    gap: 0.35rem;
+    padding: 0.5rem;
   }
 }
 
@@ -149,6 +228,12 @@
 
 .zone-rate {
   min-width: 0;
+}
+
+.remove-zone-btn {
+  @media (max-width: 768px) {
+    justify-self: end;
+  }
 }
 
 .zone-hint {
@@ -166,6 +251,12 @@
   gap: 0.6rem;
 }
 
+.results-note {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--p-orange-700);
+}
+
 .result-row {
   display: flex;
   justify-content: space-between;
@@ -173,7 +264,7 @@
   gap: 1rem;
 
   @media (max-width: 768px) {
-    align-items: flex-start;
+    gap: 0.6rem;
   }
 }
 
@@ -190,6 +281,12 @@
   .zone-rate {
     color: var(--p-surface-500);
     font-size: 0.78rem;
+
+    em {
+      font-style: normal;
+      color: var(--p-orange-700);
+      margin-left: 0.15rem;
+    }
   }
 }
 
@@ -207,6 +304,7 @@
     color: var(--p-surface-500);
     font-size: 0.78rem;
   }
+
 }
 
 .result-total {

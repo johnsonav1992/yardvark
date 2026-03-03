@@ -20,8 +20,9 @@
             </div>
             <p class="help-description">
               Enter your weekly target water amount, recent rainfall, watering
-              days, and each zone's precipitation rate (in/hr). We'll calculate
-              runtime per zone per watering day.
+              days, and each zone's precipitation rate (in/hr). If you don't
+              know a zone output yet, leave it blank and we'll use your
+              estimated output.
             </p>
           </div>
         </p-popover>
@@ -37,7 +38,7 @@
           pInputText
           type="text"
           placeholder="e.g., 1.0"
-          [value]="targetWeeklyWaterInches() ?? ''"
+          [value]="targetWeeklyWaterInput()"
           (input)="onTargetWeeklyWaterChange($event)"
           class="number-input"
         />
@@ -52,7 +53,7 @@
           pInputText
           type="text"
           placeholder="e.g., 0.35"
-          [value]="rainfallThisWeekInches() ?? ''"
+          [value]="rainfallThisWeekInput()"
           (input)="onRainfallThisWeekChange($event)"
           class="number-input"
         />
@@ -67,7 +68,7 @@
           pInputText
           type="text"
           placeholder="e.g., 3"
-          [value]="wateringDaysPerWeek() ?? ''"
+          [value]="wateringDaysPerWeekInput()"
           (input)="onWateringDaysChange($event)"
           class="number-input"
         />
@@ -88,6 +89,77 @@
     }
   </div>
 
+  <div class="estimate-card">
+    <h4>Don't Know Zone Output Yet?</h4>
+    <p class="estimate-description">
+      Leave a zone rate blank and we'll use this estimate.
+    </p>
+    <div class="input-with-suffix estimate-input">
+      <input
+        pInputText
+        type="text"
+        placeholder="e.g., 0.5"
+        [value]="estimatedPrecipRateInput()"
+        (input)="onEstimatedRateChange($event)"
+        class="number-input"
+      />
+      <span class="input-suffix">in/hr</span>
+    </div>
+    <div class="calibration-helper">
+      <button class="calibration-toggle" type="button" (click)="toggleCalibration()">
+        <span>Quick cup test calibration</span>
+        <i
+          class="ti"
+          [class.ti-chevron-down]="!isCalibrationExpanded()"
+          [class.ti-chevron-up]="isCalibrationExpanded()"
+        ></i>
+      </button>
+      @if (isCalibrationExpanded()) {
+        <p class="calibration-copy">
+          Run one zone for
+          <strong>{{ calibrationRuntimeMinutesInput() || 10 }} min</strong>, measure
+          average cup depth, then apply it:
+        </p>
+        <div class="calibration-grid">
+          <div class="input-with-suffix">
+            <input
+              pInputText
+              type="text"
+              placeholder="Runtime"
+              [value]="calibrationRuntimeMinutesInput()"
+              (input)="onCalibrationRuntimeChange($event)"
+              class="number-input"
+            />
+            <span class="input-suffix">min</span>
+          </div>
+          <div class="input-with-suffix">
+            <input
+              pInputText
+              type="text"
+              placeholder="Avg depth"
+              [value]="calibrationDepthInchesInput()"
+              (input)="onCalibrationDepthChange($event)"
+              class="number-input"
+            />
+            <span class="input-suffix">in</span>
+          </div>
+        </div>
+        <div class="calibration-result">
+          <span>Calculated output:</span>
+          <strong>{{ calibratedRate() ?? "--" }} in/hr</strong>
+        </div>
+        <p-button
+          label="Use Calibrated Estimate"
+          size="small"
+          severity="secondary"
+          outlined
+          [disabled]="!calibratedRate()"
+          (click)="applyCalibratedRate()"
+        />
+      }
+    </div>
+  </div>
+
   <div class="zones-header">
     <h4>Zones</h4>
     <p-button
@@ -96,6 +168,7 @@
       size="small"
       severity="secondary"
       outlined
+      class="add-zone-btn"
       (click)="addZone()"
     />
   </div>
@@ -116,7 +189,7 @@
             pInputText
             type="text"
             class="number-input"
-            [value]="zone.precipRate ?? ''"
+            [value]="zone.precipRateInput"
             (input)="onZoneRateChange(zone.id, $event)"
             placeholder="Rate"
           />
@@ -127,6 +200,7 @@
           size="small"
           severity="danger"
           text
+          class="remove-zone-btn"
           [disabled]="zones().length === 1"
           (click)="removeZone(zone.id)"
           pTooltip="Remove zone"
@@ -143,11 +217,21 @@
 
   @if (shouldShowResults()) {
     <div class="results-card">
+      @if (hasEstimatedZones()) {
+        <p class="results-note">
+          {{ estimatedZonesCount() }} zone(s) are using estimated output.
+        </p>
+      }
       @for (zoneResult of zoneRuntimeResults(); track zoneResult.id) {
         <div class="result-row">
           <div class="result-zone">
             <span class="zone-name">{{ zoneResult.name }}</span>
-            <span class="zone-rate">{{ zoneResult.precipRate }} in/hr</span>
+            <span class="zone-rate">
+              {{ zoneResult.precipRate }} in/hr
+              @if (zoneResult.isEstimated) {
+                <em>(estimated)</em>
+              }
+            </span>
           </div>
           <div class="result-times">
             <strong>{{ zoneResult.minutesPerDay }} min/day</strong>
@@ -162,4 +246,3 @@
     </div>
   }
 </p-card>
-

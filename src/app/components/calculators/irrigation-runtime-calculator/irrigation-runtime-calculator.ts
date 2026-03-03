@@ -9,7 +9,7 @@ import { getIrrigationRuntimeMinutes } from "../../../utils/lawnCalculatorUtils"
 type ZoneInput = {
 	id: number;
 	name: string;
-	precipRate: number | null;
+	precipRateInput: string;
 };
 
 type ZoneRuntimeResult = {
@@ -18,6 +18,7 @@ type ZoneRuntimeResult = {
 	precipRate: number;
 	minutesPerWeek: number;
 	minutesPerDay: number;
+	isEstimated: boolean;
 };
 
 @Component({
@@ -35,25 +36,32 @@ type ZoneRuntimeResult = {
 export class IrrigationRuntimeCalculator {
 	private _zoneIdCounter = 2;
 
-	public targetWeeklyWaterInches = signal<number | null>(1);
-	public rainfallThisWeekInches = signal<number | null>(0);
-	public wateringDaysPerWeek = signal<number | null>(3);
+	public targetWeeklyWaterInput = signal("1");
+	public rainfallThisWeekInput = signal("0");
+	public wateringDaysPerWeekInput = signal("3");
+	public estimatedPrecipRateInput = signal("0.5");
+	public isCalibrationExpanded = signal(false);
+	public calibrationRuntimeMinutesInput = signal("10");
+	public calibrationDepthInchesInput = signal("");
 	public zones = signal<ZoneInput[]>([
 		{
 			id: 1,
 			name: "Zone 1",
-			precipRate: null,
+			precipRateInput: "",
 		},
 	]);
 
 	public effectiveTargetWeeklyWaterInches = computed(
-		() => this.targetWeeklyWaterInches() ?? 0,
+		() => this.parseNumber(this.targetWeeklyWaterInput()) ?? 0,
 	);
 	public effectiveRainfallThisWeekInches = computed(
-		() => this.rainfallThisWeekInches() ?? 0,
+		() => this.parseNumber(this.rainfallThisWeekInput()) ?? 0,
 	);
 	public effectiveWateringDaysPerWeek = computed(
-		() => this.wateringDaysPerWeek() ?? 0,
+		() => this.parseNumber(this.wateringDaysPerWeekInput()) ?? 0,
+	);
+	public effectiveEstimatedPrecipRate = computed(
+		() => this.parseNumber(this.estimatedPrecipRateInput()) ?? 0,
 	);
 
 	public remainingIrrigationInches = computed(() =>
@@ -79,11 +87,16 @@ export class IrrigationRuntimeCalculator {
 
 		return this.zones()
 			.map((zone) => {
-				if (!zone.precipRate || zone.precipRate <= 0) return null;
+				const explicitRate = this.parseNumber(zone.precipRateInput);
+				const fallbackRate = this.effectiveEstimatedPrecipRate();
+				const precipRate =
+					explicitRate && explicitRate > 0 ? explicitRate : fallbackRate;
+
+				if (!precipRate || precipRate <= 0) return null;
 
 				const minutesPerWeek = getIrrigationRuntimeMinutes({
 					targetDepthInches: remainingInches,
-					precipitationRateInchesPerHour: zone.precipRate,
+					precipitationRateInchesPerHour: precipRate,
 				});
 
 				if (minutesPerWeek === null) return null;
@@ -91,9 +104,10 @@ export class IrrigationRuntimeCalculator {
 				return {
 					id: zone.id,
 					name: zone.name || `Zone ${zone.id}`,
-					precipRate: zone.precipRate,
+					precipRate,
 					minutesPerWeek,
 					minutesPerDay: Math.round(minutesPerWeek / wateringDays),
+					isEstimated: !explicitRate || explicitRate <= 0,
 				};
 			})
 			.filter((zone): zone is ZoneRuntimeResult => zone !== null);
@@ -111,6 +125,22 @@ export class IrrigationRuntimeCalculator {
 			this.effectiveRainfallThisWeekInches() >=
 			this.effectiveTargetWeeklyWaterInches(),
 	);
+	public estimatedZonesCount = computed(
+		() => this.zoneRuntimeResults().filter((zone) => zone.isEstimated).length,
+	);
+	public hasEstimatedZones = computed(() => this.estimatedZonesCount() > 0);
+	public canUseCalibration = computed(() => {
+		const depth = this.parseNumber(this.calibrationDepthInchesInput());
+		const runtime = this.parseNumber(this.calibrationRuntimeMinutesInput());
+		return depth !== null && runtime !== null && depth > 0 && runtime > 0;
+	});
+	public calibratedRate = computed(() => {
+		if (!this.canUseCalibration()) return null;
+		const depth = this.parseNumber(this.calibrationDepthInchesInput()) ?? 0;
+		const runtime =
+			this.parseNumber(this.calibrationRuntimeMinutesInput()) ?? 1;
+		return Number(((depth * 60) / runtime).toFixed(2));
+	});
 
 	public shouldShowResults = computed(
 		() => this.hasValidScheduleInputs() && this.zoneRuntimeResults().length > 0,
@@ -137,17 +167,42 @@ export class IrrigationRuntimeCalculator {
 
 	public onTargetWeeklyWaterChange(event: Event): void {
 		const value = (event.target as HTMLInputElement).value;
-		this.targetWeeklyWaterInches.set(this.parseNumber(value));
+		this.targetWeeklyWaterInput.set(value);
 	}
 
 	public onRainfallThisWeekChange(event: Event): void {
 		const value = (event.target as HTMLInputElement).value;
-		this.rainfallThisWeekInches.set(this.parseNumber(value));
+		this.rainfallThisWeekInput.set(value);
 	}
 
 	public onWateringDaysChange(event: Event): void {
 		const value = (event.target as HTMLInputElement).value;
-		this.wateringDaysPerWeek.set(this.parseNumber(value));
+		this.wateringDaysPerWeekInput.set(value);
+	}
+
+	public onEstimatedRateChange(event: Event): void {
+		const value = (event.target as HTMLInputElement).value;
+		this.estimatedPrecipRateInput.set(value);
+	}
+
+	public onCalibrationRuntimeChange(event: Event): void {
+		const value = (event.target as HTMLInputElement).value;
+		this.calibrationRuntimeMinutesInput.set(value);
+	}
+
+	public onCalibrationDepthChange(event: Event): void {
+		const value = (event.target as HTMLInputElement).value;
+		this.calibrationDepthInchesInput.set(value);
+	}
+
+	public applyCalibratedRate(): void {
+		const rate = this.calibratedRate();
+		if (!rate || rate <= 0) return;
+		this.estimatedPrecipRateInput.set(`${rate}`);
+	}
+
+	public toggleCalibration(): void {
+		this.isCalibrationExpanded.update((isExpanded) => !isExpanded);
 	}
 
 	public onZoneNameChange(zoneId: number, event: Event): void {
@@ -161,10 +216,9 @@ export class IrrigationRuntimeCalculator {
 
 	public onZoneRateChange(zoneId: number, event: Event): void {
 		const value = (event.target as HTMLInputElement).value;
-		const parsed = this.parseNumber(value);
 		this.zones.update((zones) =>
 			zones.map((zone) =>
-				zone.id === zoneId ? { ...zone, precipRate: parsed } : zone,
+				zone.id === zoneId ? { ...zone, precipRateInput: value } : zone,
 			),
 		);
 	}
@@ -173,7 +227,7 @@ export class IrrigationRuntimeCalculator {
 		const nextId = this._zoneIdCounter++;
 		this.zones.update((zones) => [
 			...zones,
-			{ id: nextId, name: `Zone ${nextId}`, precipRate: null },
+			{ id: nextId, name: `Zone ${nextId}`, precipRateInput: "" },
 		]);
 	}
 

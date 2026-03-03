@@ -44,6 +44,7 @@ export class AiController {
 	}
 
 	@Post("query-entries")
+	@SubscriptionFeature("ai_chat")
 	public async queryEntries(
 		@User() user: ExtractedUserRequestData,
 		@Body() body: { query: string },
@@ -68,11 +69,13 @@ export class AiController {
 	}
 
 	@Get("query-entries/limit")
+	@SubscriptionFeature("ai_chat")
 	public async getQueryEntriesLimit(@User("userId") userId: string) {
 		return resultOrThrow(await this.aiService.getEntryQueryLimitStatus(userId));
 	}
 
 	@Post("query-entries/stream")
+	@SubscriptionFeature("ai_chat")
 	public async streamQueryEntries(
 		@User() user: ExtractedUserRequestData,
 		@Body() body: { query: string; sessionId?: string },

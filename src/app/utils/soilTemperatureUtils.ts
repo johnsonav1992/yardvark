@@ -1,6 +1,6 @@
-import { PrimeNGColorToken } from '../types/style.types';
-import { getPrimeNgHexColor } from './styleUtils';
-import { HOURS_IN_A_DAY } from './timeUtils';
+import type { PrimeNGColorToken } from "../types/style.types";
+import { getPrimeNgHexColor } from "./styleUtils";
+import { HOURS_IN_A_DAY } from "./timeUtils";
 
 /**
  * Returns the color to display for a given soil temperature.
@@ -9,25 +9,25 @@ import { HOURS_IN_A_DAY } from './timeUtils';
  * @returns The color to display for the given soil temperature.
  */
 export const getSoilTemperatureDisplayColor = (soilTemp: number) => {
-  const temperatureColorMap: { [key: number]: PrimeNGColorToken } = {
-    25: 'indigo.400',
-    40: 'blue.500',
-    45: 'green.600',
-    50: 'amber.200',
-    70: 'amber.400'
-  };
+	const temperatureColorMap: { [key: number]: PrimeNGColorToken } = {
+		25: "indigo.400",
+		40: "blue.500",
+		45: "green.600",
+		50: "amber.200",
+		70: "amber.400",
+	};
 
-  for (const [temp, color] of Object.entries(temperatureColorMap)) {
-    if (soilTemp < Number(temp)) return getPrimeNgHexColor(color);
-  }
+	for (const [temp, color] of Object.entries(temperatureColorMap)) {
+		if (soilTemp < Number(temp)) return getPrimeNgHexColor(color);
+	}
 
-  return getPrimeNgHexColor('red.400');
+	return getPrimeNgHexColor("red.400");
 };
 
 export type SoilConditionInsight = {
-  icon: string;
-  label: string;
-  description: string;
+	icon: string;
+	label: string;
+	description: string;
 };
 
 /**
@@ -41,96 +41,97 @@ export type SoilConditionInsight = {
  * @returns A contextual insight about current soil conditions.
  */
 export const getSoilTemperatureInsight = (
-  shallowTemp: number,
-  tempUnit: 'fahrenheit' | 'celsius',
-  grassType: 'cool' | 'warm'
+	shallowTemp: number,
+	tempUnit: "fahrenheit" | "celsius",
+	grassType: "cool" | "warm",
 ): SoilConditionInsight => {
-  const tempF = tempUnit === 'celsius' ? shallowTemp * 1.8 + 32 : shallowTemp;
+	const tempF = tempUnit === "celsius" ? shallowTemp * 1.8 + 32 : shallowTemp;
 
-  if (grassType === 'cool') {
-    return getCoolSeasonTempInsight(tempF);
-  }
+	if (grassType === "cool") {
+		return getCoolSeasonTempInsight(tempF);
+	}
 
-  return getWarmSeasonTempInsight(tempF);
+	return getWarmSeasonTempInsight(tempF);
 };
 
 const getCoolSeasonTempInsight = (tempF: number): SoilConditionInsight => {
-  if (tempF < 40) {
-    return {
-      icon: 'ti ti-snowflake',
-      label: 'Dormant',
-      description: 'Soil is too cold. Your lawn is dormant until temps rise.'
-    };
-  }
+	if (tempF < 40) {
+		return {
+			icon: "ti ti-snowflake",
+			label: "Dormant",
+			description: "Soil is too cold. Your lawn is dormant until temps rise.",
+		};
+	}
 
-  if (tempF < 55) {
-    return {
-      icon: 'ti ti-plant',
-      label: 'Pre-emergent window',
-      description:
-        'Good time for crabgrass preventer. Your lawn is starting to wake up.'
-    };
-  }
+	if (tempF < 55) {
+		return {
+			icon: "ti ti-plant",
+			label: "Pre-emergent window",
+			description:
+				"Good time for crabgrass preventer. Your lawn is starting to wake up.",
+		};
+	}
 
-  if (tempF < 75) {
-    return {
-      icon: 'ti ti-leaf',
-      label: 'Normal growth',
-      description: 'Ideal conditions for seeding, fertilizing, and overseeding.'
-    };
-  }
+	if (tempF < 75) {
+		return {
+			icon: "ti ti-leaf",
+			label: "Normal growth",
+			description:
+				"Ideal conditions for seeding, fertilizing, and overseeding.",
+		};
+	}
 
-  if (tempF < 90) {
-    return {
-      icon: 'ti ti-sun',
-      label: 'Slowing down',
-      description:
-        'Growth is slowing as temps rise. Raise your mowing height to reduce stress.'
-    };
-  }
+	if (tempF < 90) {
+		return {
+			icon: "ti ti-sun",
+			label: "Slowing down",
+			description:
+				"Growth is slowing as temps rise. Raise your mowing height to reduce stress.",
+		};
+	}
 
-  return {
-    icon: 'ti ti-temperature-sun',
-    label: 'Heat stress',
-    description:
-      'Your lawn is under heat stress. Be sure to water deeply and infrequently.'
-  };
+	return {
+		icon: "ti ti-temperature-sun",
+		label: "Heat stress",
+		description:
+			"Your lawn is under heat stress. Be sure to water deeply and infrequently.",
+	};
 };
 
 const getWarmSeasonTempInsight = (tempF: number): SoilConditionInsight => {
-  if (tempF < 55) {
-    return {
-      icon: 'ti ti-snowflake',
-      label: 'Dormant',
-      description:
-        'Soil is too cold. Your lawn is dormant until temps rise above 55°F.'
-    };
-  }
+	if (tempF < 55) {
+		return {
+			icon: "ti ti-snowflake",
+			label: "Dormant",
+			description:
+				"Soil is too cold. Your lawn is dormant until temps rise above 55°F.",
+		};
+	}
 
-  if (tempF < 65) {
-    return {
-      icon: 'ti ti-plant',
-      label: 'Greening up',
-      description:
-        'Your lawn is starting to green up. Hold off on heavy fertilizing until fully active.'
-    };
-  }
+	if (tempF < 65) {
+		return {
+			icon: "ti ti-plant",
+			label: "Greening up",
+			description:
+				"Your lawn is starting to green up. Hold off on heavy fertilizing until fully active.",
+		};
+	}
 
-  if (tempF < 95) {
-    return {
-      icon: 'ti ti-leaf',
-      label: 'Active growth',
-      description:
-        'Ideal conditions for fertilizing, aerating, and dethatching.'
-    };
-  }
+	if (tempF < 95) {
+		return {
+			icon: "ti ti-leaf",
+			label: "Active growth",
+			description:
+				"Ideal conditions for fertilizing, aerating, and dethatching.",
+		};
+	}
 
-  return {
-    icon: 'ti ti-temperature-sun',
-    label: 'Hot',
-    description:
-      'Temperatures are high. Water deeply and less frequently to encourage deep roots.'
-  };
+	return {
+		icon: "ti ti-temperature-sun",
+		label: "Hot",
+		description:
+			"Temperatures are high. Water deeply and less frequently to encourage deep roots.",
+	};
 };
 
 /**
@@ -142,45 +143,45 @@ const getWarmSeasonTempInsight = (tempF: number): SoilConditionInsight => {
  * @returns A contextual insight about soil moisture levels.
  */
 export const getSoilMoistureInsight = (
-  moisturePct: number,
-  grassType: 'cool' | 'warm'
+	moisturePct: number,
+	grassType: "cool" | "warm",
 ): SoilConditionInsight => {
-  if (moisturePct < 15) {
-    return {
-      icon: 'ti ti-droplet-off',
-      label: 'Dry',
-      description:
-        grassType === 'cool'
-          ? 'Soil is dry. Cool-season grasses need consistent moisture — consider irrigating.'
-          : 'Soil is dry. Water deeply if your lawn is actively growing.'
-    };
-  }
+	if (moisturePct < 15) {
+		return {
+			icon: "ti ti-droplet-off",
+			label: "Dry",
+			description:
+				grassType === "cool"
+					? "Soil is dry. Cool-season grasses need consistent moisture — consider irrigating."
+					: "Soil is dry. Water deeply if your lawn is actively growing.",
+		};
+	}
 
-  if (moisturePct < 35) {
-    return {
-      icon: 'ti ti-droplet-half-2',
-      label: 'Adequate',
-      description:
-        grassType === 'cool'
-          ? 'Moisture levels look good for cool-season growth.'
-          : 'Moisture levels look good for warm-season growth.'
-    };
-  }
+	if (moisturePct < 35) {
+		return {
+			icon: "ti ti-droplet-half-2",
+			label: "Adequate",
+			description:
+				grassType === "cool"
+					? "Moisture levels look good for cool-season growth."
+					: "Moisture levels look good for warm-season growth.",
+		};
+	}
 
-  return {
-    icon: 'ti ti-droplets',
-    label: 'Saturated',
-    description:
-      grassType === 'cool'
-        ? 'Soil is very moist. Hold off on watering to avoid fungal issues.'
-        : 'Soil is very moist. Hold off on watering.'
-  };
+	return {
+		icon: "ti ti-droplets",
+		label: "Saturated",
+		description:
+			grassType === "cool"
+				? "Soil is very moist. Hold off on watering to avoid fungal issues."
+				: "Soil is very moist. Hold off on watering.",
+	};
 };
 
 export type SoilTrend = {
-  direction: 'rising' | 'falling' | 'stable';
-  delta: number;
-  icon: string;
+	direction: "rising" | "falling" | "stable";
+	delta: number;
+	icon: string;
 };
 
 /**
@@ -192,31 +193,31 @@ export type SoilTrend = {
  * @returns A SoilTrend object, or null if data is insufficient.
  */
 export const computeSoilTrend = (
-  dailyAverages: (number | null)[],
-  threshold = 1
+	dailyAverages: (number | null)[],
+	threshold = 1,
 ): SoilTrend | null => {
-  const todayVal = dailyAverages[7];
+	const todayVal = dailyAverages[7];
 
-  if (todayVal === null) return null;
+	if (todayVal === null) return null;
 
-  const pastVals = dailyAverages
-    .slice(3, 5)
-    .filter((v): v is number => v !== null);
+	const pastVals = dailyAverages
+		.slice(3, 5)
+		.filter((v): v is number => v !== null);
 
-  if (pastVals.length === 0) return null;
+	if (pastVals.length === 0) return null;
 
-  const pastAvg = pastVals.reduce((sum, v) => sum + v, 0) / pastVals.length;
-  const delta = Math.round(todayVal - pastAvg);
+	const pastAvg = pastVals.reduce((sum, v) => sum + v, 0) / pastVals.length;
+	const delta = Math.round(todayVal - pastAvg);
 
-  if (Math.abs(delta) < threshold) {
-    return { direction: 'stable', delta: 0, icon: 'ti ti-arrow-narrow-right' };
-  }
+	if (Math.abs(delta) < threshold) {
+		return { direction: "stable", delta: 0, icon: "ti ti-arrow-narrow-right" };
+	}
 
-  if (delta > 0) {
-    return { direction: 'rising', delta, icon: 'ti ti-trending-up' };
-  }
+	if (delta > 0) {
+		return { direction: "rising", delta, icon: "ti ti-trending-up" };
+	}
 
-  return { direction: 'falling', delta, icon: 'ti ti-trending-down' };
+	return { direction: "falling", delta, icon: "ti ti-trending-down" };
 };
 
 /**
@@ -228,14 +229,14 @@ export const computeSoilTrend = (
  * @returns The most recent non-null value, or null if none found.
  */
 export const getMostRecentValue = (
-  data: (number | null)[],
-  fromIndex: number
+	data: (number | null)[],
+	fromIndex: number,
 ): number | null => {
-  for (let i = Math.min(fromIndex, data.length - 1); i >= 0; i--) {
-    if (data[i] !== null) return data[i];
-  }
+	for (let i = Math.min(fromIndex, data.length - 1); i >= 0; i--) {
+		if (data[i] !== null) return data[i];
+	}
 
-  return null;
+	return null;
 };
 
 /**
@@ -247,20 +248,19 @@ export const getMostRecentValue = (
  * @returns The average value rounded to the specified decimal places, or null if no valid data.
  */
 export const calculate24HourNumericAverage = (
-  numericData: (number | null)[],
-  options?: { precision?: number }
+	numericData: (number | null)[],
+	options?: { precision?: number },
 ): number | null => {
-  const validData = numericData.filter((val): val is number => val !== null);
+	const validData = numericData.filter((val): val is number => val !== null);
 
-  if (validData.length === 0) return null;
+	if (validData.length === 0) return null;
 
-  const total = validData.reduce((sum, temp) => sum + temp, 0);
-  const precision = options?.precision ?? 1;
+	const total = validData.reduce((sum, temp) => sum + temp, 0);
+	const precision = options?.precision ?? 1;
 
-  return (
-    Math.round((total / validData.length) * Math.pow(10, precision)) /
-    Math.pow(10, precision)
-  );
+	return (
+		Math.round((total / validData.length) * 10 ** precision) / 10 ** precision
+	);
 };
 
 /**
@@ -273,21 +273,21 @@ export const calculate24HourNumericAverage = (
  * @returns An array of daily average values, rounded to the specified decimal places.
  */
 export const getAllDailyNumericDataAverages = (
-  hourlyNumericData: (number | null)[],
-  options?: { precision?: number; multiplicationFactor?: number }
+	hourlyNumericData: (number | null)[],
+	options?: { precision?: number; multiplicationFactor?: number },
 ): (number | null)[] => {
-  const dailyAverages: (number | null)[] = [];
+	const dailyAverages: (number | null)[] = [];
 
-  for (let i = 0; i < hourlyNumericData.length; i += HOURS_IN_A_DAY) {
-    const dailyData = hourlyNumericData.slice(i, i + HOURS_IN_A_DAY);
-    const dailyAverage = calculate24HourNumericAverage(dailyData, options);
+	for (let i = 0; i < hourlyNumericData.length; i += HOURS_IN_A_DAY) {
+		const dailyData = hourlyNumericData.slice(i, i + HOURS_IN_A_DAY);
+		const dailyAverage = calculate24HourNumericAverage(dailyData, options);
 
-    dailyAverages.push(
-      dailyAverage !== null
-        ? dailyAverage * (options?.multiplicationFactor || 1)
-        : null
-    );
-  }
+		dailyAverages.push(
+			dailyAverage !== null
+				? dailyAverage * (options?.multiplicationFactor || 1)
+				: null,
+		);
+	}
 
-  return dailyAverages;
+	return dailyAverages;
 };

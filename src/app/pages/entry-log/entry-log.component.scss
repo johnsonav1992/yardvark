@@ -1,10 +1,13 @@
 .main-container {
   width: 100%;
 
-  .speed-dial {
+  .fab-container {
     position: fixed;
     bottom: 20px;
     right: 20px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
 
     @media (max-width: 768px) {
       bottom: calc(80px + env(safe-area-inset-bottom));

@@ -7,37 +7,37 @@
  * @returns The quantity converted to pounds
  */
 export const convertToPounds = (
-  quantity: number,
-  unit:
-    | 'lbs'
-    | 'oz'
-    | 'fl oz'
-    | 'kg'
-    | 'g'
-    | 'gal'
-    | 'qt'
-    | 'pt'
-    | 'tsp'
-    | 'mL'
-    | 'L'
-    | (string & {})
+	quantity: number,
+	unit:
+		| "lbs"
+		| "oz"
+		| "fl oz"
+		| "kg"
+		| "g"
+		| "gal"
+		| "qt"
+		| "pt"
+		| "tsp"
+		| "mL"
+		| "L"
+		| (string & {}),
 ): number => {
-  const conversionRates: Record<string, number> = {
-    // Solid weights
-    lbs: 1,
-    oz: 0.0625, // 1 oz = 0.0625 lbs
-    kg: 2.20462, // 1 kg = 2.20462 lbs
-    g: 0.00220462, // 1 g = 0.00220462 lbs
+	const conversionRates: Record<string, number> = {
+		// Solid weights
+		lbs: 1,
+		oz: 0.0625, // 1 oz = 0.0625 lbs
+		kg: 2.20462, // 1 kg = 2.20462 lbs
+		g: 0.00220462, // 1 g = 0.00220462 lbs
 
-    // Liquid volumes (using average liquid fertilizer density of 9.5 lbs/gallon)
-    gal: 9.5, // Average liquid fertilizer density
-    qt: 2.375, // 9.5 / 4
-    pt: 1.1875, // 9.5 / 8
-    'fl oz': 0.0742, // 9.5 / 128
-    tsp: 0.0154, // 9.5 / 616 (128 fl oz × 4.8 tsp/fl oz)
-    mL: 0.0021, // ~1 g/mL converted to lbs
-    L: 2.1 // ~1 kg/L converted to lbs
-  };
+		// Liquid volumes (using average liquid fertilizer density of 9.5 lbs/gallon)
+		gal: 9.5, // Average liquid fertilizer density
+		qt: 2.375, // 9.5 / 4
+		pt: 1.1875, // 9.5 / 8
+		"fl oz": 0.0742, // 9.5 / 128
+		tsp: 0.0154, // 9.5 / 616 (128 fl oz × 4.8 tsp/fl oz)
+		mL: 0.0021, // ~1 g/mL converted to lbs
+		L: 2.1, // ~1 kg/L converted to lbs
+	};
 
-  return quantity * (conversionRates[unit] || 1);
+	return quantity * (conversionRates[unit] || 1);
 };

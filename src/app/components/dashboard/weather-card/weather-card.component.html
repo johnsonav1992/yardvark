@@ -38,7 +38,11 @@
     <div class="weather-content">
       <div class="current-weather">
         <div class="weather-main">
-          <i [class]="todaysWeatherIcon()" class="weather-icon"></i>
+          <i
+            [class]="todaysWeatherIcon()"
+            class="weather-icon"
+            [style.color]="todaysWeatherIconColor()"
+          ></i>
           <div class="temperature">
             {{ todaysWeather()!.temperature }}°{{
               todaysWeather()!.temperatureUnit
@@ -80,7 +84,11 @@
             Tonight
           </h4>
           <div class="tonight-summary">
-            <i [class]="tonightsWeatherIcon()" class="tonight-icon"></i>
+            <i
+              [class]="tonightsWeatherIcon()"
+              class="tonight-icon"
+              [style.color]="tonightsWeatherIconColor()"
+            ></i>
             <span class="tonight-temp"
               >{{ tonightsWeather()!.temperature }}°{{
                 tonightsWeather()!.temperatureUnit

@@ -1,78 +1,84 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { LawnSegment } from '../models/lawn-segments.model';
-import { Repository } from 'typeorm';
-import {
-  LawnSegmentCreationRequest,
-  LawnSegmentUpdateRequest,
-} from '../models/lawn-segments.types';
-import { LogHelpers } from '../../../logger/logger.helpers';
-import { Either, error, success } from '../../../types/either';
-import { LawnSegmentNotFound } from '../models/lawn-segments.errors';
-import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { LogHelpers } from "../../../logger/logger.helpers";
+import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import { type Either, error, success } from "../../../types/either";
+import { LawnSegmentNotFound } from "../models/lawn-segments.errors";
+import { LawnSegment } from "../models/lawn-segments.model";
+import type {
+	LawnSegmentCreationRequest,
+	LawnSegmentUpdateRequest,
+} from "../models/lawn-segments.types";
 
 @Injectable()
 export class LawnSegmentsService {
-  constructor(
-    @InjectRepository(LawnSegment)
-    private readonly _lawnSegmentRepo: Repository<LawnSegment>,
-  ) {}
+	constructor(
+		@InjectRepository(LawnSegment)
+		private readonly _lawnSegmentRepo: Repository<LawnSegment>,
+	) {}
 
-  public async getLawnSegments(userId: string) {
-    const segments = await this._lawnSegmentRepo.findBy({ userId });
+	public async getLawnSegments(userId: string) {
+		const segments = await this._lawnSegmentRepo.findBy({ userId });
 
-    LogHelpers.addBusinessContext(
-      BusinessContextKeys.lawnSegmentsCount,
-      segments.length,
-    );
+		LogHelpers.addBusinessContext(
+			BusinessContextKeys.lawnSegmentsCount,
+			segments.length,
+		);
 
-    return segments;
-  }
+		return segments;
+	}
 
-  public async createLawnSegment(
-    userId: string,
-    lawnSegment: LawnSegmentCreationRequest,
-  ) {
-    const lawnSeg = this._lawnSegmentRepo.create({ ...lawnSegment, userId });
+	public async getLawnSegmentById(id: number): Promise<LawnSegment | null> {
+		LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentId, id);
 
-    const saved = await this._lawnSegmentRepo.save(lawnSeg);
+		return this._lawnSegmentRepo.findOne({ where: { id } });
+	}
 
-    LogHelpers.addBusinessContext(
-      BusinessContextKeys.lawnSegmentCreated,
-      saved.id,
-    );
+	public async createLawnSegment(
+		userId: string,
+		lawnSegment: LawnSegmentCreationRequest,
+	) {
+		const lawnSeg = this._lawnSegmentRepo.create({ ...lawnSegment, userId });
 
-    return saved;
-  }
+		const saved = await this._lawnSegmentRepo.save(lawnSeg);
 
-  public async updateLawnSegment(
-    id: number,
-    updateData: LawnSegmentUpdateRequest,
-  ): Promise<Either<LawnSegmentNotFound, LawnSegment>> {
-    LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentId, id);
+		LogHelpers.addBusinessContext(
+			BusinessContextKeys.lawnSegmentCreated,
+			saved.id,
+		);
 
-    const segment = await this._lawnSegmentRepo.findOneBy({ id });
+		return saved;
+	}
 
-    if (!segment) {
-      return error(new LawnSegmentNotFound());
-    }
+	public async updateLawnSegment(
+		id: number,
+		updateData: LawnSegmentUpdateRequest,
+	): Promise<Either<LawnSegmentNotFound, LawnSegment>> {
+		LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentId, id);
 
-    Object.assign(segment, updateData);
+		const segment = await this._lawnSegmentRepo.findOneBy({ id });
 
-    const saved = await this._lawnSegmentRepo.save(segment);
+		if (!segment) {
+			return error(new LawnSegmentNotFound());
+		}
 
-    LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentUpdated, true);
+		Object.assign(segment, updateData);
 
-    return success(saved);
-  }
+		const saved = await this._lawnSegmentRepo.save(segment);
 
-  public async deleteLawnSegment(id: number) {
-    LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentId, id);
+		LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentUpdated, true);
 
-    const result = await this._lawnSegmentRepo.delete({ id });
+		return success(saved);
+	}
 
-    LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentDeleted, true);
+	public async deleteLawnSegment(id: number) {
+		LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentId, id);
 
-    return result;
-  }
+		const result = await this._lawnSegmentRepo.delete({ id });
+
+		LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentDeleted, true);
+
+		return result;
+	}
 }

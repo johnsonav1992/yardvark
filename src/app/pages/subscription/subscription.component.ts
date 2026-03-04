@@ -1,211 +1,211 @@
-import { Component, inject, signal, effect, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { PageContainerComponent } from '../../components/layout/page-container/page-container.component';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { TagModule } from 'primeng/tag';
-import { DividerModule } from 'primeng/divider';
-import { MessageModule } from 'primeng/message';
-import { SkeletonModule } from 'primeng/skeleton';
-import { SubscriptionService } from '../../services/subscription.service';
-import { PurchasableTier } from '../../types/subscription.types';
+import { CommonModule } from "@angular/common";
+import { Component, computed, effect, inject, signal } from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { ActivatedRoute, Router } from "@angular/router";
+import { format, parseISO } from "date-fns";
+import { ButtonModule } from "primeng/button";
+import { CardModule } from "primeng/card";
+import { DividerModule } from "primeng/divider";
+import { MessageModule } from "primeng/message";
+import { SkeletonModule } from "primeng/skeleton";
+import { TagModule } from "primeng/tag";
+import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
+import { FREE_TIER_ENTRY_LIMIT } from "../../constants/subscription.constants";
+import { GlobalUiService } from "../../services/global-ui.service";
+import { SubscriptionService } from "../../services/subscription.service";
+import type { PurchasableTier } from "../../types/subscription.types";
 import {
-  injectSuccessToast,
-  injectErrorToast,
-  injectInfoToast
-} from '../../utils/toastUtils';
-import { GlobalUiService } from '../../services/global-ui.service';
-import { FREE_TIER_ENTRY_LIMIT } from '../../constants/subscription.constants';
-import { format, parseISO } from 'date-fns';
+	injectErrorToast,
+	injectInfoToast,
+	injectSuccessToast,
+} from "../../utils/toastUtils";
 
 @Component({
-  selector: 'subscription',
-  standalone: true,
-  imports: [
-    CommonModule,
-    PageContainerComponent,
-    ButtonModule,
-    CardModule,
-    TagModule,
-    DividerModule,
-    MessageModule,
-    SkeletonModule
-  ],
-  templateUrl: './subscription.component.html',
-  styleUrl: './subscription.component.scss'
+	selector: "subscription",
+	standalone: true,
+	imports: [
+		CommonModule,
+		PageContainerComponent,
+		ButtonModule,
+		CardModule,
+		TagModule,
+		DividerModule,
+		MessageModule,
+		SkeletonModule,
+	],
+	templateUrl: "./subscription.component.html",
+	styleUrl: "./subscription.component.scss",
 })
 export class SubscriptionComponent {
-  private subscriptionService = inject(SubscriptionService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private globalUiService = inject(GlobalUiService);
-  private throwSuccessToast = injectSuccessToast();
-  private throwErrorToast = injectErrorToast();
-  private throwInfoToast = injectInfoToast();
-  private queryParams = toSignal(this.route.queryParams);
+	private subscriptionService = inject(SubscriptionService);
+	private route = inject(ActivatedRoute);
+	private router = inject(Router);
+	private globalUiService = inject(GlobalUiService);
+	private throwSuccessToast = injectSuccessToast();
+	private throwErrorToast = injectErrorToast();
+	private throwInfoToast = injectInfoToast();
+	private queryParams = toSignal(this.route.queryParams);
 
-  public subscription = this.subscriptionService.currentSubscription;
-  public isPro = this.subscriptionService.isPro;
-  public isLoadingSubscription = this.subscriptionService.isLoading;
-  public pricing = this.subscriptionService.currentPricing;
-  public isPricingLoading = this.subscriptionService.isPricingLoading;
-  public isMobile = this.globalUiService.isMobile;
-  public loadingTier = signal<PurchasableTier | null>(null);
-  public isManaging = signal(false);
+	public subscription = this.subscriptionService.currentSubscription;
+	public isPro = this.subscriptionService.isPro;
+	public isLoadingSubscription = this.subscriptionService.isLoading;
+	public pricing = this.subscriptionService.currentPricing;
+	public isPricingLoading = this.subscriptionService.isPricingLoading;
+	public isMobile = this.globalUiService.isMobile;
+	public loadingTier = signal<PurchasableTier | null>(null);
+	public isManaging = signal(false);
 
-  private readonly commonFeatures = [
-    'Unlimited lawn entries',
-    'All AI features',
-    'Advanced analytics',
-    'GDD tracking',
-    'Priority support'
-  ];
+	private readonly commonFeatures = [
+		"Unlimited lawn entries",
+		"All AI features",
+		"Advanced analytics",
+		"GDD tracking",
+		"Priority support",
+	];
 
-  public plans = computed(() => {
-    const pricingData = this.pricing();
+	public plans = computed(() => {
+		const pricingData = this.pricing();
 
-    if (!pricingData) {
-      return [
-        {
-          tier: 'monthly' as const,
-          name: 'Monthly',
-          price: 7,
-          period: 'month',
-          features: this.commonFeatures
-        },
-        {
-          tier: 'yearly' as const,
-          name: 'Yearly',
-          price: 60,
-          period: 'year',
-          popular: true,
-          features: [...this.commonFeatures, 'Save $24/year']
-        }
-      ];
-    }
+		if (!pricingData) {
+			return [
+				{
+					tier: "monthly" as const,
+					name: "Monthly",
+					price: 7,
+					period: "month",
+					features: this.commonFeatures,
+				},
+				{
+					tier: "yearly" as const,
+					name: "Yearly",
+					price: 60,
+					period: "year",
+					popular: true,
+					features: [...this.commonFeatures, "Save $24/year"],
+				},
+			];
+		}
 
-    const monthlyPrice = pricingData.prices.find(p => p.tier === 'monthly');
-    const yearlyPrice = pricingData.prices.find(p => p.tier === 'yearly');
+		const monthlyPrice = pricingData.prices.find((p) => p.tier === "monthly");
+		const yearlyPrice = pricingData.prices.find((p) => p.tier === "yearly");
 
-    const monthlyCost = monthlyPrice?.amount || 7;
-    const yearlyCost = yearlyPrice?.amount || 60;
-    const savings = (monthlyCost * 12) - yearlyCost;
+		const monthlyCost = monthlyPrice?.amount || 7;
+		const yearlyCost = yearlyPrice?.amount || 60;
+		const savings = monthlyCost * 12 - yearlyCost;
 
-    return [
-      {
-        tier: 'monthly' as const,
-        name: 'Monthly',
-        price: monthlyCost,
-        period: 'month',
-        features: this.commonFeatures
-      },
-      {
-        tier: 'yearly' as const,
-        name: 'Yearly',
-        price: yearlyCost,
-        period: 'year',
-        popular: true,
-        features: [...this.commonFeatures, `Save $${savings}/year`]
-      }
-    ];
-  });
+		return [
+			{
+				tier: "monthly" as const,
+				name: "Monthly",
+				price: monthlyCost,
+				period: "month",
+				features: this.commonFeatures,
+			},
+			{
+				tier: "yearly" as const,
+				name: "Yearly",
+				price: yearlyCost,
+				period: "year",
+				popular: true,
+				features: [...this.commonFeatures, `Save $${savings}/year`],
+			},
+		];
+	});
 
-  public freeLimits = [
-    `${FREE_TIER_ENTRY_LIMIT} lawn entries per month`,
-    'Basic analytics',
-    'AI features unavailable'
-  ];
+	public freeLimits = [
+		`${FREE_TIER_ENTRY_LIMIT} lawn entries per month`,
+		"Basic analytics",
+		"AI features unavailable",
+	];
 
-  constructor() {
-    effect(() => {
-      const params = this.queryParams();
+	constructor() {
+		effect(() => {
+			const params = this.queryParams();
 
-      if (!params) {
-        return;
-      }
+			if (!params) {
+				return;
+			}
 
-      if (params['success'] === 'true') {
-        this.throwSuccessToast('Subscription activated successfully!');
-        this.subscriptionService.refreshSubscription();
-      } else if (params['canceled'] === 'true') {
-        this.throwInfoToast('Subscription checkout was canceled');
-      }
+			if (params["success"] === "true") {
+				this.throwSuccessToast("Subscription activated successfully!");
+				this.subscriptionService.refreshSubscription();
+			} else if (params["canceled"] === "true") {
+				this.throwInfoToast("Subscription checkout was canceled");
+			}
 
-      if (params['success'] || params['canceled']) {
-        this.router.navigate([], { queryParams: {} });
-      }
-    });
-  }
+			if (params["success"] || params["canceled"]) {
+				this.router.navigate([], { queryParams: {} });
+			}
+		});
+	}
 
-  public subscribe(tier: PurchasableTier) {
-    this.loadingTier.set(tier);
+	public subscribe(tier: PurchasableTier) {
+		this.loadingTier.set(tier);
 
-    this.subscriptionService.createCheckout(tier).subscribe({
-      next: (response) => {
-        if (response?.url) {
-          window.location.href = response.url;
-        } else {
-          this.throwErrorToast('Failed to start checkout');
-          this.loadingTier.set(null);
-        }
-      },
-      error: () => {
-        this.throwErrorToast('Failed to start checkout');
-        this.loadingTier.set(null);
-      }
-    });
-  }
+		this.subscriptionService.createCheckout(tier).subscribe({
+			next: (response) => {
+				if (response?.url) {
+					window.location.href = response.url;
+				} else {
+					this.throwErrorToast("Failed to start checkout");
+					this.loadingTier.set(null);
+				}
+			},
+			error: () => {
+				this.throwErrorToast("Failed to start checkout");
+				this.loadingTier.set(null);
+			},
+		});
+	}
 
-  public manageSubscription() {
-    this.isManaging.set(true);
+	public manageSubscription() {
+		this.isManaging.set(true);
 
-    this.subscriptionService.openPortal().subscribe({
-      next: (response) => {
-        if (response?.url) {
-          window.location.href = response.url;
-        } else {
-          this.throwErrorToast('Failed to open billing portal');
-          this.isManaging.set(false);
-        }
-      },
-      error: () => {
-        this.throwErrorToast('Failed to open billing portal');
-        this.isManaging.set(false);
-      }
-    });
-  }
+		this.subscriptionService.openPortal().subscribe({
+			next: (response) => {
+				if (response?.url) {
+					window.location.href = response.url;
+				} else {
+					this.throwErrorToast("Failed to open billing portal");
+					this.isManaging.set(false);
+				}
+			},
+			error: () => {
+				this.throwErrorToast("Failed to open billing portal");
+				this.isManaging.set(false);
+			},
+		});
+	}
 
-  public get subscriptionEndDate(): string | null {
-    const sub = this.subscription();
+	public get subscriptionEndDate(): string | null {
+		const sub = this.subscription();
 
-    if (!sub?.currentPeriodEnd) {
-      return null;
-    }
+		if (!sub?.currentPeriodEnd) {
+			return null;
+		}
 
-    const endDate = parseISO(sub.currentPeriodEnd.toString());
+		const endDate = parseISO(sub.currentPeriodEnd.toString());
 
-    return format(endDate, 'P');
-  }
+		return format(endDate, "P");
+	}
 
-  public get willCancelAtPeriodEnd(): boolean {
-    return this.subscription()?.cancelAtPeriodEnd || false;
-  }
+	public get willCancelAtPeriodEnd(): boolean {
+		return this.subscription()?.cancelAtPeriodEnd || false;
+	}
 
-  public get tierDisplayName(): string {
-    const tier = this.subscription()?.tier;
+	public get tierDisplayName(): string {
+		const tier = this.subscription()?.tier;
 
-    if (!tier || tier === 'free') {
-      return 'Free';
-    }
+		if (!tier || tier === "free") {
+			return "Free";
+		}
 
-    const tierNames: Record<string, string> = {
-      lifetime: 'Lifetime',
-      monthly: 'Monthly',
-      yearly: 'Yearly'
-    };
+		const tierNames: Record<string, string> = {
+			lifetime: "Lifetime",
+			monthly: "Monthly",
+			yearly: "Yearly",
+		};
 
-    return `Pro (${tierNames[tier] || tier})`;
-  }
+		return `Pro (${tierNames[tier] || tier})`;
+	}
 }

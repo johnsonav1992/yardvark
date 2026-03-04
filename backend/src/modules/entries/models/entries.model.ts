@@ -1,142 +1,205 @@
+import { Field, Float, ID, ObjectType } from "@nestjs/graphql";
 import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  ManyToMany,
-  JoinTable,
-  DeleteDateColumn,
-  PrimaryColumn,
-  ManyToOne,
-  JoinColumn,
-  OneToMany,
-} from 'typeorm';
-import { LawnSegment } from '../../lawn-segments/models/lawn-segments.model';
-import { Activity } from '../../activities/models/activities.model';
-import { Product } from '../../products/models/products.model';
+	Column,
+	DeleteDateColumn,
+	Entity,
+	JoinColumn,
+	JoinTable,
+	ManyToMany,
+	ManyToOne,
+	OneToMany,
+	PrimaryColumn,
+	PrimaryGeneratedColumn,
+} from "typeorm";
+import { Activity } from "../../activities/models/activities.model";
+import { LawnSegment } from "../../lawn-segments/models/lawn-segments.model";
+import { Product } from "../../products/models/products.model";
 
-@Entity('entries')
+@ObjectType()
+@Entity("entries")
 export class Entry {
-  @PrimaryGeneratedColumn()
-  id: number;
+	@Field(() => ID)
+	@PrimaryGeneratedColumn()
+	id: number;
 
-  @Column()
-  userId: string;
+	@Field()
+	@Column()
+	userId: string;
 
-  @Column('timestamptz')
-  date: Date;
+	@Field()
+	@Column("timestamptz")
+	date: Date;
 
-  @Column('time', { nullable: true })
-  time?: string;
+	@Field({ nullable: true })
+	@Column("time", { nullable: true })
+	time?: string;
 
-  @Column({ nullable: true })
-  title?: string;
+	@Field({ nullable: true })
+	@Column({ nullable: true })
+	title?: string;
 
-  @Column({ nullable: true })
-  notes: string;
+	@Field({ nullable: true })
+	@Column({ nullable: true })
+	notes: string;
 
-  @Column('decimal', {
-    transformer: {
-      to: (value: number) => value,
-      from: (value: string) => parseFloat(value),
-    },
-    nullable: true,
-  })
-  soilTemperature: number;
+	@Field(() => Float, { nullable: true })
+	@Column("decimal", {
+		transformer: {
+			to: (value: number) => value,
+			from: (value: string) => {
+				const parsed = parseFloat(value);
 
-  @Column()
-  soilTemperatureUnit: string;
+				return Number.isNaN(parsed) ? null : parsed;
+			},
+		},
+		nullable: true,
+	})
+	soilTemperature: number;
 
-  @Column('decimal', {
-    transformer: {
-      to: (value: number) => value,
-      from: (value: string) => parseFloat(value),
-    },
-    nullable: true,
-  })
-  mowingHeight?: number;
+	@Field()
+	@Column()
+	soilTemperatureUnit: string;
 
-  @Column({ nullable: true })
-  mowingHeightUnit?: string;
+	@Field(() => Float, { nullable: true })
+	@Column("decimal", {
+		transformer: {
+			to: (value: number) => value,
+			from: (value: string) => {
+				const parsed = parseFloat(value);
 
-  @ManyToMany(() => Activity, (activity) => activity.entries)
-  @JoinTable({
-    name: 'entry_activities',
-    joinColumn: { name: 'entry_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'activity_id', referencedColumnName: 'id' },
-  })
-  activities: Activity[];
+				return Number.isNaN(parsed) ? null : parsed;
+			},
+		},
+		nullable: true,
+	})
+	mowingHeight?: number;
 
-  @ManyToMany(() => LawnSegment, (lawnSegment) => lawnSegment.entries)
-  @JoinTable({
-    name: 'entry_lawn_segments',
-    joinColumn: { name: 'entry_id', referencedColumnName: 'id' },
-    inverseJoinColumn: { name: 'lawn_segment_id', referencedColumnName: 'id' },
-  })
-  lawnSegments: LawnSegment[];
+	@Field({ nullable: true })
+	@Column({ nullable: true })
+	mowingHeightUnit?: string;
 
-  @OneToMany(() => EntryProduct, (entryProduct) => entryProduct.entry, {
-    cascade: true,
-  })
-  entryProducts: EntryProduct[];
+	@Field(() => [Activity], { nullable: true })
+	@ManyToMany(
+		() => Activity,
+		(activity) => activity.entries,
+	)
+	@JoinTable({
+		name: "entry_activities",
+		joinColumn: { name: "entry_id", referencedColumnName: "id" },
+		inverseJoinColumn: { name: "activity_id", referencedColumnName: "id" },
+	})
+	activities: Activity[];
 
-  @OneToMany(() => EntryImage, (entryImage) => entryImage.entry, {
-    cascade: true,
-  })
-  entryImages: EntryImage[];
+	@Field(() => [LawnSegment], { nullable: true })
+	@ManyToMany(
+		() => LawnSegment,
+		(lawnSegment) => lawnSegment.entries,
+	)
+	@JoinTable({
+		name: "entry_lawn_segments",
+		joinColumn: { name: "entry_id", referencedColumnName: "id" },
+		inverseJoinColumn: { name: "lawn_segment_id", referencedColumnName: "id" },
+	})
+	lawnSegments: LawnSegment[];
 
-  @DeleteDateColumn()
-  deletedAt?: Date;
+	@Field(() => [EntryProduct], { nullable: true })
+	@OneToMany(
+		() => EntryProduct,
+		(entryProduct) => entryProduct.entry,
+		{
+			cascade: true,
+		},
+	)
+	entryProducts: EntryProduct[];
+
+	@Field(() => [EntryImage], { nullable: true })
+	@OneToMany(
+		() => EntryImage,
+		(entryImage) => entryImage.entry,
+		{
+			cascade: true,
+		},
+	)
+	entryImages: EntryImage[];
+
+	@DeleteDateColumn()
+	deletedAt?: Date;
 }
 
-@Entity({ name: 'entry_products' })
+@ObjectType()
+@Entity({ name: "entry_products" })
 export class EntryProduct {
-  @PrimaryColumn()
-  entryId: number;
+	@Field(() => ID)
+	@PrimaryColumn()
+	entryId: number;
 
-  @PrimaryColumn()
-  productId: number;
+	@Field(() => ID)
+	@PrimaryColumn()
+	productId: number;
 
-  @ManyToOne(() => Entry, (entry) => entry, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-  })
-  @JoinColumn({ name: 'entry_id' })
-  entry: Entry;
+	@ManyToOne(
+		() => Entry,
+		(entry) => entry,
+		{
+			onDelete: "CASCADE",
+			onUpdate: "CASCADE",
+		},
+	)
+	@JoinColumn({ name: "entry_id" })
+	entry: Entry;
 
-  @ManyToOne(() => Product, (product) => product, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-  })
-  @JoinColumn({ name: 'product_id' })
-  product: Product;
+	@Field(() => Product)
+	@ManyToOne(
+		() => Product,
+		(product) => product,
+		{
+			onDelete: "CASCADE",
+			onUpdate: "CASCADE",
+		},
+	)
+	@JoinColumn({ name: "product_id" })
+	product: Product;
 
-  @Column('decimal', {
-    transformer: {
-      to: (value: number) => value,
-      from: (value: string) => parseFloat(value),
-    },
-  })
-  productQuantity: number;
+	@Field(() => Float)
+	@Column("decimal", {
+		transformer: {
+			to: (value: number) => value,
+			from: (value: string) => {
+				const parsed = parseFloat(value);
 
-  @Column()
-  productQuantityUnit: string;
+				return Number.isNaN(parsed) ? null : parsed;
+			},
+		},
+	})
+	productQuantity: number;
+
+	@Field()
+	@Column()
+	productQuantityUnit: string;
 }
 
-@Entity({ name: 'entry_images' })
+@ObjectType()
+@Entity({ name: "entry_images" })
 export class EntryImage {
-  @PrimaryGeneratedColumn()
-  id: number;
+	@Field(() => ID)
+	@PrimaryGeneratedColumn()
+	id: number;
 
-  @Column()
-  imageUrl: string;
+	@Field()
+	@Column()
+	imageUrl: string;
 
-  @ManyToOne(() => Entry, (entry) => entry.entryImages, {
-    onDelete: 'CASCADE',
-    onUpdate: 'CASCADE',
-  })
-  @JoinColumn({ name: 'entry_id' })
-  entry: Entry;
+	@ManyToOne(
+		() => Entry,
+		(entry) => entry.entryImages,
+		{
+			onDelete: "CASCADE",
+			onUpdate: "CASCADE",
+		},
+	)
+	@JoinColumn({ name: "entry_id" })
+	entry: Entry;
 
-  @DeleteDateColumn()
-  deletedAt?: Date;
+	@DeleteDateColumn()
+	deletedAt?: Date;
 }

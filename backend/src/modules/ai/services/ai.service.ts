@@ -1,187 +1,264 @@
-import { Injectable, Inject, forwardRef } from '@nestjs/common';
-import { GeminiService } from './gemini.service';
-import { EmbeddingService } from './embedding.service';
-import { EntriesService } from '../../entries/services/entries.service';
-import { Either, error, success } from '../../../types/either';
-import { resultOrThrow } from '../../../utils/resultOrThrow';
-import { AiChatResponse } from '../../../types/ai.types';
+import { Injectable } from "@nestjs/common";
+import type {
+	AiChatResponse,
+	AiEntryQueryLimitStatus,
+	AiStreamEvent,
+} from "../../../types/ai.types";
+import { type Either, error, success } from "../../../types/either";
+import { SubscriptionService } from "../../subscription/services/subscription.service";
 import {
-  AiChatError,
-  AiQueryError,
-  AiEmbeddingError,
-} from '../models/ai.errors';
+	AiChatAccessDeniedError,
+	AiChatDailyLimitReachedError,
+	AiChatError,
+} from "../models/ai.errors";
 import {
-  extractDateRange,
-  preprocessQuery,
-  buildContextFromEntries,
-} from '../../entries/utils/entryRagUtils';
-import { LogHelpers } from '../../../logger/logger.helpers';
-import { BusinessContextKeys } from '../../../logger/logger-keys.constants';
+	ENTRY_QUERY_DAILY_LIMIT_FEATURE,
+	getEntryQueryChatOptions,
+} from "../utils/entry-query-ai.config";
+import { buildEntryQuerySystemPrompt } from "../utils/entry-query-prompt.utils";
+import { isEntryQueryToolName } from "../utils/entry-query-tools.config";
+import type { ProposeEntryParams } from "../utils/entry-query-tools.utils";
+import { AiSessionService } from "./ai-session.service";
+import { EntryQueryToolsService } from "./entry-query-tools.service";
+import { GeminiService } from "./gemini.service";
 
 @Injectable()
 export class AiService {
-  constructor(
-    private readonly geminiService: GeminiService,
-    private readonly embeddingService: EmbeddingService,
-    @Inject(forwardRef(() => EntriesService))
-    private readonly entriesService: EntriesService,
-  ) {}
+	constructor(
+		private readonly geminiService: GeminiService,
+		private readonly entryQueryToolsService: EntryQueryToolsService,
+		private readonly subscriptionService: SubscriptionService,
+		private readonly sessionService: AiSessionService,
+	) {}
 
-  public async chat(
-    prompt: string,
-  ): Promise<Either<AiChatError, AiChatResponse>> {
-    try {
-      const response = await this.geminiService.simpleChat(prompt);
+	public async chat(
+		prompt: string,
+	): Promise<Either<AiChatError, AiChatResponse>> {
+		try {
+			const response = await this.geminiService.simpleChat(prompt);
 
-      return success(response);
-    } catch (err) {
-      return error(new AiChatError(err));
-    }
-  }
+			return success(response);
+		} catch (err) {
+			return error(new AiChatError(err));
+		}
+	}
 
-  public async chatWithSystem(
-    systemPrompt: string,
-    userPrompt: string,
-  ): Promise<Either<AiChatError, AiChatResponse>> {
-    try {
-      const response = await this.geminiService.chatWithSystem(
-        systemPrompt,
-        userPrompt,
-      );
+	public async chatWithSystem(
+		systemPrompt: string,
+		userPrompt: string,
+	): Promise<Either<AiChatError, AiChatResponse>> {
+		try {
+			const response = await this.geminiService.chatWithSystem(
+				systemPrompt,
+				userPrompt,
+			);
 
-      return success(response);
-    } catch (err) {
-      return error(new AiChatError(err));
-    }
-  }
+			return success(response);
+		} catch (err) {
+			return error(new AiChatError(err));
+		}
+	}
 
-  public async queryEntries(
-    userId: string,
-    naturalQuery: string,
-  ): Promise<Either<AiQueryError, AiChatResponse>> {
-    LogHelpers.addBusinessContext(BusinessContextKeys.aiQueryType, 'rag');
+	public async queryEntriesWithTools(
+		userId: string,
+		query: string,
+	): Promise<Either<AiChatError, AiChatResponse & { toolsUsed?: string[] }>> {
+		try {
+			const tools = this.entryQueryToolsService.getToolDefinitions();
+			const toolsUsed: string[] = [];
 
-    try {
-      const preprocessedQuery = preprocessQuery(naturalQuery);
-      const queryEmbedding =
-        await this.embeddingService.generateEmbedding(preprocessedQuery);
-      const dateRange = extractDateRange(naturalQuery);
-      const relevantEntries = resultOrThrow(
-        await this.entriesService.searchEntriesByVector({
-          userId,
-          queryEmbedding,
-          startDate: dateRange?.startDate,
-          endDate: dateRange?.endDate,
-        }),
-      );
+			const content = await this.geminiService.chatWithTools({
+				prompt: query,
+				tools,
+				toolExecutor: this.createEntryQueryToolExecutor(userId, toolsUsed),
+				systemPrompt: buildEntryQuerySystemPrompt(),
+				options: getEntryQueryChatOptions(),
+			});
 
-      LogHelpers.addBusinessContext(
-        BusinessContextKeys.ragEntriesFound,
-        relevantEntries.length,
-      );
+			return success({
+				content,
+				provider: "gemini",
+				toolsUsed,
+			});
+		} catch (err) {
+			return error(new AiChatError(err));
+		}
+	}
 
-      const context = buildContextFromEntries(relevantEntries);
+	public async *streamQueryEntriesWithTools(
+		userId: string,
+		query: string,
+		sessionId?: string,
+	): AsyncGenerator<AiStreamEvent> {
+		const tools = this.entryQueryToolsService.getToolDefinitions();
+		const sideEvents: AiStreamEvent[] = [];
+		const priorContents = sessionId
+			? this.sessionService.getHistory(sessionId)
+			: [];
+		let finalText = "";
 
-      const systemPrompt = `You are a lawn care expert assistant. Answer the user's question based only on the provided entry data from their lawn care history. If you cannot find relevant information in the provided entries, say so clearly. Include specific dates and details when available.
+		const toolExecutor = this.createEntryQueryToolExecutor(
+			userId,
+			undefined,
+			(event) => {
+				sideEvents.push(event);
+			},
+		);
 
-      Entry data from user's lawn care history:
-      ${context}`;
+		for await (const event of this.geminiService.streamChatWithTools({
+			prompt: query,
+			tools,
+			toolExecutor,
+			systemPrompt: buildEntryQuerySystemPrompt(),
+			options: getEntryQueryChatOptions(),
+			priorContents,
+		})) {
+			while (sideEvents.length > 0) {
+				yield sideEvents.shift()!;
+			}
 
-      const response = await this.geminiService.chatWithSystem(
-        systemPrompt,
-        naturalQuery,
-      );
+			if (event.type === "chunk") {
+				finalText += event.text;
+			}
 
-      return success(response);
-    } catch (err) {
-      return error(new AiQueryError(err));
-    }
-  }
+			yield event;
+		}
 
-  public async *streamQueryEntries(
-    userId: string,
-    naturalQuery: string,
-  ): AsyncGenerator<{ content: string; done: boolean }, void, unknown> {
-    LogHelpers.addBusinessContext(
-      BusinessContextKeys.aiQueryType,
-      'rag-stream',
-    );
+		while (sideEvents.length > 0) {
+			yield sideEvents.shift()!;
+		}
 
-    try {
-      const preprocessedQuery = preprocessQuery(naturalQuery);
-      const queryEmbedding =
-        await this.embeddingService.generateEmbedding(preprocessedQuery);
-      const dateRange = extractDateRange(naturalQuery);
+		if (sessionId && finalText) {
+			this.sessionService.appendTurn(
+				sessionId,
+				{ role: "user", parts: [{ text: query }] },
+				{ role: "model", parts: [{ text: finalText }] },
+			);
+		}
+	}
 
-      const relevantEntries = resultOrThrow(
-        await this.entriesService.searchEntriesByVector({
-          userId,
-          queryEmbedding,
-          startDate: dateRange?.startDate,
-          endDate: dateRange?.endDate,
-        }),
-      );
+	public async getEntryQueryLimitStatus(
+		userId: string,
+	): Promise<Either<AiChatError, AiEntryQueryLimitStatus>> {
+		try {
+			const accessResult = await this.subscriptionService.checkFeatureAccess(
+				userId,
+				ENTRY_QUERY_DAILY_LIMIT_FEATURE,
+			);
 
-      LogHelpers.addBusinessContext(
-        BusinessContextKeys.ragEntriesFound,
-        relevantEntries.length,
-      );
+			if (accessResult.isError()) {
+				return error(new AiChatError(accessResult.value.error));
+			}
 
-      const context = buildContextFromEntries(relevantEntries);
+			const access = accessResult.value;
+			const usageResult = await this.subscriptionService.getCurrentFeatureUsage(
+				userId,
+				ENTRY_QUERY_DAILY_LIMIT_FEATURE,
+			);
 
-      const systemPrompt = `You are a lawn care expert assistant. Answer the user's question based only on the provided entry data from their lawn care history. If you cannot find relevant information in the provided entries, say so clearly. Include specific dates and details when available.
+			if (usageResult.isError()) {
+				return error(new AiChatError(usageResult.value.error));
+			}
 
-      Entry data from user's lawn care history:
-      ${context}`;
+			const usage = usageResult.value;
+			const limit = access.limit ?? 0;
+			const used = usage.usage;
 
-      yield* this.geminiService.streamChatWithSystem(
-        systemPrompt,
-        naturalQuery,
-      );
-    } catch (error) {
-      throw new Error(
-        `Failed to process streaming query: ${(error as Error).message}`,
-      );
-    }
-  }
+			return success({
+				limit,
+				used,
+				remaining: Math.max(limit - used, 0),
+				resetAt: usage.periodEnd.toISOString(),
+			});
+		} catch (err) {
+			return error(new AiChatError(err));
+		}
+	}
 
-  public async initializeEmbeddings(
-    userId: string,
-  ): Promise<Either<AiEmbeddingError, { processed: number; errors: number }>> {
-    try {
-      const entriesWithoutEmbeddings =
-        await this.entriesService.getEntriesWithoutEmbeddings(userId);
+	public async reserveEntryQueryMessage(
+		userId: string,
+	): Promise<Either<AiChatError, AiEntryQueryLimitStatus>> {
+		try {
+			const accessResult = await this.subscriptionService.checkFeatureAccess(
+				userId,
+				ENTRY_QUERY_DAILY_LIMIT_FEATURE,
+			);
 
-      LogHelpers.addBusinessContext(
-        BusinessContextKeys.embeddingsToProcess,
-        entriesWithoutEmbeddings.length,
-      );
+			if (accessResult.isError()) {
+				return error(new AiChatError(accessResult.value.error));
+			}
 
-      let processed = 0;
-      let errors = 0;
+			const access = accessResult.value;
 
-      for (const entry of entriesWithoutEmbeddings) {
-        try {
-          const embedding = await this.embeddingService.embedEntry(entry);
-          await this.entriesService.updateEntryEmbedding(entry.id, embedding);
-          processed++;
-        } catch {
-          errors++;
-        }
-      }
+			if (!access.allowed) {
+				if (access.limit !== undefined && access.usage !== undefined) {
+					return error(
+						new AiChatDailyLimitReachedError(access.usage, access.limit),
+					);
+				}
 
-      LogHelpers.addBusinessContext(
-        BusinessContextKeys.embeddingsProcessed,
-        processed,
-      );
-      LogHelpers.addBusinessContext(
-        BusinessContextKeys.embeddingsErrors,
-        errors,
-      );
+				return error(new AiChatAccessDeniedError());
+			}
 
-      return success({ processed, errors });
-    } catch (err) {
-      return error(new AiEmbeddingError(err));
-    }
-  }
+			const incrementResult = await this.subscriptionService.incrementUsage(
+				userId,
+				ENTRY_QUERY_DAILY_LIMIT_FEATURE,
+			);
+
+			if (incrementResult.isError()) {
+				return error(new AiChatError(incrementResult.value.error));
+			}
+
+			return this.getEntryQueryLimitStatus(userId);
+		} catch (err) {
+			return error(new AiChatError(err));
+		}
+	}
+
+	private createEntryQueryToolExecutor(
+		userId: string,
+		toolsUsed?: string[],
+		onSideEvent?: (event: AiStreamEvent) => void,
+	): (name: string, args: Record<string, unknown>) => Promise<unknown> {
+		return async (name: string, args: Record<string, unknown>) => {
+			if (!isEntryQueryToolName(name)) {
+				throw new Error(`Unknown tool: ${name}`);
+			}
+
+			toolsUsed?.push(name);
+
+			if (name === "propose_entry") {
+				const draft = await this.entryQueryToolsService.proposeEntry(
+					userId,
+					args as unknown as ProposeEntryParams,
+				);
+
+				onSideEvent?.({ type: "entry_draft", data: draft });
+
+				return {
+					proposed: true,
+					instruction:
+						"The entry draft has been shown to the user for confirmation. Write a brief message telling them what you've prepared (date and activities) and ask them to confirm or let you know if anything needs to change.",
+				};
+			}
+
+			const toolResult = await this.entryQueryToolsService.executeTool(
+				userId,
+				name,
+				args,
+			);
+
+			if (toolResult.isError()) {
+				const originalError = toolResult.value.error;
+				const errorMessage =
+					originalError instanceof Error
+						? originalError.message
+						: toolResult.value.message;
+
+				throw new Error(errorMessage);
+			}
+
+			return toolResult.value;
+		};
+	}
 }

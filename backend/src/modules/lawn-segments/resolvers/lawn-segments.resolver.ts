@@ -1,0 +1,63 @@
+import { UseGuards } from "@nestjs/common";
+import { Args, Context, Int, Mutation, Query, Resolver } from "@nestjs/graphql";
+import { GqlAuthGuard } from "../../../guards/gql-auth.guard";
+import type { GqlContext } from "../../../types/gql-context";
+import { resultOrThrow } from "../../../utils/resultOrThrow";
+import { LawnSegment } from "../models/lawn-segments.model";
+import { LawnSegmentsService } from "../services/lawn-segments.service";
+import {
+	CreateLawnSegmentInput,
+	UpdateLawnSegmentInput,
+} from "./lawn-segments.inputs";
+
+@Resolver(() => LawnSegment)
+@UseGuards(GqlAuthGuard)
+export class LawnSegmentsResolver {
+	constructor(private readonly lawnSegmentsService: LawnSegmentsService) {}
+
+	@Query(() => [LawnSegment], { name: "lawnSegments" })
+	async getLawnSegments(@Context() ctx: GqlContext): Promise<LawnSegment[]> {
+		return this.lawnSegmentsService.getLawnSegments(ctx.req.user.userId);
+	}
+
+	@Query(() => LawnSegment, { name: "lawnSegmentById", nullable: true })
+	async getLawnSegmentById(
+		@Args("id", { type: () => Int }) id: number,
+	): Promise<LawnSegment | null> {
+		return this.lawnSegmentsService.getLawnSegmentById(id);
+	}
+
+	@Mutation(() => LawnSegment)
+	async createLawnSegment(
+		@Args("input") input: CreateLawnSegmentInput,
+		@Context() ctx: GqlContext,
+	): Promise<LawnSegment> {
+		return this.lawnSegmentsService.createLawnSegment(ctx.req.user.userId, {
+			name: input.name,
+			size: input.size,
+			coordinates: input.coordinates ?? null,
+			color: input.color ?? "#3388ff",
+		});
+	}
+
+	@Mutation(() => LawnSegment)
+	async updateLawnSegment(
+		@Args("input") input: UpdateLawnSegmentInput,
+	): Promise<LawnSegment> {
+		const { id, ...updateData } = input;
+		const result = await this.lawnSegmentsService.updateLawnSegment(
+			id,
+			updateData,
+		);
+
+		return resultOrThrow(result);
+	}
+
+	@Mutation(() => Boolean)
+	async deleteLawnSegment(
+		@Args("id", { type: () => Int }) id: number,
+	): Promise<boolean> {
+		await this.lawnSegmentsService.deleteLawnSegment(id);
+		return true;
+	}
+}

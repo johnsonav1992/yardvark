@@ -1,0 +1,334 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Activity {
+  id: ID!
+  name: String!
+}
+
+input CreateEntryInput {
+  activityIds: [Int!]
+  date: DateTime!
+  imageUrls: [String!]
+  lawnSegmentIds: [Int!]
+  mowingHeight: Float
+  mowingHeightUnit: String
+  notes: String
+  products: [ProductInput!]
+  soilTemperature: Float
+  soilTemperatureUnit: String
+  time: String
+  title: String
+}
+
+input CreateEquipmentInput {
+  brand: String!
+  description: String
+  fuelType: String
+  imagePosition: String
+  imageUrl: String
+  model: String
+  name: String!
+  purchaseDate: DateTime
+  purchasePrice: Float
+  serialNumber: String
+}
+
+input CreateLawnSegmentInput {
+  color: String
+  coordinates: JSON
+  name: String!
+  size: Float!
+}
+
+input CreateMaintenanceInput {
+  cost: Float
+  maintenanceDate: DateTime!
+  notes: String!
+}
+
+input CreateProductInput {
+  applicationMethod: String
+  applicationRate: String
+  brand: String!
+  category: String!
+  containerType: String
+  coverage: Int
+  coverageUnit: String
+  description: String
+  guaranteedAnalysis: String
+  imageUrl: String
+  labelUrl: String
+  name: String!
+  price: Float
+  quantityUnit: String
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Entry {
+  activities: [Activity!]
+  date: DateTime!
+  entryImages: [EntryImage!]
+  entryProducts: [EntryProduct!]
+  id: ID!
+  lawnSegments: [LawnSegment!]
+  mowingHeight: Float
+  mowingHeightUnit: String
+  notes: String
+  soilTemperature: Float
+  soilTemperatureUnit: String!
+  time: String
+  title: String
+  userId: String!
+}
+
+type EntryImage {
+  id: ID!
+  imageUrl: String!
+}
+
+type EntryProduct {
+  entryId: ID!
+  product: Product!
+  productId: ID!
+  productQuantity: Float!
+  productQuantityUnit: String!
+}
+
+type Equipment {
+  brand: String!
+  createdAt: DateTime!
+  description: String
+  fuelType: String
+  id: ID!
+  imagePosition: String
+  imageUrl: String
+  isActive: Boolean
+  maintenanceRecords: [EquipmentMaintenance!]
+  model: String
+  name: String!
+  purchaseDate: DateTime
+  purchasePrice: Float
+  serialNumber: String
+  updatedAt: DateTime
+  userId: String!
+}
+
+type EquipmentMaintenance {
+  cost: Float
+  createdAt: DateTime!
+  id: ID!
+  maintenanceDate: DateTime!
+  notes: String!
+  updatedAt: DateTime
+}
+
+type FeatureUsage {
+  featureName: String!
+  id: ID!
+  lastUpdated: DateTime!
+  periodEnd: DateTime!
+  periodStart: DateTime!
+  usageCount: Int!
+  userId: String!
+}
+
+"""
+The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
+"""
+scalar JSON
+
+type LawnSegment {
+  color: String
+  coordinates: JSON
+  id: ID!
+  name: String!
+  size: Float!
+  userId: String!
+}
+
+type Mutation {
+  createEntry(input: CreateEntryInput!): Entry!
+  createEquipment(input: CreateEquipmentInput!): Equipment!
+  createLawnSegment(input: CreateLawnSegmentInput!): LawnSegment!
+  createMaintenanceRecord(equipmentId: Int!, input: CreateMaintenanceInput!): EquipmentMaintenance!
+  createProduct(input: CreateProductInput!): Product!
+  deleteEntry(id: Int!): Boolean!
+  deleteEntryImage(id: Int!): Boolean!
+  deleteEquipment(id: Int!): Boolean!
+  deleteLawnSegment(id: Int!): Boolean!
+  deleteMaintenanceRecord(id: Int!): Boolean!
+  hideProduct(productId: Int!): Boolean!
+  recoverEntry(id: Int!): Boolean!
+  recoverEntryImage(id: Int!): Boolean!
+  toggleEquipmentArchiveStatus(id: Int!, isActive: Boolean!): Boolean!
+  unhideProduct(productId: Int!): Boolean!
+  updateEntry(id: Int!, input: UpdateEntryInput!): Entry!
+  updateEquipment(id: Int!, input: UpdateEquipmentInput!): Equipment!
+  updateLawnSegment(input: UpdateLawnSegmentInput!): LawnSegment!
+  updateMaintenanceRecord(id: Int!, input: UpdateMaintenanceInput!): EquipmentMaintenance!
+  updateProduct(id: Int!, input: UpdateProductInput!): Product
+  updateSettings(settings: String!): String!
+}
+
+type Product {
+  applicationMethod: String
+  applicationRate: String
+  brand: String!
+  category: String!
+  containerType: String
+  coverage: Int
+  coverageUnit: String
+  createdAt: DateTime!
+  description: String
+  guaranteedAnalysis: String
+  id: ID!
+  imageUrl: String
+  labelUrl: String
+  name: String!
+  price: Float
+  quantityUnit: String
+  updatedAt: DateTime
+  userId: String!
+}
+
+input ProductInput {
+  productId: Int!
+  productQuantity: Float!
+  productQuantityUnit: String!
+}
+
+type ProductWithHidden {
+  applicationMethod: String
+  applicationRate: String
+  brand: String!
+  category: String!
+  containerType: String
+  coverage: Int
+  coverageUnit: String
+  createdAt: DateTime!
+  description: String
+  guaranteedAnalysis: String
+  id: ID!
+  imageUrl: String
+  isHidden: Boolean!
+  labelUrl: String
+  name: String!
+  price: Float
+  quantityUnit: String
+  updatedAt: DateTime
+  userId: String!
+}
+
+type Query {
+  activities: [Activity!]!
+  entries(endDate: String, startDate: String): [Entry!]!
+  entry(id: Int!): Entry
+  entryByDate(date: String!): Entry
+  equipment: [Equipment!]!
+  equipmentById(id: Int!): Equipment
+  featureUsage: [FeatureUsage!]!
+  lastMowDate: DateTime
+  lastProductApplicationDate: DateTime
+  lawnSegmentById(id: Int!): LawnSegment
+  lawnSegments: [LawnSegment!]!
+  mostRecentEntry: Entry
+  productById(id: Int!): Product
+  products(systemOnly: Boolean, userOnly: Boolean): [ProductWithHidden!]!
+  searchEntries(input: SearchEntriesInput!): [Entry!]!
+  settings: SettingsResponse
+  subscription: Subscription
+}
+
+input SearchEntriesInput {
+  activities: [Int!]
+  dateRange: [String!]
+  lawnSegments: [Int!]
+  products: [Int!]
+  titleOrNotes: String
+}
+
+type SettingsResponse {
+  id: ID!
+  userId: String!
+  value: String!
+}
+
+type Subscription {
+  cancelAtPeriodEnd: Boolean!
+  canceledAt: DateTime
+  createdAt: DateTime!
+  currentPeriodEnd: DateTime
+  currentPeriodStart: DateTime
+  id: ID!
+  status: String!
+  tier: String!
+  updatedAt: DateTime!
+  userId: String!
+}
+
+input UpdateEntryInput {
+  activityIds: [Int!]
+  date: DateTime
+  imageUrls: [String!]
+  lawnSegmentIds: [Int!]
+  mowingHeight: Float
+  mowingHeightUnit: String
+  notes: String
+  products: [ProductInput!]
+  soilTemperature: Float
+  soilTemperatureUnit: String
+  time: String
+  title: String
+}
+
+input UpdateEquipmentInput {
+  brand: String
+  description: String
+  fuelType: String
+  imagePosition: String
+  imageUrl: String
+  isActive: Boolean
+  model: String
+  name: String
+  purchaseDate: DateTime
+  purchasePrice: Float
+  serialNumber: String
+}
+
+input UpdateLawnSegmentInput {
+  color: String
+  coordinates: JSON
+  id: Int!
+  name: String!
+  size: Float!
+  userId: String!
+}
+
+input UpdateMaintenanceInput {
+  cost: Float
+  maintenanceDate: DateTime
+  notes: String
+}
+
+input UpdateProductInput {
+  applicationMethod: String
+  applicationRate: String
+  brand: String
+  category: String
+  containerType: String
+  coverage: Int
+  coverageUnit: String
+  description: String
+  guaranteedAnalysis: String
+  imageUrl: String
+  labelUrl: String
+  name: String
+  price: Float
+  quantityUnit: String
+}

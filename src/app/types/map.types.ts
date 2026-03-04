@@ -1,15 +1,15 @@
-import * as L from 'leaflet';
+import type * as L from "leaflet";
 
 export type LeafletShape = L.Rectangle | L.Polygon;
 
 export type EditableLayer = LeafletShape & {
-  editing?: {
-    enable: () => void;
-    disable: () => void;
-  };
+	editing?: {
+		enable: () => void;
+		disable: () => void;
+	};
 };
 
 export interface ShapeData {
-  coordinates: number[][];
-  size: number;
+	coordinates: number[][];
+	size: number;
 }

@@ -1,36 +1,37 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { DataSource, QueryRunner, ReplicationMode } from 'typeorm';
-import { LogHelpers } from '../logger/logger.helpers';
+import { Injectable, type OnModuleInit } from "@nestjs/common";
+import { InjectDataSource } from "@nestjs/typeorm";
+import type { DataSource, QueryRunner, ReplicationMode } from "typeorm";
+import { LogHelpers } from "../logger/logger.helpers";
 
 @Injectable()
 export class DatabaseTelemetryService implements OnModuleInit {
-  constructor(private dataSource: DataSource) {}
+	constructor(@InjectDataSource() private dataSource: DataSource) {}
 
-  onModuleInit() {
-    const originalCreateQueryRunner = this.dataSource.createQueryRunner.bind(
-      this.dataSource,
-    );
+	onModuleInit() {
+		const originalCreateQueryRunner = this.dataSource.createQueryRunner.bind(
+			this.dataSource,
+		);
 
-    this.dataSource.createQueryRunner = (mode?: ReplicationMode) => {
-      const queryRunner = originalCreateQueryRunner(mode);
-      const originalQuery = queryRunner.query.bind(queryRunner);
+		this.dataSource.createQueryRunner = (mode?: ReplicationMode) => {
+			const queryRunner = originalCreateQueryRunner(mode);
+			const originalQuery = queryRunner.query.bind(queryRunner);
 
-      queryRunner.query = async (...args: Parameters<QueryRunner['query']>) => {
-        const start = Date.now();
+			queryRunner.query = async (...args: Parameters<QueryRunner["query"]>) => {
+				const start = Date.now();
 
-        try {
-          const result = await originalQuery(...args);
-          LogHelpers.recordDatabaseCall(Date.now() - start, false);
+				try {
+					const result = await originalQuery(...args);
+					LogHelpers.recordDatabaseCall(Date.now() - start, false);
 
-          return result;
-        } catch (error) {
-          LogHelpers.recordDatabaseCall(Date.now() - start, true);
+					return result;
+				} catch (error) {
+					LogHelpers.recordDatabaseCall(Date.now() - start, true);
 
-          throw error;
-        }
-      };
+					throw error;
+				}
+			};
 
-      return queryRunner;
-    };
-  }
+			return queryRunner;
+		};
+	}
 }

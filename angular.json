@@ -1,131 +1,131 @@
 {
-  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
-  "version": 1,
-  "newProjectRoot": "projects",
-  "projects": {
-    "yardvark": {
-      "projectType": "application",
-      "schematics": {
-        "@schematics/angular:component": {
-          "style": "scss",
-          "path": "src/app/components",
-          "prefix": "",
-          "skipTests": true
-        },
-        "@schematics/angular:service": {
-          "path": "src/app/services",
-          "skipTests": true
-        }
-      },
-      "root": "",
-      "sourceRoot": "src",
-      "prefix": "app",
-      "architect": {
-        "build": {
-          "builder": "@angular/build:application",
-          "options": {
-            "outputPath": "dist/yardvark",
-            "index": "src/index.html",
-            "browser": "src/main.ts",
-            "tsConfig": "tsconfig.app.json",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              "src/assets",
-              "src/_redirects",
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
-            ],
-            "styles": [
-              "src/styles.scss",
-              "src/assets/lawn-icons/css/lawn-icons.css",
-              "node_modules/@tabler/icons-webfont/dist/tabler-icons.min.css",
-              "node_modules/leaflet/dist/leaflet.css",
-              "node_modules/@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css"
-            ],
-            "scripts": []
-          },
-          "configurations": {
-            "production": {
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "500kB"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "4kB"
-                }
-              ],
-              "outputHashing": "all",
-              "serviceWorker": "ngsw-config.json"
-            },
-            "development": {
-              "optimization": false,
-              "extractLicenses": false,
-              "sourceMap": true,
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.development.ts"
-                }
-              ]
-            },
-            "preview": {
-              "budgets": [
-                {
-                  "type": "initial",
-                  "maximumWarning": "500kB"
-                },
-                {
-                  "type": "anyComponentStyle",
-                  "maximumWarning": "4kB"
-                }
-              ],
-              "outputHashing": "all",
-              "serviceWorker": "ngsw-config.json",
-              "fileReplacements": [
-                {
-                  "replace": "src/environments/environment.ts",
-                  "with": "src/environments/environment.preview.ts"
-                }
-              ]
-            }
-          },
-          "defaultConfiguration": "production"
-        },
-        "serve": {
-          "builder": "@angular/build:dev-server",
-          "configurations": {
-            "production": {
-              "buildTarget": "yardvark:build:production"
-            },
-            "development": {
-              "buildTarget": "yardvark:build:development"
-            }
-          },
-          "defaultConfiguration": "development"
-        },
-        "extract-i18n": {
-          "builder": "@angular/build:extract-i18n"
-        },
-        "test": {
-          "builder": "@angular/build:karma",
-          "options": {
-            "tsConfig": "tsconfig.spec.json",
-            "inlineStyleLanguage": "scss",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              }
-            ],
-            "styles": ["src/styles.scss"],
-            "scripts": []
-          }
-        }
-      }
-    }
-  }
+	"$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+	"version": 1,
+	"newProjectRoot": "projects",
+	"projects": {
+		"yardvark": {
+			"projectType": "application",
+			"schematics": {
+				"@schematics/angular:component": {
+					"style": "scss",
+					"path": "src/app/components",
+					"prefix": "",
+					"skipTests": true
+				},
+				"@schematics/angular:service": {
+					"path": "src/app/services",
+					"skipTests": true
+				}
+			},
+			"root": "",
+			"sourceRoot": "src",
+			"prefix": "app",
+			"architect": {
+				"build": {
+					"builder": "@angular/build:application",
+					"options": {
+						"outputPath": "dist/yardvark",
+						"index": "src/index.html",
+						"browser": "src/main.ts",
+						"tsConfig": "tsconfig.app.json",
+						"inlineStyleLanguage": "scss",
+						"assets": [
+							"src/assets",
+							"src/_redirects",
+							{
+								"glob": "**/*",
+								"input": "public"
+							}
+						],
+						"styles": [
+							"src/styles.scss",
+							"src/assets/lawn-icons/css/lawn-icons.css",
+							"node_modules/@tabler/icons-webfont/dist/tabler-icons.min.css",
+							"node_modules/leaflet/dist/leaflet.css",
+							"node_modules/@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css"
+						],
+						"scripts": []
+					},
+					"configurations": {
+						"production": {
+							"budgets": [
+								{
+									"type": "initial",
+									"maximumWarning": "500kB"
+								},
+								{
+									"type": "anyComponentStyle",
+									"maximumWarning": "4kB"
+								}
+							],
+							"outputHashing": "all",
+							"serviceWorker": "ngsw-config.json"
+						},
+						"development": {
+							"optimization": false,
+							"extractLicenses": false,
+							"sourceMap": true,
+							"fileReplacements": [
+								{
+									"replace": "src/environments/environment.ts",
+									"with": "src/environments/environment.development.ts"
+								}
+							]
+						},
+						"preview": {
+							"budgets": [
+								{
+									"type": "initial",
+									"maximumWarning": "500kB"
+								},
+								{
+									"type": "anyComponentStyle",
+									"maximumWarning": "4kB"
+								}
+							],
+							"outputHashing": "all",
+							"serviceWorker": "ngsw-config.json",
+							"fileReplacements": [
+								{
+									"replace": "src/environments/environment.ts",
+									"with": "src/environments/environment.preview.ts"
+								}
+							]
+						}
+					},
+					"defaultConfiguration": "production"
+				},
+				"serve": {
+					"builder": "@angular/build:dev-server",
+					"configurations": {
+						"production": {
+							"buildTarget": "yardvark:build:production"
+						},
+						"development": {
+							"buildTarget": "yardvark:build:development"
+						}
+					},
+					"defaultConfiguration": "development"
+				},
+				"extract-i18n": {
+					"builder": "@angular/build:extract-i18n"
+				},
+				"test": {
+					"builder": "@angular/build:karma",
+					"options": {
+						"tsConfig": "tsconfig.spec.json",
+						"inlineStyleLanguage": "scss",
+						"assets": [
+							{
+								"glob": "**/*",
+								"input": "public"
+							}
+						],
+						"styles": ["src/styles.scss"],
+						"scripts": []
+					}
+				}
+			}
+		}
+	}
 }

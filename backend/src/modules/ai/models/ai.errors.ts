@@ -1,37 +1,32 @@
-import {
-  ResourceError,
-  ResourceValidationError,
-} from '../../../errors/resource-error';
+import { ResourceError } from "../../../errors/resource-error";
 
 export class AiChatError extends ResourceError {
-  constructor(originalError?: Error | unknown) {
-    super({
-      message: 'Failed to generate AI response',
-      code: 'AI_CHAT_ERROR',
-      statusCode: 500,
-      error: originalError,
-    });
-  }
+	constructor(originalError?: Error | unknown) {
+		super({
+			message: "Failed to generate AI response",
+			code: "AI_CHAT_ERROR",
+			statusCode: 500,
+			error: originalError,
+		});
+	}
 }
 
-export class AiQueryError extends ResourceError {
-  constructor(originalError?: Error | unknown) {
-    super({
-      message: 'Failed to process entry query',
-      code: 'AI_QUERY_ERROR',
-      statusCode: 500,
-      error: originalError,
-    });
-  }
+export class AiChatAccessDeniedError extends ResourceError {
+	constructor() {
+		super({
+			message: "AI features require a Pro subscription. Upgrade to unlock.",
+			code: "AI_CHAT_SUBSCRIPTION_REQUIRED",
+			statusCode: 402,
+		});
+	}
 }
 
-export class AiEmbeddingError extends ResourceError {
-  constructor(originalError?: Error | unknown) {
-    super({
-      message: 'Failed to initialize embeddings',
-      code: 'AI_EMBEDDING_ERROR',
-      statusCode: 500,
-      error: originalError,
-    });
-  }
+export class AiChatDailyLimitReachedError extends ResourceError {
+	constructor(usage: number, limit: number) {
+		super({
+			message: `Daily AI message limit reached (${usage}/${limit}). Try again tomorrow.`,
+			code: "AI_CHAT_DAILY_LIMIT_REACHED",
+			statusCode: 402,
+		});
+	}
 }

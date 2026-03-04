@@ -1,75 +1,98 @@
+import { Field, Float, ID, Int, ObjectType } from "@nestjs/graphql";
 import {
-  Column,
-  DeleteDateColumn,
-  Entity,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { productTypesArray } from './products.types';
-import { EntryProduct } from '../../entries/models/entries.model';
+	Column,
+	DeleteDateColumn,
+	Entity,
+	OneToMany,
+	PrimaryGeneratedColumn,
+} from "typeorm";
+import { EntryProduct } from "../../entries/models/entries.model";
+import { productTypesArray } from "./products.types";
 
-@Entity('products')
+@ObjectType()
+@Entity("products")
 export class Product {
-  @PrimaryGeneratedColumn()
-  id: number;
+	@Field(() => ID)
+	@PrimaryGeneratedColumn()
+	id: number;
 
-  @Column()
-  userId: string;
+	@Field()
+	@Column()
+	userId: string;
 
-  @Column()
-  name: string;
+	@Field()
+	@Column()
+	name: string;
 
-  @Column()
-  brand: string;
+	@Field()
+	@Column()
+	brand: string;
 
-  @Column({ nullable: true })
-  description?: string;
+	@Field({ nullable: true })
+	@Column({ nullable: true })
+	description?: string;
 
-  @Column({
-    type: 'enum',
-    enum: productTypesArray,
-  })
-  category: string;
+	@Field()
+	@Column({
+		type: "enum",
+		enum: productTypesArray,
+	})
+	category: string;
 
-  @Column({ nullable: true, type: 'decimal', precision: 5, scale: 2 })
-  price?: number;
+	@Field(() => Float, { nullable: true })
+	@Column({ nullable: true, type: "decimal", precision: 5, scale: 2 })
+	price?: number;
 
-  @Column({ nullable: true })
-  quantityUnit?: string;
+	@Field({ nullable: true })
+	@Column({ nullable: true })
+	quantityUnit?: string;
 
-  @Column({ nullable: true })
-  applicationRate?: string;
+	@Field({ nullable: true })
+	@Column({ nullable: true })
+	applicationRate?: string;
 
-  @Column({ nullable: true })
-  applicationMethod?: string;
+	@Field({ nullable: true })
+	@Column({ nullable: true })
+	applicationMethod?: string;
 
-  @Column({ nullable: true })
-  coverage?: number;
+	@Field(() => Int, { nullable: true })
+	@Column({ nullable: true })
+	coverage?: number;
 
-  @Column({ nullable: true })
-  coverageUnit?: string;
+	@Field({ nullable: true })
+	@Column({ nullable: true })
+	coverageUnit?: string;
 
-  @Column({ nullable: true })
-  guaranteedAnalysis?: string;
+	@Field({ nullable: true })
+	@Column({ nullable: true })
+	guaranteedAnalysis?: string;
 
-  @Column({ nullable: true })
-  containerType?: string;
+	@Field({ nullable: true })
+	@Column({ nullable: true })
+	containerType?: string;
 
-  @Column({ nullable: true })
-  imageUrl?: string;
+	@Field({ nullable: true })
+	@Column({ nullable: true })
+	imageUrl?: string;
 
-  @Column({ nullable: true })
-  labelUrl?: string;
+	@Field({ nullable: true })
+	@Column({ nullable: true })
+	labelUrl?: string;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  createdAt: Date;
+	@Field()
+	@Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
+	createdAt: Date;
 
-  @Column({ nullable: true })
-  updatedAt?: Date;
+	@Field({ nullable: true })
+	@Column({ nullable: true })
+	updatedAt?: Date;
 
-  @OneToMany(() => EntryProduct, (entryProduct) => entryProduct.product)
-  entryProducts: EntryProduct[];
+	@OneToMany(
+		() => EntryProduct,
+		(entryProduct) => entryProduct.product,
+	)
+	entryProducts: EntryProduct[];
 
-  @DeleteDateColumn()
-  deletedAt?: Date;
+	@DeleteDateColumn()
+	deletedAt?: Date;
 }

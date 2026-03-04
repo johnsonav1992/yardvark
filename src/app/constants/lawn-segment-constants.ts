@@ -1,1 +1,1 @@
-export const DEFAULT_LAWN_SEGMENT_COLOR = '#3388ff';
+export const DEFAULT_LAWN_SEGMENT_COLOR = "#3388ff";

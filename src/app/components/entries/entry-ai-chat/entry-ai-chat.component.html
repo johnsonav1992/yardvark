@@ -1,0 +1,190 @@
+<p-drawer
+  [(visible)]="isOpen"
+  [modal]="true"
+  position="right"
+  styleClass="ai-chat-drawer"
+  [fullScreen]="isMobile()"
+  appendTo="body"
+  (onHide)="onClose()"
+>
+  <ng-template pTemplate="header">
+    <div class="drawer-header">
+      <img src="assets/varky-avatar.png" class="varky-avatar" alt="Varky" />
+      <span>Ask Varky</span>
+      @if (messages().length > 0) {
+        <p-button
+          label="New chat"
+          icon="ti ti-plus"
+          size="small"
+          severity="secondary"
+          outlined
+          class="new-chat-btn"
+          (onClick)="clearChat()"
+        />
+      }
+    </div>
+  </ng-template>
+  <div class="chat-container">
+    <div class="limit-banner">
+      @if (isMaster()) {
+        <span class="limit-text">Unlimited messages</span>
+      } @else if (limitStatus(); as limit) {
+        <span class="limit-text">
+          {{ limit.remaining }} of {{ limit.limit }} messages left today
+        </span>
+      } @else {
+        <span class="limit-text">Loading message limit...</span>
+      }
+    </div>
+    <div class="messages-area">
+      @if (messages().length === 0) {
+        <div class="empty-state">
+          <i class="ti ti-message-chatbot empty-icon"></i>
+          <p class="empty-title">What can I help you with?</p>
+          <p class="empty-subtitle">Ask about your lawn care history, or tell me what you did and I'll log it for you.</p>
+          <div class="suggestions-group">
+            <span class="suggestions-label">Ask a question</span>
+            <div class="suggestions">
+              @for (suggestion of suggestions; track suggestion) {
+                <button class="suggestion-chip" (click)="sendSuggestion(suggestion)">
+                  {{ suggestion }}
+                </button>
+              }
+            </div>
+          </div>
+          <div class="suggestions-group">
+            <span class="suggestions-label">Log an activity</span>
+            <div class="suggestions">
+              @for (suggestion of creationSuggestions; track suggestion) {
+                <button class="suggestion-chip" (click)="sendSuggestion(suggestion)">
+                  {{ suggestion }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+      }
+      @for (msg of messages(); track $index) {
+        <div class="message-row" [class.user-row]="msg.role === 'user'">
+          <div class="bubble" [class.user-bubble]="msg.role === 'user'" [class.ai-bubble]="msg.role === 'ai'">
+            @if (msg.role === 'ai' && isStreaming() && $last && !msg.content) {
+              <div class="status-content">
+                <span class="status-spinner"></span>
+                <span>{{ statusMessage() ?? 'Thinking...' }}</span>
+              </div>
+            } @else {
+              <span class="message-text">{{ msg.content }}</span>
+              @if (msg.role === 'ai' && isStreaming() && $last && msg.content) {
+                <span class="cursor"></span>
+              }
+            }
+            @if (msg.entryDraft && msg.draftStatus !== 'rejected') {
+              <div class="entry-draft-card">
+                @if (msg.draftStatus === 'confirmed') {
+                  <div class="draft-confirmed">
+                    <i class="ti ti-circle-check-filled"></i>
+                    <span>Entry logged!</span>
+                  </div>
+                } @else if (msg.draftStatus === 'confirming') {
+                  <div class="draft-confirming">
+                    <span class="status-spinner"></span>
+                    <span>Creating entry...</span>
+                  </div>
+                } @else {
+                  <div class="draft-header">Entry to log</div>
+                  <div class="draft-details">
+                    <div class="draft-row">
+                      <i class="ti ti-calendar"></i>
+                      <span>{{ formatDraftDate(msg.entryDraft.date) }}</span>
+                    </div>
+                    <div class="draft-row">
+                      <i class="ti ti-leaf"></i>
+                      <span>{{ msg.entryDraft.activityNames.join(', ') }}</span>
+                    </div>
+                    @if (msg.entryDraft.lawnSegmentNames.length > 0) {
+                      <div class="draft-row">
+                        <i class="ti ti-map-pin"></i>
+                        <span>{{ msg.entryDraft.lawnSegmentNames.join(', ') }}</span>
+                      </div>
+                    }
+                    @for (product of msg.entryDraft.products; track product.productId) {
+                      <div class="draft-row">
+                        <i class="ti ti-flask"></i>
+                        <span>{{ product.productName }} — {{ product.productQuantity }} {{ product.productQuantityUnit }}</span>
+                      </div>
+                    }
+                    @if (msg.entryDraft.mowingHeight) {
+                      <div class="draft-row">
+                        <i class="ti ti-cut"></i>
+                        <span>{{ msg.entryDraft.mowingHeight }}{{ msg.entryDraft.mowingHeightUnit ?? 'in' }} cut height</span>
+                      </div>
+                    }
+                    @if (msg.entryDraft.notes) {
+                      <div class="draft-row draft-notes">
+                        <i class="ti ti-notes"></i>
+                        <span>{{ msg.entryDraft.notes }}</span>
+                      </div>
+                    }
+                  </div>
+                  @if (msg.draftStatus === 'error') {
+                    <p class="draft-error">Failed to create entry. Please try again.</p>
+                  }
+                  <div class="draft-actions">
+                    <p-button
+                      label="Create Entry"
+                      size="small"
+                      [disabled]="isStreaming()"
+                      (onClick)="confirmDraft($index)"
+                    />
+                    <p-button
+                      label="Cancel"
+                      size="small"
+                      severity="secondary"
+                      [disabled]="isStreaming()"
+                      (onClick)="rejectDraft($index)"
+                    />
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+      <div #messagesEnd></div>
+    </div>
+    <div class="input-area">
+      <input
+        class="query-input"
+        pInputText
+        [value]="currentInput()"
+        (input)="onQueryInput($event)"
+        (keydown.enter)="send()"
+        [disabled]="isInputDisabled()"
+        placeholder="Ask about your lawn..."
+        aria-label="Chat input"
+      />
+      @if (micSupported()) {
+        <p-button
+          icon="ti ti-microphone"
+          rounded
+          [severity]="isListening() ? 'primary' : 'secondary'"
+          [text]="!isListening()"
+          [disabled]="isInputDisabled()"
+          (onClick)="toggleListening()"
+          [ariaLabel]="isListening() ? 'Stop microphone input' : 'Start microphone input'"
+          [styleClass]="isListening() ? 'mic-btn mic-btn-active' : 'mic-btn'"
+        />
+      }
+      <p-button
+        icon="ti ti-send-2"
+        rounded
+        [disabled]="isSendDisabled()"
+        (onClick)="send()"
+        aria-label="Send"
+      />
+    </div>
+    @if (disabledReason(); as reason) {
+      <p class="input-disabled-reason">{{ reason }}</p>
+    }
+  </div>
+</p-drawer>

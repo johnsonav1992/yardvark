@@ -1,319 +1,305 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { AiService } from './ai.service';
-import { GeminiService } from './gemini.service';
-import { EmbeddingService } from './embedding.service';
-import { EntriesService } from '../../entries/services/entries.service';
+import { Test, type TestingModule } from "@nestjs/testing";
+import { ResourceError } from "../../../errors/resource-error";
+import { error, success } from "../../../types/either";
+import { SubscriptionService } from "../../subscription/services/subscription.service";
+import { AiChatDailyLimitReachedError } from "../models/ai.errors";
+import { AiService } from "./ai.service";
+import { AiSessionService } from "./ai-session.service";
+import { EntryQueryToolsService } from "./entry-query-tools.service";
+import { GeminiService } from "./gemini.service";
 
-jest.mock('../../entries/utils/entryRagUtils', () => ({
-  extractDateRange: jest.fn(() => null),
-  preprocessQuery: jest.fn((query: string) => query),
-  buildContextFromEntries: jest.fn(() => 'mocked context'),
-}));
+describe("AiService", () => {
+	let service: AiService;
+	let geminiService: GeminiService;
+	let entryQueryToolsService: EntryQueryToolsService;
+	let subscriptionService: SubscriptionService;
+	let sessionService: AiSessionService;
 
-describe('AiService', () => {
-  let service: AiService;
-  let geminiService: GeminiService;
-  let embeddingService: EmbeddingService;
-  let entriesService: EntriesService;
+	beforeEach(async () => {
+		const mockGeminiService = {
+			simpleChat: jest.fn(),
+			chatWithSystem: jest.fn(),
+			chatWithTools: jest.fn(),
+			streamChatWithTools: jest.fn(),
+		};
+		const mockEntryQueryToolsService = {
+			getToolDefinitions: jest.fn(),
+			executeTool: jest.fn(),
+			proposeEntry: jest.fn(),
+		};
+		const mockSubscriptionService = {
+			checkFeatureAccess: jest.fn(),
+			incrementUsage: jest.fn(),
+			getCurrentFeatureUsage: jest.fn(),
+		};
+		const mockSessionService = {
+			getHistory: jest.fn(),
+			appendTurn: jest.fn(),
+		};
 
-  beforeEach(async () => {
-    const mockGeminiService = {
-      simpleChat: jest.fn(),
-      chatWithSystem: jest.fn(),
-      streamChatWithSystem: jest.fn(),
-    };
+		const module: TestingModule = await Test.createTestingModule({
+			providers: [
+				AiService,
+				{
+					provide: GeminiService,
+					useValue: mockGeminiService,
+				},
+				{
+					provide: EntryQueryToolsService,
+					useValue: mockEntryQueryToolsService,
+				},
+				{
+					provide: SubscriptionService,
+					useValue: mockSubscriptionService,
+				},
+				{
+					provide: AiSessionService,
+					useValue: mockSessionService,
+				},
+			],
+		}).compile();
 
-    const mockEmbeddingService = {
-      generateEmbedding: jest.fn(),
-      embedEntry: jest.fn(),
-    };
+		service = module.get<AiService>(AiService);
+		geminiService = module.get<GeminiService>(GeminiService);
+		entryQueryToolsService = module.get<EntryQueryToolsService>(
+			EntryQueryToolsService,
+		);
+		subscriptionService = module.get<SubscriptionService>(SubscriptionService);
+		sessionService = module.get<AiSessionService>(AiSessionService);
+	});
 
-    const mockEntriesService = {
-      searchEntriesByVector: jest.fn(),
-      getEntriesWithoutEmbeddings: jest.fn(),
-      updateEntryEmbedding: jest.fn(),
-    };
+	it("should be defined", () => {
+		expect(service).toBeDefined();
+	});
 
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        AiService,
-        {
-          provide: GeminiService,
-          useValue: mockGeminiService,
-        },
-        {
-          provide: EmbeddingService,
-          useValue: mockEmbeddingService,
-        },
-        {
-          provide: EntriesService,
-          useValue: mockEntriesService,
-        },
-      ],
-    }).compile();
+	describe("chat", () => {
+		it("should return success with chat response", async () => {
+			const mockResponse = {
+				content: "Test response",
+				model: "gemini-2.0-flash",
+				provider: "gemini" as const,
+			};
 
-    service = module.get<AiService>(AiService);
-    geminiService = module.get<GeminiService>(GeminiService);
-    embeddingService = module.get<EmbeddingService>(EmbeddingService);
-    entriesService = module.get<EntriesService>(EntriesService);
-  });
+			jest.spyOn(geminiService, "simpleChat").mockResolvedValue(mockResponse);
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
+			const result = await service.chat("test prompt");
 
-  describe('chat', () => {
-    it('should return success with chat response', async () => {
-      const mockResponse = {
-        content: 'Test response',
-        model: 'gemini-2.0-flash',
-        provider: 'gemini' as const,
-      };
+			expect(result.isSuccess()).toBe(true);
 
-      jest.spyOn(geminiService, 'simpleChat').mockResolvedValue(mockResponse);
+			if (result.isSuccess()) {
+				expect(result.value).toEqual(mockResponse);
+			}
 
-      const result = await service.chat('test prompt');
+			expect(geminiService.simpleChat).toHaveBeenCalledWith("test prompt");
+		});
 
-      expect(result.isSuccess()).toBe(true);
+		it("should return error when chat fails", async () => {
+			jest
+				.spyOn(geminiService, "simpleChat")
+				.mockRejectedValue(new Error("API error"));
 
-      if (result.isSuccess()) {
-        expect(result.value).toEqual(mockResponse);
-      }
+			const result = await service.chat("test prompt");
 
-      expect(geminiService.simpleChat).toHaveBeenCalledWith('test prompt');
-    });
+			expect(result.isError()).toBe(true);
+		});
+	});
 
-    it('should return error when chat fails', async () => {
-      jest
-        .spyOn(geminiService, 'simpleChat')
-        .mockRejectedValue(new Error('API error'));
+	describe("chatWithSystem", () => {
+		it("should return success with chat response", async () => {
+			const mockResponse = {
+				content: "System response",
+				model: "gemini-2.0-flash",
+				provider: "gemini" as const,
+			};
 
-      const result = await service.chat('test prompt');
+			jest
+				.spyOn(geminiService, "chatWithSystem")
+				.mockResolvedValue(mockResponse);
 
-      expect(result.isError()).toBe(true);
-    });
-  });
+			const result = await service.chatWithSystem(
+				"system prompt",
+				"user prompt",
+			);
 
-  describe('chatWithSystem', () => {
-    it('should return success with chat response', async () => {
-      const mockResponse = {
-        content: 'System response',
-        model: 'gemini-2.0-flash',
-        provider: 'gemini' as const,
-      };
+			expect(result.isSuccess()).toBe(true);
 
-      jest
-        .spyOn(geminiService, 'chatWithSystem')
-        .mockResolvedValue(mockResponse);
+			if (result.isSuccess()) {
+				expect(result.value).toEqual(mockResponse);
+			}
 
-      const result = await service.chatWithSystem(
-        'system prompt',
-        'user prompt',
-      );
+			expect(geminiService.chatWithSystem).toHaveBeenCalledWith(
+				"system prompt",
+				"user prompt",
+			);
+		});
 
-      expect(result.isSuccess()).toBe(true);
+		it("should return error when chat fails", async () => {
+			jest
+				.spyOn(geminiService, "chatWithSystem")
+				.mockRejectedValue(new Error("API error"));
 
-      if (result.isSuccess()) {
-        expect(result.value).toEqual(mockResponse);
-      }
+			const result = await service.chatWithSystem(
+				"system prompt",
+				"user prompt",
+			);
 
-      expect(geminiService.chatWithSystem).toHaveBeenCalledWith(
-        'system prompt',
-        'user prompt',
-      );
-    });
+			expect(result.isError()).toBe(true);
+		});
+	});
 
-    it('should return error when chat fails', async () => {
-      jest
-        .spyOn(geminiService, 'chatWithSystem')
-        .mockRejectedValue(new Error('API error'));
+	describe("streamQueryEntriesWithTools", () => {
+		it("should emit entry draft side events and persist final session text", async () => {
+			const draft = {
+				date: "2026-03-01",
+				notes: "Mowed and edged.",
+				activityIds: [1, 2],
+				activityNames: ["Mow", "Edge"],
+				lawnSegmentIds: [],
+				lawnSegmentNames: [],
+				products: [],
+			};
 
-      const result = await service.chatWithSystem(
-        'system prompt',
-        'user prompt',
-      );
+			jest
+				.spyOn(entryQueryToolsService, "getToolDefinitions")
+				.mockReturnValue([]);
+			jest.spyOn(sessionService, "getHistory").mockReturnValue([]);
+			jest
+				.spyOn(entryQueryToolsService, "proposeEntry")
+				.mockResolvedValue(draft);
+			jest
+				.spyOn(geminiService, "streamChatWithTools")
+				.mockImplementation(async function* ({ toolExecutor }) {
+					await toolExecutor("propose_entry", {
+						date: "2026-03-01",
+						activityIds: [1, 2],
+					});
+					yield { type: "chunk", text: "Draft ready." };
+					yield { type: "done" };
+				});
 
-      expect(result.isError()).toBe(true);
-    });
-  });
+			const events = [];
+			for await (const event of service.streamQueryEntriesWithTools(
+				"user-1",
+				"log today's mow",
+				"session-123",
+			)) {
+				events.push(event);
+			}
 
-  describe('queryEntries', () => {
-    it('should query entries successfully', async () => {
-      const mockEmbedding = [0.1, 0.2, 0.3];
-      const mockEntries = [
-        {
-          id: 1,
-          userId: 'user1',
-          date: new Date('2024-01-01'),
-          notes: 'Test entry',
-          soilTemperature: null,
-          soilTemperatureUnit: null,
-          activities: [],
-          lawnSegments: [],
-          embedding: null,
-          products: [],
-        },
-      ];
-      const mockResponse = {
-        content: 'Query response',
-        model: 'gemini-2.0-flash',
-        provider: 'gemini' as const,
-      };
+			expect(events).toEqual([
+				{ type: "entry_draft", data: draft },
+				{ type: "chunk", text: "Draft ready." },
+				{ type: "done" },
+			]);
+			expect(sessionService.appendTurn).toHaveBeenCalledWith(
+				"session-123",
+				{ role: "user", parts: [{ text: "log today's mow" }] },
+				{ role: "model", parts: [{ text: "Draft ready." }] },
+			);
+		});
+	});
 
-      jest
-        .spyOn(embeddingService, 'generateEmbedding')
-        .mockResolvedValue(mockEmbedding);
+	describe("getEntryQueryLimitStatus", () => {
+		it("should return computed limit status", async () => {
+			jest.spyOn(subscriptionService, "checkFeatureAccess").mockResolvedValue(
+				success({
+					allowed: true,
+					limit: 10,
+					usage: 4,
+				}),
+			);
+			jest
+				.spyOn(subscriptionService, "getCurrentFeatureUsage")
+				.mockResolvedValue(
+					success({
+						usage: 4,
+						periodStart: new Date("2026-03-02T00:00:00.000Z"),
+						periodEnd: new Date("2026-03-03T00:00:00.000Z"),
+					}),
+				);
 
-      jest
-        .spyOn(entriesService, 'searchEntriesByVector')
-        .mockResolvedValue(mockEntries as any);
+			const result = await service.getEntryQueryLimitStatus("user-1");
 
-      jest
-        .spyOn(geminiService, 'chatWithSystem')
-        .mockResolvedValue(mockResponse);
+			expect(result.isSuccess()).toBe(true);
+			if (result.isSuccess()) {
+				expect(result.value).toEqual({
+					limit: 10,
+					used: 4,
+					remaining: 6,
+					resetAt: "2026-03-03T00:00:00.000Z",
+				});
+			}
+		});
+	});
 
-      const result = await service.queryEntries('user1', 'what did I do?');
+	describe("reserveEntryQueryMessage", () => {
+		it("should return limit reached error when access is denied by quota", async () => {
+			jest.spyOn(subscriptionService, "checkFeatureAccess").mockResolvedValue(
+				success({
+					allowed: false,
+					limit: 10,
+					usage: 10,
+				}),
+			);
 
-      expect(result.isSuccess()).toBe(true);
+			const result = await service.reserveEntryQueryMessage("user-1");
 
-      if (result.isSuccess()) {
-        expect(result.value).toEqual(mockResponse);
-      }
+			expect(result.isError()).toBe(true);
+			if (result.isError()) {
+				expect(result.value).toBeInstanceOf(AiChatDailyLimitReachedError);
+			}
+		});
 
-      expect(embeddingService.generateEmbedding).toHaveBeenCalled();
-      expect(entriesService.searchEntriesByVector).toHaveBeenCalledWith({
-        userId: 'user1',
-        queryEmbedding: mockEmbedding,
-        startDate: undefined,
-        endDate: undefined,
-      });
-    });
+		it("should increment usage and return refreshed limit status", async () => {
+			jest.spyOn(subscriptionService, "checkFeatureAccess").mockResolvedValue(
+				success({
+					allowed: true,
+					limit: 10,
+					usage: 4,
+				}),
+			);
+			jest
+				.spyOn(subscriptionService, "incrementUsage")
+				.mockResolvedValue(success(undefined));
+			jest
+				.spyOn(subscriptionService, "getCurrentFeatureUsage")
+				.mockResolvedValue(
+					success({
+						usage: 5,
+						periodStart: new Date("2026-03-02T00:00:00.000Z"),
+						periodEnd: new Date("2026-03-03T00:00:00.000Z"),
+					}),
+				);
 
-    it('should return error when query fails', async () => {
-      jest
-        .spyOn(embeddingService, 'generateEmbedding')
-        .mockRejectedValue(new Error('Embedding error'));
+			const result = await service.reserveEntryQueryMessage("user-1");
 
-      const result = await service.queryEntries('user1', 'what did I do?');
+			expect(subscriptionService.incrementUsage).toHaveBeenCalled();
+			expect(result.isSuccess()).toBe(true);
+			if (result.isSuccess()) {
+				expect(result.value.remaining).toBe(5);
+			}
+		});
 
-      expect(result.isError()).toBe(true);
-    });
-  });
+		it("should return wrapped error when increment usage fails", async () => {
+			jest.spyOn(subscriptionService, "checkFeatureAccess").mockResolvedValue(
+				success({
+					allowed: true,
+					limit: 10,
+					usage: 4,
+				}),
+			);
+			jest.spyOn(subscriptionService, "incrementUsage").mockResolvedValue(
+				error(
+					new ResourceError({
+						message: "DB down",
+						code: "INCREMENT_USAGE_ERROR",
+					}),
+				),
+			);
 
-  describe('initializeEmbeddings', () => {
-    it('should initialize embeddings successfully', async () => {
-      const mockEntries = [
-        {
-          id: 1,
-          userId: 'user1',
-          date: new Date('2024-01-01'),
-          notes: 'Test entry 1',
-          soilTemperature: null,
-          soilTemperatureUnit: null,
-          activities: [],
-          lawnSegments: [],
-          embedding: null,
-          products: [],
-        },
-        {
-          id: 2,
-          userId: 'user1',
-          date: new Date('2024-01-02'),
-          notes: 'Test entry 2',
-          soilTemperature: null,
-          soilTemperatureUnit: null,
-          activities: [],
-          lawnSegments: [],
-          embedding: null,
-          products: [],
-        },
-      ];
-      const mockEmbedding = [0.1, 0.2, 0.3];
+			const result = await service.reserveEntryQueryMessage("user-1");
 
-      jest
-        .spyOn(entriesService, 'getEntriesWithoutEmbeddings')
-        .mockResolvedValue(mockEntries as any);
-
-      jest
-        .spyOn(embeddingService, 'embedEntry')
-        .mockResolvedValue(mockEmbedding);
-
-      jest.spyOn(entriesService, 'updateEntryEmbedding').mockResolvedValue();
-
-      const result = await service.initializeEmbeddings('user1');
-
-      expect(result.isSuccess()).toBe(true);
-
-      if (result.isSuccess()) {
-        expect(result.value.processed).toBe(2);
-        expect(result.value.errors).toBe(0);
-      }
-
-      expect(entriesService.getEntriesWithoutEmbeddings).toHaveBeenCalledWith(
-        'user1',
-      );
-      expect(embeddingService.embedEntry).toHaveBeenCalledTimes(2);
-      expect(entriesService.updateEntryEmbedding).toHaveBeenCalledTimes(2);
-    });
-
-    it('should handle errors during embedding processing', async () => {
-      const mockEntries = [
-        {
-          id: 1,
-          userId: 'user1',
-          date: new Date('2024-01-01'),
-          notes: 'Test entry 1',
-          soilTemperature: null,
-          soilTemperatureUnit: null,
-          activities: [],
-          lawnSegments: [],
-          embedding: null,
-          products: [],
-        },
-        {
-          id: 2,
-          userId: 'user1',
-          date: new Date('2024-01-02'),
-          notes: 'Test entry 2',
-          soilTemperature: null,
-          soilTemperatureUnit: null,
-          activities: [],
-          lawnSegments: [],
-          embedding: null,
-          products: [],
-        },
-      ];
-      const mockEmbedding = [0.1, 0.2, 0.3];
-
-      jest
-        .spyOn(entriesService, 'getEntriesWithoutEmbeddings')
-        .mockResolvedValue(mockEntries as any);
-
-      jest
-        .spyOn(embeddingService, 'embedEntry')
-        .mockResolvedValueOnce(mockEmbedding)
-        .mockRejectedValueOnce(new Error('Embedding error'));
-
-      jest.spyOn(entriesService, 'updateEntryEmbedding').mockResolvedValue();
-
-      const result = await service.initializeEmbeddings('user1');
-
-      expect(result.isSuccess()).toBe(true);
-
-      if (result.isSuccess()) {
-        expect(result.value.processed).toBe(1);
-        expect(result.value.errors).toBe(1);
-      }
-    });
-
-    it('should return error when initialization fails', async () => {
-      jest
-        .spyOn(entriesService, 'getEntriesWithoutEmbeddings')
-        .mockRejectedValue(new Error('Database error'));
-
-      const result = await service.initializeEmbeddings('user1');
-
-      expect(result.isError()).toBe(true);
-    });
-  });
+			expect(result.isError()).toBe(true);
+		});
+	});
 });

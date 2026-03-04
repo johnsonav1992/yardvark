@@ -1,0 +1,244 @@
+import { ACTIVITY_IDS } from "../../../constants/activities.constants";
+import type { AiToolDefinition } from "../models/ai-tool.types";
+
+export const ENTRY_QUERY_FULL_DETAIL_THRESHOLD = 50;
+
+export const ENTRY_QUERY_PRODUCT_CATEGORIES = [
+	"fertilizer",
+	"pre-emergent",
+	"post-emergent",
+	"bio-stimulant",
+	"insect-control",
+	"plant-fertilizer",
+	"seed",
+	"fungus-control",
+	"pgr",
+	"other",
+] as const;
+
+export const ENTRY_QUERY_TOOL_STATUS_MESSAGES: Record<string, string> = {
+	search_entries: "Searching your entries...",
+	get_last_activity_date: "Checking activity history...",
+	list_products: "Looking up your products...",
+	list_lawn_segments: "Loading your lawn areas...",
+	get_entry_by_id: "Loading entry details...",
+	propose_entry: "Preparing your entry draft...",
+};
+
+export type EntryQueryToolName =
+	| "search_entries"
+	| "get_last_activity_date"
+	| "list_products"
+	| "list_lawn_segments"
+	| "get_entry_by_id"
+	| "propose_entry";
+
+const ENTRY_QUERY_TOOL_NAMES: EntryQueryToolName[] = [
+	"search_entries",
+	"get_last_activity_date",
+	"list_products",
+	"list_lawn_segments",
+	"get_entry_by_id",
+	"propose_entry",
+];
+
+export const isEntryQueryToolName = (
+	toolName: string,
+): toolName is EntryQueryToolName =>
+	ENTRY_QUERY_TOOL_NAMES.includes(toolName as EntryQueryToolName);
+
+export const getEntryQueryToolDefinitions =
+	(): AiToolDefinition<EntryQueryToolName>[] => [
+		{
+			name: "search_entries",
+			description:
+				"Search user's lawn care entries with flexible filtering. Returns entries sorted by date (newest first). If no dateRange is provided, the full entry history is searched.",
+			parameters: {
+				type: "object",
+				properties: {
+					dateRange: {
+						type: "object",
+						description: "Date range filter",
+						properties: {
+							startDate: {
+								type: "string",
+								description: "Start date (YYYY-MM-DD)",
+							},
+							endDate: {
+								type: "string",
+								description: "End date (YYYY-MM-DD)",
+							},
+						},
+					},
+					activities: {
+						type: "array",
+						description: `Filter by activity IDs: ${ACTIVITY_IDS.MOW}=Mow, ${ACTIVITY_IDS.EDGE}=Edge, ${ACTIVITY_IDS.TRIM}=Trim, ${ACTIVITY_IDS.DETHATCH}=Dethatch, ${ACTIVITY_IDS.BLOW}=Blow, ${ACTIVITY_IDS.AERATE}=Aerate, ${ACTIVITY_IDS.WATER}=Water, ${ACTIVITY_IDS.LAWN_LEVELING}=Lawn Leveling, ${ACTIVITY_IDS.PRODUCT_APPLICATION}=Product Application`,
+						items: { type: "number" },
+					},
+					lawnSegments: {
+						type: "array",
+						description:
+							"Filter by lawn segment IDs (get from list_lawn_segments first)",
+						items: { type: "number" },
+					},
+					products: {
+						type: "array",
+						description:
+							"Filter by specific product IDs (get from list_products first, only when the user asks about a specific product by name)",
+						items: { type: "number" },
+					},
+					productCategories: {
+						type: "array",
+						description:
+							"Filter by product categories — use this when the user asks about a type of product (e.g. 'fertilizer', 'pre-emergent'). Prefer this over list_products + products for category-based queries.",
+						items: {
+							type: "string",
+							enum: ENTRY_QUERY_PRODUCT_CATEGORIES,
+						},
+					},
+					titleOrNotes: {
+						type: "string",
+						description:
+							"Search text in entry titles and notes (case-insensitive)",
+					},
+				},
+			},
+		},
+		{
+			name: "get_last_activity_date",
+			description:
+				"Get the date when a specific lawn care activity was last performed",
+			parameters: {
+				type: "object",
+				required: ["activityType"],
+				properties: {
+					activityType: {
+						type: "string",
+						enum: ["mow", "product_application", "pgr"],
+						description: "Type of activity to check",
+					},
+				},
+			},
+		},
+		{
+			name: "list_products",
+			description:
+				"List all products the user has in their inventory. Only use this when you need the specific product name or ID for a product the user mentioned by name.",
+			parameters: {
+				type: "object",
+				properties: {
+					category: {
+						type: "string",
+						enum: ENTRY_QUERY_PRODUCT_CATEGORIES,
+						description: "Filter by product category (optional)",
+					},
+				},
+			},
+		},
+		{
+			name: "list_lawn_segments",
+			description:
+				"List all lawn segments/areas the user has defined. Use this before searching entries by lawn segment, and before propose_entry whenever the user mentions any lawn area — whether a specific area (e.g. 'front yard') or the whole lawn (e.g. 'whole lawn', 'entire yard', 'full yard').",
+			parameters: {
+				type: "object",
+				properties: {},
+			},
+		},
+		{
+			name: "get_entry_by_id",
+			description:
+				"Get detailed information about a specific entry when you have the entry ID",
+			parameters: {
+				type: "object",
+				required: ["entryId"],
+				properties: {
+					entryId: {
+						type: "number",
+						description: "The ID of the entry to retrieve",
+					},
+				},
+			},
+		},
+		{
+			name: "propose_entry",
+			description:
+				"Propose a new lawn care entry for the user to review and confirm before it is created. Call this once you have all required information. Do not call this if critical information is still missing (e.g., which product was applied when activity 9 is included). The user will see a preview and can confirm or reject it.",
+			parameters: {
+				type: "object",
+				required: ["date", "activityIds"],
+				properties: {
+					date: {
+						type: "string",
+						description:
+							"Entry date in YYYY-MM-DD format. Use today's date if the user did not specify one.",
+					},
+					time: {
+						type: "string",
+						description:
+							"Optional time in HH:MM (24-hour) format. Only include if the user specified a time.",
+					},
+					title: {
+						type: "string",
+						description:
+							"Optional entry title. Only include if the user provided one.",
+					},
+					notes: {
+						type: "string",
+						description:
+							"Optional notes about the entry. Only include if the user provided specific details worth noting.",
+					},
+					activityIds: {
+						type: "array",
+						description: `Activity IDs to log. ${ACTIVITY_IDS.MOW}=Mow, ${ACTIVITY_IDS.EDGE}=Edge, ${ACTIVITY_IDS.TRIM}=Trim, ${ACTIVITY_IDS.DETHATCH}=Dethatch, ${ACTIVITY_IDS.BLOW}=Blow, ${ACTIVITY_IDS.AERATE}=Aerate, ${ACTIVITY_IDS.WATER}=Water, ${ACTIVITY_IDS.LAWN_LEVELING}=Lawn Leveling, ${ACTIVITY_IDS.PRODUCT_APPLICATION}=Product Application. Include all activities the user mentioned.`,
+						items: { type: "number" },
+					},
+					lawnSegmentIds: {
+						type: "array",
+						description:
+							"Lawn segment IDs from list_lawn_segments. Include when the user mentions specific areas (e.g. 'front yard') — include only those IDs. Include ALL segment IDs when the user means the whole lawn (e.g. 'whole lawn', 'entire yard', 'full yard', 'entire lawn'). Always call list_lawn_segments first to get the IDs.",
+						items: { type: "number" },
+					},
+					products: {
+						type: "array",
+						description: `Products applied. Required if activityIds includes ${ACTIVITY_IDS.PRODUCT_APPLICATION}. Call list_products first to get product IDs.`,
+						items: {
+							type: "object",
+							required: ["productId", "productQuantity", "productQuantityUnit"],
+							properties: {
+								productId: {
+									type: "number",
+									description: "Product ID from list_products",
+								},
+								productQuantity: {
+									type: "number",
+									description: "Quantity used",
+								},
+								productQuantityUnit: {
+									type: "string",
+									description: "Unit, e.g. 'lbs', 'oz', 'gallons'",
+								},
+							},
+						},
+					},
+					mowingHeight: {
+						type: "number",
+						description:
+							"Mowing height. Only include if the user mentioned it.",
+					},
+					mowingHeightUnit: {
+						type: "string",
+						description: "Mowing height unit: 'in' or 'cm'.",
+					},
+					soilTemperature: {
+						type: "number",
+						description:
+							"Soil temperature. Only include if the user mentioned it.",
+					},
+					soilTemperatureUnit: {
+						type: "string",
+						description: "Temperature unit: 'F' or 'C'.",
+					},
+				},
+			},
+		},
+	];

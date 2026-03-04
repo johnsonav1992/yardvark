@@ -1,4 +1,4 @@
-import { GDD_MAX_TEMPERATURE } from '../models/gdd.constants';
+import { GDD_MAX_TEMPERATURE } from "../models/gdd.constants";
 
 /**
  * Calculates the Growing Degree Days (GDD) for a single day.
@@ -14,23 +14,23 @@ import { GDD_MAX_TEMPERATURE } from '../models/gdd.constants';
  * @returns Daily GDD value (minimum 0)
  */
 export const getDailyGDDCalculation = ({
-  baseTemperature,
-  maxTemperature,
-  minTemperature,
+	baseTemperature,
+	maxTemperature,
+	minTemperature,
 }: {
-  baseTemperature: number;
-  maxTemperature: number;
-  minTemperature: number;
+	baseTemperature: number;
+	maxTemperature: number;
+	minTemperature: number;
 }): number => {
-  // Floor temps at base (no growth below base), cap max at 86°F
-  const cappedMinTemp = Math.max(minTemperature, baseTemperature);
-  const cappedMaxTemp = Math.max(
-    Math.min(maxTemperature, GDD_MAX_TEMPERATURE),
-    baseTemperature,
-  );
-  const averageTemp = (cappedMaxTemp + cappedMinTemp) / 2;
+	// Floor temps at base (no growth below base), cap max at 86°F
+	const cappedMinTemp = Math.max(minTemperature, baseTemperature);
+	const cappedMaxTemp = Math.max(
+		Math.min(maxTemperature, GDD_MAX_TEMPERATURE),
+		baseTemperature,
+	);
+	const averageTemp = (cappedMaxTemp + cappedMinTemp) / 2;
 
-  return averageTemp - baseTemperature;
+	return averageTemp - baseTemperature;
 };
 
 /**
@@ -41,17 +41,17 @@ export const getDailyGDDCalculation = ({
  * @returns Total accumulated GDD
  */
 export const calculateAccumulatedGDD = (
-  dailyTemps: Array<{ high: number; low: number }>,
-  baseTemperature: number,
+	dailyTemps: Array<{ high: number; low: number }>,
+	baseTemperature: number,
 ): number => {
-  return dailyTemps.reduce((total, day) => {
-    return (
-      total +
-      getDailyGDDCalculation({
-        baseTemperature,
-        maxTemperature: day.high,
-        minTemperature: day.low,
-      })
-    );
-  }, 0);
+	return dailyTemps.reduce((total, day) => {
+		return (
+			total +
+			getDailyGDDCalculation({
+				baseTemperature,
+				maxTemperature: day.high,
+				minTemperature: day.low,
+			})
+		);
+	}, 0);
 };

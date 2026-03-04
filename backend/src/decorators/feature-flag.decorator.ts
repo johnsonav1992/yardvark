@@ -1,6 +1,6 @@
-import { SetMetadata } from '@nestjs/common';
+import { SetMetadata } from "@nestjs/common";
 
-export const FEATURE_FLAG_KEY = 'featureFlag';
+export const FEATURE_FLAG_KEY = "featureFlag";
 
 /**
  * A decorator that marks a route as controlled by a feature flag.
@@ -21,4 +21,4 @@ export const FEATURE_FLAG_KEY = 'featureFlag';
  * ```
  */
 export const FeatureFlag = (flagName: string) =>
-  SetMetadata(FEATURE_FLAG_KEY, flagName);
+	SetMetadata(FEATURE_FLAG_KEY, flagName);

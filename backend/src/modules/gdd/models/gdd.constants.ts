@@ -6,8 +6,8 @@
  * Warm-season grasses: Bermuda, zoysia, St. Augustine, centipede
  */
 export const GDD_BASE_TEMPERATURES = {
-  cool: 32, // 0°C
-  warm: 50, // 10°C
+	cool: 32, // 0°C
+	warm: 50, // 10°C
 } as const;
 
 /**
@@ -15,8 +15,8 @@ export const GDD_BASE_TEMPERATURES = {
  * Based on university research for trinexapac-ethyl (Primo Maxx, T-Nex)
  */
 export const GDD_TARGET_INTERVALS = {
-  cool: 200, // Cool-season: 200-250 GDD typical
-  warm: 220, // Warm-season: 220 GDD typical
+	cool: 200, // Cool-season: 200-250 GDD typical
+	warm: 220, // Warm-season: 220 GDD typical
 } as const;
 
 /**
@@ -49,8 +49,8 @@ export const GDD_OVERDUE_DAYS_THRESHOLD = 45;
  * Warm-season: dormant when sustained highs < 60°F
  */
 export const GDD_DORMANCY_TEMPERATURES = {
-  cool: 50, // 10°C
-  warm: 60, // ~15.5°C
+	cool: 50, // 10°C
+	warm: 60, // ~15.5°C
 } as const;
 
 /**

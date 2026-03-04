@@ -170,9 +170,7 @@ export class DashboardComponent {
 		if (!hasLocation) return false;
 
 		const resource = this._weatherService.weatherDataResource;
-		const weatherData = this._weatherService.weatherForecastData();
-
-		return resource.isLoading() || !weatherData || weatherData.length === 0;
+		return resource.isLoading();
 	});
 
 	public isAnyWidgetLoading = computed(() => {

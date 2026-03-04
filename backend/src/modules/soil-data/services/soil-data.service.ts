@@ -2,7 +2,14 @@ import { HttpService } from "@nestjs/axios";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Inject, Injectable } from "@nestjs/common";
 import type { Cache } from "cache-manager";
-import { addDays, format, isValid, parseISO, subDays } from "date-fns";
+import {
+	addDays,
+	eachDayOfInterval,
+	format,
+	isValid,
+	parseISO,
+	subDays,
+} from "date-fns";
 import { firstValueFrom } from "rxjs";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { type Either, error, success } from "../../../types/either";
@@ -164,10 +171,40 @@ export class SoilDataService {
 		const today = new Date();
 		const startDate = subDays(today, 7);
 		const endDate = addDays(today, 7);
+		const requestedDates = eachDayOfInterval({ start: startDate, end: endDate });
 
 		LogHelpers.addBusinessContext("date", format(today, "yyyy-MM-dd"));
 		LogHelpers.addBusinessContext("latitude", latitude);
 		LogHelpers.addBusinessContext("longitude", longitude);
+
+		const cachedResults = await Promise.all(
+			requestedDates.map((date) =>
+				this._cacheManager.get<SoilDataResponse>(
+					this.getCacheKey(date, latitude, longitude, temperatureUnit),
+				),
+			),
+		);
+		const allDatesCached = cachedResults.every(
+			(result): result is SoilDataResponse => Boolean(result),
+		);
+
+		if (allDatesCached) {
+			LogHelpers.recordCacheHit();
+
+			const sortedResults = [...cachedResults].sort((a, b) =>
+				a.date.localeCompare(b.date),
+			);
+
+			return success({
+				dates: sortedResults.map((r) => r.date),
+				shallowTemps: sortedResults.map((r) => r.shallowTemp),
+				deepTemps: sortedResults.map((r) => r.deepTemp),
+				moisturePcts: sortedResults.map((r) => r.moisturePct),
+				temperatureUnit,
+			});
+		}
+
+		LogHelpers.recordCacheMiss();
 
 		const startTime = Date.now();
 		let openMeteoData: OpenMeteoSoilResponse;
@@ -203,16 +240,18 @@ export class SoilDataService {
 			temperatureUnit,
 		);
 
-		for (const result of results) {
-			const date = parseISO(result.date);
-			const cacheKey = this.getCacheKey(
-				date,
-				latitude,
-				longitude,
-				temperatureUnit,
-			);
-			await this._cacheManager.set(cacheKey, result, SOIL_DATA_CACHE_TTL);
-		}
+		await Promise.all(
+			results.map((result) => {
+				const date = parseISO(result.date);
+				const cacheKey = this.getCacheKey(
+					date,
+					latitude,
+					longitude,
+					temperatureUnit,
+				);
+				return this._cacheManager.set(cacheKey, result, SOIL_DATA_CACHE_TTL);
+			}),
+		);
 
 		return success({
 			dates: results.map((r) => r.date),

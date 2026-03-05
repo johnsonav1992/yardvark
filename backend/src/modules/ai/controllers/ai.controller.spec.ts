@@ -205,6 +205,7 @@ describe("AiController", () => {
 				.mockResolvedValue(success(limitStatus));
 			jest
 				.spyOn(aiService, "streamQueryEntriesWithTools")
+				// biome-ignore lint/correctness/useYield: throws error
 				.mockImplementation(async function* () {
 					throw new Error(
 						'{"error.code":"502","error.stack":"HttpException: Failed"}',

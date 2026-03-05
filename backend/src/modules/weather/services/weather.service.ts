@@ -3,7 +3,7 @@ import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Inject, Injectable } from "@nestjs/common";
 import type { Cache } from "cache-manager";
 import { firstValueFrom } from "rxjs";
-import { map, switchMap } from "rxjs/operators";
+import { map, switchMap, timeout } from "rxjs/operators";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { type Either, error, success } from "../../../types/either";
 import {
@@ -16,11 +16,26 @@ import type {
 	WeatherDotGovPointsResponse,
 } from "../models/weather.types";
 
+type HistoricalTempResult = Array<{
+	date: string;
+	maxTemp: number;
+	minTemp: number;
+}>;
+
 @Injectable()
 export class WeatherService {
+	private static readonly REQUEST_TIMEOUT_MS = 12000;
 	private readonly weatherDotGovBaseUrl = "https://api.weather.gov";
 	private readonly openMeteoHistoricalUrl =
 		"https://historical-forecast-api.open-meteo.com/v1/forecast";
+	private readonly _inFlightForecastRequests = new Map<
+		string,
+		Promise<Either<WeatherFetchError, WeatherDotGovForecastResponse>>
+	>();
+	private readonly _inFlightHistoricalRequests = new Map<
+		string,
+		Promise<Either<HistoricalWeatherFetchError, HistoricalTempResult>>
+	>();
 
 	constructor(
 		private readonly httpService: HttpService,
@@ -45,42 +60,62 @@ export class WeatherService {
 			return success(cached);
 		}
 
+		const inFlight = this._inFlightForecastRequests.get(cacheKey);
+
+		if (inFlight) {
+			return inFlight;
+		}
+
 		LogHelpers.recordCacheMiss();
 
-		const start = Date.now();
+		const request = (async (): Promise<
+			Either<WeatherFetchError, WeatherDotGovForecastResponse>
+		> => {
+			const start = Date.now();
+
+			try {
+				const data = await firstValueFrom(
+					this.httpService
+						.get<WeatherDotGovPointsResponse>(
+							`${this.weatherDotGovBaseUrl}/points/${lat},${long}`,
+						)
+						.pipe(
+							timeout(WeatherService.REQUEST_TIMEOUT_MS),
+							map((response) => response.data),
+							switchMap((pointsData) => {
+								const forecastUrl = pointsData.properties.forecast;
+
+								if (!forecastUrl) {
+									throw new Error("Forecast URL not found in response");
+								}
+
+								return this.httpService.get<WeatherDotGovForecastResponse>(
+									forecastUrl,
+								);
+							}),
+							timeout(WeatherService.REQUEST_TIMEOUT_MS),
+							map((forecastResponse) => forecastResponse.data),
+						),
+				);
+
+				LogHelpers.recordExternalCall("weather.gov", Date.now() - start, true);
+
+				await this._cacheManager.set(cacheKey, data, this._forecastCacheTtl);
+
+				return success(data);
+			} catch (err) {
+				LogHelpers.recordExternalCall("weather.gov", Date.now() - start, false);
+
+				return error(new WeatherFetchError(err));
+			}
+		})();
+
+		this._inFlightForecastRequests.set(cacheKey, request);
 
 		try {
-			const data = await firstValueFrom(
-				this.httpService
-					.get<WeatherDotGovPointsResponse>(
-						`${this.weatherDotGovBaseUrl}/points/${lat},${long}`,
-					)
-					.pipe(
-						map((response) => response.data),
-						switchMap((pointsData) => {
-							const forecastUrl = pointsData.properties.forecast;
-
-							if (!forecastUrl) {
-								throw new Error("Forecast URL not found in response");
-							}
-
-							return this.httpService.get<WeatherDotGovForecastResponse>(
-								forecastUrl,
-							);
-						}),
-						map((forecastResponse) => forecastResponse.data),
-					),
-			);
-
-			LogHelpers.recordExternalCall("weather.gov", Date.now() - start, true);
-
-			await this._cacheManager.set(cacheKey, data, this._forecastCacheTtl);
-
-			return success(data);
-		} catch (err) {
-			LogHelpers.recordExternalCall("weather.gov", Date.now() - start, false);
-
-			return error(new WeatherFetchError(err));
+			return await request;
+		} finally {
+			this._inFlightForecastRequests.delete(cacheKey);
 		}
 	}
 
@@ -110,18 +145,18 @@ export class WeatherService {
 			temperatureUnit,
 		});
 
-		type HistoricalTempResult = Array<{
-			date: string;
-			maxTemp: number;
-			minTemp: number;
-		}>;
-
 		const cached = await this._cacheManager.get<HistoricalTempResult>(cacheKey);
 
 		if (cached) {
 			LogHelpers.recordCacheHit();
 
 			return success(cached);
+		}
+
+		const inFlight = this._inFlightHistoricalRequests.get(cacheKey);
+
+		if (inFlight) {
+			return inFlight;
 		}
 
 		LogHelpers.recordCacheMiss();
@@ -136,36 +171,51 @@ export class WeatherService {
 			timezone: "auto",
 		});
 
-		const start = Date.now();
+		const request = (async (): Promise<
+			Either<HistoricalWeatherFetchError, HistoricalTempResult>
+		> => {
+			const start = Date.now();
+
+			try {
+				const result = await firstValueFrom(
+					this.httpService
+						.get<OpenMeteoHistoricalResponse>(
+							`${this.openMeteoHistoricalUrl}?${params}`,
+						)
+						.pipe(
+							timeout(WeatherService.REQUEST_TIMEOUT_MS),
+							map((res) => res.data),
+						),
+				);
+
+				LogHelpers.recordExternalCall("open-meteo", Date.now() - start, true);
+
+				const { daily } = result;
+
+				const data: HistoricalTempResult = daily.time.map(
+					(date: string, i: number) => ({
+						date,
+						maxTemp: daily.temperature_2m_max[i],
+						minTemp: daily.temperature_2m_min[i],
+					}),
+				);
+
+				await this._cacheManager.set(cacheKey, data, this._historicalCacheTtl);
+
+				return success(data);
+			} catch (err) {
+				LogHelpers.recordExternalCall("open-meteo", Date.now() - start, false);
+
+				return error(new HistoricalWeatherFetchError(err));
+			}
+		})();
+
+		this._inFlightHistoricalRequests.set(cacheKey, request);
 
 		try {
-			const result = await firstValueFrom(
-				this.httpService
-					.get<OpenMeteoHistoricalResponse>(
-						`${this.openMeteoHistoricalUrl}?${params}`,
-					)
-					.pipe(map((res) => res.data)),
-			);
-
-			LogHelpers.recordExternalCall("open-meteo", Date.now() - start, true);
-
-			const { daily } = result;
-
-			const data: HistoricalTempResult = daily.time.map(
-				(date: string, i: number) => ({
-					date,
-					maxTemp: daily.temperature_2m_max[i],
-					minTemp: daily.temperature_2m_min[i],
-				}),
-			);
-
-			await this._cacheManager.set(cacheKey, data, this._historicalCacheTtl);
-
-			return success(data);
-		} catch (err) {
-			LogHelpers.recordExternalCall("open-meteo", Date.now() - start, false);
-
-			return error(new HistoricalWeatherFetchError(err));
+			return await request;
+		} finally {
+			this._inFlightHistoricalRequests.delete(cacheKey);
 		}
 	}
 

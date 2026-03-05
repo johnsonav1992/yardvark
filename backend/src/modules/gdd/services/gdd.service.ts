@@ -109,7 +109,44 @@ export class GddService {
 			temperatureUnit,
 		});
 
-		if (tempResult.isError()) return error(tempResult.value);
+		if (tempResult.isError()) {
+			if (!(tempResult.value instanceof HistoricalWeatherFetchError)) {
+				return error(tempResult.value);
+			}
+
+			const daysSinceLastApp = differenceInDays(new Date(), lastPgrAppDate);
+			const fallbackCycleStatus = this.determineCycleStatus({
+				accumulatedGdd: 0,
+				targetGdd,
+				daysSinceLastApp,
+				recentTemps: [],
+				dormancyTemperature: this.getDormancyTemperature(
+					grassType,
+					temperatureUnit,
+				),
+			});
+
+			LogHelpers.addBusinessContext(
+				BusinessContextKeys.reason,
+				"historical_temperatures_unavailable_using_zero_gdd",
+			);
+
+			const fallbackResult: CurrentGddResponse = {
+				accumulatedGdd: 0,
+				lastPgrAppDate: format(lastPgrAppDate, "yyyy-MM-dd"),
+				daysSinceLastApp,
+				baseTemperature,
+				baseTemperatureUnit: temperatureUnit,
+				targetGdd,
+				percentageToTarget: 0,
+				grassType,
+				cycleStatus: fallbackCycleStatus,
+			};
+
+			await this._cacheManager.set(cacheKey, fallbackResult, GDD_CACHE_TTL);
+
+			return success(fallbackResult);
+		}
 
 		const temperatureData = tempResult.value;
 

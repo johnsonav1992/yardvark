@@ -5,6 +5,31 @@ import type {
 } from "../types/ai.types";
 import type { AiChatMessage } from "./aiChatUtils";
 
+const RAW_ERROR_PAYLOAD_MARKERS = [
+	"error.stack",
+	"error.code",
+	"HttpException:",
+	"node:internal/process/task_queues",
+	"database.numCalls",
+	"HISTORICAL_WEATHER_FETCH_ERROR",
+];
+
+const isLikelyRawErrorPayload = (text: string): boolean => {
+	const trimmed = text.trim();
+	const hasObjectLikeShape =
+		(trimmed.startsWith("{") && trimmed.endsWith("}")) ||
+		(trimmed.startsWith("[") && trimmed.endsWith("]"));
+
+	if (!hasObjectLikeShape) {
+		return false;
+	}
+
+	return RAW_ERROR_PAYLOAD_MARKERS.some((marker) => trimmed.includes(marker));
+};
+
+const sanitizeAiMessageContent = (text: string): string =>
+	isLikelyRawErrorPayload(text) ? AI_CHAT_FALLBACK_ERROR_MESSAGE : text;
+
 export const addUserChatMessage = (
 	messages: AiChatMessage[],
 	query: string,
@@ -24,10 +49,9 @@ export const appendToLastAiChatMessage = (
 		return messages;
 	}
 
-	return [
-		...messages.slice(0, -1),
-		{ ...last, content: last.content + chunkText },
-	];
+	const nextContent = sanitizeAiMessageContent(last.content + chunkText);
+
+	return [...messages.slice(0, -1), { ...last, content: nextContent }];
 };
 
 export const applyAiChatErrorToLastMessage = (
@@ -40,9 +64,11 @@ export const applyAiChatErrorToLastMessage = (
 		return messages;
 	}
 
+	const sanitizedErrorMessage = sanitizeAiMessageContent(errorMessage);
+
 	return [
 		...messages.slice(0, -1),
-		{ ...last, content: last.content || errorMessage },
+		{ ...last, content: last.content || sanitizedErrorMessage },
 	];
 };
 

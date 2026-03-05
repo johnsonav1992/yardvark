@@ -171,7 +171,10 @@ export class SoilDataService {
 		const today = new Date();
 		const startDate = subDays(today, 7);
 		const endDate = addDays(today, 7);
-		const requestedDates = eachDayOfInterval({ start: startDate, end: endDate });
+		const requestedDates = eachDayOfInterval({
+			start: startDate,
+			end: endDate,
+		});
 
 		LogHelpers.addBusinessContext("date", format(today, "yyyy-MM-dd"));
 		LogHelpers.addBusinessContext("latitude", latitude);

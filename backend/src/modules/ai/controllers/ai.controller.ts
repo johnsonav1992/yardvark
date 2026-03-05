@@ -134,11 +134,13 @@ export class AiController {
 				res.write(`data: ${JSON.stringify(event)}\n\n`);
 			}
 		} catch (err) {
-			const message =
-				err instanceof Error ? err.message : "Failed to stream AI response";
+			LogHelpers.addBusinessContext(
+				BusinessContextKeys.streamError,
+				err instanceof Error ? err.message : "unknown_stream_error",
+			);
 			const errorEvent: AiStreamEvent = {
 				type: "error",
-				message,
+				message: "Sorry, something went wrong. Please try again.",
 				code: "AI_CHAT_STREAM_ERROR",
 			};
 			res.write(`data: ${JSON.stringify(errorEvent)}\n\n`);

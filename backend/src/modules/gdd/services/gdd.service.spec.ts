@@ -772,6 +772,23 @@ describe("GddService", () => {
 				expect(result.value.targetGdd).toBe(250);
 			}
 		});
+
+		it("should fallback to forecast-only totals when historical temperatures are unavailable", async () => {
+			weatherService.getHistoricalAirTemperatures.mockResolvedValue(
+				error(new HistoricalWeatherFetchError()),
+			);
+
+			const result = await service.getGddForecast(mockUserId);
+
+			expect(result.isSuccess()).toBe(true);
+
+			if (result.isSuccess()) {
+				expect(result.value.currentAccumulatedGdd).toBe(0);
+				expect(result.value.projectedTotalGdd).toBe(119);
+				expect(result.value.projectedNextAppDate).toBeNull();
+				expect(result.value.daysUntilTarget).toBeNull();
+			}
+		});
 	});
 
 	describe("invalidateCache", () => {

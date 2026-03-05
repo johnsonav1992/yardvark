@@ -8,6 +8,7 @@ import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 import { type Either, error, success } from "../../../types/either";
 import { EntriesService } from "../../entries/services/entries.service";
 import { SettingsService } from "../../settings/services/settings.service";
+import { HistoricalWeatherFetchError } from "../../weather/models/weather.errors";
 import { WeatherService } from "../../weather/services/weather.service";
 import {
 	GDD_BASE_TEMPERATURES,
@@ -304,10 +305,20 @@ export class GddService {
 		const targetGdd = customGddTarget ?? GDD_TARGET_INTERVALS[grassType];
 
 		const currentGddResult = await this.getCurrentGdd(userId);
+		let currentAccumulatedGdd = 0;
 
-		if (currentGddResult.isError()) return error(currentGddResult.value);
-
-		const currentAccumulatedGdd = currentGddResult.value.accumulatedGdd;
+		if (currentGddResult.isError()) {
+			if (currentGddResult.value instanceof HistoricalWeatherFetchError) {
+				LogHelpers.addBusinessContext(
+					BusinessContextKeys.reason,
+					"historical_temperatures_unavailable_using_forecast_only",
+				);
+			} else {
+				return error(currentGddResult.value);
+			}
+		} else {
+			currentAccumulatedGdd = currentGddResult.value.accumulatedGdd;
+		}
 
 		const forecastResult = await this._weatherService.getWeatherData(
 			String(location.lat),

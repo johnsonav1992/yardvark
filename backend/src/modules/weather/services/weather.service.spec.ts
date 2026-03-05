@@ -2,7 +2,7 @@ import { HttpService } from "@nestjs/axios";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Test, type TestingModule } from "@nestjs/testing";
 import type { AxiosResponse } from "axios";
-import { of, throwError } from "rxjs";
+import { of, Subject, throwError } from "rxjs";
 import type {
 	Period,
 	ProbabilityOfPrecipitation,
@@ -544,6 +544,45 @@ describe("WeatherService", () => {
 				3600000,
 			);
 		});
+
+		it("should dedupe concurrent forecast requests for the same coordinates", async () => {
+			const pointsAxiosResponse: AxiosResponse<WeatherDotGovPointsResponse> = {
+				data: mockPointsResponse,
+				status: 200,
+				statusText: "OK",
+				headers: {},
+				config: {},
+			} as never;
+
+			const forecastSubject = new Subject<
+				AxiosResponse<WeatherDotGovForecastResponse>
+			>();
+
+			mockHttpService.get
+				.mockReturnValueOnce(of(pointsAxiosResponse))
+				.mockReturnValueOnce(forecastSubject.asObservable());
+
+			const first = service.getWeatherData("32.7767", "-96.7970");
+			const second = service.getWeatherData("32.7767", "-96.7970");
+			await Promise.resolve();
+
+			expect(mockHttpService.get).toHaveBeenCalledTimes(2);
+
+			forecastSubject.next({
+				data: mockForecastResponse,
+				status: 200,
+				statusText: "OK",
+				headers: {},
+				config: {},
+			} as never);
+			forecastSubject.complete();
+
+			const [firstResult, secondResult] = await Promise.all([first, second]);
+
+			expect(firstResult.isSuccess()).toBe(true);
+			expect(secondResult.isSuccess()).toBe(true);
+			expect(mockHttpService.get).toHaveBeenCalledTimes(2);
+		});
 	});
 
 	describe("getHistoricalAirTemperatures", () => {
@@ -750,6 +789,33 @@ describe("WeatherService", () => {
 			expect(mockHttpService.get).toHaveBeenCalledWith(
 				expect.stringContaining("temperature_unit=fahrenheit"),
 			);
+		});
+
+		it("should dedupe concurrent historical requests for the same range", async () => {
+			const responseSubject = new Subject<AxiosResponse<any>>();
+
+			mockHttpService.get.mockReturnValueOnce(responseSubject.asObservable());
+
+			const first = service.getHistoricalAirTemperatures(historicalParams);
+			const second = service.getHistoricalAirTemperatures(historicalParams);
+			await Promise.resolve();
+
+			expect(mockHttpService.get).toHaveBeenCalledTimes(1);
+
+			responseSubject.next({
+				data: mockHistoricalResponse,
+				status: 200,
+				statusText: "OK",
+				headers: {},
+				config: {},
+			} as never);
+			responseSubject.complete();
+
+			const [firstResult, secondResult] = await Promise.all([first, second]);
+
+			expect(firstResult.isSuccess()).toBe(true);
+			expect(secondResult.isSuccess()).toBe(true);
+			expect(mockHttpService.get).toHaveBeenCalledTimes(1);
 		});
 	});
 });

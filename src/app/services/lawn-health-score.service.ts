@@ -55,8 +55,7 @@ export class LawnHealthScoreService {
 		() =>
 			this.analyticsData.isLoading() ||
 			this.lastMowDate.isLoading() ||
-			this.lastProductApp.isLoading() ||
-			this._soilDataService.rollingWeekSoilData.isLoading(),
+			this.lastProductApp.isLoading(),
 	);
 
 	public currentSoilTemp = computed(() => {
@@ -126,30 +125,34 @@ export class LawnHealthScoreService {
 			if (!isPro) return undefined;
 
 			const scoreData = this.lawnHealthScore();
-			return scoreData.totalScore > 0 && !scoreData.isOffSeason
-				? {
-						totalScore: scoreData.totalScore,
-						grade: scoreData.grade,
-						mowingScore: scoreData.mowingScore,
-						fertilizationScore: scoreData.fertilizationScore,
-						consistencyScore: scoreData.consistencyScore,
-						recencyScore: scoreData.recencyScore,
-					}
-				: undefined;
+			if (scoreData.totalScore <= 0 || scoreData.isOffSeason) return undefined;
+
+			return this.getScoreBreakdownCacheKey({
+				totalScore: scoreData.totalScore,
+				grade: scoreData.grade,
+				mowingScore: scoreData.mowingScore,
+				fertilizationScore: scoreData.fertilizationScore,
+				consistencyScore: scoreData.consistencyScore,
+				recencyScore: scoreData.recencyScore,
+			});
 		},
-		stream: ({ params }: { params: ScoreBreakdown }) => {
-			const cached = this.getCachedDescription(params);
+		stream: ({ params }: { params: string }) => {
+			const scoreBreakdown = this.parseScoreBreakdownCacheKey(params);
+
+			if (!scoreBreakdown) return of("");
+
+			const cached = this.getCachedDescription(scoreBreakdown);
 
 			if (cached) return of(cached);
 
 			const currentDate = format(new Date(), "MMMM d, yyyy");
 
-			const prompt = `Today is ${currentDate}. Generate a brief, encouraging lawn care description (max 30 words) for someone with a lawn health score of ${params.totalScore}/100 (Grade: ${params.grade}). Individual scores: Mowing ${params.mowingScore}/30, Fertilization ${params.fertilizationScore}/25, Consistency ${params.consistencyScore}/20, Recency ${params.recencyScore}/25. Focus on positive reinforcement and specific improvement areas based on the lowest scores or potentially seasonal factors. Also, don't use any language that specifically includes the letter or number grade they got, as the user can already see that.`;
+			const prompt = `Today is ${currentDate}. Generate a brief, encouraging lawn care description (max 30 words) for someone with a lawn health score of ${scoreBreakdown.totalScore}/100 (Grade: ${scoreBreakdown.grade}). Individual scores: Mowing ${scoreBreakdown.mowingScore}/30, Fertilization ${scoreBreakdown.fertilizationScore}/25, Consistency ${scoreBreakdown.consistencyScore}/20, Recency ${scoreBreakdown.recencyScore}/25. Focus on positive reinforcement and specific improvement areas based on the lowest scores or potentially seasonal factors. Also, don't use any language that specifically includes the letter or number grade they got, as the user can already see that.`;
 
 			return this._aiService.sendChatMessageContent(prompt).pipe(
 				map((response) => {
 					if (response) {
-						this.setCachedDescription(params, response);
+						this.setCachedDescription(scoreBreakdown, response);
 					}
 
 					return response;
@@ -207,6 +210,50 @@ export class LawnHealthScoreService {
 		} catch (error) {
 			console.warn("Failed to cache AI description:", error);
 		}
+	}
+
+	private getScoreBreakdownCacheKey(scoreBreakdown: ScoreBreakdown): string {
+		return [
+			scoreBreakdown.totalScore,
+			scoreBreakdown.grade,
+			scoreBreakdown.mowingScore,
+			scoreBreakdown.fertilizationScore,
+			scoreBreakdown.consistencyScore,
+			scoreBreakdown.recencyScore,
+		].join("|");
+	}
+
+	private parseScoreBreakdownCacheKey(
+		cacheKey: string,
+	): ScoreBreakdown | undefined {
+		const [
+			totalScore,
+			grade,
+			mowingScore,
+			fertilizationScore,
+			consistencyScore,
+			recencyScore,
+		] = cacheKey.split("|");
+
+		if (
+			!totalScore ||
+			!grade ||
+			!mowingScore ||
+			!fertilizationScore ||
+			!consistencyScore ||
+			!recencyScore
+		) {
+			return undefined;
+		}
+
+		return {
+			totalScore: Number(totalScore),
+			grade,
+			mowingScore: Number(mowingScore),
+			fertilizationScore: Number(fertilizationScore),
+			consistencyScore: Number(consistencyScore),
+			recencyScore: Number(recencyScore),
+		};
 	}
 
 	private getLast3MonthsData(): [

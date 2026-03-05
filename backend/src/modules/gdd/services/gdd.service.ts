@@ -8,6 +8,7 @@ import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 import { type Either, error, success } from "../../../types/either";
 import { EntriesService } from "../../entries/services/entries.service";
 import { SettingsService } from "../../settings/services/settings.service";
+import { HistoricalWeatherFetchError } from "../../weather/models/weather.errors";
 import { WeatherService } from "../../weather/services/weather.service";
 import {
 	GDD_BASE_TEMPERATURES,
@@ -108,7 +109,44 @@ export class GddService {
 			temperatureUnit,
 		});
 
-		if (tempResult.isError()) return error(tempResult.value);
+		if (tempResult.isError()) {
+			if (!(tempResult.value instanceof HistoricalWeatherFetchError)) {
+				return error(tempResult.value);
+			}
+
+			const daysSinceLastApp = differenceInDays(new Date(), lastPgrAppDate);
+			const fallbackCycleStatus = this.determineCycleStatus({
+				accumulatedGdd: 0,
+				targetGdd,
+				daysSinceLastApp,
+				recentTemps: [],
+				dormancyTemperature: this.getDormancyTemperature(
+					grassType,
+					temperatureUnit,
+				),
+			});
+
+			LogHelpers.addBusinessContext(
+				BusinessContextKeys.reason,
+				"historical_temperatures_unavailable_using_zero_gdd",
+			);
+
+			const fallbackResult: CurrentGddResponse = {
+				accumulatedGdd: 0,
+				lastPgrAppDate: format(lastPgrAppDate, "yyyy-MM-dd"),
+				daysSinceLastApp,
+				baseTemperature,
+				baseTemperatureUnit: temperatureUnit,
+				targetGdd,
+				percentageToTarget: 0,
+				grassType,
+				cycleStatus: fallbackCycleStatus,
+			};
+
+			await this._cacheManager.set(cacheKey, fallbackResult, GDD_CACHE_TTL);
+
+			return success(fallbackResult);
+		}
 
 		const temperatureData = tempResult.value;
 
@@ -304,10 +342,20 @@ export class GddService {
 		const targetGdd = customGddTarget ?? GDD_TARGET_INTERVALS[grassType];
 
 		const currentGddResult = await this.getCurrentGdd(userId);
+		let currentAccumulatedGdd = 0;
 
-		if (currentGddResult.isError()) return error(currentGddResult.value);
-
-		const currentAccumulatedGdd = currentGddResult.value.accumulatedGdd;
+		if (currentGddResult.isError()) {
+			if (currentGddResult.value instanceof HistoricalWeatherFetchError) {
+				LogHelpers.addBusinessContext(
+					BusinessContextKeys.reason,
+					"historical_temperatures_unavailable_using_forecast_only",
+				);
+			} else {
+				return error(currentGddResult.value);
+			}
+		} else {
+			currentAccumulatedGdd = currentGddResult.value.accumulatedGdd;
+		}
 
 		const forecastResult = await this._weatherService.getWeatherData(
 			String(location.lat),

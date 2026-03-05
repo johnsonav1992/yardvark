@@ -190,5 +190,45 @@ describe("AiController", () => {
 			expect(firstWrite).toContain('"type":"limit"');
 			expect(firstWrite).toContain('"remaining":6');
 		});
+
+		it("should stream a sanitized error event when streaming fails", async () => {
+			const res = createMockResponse();
+			const limitStatus = {
+				limit: 10,
+				used: 4,
+				remaining: 6,
+				resetAt: "2026-03-03T00:00:00.000Z",
+			};
+
+			jest
+				.spyOn(aiService, "reserveEntryQueryMessage")
+				.mockResolvedValue(success(limitStatus));
+			jest
+				.spyOn(aiService, "streamQueryEntriesWithTools")
+				// biome-ignore lint/correctness/useYield: throws error
+				.mockImplementation(async function* () {
+					throw new Error(
+						'{"error.code":"502","error.stack":"HttpException: Failed"}',
+					);
+				});
+
+			await controller.streamQueryEntries(
+				user,
+				{ query: "When did I last mow?" },
+				res as never,
+			);
+
+			const writes = res.write.mock.calls.map((call) => call[0] as string);
+			const lastWrite = writes[writes.length - 1];
+
+			expect(lastWrite).toContain('"type":"error"');
+			expect(lastWrite).toContain(
+				'"message":"Sorry, something went wrong. Please try again."',
+			);
+			expect(lastWrite).toContain('"code":"AI_CHAT_STREAM_ERROR"');
+			expect(lastWrite).not.toContain("error.stack");
+			expect(lastWrite).not.toContain("HttpException");
+			expect(res.end).toHaveBeenCalledTimes(1);
+		});
 	});
 });

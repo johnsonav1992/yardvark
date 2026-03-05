@@ -94,12 +94,9 @@ export class EntryAiChatComponent {
 		})}.`;
 	});
 	public readonly disabledReason = computed(() => {
-		if (this.isStreaming()) {
-			return "Varky is still responding. Please wait.";
-		}
-
 		if (this.isLimitReached()) {
 			const resetHint = this.limitResetHint();
+
 			return resetHint
 				? `You've reached your daily message limit. ${resetHint}`
 				: "You've reached your daily message limit.";

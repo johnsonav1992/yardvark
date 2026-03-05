@@ -4,7 +4,7 @@
   position="right"
   styleClass="ai-chat-drawer"
   [fullScreen]="isMobile()"
-  appendTo="body"
+  [appendTo]="isMobile() ? 'self' : 'body'"
   (onHide)="onClose()"
 >
   <ng-template pTemplate="header">

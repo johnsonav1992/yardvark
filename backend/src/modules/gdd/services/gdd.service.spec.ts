@@ -285,7 +285,7 @@ describe("GddService", () => {
 				expect(result.value).toBeInstanceOf(UserLocationNotConfigured);
 			});
 
-			it("should propagate weather service errors", async () => {
+			it("should fallback to zero GDD when historical temperatures are unavailable", async () => {
 				cacheManager.get.mockResolvedValue(null);
 				settingsService.getUserSettings.mockResolvedValue(mockSettings);
 				entriesService.getLastPgrApplicationDate.mockResolvedValue(
@@ -297,8 +297,14 @@ describe("GddService", () => {
 
 				const result = await service.getCurrentGdd(mockUserId);
 
-				expect(result.isError()).toBe(true);
-				expect(result.value).toBeInstanceOf(HistoricalWeatherFetchError);
+				expect(result.isSuccess()).toBe(true);
+
+				if (result.isSuccess()) {
+					expect(result.value.accumulatedGdd).toBe(0);
+					expect(result.value.percentageToTarget).toBe(0);
+					expect(result.value.lastPgrAppDate).not.toBeNull();
+					expect(result.value.daysSinceLastApp).not.toBeNull();
+				}
 			});
 		});
 
@@ -770,6 +776,23 @@ describe("GddService", () => {
 
 			if (result.isSuccess()) {
 				expect(result.value.targetGdd).toBe(250);
+			}
+		});
+
+		it("should fallback to forecast-only totals when historical temperatures are unavailable", async () => {
+			weatherService.getHistoricalAirTemperatures.mockResolvedValue(
+				error(new HistoricalWeatherFetchError()),
+			);
+
+			const result = await service.getGddForecast(mockUserId);
+
+			expect(result.isSuccess()).toBe(true);
+
+			if (result.isSuccess()) {
+				expect(result.value.currentAccumulatedGdd).toBe(0);
+				expect(result.value.projectedTotalGdd).toBe(119);
+				expect(result.value.projectedNextAppDate).toBeNull();
+				expect(result.value.daysUntilTarget).toBeNull();
 			}
 		});
 	});

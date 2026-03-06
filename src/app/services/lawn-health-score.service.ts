@@ -58,6 +58,13 @@ export class LawnHealthScoreService {
 			this.lastProductApp.isLoading(),
 	);
 
+	public isError = computed(
+		() =>
+			!!this.analyticsData.error() ||
+			!!this.lastMowDate.error() ||
+			!!this.lastProductApp.error(),
+	);
+
 	public currentSoilTemp = computed(() => {
 		const soilData = this._soilDataService.rollingWeekSoilData.value();
 

@@ -46,12 +46,6 @@
       @if (errorMessage()) {
         <p-message severity="warn" [text]="errorMessage()!" />
       }
-      @if (isLoading()) {
-        <div class="loading-container">
-          <loading-spinner [size]="'s'" />
-          <span>Searching entries...</span>
-        </div>
-      }
       @if (searchResults() !== null && !isLoading()) {
         <div class="results-container">
           @if (searchResults()!.length > 0) {

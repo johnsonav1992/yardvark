@@ -29,10 +29,18 @@ export class LawnSegmentsService {
 		return segments;
 	}
 
-	public async getLawnSegmentById(id: number): Promise<LawnSegment | null> {
+	public async getLawnSegmentById(
+		id: number,
+	): Promise<Either<LawnSegmentNotFound, LawnSegment>> {
 		LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentId, id);
 
-		return this._lawnSegmentRepo.findOne({ where: { id } });
+		const segment = await this._lawnSegmentRepo.findOne({ where: { id } });
+
+		if (!segment) {
+			return error(new LawnSegmentNotFound());
+		}
+
+		return success(segment);
 	}
 
 	public async createLawnSegment(
@@ -72,13 +80,21 @@ export class LawnSegmentsService {
 		return success(saved);
 	}
 
-	public async deleteLawnSegment(id: number) {
+	public async deleteLawnSegment(
+		id: number,
+	): Promise<Either<LawnSegmentNotFound, void>> {
 		LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentId, id);
 
-		const result = await this._lawnSegmentRepo.delete({ id });
+		const segment = await this._lawnSegmentRepo.findOneBy({ id });
+
+		if (!segment) {
+			return error(new LawnSegmentNotFound());
+		}
+
+		await this._lawnSegmentRepo.delete({ id });
 
 		LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentDeleted, true);
 
-		return result;
+		return success(undefined);
 	}
 }

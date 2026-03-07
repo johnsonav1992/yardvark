@@ -19,6 +19,7 @@ import { WeatherCardComponent } from "../../components/dashboard/weather-card/we
 import { EntrySearchSidebarComponent } from "../../components/entries/entry-search-sidebar/entry-search-sidebar.component";
 import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
 import { CardSkeletonComponent } from "../../components/miscellanious/card-skeleton/card-skeleton.component";
+import { EmptyMessageComponent } from "../../components/miscellanious/empty-message/empty-message.component";
 import { EntriesService } from "../../services/entries.service";
 import { GlobalUiService } from "../../services/global-ui.service";
 import { LawnHealthScoreService } from "../../services/lawn-health-score.service";
@@ -44,6 +45,7 @@ import { injectUserData } from "../../utils/authUtils";
 		CdkDropList,
 		CdkDrag,
 		CardSkeletonComponent,
+		EmptyMessageComponent,
 	],
 	templateUrl: "./dashboard.component.html",
 	styleUrl: "./dashboard.component.scss",

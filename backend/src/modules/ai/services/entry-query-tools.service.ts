@@ -1,6 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { format } from "date-fns";
 import { ACTIVITY_IDS } from "../../../constants/activities.constants";
+import {
+	ResourceNotFound,
+	ResourceValidationError,
+} from "../../../errors/resource-error";
 import type {
 	AiEntryDraftData,
 	AiEntryDraftProduct,
@@ -77,7 +81,7 @@ export class EntryQueryToolsService {
 		);
 
 		if (result.isError()) {
-			throw new Error("Failed to search entries");
+			throw result.value;
 		}
 
 		const entries = result.value as MappedEntry[];
@@ -146,13 +150,16 @@ export class EntryQueryToolsService {
 		const result = await this.entriesService.getEntry(entryId);
 
 		if (result.isError()) {
-			throw new Error("Failed to get entry");
+			throw result.value;
 		}
 
 		const entry = result.value as MappedEntry;
 
 		if (entry.userId !== userId) {
-			throw new Error("Unauthorized access to entry");
+			throw new ResourceValidationError({
+				message: "Unauthorized access to entry",
+				code: "ENTRY_ACCESS_DENIED",
+			});
 		}
 
 		return sanitizeEntry(entry);
@@ -173,9 +180,10 @@ export class EntryQueryToolsService {
 
 			for (const id of lawnSegmentIds) {
 				if (!segmentMap.has(id)) {
-					throw new Error(
-						`Lawn segment ${id} not found or does not belong to this user`,
-					);
+					throw new ResourceNotFound({
+						message: `Lawn segment ${id} not found or does not belong to this user`,
+						code: "LAWN_SEGMENT_NOT_FOUND",
+					});
 				}
 			}
 
@@ -192,9 +200,10 @@ export class EntryQueryToolsService {
 				const name = productMap.get(p.productId);
 
 				if (!name) {
-					throw new Error(
-						`Product ${p.productId} not found or does not belong to this user`,
-					);
+					throw new ResourceNotFound({
+						message: `Product ${p.productId} not found or does not belong to this user`,
+						code: "PRODUCT_NOT_FOUND",
+					});
 				}
 
 				return {

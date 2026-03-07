@@ -42,7 +42,11 @@ export class GddDataComponent {
 	public isDarkMode = this._globalUiService.isDarkMode;
 	public isPro = this._subscriptionService.isPro;
 
-	public settingsAreLoading = this._settingsService.settings.isLoading;
+	public isPageLoading = computed(
+		() =>
+			this._settingsService.settings.isLoading() ||
+			this._subscriptionService.isLoading(),
+	);
 
 	public userHasALocation = computed(
 		() => !!this._locationService.userLatLong(),
@@ -53,9 +57,7 @@ export class GddDataComponent {
 
 	public isLoading = computed(
 		() =>
-			this.settingsAreLoading() ||
-			this.currentGddData.isLoading() ||
-			this.forecastData.isLoading(),
+			this.currentGddData.isLoading() || this.forecastData.isLoading(),
 	);
 
 	public hasLoadedGddData = computed(

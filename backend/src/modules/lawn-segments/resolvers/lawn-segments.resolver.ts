@@ -23,8 +23,8 @@ export class LawnSegmentsResolver {
 	@Query(() => LawnSegment, { name: "lawnSegmentById", nullable: true })
 	async getLawnSegmentById(
 		@Args("id", { type: () => Int }) id: number,
-	): Promise<LawnSegment | null> {
-		return this.lawnSegmentsService.getLawnSegmentById(id);
+	): Promise<LawnSegment> {
+		return resultOrThrow(await this.lawnSegmentsService.getLawnSegmentById(id));
 	}
 
 	@Mutation(() => LawnSegment)
@@ -57,7 +57,7 @@ export class LawnSegmentsResolver {
 	async deleteLawnSegment(
 		@Args("id", { type: () => Int }) id: number,
 	): Promise<boolean> {
-		await this.lawnSegmentsService.deleteLawnSegment(id);
+		resultOrThrow(await this.lawnSegmentsService.deleteLawnSegment(id));
 		return true;
 	}
 }

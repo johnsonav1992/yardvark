@@ -7,7 +7,7 @@
     filterBy="name,brand"
     [placeholder]="products.isLoading() ? 'Loading...' : 'Select Products'"
     [loading]="products.isLoading()"
-    [loadingIcon]="'ti ti-loader-2'"
+    [loadingIcon]="'ti ti-loader-2 icon-spin'"
     [showClear]="true"
     (onChange)="updateSelectedProducts($event)"
     (onClear)="productsControl().clear()"

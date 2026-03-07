@@ -177,14 +177,14 @@
 
   .temperature,
   .forecast {
-    color: var(--p-surface-100) !important;
+    color: var(--p-surface-100);
   }
 
   .tonight-weather {
     border-top-color: var(--p-surface-700);
 
     h4 {
-      color: var(--p-surface-100);
+      color: var(--p-surface-200);
     }
   }
 }

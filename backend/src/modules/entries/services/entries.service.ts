@@ -16,6 +16,7 @@ import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 import { type Either, error, success } from "../../../types/either";
 import {
 	EntriesNotFound,
+	EntryImageNotFound,
 	EntryNotFound,
 	InvalidDateRange,
 } from "../models/entries.errors";
@@ -406,8 +407,23 @@ export class EntriesService {
 		return success(undefined);
 	}
 
-	public async recoverEntry(entryId: number) {
+	public async recoverEntry(
+		entryId: number,
+	): Promise<Either<EntryNotFound, void>> {
+		LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
+
+		const entry = await this._entriesRepo.findOne({
+			where: { id: entryId },
+			withDeleted: true,
+		});
+
+		if (!entry) {
+			return error(new EntryNotFound());
+		}
+
 		await this._entriesRepo.restore(entryId);
+
+		return success(undefined);
 	}
 
 	public async searchEntries(
@@ -491,12 +507,37 @@ export class EntriesService {
 		return success(entries.map((entry) => getEntryResponseMapping(entry)));
 	}
 
-	public async softDeleteEntryImage(entryImageId: number) {
+	public async softDeleteEntryImage(
+		entryImageId: number,
+	): Promise<Either<EntryImageNotFound, void>> {
+		const image = await this._entryImagesRepo.findOne({
+			where: { id: entryImageId },
+		});
+
+		if (!image) {
+			return error(new EntryImageNotFound());
+		}
+
 		await this._entryImagesRepo.softDelete(entryImageId);
+
+		return success(undefined);
 	}
 
-	public async recoverEntryImage(entryImageId: number) {
+	public async recoverEntryImage(
+		entryImageId: number,
+	): Promise<Either<EntryImageNotFound, void>> {
+		const image = await this._entryImagesRepo.findOne({
+			where: { id: entryImageId },
+			withDeleted: true,
+		});
+
+		if (!image) {
+			return error(new EntryImageNotFound());
+		}
+
 		await this._entryImagesRepo.restore(entryImageId);
+
+		return success(undefined);
 	}
 
 	private parseDate(dateString: string): Date {

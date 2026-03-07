@@ -21,6 +21,15 @@ export class EntriesNotFound extends ResourceNotFound {
 	}
 }
 
+export class EntryImageNotFound extends ResourceNotFound {
+	constructor() {
+		super({
+			message: "Entry image not found",
+			code: "ENTRY_IMAGE_NOT_FOUND",
+		});
+	}
+}
+
 export class InvalidDateRange extends ResourceValidationError {
 	constructor() {
 		super({

@@ -9,7 +9,7 @@
 >
   <ng-template pTemplate="header">
     <div class="drawer-header">
-      <img src="assets/varky-avatar.png" class="varky-avatar" alt="Varky" />
+      <varky-logo size="80px" />
       <span>Ask Varky</span>
       @if (messages().length > 0) {
         <p-button
@@ -39,7 +39,6 @@
     <div class="messages-area">
       @if (messages().length === 0) {
         <div class="empty-state">
-          <i class="ti ti-message-chatbot empty-icon"></i>
           <p class="empty-title">What can I help you with?</p>
           <p class="empty-subtitle">Ask about your lawn care history, or tell me what you did and I'll log it for you.</p>
           <div class="suggestions-group">

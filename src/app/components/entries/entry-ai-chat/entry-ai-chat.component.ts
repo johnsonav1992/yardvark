@@ -30,10 +30,11 @@ import {
 	shouldIgnoreSpeechError,
 } from "../../../utils/speechRecognitionUtils";
 import { injectErrorToast } from "../../../utils/toastUtils";
+import { VarkyLogoComponent } from "../../miscellanious/varky-logo/varky-logo.component";
 
 @Component({
 	selector: "entry-ai-chat",
-	imports: [DrawerModule, ButtonModule, InputTextModule],
+	imports: [DrawerModule, ButtonModule, InputTextModule, VarkyLogoComponent],
 	templateUrl: "./entry-ai-chat.component.html",
 	styleUrl: "./entry-ai-chat.component.scss",
 })

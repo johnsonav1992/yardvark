@@ -360,11 +360,9 @@
   }
 }
 
-:host-context(.yv-dark-mode) {
-  ::ng-deep .ai-chat-drawer {
-    background: var(--p-surface-900);
-    color: var(--p-surface-100);
-  }
+::ng-deep .yv-dark-mode .ai-chat-drawer {
+  background: var(--p-surface-900);
+  color: var(--p-surface-100);
 
   .limit-banner {
     background: var(--p-surface-800);

@@ -56,3 +56,14 @@
     }
   }
 }
+
+::ng-deep .yv-dark-mode .sidebar {
+  .hidden-widgets-container .widgets-list .widget-item {
+    background: var(--p-surface-800) !important;
+    border-color: var(--p-surface-700) !important;
+  }
+
+  .hidden-widgets-container .widgets-list .helper-text {
+    color: var(--p-surface-400) !important;
+  }
+}

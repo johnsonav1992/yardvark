@@ -114,6 +114,21 @@ export function injectAiChat(
 				}
 			}
 		} finally {
+			const lastMsg = messages()[messages().length - 1];
+
+			if (lastMsg?.role === "ai" && !lastMsg.content && lastMsg.entryDraft) {
+				messages.update((msgs) => {
+					const updated = [...msgs];
+					updated[updated.length - 1] = {
+						...updated[updated.length - 1],
+						content:
+							"Here's a draft entry for your review. Confirm it or let me know if anything needs to change.",
+					};
+
+					return updated;
+				});
+			}
+
 			isStreaming.set(false);
 			statusMessage.set(null);
 			abortController = null;

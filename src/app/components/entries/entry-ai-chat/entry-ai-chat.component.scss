@@ -129,8 +129,14 @@
   }
 }
 
-.bubble {
+.message-column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   max-width: 80%;
+}
+
+.bubble {
   padding: 0.6rem 0.875rem;
   border-radius: 1rem;
   font-size: 0.875rem;
@@ -221,7 +227,6 @@
 }
 
 .entry-draft-card {
-  margin-top: 0.75rem;
   border: 1px solid var(--p-surface-200);
   border-radius: 0.75rem;
   overflow: hidden;

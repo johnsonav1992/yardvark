@@ -6,6 +6,7 @@ import { ButtonModule } from "primeng/button";
 import { CardModule } from "primeng/card";
 import { DividerModule } from "primeng/divider";
 import { PopoverModule } from "primeng/popover";
+import { SkeletonModule } from "primeng/skeleton";
 import { TooltipModule } from "primeng/tooltip";
 import { LawnHealthScoreService } from "../../../services/lawn-health-score.service";
 import { SubscriptionService } from "../../../services/subscription.service";
@@ -19,6 +20,7 @@ import { UpgradePromptComponent } from "../../subscription/upgrade-prompt/upgrad
 		PopoverModule,
 		ButtonModule,
 		TooltipModule,
+		SkeletonModule,
 		CdkDragHandle,
 		UpgradePromptComponent,
 	],
@@ -36,7 +38,12 @@ export class LawnHealthScoreComponent {
 	public finalDescription = this._lawnHealthScoreService.finalDescription;
 	public scoreColor = this._lawnHealthScoreService.scoreColor;
 	public isLoading = this._lawnHealthScoreService.isLoading;
+	public isError = this._lawnHealthScoreService.isError;
 	public isPro = this._subscriptionService.isPro;
+
+	public isAiLoading = computed(
+		() => this._lawnHealthScoreService.aiDescriptionResource.isLoading(),
+	);
 
 	public isAiGenerated = computed(() => {
 		const aiResource = this._lawnHealthScoreService.aiDescriptionResource;

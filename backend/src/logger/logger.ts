@@ -425,6 +425,12 @@ export class LoggingInterceptor implements NestInterceptor {
 			if (process.env.NODE_ENV !== "production") {
 				stack = err.stack;
 			}
+
+			const cause = err.cause;
+
+			if (cause instanceof Error) {
+				return { message, type, code, stack, cause: cause.message };
+			}
 		} else if (err instanceof Error) {
 			message = err.message;
 			type = err.constructor.name;

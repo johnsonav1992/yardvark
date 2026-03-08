@@ -1,14 +1,9 @@
-import {
-	Body,
-	Controller,
-	Get,
-	HttpException,
-	HttpStatus,
-	Post,
-} from "@nestjs/common";
+import { Body, Controller, Get, Post } from "@nestjs/common";
 import { User } from "../../../decorators/user.decorator";
+import { ResourceValidationError } from "../../../errors/resource-error";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import { error } from "../../../types/either";
 import type { ExtractedUserRequestData } from "../../../types/request";
 import { resultOrThrow } from "../../../utils/resultOrThrow";
 import {
@@ -60,9 +55,13 @@ export class SubscriptionController {
 		if (!PURCHASABLE_TIERS.includes(body.tier)) {
 			LogHelpers.addBusinessContext(BusinessContextKeys.invalidTier, body.tier);
 
-			throw new HttpException(
-				`Invalid tier: ${body.tier}. Must be one of: ${PURCHASABLE_TIERS.join(", ")}`,
-				HttpStatus.BAD_REQUEST,
+			return resultOrThrow(
+				error(
+					new ResourceValidationError({
+						message: `Invalid tier: ${body.tier}. Must be one of: ${PURCHASABLE_TIERS.join(", ")}`,
+						code: "INVALID_SUBSCRIPTION_TIER",
+					}),
+				),
 			);
 		}
 

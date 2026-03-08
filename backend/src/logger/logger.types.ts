@@ -45,6 +45,7 @@ export interface HttpLogEntry {
 		type: string;
 		code?: string;
 		stack?: string;
+		cause?: string;
 	};
 	database?: LogContext["database"];
 	cache?: LogContext["cache"];

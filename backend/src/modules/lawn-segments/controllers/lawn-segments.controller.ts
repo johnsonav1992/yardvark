@@ -63,13 +63,13 @@ export class LawnSegmentsController {
 	}
 
 	@Delete(":id")
-	public deleteLawnSegment(@Param("id") id: number) {
+	public async deleteLawnSegment(@Param("id") id: number) {
 		LogHelpers.addBusinessContext(
 			BusinessContextKeys.controllerOperation,
 			"delete_lawn_segment",
 		);
 		LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentId, id);
 
-		return this._lawnSegmentService.deleteLawnSegment(id);
+		return resultOrThrow(await this._lawnSegmentService.deleteLawnSegment(id));
 	}
 }

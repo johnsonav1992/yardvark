@@ -2,6 +2,7 @@ import { Controller, Get, Query } from "@nestjs/common";
 import { User } from "../../../decorators/user.decorator";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
+import { resultOrThrow } from "../../../utils/resultOrThrow";
 import { AnalyticsService } from "../services/analytics.service";
 
 @Controller("analytics")
@@ -20,6 +21,6 @@ export class AnalyticsController {
 		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 		LogHelpers.addBusinessContext(BusinessContextKeys.analyticsYear, year);
 
-		return this._analyticsService.getAnalytics(userId, year);
+		return resultOrThrow(await this._analyticsService.getAnalytics(userId, year));
 	}
 }

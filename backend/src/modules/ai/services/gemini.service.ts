@@ -109,6 +109,10 @@ export class GeminiService {
 			success = false;
 			const message = error instanceof Error ? error.message : "Unknown error";
 
+			this.logger.error(
+				`Gemini chat failed: ${message}`,
+				error instanceof Error ? error.stack : undefined,
+			);
 			throw new Error(`Gemini API error: ${message}`);
 		} finally {
 			LogHelpers.recordExternalCall("gemini", Date.now() - start, success);

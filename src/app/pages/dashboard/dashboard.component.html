@@ -36,11 +36,12 @@
     />
   }
   @if (allWidgetsHidden()) {
-    <div class="all-widgets-hidden">
-      <i class="ti ti-eye-off"></i>
-      <h3>All dashboard widgets are hidden</h3>
-      <p>Click the button above to restore widgets to your dashboard.</p>
-    </div>
+    <empty-message
+      icon="ti ti-eye-off"
+      message="All dashboard widgets are hidden"
+      description="Click the button above to restore widgets to your dashboard."
+      size="md"
+    />
   } @else {
     <div
       class="cards-container"

@@ -69,19 +69,6 @@
   align-items: center;
 }
 
-.loading-container {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
-  background: var(--p-surface-50);
-  border-radius: 0.5rem;
-
-  span {
-    color: var(--p-surface-600);
-    font-weight: 500;
-  }
-}
 
 .results-container {
   display: flex;

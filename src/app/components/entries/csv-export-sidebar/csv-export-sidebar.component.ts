@@ -15,8 +15,6 @@ import { EntriesService } from "../../../services/entries.service";
 import { GlobalUiService } from "../../../services/global-ui.service";
 import type { EntriesSearchRequest, Entry } from "../../../types/entries.types";
 import { getEntryCsvConfig } from "../../../utils/csvUtils";
-import { LoadingSpinnerComponent } from "../../miscellanious/loading-spinner/loading-spinner.component";
-
 @Component({
 	selector: "csv-export-sidebar",
 	imports: [
@@ -25,7 +23,6 @@ import { LoadingSpinnerComponent } from "../../miscellanious/loading-spinner/loa
 		DatePickerModule,
 		MessageModule,
 		ReactiveFormsModule,
-		LoadingSpinnerComponent,
 	],
 	templateUrl: "./csv-export-sidebar.component.html",
 	styleUrl: "./csv-export-sidebar.component.scss",

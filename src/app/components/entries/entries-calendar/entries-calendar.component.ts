@@ -28,7 +28,6 @@ import { SwipeDirective } from "../../../directives/swipe.directive";
 import { GlobalUiService } from "../../../services/global-ui.service";
 import { SettingsService } from "../../../services/settings.service";
 import { getSpecificDayOfMonth } from "../../../utils/timeUtils";
-import { LoadingSpinnerComponent } from "../../miscellanious/loading-spinner/loading-spinner.component";
 import { CsvExportSidebarComponent } from "../csv-export-sidebar/csv-export-sidebar.component";
 import { EntrySearchSidebarComponent } from "../entry-search-sidebar/entry-search-sidebar.component";
 import { getCalendarDaysData } from "./utils";
@@ -42,7 +41,6 @@ import { getCalendarDaysData } from "./utils";
 		DatePipe,
 		NgTemplateOutlet,
 		ButtonModule,
-		LoadingSpinnerComponent,
 		DoubleTapDirective,
 		SwipeDirective,
 		EntrySearchSidebarComponent,

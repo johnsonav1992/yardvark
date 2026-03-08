@@ -14,6 +14,7 @@ export const resultOrThrow = <L extends ResourceError, A>(
 		throw new HttpException(
 			{ message: result.value.message, code: result.value.code },
 			result.value.statusCode,
+			{ cause: result.value.error },
 		);
 	}
 

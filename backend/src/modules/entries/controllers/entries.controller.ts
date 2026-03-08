@@ -210,14 +210,14 @@ export class EntriesController {
 	}
 
 	@Post("recover/:entryId")
-	public recoverEntry(@Param("entryId") entryId: number) {
+	public async recoverEntry(@Param("entryId") entryId: number) {
 		LogHelpers.addBusinessContext(
 			BusinessContextKeys.controllerOperation,
 			"recover_entry",
 		);
 		LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
 
-		return this._entriesService.recoverEntry(entryId);
+		return resultOrThrow(await this._entriesService.recoverEntry(entryId));
 	}
 
 	@Post("search")
@@ -237,7 +237,7 @@ export class EntriesController {
 	}
 
 	@Delete("entry-image/:entryImageId")
-	public deleteEntryImage(@Param("entryImageId") entryImageId: number) {
+	public async deleteEntryImage(@Param("entryImageId") entryImageId: number) {
 		LogHelpers.addBusinessContext(
 			BusinessContextKeys.controllerOperation,
 			"delete_entry_image",
@@ -247,6 +247,8 @@ export class EntriesController {
 			entryImageId,
 		);
 
-		return this._entriesService.softDeleteEntryImage(entryImageId);
+		return resultOrThrow(
+			await this._entriesService.softDeleteEntryImage(entryImageId),
+		);
 	}
 }

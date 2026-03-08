@@ -299,7 +299,11 @@ export class GeminiService {
 				}
 
 				LogHelpers.addBusinessContext("aiTokensUsed", event.totalTokens);
-				yield { type: "chunk", text: event.text };
+
+				if (event.text) {
+					yield { type: "chunk", text: event.text };
+				}
+
 				yield { type: "done" };
 				return;
 			}
@@ -439,6 +443,15 @@ export class GeminiService {
 						parts: [{ text: "Please respond to the user now." }],
 					});
 					continue;
+				}
+
+				if (finishReason === "STOP") {
+					yield {
+						type: "final",
+						text: "",
+						totalTokens: response.usageMetadata?.totalTokenCount,
+					};
+					return;
 				}
 
 				const partTypes =

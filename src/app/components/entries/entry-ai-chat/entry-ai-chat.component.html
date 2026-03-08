@@ -65,17 +65,21 @@
       }
       @for (msg of messages(); track $index) {
         <div class="message-row" [class.user-row]="msg.role === 'user'">
-          <div class="bubble" [class.user-bubble]="msg.role === 'user'" [class.ai-bubble]="msg.role === 'ai'">
-            @if (msg.role === 'ai' && isStreaming() && $last && !msg.content) {
-              <div class="status-content">
-                <span class="status-spinner"></span>
-                <span>{{ statusMessage() ?? 'Thinking...' }}</span>
+          <div class="message-column">
+            @if (msg.content || (msg.role === 'ai' && isStreaming() && $last)) {
+              <div class="bubble" [class.user-bubble]="msg.role === 'user'" [class.ai-bubble]="msg.role === 'ai'">
+                @if (msg.role === 'ai' && isStreaming() && $last && !msg.content) {
+                  <div class="status-content">
+                    <span class="status-spinner"></span>
+                    <span>{{ statusMessage() ?? 'Thinking...' }}</span>
+                  </div>
+                } @else {
+                  <span class="message-text">{{ msg.content }}</span>
+                  @if (msg.role === 'ai' && isStreaming() && $last && msg.content) {
+                    <span class="cursor"></span>
+                  }
+                }
               </div>
-            } @else {
-              <span class="message-text">{{ msg.content }}</span>
-              @if (msg.role === 'ai' && isStreaming() && $last && msg.content) {
-                <span class="cursor"></span>
-              }
             }
             @if (msg.entryDraft && msg.draftStatus !== 'rejected') {
               <div class="entry-draft-card">

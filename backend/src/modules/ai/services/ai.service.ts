@@ -238,7 +238,7 @@ export class AiService {
 				return {
 					proposed: true,
 					instruction:
-						"The entry draft has been shown to the user for confirmation. Write a brief message telling them what you've prepared (date and activities) and ask them to confirm or let you know if anything needs to change.",
+						"An entry draft has been proposed and shown to the user for their review — nothing has been logged yet. Write a brief message summarizing what you're proposing (date and activities) and ask them to confirm it or let you know if anything needs to change.",
 				};
 			}
 

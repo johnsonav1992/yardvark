@@ -10,7 +10,7 @@ import {
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { S3Service } from "src/modules/s3/s3.service";
-import { imageFileValidator } from "src/utils/fileUtils";
+import { imageFileValidator, validateImageMagicBytes } from "src/utils/fileUtils";
 import { User } from "../../../decorators/user.decorator";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
@@ -44,6 +44,7 @@ export class ProductsController {
 		let imageUrl: string | undefined;
 
 		if (file) {
+			validateImageMagicBytes(file);
 			imageUrl = resultOrThrow(await this._s3Service.uploadFile(file, userId));
 		}
 

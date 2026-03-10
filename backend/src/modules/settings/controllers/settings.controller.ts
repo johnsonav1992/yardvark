@@ -4,6 +4,7 @@ import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
 import type { SettingsData } from "../models/settings.types";
 import { SettingsService } from "../services/settings.service";
+import { validateSettings } from "../utils/settings.utils";
 
 @Controller("settings")
 export class SettingsController {
@@ -30,6 +31,8 @@ export class SettingsController {
 			"update_settings",
 		);
 		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+
+		validateSettings(settings);
 
 		const settingsVal = JSON.stringify(settings);
 

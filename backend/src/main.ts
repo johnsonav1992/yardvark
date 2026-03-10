@@ -54,7 +54,11 @@ async function bootstrap() {
 									"https://cdn.jsdelivr.net",
 									"https://apollo-server-landing-page.cdn.apollographql.com",
 								],
-								connectSrc: ["'self'", "https://*"],
+								connectSrc: [
+									"'self'",
+									"https://studio.apollographql.com",
+									"https://*.apollographql.com",
+								],
 								frameSrc: ["'self'", "https://sandbox.embed.apollographql.com"],
 								fontSrc: ["'self'", "https://cdn.jsdelivr.net"],
 							},

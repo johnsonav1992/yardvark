@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from "@nestjs/common";
+import { BadRequestException, Controller, Get, Query } from "@nestjs/common";
 import { User } from "../../../decorators/user.decorator";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
@@ -20,6 +20,10 @@ export class AnalyticsController {
 		);
 		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 		LogHelpers.addBusinessContext(BusinessContextKeys.analyticsYear, year);
+
+		if (year !== undefined && (year < 2000 || year > 2100)) {
+			throw new BadRequestException("Invalid year");
+		}
 
 		return resultOrThrow(await this._analyticsService.getAnalytics(userId, year));
 	}

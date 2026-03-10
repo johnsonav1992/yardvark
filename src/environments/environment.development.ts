@@ -10,5 +10,4 @@ export const environment: Environment = {
 	auth0ClientId: "QRPi2KnSnV3pEnDiOqE2aN4zeNS8vRM5",
 	mapBoxPublicKey:
 		"pk.eyJ1Ijoiam9obnNvbmF2IiwiYSI6ImNtbG5vMnRqNTB4cXkzZm40NnoyYXR3dzIifQ.ULlBdB7Bon1exoDEVA5NdQ",
-	stripePublishableKey: "pk_test_your_publishable_key_here",
 };

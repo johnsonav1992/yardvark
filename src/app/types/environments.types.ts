@@ -6,5 +6,4 @@ export type Environment = {
 	auth0Domain: string;
 	auth0ClientId: string;
 	mapBoxPublicKey: string;
-	stripePublishableKey: string;
 };

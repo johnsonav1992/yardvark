@@ -29,6 +29,7 @@ export class ProductsController {
 	@UseInterceptors(FileInterceptor("product-image"))
 	public async addProduct(
 		@User("userId") userId: string,
+		@User("isMaster") isMaster: boolean,
 		@UploadedFile(imageFileValidator()) file: Express.Multer.File,
 		@Body() body: Product & { systemProduct?: string | boolean },
 	) {
@@ -38,7 +39,7 @@ export class ProductsController {
 		);
 		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
-		if (body.systemProduct) body.systemProduct = body.systemProduct === "true";
+		const isSystemProduct = isMaster && body.systemProduct === "true";
 
 		let imageUrl: string | undefined;
 
@@ -48,7 +49,7 @@ export class ProductsController {
 
 		return this._productsService.addProduct({
 			...body,
-			userId: body.systemProduct ? "system" : userId,
+			userId: isSystemProduct ? "system" : userId,
 			imageUrl,
 		});
 	}

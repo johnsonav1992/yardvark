@@ -37,8 +37,11 @@ export class EntriesResolver {
 	}
 
 	@Query(() => Entry, { name: "entry", nullable: true })
-	async getEntry(@Args("id", { type: () => Int }) id: number) {
-		const result = await this.entriesService.getEntry(id, { raw: true });
+	async getEntry(
+		@Args("id", { type: () => Int }) id: number,
+		@Context() ctx: GqlContext,
+	) {
+		const result = await this.entriesService.getEntry(id, ctx.req.user.userId, { raw: true });
 
 		return resultOrThrow(result);
 	}
@@ -117,8 +120,9 @@ export class EntriesResolver {
 	async updateEntry(
 		@Args("id", { type: () => Int }) id: number,
 		@Args("input") input: UpdateEntryInput,
+		@Context() ctx: GqlContext,
 	): Promise<Entry> {
-		const result = await this.entriesService.updateEntry(id, {
+		const result = await this.entriesService.updateEntry(id, ctx.req.user.userId, {
 			...input,
 			activityIds: input.activityIds || [],
 			lawnSegmentIds: input.lawnSegmentIds || [],
@@ -136,8 +140,9 @@ export class EntriesResolver {
 	@Mutation(() => Boolean)
 	async deleteEntry(
 		@Args("id", { type: () => Int }) id: number,
+		@Context() ctx: GqlContext,
 	): Promise<boolean> {
-		await this.entriesService.softDeleteEntry(id);
+		await this.entriesService.softDeleteEntry(id, ctx.req.user.userId);
 
 		return true;
 	}
@@ -145,8 +150,9 @@ export class EntriesResolver {
 	@Mutation(() => Boolean)
 	async recoverEntry(
 		@Args("id", { type: () => Int }) id: number,
+		@Context() ctx: GqlContext,
 	): Promise<boolean> {
-		await this.entriesService.recoverEntry(id);
+		await this.entriesService.recoverEntry(id, ctx.req.user.userId);
 
 		return true;
 	}
@@ -154,8 +160,9 @@ export class EntriesResolver {
 	@Mutation(() => Boolean)
 	async deleteEntryImage(
 		@Args("id", { type: () => Int }) id: number,
+		@Context() ctx: GqlContext,
 	): Promise<boolean> {
-		await this.entriesService.softDeleteEntryImage(id);
+		await this.entriesService.softDeleteEntryImage(id, ctx.req.user.userId);
 
 		return true;
 	}

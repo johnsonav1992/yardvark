@@ -1,4 +1,5 @@
 import {
+	BadRequestException,
 	Body,
 	Controller,
 	Delete,
@@ -123,14 +124,18 @@ export class EntriesController {
 	}
 
 	@Get("single/:entryId")
-	public async getEntry(@Param("entryId") entryId: number) {
+	public async getEntry(
+		@User("userId") userId: string,
+		@Param("entryId") entryId: number,
+	) {
 		LogHelpers.addBusinessContext(
 			BusinessContextKeys.controllerOperation,
 			"get_entry",
 		);
+		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 		LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
 
-		return resultOrThrow(await this._entriesService.getEntry(entryId));
+		return resultOrThrow(await this._entriesService.getEntry(entryId, userId));
 	}
 
 	@Post()
@@ -156,10 +161,15 @@ export class EntriesController {
 	}
 
 	@Post("batch")
+	@SubscriptionFeature("entry_creation")
 	public async createEntriesBatch(
 		@User("userId") userId: string,
 		@Body() body: BatchEntryCreationRequest,
 	): Promise<BatchEntryCreationResponse> {
+		if (body.entries.length > 50) {
+			throw new BadRequestException("Batch size cannot exceed 50 entries");
+		}
+
 		LogHelpers.addBusinessContext(
 			BusinessContextKeys.controllerOperation,
 			"create_entries_batch",
@@ -184,6 +194,7 @@ export class EntriesController {
 
 	@Put(":entryId")
 	public async updateEntry(
+		@User("userId") userId: string,
 		@Param("entryId") entryId: number,
 		@Body() entry: Partial<EntryCreationRequest>,
 	) {
@@ -191,33 +202,46 @@ export class EntriesController {
 			BusinessContextKeys.controllerOperation,
 			"update_entry",
 		);
+		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 		LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
 
 		return resultOrThrow(
-			await this._entriesService.updateEntry(entryId, entry),
+			await this._entriesService.updateEntry(entryId, userId, entry),
 		);
 	}
 
 	@Delete(":entryId")
-	public async softDeleteEntry(@Param("entryId") entryId: number) {
+	public async softDeleteEntry(
+		@User("userId") userId: string,
+		@Param("entryId") entryId: number,
+	) {
 		LogHelpers.addBusinessContext(
 			BusinessContextKeys.controllerOperation,
 			"delete_entry",
 		);
+		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 		LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
 
-		return resultOrThrow(await this._entriesService.softDeleteEntry(entryId));
+		return resultOrThrow(
+			await this._entriesService.softDeleteEntry(entryId, userId),
+		);
 	}
 
 	@Post("recover/:entryId")
-	public async recoverEntry(@Param("entryId") entryId: number) {
+	public async recoverEntry(
+		@User("userId") userId: string,
+		@Param("entryId") entryId: number,
+	) {
 		LogHelpers.addBusinessContext(
 			BusinessContextKeys.controllerOperation,
 			"recover_entry",
 		);
+		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 		LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
 
-		return resultOrThrow(await this._entriesService.recoverEntry(entryId));
+		return resultOrThrow(
+			await this._entriesService.recoverEntry(entryId, userId),
+		);
 	}
 
 	@Post("search")
@@ -237,18 +261,22 @@ export class EntriesController {
 	}
 
 	@Delete("entry-image/:entryImageId")
-	public async deleteEntryImage(@Param("entryImageId") entryImageId: number) {
+	public async deleteEntryImage(
+		@User("userId") userId: string,
+		@Param("entryImageId") entryImageId: number,
+	) {
 		LogHelpers.addBusinessContext(
 			BusinessContextKeys.controllerOperation,
 			"delete_entry_image",
 		);
+		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 		LogHelpers.addBusinessContext(
 			BusinessContextKeys.entryImageId,
 			entryImageId,
 		);
 
 		return resultOrThrow(
-			await this._entriesService.softDeleteEntryImage(entryImageId),
+			await this._entriesService.softDeleteEntryImage(entryImageId, userId),
 		);
 	}
 }

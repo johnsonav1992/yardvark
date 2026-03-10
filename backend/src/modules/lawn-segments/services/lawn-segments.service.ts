@@ -61,11 +61,12 @@ export class LawnSegmentsService {
 
 	public async updateLawnSegment(
 		id: number,
+		userId: string,
 		updateData: LawnSegmentUpdateRequest,
 	): Promise<Either<LawnSegmentNotFound, LawnSegment>> {
 		LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentId, id);
 
-		const segment = await this._lawnSegmentRepo.findOneBy({ id });
+		const segment = await this._lawnSegmentRepo.findOneBy({ id, userId });
 
 		if (!segment) {
 			return error(new LawnSegmentNotFound());
@@ -82,10 +83,11 @@ export class LawnSegmentsService {
 
 	public async deleteLawnSegment(
 		id: number,
+		userId: string,
 	): Promise<Either<LawnSegmentNotFound, void>> {
 		LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentId, id);
 
-		const segment = await this._lawnSegmentRepo.findOneBy({ id });
+		const segment = await this._lawnSegmentRepo.findOneBy({ id, userId });
 
 		if (!segment) {
 			return error(new LawnSegmentNotFound());

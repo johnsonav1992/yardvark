@@ -83,9 +83,10 @@ export class EquipmentService {
 
 	public async updateEquipment(
 		equipmentId: number,
+		userId: string,
 		equipmentData: Partial<Equipment>,
 	): Promise<Either<EquipmentNotFound, Equipment>> {
-		const equipment = await this.findEquipmentById(equipmentId);
+		const equipment = await this.findEquipmentById(equipmentId, userId);
 
 		if (!equipment) {
 			return error(new EquipmentNotFound());
@@ -102,9 +103,10 @@ export class EquipmentService {
 
 	public async toggleEquipmentArchiveStatus(
 		equipmentId: number,
+		userId: string,
 		isActive: boolean,
 	): Promise<Either<EquipmentNotFound, void>> {
-		const equipment = await this.findEquipmentById(equipmentId);
+		const equipment = await this.findEquipmentById(equipmentId, userId);
 
 		if (!equipment) {
 			return error(new EquipmentNotFound());
@@ -119,11 +121,12 @@ export class EquipmentService {
 
 	public async createMaintenanceRecord(
 		equipmentId: number,
+		userId: string,
 		maintenanceData: Partial<EquipmentMaintenance>,
 	): Promise<Either<EquipmentNotFound, EquipmentMaintenance>> {
 		LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
 
-		const equipment = await this.findEquipmentById(equipmentId);
+		const equipment = await this.findEquipmentById(equipmentId, userId);
 
 		if (!equipment) {
 			return error(new EquipmentNotFound());
@@ -148,10 +151,12 @@ export class EquipmentService {
 
 	public async updateMaintenanceRecord(
 		maintenanceId: number,
+		userId: string,
 		maintenanceData: Partial<EquipmentMaintenance>,
 	): Promise<Either<MaintenanceRecordNotFound, EquipmentMaintenance>> {
 		const maintenanceRecord = await this._equipmentMaintenanceRepo.findOne({
-			where: { id: maintenanceId },
+			where: { id: maintenanceId, equipment: { userId } },
+			relations: { equipment: true },
 		});
 
 		if (!maintenanceRecord) {
@@ -169,10 +174,11 @@ export class EquipmentService {
 
 	public async deleteEquipment(
 		equipmentId: number,
+		userId: string,
 	): Promise<Either<EquipmentNotFound, void>> {
 		LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
 
-		const equipment = await this.findEquipmentById(equipmentId);
+		const equipment = await this.findEquipmentById(equipmentId, userId);
 
 		if (!equipment) {
 			return error(new EquipmentNotFound());
@@ -187,9 +193,11 @@ export class EquipmentService {
 
 	public async deleteMaintenanceRecord(
 		maintenanceId: number,
+		userId: string,
 	): Promise<Either<MaintenanceRecordNotFound, void>> {
 		const maintenanceRecord = await this._equipmentMaintenanceRepo.findOne({
-			where: { id: maintenanceId },
+			where: { id: maintenanceId, equipment: { userId } },
+			relations: { equipment: true },
 		});
 
 		if (!maintenanceRecord) {
@@ -203,9 +211,10 @@ export class EquipmentService {
 
 	private async findEquipmentById(
 		equipmentId: number,
+		userId: string,
 	): Promise<Equipment | null> {
 		return this._equipmentRepo.findOne({
-			where: { id: equipmentId },
+			where: { id: equipmentId, userId },
 		});
 	}
 }

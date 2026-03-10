@@ -70,6 +70,7 @@ async function bootstrap() {
 
 	app.enableCors({
 		origin: [
+			"https://yardvark.app",
 			"https://yardvark.netlify.app",
 			"http://localhost:4200",
 			"capacitor://localhost",

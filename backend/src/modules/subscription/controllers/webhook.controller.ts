@@ -6,6 +6,7 @@ import {
 	Req,
 	Res,
 } from "@nestjs/common";
+import { SkipThrottle } from "@nestjs/throttler";
 import { InjectRepository } from "@nestjs/typeorm";
 import type { Request, Response } from "express";
 import type Stripe from "stripe";
@@ -17,6 +18,7 @@ import { WebhookEvent } from "../models/webhook-event.model";
 import { StripeService } from "../services/stripe.service";
 import { SubscriptionService } from "../services/subscription.service";
 
+@SkipThrottle()
 @Controller("stripe")
 export class WebhookController {
 	constructor(

@@ -77,7 +77,7 @@ export class WebhookController {
 
 			return res
 				.status(HttpStatus.BAD_REQUEST)
-				.send(`Webhook verification failed: ${err.message}`);
+				.send("Webhook verification failed");
 		}
 
 		LogHelpers.addBusinessContext(BusinessContextKeys.stripeEventId, event.id);
@@ -147,7 +147,7 @@ export class WebhookController {
 
 			return res
 				.status(HttpStatus.INTERNAL_SERVER_ERROR)
-				.json({ error: "Webhook processing failed", message: err.message });
+				.json({ error: "Webhook processing failed" });
 		}
 	}
 

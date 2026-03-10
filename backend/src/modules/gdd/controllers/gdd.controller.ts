@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from "@nestjs/common";
+import { BadRequestException, Controller, Get, Query } from "@nestjs/common";
 import { User } from "../../../decorators/user.decorator";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
@@ -33,6 +33,12 @@ export class GddController {
 		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 		LogHelpers.addBusinessContext(BusinessContextKeys.startDate, startDate);
 		LogHelpers.addBusinessContext(BusinessContextKeys.endDate, endDate);
+
+		const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+
+		if (!datePattern.test(startDate) || !datePattern.test(endDate)) {
+			throw new BadRequestException("Invalid date format");
+		}
 
 		return resultOrThrow(
 			await this._gddService.getHistoricalGdd(userId, startDate, endDate),

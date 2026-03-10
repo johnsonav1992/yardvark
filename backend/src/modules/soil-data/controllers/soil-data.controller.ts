@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from "@nestjs/common";
+import { BadRequestException, Controller, Get, Param } from "@nestjs/common";
 import { User } from "../../../decorators/user.decorator";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
@@ -32,6 +32,10 @@ export class SoilDataController {
 			"get_soil_data_for_date",
 		);
 		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
+
+		if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+			throw new BadRequestException("Invalid date format");
+		}
 
 		return resultOrThrow(
 			await this._soilDataService.fetchSoilDataForDate(userId, dateStr),

@@ -255,6 +255,10 @@ export class EntriesController {
 		);
 		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 
+		if (searchCriteria.titleOrNotes?.length > 500) {
+			throw new BadRequestException("Search string too long");
+		}
+
 		return resultOrThrow(
 			await this._entriesService.searchEntries(userId, searchCriteria),
 		);

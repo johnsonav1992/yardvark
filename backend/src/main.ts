@@ -27,7 +27,12 @@ async function bootstrap() {
 		helmet({
 			contentSecurityPolicy:
 				process.env.NODE_ENV === "production"
-					? undefined
+					? {
+							directives: {
+								defaultSrc: ["'none'"],
+								frameAncestors: ["'none'"],
+							},
+						}
 					: {
 							directives: {
 								defaultSrc: ["'self'"],
@@ -76,7 +81,6 @@ async function bootstrap() {
 			"capacitor://localhost",
 			/^https:\/\/deploy-preview-\d+--yardvark\.netlify\.app$/,
 			/^https:\/\/[a-zA-Z0-9-]+--yardvark\.netlify\.app$/,
-			"https://t8x2587c-4200.usw3.devtunnels.ms",
 		],
 		methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
 		allowedHeaders: ["Content-Type", "Authorization"],

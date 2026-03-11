@@ -1,5 +1,5 @@
 import { httpResource } from "@angular/common/http";
-import { Injectable, linkedSignal } from "@angular/core";
+import { Injectable, linkedSignal, signal } from "@angular/core";
 import type { Observable } from "rxjs";
 import type {
 	GetProductsResponse,
@@ -13,6 +13,7 @@ import { apiUrl, postReq, putReq } from "../utils/httpUtils";
 export class ProductsService {
 	public products = httpResource<GetProductsResponse>(() => apiUrl("products"));
 	public optimisticProducts = linkedSignal(() => this.products.value());
+	public viewMode = signal<"grid" | "table">("grid");
 
 	public addProduct(productFormData: ProductFormData): Observable<void> {
 		const formData = new FormData();

@@ -109,10 +109,10 @@ export class ProductsComponent {
 
 	public products = this._productsService.products;
 	public optimisticProducts = this._productsService.optimisticProducts;
+	public viewMode = this._productsService.viewMode;
 
 	public selectedTab = signal<ProductCategoryValues>("fertilizer");
 	public searchQuery = signal("");
-	public viewMode = signal<"grid" | "table">("grid");
 
 	public productsToShow = linkedSignal(() => {
 		const shouldHideSystemProducts =

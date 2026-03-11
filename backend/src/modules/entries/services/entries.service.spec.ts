@@ -75,6 +75,7 @@ describe("EntriesService", () => {
 
 	const mockEntryImageRepository = {
 		find: jest.fn(),
+		findOne: jest.fn(),
 		save: jest.fn(),
 		delete: jest.fn(),
 		softDelete: jest.fn(),
@@ -165,10 +166,10 @@ describe("EntriesService", () => {
 		it("should return a single entry by ID", async () => {
 			mockEntryRepository.findOne.mockResolvedValue(mockEntry);
 
-			const result = await service.getEntry(1);
+			const result = await service.getEntry(1, mockUserId);
 
 			expect(mockEntryRepository.findOne).toHaveBeenCalledWith({
-				where: { id: 1 },
+				where: { id: 1, userId: mockUserId },
 				relations: {
 					activities: true,
 					lawnSegments: true,
@@ -186,7 +187,7 @@ describe("EntriesService", () => {
 		it("should return error when entry does not exist", async () => {
 			mockEntryRepository.findOne.mockResolvedValue(null);
 
-			const result = await service.getEntry(999);
+			const result = await service.getEntry(999, mockUserId);
 
 			expect(result.isError()).toBe(true);
 			expect(result.value).toBeInstanceOf(EntryNotFound);
@@ -535,10 +536,10 @@ describe("EntriesService", () => {
 				...updateData,
 			});
 
-			const result = await service.updateEntry(1, updateData);
+			const result = await service.updateEntry(1, mockUserId, updateData);
 
 			expect(mockEntryRepository.findOne).toHaveBeenCalledWith({
-				where: { id: 1 },
+				where: { id: 1, userId: mockUserId },
 				relations: {
 					lawnSegments: true,
 					activities: true,
@@ -557,7 +558,9 @@ describe("EntriesService", () => {
 		it("should return error when entry does not exist", async () => {
 			mockEntryRepository.findOne.mockResolvedValue(null);
 
-			const result = await service.updateEntry(999, { title: "Test" });
+			const result = await service.updateEntry(999, mockUserId, {
+				title: "Test",
+			});
 
 			expect(result.isError()).toBe(true);
 			expect(result.value).toBeInstanceOf(EntryNotFound);
@@ -574,7 +577,7 @@ describe("EntriesService", () => {
 			mockEntryRepository.merge.mockReturnValue(existingEntry);
 			mockEntryRepository.save.mockResolvedValue(existingEntry);
 
-			await service.updateEntry(1, { products: [] });
+			await service.updateEntry(1, mockUserId, { products: [] });
 
 			expect(mockEntryProductRepository.remove).toHaveBeenCalledWith(
 				existingProducts,
@@ -587,7 +590,7 @@ describe("EntriesService", () => {
 			mockEntryRepository.findOne.mockResolvedValue(mockEntry);
 			mockEntryRepository.softDelete.mockResolvedValue({ affected: 1 });
 
-			await service.softDeleteEntry(1);
+			await service.softDeleteEntry(1, mockUserId);
 
 			expect(mockEntryRepository.softDelete).toHaveBeenCalledWith(1);
 		});
@@ -595,7 +598,7 @@ describe("EntriesService", () => {
 		it("should return error when entry does not exist", async () => {
 			mockEntryRepository.findOne.mockResolvedValue(null);
 
-			const result = await service.softDeleteEntry(999);
+			const result = await service.softDeleteEntry(999, mockUserId);
 
 			expect(result.isError()).toBe(true);
 			expect(result.value).toBeInstanceOf(EntryNotFound);
@@ -604,9 +607,10 @@ describe("EntriesService", () => {
 
 	describe("recoverEntry", () => {
 		it("should recover a soft-deleted entry", async () => {
+			mockEntryRepository.findOne.mockResolvedValue(mockEntry);
 			mockEntryRepository.restore.mockResolvedValue({ affected: 1 });
 
-			await service.recoverEntry(1);
+			await service.recoverEntry(1, mockUserId);
 
 			expect(mockEntryRepository.restore).toHaveBeenCalledWith(1);
 		});
@@ -744,9 +748,10 @@ describe("EntriesService", () => {
 
 	describe("softDeleteEntryImage", () => {
 		it("should soft delete an entry image", async () => {
+			mockEntryImageRepository.findOne.mockResolvedValue({ id: 1 });
 			mockEntryImageRepository.softDelete.mockResolvedValue({ affected: 1 });
 
-			await service.softDeleteEntryImage(1);
+			await service.softDeleteEntryImage(1, mockUserId);
 
 			expect(mockEntryImageRepository.softDelete).toHaveBeenCalledWith(1);
 		});
@@ -754,6 +759,7 @@ describe("EntriesService", () => {
 
 	describe("recoverEntryImage", () => {
 		it("should recover a soft-deleted entry image", async () => {
+			mockEntryImageRepository.findOne.mockResolvedValue({ id: 1 });
 			mockEntryImageRepository.restore.mockResolvedValue({ affected: 1 });
 
 			await service.recoverEntryImage(1);

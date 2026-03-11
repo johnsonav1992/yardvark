@@ -156,10 +156,10 @@ describe("EquipmentService", () => {
 			mockEquipmentRepository.findOne.mockResolvedValue(mockEquipment);
 			mockEquipmentRepository.save.mockResolvedValue(updatedEquipment);
 
-			const result = await service.updateEquipment(1, updateData);
+			const result = await service.updateEquipment(1, mockUserId, updateData);
 
 			expect(mockEquipmentRepository.findOne).toHaveBeenCalledWith({
-				where: { id: 1 },
+				where: { id: 1, userId: mockUserId },
 			});
 			expect(mockEquipmentRepository.save).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -177,7 +177,9 @@ describe("EquipmentService", () => {
 		it("should return EquipmentNotFound when equipment does not exist", async () => {
 			mockEquipmentRepository.findOne.mockResolvedValue(null);
 
-			const result = await service.updateEquipment(999, { name: "Test" });
+			const result = await service.updateEquipment(999, mockUserId, {
+				name: "Test",
+			});
 
 			expect(result.isError()).toBe(true);
 			expect(result.value).toBeInstanceOf(EquipmentNotFound);
@@ -195,7 +197,11 @@ describe("EquipmentService", () => {
 				isActive: false,
 			});
 
-			const result = await service.toggleEquipmentArchiveStatus(1, false);
+			const result = await service.toggleEquipmentArchiveStatus(
+				1,
+				mockUserId,
+				false,
+			);
 
 			expect(mockEquipmentRepository.save).toHaveBeenCalledWith(
 				expect.objectContaining({ isActive: false }),
@@ -213,7 +219,11 @@ describe("EquipmentService", () => {
 				isActive: true,
 			});
 
-			const result = await service.toggleEquipmentArchiveStatus(1, true);
+			const result = await service.toggleEquipmentArchiveStatus(
+				1,
+				mockUserId,
+				true,
+			);
 
 			expect(mockEquipmentRepository.save).toHaveBeenCalledWith(
 				expect.objectContaining({ isActive: true }),
@@ -224,7 +234,11 @@ describe("EquipmentService", () => {
 		it("should return EquipmentNotFound when equipment does not exist", async () => {
 			mockEquipmentRepository.findOne.mockResolvedValue(null);
 
-			const result = await service.toggleEquipmentArchiveStatus(999, false);
+			const result = await service.toggleEquipmentArchiveStatus(
+				999,
+				mockUserId,
+				false,
+			);
 
 			expect(result.isError()).toBe(true);
 			expect(result.value).toBeInstanceOf(EquipmentNotFound);
@@ -243,10 +257,14 @@ describe("EquipmentService", () => {
 			mockMaintenanceRepository.create.mockReturnValue(mockMaintenanceRecord);
 			mockMaintenanceRepository.save.mockResolvedValue(mockMaintenanceRecord);
 
-			const result = await service.createMaintenanceRecord(1, maintenanceData);
+			const result = await service.createMaintenanceRecord(
+				1,
+				mockUserId,
+				maintenanceData,
+			);
 
 			expect(mockEquipmentRepository.findOne).toHaveBeenCalledWith({
-				where: { id: 1 },
+				where: { id: 1, userId: mockUserId },
 			});
 			expect(mockMaintenanceRepository.create).toHaveBeenCalledWith({
 				...maintenanceData,
@@ -259,7 +277,7 @@ describe("EquipmentService", () => {
 		it("should return EquipmentNotFound when equipment does not exist", async () => {
 			mockEquipmentRepository.findOne.mockResolvedValue(null);
 
-			const result = await service.createMaintenanceRecord(999, {
+			const result = await service.createMaintenanceRecord(999, mockUserId, {
 				notes: "Test maintenance",
 			});
 
@@ -278,10 +296,15 @@ describe("EquipmentService", () => {
 			);
 			mockMaintenanceRepository.save.mockResolvedValue(updatedRecord);
 
-			const result = await service.updateMaintenanceRecord(1, updateData);
+			const result = await service.updateMaintenanceRecord(
+				1,
+				mockUserId,
+				updateData,
+			);
 
 			expect(mockMaintenanceRepository.findOne).toHaveBeenCalledWith({
-				where: { id: 1 },
+				where: { id: 1, equipment: { userId: mockUserId } },
+				relations: { equipment: true },
 			});
 			expect(mockMaintenanceRepository.save).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -299,7 +322,7 @@ describe("EquipmentService", () => {
 		it("should return MaintenanceRecordNotFound when maintenance record does not exist", async () => {
 			mockMaintenanceRepository.findOne.mockResolvedValue(null);
 
-			const result = await service.updateMaintenanceRecord(999, {
+			const result = await service.updateMaintenanceRecord(999, mockUserId, {
 				notes: "Test",
 			});
 
@@ -313,7 +336,7 @@ describe("EquipmentService", () => {
 			mockEquipmentRepository.findOne.mockResolvedValue(mockEquipment);
 			mockEquipmentRepository.softDelete.mockResolvedValue({ affected: 1 });
 
-			const result = await service.deleteEquipment(1);
+			const result = await service.deleteEquipment(1, mockUserId);
 
 			expect(mockEquipmentRepository.softDelete).toHaveBeenCalledWith(1);
 			expect(result.isSuccess()).toBe(true);
@@ -322,7 +345,7 @@ describe("EquipmentService", () => {
 		it("should return EquipmentNotFound when equipment does not exist", async () => {
 			mockEquipmentRepository.findOne.mockResolvedValue(null);
 
-			const result = await service.deleteEquipment(999);
+			const result = await service.deleteEquipment(999, mockUserId);
 
 			expect(result.isError()).toBe(true);
 			expect(result.value).toBeInstanceOf(EquipmentNotFound);
@@ -336,7 +359,7 @@ describe("EquipmentService", () => {
 			);
 			mockMaintenanceRepository.softDelete.mockResolvedValue({ affected: 1 });
 
-			const result = await service.deleteMaintenanceRecord(1);
+			const result = await service.deleteMaintenanceRecord(1, mockUserId);
 
 			expect(mockMaintenanceRepository.softDelete).toHaveBeenCalledWith(1);
 			expect(result.isSuccess()).toBe(true);
@@ -345,7 +368,7 @@ describe("EquipmentService", () => {
 		it("should return MaintenanceRecordNotFound when maintenance record does not exist", async () => {
 			mockMaintenanceRepository.findOne.mockResolvedValue(null);
 
-			const result = await service.deleteMaintenanceRecord(999);
+			const result = await service.deleteMaintenanceRecord(999, mockUserId);
 
 			expect(result.isError()).toBe(true);
 			expect(result.value).toBeInstanceOf(MaintenanceRecordNotFound);

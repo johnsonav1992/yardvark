@@ -17,7 +17,9 @@ import { IconFieldModule } from "primeng/iconfield";
 import { InputIconModule } from "primeng/inputicon";
 import { InputTextModule } from "primeng/inputtext";
 import { SkeletonModule } from "primeng/skeleton";
+import { TableModule } from "primeng/table";
 import { TabsModule } from "primeng/tabs";
+import { TagModule } from "primeng/tag";
 import { TooltipModule } from "primeng/tooltip";
 import { PageContainerComponent } from "../../components/layout/page-container/page-container.component";
 import { EmptyMessageComponent } from "../../components/miscellanious/empty-message/empty-message.component";
@@ -26,6 +28,7 @@ import {
 	type ProductVisibilityToggleEvent,
 } from "../../components/products/product-card/product-card.component";
 import { ProductsVisibilityModalComponent } from "../../components/products/products-visibility-modal/products-visibility-modal.component";
+import { NO_IMAGE_URL } from "../../constants/style-constants";
 import { GlobalUiService } from "../../services/global-ui.service";
 import { ProductsService } from "../../services/products.service";
 import { SettingsService } from "../../services/settings.service";
@@ -34,6 +37,27 @@ import type {
 	ProductCategories,
 	ProductCategoryValues,
 } from "../../types/products.types";
+
+type TagSeverity =
+	| "success"
+	| "warn"
+	| "danger"
+	| "info"
+	| "secondary"
+	| "contrast";
+
+const CATEGORY_SEVERITY_MAP: Record<string, TagSeverity> = {
+	fertilizer: "success",
+	"pre-emergent": "warn",
+	"post-emergent": "warn",
+	"bio-stimulant": "info",
+	pgr: "info",
+	"plant-fertilizer": "success",
+	"fungus-control": "danger",
+	"insect-control": "danger",
+	seed: "contrast",
+	other: "secondary",
+};
 
 @Component({
 	selector: "products",
@@ -52,6 +76,8 @@ import type {
 		DividerModule,
 		SkeletonModule,
 		CardModule,
+		TableModule,
+		TagModule,
 	],
 	templateUrl: "./products.component.html",
 	styleUrl: "./products.component.scss",
@@ -65,8 +91,8 @@ export class ProductsComponent {
 	private _settingsService = inject(SettingsService);
 
 	public screenWidth = this._globalUiService.screenWidth;
-
 	public isMobile = this._globalUiService.isMobile;
+	public noImageUrl = NO_IMAGE_URL;
 
 	public tabs: Tab<ProductCategories, ProductCategoryValues>[] = [
 		{ title: "Fertilizer", value: "fertilizer" },
@@ -86,6 +112,7 @@ export class ProductsComponent {
 
 	public selectedTab = signal<ProductCategoryValues>("fertilizer");
 	public searchQuery = signal("");
+	public viewMode = signal<"grid" | "table">("grid");
 
 	public productsToShow = linkedSignal(() => {
 		const shouldHideSystemProducts =
@@ -120,6 +147,18 @@ export class ProductsComponent {
 		const selectedTab = tab as ProductCategoryValues;
 
 		this.selectedTab.set(selectedTab);
+	}
+
+	public toggleViewMode(): void {
+		this.viewMode.set(this.viewMode() === "grid" ? "table" : "grid");
+	}
+
+	public goToProduct(id: number): void {
+		this._router.navigate(["products", id]);
+	}
+
+	public getCategoryTagSeverity(category: string): TagSeverity {
+		return CATEGORY_SEVERITY_MAP[category] ?? "secondary";
 	}
 
 	public toggleProductVisibility(e: ProductVisibilityToggleEvent): void {
@@ -177,6 +216,7 @@ export class ProductsComponent {
 
 		if (dialogRef && this.isMobile()) {
 			const instance = this._dialogService.getInstance(dialogRef);
+
 			if (instance) instance.maximize();
 		}
 	}

@@ -12,6 +12,7 @@
 		"lint": "biome check .",
 		"lint:fix": "biome check --write .",
 		"start": "nest start",
+		"sync:devdb": "ts-node -r tsconfig-paths/register scripts/sync-dev-db.ts",
 		"start:dev": "nest start --watch",
 		"start:debug": "nest start --debug --watch",
 		"start:prod": "node dist/main",

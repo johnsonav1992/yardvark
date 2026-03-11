@@ -46,7 +46,7 @@ export const appConfig: ApplicationConfig = {
 			clientId: environment.auth0ClientId,
 			authorizationParams: {
 				redirect_uri: getRedirectUri(),
-				audience: `https://${environment.auth0Domain}/api/v2/`,
+				audience: `https://${environment.auth0TenantDomain}/api/v2/`,
 			},
 			cache: new CustomAuth0Cache(),
 			useRefreshTokens: true,
@@ -57,7 +57,7 @@ export const appConfig: ApplicationConfig = {
 						uri: `${environment.apiUrl}/*`,
 						tokenOptions: {
 							authorizationParams: {
-								audience: `https://${environment.auth0Domain}/api/v2/`,
+								audience: `https://${environment.auth0TenantDomain}/api/v2/`,
 							},
 						},
 					},

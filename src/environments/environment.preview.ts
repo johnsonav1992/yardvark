@@ -16,6 +16,7 @@ export const environment: Environment = {
 	apiUrl: STAGING_BE_API_URL,
 	feAppUrl: getPreviewFeUrl(),
 	auth0Domain: "auth.yardvark.app",
+	auth0TenantDomain: "dev-w4uj6ulyqeacwtfi.us.auth0.com",
 	auth0ClientId: "QRPi2KnSnV3pEnDiOqE2aN4zeNS8vRM5",
 	mapBoxPublicKey:
 		"pk.eyJ1Ijoiam9obnNvbmF2IiwiYSI6ImNtbG5vMnRqNTB4cXkzZm40NnoyYXR3dzIifQ.ULlBdB7Bon1exoDEVA5NdQ",

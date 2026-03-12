@@ -342,6 +342,7 @@ export class EntryViewComponent {
 			next: () => {
 				this.isInEditMode.set(false);
 				this.isLoading.set(false);
+				this.shouldFetchEntry.set(true);
 				this.entryResource.reload();
 				this._entryService.recentEntry.reload();
 			},

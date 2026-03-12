@@ -111,12 +111,21 @@
               <td (click)="$event.stopPropagation()">
                 <div class="table-actions">
                   <p-button
-                    icon="ti ti-eye"
+                    icon="ti ti-arrow-right"
                     size="small"
                     outlined
                     pTooltip="View details"
                     tooltipPosition="bottom"
                     (onClick)="goToProduct(item.id)"
+                  />
+                  <p-button
+                    icon="ti ti-eye-off"
+                    size="small"
+                    outlined
+                    severity="secondary"
+                    pTooltip="Hide"
+                    tooltipPosition="bottom"
+                    (onClick)="toggleProductVisibility({ id: item.id, visible: false })"
                   />
                 </div>
               </td>
@@ -222,7 +231,7 @@
                     <th>App Rate</th>
                     <th>Coverage</th>
                     <th>Analysis</th>
-                    <th style="width: 100px">Actions</th>
+                    <th style="width: 130px">Actions</th>
                   </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-item>
@@ -265,12 +274,21 @@
                     <td (click)="$event.stopPropagation()">
                       <div class="table-actions">
                         <p-button
-                          icon="ti ti-eye"
+                          icon="ti ti-arrow-right"
                           size="small"
                           outlined
                           pTooltip="View details"
                           tooltipPosition="bottom"
                           (onClick)="goToProduct(item.id)"
+                        />
+                        <p-button
+                          icon="ti ti-eye-off"
+                          size="small"
+                          outlined
+                          severity="secondary"
+                          pTooltip="Hide"
+                          tooltipPosition="bottom"
+                          (onClick)="toggleProductVisibility({ id: item.id, visible: false })"
                         />
                       </div>
                     </td>

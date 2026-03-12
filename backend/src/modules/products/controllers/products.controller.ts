@@ -98,6 +98,7 @@ export class ProductsController {
 		@Param("productId") productId: number,
 		@UploadedFile(imageFileValidator()) file: Express.Multer.File,
 		@Body("password") password: string,
+		@Body("imageCredit") imageCredit: string | undefined,
 	) {
 		if (!password || password !== process.env.ADMIN_API_PASSWORD) {
 			throw new UnauthorizedException();
@@ -123,7 +124,7 @@ export class ProductsController {
 			await this._s3Service.uploadFile(file, "system"),
 		);
 
-		return this._productsService.updateProduct(productId, { imageUrl });
+		return this._productsService.updateProduct(productId, { imageUrl, imageCredit });
 	}
 
 	@Put("hide/:productId")

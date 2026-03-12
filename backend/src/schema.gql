@@ -188,6 +188,7 @@ type Product {
   description: String
   guaranteedAnalysis: String
   id: ID!
+  imageCredit: String
   imageUrl: String
   labelUrl: String
   name: String!
@@ -215,6 +216,7 @@ type ProductWithHidden {
   description: String
   guaranteedAnalysis: String
   id: ID!
+  imageCredit: String
   imageUrl: String
   isHidden: Boolean!
   labelUrl: String

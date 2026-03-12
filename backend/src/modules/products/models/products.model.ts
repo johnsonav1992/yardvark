@@ -77,6 +77,10 @@ export class Product {
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
+	imageCredit?: string;
+
+	@Field({ nullable: true })
+	@Column({ nullable: true })
 	labelUrl?: string;
 
 	@Field()

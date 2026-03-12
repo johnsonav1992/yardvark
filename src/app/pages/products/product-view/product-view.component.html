@@ -26,20 +26,28 @@
       </div>
     } @else {
       @if (isMobile()) {
-        <img
-          [src]="product()?.imageUrl || noImageUrl"
-          alt="{{ product()?.name }}"
-          width="60%"
-          [style]="{ alignSelf: 'center', marginBottom: '1rem' }"
-        />
-      }
-      <div class="top-container">
-        @if (!isMobile()) {
+        <div class="image-container" [style]="{ alignSelf: 'center', marginBottom: '1rem' }">
           <img
             [src]="product()?.imageUrl || noImageUrl"
             alt="{{ product()?.name }}"
-            width="40%"
+            width="60%"
           />
+          @if (product()?.imageCredit) {
+            <small class="image-credit">Photo: {{ product()?.imageCredit }}</small>
+          }
+        </div>
+      }
+      <div class="top-container">
+        @if (!isMobile()) {
+          <div class="image-container">
+            <img
+              [src]="product()?.imageUrl || noImageUrl"
+              alt="{{ product()?.name }}"
+            />
+            @if (product()?.imageCredit) {
+              <small class="image-credit">Photo: {{ product()?.imageCredit }}</small>
+            }
+          </div>
         }
         <div class="top-details">
           <div class="name-container">

@@ -31,6 +31,7 @@
             [src]="product()?.imageUrl || noImageUrl"
             alt="{{ product()?.name }}"
             width="60%"
+            [title]="product()?.imageCredit ? 'Photo: ' + product()?.imageCredit : ''"
           />
           @if (product()?.imageCredit) {
             <small class="image-credit">Photo: {{ product()?.imageCredit }}</small>
@@ -43,6 +44,7 @@
             <img
               [src]="product()?.imageUrl || noImageUrl"
               alt="{{ product()?.name }}"
+              [title]="product()?.imageCredit ? 'Photo: ' + product()?.imageCredit : ''"
             />
             @if (product()?.imageCredit) {
               <small class="image-credit">Photo: {{ product()?.imageCredit }}</small>

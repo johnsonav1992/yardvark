@@ -1,7 +1,8 @@
 import { httpResource } from "@angular/common/http";
-import { Injectable, type Signal } from "@angular/core";
+import { Injectable, inject, type Signal } from "@angular/core";
 import { format } from "date-fns";
 import { apiUrl } from "../utils/httpUtils";
+import { LocationService } from "./location.service";
 
 export interface SoilDataResponse {
 	date: string;
@@ -23,8 +24,10 @@ export interface RollingWeekSoilData {
 	providedIn: "root",
 })
 export class SoilDataService {
+	private _locationService = inject(LocationService);
+
 	public rollingWeekSoilData = httpResource<RollingWeekSoilData>(() =>
-		apiUrl("soil-data/rolling-week"),
+		this._locationService.userLatLong() ? apiUrl("soil-data/rolling-week") : undefined,
 	);
 
 	public getSoilDataForDate = (

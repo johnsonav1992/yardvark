@@ -4,19 +4,21 @@
       @if (showSkeleton()) {
         @for (col of skeletonColumns; track col) {
           <div class="week-column skeleton-column">
-            <div class="week-entries">
+            <div class="week-entries-top">
               @if (col % 3 !== 2) {
-                <p-skeleton width="62px" height="80px" borderRadius="0.4rem" />
-              }
-              @if (col % 5 === 0) {
                 <p-skeleton width="62px" height="80px" borderRadius="0.4rem" />
               }
             </div>
             <div class="spine-area">
               <div class="week-tick"></div>
+              <div class="week-date-label">
+                <p-skeleton width="28px" height="10px" borderRadius="4px" />
+              </div>
             </div>
-            <div class="week-labels">
-              <p-skeleton width="28px" height="10px" borderRadius="4px" />
+            <div class="week-entries-bottom">
+              @if (col % 4 === 0) {
+                <p-skeleton width="62px" height="80px" borderRadius="0.4rem" />
+              }
             </div>
           </div>
         }
@@ -26,8 +28,8 @@
             <div class="month-separator">{{ week.monthLabel }}</div>
           }
           <div class="week-column" [class.current-week]="week.isCurrentWeek">
-            <div class="week-entries">
-              @for (entry of week.entries.slice(0, 3); track entry.id) {
+            <div class="week-entries-top">
+              @for (entry of getMowingEntries(week).slice(0, 2); track entry.id) {
                 <div class="entry-card" (click)="showEntryPreview($event, entry)">
                   @if (entry.images.length > 0) {
                     <img
@@ -69,24 +71,78 @@
                   </div>
                 </div>
               }
-              @if (week.entries.length > 3) {
+              @if (getMowingEntries(week).length > 2) {
                 <p-button
                   [text]="true"
                   severity="primary"
                   size="small"
                   styleClass="week-overflow"
-                  [label]="'+' + (week.entries.length - 3) + ' more'"
-                  (onClick)="showOverflow($event, week.entries.slice(3))"
+                  [label]="'+' + (getMowingEntries(week).length - 2) + ' more'"
+                  (onClick)="showOverflow($event, getMowingEntries(week).slice(2))"
                 />
               }
             </div>
             <div class="spine-area">
               <div class="week-tick"></div>
+              <div class="week-date-label">
+                <span class="week-date">{{ week.weekStart | date: "M/d" }}</span>
+                @if (week.monthLabel) {
+                  <span class="month-label">{{ week.monthLabel }}</span>
+                }
+              </div>
             </div>
-            <div class="week-labels">
-              <span class="week-date">{{ week.weekStart | date: "M/d" }}</span>
-              @if (week.monthLabel) {
-                <span class="month-label">{{ week.monthLabel }}</span>
+            <div class="week-entries-bottom">
+              @for (entry of getOtherEntries(week).slice(0, 2); track entry.id) {
+                <div class="entry-card" (click)="showEntryPreview($event, entry)">
+                  @if (entry.images.length > 0) {
+                    <img
+                      [src]="entry.images[0].imageUrl"
+                      class="entry-thumbnail"
+                      [alt]="entry.title || 'Entry'"
+                    />
+                  } @else {
+                    <div class="entry-thumbnail-placeholder">
+                      <i [class]="getActivityIcon(entry.activities[0]?.name ?? '')"></i>
+                    </div>
+                  }
+                  <div class="entry-body">
+                    <span class="entry-date">{{ entry.date | date: "MMM d" }}</span>
+                    @if (entry.title) {
+                      <span class="entry-title">{{ entry.title }}</span>
+                    }
+                    @if (entry.activities.length > 0 || entry.products.length > 0) {
+                      <div class="entry-bottom-row">
+                        @for (activity of entry.activities.slice(0, 2); track activity.id) {
+                          @if (activity.name !== 'product application' || !entry.products.some(p => p.imageUrl)) {
+                            <i class="activity-icon" [class]="getActivityIcon(activity.name)"></i>
+                          }
+                        }
+                        @for (product of entry.products.slice(0, 2); track product.id) {
+                          @if (product.imageUrl) {
+                            <img
+                              [src]="product.imageUrl"
+                              class="product-img"
+                              [alt]="product.name"
+                            />
+                          }
+                        }
+                        @if (entry.products.length > 2) {
+                          <span class="product-overflow">+{{ entry.products.length - 2 }}</span>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+              @if (getOtherEntries(week).length > 2) {
+                <p-button
+                  [text]="true"
+                  severity="primary"
+                  size="small"
+                  styleClass="week-overflow"
+                  [label]="'+' + (getOtherEntries(week).length - 2) + ' more'"
+                  (onClick)="showOverflow($event, getOtherEntries(week).slice(2))"
+                />
               }
             </div>
           </div>

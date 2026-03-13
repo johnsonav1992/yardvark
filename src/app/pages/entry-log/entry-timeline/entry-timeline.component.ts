@@ -69,7 +69,7 @@ export class EntryTimelineComponent implements OnDestroy {
 	private readonly _maxMonthsBack = 24;
 	private readonly _latestEntries = signal<Entry[] | undefined>(undefined);
 
-	public readonly skeletonColumns = Array.from({ length: 8 }, (_, i) => i);
+	public readonly skeletonColumns = Array.from({ length: 16 }, (_, i) => i);
 	public readonly showSkeleton = computed(() => this._latestEntries() === undefined);
 	public readonly overflowEntries = signal<Entry[]>([]);
 	public readonly selectedEntry = signal<Entry | null>(null);
@@ -151,6 +151,14 @@ export class EntryTimelineComponent implements OnDestroy {
 
 	public getActivityIcon(activityName: string): string {
 		return getActivityIcon(activityName);
+	}
+
+	public getMowingEntries(week: TimelineWeek): Entry[] {
+		return week.entries.filter((e) => e.activities.some((a) => a.name === "mow"));
+	}
+
+	public getOtherEntries(week: TimelineWeek): Entry[] {
+		return week.entries.filter((e) => !e.activities.some((a) => a.name === "mow"));
 	}
 
 	public getEntryTime(entry: Entry): string | null {

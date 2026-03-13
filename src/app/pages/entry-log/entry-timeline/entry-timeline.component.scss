@@ -1,25 +1,33 @@
-$labels-zone: 82px;
 $spine-zone: 20px;
-$track-height: 340px;
+$spine-label-zone: 46px;
+$above-zone: 150px;
+$above-zone-desktop: 200px;
+$track-height: 340px; // above-zone + spine-zone + spine-label-zone + (340-150-20-46=124)
 $week-col-width: 72px;
 $card-width: 62px;
 $thumbnail-height: 28px;
 
-$labels-zone-desktop: 108px;
-$track-height-desktop: 480px;
+$track-height-desktop: 480px; // above-zone-desktop + spine + label + (480-200-20-46=214)
 $week-col-width-desktop: 110px;
 $card-width-desktop: 94px;
 $thumbnail-height-desktop: 40px;
+$spine-mobile-width: 44px;
 
 :host {
   display: block;
-
-  @media (min-width: 900px) {
-    height: 100%;
-  }
 }
 
+@media (min-width: 900px) {
+  ::ng-deep page-container .main-container {
+    min-height: calc(100vh - var(--main-header-height) - 2rem);
+  }
 
+  .timeline-scroll-outer {
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+}
 
 .timeline-scroll-outer {
   overflow-x: auto;
@@ -80,17 +88,17 @@ $thumbnail-height-desktop: 40px;
         background: var(--p-primary-400);
         width: 2px;
       }
-    }
 
-    .week-labels .week-date {
-      color: var(--p-primary-500);
-      font-weight: 700;
+      .week-date {
+        color: var(--p-primary-500);
+        font-weight: 700;
+      }
     }
   }
 }
 
-.week-entries {
-  flex: 1;
+.week-entries-top {
+  flex: 0 0 $above-zone;
   min-height: 0;
   display: flex;
   flex-direction: column;
@@ -99,15 +107,31 @@ $thumbnail-height-desktop: 40px;
   gap: 4px;
   padding-bottom: 6px;
   overflow: hidden;
+
+  @media (min-width: 900px) {
+    flex: 0 0 $above-zone-desktop;
+  }
+}
+
+.week-entries-bottom {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 4px;
+  padding-top: 2px;
+  overflow: hidden;
 }
 
 .spine-area {
-  flex: 0 0 $spine-zone;
+  flex: 0 0 ($spine-zone + $spine-label-zone);
   width: 100%;
   border-top: 2px solid var(--p-surface-300);
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   padding-top: 2px;
 
   .week-tick {
@@ -115,18 +139,13 @@ $thumbnail-height-desktop: 40px;
     height: 7px;
     background: var(--p-surface-400);
   }
-}
 
-.week-labels {
-  flex: 0 0 $labels-zone;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-top: 5px;
-  gap: 3px;
-
-  @media (min-width: 900px) {
-    flex: 0 0 $labels-zone-desktop;
+  .week-date-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding-top: 4px;
   }
 
   .week-date {
@@ -149,7 +168,7 @@ $thumbnail-height-desktop: 40px;
     text-align: center;
 
     @media (min-width: 900px) {
-      font-size: 0.65rem;
+      font-size: 0.6rem;
     }
   }
 }
@@ -387,7 +406,6 @@ $thumbnail-height-desktop: 40px;
     color: var(--p-surface-400);
     font-weight: 600;
   }
-
 }
 
 ::ng-deep .overflow-popover {
@@ -412,7 +430,6 @@ $thumbnail-height-desktop: 40px;
     font-size: 0.55rem;
   }
 }
-
 
 .month-separator {
   display: none;
@@ -483,42 +500,53 @@ $thumbnail-height-desktop: 40px;
     letter-spacing: 0.04em;
   }
 
-  .week-labels {
-    flex: 0 0 68px;
-    align-items: flex-end;
-    justify-content: flex-start;
-    padding: 10px 6px 10px 12px;
-    order: 1;
-
-    .month-label {
-      display: none;
-    }
-  }
-
   .spine-area {
-    flex: 0 0 $spine-zone;
-    width: $spine-zone;
+    flex: 0 0 $spine-mobile-width;
+    width: $spine-mobile-width;
     border-top: none;
     border-left: 2px solid var(--p-surface-300);
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: center;
     justify-content: flex-start;
-    padding: 12px 0 0 0;
+    padding: 10px 0 0 0;
     order: 2;
 
     .week-tick {
       width: 8px;
       height: 1px;
+      margin-bottom: 2px;
+    }
+
+    .week-date-label {
+      padding-top: 3px;
+
+      .month-label {
+        display: none;
+      }
     }
   }
 
-  .week-entries {
+  .week-entries-top {
+    flex: 1;
+    min-width: 0;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 10px 8px 10px 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    order: 1;
+  }
+
+  .week-entries-bottom {
     flex: 1;
     min-width: 0;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
     padding: 10px 10px 10px 8px;
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
     order: 3;
   }
 
@@ -553,7 +581,6 @@ $thumbnail-height-desktop: 40px;
 }
 
 :host-context(:root.yv-dark-mode) {
-
   .spine-area {
     border-top-color: var(--p-surface-600);
 

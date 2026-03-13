@@ -19,48 +19,17 @@ $thumbnail-height-desktop: 40px;
   }
 }
 
-.timeline-page {
-  display: flex;
-  flex-direction: column;
 
-  @media (min-width: 900px) {
-    height: 100%;
-    justify-content: center;
-  }
-}
-
-.timeline-header {
-  padding: 1rem 1.25rem 1.5rem;
-
-  @media (min-width: 900px) {
-    padding-bottom: 2.5rem;
-  }
-
-  .timeline-title {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-  }
-}
 
 .timeline-scroll-outer {
   overflow-x: auto;
   overflow-y: hidden;
   -webkit-overflow-scrolling: touch;
   padding: 0 0.75rem 1.25rem;
+  scrollbar-width: none;
 
   &::-webkit-scrollbar {
-    height: 4px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: var(--p-surface-100);
-    border-radius: 2px;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: var(--p-surface-300);
-    border-radius: 2px;
+    display: none;
   }
 }
 
@@ -70,9 +39,11 @@ $thumbnail-height-desktop: 40px;
   align-items: stretch;
   position: relative;
   height: $track-height;
+  padding-right: 36px;
 
   @media (min-width: 900px) {
     height: $track-height-desktop;
+    padding-right: 52px;
   }
 }
 
@@ -404,6 +375,13 @@ $thumbnail-height-desktop: 40px;
     flex-shrink: 0;
   }
 
+  .preview-qty {
+    font-size: 0.65rem;
+    color: var(--p-surface-400);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
   .preview-overflow {
     font-size: 0.65rem;
     color: var(--p-surface-400);
@@ -434,6 +412,7 @@ $thumbnail-height-desktop: 40px;
     font-size: 0.55rem;
   }
 }
+
 
 .month-separator {
   display: none;
@@ -574,15 +553,6 @@ $thumbnail-height-desktop: 40px;
 }
 
 :host-context(:root.yv-dark-mode) {
-  .timeline-scroll-outer {
-    &::-webkit-scrollbar-track {
-      background: var(--p-surface-800);
-    }
-
-    &::-webkit-scrollbar-thumb {
-      background: var(--p-surface-600);
-    }
-  }
 
   .spine-area {
     border-top-color: var(--p-surface-600);

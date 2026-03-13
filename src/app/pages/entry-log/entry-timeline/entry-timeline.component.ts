@@ -17,6 +17,7 @@ import {
 	endOfMonth,
 	endOfWeek,
 	format,
+	isValid,
 	isWithinInterval,
 	parseISO,
 	startOfMonth,
@@ -26,6 +27,7 @@ import { ButtonModule } from "primeng/button";
 import { type Popover, PopoverModule } from "primeng/popover";
 import { ProgressSpinnerModule } from "primeng/progressspinner";
 import { SkeletonModule } from "primeng/skeleton";
+import { PageContainerComponent } from "../../../components/layout/page-container/page-container.component";
 import { EntriesService } from "../../../services/entries.service";
 import { GlobalUiService } from "../../../services/global-ui.service";
 import type { Entry } from "../../../types/entries.types";
@@ -40,7 +42,7 @@ type TimelineWeek = {
 
 @Component({
 	selector: "entry-timeline",
-	imports: [ButtonModule, DatePipe, PopoverModule, ProgressSpinnerModule, SkeletonModule],
+	imports: [ButtonModule, DatePipe, PageContainerComponent, PopoverModule, ProgressSpinnerModule, SkeletonModule],
 	templateUrl: "./entry-timeline.component.html",
 	styleUrl: "./entry-timeline.component.scss",
 })
@@ -149,6 +151,15 @@ export class EntryTimelineComponent implements OnDestroy {
 
 	public getActivityIcon(activityName: string): string {
 		return getActivityIcon(activityName);
+	}
+
+	public getEntryTime(entry: Entry): string | null {
+		if (!entry.time) return null;
+
+		const datePart = format(parseISO(entry.date.toString()), "yyyy-MM-dd");
+		const dt = parseISO(`${datePart}T${entry.time}`);
+
+		return isValid(dt) ? format(dt, "h:mm a") : null;
 	}
 
 	private _reobserveSentinel(): void {

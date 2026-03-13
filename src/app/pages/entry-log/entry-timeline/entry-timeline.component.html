@@ -1,7 +1,4 @@
-<div class="timeline-page">
-  <header class="timeline-header">
-    <h2 class="timeline-title">Lawn Timeline</h2>
-  </header>
+<page-container pageTitle="Lawn Timeline">
   <div class="timeline-scroll-outer" #scrollContainer>
     <div class="timeline-track" [class.dark-mode]="isDarkMode()">
       @if (showSkeleton()) {
@@ -119,7 +116,9 @@
           </div>
         }
         <div class="preview-body">
-          <span class="preview-date">{{ entry.date | date: "MMM d, yyyy" }}</span>
+          <span class="preview-date">
+            {{ entry.date | date: "MMM d, yyyy" }}@if (getEntryTime(entry); as time) { · {{ time }}}
+          </span>
           @if (entry.title) {
             <span class="preview-title">{{ entry.title }}</span>
           }
@@ -144,6 +143,9 @@
                     <img [src]="product.imageUrl" [alt]="product.name" class="preview-product-img" />
                   }
                   {{ product.name }}
+                  @if (product.quantity) {
+                    <span class="preview-qty">· {{ product.quantity }} {{ product.quantityUnit }}</span>
+                  }
                 </span>
               }
               @if (entry.products.length > 3) {
@@ -189,4 +191,4 @@
       }
     </div>
   </p-popover>
-</div>
+</page-container>

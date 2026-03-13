@@ -106,17 +106,19 @@
     }
   }
   <div class="fab-container">
-    <p-button
-      icon="ti ti-sparkles"
-      rounded
-      raised
-      severity="secondary"
-      size="large"
-      [dt]="addButtonDt()"
-      pTooltip="Ask Varky"
-      tooltipPosition="left"
-      (click)="isAiChatOpen.set(true)"
-    />
+    @if (hasAiAccess()) {
+      <p-button
+        icon="ti ti-sparkles"
+        rounded
+        raised
+        severity="secondary"
+        size="large"
+        [dt]="addButtonDt()"
+        pTooltip="Ask Varky"
+        tooltipPosition="left"
+        (click)="isAiChatOpen.set(true)"
+      />
+    }
     <p-button
       icon="ti ti-clipboard-plus"
       rounded
@@ -128,6 +130,8 @@
       (click)="createEntry()"
     />
   </div>
-  <entry-ai-chat [(isOpen)]="isAiChatOpen" (entryConfirmed)="onAiEntryConfirmed()" />
+  @if (hasAiAccess()) {
+    <entry-ai-chat [(isOpen)]="isAiChatOpen" (entryConfirmed)="onAiEntryConfirmed()" />
+  }
 </div>
 <router-outlet></router-outlet>

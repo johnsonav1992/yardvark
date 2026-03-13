@@ -6,9 +6,8 @@ import {
 	effect,
 	type ElementRef,
 	inject,
-	signal,
 	type OnDestroy,
-	untracked,
+	signal,
 	viewChild,
 } from "@angular/core";
 import { Router } from "@angular/router";
@@ -52,13 +51,13 @@ export class EntryTimelineComponent implements OnDestroy {
 		viewChild<ElementRef<HTMLElement>>("scrollContainer");
 	private _loadSentinel = viewChild<ElementRef<HTMLElement>>("loadSentinel");
 	private _intersectionObserver: IntersectionObserver | null = null;
+	private _expansionInProgress = false;
 
 	public isMobile = this._globalUiService.isMobile;
 	public isDarkMode = this._globalUiService.isDarkMode;
 
 	private readonly _rangeEnd = signal(endOfMonth(new Date()));
 	public rangeStart = signal(subMonths(startOfMonth(new Date()), 1));
-	private _hasScrolledToToday = signal(false);
 
 	private readonly _maxMonthsBack = 24;
 
@@ -75,8 +74,9 @@ export class EntryTimelineComponent implements OnDestroy {
 			{ start: this.rangeStart(), end: new Date() },
 			{ weekStartsOn: 0 },
 		);
+		const reversed = [...weekStarts].reverse();
 
-		return weekStarts.map((weekStart, index) => {
+		return reversed.map((weekStart, index) => {
 			const weekEnd = endOfWeek(weekStart, { weekStartsOn: 0 });
 			const weekEntries = entries.filter((e) => {
 				const d = parseISO(e.date.toString());
@@ -86,12 +86,10 @@ export class EntryTimelineComponent implements OnDestroy {
 
 			const now = new Date();
 			const isCurrentWeek = now >= weekStart && now <= weekEnd;
-			const isFirstWeekOfMonth =
-				index === 0 ||
-				weekStart.getMonth() !== weekStarts[index - 1].getMonth();
-			const monthLabel = isFirstWeekOfMonth
-				? format(weekStart, "MMMM yyyy")
-				: null;
+			const isNewMonth =
+				index > 0 &&
+				weekStart.getMonth() !== reversed[index - 1].getMonth();
+			const monthLabel = isNewMonth ? format(weekStart, "MMMM yyyy") : null;
 
 			return { weekStart, entries: weekEntries, isCurrentWeek, monthLabel };
 		});
@@ -103,18 +101,8 @@ export class EntryTimelineComponent implements OnDestroy {
 
 	constructor() {
 		effect(() => {
-			const entries = this.timelineEntries.value();
-			const scrolled = this._hasScrolledToToday();
-
-			if (entries !== undefined && !scrolled) {
-				untracked(() => {
-					const container = this._scrollContainer()?.nativeElement;
-
-					if (container) {
-						container.scrollLeft = container.scrollWidth;
-						this._hasScrolledToToday.set(true);
-					}
-				});
+			if (!this.timelineEntries.isLoading()) {
+				this._expansionInProgress = false;
 			}
 		});
 
@@ -148,8 +136,10 @@ export class EntryTimelineComponent implements OnDestroy {
 				if (
 					entries[0].isIntersecting &&
 					!this.timelineEntries.isLoading() &&
-					this.timelineEntries.value() !== undefined
+					this.timelineEntries.value() !== undefined &&
+					!this._expansionInProgress
 				) {
+					this._expansionInProgress = true;
 					this._loadMoreHistory();
 				}
 			},

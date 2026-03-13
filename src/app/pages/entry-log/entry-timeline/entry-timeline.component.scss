@@ -1,17 +1,15 @@
 $labels-zone: 82px;
 $spine-zone: 20px;
-$spine-offset: 92px;
 $track-height: 340px;
 $week-col-width: 72px;
 $card-width: 62px;
-$thumbnail-height: 44px;
+$thumbnail-height: 40px;
 
 $labels-zone-desktop: 108px;
-$spine-offset-desktop: 118px;
 $track-height-desktop: 480px;
 $week-col-width-desktop: 110px;
 $card-width-desktop: 94px;
-$thumbnail-height-desktop: 60px;
+$thumbnail-height-desktop: 56px;
 
 :host {
   display: block;
@@ -57,47 +55,28 @@ $thumbnail-height-desktop: 60px;
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  position: relative;
   height: $track-height;
-  padding-right: 1.5rem;
-
-  &::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: $spine-offset;
-    height: 2px;
-    background: var(--p-surface-200);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  &.dark-mode::after {
-    background: var(--p-surface-600);
-  }
 
   @media (min-width: 900px) {
     height: $track-height-desktop;
-
-    &::after {
-      bottom: $spine-offset-desktop;
-    }
   }
 }
 
 .load-sentinel {
   flex-shrink: 0;
   width: 52px;
-  height: 100%;
+  border-top: 2px solid var(--p-surface-200);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  padding-bottom: $spine-offset;
+  padding-top: 6px;
 
   @media (min-width: 900px) {
-    padding-bottom: $spine-offset-desktop;
     width: 68px;
+  }
+
+  .dark-mode & {
+    border-top-color: var(--p-surface-600);
   }
 }
 
@@ -113,9 +92,13 @@ $thumbnail-height-desktop: 60px;
   }
 
   &.current-week {
-    .spine-area .week-tick {
-      background: var(--p-primary-500);
-      width: 2px;
+    .spine-area {
+      border-top-color: var(--p-primary-500);
+
+      .week-tick {
+        background: var(--p-primary-400);
+        width: 2px;
+      }
     }
 
     .week-labels .week-date {
@@ -134,22 +117,32 @@ $thumbnail-height-desktop: 60px;
   gap: 4px;
   padding-bottom: 6px;
   overflow: visible;
-  position: relative;
-  z-index: 1;
 }
 
 .spine-area {
   flex: 0 0 $spine-zone;
+  border-top: 2px solid var(--p-surface-200);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  position: relative;
-  z-index: 1;
+  padding-top: 2px;
+
+  @media (min-width: 900px) {
+    flex: 0 0 $spine-zone;
+  }
 
   .week-tick {
     width: 1px;
-    height: 100%;
-    background: var(--p-surface-400);
+    height: 7px;
+    background: var(--p-surface-300);
+  }
+
+  .dark-mode & {
+    border-top-color: var(--p-surface-600);
+
+    .week-tick {
+      background: var(--p-surface-500);
+    }
   }
 }
 
@@ -275,12 +268,13 @@ $thumbnail-height-desktop: 60px;
     }
   }
 
-  .entry-activity-icons {
+  .entry-bottom-row {
     display: flex;
     gap: 3px;
     align-items: center;
+    flex-wrap: wrap;
 
-    i {
+    .activity-icon {
       font-size: 10px;
       color: var(--p-surface-400);
 
@@ -288,15 +282,28 @@ $thumbnail-height-desktop: 60px;
         font-size: 12px;
       }
     }
-  }
-}
 
-.skeleton-column {
-  .week-entries {
-    gap: 4px;
-
-    ::ng-deep .skeleton-card {
+    .product-img {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      object-fit: cover;
       flex-shrink: 0;
+
+      @media (min-width: 900px) {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    .product-overflow {
+      font-size: 0.5rem;
+      color: var(--p-surface-400);
+      font-weight: 600;
+
+      @media (min-width: 900px) {
+        font-size: 0.55rem;
+      }
     }
   }
 }
@@ -325,6 +332,10 @@ $thumbnail-height-desktop: 60px;
     color: var(--p-surface-400);
     max-width: 220px;
   }
+}
+
+.timeline-track {
+  position: relative;
 }
 
 :host-context(:root.yv-dark-mode) {
@@ -357,9 +368,26 @@ $thumbnail-height-desktop: 60px;
     .entry-title {
       color: var(--p-surface-400);
     }
+
   }
 
-  .spine-area .week-tick {
-    background: var(--p-surface-600);
+  .spine-area {
+    border-top-color: var(--p-surface-600);
+
+    .week-tick {
+      background: var(--p-surface-500);
+    }
+  }
+
+  .week-column.current-week .spine-area {
+    border-top-color: var(--p-primary-500);
+
+    .week-tick {
+      background: var(--p-primary-400);
+    }
+  }
+
+  .load-sentinel {
+    border-top-color: var(--p-surface-600);
   }
 }

@@ -47,7 +47,7 @@ $spine-mobile-width: 32px;
   align-items: stretch;
   position: relative;
   height: $track-height;
-  padding-right: 36px;
+  padding-right: 24px;
 
   @media (min-width: 900px) {
     height: $track-height-desktop;
@@ -461,7 +461,7 @@ $spine-mobile-width: 32px;
   }
 }
 
-@media (max-width: 899px) {
+@media (max-width: 750px) {
   .timeline-scroll-outer {
     overflow-x: hidden;
     overflow-y: visible;
@@ -491,9 +491,10 @@ $spine-mobile-width: 32px;
   .month-separator {
     display: flex;
     align-items: center;
+    justify-content: center;
     width: 100%;
-    padding: 6px 12px 4px;
-    font-size: 0.6rem;
+    padding: 6px 20px 6px 6px;
+    font-size: .75rem;
     font-weight: 700;
     color: var(--p-primary-500);
     text-transform: uppercase;

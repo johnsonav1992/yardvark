@@ -11,7 +11,7 @@ $track-height-desktop: 480px; // above-zone-desktop + spine + label + (480-200-2
 $week-col-width-desktop: 110px;
 $card-width-desktop: 94px;
 $thumbnail-height-desktop: 40px;
-$spine-mobile-width: 44px;
+$spine-mobile-width: 32px;
 
 :host {
   display: block;
@@ -507,18 +507,16 @@ $spine-mobile-width: 44px;
     border-left: 2px solid var(--p-surface-300);
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
-    padding: 10px 0 0 0;
+    justify-content: center;
+    padding: 0;
     order: 2;
 
     .week-tick {
-      width: 8px;
-      height: 1px;
-      margin-bottom: 2px;
+      display: none;
     }
 
     .week-date-label {
-      padding-top: 3px;
+      padding-top: 0;
 
       .month-label {
         display: none;
@@ -532,9 +530,8 @@ $spine-mobile-width: 44px;
     flex-direction: row;
     justify-content: flex-end;
     align-items: center;
-    padding: 10px 8px 10px 10px;
-    overflow-x: auto;
-    overflow-y: hidden;
+    padding: 8px 6px 8px 8px;
+    overflow: hidden;
     order: 1;
   }
 
@@ -544,13 +541,13 @@ $spine-mobile-width: 44px;
     flex-direction: row;
     justify-content: flex-start;
     align-items: center;
-    padding: 10px 10px 10px 8px;
-    overflow-x: auto;
-    overflow-y: hidden;
+    padding: 8px 8px 8px 6px;
+    overflow: hidden;
     order: 3;
   }
 
   .entry-card {
+    width: 54px;
     height: 76px;
     display: flex;
     flex-direction: column;

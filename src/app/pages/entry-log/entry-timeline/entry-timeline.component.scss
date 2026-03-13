@@ -439,6 +439,19 @@ $thumbnail-height-desktop: 40px;
     order: 3;
   }
 
+  .entry-card {
+    height: 76px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .entry-thumbnail,
+  .entry-thumbnail-placeholder {
+    flex: 1;
+    height: auto;
+    min-height: $thumbnail-height;
+  }
+
   .load-sentinel {
     width: 100%;
     height: auto;

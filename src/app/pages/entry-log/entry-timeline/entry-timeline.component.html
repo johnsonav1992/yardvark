@@ -31,7 +31,7 @@
           <div class="week-column" [class.current-week]="week.isCurrentWeek">
             <div class="week-entries">
               @for (entry of week.entries.slice(0, 3); track entry.id) {
-                <div class="entry-card" (click)="navigateToEntry(entry)">
+                <div class="entry-card" (click)="showEntryPreview($event, entry)">
                   @if (entry.images.length > 0) {
                     <img
                       [src]="entry.images[0].imageUrl"
@@ -108,6 +108,62 @@
       </div>
     </div>
   </div>
+  <p-popover #entryPreviewPopover appendTo="body" styleClass="entry-preview-host">
+    @if (selectedEntry(); as entry) {
+      <div class="entry-preview-popover">
+        @if (entry.images.length > 0) {
+          <img [src]="entry.images[0].imageUrl" class="preview-hero" [alt]="entry.title || 'Entry'" />
+        } @else {
+          <div class="preview-hero-placeholder">
+            <i [class]="getActivityIcon(entry.activities[0]?.name ?? '')"></i>
+          </div>
+        }
+        <div class="preview-body">
+          <span class="preview-date">{{ entry.date | date: "MMM d, yyyy" }}</span>
+          @if (entry.title) {
+            <span class="preview-title">{{ entry.title }}</span>
+          }
+          @if (entry.notes) {
+            <p class="preview-notes">{{ entry.notes }}</p>
+          }
+          @if (entry.activities.length > 0) {
+            <div class="preview-section">
+              @for (activity of entry.activities; track activity.id) {
+                <span class="preview-row">
+                  <i [class]="getActivityIcon(activity.name)"></i>
+                  {{ activity.name }}
+                </span>
+              }
+            </div>
+          }
+          @if (entry.products.length > 0) {
+            <div class="preview-section">
+              @for (product of entry.products.slice(0, 3); track product.id) {
+                <span class="preview-row">
+                  @if (product.imageUrl) {
+                    <img [src]="product.imageUrl" [alt]="product.name" class="preview-product-img" />
+                  }
+                  {{ product.name }}
+                </span>
+              }
+              @if (entry.products.length > 3) {
+                <span class="preview-overflow">+{{ entry.products.length - 3 }} more</span>
+              }
+            </div>
+          }
+        </div>
+        <div class="preview-footer">
+          <p-button
+            label="View Full Entry"
+            severity="primary"
+            size="small"
+            [text]="true"
+            (onClick)="navigateToEntry(entry)"
+          />
+        </div>
+      </div>
+    }
+  </p-popover>
   <p-popover #overflowPopover appendTo="body">
     <div class="overflow-popover">
       @for (entry of overflowEntries(); track entry.id) {

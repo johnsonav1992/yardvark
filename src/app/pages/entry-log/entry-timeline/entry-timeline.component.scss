@@ -308,6 +308,110 @@ $thumbnail-height-desktop: 40px;
   }
 }
 
+::ng-deep .entry-preview-host.p-popover {
+  .p-popover-content {
+    padding: 0;
+    overflow: hidden;
+    border-radius: inherit;
+  }
+}
+
+::ng-deep .entry-preview-popover {
+  width: 220px;
+
+  .preview-hero {
+    width: 100%;
+    height: 90px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .preview-hero-placeholder {
+    width: 100%;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--p-surface-100);
+    color: var(--p-surface-300);
+    font-size: 2rem;
+  }
+
+  .preview-body {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 12px 0;
+  }
+
+  .preview-footer {
+    padding: 6px 12px 10px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .preview-date {
+    font-size: 0.7rem;
+    color: var(--p-surface-400);
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .preview-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--p-surface-700);
+    margin-bottom: 8px;
+  }
+
+  .preview-notes {
+    margin: 0 0 8px;
+    font-size: 0.75rem;
+    color: var(--p-surface-500);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .preview-section {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 8px 0 6px;
+    border-top: 1px solid var(--p-surface-200);
+  }
+
+  .preview-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: var(--p-surface-500);
+    text-transform: capitalize;
+
+    i {
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+  }
+
+  .preview-product-img {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .preview-overflow {
+    font-size: 0.65rem;
+    color: var(--p-surface-400);
+    font-weight: 600;
+  }
+
+}
+
 ::ng-deep .overflow-popover {
   display: flex;
   flex-direction: column;
@@ -526,6 +630,29 @@ $thumbnail-height-desktop: 40px;
   }
 
   .entry-body .entry-title {
+    color: var(--p-surface-400);
+  }
+}
+
+::ng-deep .yv-dark-mode .entry-preview-popover {
+  .preview-hero-placeholder {
+    background: var(--p-surface-700);
+    color: var(--p-surface-500);
+  }
+
+  .preview-title {
+    color: var(--p-surface-200);
+  }
+
+  .preview-notes {
+    color: var(--p-surface-400);
+  }
+
+  .preview-section {
+    border-top-color: var(--p-surface-700);
+  }
+
+  .preview-row {
     color: var(--p-surface-400);
   }
 }

@@ -53,6 +53,7 @@ export class EntryTimelineComponent implements OnDestroy {
 		viewChild<ElementRef<HTMLElement>>("scrollContainer");
 	private _loadSentinel = viewChild<ElementRef<HTMLElement>>("loadSentinel");
 	private _overflowPopover = viewChild<Popover>("overflowPopover");
+	private _entryPreviewPopover = viewChild<Popover>("entryPreviewPopover");
 	private _intersectionObserver: IntersectionObserver | null = null;
 	private _sentinelElement: HTMLElement | null = null;
 	private _expansionInProgress = false;
@@ -69,6 +70,7 @@ export class EntryTimelineComponent implements OnDestroy {
 	public readonly skeletonColumns = Array.from({ length: 8 }, (_, i) => i);
 	public readonly showSkeleton = computed(() => this._latestEntries() === undefined);
 	public readonly overflowEntries = signal<Entry[]>([]);
+	public readonly selectedEntry = signal<Entry | null>(null);
 
 	public timelineEntries = this._entriesService.getTimelineEntriesResource(
 		this.rangeStart,
@@ -133,6 +135,11 @@ export class EntryTimelineComponent implements OnDestroy {
 		this._router.navigate(["entry-log", entry.id], {
 			queryParams: { date: new Date(entry.date).toISOString() },
 		});
+	}
+
+	public showEntryPreview(event: MouseEvent, entry: Entry): void {
+		this.selectedEntry.set(entry);
+		this._entryPreviewPopover()?.toggle(event);
 	}
 
 	public showOverflow(event: MouseEvent, entries: Entry[]): void {

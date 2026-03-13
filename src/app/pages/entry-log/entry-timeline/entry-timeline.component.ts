@@ -4,11 +4,11 @@ import {
 	Component,
 	computed,
 	effect,
-	type ElementRef,
 	inject,
-	type OnDestroy,
 	signal,
 	viewChild,
+	type ElementRef,
+	type OnDestroy,
 } from "@angular/core";
 import { Router } from "@angular/router";
 import {
@@ -23,6 +23,7 @@ import {
 	subMonths,
 } from "date-fns";
 import { ButtonModule } from "primeng/button";
+import { type Popover, PopoverModule } from "primeng/popover";
 import { ProgressSpinnerModule } from "primeng/progressspinner";
 import { SkeletonModule } from "primeng/skeleton";
 import { EntriesService } from "../../../services/entries.service";
@@ -39,7 +40,7 @@ type TimelineWeek = {
 
 @Component({
 	selector: "entry-timeline",
-	imports: [ButtonModule, DatePipe, ProgressSpinnerModule, SkeletonModule],
+	imports: [ButtonModule, DatePipe, PopoverModule, ProgressSpinnerModule, SkeletonModule],
 	templateUrl: "./entry-timeline.component.html",
 	styleUrl: "./entry-timeline.component.scss",
 })
@@ -51,6 +52,7 @@ export class EntryTimelineComponent implements OnDestroy {
 	private _scrollContainer =
 		viewChild<ElementRef<HTMLElement>>("scrollContainer");
 	private _loadSentinel = viewChild<ElementRef<HTMLElement>>("loadSentinel");
+	private _overflowPopover = viewChild<Popover>("overflowPopover");
 	private _intersectionObserver: IntersectionObserver | null = null;
 	private _sentinelElement: HTMLElement | null = null;
 	private _expansionInProgress = false;
@@ -66,6 +68,7 @@ export class EntryTimelineComponent implements OnDestroy {
 
 	public readonly skeletonColumns = Array.from({ length: 8 }, (_, i) => i);
 	public readonly showSkeleton = computed(() => this._latestEntries() === undefined);
+	public readonly overflowEntries = signal<Entry[]>([]);
 
 	public timelineEntries = this._entriesService.getTimelineEntriesResource(
 		this.rangeStart,
@@ -132,10 +135,9 @@ export class EntryTimelineComponent implements OnDestroy {
 		});
 	}
 
-	public navigateToWeek(weekStart: Date): void {
-		this._router.navigate(["entry-log"], {
-			queryParams: { date: weekStart.toISOString() },
-		});
+	public showOverflow(event: MouseEvent, entries: Entry[]): void {
+		this.overflowEntries.set(entries);
+		this._overflowPopover()?.toggle(event);
 	}
 
 	public getActivityIcon(activityName: string): string {
@@ -169,7 +171,7 @@ export class EntryTimelineComponent implements OnDestroy {
 					this._loadMoreHistory();
 				}
 			},
-			{ root: container, threshold: 0.01 },
+			{ root: this.isMobile() ? null : container, threshold: 0.01 },
 		);
 
 		this._intersectionObserver.observe(sentinel);

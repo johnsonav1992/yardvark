@@ -25,6 +25,9 @@
         }
       } @else {
         @for (week of weeks(); track week.weekStart.getTime()) {
+          @if (week.monthLabel) {
+            <div class="month-separator">{{ week.monthLabel }}</div>
+          }
           <div class="week-column" [class.current-week]="week.isCurrentWeek">
             <div class="week-entries">
               @for (entry of week.entries.slice(0, 3); track entry.id) {
@@ -76,7 +79,7 @@
                   size="small"
                   styleClass="week-overflow"
                   [label]="'+' + (week.entries.length - 3) + ' more'"
-                  (onClick)="navigateToWeek(week.weekStart)"
+                  (onClick)="showOverflow($event, week.entries.slice(3))"
                 />
               }
             </div>
@@ -105,4 +108,29 @@
       </div>
     </div>
   </div>
+  <p-popover #overflowPopover appendTo="body">
+    <div class="overflow-popover">
+      @for (entry of overflowEntries(); track entry.id) {
+        <div class="entry-card overflow-card" (click)="navigateToEntry(entry)">
+          @if (entry.images.length > 0) {
+            <img
+              [src]="entry.images[0].imageUrl"
+              class="entry-thumbnail"
+              [alt]="entry.title || 'Entry'"
+            />
+          } @else {
+            <div class="entry-thumbnail-placeholder">
+              <i [class]="getActivityIcon(entry.activities[0]?.name ?? '')"></i>
+            </div>
+          }
+          <div class="entry-body">
+            <span class="entry-date">{{ entry.date | date: "MMM d" }}</span>
+            @if (entry.title) {
+              <span class="entry-title">{{ entry.title }}</span>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  </p-popover>
 </div>

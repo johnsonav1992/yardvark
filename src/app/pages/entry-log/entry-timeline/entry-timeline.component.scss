@@ -120,13 +120,14 @@ $thumbnail-height-desktop: 40px;
 
 .week-entries {
   flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
   align-items: center;
   gap: 4px;
   padding-bottom: 6px;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .spine-area {
@@ -307,6 +308,17 @@ $thumbnail-height-desktop: 40px;
   }
 }
 
+::ng-deep .overflow-popover {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  .overflow-card {
+    width: $card-width-desktop;
+    cursor: pointer;
+  }
+}
+
 ::ng-deep .week-overflow.p-button {
   font-size: 0.5rem;
   font-weight: 700;
@@ -317,6 +329,10 @@ $thumbnail-height-desktop: 40px;
   @media (min-width: 900px) {
     font-size: 0.55rem;
   }
+}
+
+.month-separator {
+  display: none;
 }
 
 .empty-state {
@@ -342,6 +358,101 @@ $thumbnail-height-desktop: 40px;
     font-size: 0.8rem;
     color: var(--p-surface-400);
     max-width: 220px;
+  }
+}
+
+@media (max-width: 899px) {
+  .timeline-scroll-outer {
+    overflow-x: hidden;
+    overflow-y: visible;
+    padding: 0 0 1.5rem;
+  }
+
+  .timeline-track {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .week-column {
+    flex-direction: row;
+    width: 100%;
+    align-items: stretch;
+    min-height: 60px;
+
+    &.current-week .spine-area {
+      border-left-color: var(--p-primary-500);
+
+      .week-tick {
+        height: 2px;
+      }
+    }
+  }
+
+  .month-separator {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 6px 12px 4px;
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--p-primary-500);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .week-labels {
+    flex: 0 0 68px;
+    align-items: flex-end;
+    justify-content: flex-start;
+    padding: 10px 6px 10px 12px;
+    order: 1;
+
+    .month-label {
+      display: none;
+    }
+  }
+
+  .spine-area {
+    flex: 0 0 $spine-zone;
+    width: $spine-zone;
+    border-top: none;
+    border-left: 2px solid var(--p-surface-300);
+    align-items: flex-start;
+    justify-content: flex-start;
+    padding: 12px 0 0 0;
+    order: 2;
+
+    .week-tick {
+      width: 8px;
+      height: 1px;
+    }
+  }
+
+  .week-entries {
+    flex: 1;
+    min-width: 0;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 10px 10px 10px 8px;
+    overflow: auto;
+    order: 3;
+  }
+
+  .load-sentinel {
+    width: 100%;
+    height: auto;
+    border-top: none;
+    padding: 14px 0;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .empty-state {
+    position: static;
+    transform: none;
+    margin: 2rem auto;
+    pointer-events: auto;
   }
 }
 
@@ -374,6 +485,16 @@ $thumbnail-height-desktop: 40px;
 
   .load-sentinel {
     border-top-color: var(--p-surface-600);
+  }
+
+  @media (max-width: 899px) {
+    .spine-area {
+      border-left-color: var(--p-surface-600);
+    }
+
+    .week-column.current-week .spine-area {
+      border-left-color: var(--p-primary-500);
+    }
   }
 
   .entry-card {

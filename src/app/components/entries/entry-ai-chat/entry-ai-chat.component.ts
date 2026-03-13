@@ -48,10 +48,6 @@ export class EntryAiChatComponent {
 	private _recognition: SpeechRecognition | null = null;
 	private _savedScrollTop: number | null = null;
 
-	private get _mainContentWrapper(): HTMLElement | null {
-		return document.querySelector<HTMLElement>(".main-content-wrapper");
-	}
-
 	public readonly entryConfirmed = output<void>();
 
 	private readonly _chat = injectAiChat(undefined, () =>
@@ -125,7 +121,7 @@ export class EntryAiChatComponent {
 		effect(() => {
 			if (this.isOpen()) {
 				if (this.isMobile()) {
-					const wrapper = this._mainContentWrapper;
+					const wrapper = this._globalUiService.mainContentWrapper();
 
 					if (wrapper) {
 						this._savedScrollTop = wrapper.scrollTop;
@@ -156,7 +152,7 @@ export class EntryAiChatComponent {
 		this._chat.clearChat();
 
 		if (this.isMobile()) {
-			const wrapper = this._mainContentWrapper;
+			const wrapper = this._globalUiService.mainContentWrapper();
 
 			if (wrapper) {
 				wrapper.scrollTop = this._savedScrollTop ?? 0;

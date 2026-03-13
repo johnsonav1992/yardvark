@@ -1,4 +1,12 @@
-import { Component, inject, NgZone, signal } from "@angular/core";
+import {
+	Component,
+	ElementRef,
+	effect,
+	inject,
+	NgZone,
+	signal,
+	viewChild,
+} from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
 import { RouterOutlet } from "@angular/router";
 import { SwUpdate } from "@angular/service-worker";
@@ -39,6 +47,8 @@ export class AppComponent {
 	private _confirmationService = inject(ConfirmationService);
 	private _changelogService = inject(ChangelogService);
 	private _ngZone = inject(NgZone);
+	private readonly _mainContentWrapper =
+		viewChild<ElementRef<HTMLElement>>("mainContentWrapper");
 
 	public isMobile = this._globalUiService.isMobile;
 
@@ -46,6 +56,12 @@ export class AppComponent {
 	public isAuthLoading = toSignal(this._auth.isLoading$);
 
 	public constructor() {
+		effect(() => {
+			const wrapper = this._mainContentWrapper();
+
+			this._globalUiService.mainContentWrapper.set(wrapper?.nativeElement);
+		});
+
 		if (this._swUpdate.isEnabled) {
 			this._swUpdate.versionUpdates.subscribe((event) => {
 				if (event.type === "VERSION_READY") {

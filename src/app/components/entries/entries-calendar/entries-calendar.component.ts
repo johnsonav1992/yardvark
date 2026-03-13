@@ -81,8 +81,14 @@ export class EntriesCalendarComponent {
 	public monthChange = output<Date>();
 	public daySelected = output<DaySelectedEvent>();
 	public exportCsv = output<void>();
+	public openTimeline = output<void>();
 
 	public menuItems = computed<MenuItem[]>(() => [
+		{
+			label: "View Timeline",
+			icon: "ti ti-timeline",
+			command: () => this.openTimeline.emit(),
+		},
 		{
 			label: "Export CSV",
 			icon: "ti ti-download",

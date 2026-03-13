@@ -209,6 +209,10 @@ export class EntryLogComponent implements OnInit {
 		}
 	}
 
+	public navigateToTimeline(): void {
+		this._router.navigate(["entry-log", "timeline"]);
+	}
+
 	public navigateToEntry(entry: Entry): void {
 		this._router.navigate(["entry-log", entry.id], {
 			state: {

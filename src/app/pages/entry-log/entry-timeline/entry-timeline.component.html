@@ -1,0 +1,106 @@
+<div class="timeline-page">
+  <header class="timeline-header">
+    <h2 class="timeline-title">Lawn Timeline</h2>
+  </header>
+  <div class="timeline-scroll-outer" #scrollContainer>
+    <div class="timeline-track" [class.dark-mode]="isDarkMode()">
+      <div class="load-sentinel" #loadSentinel>
+        @if (timelineEntries.isLoading() && timelineEntries.value() !== undefined) {
+          <p-progress-spinner strokeWidth="4" [style]="{ width: '28px', height: '28px' }" />
+        }
+      </div>
+      @if (timelineEntries.value() === undefined) {
+        @for (col of skeletonColumns; track col) {
+          <div class="week-column skeleton-column">
+            <div class="week-entries">
+              @if (col % 3 !== 2) {
+                <p-skeleton
+                  width="62px"
+                  height="70px"
+                  borderRadius="0.4rem"
+                  styleClass="skeleton-card"
+                />
+              }
+              @if (col % 5 === 0) {
+                <p-skeleton
+                  width="62px"
+                  height="70px"
+                  borderRadius="0.4rem"
+                  styleClass="skeleton-card"
+                />
+              }
+            </div>
+            <div class="spine-area">
+              <div class="week-tick"></div>
+            </div>
+            <div class="week-labels">
+              <p-skeleton width="28px" height="10px" borderRadius="4px" />
+            </div>
+          </div>
+        }
+      } @else {
+        @for (week of weeks(); track week.weekStart.getTime()) {
+          <div
+            class="week-column"
+            [class.current-week]="week.isCurrentWeek"
+          >
+            <div class="week-entries">
+              @for (entry of week.entries; track entry.id) {
+                <div class="entry-card" (click)="navigateToEntry(entry)">
+                  @if (entry.images.length > 0) {
+                    <img
+                      [src]="entry.images[0].imageUrl"
+                      class="entry-thumbnail"
+                      [alt]="entry.title || 'Entry'"
+                    />
+                  } @else {
+                    <div class="entry-thumbnail-placeholder">
+                      <i
+                        [class]="getActivityIcon(entry.activities[0]?.name ?? '')"
+                      ></i>
+                    </div>
+                  }
+                  <div class="entry-body">
+                    <span class="entry-date">{{
+                      entry.date | date: "MMM d"
+                    }}</span>
+                    @if (entry.title) {
+                      <span class="entry-title">{{ entry.title }}</span>
+                    }
+                    @if (entry.activities.length > 0) {
+                      <div class="entry-activity-icons">
+                        @for (
+                          activity of entry.activities.slice(0, 2);
+                          track activity.id
+                        ) {
+                          <i [class]="getActivityIcon(activity.name)"></i>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+            <div class="spine-area">
+              <div class="week-tick"></div>
+            </div>
+            <div class="week-labels">
+              <span class="week-date">{{
+                week.weekStart | date: "M/d"
+              }}</span>
+              @if (week.monthLabel) {
+                <span class="month-label">{{ week.monthLabel }}</span>
+              }
+            </div>
+          </div>
+        }
+        @if (!hasAnyEntries() && !timelineEntries.isLoading()) {
+          <div class="empty-state">
+            <i class="ti ti-plant-2"></i>
+            <p>No entries yet. Start logging your lawn care to see your history here.</p>
+          </div>
+        }
+      }
+    </div>
+  </div>
+</div>

@@ -517,10 +517,18 @@ $spine-mobile-width: 32px;
 
     .week-date-label {
       padding-top: 0;
+      width: 100%;
+      align-items: center;
+    }
 
-      .month-label {
-        display: none;
-      }
+    .month-label {
+      display: none;
+    }
+
+    .week-date {
+      text-align: center;
+      display: block;
+      width: 100%;
     }
   }
 

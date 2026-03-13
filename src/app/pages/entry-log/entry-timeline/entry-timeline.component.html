@@ -27,7 +27,7 @@
         @for (week of weeks(); track week.weekStart.getTime()) {
           <div class="week-column" [class.current-week]="week.isCurrentWeek">
             <div class="week-entries">
-              @for (entry of week.entries; track entry.id) {
+              @for (entry of week.entries.slice(0, 3); track entry.id) {
                 <div class="entry-card" (click)="navigateToEntry(entry)">
                   @if (entry.images.length > 0) {
                     <img
@@ -68,6 +68,16 @@
                     }
                   </div>
                 </div>
+              }
+              @if (week.entries.length > 3) {
+                <p-button
+                  [text]="true"
+                  severity="primary"
+                  size="small"
+                  styleClass="week-overflow"
+                  [label]="'+' + (week.entries.length - 3) + ' more'"
+                  (onClick)="navigateToWeek(week.weekStart)"
+                />
               }
             </div>
             <div class="spine-area">

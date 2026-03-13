@@ -294,6 +294,18 @@ $thumbnail-height-desktop: 56px;
   }
 }
 
+::ng-deep .week-overflow.p-button {
+  font-size: 0.5rem;
+  font-weight: 700;
+  padding: 1px 4px;
+  min-width: unset;
+  height: unset;
+
+  @media (min-width: 900px) {
+    font-size: 0.55rem;
+  }
+}
+
 .empty-state {
   position: absolute;
   left: 50%;

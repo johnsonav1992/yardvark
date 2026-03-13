@@ -22,6 +22,7 @@ import {
 	startOfMonth,
 	subMonths,
 } from "date-fns";
+import { ButtonModule } from "primeng/button";
 import { ProgressSpinnerModule } from "primeng/progressspinner";
 import { SkeletonModule } from "primeng/skeleton";
 import { EntriesService } from "../../../services/entries.service";
@@ -38,7 +39,7 @@ type TimelineWeek = {
 
 @Component({
 	selector: "entry-timeline",
-	imports: [DatePipe, ProgressSpinnerModule, SkeletonModule],
+	imports: [ButtonModule, DatePipe, ProgressSpinnerModule, SkeletonModule],
 	templateUrl: "./entry-timeline.component.html",
 	styleUrl: "./entry-timeline.component.scss",
 })
@@ -128,6 +129,12 @@ export class EntryTimelineComponent implements OnDestroy {
 	public navigateToEntry(entry: Entry): void {
 		this._router.navigate(["entry-log", entry.id], {
 			queryParams: { date: new Date(entry.date).toISOString() },
+		});
+	}
+
+	public navigateToWeek(weekStart: Date): void {
+		this._router.navigate(["entry-log"], {
+			queryParams: { date: weekStart.toISOString() },
 		});
 	}
 

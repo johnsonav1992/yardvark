@@ -51,6 +51,7 @@ export class EntryTimelineComponent implements OnDestroy {
 		viewChild<ElementRef<HTMLElement>>("scrollContainer");
 	private _loadSentinel = viewChild<ElementRef<HTMLElement>>("loadSentinel");
 	private _intersectionObserver: IntersectionObserver | null = null;
+	private _sentinelElement: HTMLElement | null = null;
 	private _expansionInProgress = false;
 
 	public isMobile = this._globalUiService.isMobile;
@@ -60,8 +61,10 @@ export class EntryTimelineComponent implements OnDestroy {
 	public rangeStart = signal(subMonths(startOfMonth(new Date()), 1));
 
 	private readonly _maxMonthsBack = 24;
+	private readonly _latestEntries = signal<Entry[] | undefined>(undefined);
 
 	public readonly skeletonColumns = Array.from({ length: 8 }, (_, i) => i);
+	public readonly showSkeleton = computed(() => this._latestEntries() === undefined);
 
 	public timelineEntries = this._entriesService.getTimelineEntriesResource(
 		this.rangeStart,
@@ -69,7 +72,7 @@ export class EntryTimelineComponent implements OnDestroy {
 	);
 
 	public weeks = computed<TimelineWeek[]>(() => {
-		const entries = this.timelineEntries.value() ?? [];
+		const entries = this._latestEntries() ?? [];
 		const weekStarts = eachWeekOfInterval(
 			{ start: this.rangeStart(), end: new Date() },
 			{ weekStartsOn: 0 },
@@ -96,13 +99,20 @@ export class EntryTimelineComponent implements OnDestroy {
 	});
 
 	public hasAnyEntries = computed(
-		() => (this.timelineEntries.value()?.length ?? 0) > 0,
+		() => (this._latestEntries()?.length ?? 0) > 0,
 	);
 
 	constructor() {
 		effect(() => {
+			const v = this.timelineEntries.value();
+
+			if (v !== undefined) {
+				this._latestEntries.set(v);
+			}
+
 			if (!this.timelineEntries.isLoading()) {
 				this._expansionInProgress = false;
+				this._reobserveSentinel();
 			}
 		});
 
@@ -125,18 +135,27 @@ export class EntryTimelineComponent implements OnDestroy {
 		return getActivityIcon(activityName);
 	}
 
+	private _reobserveSentinel(): void {
+		if (this._intersectionObserver && this._sentinelElement) {
+			this._intersectionObserver.unobserve(this._sentinelElement);
+			this._intersectionObserver.observe(this._sentinelElement);
+		}
+	}
+
 	private _setupIntersectionObserver(): void {
 		const sentinel = this._loadSentinel()?.nativeElement;
 		const container = this._scrollContainer()?.nativeElement;
 
 		if (!sentinel || !container) return;
 
+		this._sentinelElement = sentinel;
+
 		this._intersectionObserver = new IntersectionObserver(
 			(entries) => {
 				if (
 					entries[0].isIntersecting &&
 					!this.timelineEntries.isLoading() &&
-					this.timelineEntries.value() !== undefined &&
+					!this.showSkeleton() &&
 					!this._expansionInProgress
 				) {
 					this._expansionInProgress = true;

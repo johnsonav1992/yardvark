@@ -4,7 +4,7 @@
   </header>
   <div class="timeline-scroll-outer" #scrollContainer>
     <div class="timeline-track" [class.dark-mode]="isDarkMode()">
-      @if (timelineEntries.value() === undefined) {
+      @if (showSkeleton()) {
         @for (col of skeletonColumns; track col) {
           <div class="week-column skeleton-column">
             <div class="week-entries">
@@ -89,7 +89,7 @@
         }
       }
       <div class="load-sentinel" #loadSentinel>
-        @if (timelineEntries.isLoading() && timelineEntries.value() !== undefined) {
+        @if (timelineEntries.isLoading() && !showSkeleton()) {
           <p-progress-spinner strokeWidth="4" [style]="{ width: '28px', height: '28px' }" />
         }
       </div>

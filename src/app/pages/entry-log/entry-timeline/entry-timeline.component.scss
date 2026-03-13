@@ -55,6 +55,7 @@ $thumbnail-height-desktop: 56px;
   display: flex;
   flex-direction: row;
   align-items: stretch;
+  position: relative;
   height: $track-height;
 
   @media (min-width: 900px) {
@@ -65,7 +66,7 @@ $thumbnail-height-desktop: 56px;
 .load-sentinel {
   flex-shrink: 0;
   width: 52px;
-  border-top: 2px solid var(--p-surface-200);
+  border-top: 2px solid var(--p-surface-300);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -73,10 +74,6 @@ $thumbnail-height-desktop: 56px;
 
   @media (min-width: 900px) {
     width: 68px;
-  }
-
-  .dark-mode & {
-    border-top-color: var(--p-surface-600);
   }
 }
 
@@ -121,28 +118,17 @@ $thumbnail-height-desktop: 56px;
 
 .spine-area {
   flex: 0 0 $spine-zone;
-  border-top: 2px solid var(--p-surface-200);
+  width: 100%;
+  border-top: 2px solid var(--p-surface-300);
   display: flex;
   align-items: flex-start;
   justify-content: center;
   padding-top: 2px;
 
-  @media (min-width: 900px) {
-    flex: 0 0 $spine-zone;
-  }
-
   .week-tick {
     width: 1px;
     height: 7px;
-    background: var(--p-surface-300);
-  }
-
-  .dark-mode & {
-    border-top-color: var(--p-surface-600);
-
-    .week-tick {
-      background: var(--p-surface-500);
-    }
+    background: var(--p-surface-400);
   }
 }
 
@@ -334,10 +320,6 @@ $thumbnail-height-desktop: 56px;
   }
 }
 
-.timeline-track {
-  position: relative;
-}
-
 :host-context(:root.yv-dark-mode) {
   .timeline-scroll-outer {
     &::-webkit-scrollbar-track {
@@ -347,28 +329,6 @@ $thumbnail-height-desktop: 56px;
     &::-webkit-scrollbar-thumb {
       background: var(--p-surface-600);
     }
-  }
-
-  .entry-card {
-    background: var(--p-surface-800);
-    border-color: var(--p-surface-700);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-
-    &:hover {
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-    }
-  }
-
-  .entry-thumbnail-placeholder {
-    background: var(--p-surface-700);
-    color: var(--p-surface-500);
-  }
-
-  .entry-body {
-    .entry-title {
-      color: var(--p-surface-400);
-    }
-
   }
 
   .spine-area {
@@ -389,5 +349,24 @@ $thumbnail-height-desktop: 56px;
 
   .load-sentinel {
     border-top-color: var(--p-surface-600);
+  }
+
+  .entry-card {
+    background: var(--p-surface-800);
+    border-color: var(--p-surface-700);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+
+    &:hover {
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  .entry-thumbnail-placeholder {
+    background: var(--p-surface-700);
+    color: var(--p-surface-500);
+  }
+
+  .entry-body .entry-title {
+    color: var(--p-surface-400);
   }
 }

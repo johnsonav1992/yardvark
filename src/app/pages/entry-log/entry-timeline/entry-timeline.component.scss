@@ -3,25 +3,38 @@ $spine-zone: 20px;
 $track-height: 340px;
 $week-col-width: 72px;
 $card-width: 62px;
-$thumbnail-height: 40px;
+$thumbnail-height: 28px;
 
 $labels-zone-desktop: 108px;
 $track-height-desktop: 480px;
 $week-col-width-desktop: 110px;
 $card-width-desktop: 94px;
-$thumbnail-height-desktop: 56px;
+$thumbnail-height-desktop: 40px;
 
 :host {
   display: block;
+
+  @media (min-width: 900px) {
+    height: 100%;
+  }
 }
 
 .timeline-page {
   display: flex;
   flex-direction: column;
+
+  @media (min-width: 900px) {
+    height: 100%;
+    justify-content: center;
+  }
 }
 
 .timeline-header {
-  padding: 1rem 1.25rem 0.75rem;
+  padding: 1rem 1.25rem 1.5rem;
+
+  @media (min-width: 900px) {
+    padding-bottom: 2.5rem;
+  }
 
   .timeline-title {
     margin: 0;

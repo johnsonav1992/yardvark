@@ -1,13 +1,13 @@
 $spine-zone: 20px;
-$spine-label-zone: 46px;
+$spine-label-zone: 32px;
 $above-zone: 150px;
-$above-zone-desktop: 200px;
-$track-height: 340px; // above-zone + spine-zone + spine-label-zone + (340-150-20-46=124)
+$above-zone-desktop: 220px;
+$track-height: 326px; // above-zone + spine-zone + spine-label-zone + 124
 $week-col-width: 72px;
 $card-width: 62px;
 $thumbnail-height: 28px;
 
-$track-height-desktop: 480px; // above-zone-desktop + spine + label + (480-200-20-46=214)
+$track-height-desktop: 486px; // above-zone-desktop + spine + label + 214
 $week-col-width-desktop: 110px;
 $card-width-desktop: 94px;
 $thumbnail-height-desktop: 40px;
@@ -110,6 +110,7 @@ $spine-mobile-width: 32px;
 
   @media (min-width: 900px) {
     flex: 0 0 $above-zone-desktop;
+    padding-top: 6px;
   }
 }
 

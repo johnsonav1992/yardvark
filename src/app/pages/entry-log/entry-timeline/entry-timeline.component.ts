@@ -25,7 +25,6 @@ import {
 } from "date-fns";
 import { ButtonModule } from "primeng/button";
 import { type Popover, PopoverModule } from "primeng/popover";
-import { ProgressSpinnerModule } from "primeng/progressspinner";
 import { SkeletonModule } from "primeng/skeleton";
 import { PageContainerComponent } from "../../../components/layout/page-container/page-container.component";
 import { EntriesService } from "../../../services/entries.service";
@@ -42,7 +41,7 @@ type TimelineWeek = {
 
 @Component({
 	selector: "entry-timeline",
-	imports: [ButtonModule, DatePipe, PageContainerComponent, PopoverModule, ProgressSpinnerModule, SkeletonModule],
+	imports: [ButtonModule, DatePipe, PageContainerComponent, PopoverModule, SkeletonModule],
 	templateUrl: "./entry-timeline.component.html",
 	styleUrl: "./entry-timeline.component.scss",
 })
@@ -147,6 +146,10 @@ export class EntryTimelineComponent implements OnDestroy {
 	public showOverflow(event: MouseEvent, entries: Entry[]): void {
 		this.overflowEntries.set(entries);
 		this._overflowPopover()?.toggle(event);
+	}
+
+	public showEntryPreviewFromOverflow(event: MouseEvent, entry: Entry): void {
+		this.showEntryPreview(event, entry);
 	}
 
 	public getActivityIcon(activityName: string): string {

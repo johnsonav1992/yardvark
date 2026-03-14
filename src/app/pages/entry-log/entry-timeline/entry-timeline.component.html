@@ -154,11 +154,7 @@
           </div>
         }
       }
-      <div class="load-sentinel" #loadSentinel>
-        @if (timelineEntries.isLoading() && !showSkeleton()) {
-          <p-progress-spinner strokeWidth="4" [style]="{ width: '28px', height: '28px' }" />
-        }
-      </div>
+      <div class="load-sentinel" #loadSentinel></div>
     </div>
   </div>
   <p-popover #entryPreviewPopover appendTo="body" styleClass="entry-preview-host">
@@ -225,7 +221,7 @@
   <p-popover #overflowPopover appendTo="body">
     <div class="overflow-popover">
       @for (entry of overflowEntries(); track entry.id) {
-        <div class="entry-card overflow-card" (click)="navigateToEntry(entry)">
+        <div class="entry-card overflow-card" (click)="showEntryPreviewFromOverflow($event, entry)">
           @if (entry.images.length > 0) {
             <img
               [src]="entry.images[0].imageUrl"

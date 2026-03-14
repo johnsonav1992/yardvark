@@ -19,7 +19,7 @@ $spine-mobile-width: 32px;
 
 @media (min-width: 900px) {
   ::ng-deep page-container .main-container {
-    min-height: calc(100vh - var(--main-header-height) - 2rem);
+    min-height: calc(100vh - var(--main-header-height) - 3rem);
   }
 
   .timeline-scroll-outer {

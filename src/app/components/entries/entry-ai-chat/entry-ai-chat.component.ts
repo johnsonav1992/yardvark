@@ -46,6 +46,7 @@ export class EntryAiChatComponent {
 	private readonly _userData = injectUserData();
 	private readonly _throwErrorToast = injectErrorToast();
 	private _recognition: SpeechRecognition | null = null;
+	private _savedScrollTop: number | null = null;
 
 	public readonly entryConfirmed = output<void>();
 
@@ -119,6 +120,14 @@ export class EntryAiChatComponent {
 
 		effect(() => {
 			if (this.isOpen()) {
+				if (this.isMobile()) {
+					const wrapper = this._globalUiService.mainContentWrapper();
+
+					if (wrapper) {
+						this._savedScrollTop = wrapper.scrollTop;
+					}
+				}
+
 				void this._chat.refreshLimitStatus();
 			}
 		});
@@ -128,6 +137,8 @@ export class EntryAiChatComponent {
 			this.statusMessage();
 
 			setTimeout(() => {
+				if (!this.isOpen()) return;
+
 				this._messagesEnd()?.nativeElement?.scrollIntoView({
 					behavior: "smooth",
 				});
@@ -139,6 +150,16 @@ export class EntryAiChatComponent {
 		this.stopListening();
 		this.currentInput.set("");
 		this._chat.clearChat();
+
+		if (this.isMobile()) {
+			const wrapper = this._globalUiService.mainContentWrapper();
+
+			if (wrapper) {
+				wrapper.scrollTop = this._savedScrollTop ?? 0;
+			}
+
+			this._savedScrollTop = null;
+		}
 	}
 
 	public onQueryInput(event: Event): void {

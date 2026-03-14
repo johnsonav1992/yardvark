@@ -14,6 +14,7 @@ import {
 export class GlobalUiService {
 	public isMobileSidebarOpen = signal(false);
 	public isDarkMode = signal(false);
+	public mainContentWrapper = signal<HTMLElement | undefined>(undefined);
 
 	public isMobile = injectBreakpointObserver(`(max-width: ${MD_BREAKPOINT})`);
 	public screenWidth = injectScreenWidthObserver();

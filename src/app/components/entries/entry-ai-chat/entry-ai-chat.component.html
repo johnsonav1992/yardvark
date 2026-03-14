@@ -63,7 +63,7 @@
           </div>
         </div>
       }
-      @for (msg of messages(); track $index) {
+      @for (msg of messagesWithDraftDates(); track $index) {
         <div class="message-row" [class.user-row]="msg.role === 'user'">
           <div class="message-column">
             @if (msg.content || (msg.role === 'ai' && isStreaming() && $last)) {
@@ -98,7 +98,7 @@
                   <div class="draft-details">
                     <div class="draft-row">
                       <i class="ti ti-calendar"></i>
-                      <span>{{ formatDraftDate(msg.entryDraft.date) }}</span>
+                      <span>{{ msg.formattedDraftDate }}</span>
                     </div>
                     <div class="draft-row">
                       <i class="ti ti-leaf"></i>

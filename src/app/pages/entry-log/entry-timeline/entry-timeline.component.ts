@@ -32,9 +32,17 @@ import { GlobalUiService } from "../../../services/global-ui.service";
 import type { Entry } from "../../../types/entries.types";
 import { getActivityIcon } from "../../../utils/entriesUtils";
 
+type TimelineActivity = Entry['activities'][number] & { icon: string };
+
+type TimelineEntry = Omit<Entry, 'activities'> & {
+	activities: TimelineActivity[];
+	primaryActivityIcon: string;
+};
+
 type TimelineWeek = {
 	weekStart: Date;
-	entries: Entry[];
+	mowingEntries: TimelineEntry[];
+	otherEntries: TimelineEntry[];
 	isCurrentWeek: boolean;
 	monthLabel: string | null;
 };
@@ -55,9 +63,9 @@ export class EntryTimelineComponent implements OnDestroy {
 	private _loadSentinel = viewChild<ElementRef<HTMLElement>>("loadSentinel");
 	private _overflowPopover = viewChild<Popover>("overflowPopover");
 	private _entryPreviewPopover = viewChild<Popover>("entryPreviewPopover");
-	private _intersectionObserver: IntersectionObserver | null = null;
-	private _sentinelElement: HTMLElement | null = null;
-	private _expansionInProgress = false;
+	private readonly _intersectionObserver = signal<IntersectionObserver | null>(null);
+	private readonly _sentinelElement = signal<HTMLElement | null>(null);
+	private readonly _expansionInProgress = signal(false);
 
 	public isMobile = this._globalUiService.isMobile;
 	public isDarkMode = this._globalUiService.isDarkMode;
@@ -70,8 +78,8 @@ export class EntryTimelineComponent implements OnDestroy {
 
 	public readonly skeletonColumns = Array.from({ length: 16 }, (_, i) => i);
 	public readonly showSkeleton = computed(() => this._latestEntries() === undefined);
-	public readonly overflowEntries = signal<Entry[]>([]);
-	public readonly selectedEntry = signal<Entry | null>(null);
+	public readonly overflowEntries = signal<TimelineEntry[]>([]);
+	public readonly selectedEntry = signal<TimelineEntry | null>(null);
 
 	public timelineEntries = this._entriesService.getTimelineEntriesResource(
 		this.rangeStart,
@@ -79,20 +87,28 @@ export class EntryTimelineComponent implements OnDestroy {
 	);
 
 	public weeks = computed<TimelineWeek[]>(() => {
-		const entries = this._latestEntries() ?? [];
+		const allEntries = this._latestEntries() ?? [];
 		const weekStarts = eachWeekOfInterval(
 			{ start: this.rangeStart(), end: new Date() },
 			{ weekStartsOn: 0 },
 		);
 		const reversed = [...weekStarts].reverse();
 
+		const toTimelineEntry = (e: Entry): TimelineEntry => ({
+			...e,
+			activities: e.activities.map((a) => ({ ...a, icon: getActivityIcon(a.name) })),
+			primaryActivityIcon: getActivityIcon(e.activities[0]?.name ?? ''),
+		});
+
 		return reversed.map((weekStart, index) => {
 			const weekEnd = endOfWeek(weekStart, { weekStartsOn: 0 });
-			const weekEntries = entries.filter((e) => {
-				const d = parseISO(e.date.toString());
+			const weekEntries = allEntries
+				.filter((e) => {
+					const d = parseISO(e.date.toString());
 
-				return isWithinInterval(d, { start: weekStart, end: weekEnd });
-			});
+					return isWithinInterval(d, { start: weekStart, end: weekEnd });
+				})
+				.map(toTimelineEntry);
 
 			const now = new Date();
 			const isCurrentWeek = now >= weekStart && now <= weekEnd;
@@ -100,8 +116,14 @@ export class EntryTimelineComponent implements OnDestroy {
 				index > 0 &&
 				weekStart.getMonth() !== reversed[index - 1].getMonth();
 			const monthLabel = isNewMonth ? format(weekStart, "MMMM yyyy") : null;
+			const mowingEntries = weekEntries.filter((e) =>
+				e.activities.some((a) => a.name === "mow"),
+			);
+			const otherEntries = weekEntries.filter(
+				(e) => !e.activities.some((a) => a.name === "mow"),
+			);
 
-			return { weekStart, entries: weekEntries, isCurrentWeek, monthLabel };
+			return { weekStart, mowingEntries, otherEntries, isCurrentWeek, monthLabel };
 		});
 	});
 
@@ -118,7 +140,7 @@ export class EntryTimelineComponent implements OnDestroy {
 			}
 
 			if (!this.timelineEntries.isLoading()) {
-				this._expansionInProgress = false;
+				this._expansionInProgress.set(false);
 				this._reobserveSentinel();
 			}
 		});
@@ -129,54 +151,47 @@ export class EntryTimelineComponent implements OnDestroy {
 	}
 
 	public ngOnDestroy(): void {
-		this._intersectionObserver?.disconnect();
+		this._intersectionObserver()?.disconnect();
 	}
 
-	public navigateToEntry(entry: Entry): void {
-		this._router.navigate(["entry-log", entry.id], {
-			queryParams: { date: new Date(entry.date).toISOString() },
-		});
-	}
+	public readonly selectedEntryTime = computed(() => {
+		const entry = this.selectedEntry();
 
-	public showEntryPreview(event: MouseEvent, entry: Entry): void {
-		this.selectedEntry.set(entry);
-		this._entryPreviewPopover()?.toggle(event);
-	}
-
-	public showOverflow(event: MouseEvent, entries: Entry[]): void {
-		this.overflowEntries.set(entries);
-		this._overflowPopover()?.toggle(event);
-	}
-
-	public showEntryPreviewFromOverflow(event: MouseEvent, entry: Entry): void {
-		this.showEntryPreview(event, entry);
-	}
-
-	public getActivityIcon(activityName: string): string {
-		return getActivityIcon(activityName);
-	}
-
-	public getMowingEntries(week: TimelineWeek): Entry[] {
-		return week.entries.filter((e) => e.activities.some((a) => a.name === "mow"));
-	}
-
-	public getOtherEntries(week: TimelineWeek): Entry[] {
-		return week.entries.filter((e) => !e.activities.some((a) => a.name === "mow"));
-	}
-
-	public getEntryTime(entry: Entry): string | null {
-		if (!entry.time) return null;
+		if (!entry?.time) return null;
 
 		const datePart = format(parseISO(entry.date.toString()), "yyyy-MM-dd");
 		const dt = parseISO(`${datePart}T${entry.time}`);
 
 		return isValid(dt) ? format(dt, "h:mm a") : null;
+	});
+
+	public navigateToEntry(entry: TimelineEntry): void {
+		this._router.navigate(["entry-log", entry.id], {
+			queryParams: { date: new Date(entry.date).toISOString() },
+		});
+	}
+
+	public showEntryPreview(event: MouseEvent, entry: TimelineEntry): void {
+		this.selectedEntry.set(entry);
+		this._entryPreviewPopover()?.toggle(event);
+	}
+
+	public showOverflow(event: MouseEvent, entries: TimelineEntry[]): void {
+		this.overflowEntries.set(entries);
+		this._overflowPopover()?.toggle(event);
+	}
+
+	public showEntryPreviewFromOverflow(event: MouseEvent, entry: TimelineEntry): void {
+		this.showEntryPreview(event, entry);
 	}
 
 	private _reobserveSentinel(): void {
-		if (this._intersectionObserver && this._sentinelElement) {
-			this._intersectionObserver.unobserve(this._sentinelElement);
-			this._intersectionObserver.observe(this._sentinelElement);
+		const observer = this._intersectionObserver();
+		const sentinel = this._sentinelElement();
+
+		if (observer && sentinel) {
+			observer.unobserve(sentinel);
+			observer.observe(sentinel);
 		}
 	}
 
@@ -186,24 +201,25 @@ export class EntryTimelineComponent implements OnDestroy {
 
 		if (!sentinel || !container) return;
 
-		this._sentinelElement = sentinel;
+		this._sentinelElement.set(sentinel);
 
-		this._intersectionObserver = new IntersectionObserver(
+		const observer = new IntersectionObserver(
 			(entries) => {
 				if (
 					entries[0].isIntersecting &&
 					!this.timelineEntries.isLoading() &&
 					!this.showSkeleton() &&
-					!this._expansionInProgress
+					!this._expansionInProgress()
 				) {
-					this._expansionInProgress = true;
+					this._expansionInProgress.set(true);
 					this._loadMoreHistory();
 				}
 			},
 			{ root: this.isMobile() ? null : container, threshold: 0.01 },
 		);
 
-		this._intersectionObserver.observe(sentinel);
+		this._intersectionObserver.set(observer);
+		observer.observe(sentinel);
 	}
 
 	private _loadMoreHistory(): void {

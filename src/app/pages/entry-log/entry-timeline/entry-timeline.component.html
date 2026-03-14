@@ -29,7 +29,7 @@
           }
           <div class="week-column" [class.current-week]="week.isCurrentWeek">
             <div class="week-entries-top">
-              @for (entry of getMowingEntries(week).slice(0, 2); track entry.id) {
+              @for (entry of week.mowingEntries.slice(0, 2); track entry.id) {
                 <div class="entry-card" (click)="showEntryPreview($event, entry)">
                   @if (entry.images.length > 0) {
                     <img
@@ -39,7 +39,7 @@
                     />
                   } @else {
                     <div class="entry-thumbnail-placeholder">
-                      <i [class]="getActivityIcon(entry.activities[0]?.name ?? '')"></i>
+                      <i [class]="entry.primaryActivityIcon"></i>
                     </div>
                   }
                   <div class="entry-body">
@@ -51,7 +51,7 @@
                       <div class="entry-bottom-row">
                         @for (activity of entry.activities.slice(0, 2); track activity.id) {
                           @if (activity.name !== 'product application' || !entry.products.some(p => p.imageUrl)) {
-                            <i class="activity-icon" [class]="getActivityIcon(activity.name)"></i>
+                            <i class="activity-icon" [class]="activity.icon"></i>
                           }
                         }
                         @for (product of entry.products.slice(0, 2); track product.id) {
@@ -71,14 +71,14 @@
                   </div>
                 </div>
               }
-              @if (getMowingEntries(week).length > 2) {
+              @if (week.mowingEntries.length > 2) {
                 <p-button
                   [text]="true"
                   severity="primary"
                   size="small"
                   styleClass="week-overflow"
-                  [label]="'+' + (getMowingEntries(week).length - 2) + ' more'"
-                  (onClick)="showOverflow($event, getMowingEntries(week).slice(2))"
+                  [label]="'+' + (week.mowingEntries.length - 2) + ' more'"
+                  (onClick)="showOverflow($event, week.mowingEntries.slice(2))"
                 />
               }
             </div>
@@ -92,7 +92,7 @@
               </div>
             </div>
             <div class="week-entries-bottom">
-              @for (entry of getOtherEntries(week).slice(0, 2); track entry.id) {
+              @for (entry of week.otherEntries.slice(0, 2); track entry.id) {
                 <div class="entry-card" (click)="showEntryPreview($event, entry)">
                   @if (entry.images.length > 0) {
                     <img
@@ -102,7 +102,7 @@
                     />
                   } @else {
                     <div class="entry-thumbnail-placeholder">
-                      <i [class]="getActivityIcon(entry.activities[0]?.name ?? '')"></i>
+                      <i [class]="entry.primaryActivityIcon"></i>
                     </div>
                   }
                   <div class="entry-body">
@@ -114,7 +114,7 @@
                       <div class="entry-bottom-row">
                         @for (activity of entry.activities.slice(0, 2); track activity.id) {
                           @if (activity.name !== 'product application' || !entry.products.some(p => p.imageUrl)) {
-                            <i class="activity-icon" [class]="getActivityIcon(activity.name)"></i>
+                            <i class="activity-icon" [class]="activity.icon"></i>
                           }
                         }
                         @for (product of entry.products.slice(0, 2); track product.id) {
@@ -134,14 +134,14 @@
                   </div>
                 </div>
               }
-              @if (getOtherEntries(week).length > 2) {
+              @if (week.otherEntries.length > 2) {
                 <p-button
                   [text]="true"
                   severity="primary"
                   size="small"
                   styleClass="week-overflow"
-                  [label]="'+' + (getOtherEntries(week).length - 2) + ' more'"
-                  (onClick)="showOverflow($event, getOtherEntries(week).slice(2))"
+                  [label]="'+' + (week.otherEntries.length - 2) + ' more'"
+                  (onClick)="showOverflow($event, week.otherEntries.slice(2))"
                 />
               }
             </div>
@@ -164,12 +164,12 @@
           <img [src]="entry.images[0].imageUrl" class="preview-hero" [alt]="entry.title || 'Entry'" />
         } @else {
           <div class="preview-hero-placeholder">
-            <i [class]="getActivityIcon(entry.activities[0]?.name ?? '')"></i>
+            <i [class]="entry.primaryActivityIcon"></i>
           </div>
         }
         <div class="preview-body">
           <span class="preview-date">
-            {{ entry.date | date: "MMM d, yyyy" }}@if (getEntryTime(entry); as time) { · {{ time }}}
+            {{ entry.date | date: "MMM d, yyyy" }}@if (selectedEntryTime(); as time) { · {{ time }}}
           </span>
           @if (entry.title) {
             <span class="preview-title">{{ entry.title }}</span>
@@ -181,7 +181,7 @@
             <div class="preview-section">
               @for (activity of entry.activities; track activity.id) {
                 <span class="preview-row">
-                  <i [class]="getActivityIcon(activity.name)"></i>
+                  <i [class]="activity.icon"></i>
                   {{ activity.name }}
                 </span>
               }
@@ -230,7 +230,7 @@
             />
           } @else {
             <div class="entry-thumbnail-placeholder">
-              <i [class]="getActivityIcon(entry.activities[0]?.name ?? '')"></i>
+              <i [class]="entry.primaryActivityIcon"></i>
             </div>
           }
           <div class="entry-body">

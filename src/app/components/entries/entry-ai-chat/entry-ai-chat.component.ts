@@ -45,7 +45,7 @@ export class EntryAiChatComponent {
 		viewChild<ElementRef<HTMLDivElement>>("messagesEnd");
 	private readonly _userData = injectUserData();
 	private readonly _throwErrorToast = injectErrorToast();
-	private _recognition: SpeechRecognition | null = null;
+	private readonly _recognition = signal<SpeechRecognition | null>(null);
 
 	public readonly entryConfirmed = output<void>();
 
@@ -109,6 +109,14 @@ export class EntryAiChatComponent {
 	public readonly suggestions = ENTRY_AI_CHAT_SUGGESTIONS;
 	public readonly creationSuggestions = ENTRY_AI_CHAT_CREATION_SUGGESTIONS;
 	public readonly clearChat = this._chat.clearChat;
+	public readonly messagesWithDraftDates = computed(() =>
+		this.messages().map((msg) => ({
+			...msg,
+			formattedDraftDate: msg.entryDraft
+				? format(new Date(`${msg.entryDraft.date}T12:00:00`), "MMMM do, yyyy")
+				: null,
+		})),
+	);
 
 	constructor() {
 		this.initSpeechRecognition();
@@ -174,7 +182,7 @@ export class EntryAiChatComponent {
 			return;
 		}
 
-		const recognition = this._recognition;
+		const recognition = this._recognition();
 
 		if (!recognition) {
 			this._throwErrorToast("Microphone input is unavailable right now.");
@@ -186,10 +194,6 @@ export class EntryAiChatComponent {
 		} catch {
 			this._throwErrorToast("Unable to start microphone input.");
 		}
-	}
-
-	public formatDraftDate(dateStr: string): string {
-		return format(new Date(`${dateStr}T12:00:00`), "MMMM do, yyyy");
 	}
 
 	public async confirmDraft(messageIndex: number): Promise<void> {
@@ -239,16 +243,16 @@ export class EntryAiChatComponent {
 			}
 		};
 
-		this._recognition = recognition;
+		this._recognition.set(recognition);
 	}
 
 	private stopListening(): void {
-		if (!this._recognition || !this.isListening()) {
+		if (!this._recognition() || !this.isListening()) {
 			return;
 		}
 
 		try {
-			this._recognition.stop();
+			this._recognition()!.stop();
 		} finally {
 			this.isListening.set(false);
 		}

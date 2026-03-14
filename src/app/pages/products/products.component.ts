@@ -46,7 +46,7 @@ type TagSeverity =
 	| "secondary"
 	| "contrast";
 
-const CATEGORY_SEVERITY_MAP: Record<string, TagSeverity> = {
+const CATEGORY_SEVERITY_MAP: Partial<Record<string, TagSeverity>> = {
 	fertilizer: "success",
 	"pre-emergent": "warn",
 	"post-emergent": "warn",
@@ -157,9 +157,7 @@ export class ProductsComponent {
 		this._router.navigate(["products", id]);
 	}
 
-	public getCategoryTagSeverity(category: string): TagSeverity {
-		return CATEGORY_SEVERITY_MAP[category] ?? "secondary";
-	}
+	public readonly categorySeverityMap = CATEGORY_SEVERITY_MAP;
 
 	public toggleProductVisibility(e: ProductVisibilityToggleEvent): void {
 		const currentProductsState = this.productsToShow();

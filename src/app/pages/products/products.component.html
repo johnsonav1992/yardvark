@@ -93,7 +93,7 @@
               <td>
                 <p-tag
                   [value]="item.category"
-                  [severity]="getCategoryTagSeverity(item.category)"
+                  [severity]="categorySeverityMap[item.category] ?? 'secondary'"
                 />
               </td>
               <td>{{ item.applicationRate || "-" }}</td>
@@ -256,7 +256,7 @@
                     <td>
                       <p-tag
                         [value]="item.category"
-                        [severity]="getCategoryTagSeverity(item.category)"
+                        [severity]="categorySeverityMap[item.category] ?? 'secondary'"
                       />
                     </td>
                     <td>{{ item.applicationRate || "-" }}</td>

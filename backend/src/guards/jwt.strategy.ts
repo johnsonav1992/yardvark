@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
 			}),
 			algorithms: ["RS256"],
 			audience: `https://${tenantDomain}/api/v2/`,
-			issuer: `https://${customDomain}/`,
+			issuer: [`https://${tenantDomain}/`, `https://${customDomain}/`],
 		});
 	}
 

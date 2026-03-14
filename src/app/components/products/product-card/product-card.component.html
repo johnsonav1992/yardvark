@@ -11,6 +11,7 @@
         alt="Card"
         [style.max-height]="screenWidth() > 400 ? '400px' : '250px'"
         [src]="product().imageUrl || noImageUrl"
+        [title]="product().imageCredit ? 'Photo: ' + product().imageCredit : ''"
       />
     </div>
   </ng-template>

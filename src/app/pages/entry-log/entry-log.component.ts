@@ -28,10 +28,12 @@ import { CsvExportService } from "../../services/csv-export.service";
 import { EntriesService } from "../../services/entries.service";
 import { GlobalUiService } from "../../services/global-ui.service";
 import { SettingsService } from "../../services/settings.service";
+import { SubscriptionService } from "../../services/subscription.service";
 import { WeatherService } from "../../services/weather-service";
 import type { Entry } from "../../types/entries.types";
+import type { YVUser } from "../../types/user.types";
 import type { DailyWeatherCalendarForecast } from "../../types/weather.types";
-import { injectUserData } from "../../utils/authUtils";
+import { injectUserData, isMasterUser } from "../../utils/authUtils";
 import { getEntryCsvConfig } from "../../utils/csvUtils";
 import { getEntryIcon } from "../../utils/entriesUtils";
 import { convertTimeStringToDate } from "../../utils/timeUtils";
@@ -61,6 +63,7 @@ export class EntryLogComponent implements OnInit {
 	private _settingsService = inject(SettingsService);
 	private _weatherService = inject(WeatherService);
 	private _csvExportService = inject(CsvExportService);
+	private _subscriptionService = inject(SubscriptionService);
 
 	public isCreateOnOpen = toSignal(
 		this._activatedRoute.queryParams.pipe(
@@ -93,6 +96,9 @@ export class EntryLogComponent implements OnInit {
 	public darkMode = this._globalUiService.isDarkMode;
 
 	public user = injectUserData();
+	public hasAiAccess = computed(
+		() => this._subscriptionService.hasAiAccess() || isMasterUser(this.user() as YVUser),
+	);
 
 	public isAiChatOpen = signal(false);
 	public entrySortOrder = signal<"asc" | "desc">("desc");
@@ -207,6 +213,10 @@ export class EntryLogComponent implements OnInit {
 				this.selectedMobileDateToView.set(this.directDateNavigation()!);
 			}
 		}
+	}
+
+	public navigateToTimeline(): void {
+		this._router.navigate(["entry-log", "timeline"]);
 	}
 
 	public navigateToEntry(entry: Entry): void {

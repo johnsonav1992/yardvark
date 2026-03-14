@@ -4,7 +4,7 @@ export type Environment = {
 	apiUrl: string;
 	feAppUrl: string;
 	auth0Domain: string;
+	auth0TenantDomain: string;
 	auth0ClientId: string;
 	mapBoxPublicKey: string;
-	stripePublishableKey: string;
 };

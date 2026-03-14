@@ -121,9 +121,7 @@ describe("WebhookController", () => {
 			await controller.handleWebhook(mockReq as any, mockRes as any);
 
 			expect(mockRes.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
-			expect(mockRes.send).toHaveBeenCalledWith(
-				"Webhook verification failed: Invalid signature",
-			);
+			expect(mockRes.send).toHaveBeenCalledWith("Webhook verification failed");
 		});
 
 		it("should handle duplicate webhook events", async () => {

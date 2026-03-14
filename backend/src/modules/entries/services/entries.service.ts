@@ -96,6 +96,7 @@ export class EntriesService {
 
 	public async getEntry(
 		entryId: number,
+		userId: string,
 		options?: { raw?: boolean },
 	): Promise<
 		Either<EntryNotFound, ReturnType<typeof getEntryResponseMapping> | Entry>
@@ -103,7 +104,7 @@ export class EntriesService {
 		LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
 
 		const entry = await this._entriesRepo.findOne({
-			where: { id: entryId },
+			where: { id: entryId, userId },
 			relations: {
 				activities: true,
 				lawnSegments: true,
@@ -338,12 +339,13 @@ export class EntriesService {
 
 	public async updateEntry(
 		entryId: number,
+		userId: string,
 		entry: Partial<EntryCreationRequest>,
 	): Promise<Either<EntryNotFound, Entry>> {
 		LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
 
 		const entryToUpdate = await this._entriesRepo.findOne({
-			where: { id: entryId },
+			where: { id: entryId, userId },
 			relations: {
 				lawnSegments: true,
 				activities: true,
@@ -390,11 +392,12 @@ export class EntriesService {
 
 	public async softDeleteEntry(
 		entryId: number,
+		userId: string,
 	): Promise<Either<EntryNotFound, void>> {
 		LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
 
 		const entry = await this._entriesRepo.findOne({
-			where: { id: entryId },
+			where: { id: entryId, userId },
 		});
 
 		if (!entry) {
@@ -409,11 +412,12 @@ export class EntriesService {
 
 	public async recoverEntry(
 		entryId: number,
+		userId: string,
 	): Promise<Either<EntryNotFound, void>> {
 		LogHelpers.addBusinessContext(BusinessContextKeys.entryId, entryId);
 
 		const entry = await this._entriesRepo.findOne({
-			where: { id: entryId },
+			where: { id: entryId, userId },
 			withDeleted: true,
 		});
 
@@ -509,9 +513,11 @@ export class EntriesService {
 
 	public async softDeleteEntryImage(
 		entryImageId: number,
+		userId: string,
 	): Promise<Either<EntryImageNotFound, void>> {
 		const image = await this._entryImagesRepo.findOne({
-			where: { id: entryImageId },
+			where: { id: entryImageId, entry: { userId } },
+			relations: { entry: true },
 		});
 
 		if (!image) {

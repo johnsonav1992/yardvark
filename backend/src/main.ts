@@ -27,7 +27,12 @@ async function bootstrap() {
 		helmet({
 			contentSecurityPolicy:
 				process.env.NODE_ENV === "production"
-					? undefined
+					? {
+							directives: {
+								defaultSrc: ["'none'"],
+								frameAncestors: ["'none'"],
+							},
+						}
 					: {
 							directives: {
 								defaultSrc: ["'self'"],
@@ -49,7 +54,11 @@ async function bootstrap() {
 									"https://cdn.jsdelivr.net",
 									"https://apollo-server-landing-page.cdn.apollographql.com",
 								],
-								connectSrc: ["'self'", "https://*"],
+								connectSrc: [
+									"'self'",
+									"https://studio.apollographql.com",
+									"https://*.apollographql.com",
+								],
 								frameSrc: ["'self'", "https://sandbox.embed.apollographql.com"],
 								fontSrc: ["'self'", "https://cdn.jsdelivr.net"],
 							},
@@ -70,12 +79,12 @@ async function bootstrap() {
 
 	app.enableCors({
 		origin: [
+			"https://yardvark.app",
 			"https://yardvark.netlify.app",
 			"http://localhost:4200",
 			"capacitor://localhost",
 			/^https:\/\/deploy-preview-\d+--yardvark\.netlify\.app$/,
 			/^https:\/\/[a-zA-Z0-9-]+--yardvark\.netlify\.app$/,
-			"https://t8x2587c-4200.usw3.devtunnels.ms",
 		],
 		methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
 		allowedHeaders: ["Content-Type", "Authorization"],

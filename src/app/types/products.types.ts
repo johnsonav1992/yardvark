@@ -17,6 +17,7 @@ export type Product = {
 	guaranteedAnalysis?: string;
 	containerType?: string;
 	imageUrl?: string;
+	imageCredit?: string;
 	labelUrl?: string;
 	createdAt: string;
 	updatedAt?: string;

@@ -1,22 +1,25 @@
 import { httpResource } from "@angular/common/http";
-import { Injectable, type Signal } from "@angular/core";
+import { Injectable, inject, type Signal } from "@angular/core";
 import type {
 	CurrentGddResponse,
 	GddForecastResponse,
 	HistoricalGddResponse,
 } from "../types/gdd.types";
 import { apiUrl } from "../utils/httpUtils";
+import { LocationService } from "./location.service";
 
 @Injectable({
 	providedIn: "root",
 })
 export class GddService {
+	private _locationService = inject(LocationService);
+
 	public currentGdd = httpResource<CurrentGddResponse>(() =>
-		apiUrl("gdd/current"),
+		this._locationService.userLatLong() ? apiUrl("gdd/current") : undefined,
 	);
 
 	public gddForecast = httpResource<GddForecastResponse>(() =>
-		apiUrl("gdd/forecast"),
+		this._locationService.userLatLong() ? apiUrl("gdd/forecast") : undefined,
 	);
 
 	public getHistoricalGdd = (

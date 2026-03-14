@@ -1,10 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { format } from "date-fns";
 import { ACTIVITY_IDS } from "../../../constants/activities.constants";
-import {
-	ResourceNotFound,
-	ResourceValidationError,
-} from "../../../errors/resource-error";
+import { ResourceNotFound } from "../../../errors/resource-error";
 import type {
 	AiEntryDraftData,
 	AiEntryDraftProduct,
@@ -147,22 +144,13 @@ export class EntryQueryToolsService {
 	}
 
 	public async getEntryById(userId: string, entryId: number) {
-		const result = await this.entriesService.getEntry(entryId);
+		const result = await this.entriesService.getEntry(entryId, userId);
 
 		if (result.isError()) {
 			throw result.value;
 		}
 
-		const entry = result.value as MappedEntry;
-
-		if (entry.userId !== userId) {
-			throw new ResourceValidationError({
-				message: "Unauthorized access to entry",
-				code: "ENTRY_ACCESS_DENIED",
-			});
-		}
-
-		return sanitizeEntry(entry);
+		return sanitizeEntry(result.value as MappedEntry);
 	}
 
 	public async proposeEntry(

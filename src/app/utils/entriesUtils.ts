@@ -17,6 +17,16 @@ export const getEntryIcon = (entry: Entry) => {
 	);
 };
 
+export const getActivityIcon = (activityName: string): string => {
+	const iconsMap: Record<string, string> = {
+		mow: "li li-lawnmower",
+		water: "ti ti-droplets",
+		"product application": "ti ti-box",
+	};
+
+	return iconsMap[activityName.toLowerCase()] ?? "ti ti-list";
+};
+
 export const createEntryProductRow = (product?: Product | EntryProduct) => {
 	return new FormGroup({
 		product: new FormControl<Product | EntryProduct | null>(product || null),

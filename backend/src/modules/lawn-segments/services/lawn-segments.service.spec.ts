@@ -1,6 +1,6 @@
 import { Test, type TestingModule } from "@nestjs/testing";
 import { getRepositoryToken } from "@nestjs/typeorm";
-import type { DeleteResult, Repository } from "typeorm";
+import type { Repository } from "typeorm";
 import { DEFAULT_LAWN_SEGMENT_COLOR } from "../../../constants/lawn-segments.constants";
 import { LawnSegmentNotFound } from "../models/lawn-segments.errors";
 import { LawnSegment } from "../models/lawn-segments.model";
@@ -320,11 +320,13 @@ describe("LawnSegmentsService", () => {
 
 			const result = await service.updateLawnSegment(
 				mockLawnSegment.id,
+				"user-123",
 				updateData,
 			);
 
 			expect(mockRepository.findOneBy).toHaveBeenCalledWith({
 				id: mockLawnSegment.id,
+				userId: "user-123",
 			});
 			expect(result.isSuccess()).toBe(true);
 
@@ -342,6 +344,7 @@ describe("LawnSegmentsService", () => {
 
 			const result = await service.updateLawnSegment(
 				mockLawnSegment.id,
+				"user-123",
 				updateData,
 			);
 
@@ -362,6 +365,7 @@ describe("LawnSegmentsService", () => {
 
 			const result = await service.updateLawnSegment(
 				mockLawnSegment.id,
+				"user-123",
 				updateData,
 			);
 
@@ -382,6 +386,7 @@ describe("LawnSegmentsService", () => {
 
 			const result = await service.updateLawnSegment(
 				mockLawnSegment.id,
+				"user-123",
 				updateData,
 			);
 
@@ -396,8 +401,27 @@ describe("LawnSegmentsService", () => {
 		it("should return error when segment not found", async () => {
 			mockRepository.findOneBy.mockResolvedValue(null);
 
-			const result = await service.updateLawnSegment(999, { name: "Test" });
+			const result = await service.updateLawnSegment(999, "user-123", {
+				name: "Test",
+			});
 
+			expect(result.isError()).toBe(true);
+			expect(result.value).toBeInstanceOf(LawnSegmentNotFound);
+		});
+
+		it("should return error when segment belongs to different user", async () => {
+			mockRepository.findOneBy.mockResolvedValue(null);
+
+			const result = await service.updateLawnSegment(
+				mockLawnSegment.id,
+				"other-user",
+				{ name: "Test" },
+			);
+
+			expect(mockRepository.findOneBy).toHaveBeenCalledWith({
+				id: mockLawnSegment.id,
+				userId: "other-user",
+			});
 			expect(result.isError()).toBe(true);
 			expect(result.value).toBeInstanceOf(LawnSegmentNotFound);
 		});
@@ -409,7 +433,9 @@ describe("LawnSegmentsService", () => {
 			mockRepository.save.mockRejectedValue(error);
 
 			await expect(
-				service.updateLawnSegment(mockLawnSegment.id, { name: "Test" }),
+				service.updateLawnSegment(mockLawnSegment.id, "user-123", {
+					name: "Test",
+				}),
 			).rejects.toThrow("Update operation failed");
 		});
 
@@ -422,6 +448,7 @@ describe("LawnSegmentsService", () => {
 
 			const result = await service.updateLawnSegment(
 				mockLawnSegment.id,
+				"user-123",
 				updateData,
 			);
 
@@ -435,68 +462,68 @@ describe("LawnSegmentsService", () => {
 
 	describe("deleteLawnSegment", () => {
 		it("should delete a lawn segment successfully", async () => {
-			const deleteResult: DeleteResult = {
-				affected: 1,
-				raw: {},
-			};
+			mockRepository.findOneBy.mockResolvedValue(mockLawnSegment);
+			mockRepository.delete.mockResolvedValue({ affected: 1, raw: {} });
 
-			mockRepository.delete.mockResolvedValue(deleteResult);
+			const result = await service.deleteLawnSegment(1, "user-123");
 
-			const result = await service.deleteLawnSegment(1);
-
+			expect(mockRepository.findOneBy).toHaveBeenCalledWith({
+				id: 1,
+				userId: "user-123",
+			});
 			expect(mockRepository.delete).toHaveBeenCalledWith({ id: 1 });
-			expect(result).toEqual(deleteResult);
-			expect(result.affected).toBe(1);
+			expect(result.isSuccess()).toBe(true);
 		});
 
 		it("should handle deleting different segment IDs", async () => {
-			const deleteResult: DeleteResult = {
-				affected: 1,
-				raw: {},
-			};
+			mockRepository.findOneBy.mockResolvedValue({
+				...mockLawnSegment,
+				id: 42,
+			});
+			mockRepository.delete.mockResolvedValue({ affected: 1, raw: {} });
 
-			mockRepository.delete.mockResolvedValue(deleteResult);
+			await service.deleteLawnSegment(42, "user-123");
 
-			await service.deleteLawnSegment(42);
-
+			expect(mockRepository.findOneBy).toHaveBeenCalledWith({
+				id: 42,
+				userId: "user-123",
+			});
 			expect(mockRepository.delete).toHaveBeenCalledWith({ id: 42 });
 		});
 
-		it("should handle deleting non-existent segments", async () => {
-			const deleteResult: DeleteResult = {
-				affected: 0,
-				raw: {},
-			};
+		it("should return error when segment not found", async () => {
+			mockRepository.findOneBy.mockResolvedValue(null);
 
-			mockRepository.delete.mockResolvedValue(deleteResult);
+			const result = await service.deleteLawnSegment(999, "user-123");
 
-			const result = await service.deleteLawnSegment(999);
+			expect(result.isError()).toBe(true);
+			expect(result.value).toBeInstanceOf(LawnSegmentNotFound);
+		});
 
-			expect(mockRepository.delete).toHaveBeenCalledWith({ id: 999 });
-			expect(result.affected).toBe(0);
+		it("should return error when segment belongs to different user", async () => {
+			mockRepository.findOneBy.mockResolvedValue(null);
+
+			const result = await service.deleteLawnSegment(
+				mockLawnSegment.id,
+				"other-user",
+			);
+
+			expect(mockRepository.findOneBy).toHaveBeenCalledWith({
+				id: mockLawnSegment.id,
+				userId: "other-user",
+			});
+			expect(result.isError()).toBe(true);
+			expect(result.value).toBeInstanceOf(LawnSegmentNotFound);
 		});
 
 		it("should handle repository delete errors", async () => {
 			const error = new Error("Delete operation failed");
+			mockRepository.findOneBy.mockResolvedValue(mockLawnSegment);
 			mockRepository.delete.mockRejectedValue(error);
 
-			await expect(service.deleteLawnSegment(1)).rejects.toThrow(
+			await expect(service.deleteLawnSegment(1, "user-123")).rejects.toThrow(
 				"Delete operation failed",
 			);
-		});
-
-		it("should handle deleting with negative IDs", async () => {
-			const deleteResult: DeleteResult = {
-				affected: 0,
-				raw: {},
-			};
-
-			mockRepository.delete.mockResolvedValue(deleteResult);
-
-			const result = await service.deleteLawnSegment(-1);
-
-			expect(mockRepository.delete).toHaveBeenCalledWith({ id: -1 });
-			expect(result.affected).toBe(0);
 		});
 	});
 

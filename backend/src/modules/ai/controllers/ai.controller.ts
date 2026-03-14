@@ -1,4 +1,5 @@
 import { Body, Controller, Get, HttpStatus, Post, Res } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import type { Response } from "express";
 import { SubscriptionFeature } from "../../../decorators/subscription-feature.decorator";
 import { User } from "../../../decorators/user.decorator";
@@ -21,6 +22,7 @@ export class AiController {
 	constructor(private readonly aiService: AiService) {}
 
 	@Post("chat")
+	@Throttle({ default: { ttl: 60000, limit: 10 } })
 	@SubscriptionFeature("ai_chat")
 	public async chat(
 		@Body() chatRequest: AiChatRequest,
@@ -38,6 +40,7 @@ export class AiController {
 	}
 
 	@Post("query-entries")
+	@Throttle({ default: { ttl: 60000, limit: 10 } })
 	@SubscriptionFeature("ai_chat")
 	public async queryEntries(
 		@User() user: ExtractedUserRequestData,
@@ -69,6 +72,7 @@ export class AiController {
 	}
 
 	@Post("query-entries/stream")
+	@Throttle({ default: { ttl: 60000, limit: 10 } })
 	@SubscriptionFeature("ai_chat")
 	public async streamQueryEntries(
 		@User() user: ExtractedUserRequestData,

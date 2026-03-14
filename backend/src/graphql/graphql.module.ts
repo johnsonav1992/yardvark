@@ -47,7 +47,7 @@ const RequireOperationNamePlugin: ApolloServerPlugin = {
 			driver: ApolloDriver,
 			autoSchemaFile: join(process.cwd(), "src/schema.gql"),
 			sortSchema: true,
-			introspection: true,
+			introspection: process.env.NODE_ENV !== "production",
 			playground: false,
 			plugins: [
 				ApolloServerPluginLandingPageLocalDefault({

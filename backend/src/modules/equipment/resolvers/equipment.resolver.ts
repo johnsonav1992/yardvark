@@ -44,8 +44,9 @@ export class EquipmentResolver {
 	async updateEquipment(
 		@Args("id", { type: () => Int }) id: number,
 		@Args("input") input: UpdateEquipmentInput,
+		@Context() ctx: GqlContext,
 	): Promise<Equipment> {
-		const result = await this.equipmentService.updateEquipment(id, input);
+		const result = await this.equipmentService.updateEquipment(id, ctx.req.user.userId, input);
 
 		return resultOrThrow(result);
 	}
@@ -53,8 +54,9 @@ export class EquipmentResolver {
 	@Mutation(() => Boolean)
 	async deleteEquipment(
 		@Args("id", { type: () => Int }) id: number,
+		@Context() ctx: GqlContext,
 	): Promise<boolean> {
-		const result = await this.equipmentService.deleteEquipment(id);
+		const result = await this.equipmentService.deleteEquipment(id, ctx.req.user.userId);
 
 		resultOrThrow(result);
 
@@ -65,8 +67,11 @@ export class EquipmentResolver {
 	async toggleEquipmentArchiveStatus(
 		@Args("id", { type: () => Int }) id: number,
 		@Args("isActive") isActive: boolean,
+		@Context() ctx: GqlContext,
 	): Promise<boolean> {
-		await this.equipmentService.toggleEquipmentArchiveStatus(id, isActive);
+		const result = await this.equipmentService.toggleEquipmentArchiveStatus(id, ctx.req.user.userId, isActive);
+
+		resultOrThrow(result);
 
 		return true;
 	}
@@ -75,9 +80,11 @@ export class EquipmentResolver {
 	async createMaintenanceRecord(
 		@Args("equipmentId", { type: () => Int }) equipmentId: number,
 		@Args("input") input: CreateMaintenanceInput,
+		@Context() ctx: GqlContext,
 	): Promise<EquipmentMaintenance> {
 		const result = await this.equipmentService.createMaintenanceRecord(
 			equipmentId,
+			ctx.req.user.userId,
 			input,
 		);
 
@@ -88,9 +95,11 @@ export class EquipmentResolver {
 	async updateMaintenanceRecord(
 		@Args("id", { type: () => Int }) id: number,
 		@Args("input") input: UpdateMaintenanceInput,
+		@Context() ctx: GqlContext,
 	): Promise<EquipmentMaintenance> {
 		const result = await this.equipmentService.updateMaintenanceRecord(
 			id,
+			ctx.req.user.userId,
 			input,
 		);
 
@@ -100,8 +109,9 @@ export class EquipmentResolver {
 	@Mutation(() => Boolean)
 	async deleteMaintenanceRecord(
 		@Args("id", { type: () => Int }) id: number,
+		@Context() ctx: GqlContext,
 	): Promise<boolean> {
-		const result = await this.equipmentService.deleteMaintenanceRecord(id);
+		const result = await this.equipmentService.deleteMaintenanceRecord(id, ctx.req.user.userId);
 
 		resultOrThrow(result);
 

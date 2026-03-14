@@ -43,10 +43,12 @@ export class LawnSegmentsResolver {
 	@Mutation(() => LawnSegment)
 	async updateLawnSegment(
 		@Args("input") input: UpdateLawnSegmentInput,
+		@Context() ctx: GqlContext,
 	): Promise<LawnSegment> {
 		const { id, ...updateData } = input;
 		const result = await this.lawnSegmentsService.updateLawnSegment(
 			id,
+			ctx.req.user.userId,
 			updateData,
 		);
 
@@ -56,8 +58,10 @@ export class LawnSegmentsResolver {
 	@Mutation(() => Boolean)
 	async deleteLawnSegment(
 		@Args("id", { type: () => Int }) id: number,
+		@Context() ctx: GqlContext,
 	): Promise<boolean> {
-		resultOrThrow(await this.lawnSegmentsService.deleteLawnSegment(id));
+		resultOrThrow(await this.lawnSegmentsService.deleteLawnSegment(id, ctx.req.user.userId));
+
 		return true;
 	}
 }

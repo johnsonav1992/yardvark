@@ -48,6 +48,7 @@ export class LawnSegmentsController {
 
 	@Put(":id")
 	public async updateLawnSegment(
+		@User("userId") userId: string,
 		@Param("id") id: number,
 		@Body() updateData: LawnSegmentUpdateRequest,
 	) {
@@ -55,21 +56,28 @@ export class LawnSegmentsController {
 			BusinessContextKeys.controllerOperation,
 			"update_lawn_segment",
 		);
+		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 		LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentId, id);
 
 		return resultOrThrow(
-			await this._lawnSegmentService.updateLawnSegment(id, updateData),
+			await this._lawnSegmentService.updateLawnSegment(id, userId, updateData),
 		);
 	}
 
 	@Delete(":id")
-	public async deleteLawnSegment(@Param("id") id: number) {
+	public async deleteLawnSegment(
+		@User("userId") userId: string,
+		@Param("id") id: number,
+	) {
 		LogHelpers.addBusinessContext(
 			BusinessContextKeys.controllerOperation,
 			"delete_lawn_segment",
 		);
+		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 		LogHelpers.addBusinessContext(BusinessContextKeys.lawnSegmentId, id);
 
-		return resultOrThrow(await this._lawnSegmentService.deleteLawnSegment(id));
+		return resultOrThrow(
+			await this._lawnSegmentService.deleteLawnSegment(id, userId),
+		);
 	}
 }

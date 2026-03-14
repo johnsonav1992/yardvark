@@ -9,7 +9,8 @@ import type { ExtractedUserRequestData } from "src/types/request";
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
 	constructor(readonly configService: ConfigService) {
-		const domain = configService.get<string>("AUTH0_DOMAIN");
+		const customDomain = configService.get<string>("AUTH0_CUSTOM_DOMAIN");
+		const tenantDomain = configService.get<string>("AUTH0_DOMAIN");
 
 		super({
 			jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -18,12 +19,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
 				cache: true,
 				rateLimit: true,
 				jwksRequestsPerMinute: 5,
-				jwksUri: `https://${domain}/.well-known/jwks.json`,
+				jwksUri: `https://${customDomain}/.well-known/jwks.json`,
 				handleSigningKeyError: (err) => console.error(err),
 			}),
 			algorithms: ["RS256"],
-			audience: `https://${domain}/api/v2/`,
-			issuer: `https://${domain}/`,
+			audience: `https://${tenantDomain}/api/v2/`,
+			issuer: `https://${customDomain}/`,
 		});
 	}
 

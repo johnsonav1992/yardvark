@@ -67,6 +67,19 @@ export class EntriesService {
 			}),
 		);
 
+	public getTimelineEntriesResource = (
+		rangeStart: Signal<Date>,
+		rangeEnd: Signal<Date>,
+	) =>
+		httpResource<Entry[]>(() =>
+			apiUrl("entries", {
+				queryParams: {
+					startDate: rangeStart().toISOString(),
+					endDate: rangeEnd().toISOString(),
+				},
+			}),
+		);
+
 	public addEntry(req: EntryCreationRequestFormInput): Observable<void> {
 		return (
 			req.images?.length

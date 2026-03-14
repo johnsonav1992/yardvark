@@ -12,7 +12,7 @@ import {
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { S3Service } from "src/modules/s3/s3.service";
-import { imageFileValidator } from "src/utils/fileUtils";
+import { imageFileValidator, validateImageMagicBytes } from "src/utils/fileUtils";
 import { User } from "../../../decorators/user.decorator";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
@@ -55,6 +55,7 @@ export class EquipmentController {
 		let imageUrl: string | undefined;
 
 		if (file) {
+			validateImageMagicBytes(file);
 			imageUrl = resultOrThrow(await this._s3Service.uploadFile(file, userId));
 		}
 
@@ -82,10 +83,11 @@ export class EquipmentController {
 		let imageUrl: string | undefined;
 
 		if (file) {
+			validateImageMagicBytes(file);
 			imageUrl = resultOrThrow(await this._s3Service.uploadFile(file, userId));
 		}
 
-		const result = await this._equipmentService.updateEquipment(equipmentId, {
+		const result = await this._equipmentService.updateEquipment(equipmentId, userId, {
 			...equipmentData,
 			imageUrl,
 		});
@@ -95,6 +97,7 @@ export class EquipmentController {
 
 	@Put(":equipmentId/archive-status")
 	public async toggleEquipmentArchiveStatus(
+		@User("userId") userId: string,
 		@Param("equipmentId") equipmentId: number,
 		@Query("isActive") isActive: boolean,
 	) {
@@ -102,11 +105,13 @@ export class EquipmentController {
 			BusinessContextKeys.controllerOperation,
 			"toggle_archive_status",
 		);
+		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 		LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
 		LogHelpers.addBusinessContext(BusinessContextKeys.isActive, isActive);
 
 		const result = await this._equipmentService.toggleEquipmentArchiveStatus(
 			equipmentId,
+			userId,
 			isActive,
 		);
 
@@ -115,6 +120,7 @@ export class EquipmentController {
 
 	@Post(":equipmentId/maintenance")
 	public async createMaintenanceRecord(
+		@User("userId") userId: string,
 		@Param("equipmentId") equipmentId: number,
 		@Body() maintenanceData: Partial<EquipmentMaintenance>,
 	) {
@@ -122,10 +128,12 @@ export class EquipmentController {
 			BusinessContextKeys.controllerOperation,
 			"create_maintenance_record",
 		);
+		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 		LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
 
 		const result = await this._equipmentService.createMaintenanceRecord(
 			equipmentId,
+			userId,
 			maintenanceData,
 		);
 
@@ -134,6 +142,7 @@ export class EquipmentController {
 
 	@Put("maintenance/:maintenanceId")
 	public async updateMaintenanceRecord(
+		@User("userId") userId: string,
 		@Param("maintenanceId") maintenanceId: number,
 		@Body() maintenanceData: Partial<EquipmentMaintenance>,
 	) {
@@ -141,6 +150,7 @@ export class EquipmentController {
 			BusinessContextKeys.controllerOperation,
 			"update_maintenance_record",
 		);
+		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 		LogHelpers.addBusinessContext(
 			BusinessContextKeys.maintenanceId,
 			maintenanceId,
@@ -148,6 +158,7 @@ export class EquipmentController {
 
 		const result = await this._equipmentService.updateMaintenanceRecord(
 			maintenanceId,
+			userId,
 			maintenanceData,
 		);
 
@@ -155,33 +166,39 @@ export class EquipmentController {
 	}
 
 	@Delete(":equipmentId")
-	public async deleteEquipment(@Param("equipmentId") equipmentId: number) {
+	public async deleteEquipment(
+		@User("userId") userId: string,
+		@Param("equipmentId") equipmentId: number,
+	) {
 		LogHelpers.addBusinessContext(
 			BusinessContextKeys.controllerOperation,
 			"delete_equipment",
 		);
+		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 		LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
 
-		const result = await this._equipmentService.deleteEquipment(equipmentId);
+		const result = await this._equipmentService.deleteEquipment(equipmentId, userId);
 
 		return resultOrThrow(result);
 	}
 
 	@Delete("maintenance/:maintenanceId")
 	public async deleteMaintenanceRecord(
+		@User("userId") userId: string,
 		@Param("maintenanceId") maintenanceId: number,
 	) {
 		LogHelpers.addBusinessContext(
 			BusinessContextKeys.controllerOperation,
 			"delete_maintenance_record",
 		);
+		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 		LogHelpers.addBusinessContext(
 			BusinessContextKeys.maintenanceId,
 			maintenanceId,
 		);
 
 		const result =
-			await this._equipmentService.deleteMaintenanceRecord(maintenanceId);
+			await this._equipmentService.deleteMaintenanceRecord(maintenanceId, userId);
 
 		return resultOrThrow(result);
 	}

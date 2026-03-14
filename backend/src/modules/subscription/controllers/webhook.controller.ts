@@ -6,6 +6,7 @@ import {
 	Req,
 	Res,
 } from "@nestjs/common";
+import { SkipThrottle } from "@nestjs/throttler";
 import { InjectRepository } from "@nestjs/typeorm";
 import type { Request, Response } from "express";
 import type Stripe from "stripe";
@@ -17,6 +18,7 @@ import { WebhookEvent } from "../models/webhook-event.model";
 import { StripeService } from "../services/stripe.service";
 import { SubscriptionService } from "../services/subscription.service";
 
+@SkipThrottle()
 @Controller("stripe")
 export class WebhookController {
 	constructor(
@@ -77,7 +79,7 @@ export class WebhookController {
 
 			return res
 				.status(HttpStatus.BAD_REQUEST)
-				.send(`Webhook verification failed: ${err.message}`);
+				.send("Webhook verification failed");
 		}
 
 		LogHelpers.addBusinessContext(BusinessContextKeys.stripeEventId, event.id);
@@ -147,7 +149,7 @@ export class WebhookController {
 
 			return res
 				.status(HttpStatus.INTERNAL_SERVER_ERROR)
-				.json({ error: "Webhook processing failed", message: err.message });
+				.json({ error: "Webhook processing failed" });
 		}
 	}
 

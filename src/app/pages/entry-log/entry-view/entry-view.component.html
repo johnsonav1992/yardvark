@@ -314,15 +314,39 @@
                 @if (imgs?.length) {
                   <p-galleria
                     [value]="imgs"
-                    [showIndicators]="(imgs?.length || 0) > 1"
+                    [activeIndex]="galleriaActiveIndex()"
+                    (activeIndexChange)="galleriaActiveIndex.set($event)"
+                    [showIndicators]="imgs.length > 1"
                     [showThumbnails]="false"
                     [containerStyle]="{ width: '100%' }"
                   >
                     <ng-template #item let-item>
-                      <div class="gallery-container">
+                      <div class="gallery-container" (click)="galleriaFullscreenVisible.set(true)">
                         <img [src]="item" />
+                        <div class="gallery-zoom-hint">
+                          <i class="ti ti-zoom-in"></i>
+                        </div>
                       </div>
                     </ng-template>
+                  </p-galleria>
+                  <p-galleria
+                    [value]="imgs"
+                    [activeIndex]="galleriaActiveIndex()"
+                    (activeIndexChange)="galleriaActiveIndex.set($event)"
+                    [fullScreen]="true"
+                    [visible]="galleriaFullscreenVisible()"
+                    (visibleChange)="galleriaFullscreenVisible.set($event)"
+                    [showItemNavigators]="imgs.length > 1"
+                    [showThumbnails]="imgs.length > 1"
+                  >
+                    <ng-template #item let-item>
+                      <img [src]="item" class="fullscreen-img" pinchZoom />
+                    </ng-template>
+                    @if (imgs.length > 1) {
+                      <ng-template #thumbnail let-item>
+                        <img [src]="item" class="fullscreen-thumb" />
+                      </ng-template>
+                    }
                   </p-galleria>
                 }
               }

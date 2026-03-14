@@ -31,6 +31,7 @@ import { MultiSelectModule } from "primeng/multiselect";
 import { SkeletonModule } from "primeng/skeleton";
 import { TextareaModule } from "primeng/textarea";
 import { map } from "rxjs";
+import { PinchZoomDirective } from "../../../directives/pinch-zoom.directive";
 import { PageContainerComponent } from "../../../components/layout/page-container/page-container.component";
 import { ProductSmallCardComponent } from "../../../components/products/product-small-card/product-small-card.component";
 import { ProductsSelectorComponent } from "../../../components/products/products-selector/products-selector.component";
@@ -60,6 +61,7 @@ import { injectErrorToast } from "../../../utils/toastUtils";
 	selector: "entry-view",
 	imports: [
 		DatePipe,
+		PinchZoomDirective,
 		PageContainerComponent,
 		ButtonModule,
 		CardModule,
@@ -170,6 +172,8 @@ export class EntryViewComponent {
 	);
 
 	public downloadedFiles = signal<File[]>([]);
+	public galleriaActiveIndex = signal<number>(0);
+	public galleriaFullscreenVisible = signal<boolean>(false);
 
 	public shouldShowProductsCard = computed(
 		() => (this.entryData()?.products?.length ?? 0) > 0 || this.isInEditMode(),

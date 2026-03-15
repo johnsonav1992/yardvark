@@ -17,6 +17,7 @@ import { LoggingInterceptor } from "./logger/logger";
 import { ActivitiesModule } from "./modules/activities/activities.module";
 import { AiModule } from "./modules/ai/ai.module";
 import { AnalyticsModule } from "./modules/analytics/analytics.module";
+import { DashboardModule } from "./modules/dashboard/dashboard.module";
 import { EmailModule } from "./modules/email/email.module";
 import { EntriesModule } from "./modules/entries/entries.module";
 import { EquipmentModule } from "./modules/equipment/equipment.module";
@@ -54,6 +55,7 @@ import { WeatherModule } from "./modules/weather/weather.module";
 		HttpModule,
 		EquipmentModule,
 		AnalyticsModule,
+		DashboardModule,
 		FilesModule,
 		WeatherModule,
 		HttpModule,

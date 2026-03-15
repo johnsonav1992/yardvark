@@ -1,10 +1,12 @@
 import { httpResource } from "@angular/common/http";
-import { Injectable, inject, linkedSignal } from "@angular/core";
+import { effect, Injectable, inject, linkedSignal } from "@angular/core";
 import type {
 	SettingsData,
 	SettingsResponse,
 } from "../../../backend/src/modules/settings/models/settings.types";
 import { apiUrl, putReq } from "../utils/httpUtils";
+
+const SETTINGS_CACHE_KEY = "yv_settings_cache";
 
 @Injectable({
 	providedIn: "root",
@@ -12,7 +14,33 @@ import { apiUrl, putReq } from "../utils/httpUtils";
 export class SettingsService {
 	public settings = httpResource<SettingsResponse>(() => apiUrl("settings"));
 
-	public currentSettings = linkedSignal(() => this.settings.value()?.value);
+	public currentSettings = linkedSignal<SettingsData | undefined>(
+		() => this.settings.value()?.value ?? this._getCachedSettings() ?? undefined,
+	);
+
+	constructor() {
+		effect(() => {
+			const current = this.currentSettings();
+
+			if (current) {
+				try {
+					localStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(current));
+				} catch {
+					// ignore storage errors
+				}
+			}
+		});
+	}
+
+	private _getCachedSettings(): SettingsData | null {
+		try {
+			const cached = localStorage.getItem(SETTINGS_CACHE_KEY);
+
+			return cached ? (JSON.parse(cached) as SettingsData) : null;
+		} catch {
+			return null;
+		}
+	}
 
 	public updateSetting = <
 		TKey extends keyof SettingsData,

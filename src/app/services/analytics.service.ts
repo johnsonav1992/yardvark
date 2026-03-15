@@ -10,7 +10,15 @@ import { apiUrl } from "../utils/httpUtils";
 export class AnalyticsService {
 	public year = signal(getYear(new Date()));
 
+	private readonly _isEnabled = signal(false);
+
+	public enable(): void {
+		this._isEnabled.set(true);
+	}
+
 	public analyticsData = httpResource<AnalyticsRes>(() =>
-		apiUrl("analytics", { queryParams: { year: this.year() } }),
+		this._isEnabled()
+			? apiUrl("analytics", { queryParams: { year: this.year() } })
+			: undefined,
 	);
 }

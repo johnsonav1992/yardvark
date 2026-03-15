@@ -42,6 +42,10 @@ export class AnalyticsComponent {
 	private _analyticsService = inject(AnalyticsService);
 	private _subscriptionService = inject(SubscriptionService);
 
+	constructor() {
+		this._analyticsService.enable();
+	}
+
 	public analyticsData = this._analyticsService.analyticsData;
 
 	public isDarkMode = this._globalUiService.isDarkMode;

@@ -1,6 +1,6 @@
 import { formatDate } from "@angular/common";
 import { httpResource } from "@angular/common/http";
-import { Injectable, inject, type Signal } from "@angular/core";
+import { computed, Injectable, inject, type Signal } from "@angular/core";
 import { endOfMonth, startOfMonth } from "date-fns";
 import {
 	forkJoin,
@@ -12,6 +12,7 @@ import {
 import type {
 	BatchEntryCreationRequest,
 	BatchEntryCreationResponse,
+	DashboardSummaryResponse,
 	EntriesSearchRequest,
 	Entry,
 	EntryCreationRequest,
@@ -45,17 +46,39 @@ export class EntriesService {
 				: undefined,
 		);
 
-	public recentEntry = httpResource<Entry | null>(() =>
-		apiUrl("entries/single/most-recent"),
+	private _dashboardSummary = httpResource<DashboardSummaryResponse>(() =>
+		apiUrl("dashboard/summary"),
 	);
 
-	public lastMow = httpResource<{ lastMowDate: Date | null }>(() =>
-		apiUrl("entries/last-mow"),
-	);
+	public recentEntry = {
+		value: computed(() => this._dashboardSummary.value()?.recentEntry ?? null),
+		isLoading: this._dashboardSummary.isLoading,
+		error: this._dashboardSummary.error,
+		reload: () => this._dashboardSummary.reload(),
+	};
 
-	public lastProductApp = httpResource<{ lastProductAppDate: Date | null }>(
-		() => apiUrl("entries/last-product-app"),
-	);
+	public lastMow = {
+		value: computed(
+			() =>
+				({ lastMowDate: this._dashboardSummary.value()?.lastMowDate ?? null }),
+		),
+		isLoading: this._dashboardSummary.isLoading,
+		error: this._dashboardSummary.error,
+		reload: () => this._dashboardSummary.reload(),
+	};
+
+	public lastProductApp = {
+		value: computed(
+			() =>
+				({
+					lastProductAppDate:
+						this._dashboardSummary.value()?.lastProductAppDate ?? null,
+				}),
+		),
+		isLoading: this._dashboardSummary.isLoading,
+		error: this._dashboardSummary.error,
+		reload: () => this._dashboardSummary.reload(),
+	};
 
 	public getMonthEntriesResource = (currentDate: Signal<Date>) =>
 		httpResource<Entry[]>(() =>

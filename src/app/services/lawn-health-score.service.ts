@@ -1,4 +1,4 @@
-import { computed, Injectable, inject } from "@angular/core";
+import { computed, effect, Injectable, inject } from "@angular/core";
 import { rxResource } from "@angular/core/rxjs-interop";
 import {
 	differenceInDays,
@@ -41,6 +41,16 @@ export class LawnHealthScoreService {
 	private _soilDataService = inject(SoilDataService);
 	private _settingsService = inject(SettingsService);
 	private _subscriptionService = inject(SubscriptionService);
+
+	constructor() {
+		effect(() => {
+			const hidden = this._settingsService.currentSettings()?.hiddenWidgets ?? [];
+
+			if (!hidden.includes("lawn-health-score")) {
+				this._analyticsService.enable();
+			}
+		});
+	}
 
 	public analyticsData = this._analyticsService.analyticsData;
 	public lastMowDate = this._entriesService.lastMow;

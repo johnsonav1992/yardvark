@@ -15,6 +15,7 @@ import { SettingsService } from "../../../services/settings.service";
 import { SoilDataService } from "../../../services/soil-data.service";
 import { SubscriptionService } from "../../../services/subscription.service";
 import { getLawnSeasonCompletedPercentageWithTemp } from "../../../utils/lawnSeasonUtils";
+import { computeSoilTrend } from "../../../utils/soilTemperatureUtils";
 
 @Component({
 	selector: "quick-stats",
@@ -100,6 +101,18 @@ export class QuickStatsComponent {
 
 		return soilData.shallowTemps[7];
 	});
+
+	public soilTempTrend = computed(() => {
+		const soilData = this._soilDataService.rollingWeekSoilData.value();
+
+		if (!soilData) return null;
+
+		return computeSoilTrend(soilData.shallowTemps);
+	});
+
+	public tempUnitSymbol = computed(() =>
+		this.temperatureUnit() === "fahrenheit" ? "°F" : "°C",
+	);
 
 	public lawnSeasonPercentage = computed(() => {
 		const coords = this.userCoords();

@@ -1,5 +1,5 @@
 import { httpResource } from "@angular/common/http";
-import { Injectable, signal } from "@angular/core";
+import { computed, Injectable, signal } from "@angular/core";
 import { getYear } from "date-fns";
 import type { AnalyticsRes } from "../types/analytics.types";
 import { apiUrl } from "../utils/httpUtils";
@@ -14,15 +14,20 @@ export class AnalyticsService {
 	public year = signal(getYear(new Date()));
 
 	private readonly _forceEnabled = signal(false);
+	private readonly _lawnHealthScoreHidden = computed(
+		() =>
+			this._settingsService.currentSettings()?.hiddenWidgets?.includes(
+				"lawn-health-score",
+			) ?? false,
+	);
 
 	public enable(): void {
 		this._forceEnabled.set(true);
 	}
 
 	public analyticsData = httpResource<AnalyticsRes>(() => {
-		const hidden = this._settingsService.currentSettings()?.hiddenWidgets ?? [];
 		const shouldFetch =
-			this._forceEnabled() || !hidden.includes("lawn-health-score");
+			this._forceEnabled() || !this._lawnHealthScoreHidden();
 
 		return shouldFetch
 			? apiUrl("analytics", { queryParams: { year: this.year() } })

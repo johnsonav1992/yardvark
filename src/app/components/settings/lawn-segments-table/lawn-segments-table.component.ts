@@ -2,7 +2,6 @@ import { DecimalPipe } from "@angular/common";
 import {
 	Component,
 	computed,
-	effect,
 	inject,
 	input,
 	model,
@@ -45,7 +44,9 @@ export class LawnSegmentsTableComponent {
 	private _throwErrorToast = injectErrorToast();
 
 	public lawnSegments = model.required<LawnSegment[] | undefined>();
-	public hasUnsavedChanges = model.required<boolean>();
+	public hasUnsavedChanges = computed(
+		() => !!this.currentlyEditingLawnSegmentIds()?.length,
+	);
 	public isMobile = input<boolean>(false);
 	public currentlyEditingLawnSegmentIds = signal<number[] | null>(null);
 	public editOnMapClicked = output<LawnSegment>();
@@ -74,10 +75,6 @@ export class LawnSegmentsTableComponent {
 		if (!segments?.length) return 0;
 
 		return segments.reduce((sum, seg) => sum + (+seg.size || 0), 0);
-	});
-
-	_unsavedChangesListener = effect(() => {
-		this.hasUnsavedChanges.set(!!this.currentlyEditingLawnSegmentIds()?.length);
 	});
 
 	public editLawnSegment(segment: LawnSegment): void {

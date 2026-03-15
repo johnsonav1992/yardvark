@@ -29,6 +29,9 @@ export const provideHttpUtils = () => {
 	});
 };
 
+/**
+ * Creates an HTTP utility function that can be used to make HTTP requests within the application.
+ */
 const createHttpUtil = <T, TArgs extends unknown[]>(
 	utilFn: (http: HttpClient, ...args: TArgs) => T,
 ) => {
@@ -47,6 +50,9 @@ const createHttpUtil = <T, TArgs extends unknown[]>(
 	};
 };
 
+/**
+ * Sends a POST request to the specified URL with the given body and options.
+ */
 export const postReq = createHttpUtil(
 	<T, _D = unknown>(
 		http: HttpClient,
@@ -56,12 +62,18 @@ export const postReq = createHttpUtil(
 	},
 );
 
+/**
+ * Sends a GET request to the specified URL with the given options.
+ */
 export const getReq = createHttpUtil(
 	<T>(http: HttpClient, ...getArgs: Parameters<HttpClient["get"]>) => {
 		return http.get<T>(...getArgs);
 	},
 );
 
+/**
+ * Sends a PUT request to the specified URL with the given body and options.
+ */
 export const putReq = createHttpUtil(
 	<T, _D = unknown>(
 		http: HttpClient,
@@ -71,6 +83,9 @@ export const putReq = createHttpUtil(
 	},
 );
 
+/**
+ * Sends a DELETE request to the specified URL with the given options.
+ */
 export const deleteReq = createHttpUtil(
 	<T>(http: HttpClient, ...deleteArgs: Parameters<HttpClient["delete"]>) => {
 		return http.delete<T>(...deleteArgs);

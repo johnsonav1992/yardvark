@@ -8,6 +8,7 @@ import { ButtonModule } from "primeng/button";
 import { type Menu, MenuModule } from "primeng/menu";
 import { environment } from "../../../../environments/environment";
 import { GlobalUiService } from "../../../services/global-ui.service";
+import { injectSettingsService } from "../../../services/settings.service";
 import type { YVUser } from "../../../types/user.types";
 import { getUserInitials, injectUserData } from "../../../utils/authUtils";
 import { fixOverlayPositionForScroll } from "../../../utils/overlayPositioningUtils";
@@ -28,6 +29,7 @@ import { SoilTemperatureDisplayComponent } from "./soil-temperature-display/soil
 export class MainHeaderComponent {
 	private _authService = inject(AuthService);
 	private _globalUiService = inject(GlobalUiService);
+	private _settingsService = injectSettingsService();
 
 	public authMenu = viewChild.required<Menu>("authMenu");
 
@@ -66,12 +68,14 @@ export class MainHeaderComponent {
 		{
 			label: "Logout",
 			icon: "ti ti-logout",
-			command: () =>
+			command: () => {
+				this._settingsService.clearCache();
 				this._authService.logout({
 					logoutParams: {
 						returnTo: environment.feAppUrl,
 					},
-				}),
+				});
+			},
 		},
 	];
 

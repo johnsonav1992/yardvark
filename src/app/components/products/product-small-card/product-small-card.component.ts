@@ -2,9 +2,6 @@ import { NgTemplateOutlet } from "@angular/common";
 import {
 	Component,
 	contentChild,
-	ElementRef,
-	effect,
-	inject,
 	input,
 	type TemplateRef,
 } from "@angular/core";
@@ -17,10 +14,9 @@ import type { Product } from "../../../types/products.types";
 	imports: [NgTemplateOutlet, CapitalizePipe],
 	templateUrl: "./product-small-card.component.html",
 	styleUrl: "./product-small-card.component.scss",
+	host: { "[style.width]": "width()" },
 })
 export class ProductSmallCardComponent {
-	private _el = inject(ElementRef);
-
 	public noImageUrl = NO_IMAGE_URL;
 
 	public product = input.required<Partial<Product>>();
@@ -30,10 +26,4 @@ export class ProductSmallCardComponent {
 	public asAppliedAmount = input<boolean>(false);
 
 	public actions = contentChild<TemplateRef<unknown>>("actions");
-
-	public widthSetter = effect(() => {
-		if (this.width()) {
-			this._el.nativeElement.style.width = this.width();
-		}
-	});
 }

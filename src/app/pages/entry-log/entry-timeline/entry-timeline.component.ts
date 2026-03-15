@@ -5,6 +5,7 @@ import {
 	computed,
 	effect,
 	inject,
+	linkedSignal,
 	signal,
 	viewChild,
 	type ElementRef,
@@ -73,7 +74,6 @@ export class EntryTimelineComponent implements OnDestroy {
 		null,
 	);
 	private readonly _sentinelElement = signal<HTMLElement | null>(null);
-	private readonly _expansionInProgress = signal(false);
 
 	public isMobile = this._globalUiService.isMobile;
 	public isDarkMode = this._globalUiService.isDarkMode;
@@ -82,7 +82,13 @@ export class EntryTimelineComponent implements OnDestroy {
 	public rangeStart = signal(subMonths(startOfMonth(new Date()), 1));
 
 	private readonly _maxMonthsBack = 24;
-	private readonly _latestEntries = signal<Entry[] | undefined>(undefined);
+	private readonly _latestEntries = linkedSignal<
+		Entry[] | undefined,
+		Entry[] | undefined
+	>({
+		source: () => this.timelineEntries.value(),
+		computation: (newValue, previous) => newValue ?? previous?.value,
+	});
 
 	public readonly skeletonColumns = Array.from({ length: 16 }, (_, i) => i);
 	public readonly showSkeleton = computed(
@@ -151,14 +157,7 @@ export class EntryTimelineComponent implements OnDestroy {
 
 	constructor() {
 		effect(() => {
-			const v = this.timelineEntries.value();
-
-			if (v !== undefined) {
-				this._latestEntries.set(v);
-			}
-
 			if (!this.timelineEntries.isLoading()) {
-				this._expansionInProgress.set(false);
 				this._reobserveSentinel();
 			}
 		});
@@ -229,10 +228,8 @@ export class EntryTimelineComponent implements OnDestroy {
 				if (
 					entries[0].isIntersecting &&
 					!this.timelineEntries.isLoading() &&
-					!this.showSkeleton() &&
-					!this._expansionInProgress()
+					!this.showSkeleton()
 				) {
-					this._expansionInProgress.set(true);
 					this._loadMoreHistory();
 				}
 			},

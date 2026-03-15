@@ -1,17 +1,31 @@
 import { httpResource } from "@angular/common/http";
-import { effect, Injectable, inject, linkedSignal } from "@angular/core";
+import {
+	computed,
+	effect,
+	Injectable,
+	inject,
+	linkedSignal,
+} from "@angular/core";
+import { toSignal } from "@angular/core/rxjs-interop";
+import { AuthService } from "@auth0/auth0-angular";
+import { map } from "rxjs";
 import type {
 	SettingsData,
 	SettingsResponse,
 } from "../../../backend/src/modules/settings/models/settings.types";
 import { apiUrl, putReq } from "../utils/httpUtils";
 
-const SETTINGS_CACHE_KEY = "yv_settings_cache";
-
 @Injectable({
 	providedIn: "root",
 })
 export class SettingsService {
+	private _authService = inject(AuthService);
+	private _userId = toSignal(this._authService.user$.pipe(map((u) => u?.sub)));
+	private _cacheKey = computed(() => {
+		const userId = this._userId();
+		return userId ? `yv_settings_cache_${userId}` : null;
+	});
+
 	public settings = httpResource<SettingsResponse>(() => apiUrl("settings"));
 
 	public currentSettings = linkedSignal<SettingsData | undefined>(
@@ -21,21 +35,34 @@ export class SettingsService {
 
 	constructor() {
 		effect(() => {
+			const key = this._cacheKey();
 			const current = this.currentSettings();
 
-			if (current) {
+			if (key && current) {
 				try {
-					localStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify(current));
+					localStorage.setItem(key, JSON.stringify(current));
 				} catch {
-					// ignore storage errors
+					// noop - if we can't cache, we can't cache
 				}
 			}
 		});
 	}
 
+	public clearCache(): void {
+		const key = this._cacheKey();
+
+		if (key) {
+			localStorage.removeItem(key);
+		}
+	}
+
 	private _getCachedSettings(): SettingsData | null {
+		const key = this._cacheKey();
+
+		if (!key) return null;
+
 		try {
-			const cached = localStorage.getItem(SETTINGS_CACHE_KEY);
+			const cached = localStorage.getItem(key);
 
 			return cached ? (JSON.parse(cached) as SettingsData) : null;
 		} catch {

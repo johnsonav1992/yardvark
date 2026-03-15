@@ -15,7 +15,8 @@ export class SettingsService {
 	public settings = httpResource<SettingsResponse>(() => apiUrl("settings"));
 
 	public currentSettings = linkedSignal<SettingsData | undefined>(
-		() => this.settings.value()?.value ?? this._getCachedSettings() ?? undefined,
+		() =>
+			this.settings.value()?.value ?? this._getCachedSettings() ?? undefined,
 	);
 
 	constructor() {

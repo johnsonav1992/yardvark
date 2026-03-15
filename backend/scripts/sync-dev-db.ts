@@ -48,9 +48,7 @@ const waitForOperation = async (operationId: string): Promise<void> => {
 
 const syncDevDb = async (): Promise<void> => {
 	if (!NEON_API_KEY) {
-		console.warn(
-			"[sync-dev-db] NEON_API_KEY not set — skipping dev DB sync",
-		);
+		console.warn("[sync-dev-db] NEON_API_KEY not set — skipping dev DB sync");
 
 		return;
 	}

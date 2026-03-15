@@ -17,7 +17,9 @@ export class AnalyticsService {
 	public async getAnalytics(
 		userId: string,
 		year?: number,
-	): Promise<Either<AnalyticsFetchError, AnalyticsRes[0]["get_user_analytics_v2"]>> {
+	): Promise<
+		Either<AnalyticsFetchError, AnalyticsRes[0]["get_user_analytics_v2"]>
+	> {
 		const analyticsYear = year ?? getYear(new Date());
 
 		LogHelpers.addBusinessContext(

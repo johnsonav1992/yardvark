@@ -156,7 +156,8 @@ export class DashboardComponent {
 		);
 	});
 
-	public isDashboardDataLoading = this._entriesService.dashboardSummary.isLoading;
+	public isDashboardDataLoading =
+		this._entriesService.dashboardSummary.isLoading;
 
 	public isQuickStatsLoading = this.isDashboardDataLoading;
 

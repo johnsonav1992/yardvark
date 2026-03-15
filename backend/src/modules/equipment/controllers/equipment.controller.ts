@@ -12,7 +12,10 @@ import {
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { S3Service } from "src/modules/s3/s3.service";
-import { imageFileValidator, validateImageMagicBytes } from "src/utils/fileUtils";
+import {
+	imageFileValidator,
+	validateImageMagicBytes,
+} from "src/utils/fileUtils";
 import { User } from "../../../decorators/user.decorator";
 import { LogHelpers } from "../../../logger/logger.helpers";
 import { BusinessContextKeys } from "../../../logger/logger-keys.constants";
@@ -87,10 +90,14 @@ export class EquipmentController {
 			imageUrl = resultOrThrow(await this._s3Service.uploadFile(file, userId));
 		}
 
-		const result = await this._equipmentService.updateEquipment(equipmentId, userId, {
-			...equipmentData,
-			imageUrl,
-		});
+		const result = await this._equipmentService.updateEquipment(
+			equipmentId,
+			userId,
+			{
+				...equipmentData,
+				imageUrl,
+			},
+		);
 
 		return resultOrThrow(result);
 	}
@@ -177,7 +184,10 @@ export class EquipmentController {
 		LogHelpers.addBusinessContext(BusinessContextKeys.userId, userId);
 		LogHelpers.addBusinessContext(BusinessContextKeys.equipmentId, equipmentId);
 
-		const result = await this._equipmentService.deleteEquipment(equipmentId, userId);
+		const result = await this._equipmentService.deleteEquipment(
+			equipmentId,
+			userId,
+		);
 
 		return resultOrThrow(result);
 	}
@@ -197,8 +207,10 @@ export class EquipmentController {
 			maintenanceId,
 		);
 
-		const result =
-			await this._equipmentService.deleteMaintenanceRecord(maintenanceId, userId);
+		const result = await this._equipmentService.deleteMaintenanceRecord(
+			maintenanceId,
+			userId,
+		);
 
 		return resultOrThrow(result);
 	}

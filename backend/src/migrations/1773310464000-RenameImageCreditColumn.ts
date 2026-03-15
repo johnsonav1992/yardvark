@@ -1,6 +1,8 @@
 import type { MigrationInterface, QueryRunner } from "typeorm";
 
-export class RenameImageCreditColumn1773310464000 implements MigrationInterface {
+export class RenameImageCreditColumn1773310464000
+	implements MigrationInterface
+{
 	public async up(queryRunner: QueryRunner): Promise<void> {
 		await queryRunner.query(`
       DO $$

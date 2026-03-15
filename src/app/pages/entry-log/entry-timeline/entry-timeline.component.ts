@@ -32,9 +32,9 @@ import { GlobalUiService } from "../../../services/global-ui.service";
 import type { Entry } from "../../../types/entries.types";
 import { getActivityIcon } from "../../../utils/entriesUtils";
 
-type TimelineActivity = Entry['activities'][number] & { icon: string };
+type TimelineActivity = Entry["activities"][number] & { icon: string };
 
-type TimelineEntry = Omit<Entry, 'activities'> & {
+type TimelineEntry = Omit<Entry, "activities"> & {
 	activities: TimelineActivity[];
 	primaryActivityIcon: string;
 };
@@ -49,7 +49,13 @@ type TimelineWeek = {
 
 @Component({
 	selector: "entry-timeline",
-	imports: [ButtonModule, DatePipe, PageContainerComponent, PopoverModule, SkeletonModule],
+	imports: [
+		ButtonModule,
+		DatePipe,
+		PageContainerComponent,
+		PopoverModule,
+		SkeletonModule,
+	],
 	templateUrl: "./entry-timeline.component.html",
 	styleUrl: "./entry-timeline.component.scss",
 })
@@ -63,7 +69,9 @@ export class EntryTimelineComponent implements OnDestroy {
 	private _loadSentinel = viewChild<ElementRef<HTMLElement>>("loadSentinel");
 	private _overflowPopover = viewChild<Popover>("overflowPopover");
 	private _entryPreviewPopover = viewChild<Popover>("entryPreviewPopover");
-	private readonly _intersectionObserver = signal<IntersectionObserver | null>(null);
+	private readonly _intersectionObserver = signal<IntersectionObserver | null>(
+		null,
+	);
 	private readonly _sentinelElement = signal<HTMLElement | null>(null);
 	private readonly _expansionInProgress = signal(false);
 
@@ -77,7 +85,9 @@ export class EntryTimelineComponent implements OnDestroy {
 	private readonly _latestEntries = signal<Entry[] | undefined>(undefined);
 
 	public readonly skeletonColumns = Array.from({ length: 16 }, (_, i) => i);
-	public readonly showSkeleton = computed(() => this._latestEntries() === undefined);
+	public readonly showSkeleton = computed(
+		() => this._latestEntries() === undefined,
+	);
 	public readonly overflowEntries = signal<TimelineEntry[]>([]);
 	public readonly selectedEntry = signal<TimelineEntry | null>(null);
 
@@ -96,8 +106,11 @@ export class EntryTimelineComponent implements OnDestroy {
 
 		const toTimelineEntry = (e: Entry): TimelineEntry => ({
 			...e,
-			activities: e.activities.map((a) => ({ ...a, icon: getActivityIcon(a.name) })),
-			primaryActivityIcon: getActivityIcon(e.activities[0]?.name ?? ''),
+			activities: e.activities.map((a) => ({
+				...a,
+				icon: getActivityIcon(a.name),
+			})),
+			primaryActivityIcon: getActivityIcon(e.activities[0]?.name ?? ""),
 		});
 
 		return reversed.map((weekStart, index) => {
@@ -113,8 +126,7 @@ export class EntryTimelineComponent implements OnDestroy {
 			const now = new Date();
 			const isCurrentWeek = now >= weekStart && now <= weekEnd;
 			const isNewMonth =
-				index > 0 &&
-				weekStart.getMonth() !== reversed[index - 1].getMonth();
+				index > 0 && weekStart.getMonth() !== reversed[index - 1].getMonth();
 			const monthLabel = isNewMonth ? format(weekStart, "MMMM yyyy") : null;
 			const mowingEntries = weekEntries.filter((e) =>
 				e.activities.some((a) => a.name === "mow"),
@@ -123,7 +135,13 @@ export class EntryTimelineComponent implements OnDestroy {
 				(e) => !e.activities.some((a) => a.name === "mow"),
 			);
 
-			return { weekStart, mowingEntries, otherEntries, isCurrentWeek, monthLabel };
+			return {
+				weekStart,
+				mowingEntries,
+				otherEntries,
+				isCurrentWeek,
+				monthLabel,
+			};
 		});
 	});
 
@@ -181,7 +199,10 @@ export class EntryTimelineComponent implements OnDestroy {
 		this._overflowPopover()?.toggle(event);
 	}
 
-	public showEntryPreviewFromOverflow(event: MouseEvent, entry: TimelineEntry): void {
+	public showEntryPreviewFromOverflow(
+		event: MouseEvent,
+		entry: TimelineEntry,
+	): void {
 		this.showEntryPreview(event, entry);
 	}
 

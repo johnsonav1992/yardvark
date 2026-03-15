@@ -16,7 +16,8 @@ export class DashboardService {
 		]);
 
 		return {
-			recentEntry: (recentEntry as DashboardSummaryResponse["recentEntry"]) ?? null,
+			recentEntry:
+				(recentEntry as DashboardSummaryResponse["recentEntry"]) ?? null,
 			lastMowDate: lastMowDate ?? null,
 			lastProductAppDate: lastProductAppDate ?? null,
 		};

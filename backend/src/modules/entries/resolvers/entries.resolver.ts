@@ -41,7 +41,9 @@ export class EntriesResolver {
 		@Args("id", { type: () => Int }) id: number,
 		@Context() ctx: GqlContext,
 	) {
-		const result = await this.entriesService.getEntry(id, ctx.req.user.userId, { raw: true });
+		const result = await this.entriesService.getEntry(id, ctx.req.user.userId, {
+			raw: true,
+		});
 
 		return resultOrThrow(result);
 	}
@@ -122,17 +124,21 @@ export class EntriesResolver {
 		@Args("input") input: UpdateEntryInput,
 		@Context() ctx: GqlContext,
 	): Promise<Entry> {
-		const result = await this.entriesService.updateEntry(id, ctx.req.user.userId, {
-			...input,
-			activityIds: input.activityIds || [],
-			lawnSegmentIds: input.lawnSegmentIds || [],
-			products: (input.products || []).map((p) => ({
-				productId: p.productId,
-				productQuantity: p.productQuantity,
-				productQuantityUnit: p.productQuantityUnit,
-			})),
-			imageUrls: input.imageUrls,
-		});
+		const result = await this.entriesService.updateEntry(
+			id,
+			ctx.req.user.userId,
+			{
+				...input,
+				activityIds: input.activityIds || [],
+				lawnSegmentIds: input.lawnSegmentIds || [],
+				products: (input.products || []).map((p) => ({
+					productId: p.productId,
+					productQuantity: p.productQuantity,
+					productQuantityUnit: p.productQuantityUnit,
+				})),
+				imageUrls: input.imageUrls,
+			},
+		);
 
 		return resultOrThrow(result);
 	}

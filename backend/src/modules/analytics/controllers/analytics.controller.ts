@@ -25,6 +25,8 @@ export class AnalyticsController {
 			throw new BadRequestException("Invalid year");
 		}
 
-		return resultOrThrow(await this._analyticsService.getAnalytics(userId, year));
+		return resultOrThrow(
+			await this._analyticsService.getAnalytics(userId, year),
+		);
 	}
 }

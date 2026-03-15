@@ -43,9 +43,9 @@ export const mainRoutes: Routes = [
 	{
 		path: "entry-log/timeline",
 		loadComponent: () =>
-			import(
-				"./pages/entry-log/entry-timeline/entry-timeline.component"
-			).then((m) => m.EntryTimelineComponent),
+			import("./pages/entry-log/entry-timeline/entry-timeline.component").then(
+				(m) => m.EntryTimelineComponent,
+			),
 		canActivate: [hybridAuthGuard],
 	},
 	{

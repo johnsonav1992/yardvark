@@ -20,8 +20,7 @@ export class AnalyticsService {
 	}
 
 	public analyticsData = httpResource<AnalyticsRes>(() => {
-		const hidden =
-			this._settingsService.currentSettings()?.hiddenWidgets ?? [];
+		const hidden = this._settingsService.currentSettings()?.hiddenWidgets ?? [];
 		const shouldFetch =
 			this._forceEnabled() || !hidden.includes("lawn-health-score");
 

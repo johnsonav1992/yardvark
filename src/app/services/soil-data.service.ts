@@ -27,7 +27,9 @@ export class SoilDataService {
 	private _locationService = inject(LocationService);
 
 	public rollingWeekSoilData = httpResource<RollingWeekSoilData>(() =>
-		this._locationService.userLatLong() ? apiUrl("soil-data/rolling-week") : undefined,
+		this._locationService.userLatLong()
+			? apiUrl("soil-data/rolling-week")
+			: undefined,
 	);
 
 	public getSoilDataForDate = (

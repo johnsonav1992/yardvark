@@ -97,7 +97,9 @@ export class EntryLogComponent implements OnInit {
 
 	public user = injectUserData();
 	public hasAiAccess = computed(
-		() => this._subscriptionService.hasAiAccess() || isMasterUser(this.user() as YVUser),
+		() =>
+			this._subscriptionService.hasAiAccess() ||
+			isMasterUser(this.user() as YVUser),
 	);
 
 	public isAiChatOpen = signal(false);

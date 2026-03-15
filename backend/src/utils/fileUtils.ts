@@ -19,7 +19,12 @@ export const validateImageMagicBytes = (file: Express.Multer.File): void => {
 
 	if (
 		file.mimetype === "image/webp" &&
-		!(buf[8] === 0x57 && buf[9] === 0x45 && buf[10] === 0x42 && buf[11] === 0x50)
+		!(
+			buf[8] === 0x57 &&
+			buf[9] === 0x45 &&
+			buf[10] === 0x42 &&
+			buf[11] === 0x50
+		)
 	) {
 		throw new BadRequestException("Invalid image file");
 	}

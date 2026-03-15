@@ -142,24 +142,23 @@ export class DashboardComponent {
 		return hidden.map((name) => ({ id: name, label: nameMap[name] || name }));
 	});
 
+	public recentEntry = computed(
+		() => this._entriesService.dashboardSummary.value()?.recentEntry ?? null,
+	);
+
 	public userIsNewWithNoEntries = computed(() => {
 		const user = this.user() as YVUser;
 
 		return (
 			user &&
 			isToday(user["https://yardvark.netlify.app/signup-date"]) &&
-			!this.recentEntry.value()
+			!this.recentEntry()
 		);
 	});
 
-	public recentEntry = this._entriesService.recentEntry;
+	public isDashboardDataLoading = this._entriesService.dashboardSummary.isLoading;
 
-	public isQuickStatsLoading = computed(
-		() =>
-			this._entriesService.lastMow.isLoading() ||
-			this._entriesService.recentEntry.isLoading() ||
-			this._entriesService.lastProductApp.isLoading(),
-	);
+	public isQuickStatsLoading = this.isDashboardDataLoading;
 
 	public isLawnHealthScoreLoading = this._lawnHealthScoreService.isLoading;
 
@@ -178,8 +177,8 @@ export class DashboardComponent {
 	public isAnyWidgetLoading = computed(() => {
 		const visible = this.visibleWidgets();
 
-		if (visible.recentEntry && this.recentEntry.isLoading()) return true;
-		if (visible.quickStats && this.isQuickStatsLoading()) return true;
+		if (visible.recentEntry && this.isDashboardDataLoading()) return true;
+		if (visible.quickStats && this.isDashboardDataLoading()) return true;
 		if (visible.lawnHealthScore && this.isLawnHealthScoreLoading()) return true;
 		if (visible.weatherCard && this.isWeatherCardLoading()) return true;
 

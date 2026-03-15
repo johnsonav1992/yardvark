@@ -6,7 +6,7 @@
         Last Journal Entry
       </div>
       <div class="title-buttons">
-        @if (recentEntry.value()) {
+        @if (recentEntry()) {
           <p-button
             icon="ti ti-external-link"
             size="small"
@@ -34,13 +34,13 @@
       </div>
     </div>
   </ng-template>
-  @if (recentEntry.value()?.date && recentEntry.value()?.title) {
+  @if (recentEntry()?.date && recentEntry()?.title) {
     <ng-template #subtitle>
-      {{ recentEntry.value()!.date | date: "M/dd/yyyy" }} -
-      {{ recentEntry.value()!.title }}
+      {{ recentEntry()!.date | date: "M/dd/yyyy" }} -
+      {{ recentEntry()!.title }}
     </ng-template>
   }
-  @if (recentEntry.value(); as entry) {
+  @if (recentEntry(); as entry) {
     <div class="content-container">
       @if (entry.activities.length) {
         <div class="section-container">
@@ -78,7 +78,7 @@
         </div>
       }
     </div>
-  } @else if (!recentEntry.isLoading()) {
+  } @else if (!isLoading()) {
     <ng-content *ngTemplateOutlet="noData"></ng-content>
   }
   <ng-template #noData>

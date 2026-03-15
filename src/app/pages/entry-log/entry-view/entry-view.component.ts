@@ -226,9 +226,7 @@ export class EntryViewComponent {
 		const dateOfDeletedEntry = this.entryData()?.date;
 
 		this._entryService.deleteEntry(this.entryId()!).subscribe(() => {
-			this._entryService.recentEntry.reload();
-			this._entryService.lastMow.reload();
-			this._entryService.lastProductApp.reload();
+			this._entryService.dashboardSummary.reload();
 
 			this._router.navigate(["/entry-log"], {
 				queryParams: {
@@ -348,7 +346,7 @@ export class EntryViewComponent {
 				this.isLoading.set(false);
 				this.shouldFetchEntry.set(true);
 				this.entryResource.reload();
-				this._entryService.recentEntry.reload();
+				this._entryService.dashboardSummary.reload();
 			},
 			error: () => {
 				this._throwErrorToast("Failed to update entry");

@@ -255,9 +255,7 @@ export class EntryLogComponent implements OnInit {
 
 	public onAiEntryConfirmed(): void {
 		this.entries.reload();
-		this._entriesService.lastMow.reload();
-		this._entriesService.recentEntry.reload();
-		this._entriesService.lastProductApp.reload();
+		this._entriesService.dashboardSummary.reload();
 	}
 
 	public exportCsv(): void {

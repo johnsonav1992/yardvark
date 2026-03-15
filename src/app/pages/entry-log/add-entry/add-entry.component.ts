@@ -322,9 +322,7 @@ export class AddEntryComponent implements OnInit {
 					this.isLoading.set(false);
 
 					this._analyticsService.analyticsData.reload();
-					this._entriesService.lastMow.reload();
-					this._entriesService.recentEntry.reload();
-					this._entriesService.lastProductApp.reload();
+					this._entriesService.dashboardSummary.reload();
 
 					const createdDate = entries[0].date.toISOString();
 
@@ -356,9 +354,7 @@ export class AddEntryComponent implements OnInit {
 					}
 
 					this._analyticsService.analyticsData.reload();
-					this._entriesService.lastMow.reload();
-					this._entriesService.recentEntry.reload();
-					this._entriesService.lastProductApp.reload();
+					this._entriesService.dashboardSummary.reload();
 
 					const latestDate = entries
 						.map((e) => new Date(e.date))

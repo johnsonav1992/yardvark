@@ -1,6 +1,6 @@
 import { formatDate } from "@angular/common";
 import { httpResource } from "@angular/common/http";
-import { computed, Injectable, inject, type Signal } from "@angular/core";
+import { Injectable, inject, type Signal } from "@angular/core";
 import { endOfMonth, startOfMonth } from "date-fns";
 import {
 	forkJoin,
@@ -46,39 +46,9 @@ export class EntriesService {
 				: undefined,
 		);
 
-	private _dashboardSummary = httpResource<DashboardSummaryResponse>(() =>
+	public dashboardSummary = httpResource<DashboardSummaryResponse>(() =>
 		apiUrl("dashboard/summary"),
 	);
-
-	public recentEntry = {
-		value: computed(() => this._dashboardSummary.value()?.recentEntry ?? null),
-		isLoading: this._dashboardSummary.isLoading,
-		error: this._dashboardSummary.error,
-		reload: () => this._dashboardSummary.reload(),
-	};
-
-	public lastMow = {
-		value: computed(
-			() =>
-				({ lastMowDate: this._dashboardSummary.value()?.lastMowDate ?? null }),
-		),
-		isLoading: this._dashboardSummary.isLoading,
-		error: this._dashboardSummary.error,
-		reload: () => this._dashboardSummary.reload(),
-	};
-
-	public lastProductApp = {
-		value: computed(
-			() =>
-				({
-					lastProductAppDate:
-						this._dashboardSummary.value()?.lastProductAppDate ?? null,
-				}),
-		),
-		isLoading: this._dashboardSummary.isLoading,
-		error: this._dashboardSummary.error,
-		reload: () => this._dashboardSummary.reload(),
-	};
 
 	public getMonthEntriesResource = (currentDate: Signal<Date>) =>
 		httpResource<Entry[]>(() =>

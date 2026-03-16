@@ -91,6 +91,17 @@
 									"with": "src/environments/environment.preview.ts"
 								}
 							]
+						},
+						"e2e": {
+							"optimization": false,
+							"extractLicenses": false,
+							"sourceMap": true,
+							"fileReplacements": [
+								{
+									"replace": "src/environments/environment.ts",
+									"with": "src/environments/environment.e2e.ts"
+								}
+							]
 						}
 					},
 					"defaultConfiguration": "production"
@@ -103,6 +114,9 @@
 						},
 						"development": {
 							"buildTarget": "yardvark:build:development"
+						},
+						"e2e": {
+							"buildTarget": "yardvark:build:e2e"
 						}
 					},
 					"defaultConfiguration": "development"
@@ -121,7 +135,9 @@
 								"input": "public"
 							}
 						],
-						"styles": ["src/styles.scss"],
+						"styles": [
+							"src/styles.scss"
+						],
 						"scripts": []
 					}
 				}

@@ -15,7 +15,11 @@
 		"update-packages": "npx npm-check-updates -u && npm install -f",
 		"auth0:deploy": "node auth0-actions/deploy.js",
 		"auth0:deploy:single": "cd auth0-actions && auth0 actions deploy",
-		"ios": "npm run build && npx cap sync ios && npx cap open ios"
+		"ios": "npm run build && npx cap sync ios && npx cap open ios",
+		"e2e": "playwright test",
+		"e2e:ui": "playwright test --ui",
+		"e2e:debug": "playwright test --debug",
+		"e2e:report": "playwright show-report"
 	},
 	"private": true,
 	"dependencies": {
@@ -57,7 +61,9 @@
 		"@angular/compiler-cli": "^21.2.4",
 		"@biomejs/biome": "2.4.7",
 		"@capacitor/cli": "^8.0.1",
+		"@playwright/test": "^1.58.2",
 		"@types/chart.js": "^4.0.1",
+		"dotenv": "^17.3.1",
 		"typescript": "~5.9.0"
 	},
 	"overrides": {

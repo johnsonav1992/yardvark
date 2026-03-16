@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { waitForAngularStability } from "../helpers/angular";
+import { DashboardPage } from "../pages/dashboard.page";
 import { EntryLogPage } from "../pages/entry-log.page";
 
 test.describe("Entry Log", () => {
@@ -21,13 +21,12 @@ test.describe("Entry Log", () => {
 	});
 
 	test("navigates from dashboard via the nav", async ({ page }) => {
-		await page.goto("/dashboard");
-		await page.waitForURL("**/dashboard", { timeout: 15000 });
-		await waitForAngularStability(page);
+		const dashboard = new DashboardPage(page);
+
+		await dashboard.goto();
 
 		await page.getByRole("link", { name: /entry log/i }).click();
 		await page.waitForURL("**/entry-log", { timeout: 15000 });
-		await waitForAngularStability(page);
 
 		await expect(page.locator("entries-calendar")).toBeVisible({
 			timeout: 15000,

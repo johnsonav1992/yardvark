@@ -17,6 +17,7 @@
 		"auth0:deploy:single": "cd auth0-actions && auth0 actions deploy",
 		"ios": "npm run build && npx cap sync ios && npx cap open ios",
 		"e2e": "playwright test",
+		"e2e:dev": "ng serve --configuration e2e",
 		"e2e:ui": "playwright test --ui",
 		"e2e:debug": "playwright test --debug",
 		"e2e:report": "playwright show-report"

@@ -11,13 +11,6 @@ test.describe("Dashboard", () => {
 	});
 
 	test("renders widgets after loading", async ({ page }) => {
-		page.on("requestfailed", (req) => console.log("FAILED:", req.url(), req.failure()?.errorText));
-		page.on("response", (res) => {
-			if (res.url().includes("localhost:8080") || res.url().includes("auth0")) {
-				console.log("RESPONSE:", res.status(), res.url());
-			}
-		});
-
 		const dashboard = new DashboardPage(page);
 
 		await dashboard.goto();

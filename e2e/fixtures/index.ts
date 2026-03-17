@@ -1,11 +1,12 @@
-/** biome-ignore-all lint/correctness/noEmptyPattern: <explanation> */
+/** biome-ignore-all lint/correctness/noEmptyPattern: Playwright fixture syntax requires empty destructuring */
+
+import * as fs from "node:fs";
 import {
 	type APIRequestContext,
 	test as base,
 	expect,
 	request as playwrightRequest,
 } from "@playwright/test";
-import * as fs from "fs";
 
 type StorageOrigin = {
 	localStorage: Array<{ name: string; value: string }>;
@@ -19,13 +20,19 @@ const DEFAULT_SETTINGS = {
 	entryView: "calendar",
 	hideSystemProducts: false,
 	hiddenWidgets: [],
-	widgetOrder: [],
+	widgetOrder: [
+		"recent-entry",
+		"quick-stats",
+		"lawn-health-score",
+		"weather-card",
+	],
 	mobileNavbarItems: [],
 } as const;
 
 type AppFixtures = {
 	api: APIRequestContext;
 	restoreSettings: () => Promise<void>;
+	entryCleanup: (id: number) => void;
 };
 
 export const test = base.extend<AppFixtures>({
@@ -60,25 +67,39 @@ export const test = base.extend<AppFixtures>({
 			const body = (await res.json()) as
 				| { value: Record<string, unknown> }
 				| unknown[];
-			let original: Record<string, unknown> = Array.isArray(body)
-				? { ...DEFAULT_SETTINGS }
+			const original: Record<string, unknown> | null = Array.isArray(body)
+				? null
 				: body.value;
 
-			if (Array.isArray(body)) {
-				await api.put("/settings", { data: original });
-			}
+			await api.put("/settings", { data: { ...DEFAULT_SETTINGS } });
 
 			let restored = false;
 
 			const restore = async () => {
 				if (!restored) {
-					await api.put("/settings", { data: original });
+					await api.put("/settings", {
+						data: original ?? { ...DEFAULT_SETTINGS },
+					});
 					restored = true;
 				}
 			};
 
 			await use(restore);
 			await restore();
+		},
+		{ scope: "test" },
+	],
+	entryCleanup: [
+		async ({ api }, use) => {
+			const ids: number[] = [];
+
+			await use((id: number) => {
+				ids.push(id);
+			});
+
+			for (const id of ids) {
+				await api.delete(`/entries/${id}`);
+			}
 		},
 		{ scope: "test" },
 	],

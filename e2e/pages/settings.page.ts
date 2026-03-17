@@ -44,10 +44,12 @@ export class SettingsPage {
 		).toHaveText(label, { timeout: 5000 });
 	}
 
-	async getHideSystemProductsChecked() {
-		return this.sectionWithHeading("Hide system products")
-			.locator("p-toggleswitch input")
-			.isChecked();
+	async expectHideSystemProductsChecked(checked: boolean) {
+		await expect(
+			this.sectionWithHeading("Hide system products").locator(
+				"p-toggleswitch input",
+			),
+		).toBeChecked({ checked, timeout: 5000 });
 	}
 
 	async clickHideSystemProductsToggle() {

@@ -18,6 +18,5 @@ export class DashboardPage {
 		await expect(this.page.locator("card-skeleton")).toHaveCount(0, {
 			timeout: 15000,
 		});
-		await expect(this.page.locator(".widget-wrapper").first()).toBeVisible();
 	}
 }

@@ -1,5 +1,7 @@
-import { expect, test } from "../fixtures";
+import { test } from "../fixtures";
 import { SettingsPage } from "../pages/settings.page";
+
+test.describe.configure({ mode: "serial" });
 
 test.describe("Settings", () => {
 	test("shows page title", async ({ page }) => {
@@ -45,10 +47,10 @@ test.describe("Settings", () => {
 		await settings.goto();
 		await settings.expectLoaded();
 
-		const initialState = await settings.getHideSystemProductsChecked();
+		await settings.expectHideSystemProductsChecked(false);
 
 		await settings.clickHideSystemProductsToggle();
 
-		expect(await settings.getHideSystemProductsChecked()).toBe(!initialState);
+		await settings.expectHideSystemProductsChecked(true);
 	});
 });

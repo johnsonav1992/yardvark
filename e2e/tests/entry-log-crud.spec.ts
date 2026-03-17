@@ -2,6 +2,7 @@ import { expect, test } from "../fixtures";
 import { AddEntryPage } from "../pages/add-entry.page";
 
 const E2E_ENTRY_TITLE = "E2E Test Entry";
+const E2E_BATCH_TITLES = ["E2E Batch Entry 1", "E2E Batch Entry 2"] as const;
 
 type EntryResponse = { id: number; title?: string };
 
@@ -28,6 +29,38 @@ test.describe("Entry Log CRUD", () => {
 		}
 
 		expect(created).toBeDefined();
+	});
+
+	test("can create multiple entries via batch UI", async ({
+		page,
+		api,
+		entryCleanup,
+	}) => {
+		const addEntry = new AddEntryPage(page);
+
+		await addEntry.goto();
+		await addEntry.fillTitle(E2E_BATCH_TITLES[0]);
+		await addEntry.addAnotherEntry();
+		await addEntry.fillTitle(E2E_BATCH_TITLES[1]);
+		await addEntry.submit();
+
+		await expect(page).toHaveURL(/entry-log\?/);
+
+		const startDate = new Date(new Date().setHours(0, 0, 0, 0)).toISOString();
+		const endDate = new Date(new Date().setHours(23, 59, 59, 999)).toISOString();
+		const res = await api.get(
+			`/entries?startDate=${startDate}&endDate=${endDate}`,
+		);
+		const entries = (await res.json()) as EntryResponse[];
+		const created = entries.filter((e) =>
+			(E2E_BATCH_TITLES as readonly string[]).includes(e.title ?? ""),
+		);
+
+		for (const entry of created) {
+			entryCleanup(entry.id);
+		}
+
+		expect(created).toHaveLength(2);
 	});
 
 	test("can view entry details", async ({ page, api, entryCleanup }) => {

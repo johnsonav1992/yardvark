@@ -10,14 +10,20 @@ export class AddEntryPage {
 
 	async fillTitle(title: string) {
 		await this.page
-			.locator("span.input-wrapper")
+			.locator("span.input-wrapper:visible")
 			.filter({ hasText: "Title (optional)" })
 			.locator("input")
 			.fill(title);
 	}
 
+	async addAnotherEntry() {
+		await this.page
+			.getByRole("button", { name: "Add Another Entry" })
+			.click();
+	}
+
 	async submit() {
-		await this.page.getByRole("button", { name: "Create Entry" }).click();
+		await this.page.getByRole("button", { name: /^Create/ }).click();
 		await this.page.waitForURL(/entry-log\?/, { timeout: 15000 });
 	}
 }

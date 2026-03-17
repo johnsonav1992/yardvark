@@ -3,10 +3,27 @@ import { AddEntryPage } from "../pages/add-entry.page";
 
 const E2E_ENTRY_TITLE = "E2E Test Entry";
 const E2E_BATCH_TITLES = ["E2E Batch Entry 1", "E2E Batch Entry 2"] as const;
+const ALL_E2E_TITLES = [E2E_ENTRY_TITLE, ...E2E_BATCH_TITLES];
 
 type EntryResponse = { id: number; title?: string };
 
 test.describe("Entry Log CRUD", () => {
+	test.beforeEach(async ({ api }) => {
+		const startDate = new Date(0).toISOString();
+		const endDate = new Date().toISOString();
+		const res = await api.get(
+			`/entries?startDate=${startDate}&endDate=${endDate}`,
+		);
+		const entries = (await res.json()) as EntryResponse[];
+		const stale = entries.filter((e) =>
+			ALL_E2E_TITLES.includes(e.title ?? ""),
+		);
+
+		for (const entry of stale) {
+			await api.delete(`/entries/${entry.id}`);
+		}
+	});
+
 	test("can create an entry via the UI", async ({ page, api, entryCleanup }) => {
 		const addEntry = new AddEntryPage(page);
 
@@ -41,7 +58,7 @@ test.describe("Entry Log CRUD", () => {
 		await addEntry.goto();
 		await addEntry.fillTitle(E2E_BATCH_TITLES[0]);
 		await addEntry.addAnotherEntry();
-		await addEntry.fillTitle(E2E_BATCH_TITLES[1]);
+		await addEntry.fillTitle(E2E_BATCH_TITLES[1], 1);
 		await addEntry.submit();
 
 		await expect(page).toHaveURL(/entry-log\?/);

@@ -33,6 +33,7 @@ type AppFixtures = {
 	api: APIRequestContext;
 	restoreSettings: () => Promise<void>;
 	entryCleanup: (id: number) => void;
+	mockSlowEndpoints: undefined;
 };
 
 export const test = base.extend<AppFixtures>({
@@ -98,10 +99,49 @@ export const test = base.extend<AppFixtures>({
 			});
 
 			for (const id of ids) {
-				await api.delete(`/entries/${id}`);
+				if (Number.isFinite(id)) {
+					await api.delete(`/entries/${id}`);
+				}
 			}
 		},
 		{ scope: "test" },
+	],
+
+	mockSlowEndpoints: [
+		async ({ page }, use) => {
+			await page.route("**/weather/forecast**", (route) =>
+				route.fulfill({
+					status: 200,
+					contentType: "application/json",
+					body: JSON.stringify({ properties: { periods: [] } }),
+				}),
+			);
+
+			await page.route("**/soil-data/rolling-week**", (route) =>
+				route.fulfill({
+					status: 200,
+					contentType: "application/json",
+					body: JSON.stringify({
+						dates: [],
+						shallowTemps: [],
+						deepTemps: [],
+						moisturePcts: [],
+						temperatureUnit: "fahrenheit",
+					}),
+				}),
+			);
+
+			await page.route("**/soil-data/**", (route) =>
+				route.fulfill({
+					status: 200,
+					contentType: "application/json",
+					body: JSON.stringify(null),
+				}),
+			);
+
+			await use(undefined);
+		},
+		{ scope: "test", auto: true },
 	],
 });
 

@@ -8,9 +8,11 @@ export class AddEntryPage {
 		await this.page.waitForURL("**/entry-log/add", { timeout: 15000 });
 	}
 
-	async fillTitle(title: string) {
+	async fillTitle(title: string, panelIndex = 0) {
 		await this.page
-			.locator("span.input-wrapper:visible")
+			.locator("p-accordionpanel")
+			.nth(panelIndex)
+			.locator("span.input-wrapper")
 			.filter({ hasText: "Title (optional)" })
 			.locator("input")
 			.fill(title);

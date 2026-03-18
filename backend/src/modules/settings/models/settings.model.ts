@@ -7,13 +7,13 @@ import { Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
 export class Settings {
 	@Field(() => ID)
 	@PrimaryGeneratedColumn()
-	id: number;
+	public id!: number;
 
 	@Field()
 	@Column()
-	userId: string;
+	public userId!: string;
 
 	@Field()
 	@Column()
-	value: string;
+	public value!: string;
 }

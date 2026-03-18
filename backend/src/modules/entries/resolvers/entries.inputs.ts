@@ -3,107 +3,107 @@ import { Field, Float, InputType, Int } from "@nestjs/graphql";
 @InputType()
 export class ProductInput {
 	@Field(() => Int)
-	productId: number;
+	public productId!: number;
 
 	@Field(() => Float)
-	productQuantity: number;
+	public productQuantity!: number;
 
 	@Field()
-	productQuantityUnit: string;
+	public productQuantityUnit!: string;
 }
 
 @InputType()
 export class CreateEntryInput {
 	@Field()
-	date: Date;
+	public date!: Date;
 
 	@Field({ nullable: true })
-	time?: string;
+	public time?: string;
 
 	@Field({ nullable: true })
-	title?: string;
+	public title?: string;
 
 	@Field({ nullable: true })
-	notes?: string;
+	public notes?: string;
 
 	@Field(() => Float, { nullable: true })
-	soilTemperature?: number;
+	public soilTemperature?: number;
 
 	@Field({ nullable: true })
-	soilTemperatureUnit?: string;
+	public soilTemperatureUnit?: string;
 
 	@Field(() => Float, { nullable: true })
-	mowingHeight?: number;
+	public mowingHeight?: number;
 
 	@Field({ nullable: true })
-	mowingHeightUnit?: string;
+	public mowingHeightUnit?: string;
 
 	@Field(() => [Int], { nullable: true })
-	activityIds?: number[];
+	public activityIds?: number[];
 
 	@Field(() => [Int], { nullable: true })
-	lawnSegmentIds?: number[];
+	public lawnSegmentIds?: number[];
 
 	@Field(() => [ProductInput], { nullable: true })
-	products?: ProductInput[];
+	public products?: ProductInput[];
 
 	@Field(() => [String], { nullable: true })
-	imageUrls?: string[];
+	public imageUrls?: string[];
 }
 
 @InputType()
 export class UpdateEntryInput {
 	@Field({ nullable: true })
-	date?: Date;
+	public date?: Date;
 
 	@Field({ nullable: true })
-	time?: string;
+	public time?: string;
 
 	@Field({ nullable: true })
-	title?: string;
+	public title?: string;
 
 	@Field({ nullable: true })
-	notes?: string;
+	public notes?: string;
 
 	@Field(() => Float, { nullable: true })
-	soilTemperature?: number;
+	public soilTemperature?: number;
 
 	@Field({ nullable: true })
-	soilTemperatureUnit?: string;
+	public soilTemperatureUnit?: string;
 
 	@Field(() => Float, { nullable: true })
-	mowingHeight?: number;
+	public mowingHeight?: number;
 
 	@Field({ nullable: true })
-	mowingHeightUnit?: string;
+	public mowingHeightUnit?: string;
 
 	@Field(() => [Int], { nullable: true })
-	activityIds?: number[];
+	public activityIds?: number[];
 
 	@Field(() => [Int], { nullable: true })
-	lawnSegmentIds?: number[];
+	public lawnSegmentIds?: number[];
 
 	@Field(() => [ProductInput], { nullable: true })
-	products?: ProductInput[];
+	public products?: ProductInput[];
 
 	@Field(() => [String], { nullable: true })
-	imageUrls?: string[];
+	public imageUrls?: string[];
 }
 
 @InputType()
 export class SearchEntriesInput {
 	@Field(() => [String], { nullable: true })
-	dateRange?: string[];
+	public dateRange?: string[];
 
 	@Field({ nullable: true })
-	titleOrNotes?: string;
+	public titleOrNotes?: string;
 
 	@Field(() => [Int], { nullable: true })
-	activities?: number[];
+	public activities?: number[];
 
 	@Field(() => [Int], { nullable: true })
-	lawnSegments?: number[];
+	public lawnSegments?: number[];
 
 	@Field(() => [Int], { nullable: true })
-	products?: number[];
+	public products?: number[];
 }

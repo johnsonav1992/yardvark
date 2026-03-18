@@ -43,20 +43,22 @@ export class StripeService {
 				}),
 			);
 		} catch (error) {
+			const stripeError = error as Stripe.errors.StripeError;
+
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.stripeErrorType,
-				error.type,
+				stripeError.type,
 			);
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.stripeErrorCode,
-				error.code,
+				stripeError.code,
 			);
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.stripeErrorMessage,
-				error.message,
+				stripeError.message,
 			);
 
-			throw error;
+			throw stripeError;
 		}
 	}
 
@@ -89,20 +91,22 @@ export class StripeService {
 				}),
 			);
 		} catch (error) {
+			const stripeError = error as Stripe.errors.StripeError;
+
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.stripeErrorType,
-				error.type,
+				stripeError.type,
 			);
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.stripeErrorCode,
-				error.code,
+				stripeError.code,
 			);
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.stripeErrorMessage,
-				error.message,
+				stripeError.message,
 			);
 
-			throw error;
+			throw stripeError;
 		}
 	}
 
@@ -124,20 +128,22 @@ export class StripeService {
 				}),
 			);
 		} catch (error) {
+			const stripeError = error as Stripe.errors.StripeError;
+
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.stripeErrorType,
-				error.type,
+				stripeError.type,
 			);
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.stripeErrorCode,
-				error.code,
+				stripeError.code,
 			);
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.stripeErrorMessage,
-				error.message,
+				stripeError.message,
 			);
 
-			throw error;
+			throw stripeError;
 		}
 	}
 
@@ -158,20 +164,22 @@ export class StripeService {
 				this.stripe.subscriptions.retrieve(subscriptionId),
 			);
 		} catch (error) {
+			const stripeError = error as Stripe.errors.StripeError;
+
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.stripeErrorType,
-				error.type,
+				stripeError.type,
 			);
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.stripeErrorCode,
-				error.code,
+				stripeError.code,
 			);
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.stripeErrorMessage,
-				error.message,
+				stripeError.message,
 			);
 
-			throw error;
+			throw stripeError;
 		}
 	}
 
@@ -189,20 +197,22 @@ export class StripeService {
 				this.stripe.customers.retrieve(customerId),
 			);
 		} catch (error) {
+			const stripeError = error as Stripe.errors.StripeError;
+
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.stripeErrorType,
-				error.type,
+				stripeError.type,
 			);
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.stripeErrorCode,
-				error.code,
+				stripeError.code,
 			);
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.stripeErrorMessage,
-				error.message,
+				stripeError.message,
 			);
 
-			throw error;
+			throw stripeError;
 		}
 	}
 
@@ -225,20 +235,22 @@ export class StripeService {
 				}),
 			);
 		} catch (error) {
+			const stripeError = error as Stripe.errors.StripeError;
+
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.stripeErrorType,
-				error.type,
+				stripeError.type,
 			);
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.stripeErrorCode,
-				error.code,
+				stripeError.code,
 			);
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.stripeErrorMessage,
-				error.message,
+				stripeError.message,
 			);
 
-			throw error;
+			throw stripeError;
 		}
 	}
 

@@ -10,7 +10,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
 		super();
 	}
 
-	public canActivate(context: ExecutionContext) {
+	public override canActivate(context: ExecutionContext) {
 		const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
 			context.getHandler(),
 			context.getClass(),
@@ -23,7 +23,7 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
 		return super.canActivate(context);
 	}
 
-	public getAuthenticateOptions() {
+	public override getAuthenticateOptions() {
 		return { session: false };
 	}
 }

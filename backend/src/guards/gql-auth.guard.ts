@@ -12,13 +12,13 @@ export class GqlAuthGuard extends AuthGuard("jwt") {
 		super();
 	}
 
-	public getRequest(context: ExecutionContext): Request {
+	public override getRequest(context: ExecutionContext): Request {
 		const ctx = GqlExecutionContext.create(context);
 
 		return ctx.getContext<GqlContext>().req;
 	}
 
-	public canActivate(context: ExecutionContext) {
+	public override canActivate(context: ExecutionContext) {
 		const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
 			context.getHandler(),
 			context.getClass(),
@@ -31,7 +31,7 @@ export class GqlAuthGuard extends AuthGuard("jwt") {
 		return super.canActivate(context);
 	}
 
-	public getAuthenticateOptions() {
+	public override getAuthenticateOptions() {
 		return { session: false };
 	}
 

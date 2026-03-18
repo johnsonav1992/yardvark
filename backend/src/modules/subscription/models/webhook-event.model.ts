@@ -9,21 +9,21 @@ import {
 @Entity("webhook_events")
 export class WebhookEvent {
 	@PrimaryGeneratedColumn()
-	id: number;
+	public id!: number;
 
 	@Column({ unique: true })
 	@Index()
-	stripeEventId: string;
+	public stripeEventId!: string;
 
 	@Column()
-	eventType: string;
+	public eventType!: string;
 
 	@Column({ default: false })
-	processed: boolean;
+	public processed!: boolean;
 
 	@CreateDateColumn()
-	createdAt: Date;
+	public createdAt!: Date;
 
 	@Column({ type: "timestamptz", nullable: true })
-	processedAt: Date;
+	public processedAt!: Date;
 }

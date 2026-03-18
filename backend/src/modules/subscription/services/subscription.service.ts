@@ -84,14 +84,17 @@ export class SubscriptionService {
 					BusinessContextKeys.subscriptionCacheHit,
 					true,
 				);
+
 				return cached;
 			}
 
 			return null;
 		} catch (error) {
+			const err = error as Error;
+
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.cacheGetError,
-				error.message,
+				err.message,
 			);
 			LogHelpers.addBusinessContext(BusinessContextKeys.cacheUserId, userId);
 
@@ -106,9 +109,11 @@ export class SubscriptionService {
 		try {
 			await this.cacheManager.set(this.getCacheKey(userId), subscription);
 		} catch (error) {
+			const err = error as Error;
+
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.cacheSetError,
-				error.message,
+				err.message,
 			);
 			LogHelpers.addBusinessContext(BusinessContextKeys.cacheUserId, userId);
 			LogHelpers.addBusinessContext(
@@ -122,9 +127,11 @@ export class SubscriptionService {
 		try {
 			await this.cacheManager.del(this.getCacheKey(userId));
 		} catch (error) {
+			const err = error as Error;
+
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.cacheDelError,
-				error.message,
+				err.message,
 			);
 			LogHelpers.addBusinessContext(BusinessContextKeys.cacheUserId, userId);
 		}
@@ -253,6 +260,7 @@ export class SubscriptionService {
 			}
 
 			await this.cacheSubscription(userId, subscription);
+
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.subscriptionTier,
 				subscription.tier,
@@ -290,6 +298,7 @@ export class SubscriptionService {
 		if (subscriptionResult.isError()) return error(subscriptionResult.value);
 
 		const subscription = subscriptionResult.value;
+
 		LogHelpers.addBusinessContext(
 			BusinessContextKeys.existingTier,
 			subscription.tier,
@@ -314,7 +323,9 @@ export class SubscriptionService {
 					customerId = null;
 					this.clearStripeCustomer(subscription);
 				}
-			} catch (err) {
+			} catch (e) {
+				const err = e as Stripe.errors.StripeError;
+
 				LogHelpers.addBusinessContext(
 					BusinessContextKeys.customerLookupError,
 					err.message,
@@ -365,7 +376,9 @@ export class SubscriptionService {
 					BusinessContextKeys.newCustomerId,
 					customerId,
 				);
-			} catch (err) {
+			} catch (e) {
+				const err = e as Error;
+
 				LogHelpers.addBusinessContext(
 					BusinessContextKeys.customerCreationError,
 					err.message,
@@ -418,7 +431,9 @@ export class SubscriptionService {
 			LogHelpers.addBusinessContext(BusinessContextKeys.sessionId, session.id);
 
 			return success({ url: session.url });
-		} catch (err) {
+		} catch (e) {
+			const err = e as Error;
+
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.checkoutCreationError,
 				err.message,
@@ -499,7 +514,9 @@ export class SubscriptionService {
 			);
 
 			return success({ url: session.url });
-		} catch (err) {
+		} catch (e) {
+			const err = e as Error;
+
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.portalCreationError,
 				err.message,
@@ -607,7 +624,9 @@ export class SubscriptionService {
 			);
 
 			return success(undefined);
-		} catch (err) {
+		} catch (e) {
+			const err = e as Error;
+
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.subscriptionUpdateError,
 				err.message,
@@ -684,7 +703,9 @@ export class SubscriptionService {
 			);
 
 			return success(undefined);
-		} catch (err) {
+		} catch (e) {
+			const err = e as Error;
+
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.subscriptionUpdateError,
 				err.message,
@@ -904,7 +925,9 @@ export class SubscriptionService {
 			}
 
 			return success(undefined);
-		} catch (err) {
+		} catch (e) {
+			const err = e as Error;
+
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.usageIncrementError,
 				err.message,
@@ -983,7 +1006,9 @@ export class SubscriptionService {
 			}
 
 			return success(undefined);
-		} catch (err) {
+		} catch (e) {
+			const err = e as Error;
+
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.usageIncrementBatchError,
 				err.message,

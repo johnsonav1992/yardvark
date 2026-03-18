@@ -4,35 +4,35 @@ import GraphQLJSON from "graphql-type-json";
 @InputType()
 export class CreateLawnSegmentInput {
 	@Field()
-	name: string;
+	public name!: string;
 
 	@Field(() => Float)
-	size: number;
+	public size!: number;
 
 	@Field(() => GraphQLJSON, { nullable: true })
-	coordinates?: number[][][] | null;
+	public coordinates?: number[][][] | null;
 
 	@Field({ nullable: true })
-	color?: string;
+	public color?: string;
 }
 
 @InputType()
 export class UpdateLawnSegmentInput {
 	@Field(() => Int)
-	id: number;
+	public id!: number;
 
 	@Field()
-	userId: string;
+	public userId!: string;
 
 	@Field()
-	name: string;
+	public name!: string;
 
 	@Field(() => Float)
-	size: number;
+	public size!: number;
 
 	@Field(() => GraphQLJSON, { nullable: true })
-	coordinates?: number[][][] | null;
+	public coordinates?: number[][][] | null;
 
 	@Field({ nullable: true })
-	color?: string;
+	public color?: string;
 }

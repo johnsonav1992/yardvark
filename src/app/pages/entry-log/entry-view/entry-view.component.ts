@@ -187,7 +187,7 @@ export class EntryViewComponent {
 		() => this.entryImageUrls().length > 0 || this.isInEditMode(),
 	);
 
-	_formFileUpdater = effect(() => {
+	public readonly _formFileUpdater = effect(() => {
 		const entryData = this.entryData();
 
 		if (entryData?.images.length) {

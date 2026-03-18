@@ -13,71 +13,71 @@ import { EquipmentMaintenance } from "./equipmentMaintenance.model";
 export class Equipment {
 	@Field(() => ID)
 	@PrimaryGeneratedColumn()
-	id: number;
+	public id!: number;
 
 	@Field()
 	@Column()
-	userId: string;
+	public userId!: string;
 
 	@Field()
 	@Column()
-	name: string;
+	public name!: string;
 
 	@Field()
 	@Column()
-	brand: string;
+	public brand!: string;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	model: string;
+	public model!: string;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	description?: string;
+	public description?: string;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	imageUrl?: string;
+	public imageUrl?: string;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true, default: "center center" })
-	imagePosition?: string;
+	public imagePosition?: string;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	serialNumber?: string;
+	public serialNumber?: string;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	purchaseDate?: Date;
+	public purchaseDate?: Date;
 
 	@Field(() => Float, { nullable: true })
 	@Column({ nullable: true })
-	purchasePrice?: number;
+	public purchasePrice?: number;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	fuelType?: string;
+	public fuelType?: string;
 
 	@Field({ nullable: true })
 	@Column({ default: true })
-	isActive?: boolean;
+	public isActive?: boolean;
 
 	@Field()
 	@Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
-	createdAt: Date;
+	public createdAt!: Date;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	updatedAt?: Date;
+	public updatedAt?: Date;
 
 	@DeleteDateColumn()
-	deletedAt?: Date;
+	public deletedAt?: Date;
 
 	@Field(() => [EquipmentMaintenance], { nullable: true })
 	@OneToMany(
 		() => EquipmentMaintenance,
 		(maintenance) => maintenance.equipment,
 	)
-	maintenanceRecords: EquipmentMaintenance[];
+	public maintenanceRecords!: EquipmentMaintenance[];
 }

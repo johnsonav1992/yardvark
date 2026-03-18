@@ -15,29 +15,29 @@ import {
 export class FeatureUsage {
 	@Field(() => ID)
 	@PrimaryGeneratedColumn()
-	id: number;
+	public id!: number;
 
 	@Field()
 	@Column({ name: "user_id" })
-	userId: string;
+	public userId!: string;
 
 	@Field()
 	@Column({ name: "feature_name" })
-	featureName: string;
+	public featureName!: string;
 
 	@Field(() => Int)
 	@Column({ name: "usage_count", default: 0 })
-	usageCount: number;
+	public usageCount!: number;
 
 	@Field()
 	@Column({ name: "period_start", type: "timestamptz" })
-	periodStart: Date;
+	public periodStart!: Date;
 
 	@Field()
 	@Column({ name: "period_end", type: "timestamptz" })
-	periodEnd: Date;
+	public periodEnd!: Date;
 
 	@Field()
 	@CreateDateColumn({ name: "last_updated", type: "timestamptz" })
-	lastUpdated: Date;
+	public lastUpdated!: Date;
 }

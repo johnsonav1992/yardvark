@@ -1,4 +1,4 @@
-import type { Content } from "@google/genai";
+import type { Content, Part } from "@google/genai";
 import { FunctionCallingConfigMode, GoogleGenAI } from "@google/genai";
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
@@ -24,7 +24,8 @@ interface ToolCallingLoopParams extends GeminiChatWithToolsParams {
 
 type ToolCallingLoopEvent =
 	| { type: "tool_call"; toolName: string }
-	| { type: "final"; text: string; totalTokens?: number };
+	| { type: "text_chunk"; text: string }
+	| { type: "final"; totalTokens?: number };
 
 const TOOL_CALL_MAX_ITERATIONS = 8;
 const DEFAULT_TEMPERATURE = 0.7;
@@ -242,10 +243,15 @@ export class GeminiService {
 		let success = true;
 
 		try {
+			let text = "";
+
 			for await (const event of this.runToolCallingLoop(params)) {
-				if (event.type === "final") {
+				if (event.type === "text_chunk") {
+					text += event.text;
+				} else if (event.type === "final") {
 					LogHelpers.addBusinessContext("aiTokensUsed", event.totalTokens);
-					return event.text;
+
+					return text;
 				}
 			}
 
@@ -295,17 +301,14 @@ export class GeminiService {
 						type: "status",
 						message: this.getToolStatusMessage(event.toolName),
 					};
-					continue;
-				}
-
-				LogHelpers.addBusinessContext("aiTokensUsed", event.totalTokens);
-
-				if (event.text) {
+				} else if (event.type === "text_chunk") {
 					yield { type: "chunk", text: event.text };
-				}
+				} else if (event.type === "final") {
+					LogHelpers.addBusinessContext("aiTokensUsed", event.totalTokens);
+					yield { type: "done" };
 
-				yield { type: "done" };
-				return;
+					return;
+				}
 			}
 
 			throw new Error("Tool loop completed without final response");
@@ -393,7 +396,7 @@ export class GeminiService {
 		let emptyResponseNudged = false;
 
 		for (let iteration = 0; iteration < TOOL_CALL_MAX_ITERATIONS; iteration++) {
-			const response = await this.genAI.models.generateContent({
+			const stream = await this.genAI.models.generateContentStream({
 				model: modelName,
 				contents,
 				config: this.buildToolCallingConfig({
@@ -403,19 +406,36 @@ export class GeminiService {
 				}),
 			});
 
-			const candidate = response.candidates?.[0];
-			const finishReason = candidate?.finishReason;
+			const accumulatedParts: Part[] = [];
+			let totalTokens: number | undefined;
+			let finishReason: string | undefined;
 
-			if (!candidate?.content) {
-				throw new Error(
-					`No candidate content in Gemini response (finishReason=${finishReason})`,
-				);
+			for await (const chunk of stream) {
+				const candidate = chunk.candidates?.[0];
+
+				for (const part of candidate?.content?.parts ?? []) {
+					accumulatedParts.push(part);
+
+					if (part.text) {
+						yield { type: "text_chunk", text: part.text };
+					}
+				}
+
+				if (chunk.usageMetadata?.totalTokenCount) {
+					totalTokens = chunk.usageMetadata.totalTokenCount;
+				}
+
+				finishReason = candidate?.finishReason ?? finishReason;
 			}
 
-			const functionCallParts = getFunctionCallParts(candidate.content.parts);
+			const accumulatedContent: Content = {
+				role: "model",
+				parts: accumulatedParts,
+			};
+			const functionCallParts = getFunctionCallParts(accumulatedParts);
 
 			if (functionCallParts.length > 0) {
-				contents.push(candidate.content);
+				contents.push(accumulatedContent);
 
 				for (const part of functionCallParts) {
 					yield {
@@ -433,9 +453,9 @@ export class GeminiService {
 				continue;
 			}
 
-			const text = response.text;
+			const hasText = accumulatedParts.some((p) => p.text);
 
-			if (!text) {
+			if (!hasText) {
 				if (!emptyResponseNudged) {
 					emptyResponseNudged = true;
 					contents.push({
@@ -446,30 +466,22 @@ export class GeminiService {
 				}
 
 				if (finishReason === "STOP") {
-					yield {
-						type: "final",
-						text: "",
-						totalTokens: response.usageMetadata?.totalTokenCount,
-					};
+					yield { type: "final", totalTokens };
+
 					return;
 				}
 
 				const partTypes =
-					candidate.content.parts
-						?.map((p) => Object.keys(p).join(","))
-						.join(" | ") ?? "none";
+					accumulatedParts.map((p) => Object.keys(p).join(",")).join(" | ") ||
+					"none";
 				throw new Error(
 					`No text or function calls in Gemini response (finishReason=${finishReason}, partTypes=${partTypes})`,
 				);
 			}
 
-			contents.push(candidate.content);
+			contents.push(accumulatedContent);
 
-			yield {
-				type: "final",
-				text,
-				totalTokens: response.usageMetadata?.totalTokenCount,
-			};
+			yield { type: "final", totalTokens };
 
 			return;
 		}

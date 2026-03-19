@@ -52,7 +52,14 @@ Thumbs.db
 # Scraper
 /scraper
 
+# Playwright
+.auth/
+playwright-report/
+test-results/
+
 # iOS/Capacitor
 ios/App/App.xcodeproj/project.xcworkspace/
 ios/App/CapApp-SPM/
 ios/*.xcconfig
+
+.env*

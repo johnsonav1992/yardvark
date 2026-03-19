@@ -12,6 +12,7 @@ import {
 import type {
 	BatchEntryCreationRequest,
 	BatchEntryCreationResponse,
+	DashboardSummaryResponse,
 	EntriesSearchRequest,
 	Entry,
 	EntryCreationRequest,
@@ -45,16 +46,8 @@ export class EntriesService {
 				: undefined,
 		);
 
-	public recentEntry = httpResource<Entry | null>(() =>
-		apiUrl("entries/single/most-recent"),
-	);
-
-	public lastMow = httpResource<{ lastMowDate: Date | null }>(() =>
-		apiUrl("entries/last-mow"),
-	);
-
-	public lastProductApp = httpResource<{ lastProductAppDate: Date | null }>(
-		() => apiUrl("entries/last-product-app"),
+	public dashboardSummary = httpResource<DashboardSummaryResponse>(() =>
+		apiUrl("dashboard/summary"),
 	);
 
 	public getMonthEntriesResource = (currentDate: Signal<Date>) =>

@@ -46,6 +46,20 @@
         {{ daysSinceLastProductApplication() }}
       </b>
     </p>
+    @if (soilTempTrend(); as trend) {
+      <p-divider [dt]="dividerDt" />
+      <p class="stat">
+        <i class="ti ti-thermometer icon"></i> Soil temp trend:
+        <span [class]="'trend trend-' + trend.direction">
+          <i [class]="trend.icon"></i>
+          @if (trend.direction === "stable") {
+            Stable
+          } @else {
+            {{ trend.delta > 0 ? "+" : "" }}{{ trend.delta }}{{ tempUnitSymbol() }}
+          }
+        </span>
+      </p>
+    }
     @if (isPro() && hasGddData()) {
       <p-divider [dt]="dividerDt" />
       <div class="gdd-progress">

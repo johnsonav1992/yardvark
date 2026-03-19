@@ -2,8 +2,8 @@ import { CurrencyPipe, DatePipe, TitleCasePipe } from "@angular/common";
 import {
 	Component,
 	computed,
-	effect,
 	inject,
+	linkedSignal,
 	NgZone,
 	type OnDestroy,
 	signal,
@@ -28,7 +28,7 @@ import { EquipmentMaintenanceAddEditModalComponent } from "../../../components/e
 import { PageContainerComponent } from "../../../components/layout/page-container/page-container.component";
 import { EquipmentService } from "../../../services/equipment.service";
 import { GlobalUiService } from "../../../services/global-ui.service";
-import type { EquipmentMaintenance } from "../../../types/equipment.types";
+import type { Equipment, EquipmentMaintenance } from "../../../types/equipment.types";
 import { injectErrorToast } from "../../../utils/toastUtils";
 
 @Component({
@@ -65,7 +65,22 @@ export class EquipmentViewComponent implements OnDestroy {
 	public isMobile = this._globalUiService.isMobile;
 
 	public isAdjustingPosition = signal(false);
-	public imagePosition = signal("center center");
+	public imagePosition = linkedSignal<
+		{ eq: Equipment | undefined; isAdjusting: boolean },
+		string
+	>({
+		source: () => ({
+			eq: this.equipment(),
+			isAdjusting: this.isAdjustingPosition(),
+		}),
+		computation: (newSource, previous) => {
+			if (!newSource.isAdjusting) {
+				return newSource.eq?.imagePosition ?? "center center";
+			}
+
+			return previous?.value ?? "center center";
+		},
+	});
 	private isDragging = signal(false);
 	private dragStartX = signal(0);
 	private dragStartY = signal(0);
@@ -88,16 +103,6 @@ export class EquipmentViewComponent implements OnDestroy {
 			.value()
 			?.find((equipment) => equipment.id === this.equipmentId()),
 	);
-
-	constructor() {
-		effect(() => {
-			const eq = this.equipment();
-
-			if (eq?.imagePosition && !this.isAdjustingPosition()) {
-				this.imagePosition.set(eq.imagePosition);
-			}
-		});
-	}
 
 	public maintenanceStatusConfig = computed(() => {
 		const eq = this.equipment();
@@ -469,14 +474,6 @@ export class EquipmentViewComponent implements OnDestroy {
 	}
 
 	public cancelPositionAdjustment(): void {
-		const eq = this.equipment();
-
-		if (eq?.imagePosition) {
-			this.imagePosition.set(eq.imagePosition);
-		} else {
-			this.imagePosition.set("center center");
-		}
-
 		this.isAdjustingPosition.set(false);
 	}
 }

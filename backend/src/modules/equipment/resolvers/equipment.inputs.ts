@@ -3,92 +3,92 @@ import { Field, Float, InputType } from "@nestjs/graphql";
 @InputType()
 export class CreateEquipmentInput {
 	@Field()
-	name: string;
+	public name!: string;
 
 	@Field()
-	brand: string;
+	public brand!: string;
 
 	@Field({ nullable: true })
-	model?: string;
+	public model?: string;
 
 	@Field({ nullable: true })
-	description?: string;
+	public description?: string;
 
 	@Field({ nullable: true })
-	imageUrl?: string;
+	public imageUrl?: string;
 
 	@Field({ nullable: true })
-	imagePosition?: string;
+	public imagePosition?: string;
 
 	@Field({ nullable: true })
-	serialNumber?: string;
+	public serialNumber?: string;
 
 	@Field({ nullable: true })
-	purchaseDate?: Date;
+	public purchaseDate?: Date;
 
 	@Field(() => Float, { nullable: true })
-	purchasePrice?: number;
+	public purchasePrice?: number;
 
 	@Field({ nullable: true })
-	fuelType?: string;
+	public fuelType?: string;
 }
 
 @InputType()
 export class UpdateEquipmentInput {
 	@Field({ nullable: true })
-	name?: string;
+	public name?: string;
 
 	@Field({ nullable: true })
-	brand?: string;
+	public brand?: string;
 
 	@Field({ nullable: true })
-	model?: string;
+	public model?: string;
 
 	@Field({ nullable: true })
-	description?: string;
+	public description?: string;
 
 	@Field({ nullable: true })
-	imageUrl?: string;
+	public imageUrl?: string;
 
 	@Field({ nullable: true })
-	imagePosition?: string;
+	public imagePosition?: string;
 
 	@Field({ nullable: true })
-	serialNumber?: string;
+	public serialNumber?: string;
 
 	@Field({ nullable: true })
-	purchaseDate?: Date;
+	public purchaseDate?: Date;
 
 	@Field(() => Float, { nullable: true })
-	purchasePrice?: number;
+	public purchasePrice?: number;
 
 	@Field({ nullable: true })
-	fuelType?: string;
+	public fuelType?: string;
 
 	@Field({ nullable: true })
-	isActive?: boolean;
+	public isActive?: boolean;
 }
 
 @InputType()
 export class CreateMaintenanceInput {
 	@Field()
-	maintenanceDate: Date;
+	public maintenanceDate!: Date;
 
 	@Field()
-	notes: string;
+	public notes!: string;
 
 	@Field(() => Float, { nullable: true })
-	cost?: number;
+	public cost?: number;
 }
 
 @InputType()
 export class UpdateMaintenanceInput {
 	@Field({ nullable: true })
-	maintenanceDate?: Date;
+	public maintenanceDate?: Date;
 
 	@Field({ nullable: true })
-	notes?: string;
+	public notes?: string;
 
 	@Field(() => Float, { nullable: true })
-	cost?: number;
+	public cost?: number;
 }

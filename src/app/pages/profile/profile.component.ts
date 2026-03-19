@@ -7,6 +7,7 @@ import {
 	type WritableSignal,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { RouterLink } from "@angular/router";
 import { AuthService, type User } from "@auth0/auth0-angular";
 import type { AvatarDesignTokens } from "@primeuix/themes/types/avatar";
 import { AvatarModule } from "primeng/avatar";
@@ -35,6 +36,7 @@ import { injectErrorToast, injectSuccessToast } from "../../utils/toastUtils";
 		FormsModule,
 		MessageModule,
 		TooltipModule,
+		RouterLink,
 	],
 	providers: [DialogService],
 	templateUrl: "./profile.component.html",

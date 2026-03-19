@@ -4,12 +4,12 @@ import { Product } from "./products.model";
 @Entity("user_hidden_products")
 export class UserHiddenProduct {
 	@PrimaryColumn()
-	userId: string;
+	public userId!: string;
 
 	@PrimaryColumn()
-	productId: number;
+	public productId!: number;
 
 	@ManyToOne(() => Product, { onDelete: "CASCADE" })
 	@JoinColumn({ name: "product_id" })
-	product: Product;
+	public product!: Product;
 }

@@ -16,14 +16,14 @@ import type {
 export class Subscription {
 	@Field(() => ID)
 	@PrimaryGeneratedColumn()
-	id: number;
+	public id!: number;
 
 	@Field()
 	@Column({ name: "user_id", unique: true })
-	userId: string;
+	public userId!: string;
 
 	@Column({ name: "stripe_customer_id", nullable: true, type: "varchar" })
-	stripeCustomerId: string | null;
+	public stripeCustomerId!: string | null;
 
 	@Column({
 		name: "stripe_subscription_id",
@@ -31,37 +31,37 @@ export class Subscription {
 		unique: true,
 		type: "varchar",
 	})
-	stripeSubscriptionId: string | null;
+	public stripeSubscriptionId!: string | null;
 
 	@Field()
 	@Column({ default: "free" })
-	tier: SubscriptionTier;
+	public tier!: SubscriptionTier;
 
 	@Field()
 	@Column({ default: "active" })
-	status: SubscriptionStatus;
+	public status!: SubscriptionStatus;
 
 	@Field(() => Date, { nullable: true })
 	@Column({ name: "current_period_start", type: "timestamptz", nullable: true })
-	currentPeriodStart: Date | null;
+	public currentPeriodStart!: Date | null;
 
 	@Field(() => Date, { nullable: true })
 	@Column({ name: "current_period_end", type: "timestamptz", nullable: true })
-	currentPeriodEnd: Date | null;
+	public currentPeriodEnd!: Date | null;
 
 	@Field()
 	@Column({ name: "cancel_at_period_end", default: false })
-	cancelAtPeriodEnd: boolean;
+	public cancelAtPeriodEnd!: boolean;
 
 	@Field(() => Date, { nullable: true })
 	@Column({ name: "canceled_at", type: "timestamptz", nullable: true })
-	canceledAt: Date | null;
+	public canceledAt!: Date | null;
 
 	@Field()
 	@CreateDateColumn({ name: "created_at", type: "timestamptz" })
-	createdAt: Date;
+	public createdAt!: Date;
 
 	@Field()
 	@UpdateDateColumn({ name: "updated_at", type: "timestamptz" })
-	updatedAt: Date;
+	public updatedAt!: Date;
 }

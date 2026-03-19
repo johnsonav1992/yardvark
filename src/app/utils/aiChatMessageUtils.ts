@@ -24,7 +24,17 @@ const isLikelyRawErrorPayload = (text: string): boolean => {
 		return false;
 	}
 
-	return RAW_ERROR_PAYLOAD_MARKERS.some((marker) => trimmed.includes(marker));
+	if (RAW_ERROR_PAYLOAD_MARKERS.some((marker) => trimmed.includes(marker))) {
+		return true;
+	}
+
+	try {
+		const parsed: unknown = JSON.parse(trimmed);
+
+		return typeof parsed === "object" && parsed !== null && "error" in parsed;
+	} catch {
+		return false;
+	}
 };
 
 const sanitizeAiMessageContent = (text: string): string =>

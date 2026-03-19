@@ -7,15 +7,15 @@ import { Entry } from "../../entries/models/entries.model";
 export class Activity {
 	@Field(() => ID)
 	@PrimaryGeneratedColumn()
-	id: number;
+	public id!: number;
 
 	@Field()
 	@Column()
-	name: string;
+	public name!: string;
 
 	@ManyToMany(
 		() => Entry,
 		(entry) => entry.activities,
 	)
-	entries: Entry[];
+	public entries!: Entry[];
 }

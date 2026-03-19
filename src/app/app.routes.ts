@@ -1,7 +1,6 @@
 import type { Routes } from "@angular/router";
 import { hybridAuthGuard } from "./guards/hybrid-auth.guard";
 import { unsavedChangesGuard } from "./guards/unsaved-changes-guard";
-import { DashboardComponent } from "./pages/dashboard/dashboard.component";
 
 export const mainRoutes: Routes = [
 	{
@@ -11,7 +10,10 @@ export const mainRoutes: Routes = [
 	},
 	{
 		path: "dashboard",
-		component: DashboardComponent,
+		loadComponent: () =>
+			import("./pages/dashboard/dashboard.component").then(
+				(m) => m.DashboardComponent,
+			),
 		canActivate: [hybridAuthGuard],
 	},
 	{
@@ -41,9 +43,9 @@ export const mainRoutes: Routes = [
 	{
 		path: "entry-log/timeline",
 		loadComponent: () =>
-			import(
-				"./pages/entry-log/entry-timeline/entry-timeline.component"
-			).then((m) => m.EntryTimelineComponent),
+			import("./pages/entry-log/entry-timeline/entry-timeline.component").then(
+				(m) => m.EntryTimelineComponent,
+			),
 		canActivate: [hybridAuthGuard],
 	},
 	{
@@ -159,5 +161,17 @@ export const mainRoutes: Routes = [
 				(m) => m.SubscriptionComponent,
 			),
 		canActivate: [hybridAuthGuard],
+	},
+	{
+		path: "terms",
+		loadComponent: () =>
+			import("./pages/terms/terms.component").then((m) => m.TermsComponent),
+	},
+	{
+		path: "privacy-policy",
+		loadComponent: () =>
+			import("./pages/privacy-policy/privacy-policy.component").then(
+				(m) => m.PrivacyPolicyComponent,
+			),
 	},
 ];

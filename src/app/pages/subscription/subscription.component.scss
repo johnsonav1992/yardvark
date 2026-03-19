@@ -1,3 +1,24 @@
+.legal-links {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+
+  a {
+    font-size: 0.75rem;
+    color: var(--p-text-muted-color);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  span {
+    font-size: 0.75rem;
+    color: var(--p-text-muted-color);
+  }
+}
+
 .section-title {
   font-size: 1.5rem;
   font-weight: 600;

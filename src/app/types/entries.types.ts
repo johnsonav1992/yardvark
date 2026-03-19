@@ -68,6 +68,12 @@ export type BatchEntryCreationResponse = {
 	errors?: { index: number; error: string }[];
 };
 
+export type DashboardSummaryResponse = {
+	recentEntry: Entry | null;
+	lastMowDate: Date | null;
+	lastProductAppDate: Date | null;
+};
+
 export type EntriesSearchRequest = {
 	dateRange: string[];
 	titleOrNotes: string;

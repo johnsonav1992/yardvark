@@ -15,31 +15,31 @@ import { Entry } from "../../entries/models/entries.model";
 export class LawnSegment {
 	@Field(() => ID)
 	@PrimaryGeneratedColumn()
-	id: number;
+	public id!: number;
 
 	@Field()
 	@Column()
-	userId: string;
+	public userId!: string;
 
 	@Field()
 	@Column()
-	name: string;
+	public name!: string;
 
 	@Field(() => Float)
 	@Column({ type: "decimal", precision: 10, scale: 2 })
-	size: number;
+	public size!: number;
 
 	@Field(() => GraphQLJSON, { nullable: true })
 	@Column({ type: "jsonb", nullable: true })
-	coordinates: number[][][] | null;
+	public coordinates!: number[][][] | null;
 
 	@Field({ nullable: true })
 	@Column({ type: "varchar", length: 7, default: "#3388ff" })
-	color: string;
+	public color!: string;
 
 	@ManyToMany(
 		() => Entry,
 		(entry) => entry.lawnSegments,
 	)
-	entries: Entry[];
+	public entries!: Entry[];
 }

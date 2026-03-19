@@ -6,10 +6,10 @@ export interface ResourceErrorParams {
 }
 
 export class ResourceError {
-	message: string;
-	code: string;
-	statusCode: number;
-	error?: Error | unknown;
+	public message: string;
+	public code: string;
+	public statusCode: number;
+	public error?: Error | unknown;
 
 	constructor({ message, code, statusCode, error }: ResourceErrorParams) {
 		this.message = message;

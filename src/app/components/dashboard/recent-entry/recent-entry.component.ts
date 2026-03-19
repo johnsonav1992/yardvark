@@ -1,6 +1,6 @@
 import { CdkDragHandle } from "@angular/cdk/drag-drop";
 import { DatePipe, NgTemplateOutlet } from "@angular/common";
-import { Component, inject, output } from "@angular/core";
+import { Component, computed, inject, output } from "@angular/core";
 import { Router } from "@angular/router";
 import { ButtonModule } from "primeng/button";
 import { CardModule } from "primeng/card";
@@ -30,13 +30,15 @@ export class RecentEntryComponent {
 
 	public isMobile = this._globalUiService.isMobile;
 
-	public recentEntry = this._entriesService.recentEntry;
-	public isLoading = this._entriesService.recentEntry.isLoading;
+	public recentEntry = computed(
+		() => this._entriesService.dashboardSummary.value()?.recentEntry ?? null,
+	);
+	public isLoading = this._entriesService.dashboardSummary.isLoading;
 
 	public onHideWidget = output<void>();
 
 	public goToEntry(): void {
-		this._router.navigate(["entry-log", this.recentEntry.value()?.id]);
+		this._router.navigate(["entry-log", this.recentEntry()?.id]);
 	}
 
 	public navToEntryCreation(): void {

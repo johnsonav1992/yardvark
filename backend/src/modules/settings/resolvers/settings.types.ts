@@ -3,11 +3,11 @@ import { Field, ID, ObjectType } from "@nestjs/graphql";
 @ObjectType()
 export class SettingsResponse {
 	@Field(() => ID)
-	id: number;
+	public id!: number;
 
 	@Field()
-	userId: string;
+	public userId!: string;
 
 	@Field()
-	value: string;
+	public value!: string;
 }

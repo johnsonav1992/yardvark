@@ -14,15 +14,15 @@ import { Equipment } from "./equipment.model";
 export class EquipmentMaintenance {
 	@Field(() => ID)
 	@PrimaryGeneratedColumn()
-	id: number;
+	public id!: number;
 
 	@Field()
 	@Column({ type: "timestamptz", nullable: false })
-	maintenanceDate: Date;
+	public maintenanceDate!: Date;
 
 	@Field()
 	@Column({ type: "text" })
-	notes: string;
+	public notes!: string;
 
 	@Field(() => Float, { nullable: true })
 	@Column({
@@ -35,19 +35,19 @@ export class EquipmentMaintenance {
 			from: (value?: string) => (value != null ? parseFloat(value) : null),
 		},
 	})
-	cost?: number;
+	public cost?: number;
 
 	@Field()
 	@Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
-	createdAt: Date;
+	public createdAt!: Date;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	updatedAt?: Date;
+	public updatedAt?: Date;
 
 	@Column({ nullable: true })
 	@DeleteDateColumn()
-	deletedAt?: Date;
+	public deletedAt?: Date;
 
 	@ManyToOne(
 		() => Equipment,
@@ -57,5 +57,5 @@ export class EquipmentMaintenance {
 		},
 	)
 	@JoinColumn({ name: "equipment_id" })
-	equipment: Equipment;
+	public equipment!: Equipment;
 }

@@ -22,6 +22,7 @@ import {
 } from "./aiChatMessageUtils";
 import { injectUserData, isMasterUser } from "./authUtils";
 import { parseYyyyMmDdToLocalNoon } from "./timeUtils";
+import { injectTypewriter } from "./typewriterUtils";
 
 export interface AiChatMessage {
 	role: "user" | "ai";
@@ -71,6 +72,12 @@ export function injectAiChat(
 
 	let abortController: AbortController | null = null;
 
+	const typewriter = injectTypewriter({
+		onChar: (char) =>
+			messages.update((msgs) => appendToLastAiChatMessage(msgs, char)),
+		delayMS: 10,
+	});
+
 	destroyRef.onDestroy(() => abortController?.abort());
 
 	const send = async (query: string): Promise<void> => {
@@ -100,9 +107,7 @@ export function injectAiChat(
 					limitStatus.set(event.data);
 				} else if (event.type === "chunk") {
 					statusMessage.set(null);
-					messages.update((msgs) =>
-						appendToLastAiChatMessage(msgs, event.text),
-					);
+					typewriter.enqueue(event.text);
 				} else if (event.type === "entry_draft") {
 					messages.update((msgs) =>
 						attachDraftToLastAiMessage(msgs, event.data),
@@ -114,6 +119,8 @@ export function injectAiChat(
 				}
 			}
 		} finally {
+			await typewriter.waitForDrain();
+
 			const lastMsg = messages()[messages().length - 1];
 
 			if (lastMsg?.role === "ai" && !lastMsg.content && lastMsg.entryDraft) {
@@ -136,6 +143,7 @@ export function injectAiChat(
 	};
 
 	const abort = (): void => {
+		typewriter.clear();
 		abortController?.abort();
 		abortController = null;
 		isStreaming.set(false);

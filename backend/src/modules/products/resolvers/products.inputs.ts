@@ -4,95 +4,95 @@ import { Product } from "../models/products.model";
 @InputType()
 export class CreateProductInput {
 	@Field()
-	name: string;
+	public name!: string;
 
 	@Field()
-	brand: string;
+	public brand!: string;
 
 	@Field({ nullable: true })
-	description?: string;
+	public description?: string;
 
 	@Field()
-	category: string;
+	public category!: string;
 
 	@Field(() => Float, { nullable: true })
-	price?: number;
+	public price?: number;
 
 	@Field({ nullable: true })
-	quantityUnit?: string;
+	public quantityUnit?: string;
 
 	@Field({ nullable: true })
-	applicationRate?: string;
+	public applicationRate?: string;
 
 	@Field({ nullable: true })
-	applicationMethod?: string;
+	public applicationMethod?: string;
 
 	@Field(() => Int, { nullable: true })
-	coverage?: number;
+	public coverage?: number;
 
 	@Field({ nullable: true })
-	coverageUnit?: string;
+	public coverageUnit?: string;
 
 	@Field({ nullable: true })
-	guaranteedAnalysis?: string;
+	public guaranteedAnalysis?: string;
 
 	@Field({ nullable: true })
-	containerType?: string;
+	public containerType?: string;
 
 	@Field({ nullable: true })
-	imageUrl?: string;
+	public imageUrl?: string;
 
 	@Field({ nullable: true })
-	labelUrl?: string;
+	public labelUrl?: string;
 }
 
 @InputType()
 export class UpdateProductInput {
 	@Field({ nullable: true })
-	name?: string;
+	public name?: string;
 
 	@Field({ nullable: true })
-	brand?: string;
+	public brand?: string;
 
 	@Field({ nullable: true })
-	description?: string;
+	public description?: string;
 
 	@Field({ nullable: true })
-	category?: string;
+	public category?: string;
 
 	@Field(() => Float, { nullable: true })
-	price?: number;
+	public price?: number;
 
 	@Field({ nullable: true })
-	quantityUnit?: string;
+	public quantityUnit?: string;
 
 	@Field({ nullable: true })
-	applicationRate?: string;
+	public applicationRate?: string;
 
 	@Field({ nullable: true })
-	applicationMethod?: string;
+	public applicationMethod?: string;
 
 	@Field(() => Int, { nullable: true })
-	coverage?: number;
+	public coverage?: number;
 
 	@Field({ nullable: true })
-	coverageUnit?: string;
+	public coverageUnit?: string;
 
 	@Field({ nullable: true })
-	guaranteedAnalysis?: string;
+	public guaranteedAnalysis?: string;
 
 	@Field({ nullable: true })
-	containerType?: string;
+	public containerType?: string;
 
 	@Field({ nullable: true })
-	imageUrl?: string;
+	public imageUrl?: string;
 
 	@Field({ nullable: true })
-	labelUrl?: string;
+	public labelUrl?: string;
 }
 
 @ObjectType()
 export class ProductWithHidden extends Product {
 	@Field()
-	isHidden: boolean;
+	public isHidden!: boolean;
 }

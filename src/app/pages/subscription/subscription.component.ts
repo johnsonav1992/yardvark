@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, computed, effect, inject, signal } from "@angular/core";
 import { toSignal } from "@angular/core/rxjs-interop";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { format, parseISO } from "date-fns";
 import { ButtonModule } from "primeng/button";
 import { CardModule } from "primeng/card";
@@ -25,6 +25,7 @@ import {
 	standalone: true,
 	imports: [
 		CommonModule,
+		RouterLink,
 		PageContainerComponent,
 		ButtonModule,
 		CardModule,

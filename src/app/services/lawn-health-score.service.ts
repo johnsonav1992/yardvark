@@ -43,8 +43,6 @@ export class LawnHealthScoreService {
 	private _subscriptionService = inject(SubscriptionService);
 
 	public analyticsData = this._analyticsService.analyticsData;
-	public lastMowDate = this._entriesService.lastMow;
-	public lastProductApp = this._entriesService.lastProductApp;
 	public userCoords = this._locationService.userLatLong;
 	public temperatureUnit = computed(
 		() =>
@@ -54,15 +52,13 @@ export class LawnHealthScoreService {
 	public isLoading = computed(
 		() =>
 			this.analyticsData.isLoading() ||
-			this.lastMowDate.isLoading() ||
-			this.lastProductApp.isLoading(),
+			this._entriesService.dashboardSummary.isLoading(),
 	);
 
 	public isError = computed(
 		() =>
 			!!this.analyticsData.error() ||
-			!!this.lastMowDate.error() ||
-			!!this.lastProductApp.error(),
+			!!this._entriesService.dashboardSummary.error(),
 	);
 
 	public currentSoilTemp = computed(() => {
@@ -74,8 +70,11 @@ export class LawnHealthScoreService {
 	});
 
 	public healthScoreFactors = computed((): LawnHealthScoreFactors => {
-		const lastMow = this.lastMowDate.value();
-		const lastProductAppData = this.lastProductApp.value();
+		const summary = this._entriesService.dashboardSummary.value();
+		const lastMow = summary ? { lastMowDate: summary.lastMowDate } : null;
+		const lastProductAppData = summary
+			? { lastProductAppDate: summary.lastProductAppDate }
+			: null;
 		const now = new Date();
 		const currentMonth = getMonth(now) + 1;
 		const coords = this.userCoords();

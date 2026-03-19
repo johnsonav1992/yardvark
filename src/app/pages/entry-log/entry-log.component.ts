@@ -97,7 +97,9 @@ export class EntryLogComponent implements OnInit {
 
 	public user = injectUserData();
 	public hasAiAccess = computed(
-		() => this._subscriptionService.hasAiAccess() || isMasterUser(this.user() as YVUser),
+		() =>
+			this._subscriptionService.hasAiAccess() ||
+			isMasterUser(this.user() as YVUser),
 	);
 
 	public isAiChatOpen = signal(false);
@@ -255,9 +257,7 @@ export class EntryLogComponent implements OnInit {
 
 	public onAiEntryConfirmed(): void {
 		this.entries.reload();
-		this._entriesService.lastMow.reload();
-		this._entriesService.recentEntry.reload();
-		this._entriesService.lastProductApp.reload();
+		this._entriesService.dashboardSummary.reload();
 	}
 
 	public exportCsv(): void {

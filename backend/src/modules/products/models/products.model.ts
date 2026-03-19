@@ -14,89 +14,89 @@ import { productTypesArray } from "./products.types";
 export class Product {
 	@Field(() => ID)
 	@PrimaryGeneratedColumn()
-	id: number;
+	public id!: number;
 
 	@Field()
 	@Column()
-	userId: string;
+	public userId!: string;
 
 	@Field()
 	@Column()
-	name: string;
+	public name!: string;
 
 	@Field()
 	@Column()
-	brand: string;
+	public brand!: string;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	description?: string;
+	public description?: string;
 
 	@Field()
 	@Column({
 		type: "enum",
 		enum: productTypesArray,
 	})
-	category: string;
+	public category!: string;
 
 	@Field(() => Float, { nullable: true })
 	@Column({ nullable: true, type: "decimal", precision: 5, scale: 2 })
-	price?: number;
+	public price?: number;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	quantityUnit?: string;
+	public quantityUnit?: string;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	applicationRate?: string;
+	public applicationRate?: string;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	applicationMethod?: string;
+	public applicationMethod?: string;
 
 	@Field(() => Int, { nullable: true })
 	@Column({ nullable: true })
-	coverage?: number;
+	public coverage?: number;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	coverageUnit?: string;
+	public coverageUnit?: string;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	guaranteedAnalysis?: string;
+	public guaranteedAnalysis?: string;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	containerType?: string;
+	public containerType?: string;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	imageUrl?: string;
+	public imageUrl?: string;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	imageCredit?: string;
+	public imageCredit?: string;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	labelUrl?: string;
+	public labelUrl?: string;
 
 	@Field()
 	@Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
-	createdAt: Date;
+	public createdAt!: Date;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	updatedAt?: Date;
+	public updatedAt?: Date;
 
 	@OneToMany(
 		() => EntryProduct,
 		(entryProduct) => entryProduct.product,
 	)
-	entryProducts: EntryProduct[];
+	public entryProducts!: EntryProduct[];
 
 	@DeleteDateColumn()
-	deletedAt?: Date;
+	public deletedAt?: Date;
 }

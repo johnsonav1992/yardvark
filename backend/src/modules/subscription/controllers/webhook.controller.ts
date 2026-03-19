@@ -67,7 +67,9 @@ export class WebhookController {
 
 		try {
 			event = this.stripeService.constructWebhookEvent(req.rawBody, signature);
-		} catch (err) {
+		} catch (e) {
+			const err = e as Error;
+
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.webhookVerificationFailed,
 				true,
@@ -104,7 +106,9 @@ export class WebhookController {
 				BusinessContextKeys.webhookEventSaved,
 				true,
 			);
-		} catch (error) {
+		} catch (e) {
+			const error = e as { code: string; message: string };
+
 			if (error.code === "23505") {
 				LogHelpers.addBusinessContext(
 					BusinessContextKeys.webhookDuplicate,
@@ -136,7 +140,9 @@ export class WebhookController {
 			);
 
 			return res.status(HttpStatus.OK).json({ received: true });
-		} catch (err) {
+		} catch (e) {
+			const err = e as Error;
+
 			LogHelpers.addBusinessContext(
 				BusinessContextKeys.webhookProcessingFailed,
 				true,

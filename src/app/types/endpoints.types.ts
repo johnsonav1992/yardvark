@@ -7,6 +7,7 @@ export type ApiEndpointRoutes =
 	| UsersRoutes
 	| EquipmentRoutes
 	| AnalyticsRoutes
+	| DashboardRoutes
 	| FileRoutes
 	| WeatherRoutes
 	| AiRoutes
@@ -45,6 +46,8 @@ type EquipmentRoutes =
 	| `equipment/maintenance/${number}`;
 
 type AnalyticsRoutes = "analytics";
+
+type DashboardRoutes = "dashboard/summary";
 
 type FileRoutes = "files/upload" | "files/download";
 

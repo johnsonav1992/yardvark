@@ -58,7 +58,7 @@
         >
           @switch (widgetId) {
             @case ("recent-entry") {
-              @if (recentEntry.isLoading()) {
+              @if (isDashboardDataLoading()) {
                 <card-skeleton />
               } @else {
                 <recent-entry (onHideWidget)="hideWidget('recent-entry')" />

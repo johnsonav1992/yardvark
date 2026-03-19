@@ -20,27 +20,27 @@ import { Product } from "../../products/models/products.model";
 export class Entry {
 	@Field(() => ID)
 	@PrimaryGeneratedColumn()
-	id: number;
+	public id!: number;
 
 	@Field()
 	@Column()
-	userId: string;
+	public userId!: string;
 
 	@Field()
 	@Column("timestamptz")
-	date: Date;
+	public date!: Date;
 
 	@Field({ nullable: true })
 	@Column("time", { nullable: true })
-	time?: string;
+	public time?: string;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	title?: string;
+	public title?: string;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	notes: string;
+	public notes!: string;
 
 	@Field(() => Float, { nullable: true })
 	@Column("decimal", {
@@ -54,11 +54,11 @@ export class Entry {
 		},
 		nullable: true,
 	})
-	soilTemperature: number;
+	public soilTemperature!: number;
 
 	@Field()
 	@Column()
-	soilTemperatureUnit: string;
+	public soilTemperatureUnit!: string;
 
 	@Field(() => Float, { nullable: true })
 	@Column("decimal", {
@@ -72,11 +72,11 @@ export class Entry {
 		},
 		nullable: true,
 	})
-	mowingHeight?: number;
+	public mowingHeight?: number;
 
 	@Field({ nullable: true })
 	@Column({ nullable: true })
-	mowingHeightUnit?: string;
+	public mowingHeightUnit?: string;
 
 	@Field(() => [Activity], { nullable: true })
 	@ManyToMany(
@@ -88,7 +88,7 @@ export class Entry {
 		joinColumn: { name: "entry_id", referencedColumnName: "id" },
 		inverseJoinColumn: { name: "activity_id", referencedColumnName: "id" },
 	})
-	activities: Activity[];
+	public activities!: Activity[];
 
 	@Field(() => [LawnSegment], { nullable: true })
 	@ManyToMany(
@@ -100,7 +100,7 @@ export class Entry {
 		joinColumn: { name: "entry_id", referencedColumnName: "id" },
 		inverseJoinColumn: { name: "lawn_segment_id", referencedColumnName: "id" },
 	})
-	lawnSegments: LawnSegment[];
+	public lawnSegments!: LawnSegment[];
 
 	@Field(() => [EntryProduct], { nullable: true })
 	@OneToMany(
@@ -110,7 +110,7 @@ export class Entry {
 			cascade: true,
 		},
 	)
-	entryProducts: EntryProduct[];
+	public entryProducts!: EntryProduct[];
 
 	@Field(() => [EntryImage], { nullable: true })
 	@OneToMany(
@@ -120,10 +120,10 @@ export class Entry {
 			cascade: true,
 		},
 	)
-	entryImages: EntryImage[];
+	public entryImages!: EntryImage[];
 
 	@DeleteDateColumn()
-	deletedAt?: Date;
+	public deletedAt?: Date;
 }
 
 @ObjectType()
@@ -131,11 +131,11 @@ export class Entry {
 export class EntryProduct {
 	@Field(() => ID)
 	@PrimaryColumn()
-	entryId: number;
+	public entryId!: number;
 
 	@Field(() => ID)
 	@PrimaryColumn()
-	productId: number;
+	public productId!: number;
 
 	@ManyToOne(
 		() => Entry,
@@ -146,7 +146,7 @@ export class EntryProduct {
 		},
 	)
 	@JoinColumn({ name: "entry_id" })
-	entry: Entry;
+	public entry!: Entry;
 
 	@Field(() => Product)
 	@ManyToOne(
@@ -158,7 +158,7 @@ export class EntryProduct {
 		},
 	)
 	@JoinColumn({ name: "product_id" })
-	product: Product;
+	public product!: Product;
 
 	@Field(() => Float)
 	@Column("decimal", {
@@ -171,11 +171,11 @@ export class EntryProduct {
 			},
 		},
 	})
-	productQuantity: number;
+	public productQuantity!: number;
 
 	@Field()
 	@Column()
-	productQuantityUnit: string;
+	public productQuantityUnit!: string;
 }
 
 @ObjectType()
@@ -183,11 +183,11 @@ export class EntryProduct {
 export class EntryImage {
 	@Field(() => ID)
 	@PrimaryGeneratedColumn()
-	id: number;
+	public id!: number;
 
 	@Field()
 	@Column()
-	imageUrl: string;
+	public imageUrl!: string;
 
 	@ManyToOne(
 		() => Entry,
@@ -198,8 +198,8 @@ export class EntryImage {
 		},
 	)
 	@JoinColumn({ name: "entry_id" })
-	entry: Entry;
+	public entry!: Entry;
 
 	@DeleteDateColumn()
-	deletedAt?: Date;
+	public deletedAt?: Date;
 }

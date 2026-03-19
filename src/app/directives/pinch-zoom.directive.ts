@@ -1,4 +1,11 @@
-import { Directive, ElementRef, HostListener, inject, OnDestroy, signal } from "@angular/core";
+import {
+	Directive,
+	ElementRef,
+	HostListener,
+	inject,
+	OnDestroy,
+	signal,
+} from "@angular/core";
 
 /**
  * Adds pinch-to-zoom and pan gesture support to an element.
@@ -28,11 +35,18 @@ export class PinchZoomDirective implements OnDestroy {
 	private _boundTouchMove = this._onTouchMove.bind(this);
 
 	constructor() {
-		this._host.nativeElement.addEventListener("touchmove", this._boundTouchMove, { passive: false });
+		this._host.nativeElement.addEventListener(
+			"touchmove",
+			this._boundTouchMove,
+			{ passive: false },
+		);
 	}
 
 	public ngOnDestroy(): void {
-		this._host.nativeElement.removeEventListener("touchmove", this._boundTouchMove);
+		this._host.nativeElement.removeEventListener(
+			"touchmove",
+			this._boundTouchMove,
+		);
 	}
 
 	@HostListener("touchstart", ["$event"])
@@ -62,7 +76,12 @@ export class PinchZoomDirective implements OnDestroy {
 		if (e.touches.length === 2 && this._pinching()) {
 			e.preventDefault();
 			const d = this._dist(e.touches[0], e.touches[1]);
-			this._scale.set(Math.min(5, Math.max(1, this._startScale() * (d / this._startDistance()))));
+			this._scale.set(
+				Math.min(
+					5,
+					Math.max(1, this._startScale() * (d / this._startDistance())),
+				),
+			);
 			this._apply();
 		} else if (e.touches.length === 1 && this._scale() > 1) {
 			e.preventDefault();

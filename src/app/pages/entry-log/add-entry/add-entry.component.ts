@@ -48,6 +48,7 @@ import type { LawnSegment } from "../../../types/lawnSegments.types";
 import type { Product } from "../../../types/products.types";
 import type { EntryProductRow } from "../../../utils/entriesUtils";
 import { capitalize } from "../../../utils/stringUtils";
+import { parseYyyyMmDdToLocalNoon } from "../../../utils/timeUtils";
 import { injectErrorToast } from "../../../utils/toastUtils";
 
 export type EntryFormGroup = FormGroup<{
@@ -294,7 +295,7 @@ export class AddEntryComponent implements OnInit {
 		this.isLoading.set(true);
 
 		const entries = this.entryForms.controls.map((form) => ({
-			date: form.value.date!,
+			date: parseYyyyMmDdToLocalNoon(format(form.value.date!, "yyyy-MM-dd")),
 			time: form.value.time ? format(form.value.time!, "HH:mm:ss") : null,
 			notes: form.value.notes!,
 			title: form.value.title!,
@@ -321,9 +322,7 @@ export class AddEntryComponent implements OnInit {
 					this.isLoading.set(false);
 
 					this._analyticsService.analyticsData.reload();
-					this._entriesService.lastMow.reload();
-					this._entriesService.recentEntry.reload();
-					this._entriesService.lastProductApp.reload();
+					this._entriesService.dashboardSummary.reload();
 
 					const createdDate = entries[0].date.toISOString();
 
@@ -355,9 +354,7 @@ export class AddEntryComponent implements OnInit {
 					}
 
 					this._analyticsService.analyticsData.reload();
-					this._entriesService.lastMow.reload();
-					this._entriesService.recentEntry.reload();
-					this._entriesService.lastProductApp.reload();
+					this._entriesService.dashboardSummary.reload();
 
 					const latestDate = entries
 						.map((e) => new Date(e.date))

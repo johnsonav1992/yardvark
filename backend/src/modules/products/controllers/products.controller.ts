@@ -124,7 +124,10 @@ export class ProductsController {
 			await this._s3Service.uploadFile(file, "system"),
 		);
 
-		return this._productsService.updateProduct(productId, { imageUrl, imageCredit });
+		return this._productsService.updateProduct(productId, {
+			imageUrl,
+			imageCredit,
+		});
 	}
 
 	@Put("hide/:productId")

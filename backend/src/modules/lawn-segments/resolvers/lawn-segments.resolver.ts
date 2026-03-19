@@ -60,7 +60,9 @@ export class LawnSegmentsResolver {
 		@Args("id", { type: () => Int }) id: number,
 		@Context() ctx: GqlContext,
 	): Promise<boolean> {
-		resultOrThrow(await this.lawnSegmentsService.deleteLawnSegment(id, ctx.req.user.userId));
+		resultOrThrow(
+			await this.lawnSegmentsService.deleteLawnSegment(id, ctx.req.user.userId),
+		);
 
 		return true;
 	}

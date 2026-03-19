@@ -56,8 +56,7 @@ export class GddDataComponent {
 	public forecastData = this._gddService.gddForecast;
 
 	public isLoading = computed(
-		() =>
-			this.currentGddData.isLoading() || this.forecastData.isLoading(),
+		() => this.currentGddData.isLoading() || this.forecastData.isLoading(),
 	);
 
 	public hasLoadedGddData = computed(

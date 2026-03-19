@@ -41,8 +41,8 @@ export class LawnHealthScoreComponent {
 	public isError = this._lawnHealthScoreService.isError;
 	public isPro = this._subscriptionService.isPro;
 
-	public isAiLoading = computed(
-		() => this._lawnHealthScoreService.aiDescriptionResource.isLoading(),
+	public isAiLoading = computed(() =>
+		this._lawnHealthScoreService.aiDescriptionResource.isLoading(),
 	);
 
 	public isAiGenerated = computed(() => {

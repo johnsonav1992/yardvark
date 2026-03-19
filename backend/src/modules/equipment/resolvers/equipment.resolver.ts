@@ -46,7 +46,11 @@ export class EquipmentResolver {
 		@Args("input") input: UpdateEquipmentInput,
 		@Context() ctx: GqlContext,
 	): Promise<Equipment> {
-		const result = await this.equipmentService.updateEquipment(id, ctx.req.user.userId, input);
+		const result = await this.equipmentService.updateEquipment(
+			id,
+			ctx.req.user.userId,
+			input,
+		);
 
 		return resultOrThrow(result);
 	}
@@ -56,7 +60,10 @@ export class EquipmentResolver {
 		@Args("id", { type: () => Int }) id: number,
 		@Context() ctx: GqlContext,
 	): Promise<boolean> {
-		const result = await this.equipmentService.deleteEquipment(id, ctx.req.user.userId);
+		const result = await this.equipmentService.deleteEquipment(
+			id,
+			ctx.req.user.userId,
+		);
 
 		resultOrThrow(result);
 
@@ -69,7 +76,11 @@ export class EquipmentResolver {
 		@Args("isActive") isActive: boolean,
 		@Context() ctx: GqlContext,
 	): Promise<boolean> {
-		const result = await this.equipmentService.toggleEquipmentArchiveStatus(id, ctx.req.user.userId, isActive);
+		const result = await this.equipmentService.toggleEquipmentArchiveStatus(
+			id,
+			ctx.req.user.userId,
+			isActive,
+		);
 
 		resultOrThrow(result);
 
@@ -111,7 +122,10 @@ export class EquipmentResolver {
 		@Args("id", { type: () => Int }) id: number,
 		@Context() ctx: GqlContext,
 	): Promise<boolean> {
-		const result = await this.equipmentService.deleteMaintenanceRecord(id, ctx.req.user.userId);
+		const result = await this.equipmentService.deleteMaintenanceRecord(
+			id,
+			ctx.req.user.userId,
+		);
 
 		resultOrThrow(result);
 

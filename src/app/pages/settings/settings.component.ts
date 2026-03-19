@@ -1,6 +1,7 @@
 import { TitleCasePipe } from "@angular/common";
 import {
 	Component,
+	computed,
 	inject,
 	linkedSignal,
 	signal,
@@ -74,7 +75,9 @@ export class SettingsComponent implements UnsavedChanges {
 	public updateSetting = this._settingsService.updateSetting;
 
 	public lawnSize = linkedSignal(() => this.currentSettings()?.lawnSize);
-	public hasUnsavedChanges = signal(false);
+	public hasUnsavedChanges = computed(
+		() => this._lawnSegmentsTableComponent()?.hasUnsavedChanges() ?? false,
+	);
 	public locationSearchText = signal<string>("");
 	public debouncedSearchText = debouncedSignal(this.locationSearchText, 700);
 

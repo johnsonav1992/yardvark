@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /Users/Alex/Desktop/software-development/yardvark/src/assets -type f \\\\\\(-iname *.png -o -iname *.jpg -o -iname *.jpeg -o -iname *.svg -o -iname *.webp \\\\\\))"
+    ]
+  }
+}

@@ -14,6 +14,7 @@ import { environment } from "../environments/environment";
 import { MainHeaderComponent } from "./components/layout/main-header/main-header.component";
 import { MainSideNavComponent } from "./components/layout/main-side-nav/main-side-nav.component";
 import { MobileBottomNavbarComponent } from "./components/layout/mobile-bottom-navbar/mobile-bottom-navbar.component";
+import { PwaInstallBannerComponent } from "./components/layout/pwa-install-banner/pwa-install-banner.component";
 import { LoadingSpinnerComponent } from "./components/miscellanious/loading-spinner/loading-spinner.component";
 import { ChangelogService } from "./services/changelog.service";
 import { GlobalUiService } from "./services/global-ui.service";
@@ -25,6 +26,7 @@ import { GlobalUiService } from "./services/global-ui.service";
 		MainHeaderComponent,
 		MainSideNavComponent,
 		MobileBottomNavbarComponent,
+		PwaInstallBannerComponent,
 		ToastModule,
 		LoadingSpinnerComponent,
 		ConfirmDialog,

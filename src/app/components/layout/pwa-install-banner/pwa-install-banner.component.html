@@ -1,0 +1,31 @@
+@if (pwaInstallService.showBanner()) {
+  <div class="pwa-install-banner">
+    <div class="banner-content">
+      <img src="icons/icon-192x192.png" class="banner-icon" alt="Yardvark" />
+      <div class="banner-text">
+        <span class="banner-title">Install Yardvark</span>
+        @if (pwaInstallService.showIosBanner()) {
+          <span class="banner-subtitle">Tap <i class="ti ti-share-2"></i> then "Add to Home Screen"</span>
+        } @else {
+          <span class="banner-subtitle">Add to your home screen for the best experience</span>
+        }
+      </div>
+    </div>
+    <div class="banner-actions">
+      @if (pwaInstallService.showAndroidBanner()) {
+        <p-button
+          label="Install"
+          size="small"
+          (onClick)="install()"
+        />
+      }
+      <p-button
+        icon="ti ti-x"
+        [text]="true"
+        size="small"
+        severity="secondary"
+        (onClick)="dismiss()"
+      />
+    </div>
+  </div>
+}

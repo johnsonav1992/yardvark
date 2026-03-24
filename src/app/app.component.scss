@@ -8,6 +8,14 @@
   gap: 1rem;
 }
 
+.public-page-wrapper {
+  position: fixed;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
 .main-content-wrapper {
   padding-left: var(--side-nav-width);
   padding-top: var(--main-header-height);

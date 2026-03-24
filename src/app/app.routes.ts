@@ -1,12 +1,16 @@
 import type { Routes } from "@angular/router";
 import { hybridAuthGuard } from "./guards/hybrid-auth.guard";
+import { landingPageGuard } from "./guards/landing-page.guard";
 import { unsavedChangesGuard } from "./guards/unsaved-changes-guard";
 
 export const mainRoutes: Routes = [
 	{
 		path: "",
-		redirectTo: "dashboard",
-		pathMatch: "full",
+		loadComponent: () =>
+			import("./pages/landing-page/landing-page.component").then(
+				(m) => m.LandingPageComponent,
+			),
+		canActivate: [landingPageGuard],
 	},
 	{
 		path: "dashboard",

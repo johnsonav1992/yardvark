@@ -120,6 +120,10 @@ export class AppComponent {
 
 		this._auth.isAuthenticated$.subscribe((isAuthenticated) => {
 			this.isLoggedIn.set(isAuthenticated);
+
+			if (isAuthenticated) {
+				localStorage.setItem("yv_has_account", "true");
+			}
 		});
 
 		if (environment.production) {

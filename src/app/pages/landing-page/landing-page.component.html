@@ -1,0 +1,168 @@
+<div class="landing-page">
+  <nav class="navbar">
+    <div class="navbar-inner">
+      <div class="logo">
+        <img src="assets/yardvark-logo-transparent.png" alt="Yardvark" />
+      </div>
+      <p-button
+        label="Sign In"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="signIn()"
+      />
+    </div>
+  </nav>
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-text">
+        <h1 class="hero-headline">Your lawn,<br />tracked and&nbsp;thriving.</h1>
+        <p class="hero-sub">
+          Yardvark is the all-in-one lawn care companion for serious enthusiasts.
+          Log sessions, monitor progress, and get AI-powered insights. All in one place.
+        </p>
+        <div class="hero-actions">
+          <p-button
+            label="Start Tracking"
+            size="large"
+            (onClick)="signUp()"
+          />
+          <span class="hero-note">Free to get started &bull; No credit card required</span>
+        </div>
+      </div>
+      <div class="hero-image">
+        <img
+          src="/screenshots/desktop-1.png"
+          alt="Yardvark dashboard"
+          class="hero-screenshot"
+        />
+      </div>
+    </div>
+  </section>
+  <section class="features">
+    <div class="section-inner">
+      <div class="section-header">
+        <h2>Everything your lawn needs you to know</h2>
+        <p>From your first mow of the season to your last fertilizer application, Yardvark keeps the full picture at your fingertips.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="ti ti-clipboard-list"></i>
+          </div>
+          <h3>Entry Log</h3>
+          <p>Log every lawn care session: mowing, fertilizing, aerating, seeding, and more. Attach photos, notes, products, and lawn segments to build a complete history over time.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="ti ti-layout-dashboard"></i>
+          </div>
+          <h3>Dashboard</h3>
+          <p>See what matters most at a glance. Drag-to-reorder widgets show days since last mow, soil temperature, GDD progress, lawn season progress, live weather, and recent entries.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="ti ti-sun"></i>
+          </div>
+          <h3>GDD Tracking</h3>
+          <p>Track Growing Degree Days accumulation throughout the season to help you time lawn care activities with more precision.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="ti ti-chart-line"></i>
+          </div>
+          <h3>Soil Data</h3>
+          <p>Log and visualize soil temperature trends over time to better understand what's happening beneath the surface.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="ti ti-package"></i>
+          </div>
+          <h3>Products & Equipment</h3>
+          <p>Manage your product inventory and equipment in one place. Track maintenance history so nothing gets missed.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="ti ti-calculator"></i>
+          </div>
+          <h3>Calculators</h3>
+          <p>Built-in fertilizer rate and irrigation runtime calculators so you always apply the right amount.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="screenshots">
+    <div class="section-inner">
+      <div class="section-header">
+        <h2>See it in action</h2>
+        <p>A clean, fast interface designed for the way you actually work in your yard.</p>
+      </div>
+      <div class="screenshots-desktop">
+        <div class="screenshot-card desktop-primary">
+          <img src="/screenshots/desktop-2.png" alt="Entry log view" />
+        </div>
+        <div class="screenshot-card desktop-secondary">
+          <img src="/screenshots/desktop-3.png" alt="Analytics view" />
+        </div>
+      </div>
+      <div class="screenshots-mobile">
+        <div class="screenshot-card mobile-card">
+          <img src="/screenshots/mobile-1.png" alt="Mobile dashboard" />
+        </div>
+        <div class="screenshot-card mobile-card">
+          <img src="/screenshots/mobile-2.png" alt="Mobile entry log" />
+        </div>
+        <div class="screenshot-card mobile-card">
+          <img src="/screenshots/mobile-3.png" alt="Mobile analytics" />
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="pro-callout">
+    <div class="section-inner">
+      <div class="pro-inner">
+        <div class="pro-text">
+          <div class="pro-badge">Yardvark Pro</div>
+          <h2>AI-powered intelligence for serious lawn people</h2>
+          <p>Upgrade to Pro and unlock features that learn from your history and tell you exactly how your lawn is performing.</p>
+          <ul class="pro-features-list">
+            <li>
+              <i class="ti ti-message-chatbot"></i>
+              <div>
+                <strong>Varky AI Assistant</strong>
+                <span>Your lawn has a history. Varky knows it. Let your AI assistant review past sessions and help you log new ones, so keeping up with your lawn feels effortless.</span>
+              </div>
+            </li>
+            <li>
+              <i class="ti ti-heart-rate-monitor"></i>
+              <div>
+                <strong>Lawn Health Score</strong>
+                <span>Stop guessing how your lawn is doing. Get an AI-generated score with a personalized assessment of your care routine, so you always know what's working and what needs attention.</span>
+              </div>
+            </li>
+          </ul>
+          <p class="pro-coming-soon">And we're just getting started.</p>
+          <p-button
+            label="Unlock Pro Features"
+            size="large"
+            (onClick)="signUp()"
+          />
+        </div>
+        <div class="pro-mascot">
+          <varky-logo size="200px" color="#a3e635" />
+        </div>
+      </div>
+    </div>
+  </section>
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <img src="assets/yardvark-logo-transparent.png" alt="Yardvark" />
+      </div>
+      <nav class="footer-links">
+        <a routerLink="/privacy-policy">Privacy Policy</a>
+        <a routerLink="/terms">Terms of Service</a>
+      </nav>
+      <p class="footer-copy">&copy; {{ currentYear }} Yardvark. All rights reserved.</p>
+    </div>
+  </footer>
+</div>

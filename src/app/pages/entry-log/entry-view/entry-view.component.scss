@@ -99,6 +99,7 @@
     flex-direction: column;
     gap: 0.5rem;
     flex: 1;
+    min-width: 0;
 
     .label {
       font-size: 0.875rem;
@@ -127,6 +128,8 @@
         font-size: 1rem;
         color: var(--p-surface-900);
         font-weight: 600;
+        word-break: break-word;
+        overflow-wrap: break-word;
       }
     }
 
@@ -226,6 +229,10 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
+
+  > * {
+    min-width: 0;
+  }
 
   @media (max-width: 768px) {
     grid-template-columns: 1fr;

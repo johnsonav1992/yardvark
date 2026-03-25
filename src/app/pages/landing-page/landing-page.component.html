@@ -4,12 +4,18 @@
       <div class="logo">
         <img src="assets/yardvark-logo-transparent.png" alt="Yardvark" />
       </div>
-      <p-button
-        label="Sign In"
-        severity="secondary"
-        [outlined]="true"
-        (onClick)="signIn()"
-      />
+      <div class="navbar-actions">
+        <p-button
+          label="Sign In"
+          severity="secondary"
+          [outlined]="true"
+          (onClick)="signIn()"
+        />
+        <p-button
+          label="Start Free"
+          (onClick)="signUp()"
+        />
+      </div>
     </div>
   </nav>
   <section class="hero">
@@ -21,11 +27,14 @@
           Log sessions, monitor progress, and get AI-powered insights. All in one place.
         </p>
         <div class="hero-actions">
-          <p-button
-            label="Start Tracking"
-            size="large"
-            (onClick)="signUp()"
-          />
+          <div class="hero-ctas">
+            <p-button
+              label="Start Tracking"
+              size="large"
+              (onClick)="signUp()"
+            />
+            <button class="hero-secondary-cta" (click)="scrollTo('how-it-works')">See how it works ↓</button>
+          </div>
           <span class="hero-note">Free to get started &bull; No credit card required</span>
         </div>
       </div>
@@ -35,6 +44,7 @@
           alt="Yardvark dashboard"
           class="hero-screenshot"
         />
+        <p class="hero-screenshot-caption">Your Yardvark dashboard</p>
       </div>
     </div>
   </section>
@@ -45,75 +55,50 @@
         <p>From your first mow of the season to your last fertilizer application, Yardvark keeps the full picture at your fingertips.</p>
       </div>
       <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="ti ti-clipboard-list"></i>
+        @for (feature of features; track feature.title) {
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i [class]="feature.icon"></i>
+            </div>
+            <h3>{{ feature.title }}</h3>
+            <p>{{ feature.description }}</p>
           </div>
-          <h3>Entry Log</h3>
-          <p>Log every lawn care session: mowing, fertilizing, aerating, seeding, and more. Attach photos, notes, products, and lawn segments to build a complete history over time.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="ti ti-layout-dashboard"></i>
-          </div>
-          <h3>Dashboard</h3>
-          <p>See what matters most at a glance. Drag-to-reorder widgets show days since last mow, soil temperature, GDD progress, lawn season progress, live weather, and recent entries.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="ti ti-sun"></i>
-          </div>
-          <h3>GDD Tracking</h3>
-          <p>Track Growing Degree Days accumulation throughout the season to help you time lawn care activities with more precision.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="ti ti-chart-line"></i>
-          </div>
-          <h3>Soil Data</h3>
-          <p>Log and visualize soil temperature trends over time to better understand what's happening beneath the surface.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="ti ti-package"></i>
-          </div>
-          <h3>Products & Equipment</h3>
-          <p>Manage your product inventory and equipment in one place. Track maintenance history so nothing gets missed.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="ti ti-calculator"></i>
-          </div>
-          <h3>Calculators</h3>
-          <p>Built-in fertilizer rate and irrigation runtime calculators so you always apply the right amount.</p>
-        </div>
+        }
       </div>
     </div>
   </section>
-  <section class="screenshots">
+  <section class="mid-cta">
+    <div class="section-inner">
+      <div class="mid-cta-inner">
+        <h2>Ready to start tracking your lawn?</h2>
+        <p>Free to get started. No credit card required.</p>
+        <p-button
+          label="Start Tracking"
+          size="large"
+          (onClick)="signUp()"
+        />
+      </div>
+    </div>
+  </section>
+  <section class="screenshots" id="how-it-works">
     <div class="section-inner">
       <div class="section-header">
         <h2>See it in action</h2>
         <p>A clean, fast interface designed for the way you actually work in your yard.</p>
       </div>
       <div class="screenshots-desktop">
-        <div class="screenshot-card desktop-primary">
-          <img src="/screenshots/desktop-2.png" alt="Entry log view" />
-        </div>
-        <div class="screenshot-card desktop-secondary">
-          <img src="/screenshots/desktop-3.png" alt="Analytics view" />
-        </div>
+        @for (shot of desktopScreenshots; track shot.src) {
+          <div class="screenshot-card">
+            <img [src]="shot.src" [alt]="shot.alt" />
+          </div>
+        }
       </div>
       <div class="screenshots-mobile">
-        <div class="screenshot-card mobile-card">
-          <img src="/screenshots/mobile-1.png" alt="Mobile dashboard" />
-        </div>
-        <div class="screenshot-card mobile-card">
-          <img src="/screenshots/mobile-2.png" alt="Mobile entry log" />
-        </div>
-        <div class="screenshot-card mobile-card">
-          <img src="/screenshots/mobile-3.png" alt="Mobile analytics" />
-        </div>
+        @for (shot of mobileScreenshots; track shot.src) {
+          <div class="screenshot-card mobile-card">
+            <img [src]="shot.src" [alt]="shot.alt" />
+          </div>
+        }
       </div>
     </div>
   </section>
@@ -125,32 +110,70 @@
           <h2>AI-powered intelligence for serious lawn people</h2>
           <p>Upgrade to Pro and unlock features that learn from your history and tell you exactly how your lawn is performing.</p>
           <ul class="pro-features-list">
-            <li>
-              <i class="ti ti-message-chatbot"></i>
-              <div>
-                <strong>Varky AI Assistant</strong>
-                <span>Your lawn has a history. Varky knows it. Let your AI assistant review past sessions and help you log new ones, so keeping up with your lawn feels effortless.</span>
-              </div>
-            </li>
-            <li>
-              <i class="ti ti-heart-rate-monitor"></i>
-              <div>
-                <strong>Lawn Health Score</strong>
-                <span>Stop guessing how your lawn is doing. Get an AI-generated score with a personalized assessment of your care routine, so you always know what's working and what needs attention.</span>
-              </div>
-            </li>
+            @for (feature of proFeatures; track feature.title) {
+              <li>
+                <i [class]="feature.icon"></i>
+                <div>
+                  <strong>{{ feature.title }}</strong>
+                  <span>{{ feature.description }}</span>
+                </div>
+              </li>
+            }
           </ul>
           <p class="pro-coming-soon">And we're just getting started.</p>
           <p-button
-            label="Unlock Pro Features"
+            label="See Pricing"
             size="large"
-            (onClick)="signUp()"
+            (onClick)="scrollTo('pricing')"
           />
         </div>
         <div class="pro-mascot">
           <varky-logo size="200px" color="#a3e635" />
         </div>
       </div>
+    </div>
+  </section>
+  <section class="pricing" id="pricing">
+    <div class="section-inner">
+      <div class="section-header">
+        <h2>Simple, transparent pricing</h2>
+        <p>Start free, upgrade when you're ready.</p>
+      </div>
+      <div class="pricing-grid">
+        @for (plan of pricingPlans; track plan.name) {
+          <div class="pricing-card" [class.pricing-card--popular]="plan.popular">
+            @if (plan.popular) {
+              <div class="pricing-popular-badge">Most Popular</div>
+            }
+            <div class="pricing-card-header">
+              <h3 class="plan-name">{{ plan.name }}</h3>
+              <div class="plan-price">
+                <span class="price">{{ plan.price }}</span>
+                <span class="period">{{ plan.period }}</span>
+              </div>
+              @if (plan.savings) {
+                <span class="plan-savings">{{ plan.savings }}</span>
+              }
+            </div>
+            <ul class="plan-features-list">
+              @for (feature of plan.features; track feature) {
+                <li>
+                  <i class="ti ti-circle-check"></i>
+                  <span>{{ feature }}</span>
+                </li>
+              }
+            </ul>
+            <p-button
+              [label]="plan.ctaLabel"
+              [severity]="plan.outlined ? 'secondary' : 'primary'"
+              [outlined]="plan.outlined"
+              styleClass="w-full"
+              (onClick)="signUp()"
+            />
+          </div>
+        }
+      </div>
+      <p class="pricing-note">Sign up free and upgrade anytime from inside the app.</p>
     </div>
   </section>
   <footer class="footer">

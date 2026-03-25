@@ -12,7 +12,7 @@
 		"lint": "biome check .",
 		"lint:fix": "biome check --write .",
 		"start": "varlock run -- nest start",
-		"sync:devdb": "ts-node -r tsconfig-paths/register scripts/sync-dev-db.ts",
+		"sync:devdb": "varlock run -- ts-node -r tsconfig-paths/register scripts/sync-dev-db.ts",
 		"start:dev": "varlock run -- nest start --watch",
 		"start:debug": "varlock run -- nest start --debug --watch",
 		"start:prod": "node dist/main",

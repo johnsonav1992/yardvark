@@ -35,7 +35,7 @@ interface LandingPricingPlan {
 
 const PRO_FEATURES: string[] = [
 	"Unlimited entries",
-	"Varky AI Assistant",
+	"AI Assistant & Insights",
 	"Lawn Health Score",
 	"Advanced analytics",
 	"GDD tracking",
@@ -97,7 +97,7 @@ export class LandingPageComponent {
 	public readonly proFeatures: LandingProFeature[] = [
 		{
 			icon: "ti ti-message-chatbot",
-			title: "Varky AI Assistant",
+			title: "Varky - AI Assistant",
 			description:
 				"Your lawn has a history. Varky knows it. Let your AI assistant review past sessions and help you log new ones, so keeping up with your lawn feels effortless.",
 		},
@@ -161,7 +161,9 @@ export class LandingPageComponent {
 	}
 
 	public signUp(): void {
-		this._auth.loginWithRedirect({ authorizationParams: { screen_hint: "signup" } });
+		this._auth.loginWithRedirect({
+			authorizationParams: { screen_hint: "signup" },
+		});
 	}
 
 	public scrollTo(id: string): void {

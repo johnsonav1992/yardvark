@@ -37,7 +37,7 @@ import { WeatherModule } from "./modules/weather/weather.module";
 
 @Module({
 	imports: [
-		ConfigModule.forRoot({ envFilePath: ".env" }),
+		ConfigModule.forRoot({ ignoreEnvFile: true }),
 		TypeOrmModule.forRoot(dataSource.options),
 		EventEmitterModule.forRoot(),
 		ThrottlerModule.forRoot([

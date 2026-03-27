@@ -22,7 +22,7 @@ export class SettingsPage {
 
 	async selectTemperatureUnit(label: "Fahrenheit" | "Celsius") {
 		await this.sectionWithHeading("Temperature unit")
-			.locator("p-select")
+			.locator("p-select button")
 			.click();
 		await this.page.locator(".p-select-option", { hasText: label }).click();
 	}
@@ -34,7 +34,7 @@ export class SettingsPage {
 	}
 
 	async selectGrassType(label: "Warm season" | "Cool season") {
-		await this.sectionWithHeading("Lawn type").locator("p-select").click();
+		await this.sectionWithHeading("Lawn type").locator("p-select button").click();
 		await this.page.locator(".p-select-option", { hasText: label }).click();
 	}
 

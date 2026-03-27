@@ -126,8 +126,10 @@ export class EntryViewComponent {
 		mowingHeight: new FormControl<number | null>(null),
 	});
 
-	public entryId = toSignal<number>(
-		this._activatedRoute.params.pipe(map((params) => params["entryId"])),
+	public entryId = toSignal(
+		this._activatedRoute.params.pipe(
+			map((params) => Number(params["entryId"])),
+		),
 	);
 
 	public entryDate = toSignal(

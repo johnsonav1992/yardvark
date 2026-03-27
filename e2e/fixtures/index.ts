@@ -7,6 +7,10 @@ import {
 	expect,
 	request as playwrightRequest,
 } from "@playwright/test";
+import {
+	resetEntryCreationUsage,
+	setEntryCreationUsage,
+} from "../db";
 
 type StorageOrigin = {
 	localStorage: Array<{ name: string; value: string }>;
@@ -29,29 +33,46 @@ const DEFAULT_SETTINGS = {
 	mobileNavbarItems: [],
 } as const;
 
+function readAuthState() {
+	const state = JSON.parse(fs.readFileSync(".auth/user.json", "utf-8")) as {
+		origins: StorageOrigin[];
+	};
+
+	const entry = state.origins
+		.flatMap((o) => o.localStorage)
+		.find(
+			(e) =>
+				e.name.startsWith("@@auth0spajs@@") && !e.name.includes("@@user@@"),
+		);
+
+	const { access_token: token } = (
+		JSON.parse(entry!.value) as { body: { access_token: string } }
+	).body;
+
+	return token;
+}
+
+function getUserIdFromToken(token: string): string {
+	const payload = JSON.parse(
+		Buffer.from(token.split(".")[1], "base64").toString(),
+	) as { sub: string };
+
+	return payload.sub;
+}
+
 type AppFixtures = {
 	api: APIRequestContext;
+	userId: string;
 	restoreSettings: () => Promise<void>;
 	entryCleanup: (id: number) => void;
+	resetEntryUsage: () => Promise<void>;
+	setEntryUsage: (count: number) => Promise<void>;
 	mockSlowEndpoints: undefined;
 };
 
 export const test = base.extend<AppFixtures>({
 	api: async ({}, use) => {
-		const state = JSON.parse(fs.readFileSync(".auth/user.json", "utf-8")) as {
-			origins: StorageOrigin[];
-		};
-
-		const entry = state.origins
-			.flatMap((o) => o.localStorage)
-			.find(
-				(e) =>
-					e.name.startsWith("@@auth0spajs@@") && !e.name.includes("@@user@@"),
-			);
-
-		const { access_token: token } = (
-			JSON.parse(entry!.value) as { body: { access_token: string } }
-		).body;
+		const token = readAuthState();
 
 		const context = await playwrightRequest.newContext({
 			baseURL: "http://localhost:8080",
@@ -60,6 +81,12 @@ export const test = base.extend<AppFixtures>({
 
 		await use(context);
 		await context.dispose();
+	},
+
+	userId: async ({}, use) => {
+		const token = readAuthState();
+
+		await use(getUserIdFromToken(token));
 	},
 
 	restoreSettings: [
@@ -90,6 +117,7 @@ export const test = base.extend<AppFixtures>({
 		},
 		{ scope: "test" },
 	],
+
 	entryCleanup: [
 		async ({ api }, use) => {
 			const ids: number[] = [];
@@ -106,6 +134,14 @@ export const test = base.extend<AppFixtures>({
 		},
 		{ scope: "test" },
 	],
+
+	resetEntryUsage: async ({ userId }, use) => {
+		await use(() => resetEntryCreationUsage(userId));
+	},
+
+	setEntryUsage: async ({ userId }, use) => {
+		await use((count: number) => setEntryCreationUsage(userId, count));
+	},
 
 	mockSlowEndpoints: [
 		async ({ page }, use) => {

@@ -18,6 +18,16 @@ export class AddEntryPage {
 			.fill(title);
 	}
 
+	async fillNotes(notes: string, panelIndex = 0) {
+		await this.page
+			.locator("p-accordionpanel")
+			.nth(panelIndex)
+			.locator(".col-input-wrapper")
+			.filter({ hasText: "Notes:" })
+			.locator("textarea")
+			.fill(notes);
+	}
+
 	async addAnotherEntry() {
 		await this.page
 			.getByRole("button", { name: "Add Another Entry" })

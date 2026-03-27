@@ -5,6 +5,7 @@ import {
 	Delete,
 	Get,
 	Param,
+	ParseIntPipe,
 	Post,
 	Put,
 	Query,
@@ -126,7 +127,7 @@ export class EntriesController {
 	@Get("single/:entryId")
 	public async getEntry(
 		@User("userId") userId: string,
-		@Param("entryId") entryId: number,
+		@Param("entryId", ParseIntPipe) entryId: number,
 	) {
 		LogHelpers.addBusinessContext(
 			BusinessContextKeys.controllerOperation,
@@ -195,7 +196,7 @@ export class EntriesController {
 	@Put(":entryId")
 	public async updateEntry(
 		@User("userId") userId: string,
-		@Param("entryId") entryId: number,
+		@Param("entryId", ParseIntPipe) entryId: number,
 		@Body() entry: Partial<EntryCreationRequest>,
 	) {
 		LogHelpers.addBusinessContext(
@@ -213,7 +214,7 @@ export class EntriesController {
 	@Delete(":entryId")
 	public async softDeleteEntry(
 		@User("userId") userId: string,
-		@Param("entryId") entryId: number,
+		@Param("entryId", ParseIntPipe) entryId: number,
 	) {
 		LogHelpers.addBusinessContext(
 			BusinessContextKeys.controllerOperation,
@@ -230,7 +231,7 @@ export class EntriesController {
 	@Post("recover/:entryId")
 	public async recoverEntry(
 		@User("userId") userId: string,
-		@Param("entryId") entryId: number,
+		@Param("entryId", ParseIntPipe) entryId: number,
 	) {
 		LogHelpers.addBusinessContext(
 			BusinessContextKeys.controllerOperation,

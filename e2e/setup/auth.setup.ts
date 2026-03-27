@@ -5,6 +5,8 @@ const AUTH_FILE = ".auth/user.json";
 setup("authenticate", async ({ page }) => {
 	await page.goto("/");
 
+	await page.getByRole("button", { name: "Sign In" }).click();
+
 	await page.locator('input[name="username"]').fill(process.env["E2E_USERNAME"]!);
 	await page.getByRole("button", { name: "Continue", exact: true }).click();
 

@@ -3,14 +3,13 @@ import { Client } from "pg";
 
 config({ path: "backend/.env", override: false });
 
-const isProduction = process.env["NODE_ENV"] === "production";
 const hasDevConfig = Boolean(
 	process.env["DEVPGHOST"] &&
 		process.env["DEVPGUSER"] &&
 		process.env["DEVPGPASSWORD"] &&
 		process.env["DEVPGDATABASE"],
 );
-const prefix = !isProduction && hasDevConfig ? "DEV" : "PROD";
+const prefix = hasDevConfig ? "DEV" : "PROD";
 
 async function withDb<T>(fn: (client: Client) => Promise<T>): Promise<T> {
 	const client = new Client({

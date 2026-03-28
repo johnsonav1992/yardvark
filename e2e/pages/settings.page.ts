@@ -21,9 +21,9 @@ export class SettingsPage {
 	}
 
 	async selectTemperatureUnit(label: "Fahrenheit" | "Celsius") {
-		await this.sectionWithHeading("Temperature unit")
-			.locator("p-select button")
-			.click();
+		const section = this.sectionWithHeading("Temperature unit");
+		await section.locator(".p-select-loading-icon").waitFor({ state: "detached", timeout: 10000 });
+		await section.getByRole("button", { name: "dropdown trigger" }).click();
 		await this.page.locator(".p-select-option", { hasText: label }).click();
 	}
 
@@ -34,7 +34,9 @@ export class SettingsPage {
 	}
 
 	async selectGrassType(label: "Warm season" | "Cool season") {
-		await this.sectionWithHeading("Lawn type").locator("p-select button").click();
+		const section = this.sectionWithHeading("Lawn type");
+		await section.locator(".p-select-loading-icon").waitFor({ state: "detached", timeout: 10000 });
+		await section.getByRole("button", { name: "dropdown trigger" }).click();
 		await this.page.locator(".p-select-option", { hasText: label }).click();
 	}
 

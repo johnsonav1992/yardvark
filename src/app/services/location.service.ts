@@ -28,7 +28,9 @@ export class LocationService {
 		() => {
 			const location = this._settingsService.currentSettings()?.location;
 
-			return location ? { lat: location.lat, long: location.long } : null;
+			return location?.lat && location?.long
+				? { lat: location.lat, long: location.long }
+				: null;
 		},
 		{ equal: (a, b) => a?.lat === b?.lat && a?.long === b?.long },
 	);

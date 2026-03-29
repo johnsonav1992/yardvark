@@ -31,10 +31,10 @@
             [src]="product()?.imageUrl || noImageUrl"
             alt="{{ product()?.name }}"
             width="60%"
-            [title]="product()?.imageCredit ? 'Photo: ' + product()?.imageCredit : ''"
+            [title]="product()?.imageCredit ? 'Credit: ' + product()?.imageCredit : ''"
           />
           @if (product()?.imageCredit) {
-            <small class="image-credit">Photo: {{ product()?.imageCredit }}</small>
+            <small class="image-credit">Credit: {{ product()?.imageCredit }}</small>
           }
         </div>
       }
@@ -44,10 +44,10 @@
             <img
               [src]="product()?.imageUrl || noImageUrl"
               alt="{{ product()?.name }}"
-              [title]="product()?.imageCredit ? 'Photo: ' + product()?.imageCredit : ''"
+              [title]="product()?.imageCredit ? 'Credit: ' + product()?.imageCredit : ''"
             />
             @if (product()?.imageCredit) {
-              <small class="image-credit">Photo: {{ product()?.imageCredit }}</small>
+              <small class="image-credit">Credit: {{ product()?.imageCredit }}</small>
             }
           </div>
         }

@@ -178,4 +178,11 @@ export const mainRoutes: Routes = [
 				(m) => m.PrivacyPolicyComponent,
 			),
 	},
+	{
+		path: "**",
+		loadComponent: () =>
+			import("./pages/not-found/not-found.component").then(
+				(m) => m.NotFoundComponent,
+			),
+	},
 ];

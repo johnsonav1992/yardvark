@@ -65,6 +65,7 @@ type AppFixtures = {
 	userId: string;
 	restoreSettings: () => Promise<void>;
 	entryCleanup: (id: number) => void;
+	productCleanup: (id: number) => void;
 	resetEntryUsage: () => Promise<void>;
 	setEntryUsage: (count: number) => Promise<void>;
 	mockSlowEndpoints: undefined;
@@ -129,6 +130,23 @@ export const test = base.extend<AppFixtures>({
 			for (const id of ids) {
 				if (Number.isFinite(id)) {
 					await api.delete(`/entries/${id}`);
+				}
+			}
+		},
+		{ scope: "test" },
+	],
+
+	productCleanup: [
+		async ({ api }, use) => {
+			const ids: number[] = [];
+
+			await use((id: number) => {
+				ids.push(id);
+			});
+
+			for (const id of ids) {
+				if (Number.isFinite(id)) {
+					await api.put(`/products/hide/${id}`);
 				}
 			}
 		},

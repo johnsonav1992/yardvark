@@ -9,7 +9,31 @@ const E2E_BATCH_TITLES = ["E2E Batch Entry 1", "E2E Batch Entry 2"] as const;
 const E2E_LIMIT_TITLE = "E2E Limit Test Entry";
 const ALL_E2E_TITLES = [E2E_ENTRY_TITLE, ...E2E_BATCH_TITLES, E2E_LIMIT_TITLE];
 
-type EntryResponse = { id: number; title?: string; notes?: string | null };
+type EntryResponse = { id: number; title?: string | null; notes?: string | null };
+
+function buildEntryDate() {
+	const date = new Date();
+
+	date.setHours(12, 0, 0, 0);
+
+	return date;
+}
+
+function buildEntryPayload(title: string | null, notes: string | null = null) {
+	return {
+		date: buildEntryDate().toISOString(),
+		time: null,
+		notes,
+		title,
+		soilTemperature: null,
+		activityIds: [],
+		lawnSegmentIds: [],
+		products: [],
+		soilTemperatureUnit: "fahrenheit",
+		mowingHeight: null,
+		mowingHeightUnit: "inches",
+	};
+}
 
 test.describe("Entry Log CRUD", () => {
 	test.describe.configure({ mode: "serial" });
@@ -88,37 +112,18 @@ test.describe("Entry Log CRUD", () => {
 	});
 
 	test("can view entry details", async ({ page, api, entryCleanup }) => {
-		const entryDate = new Date();
-
-		entryDate.setHours(12, 0, 0, 0);
-
+		const entryDate = buildEntryDate();
 		const res = await api.post("/entries", {
-			data: {
-				date: entryDate.toISOString(),
-				time: null,
-				notes: null,
-				title: E2E_ENTRY_TITLE,
-				soilTemperature: null,
-				activityIds: [],
-				lawnSegmentIds: [],
-				products: [],
-				soilTemperatureUnit: "fahrenheit",
-				mowingHeight: null,
-				mowingHeightUnit: "inches",
-			},
+			data: buildEntryPayload(E2E_ENTRY_TITLE),
 		});
 		const entry = (await res.json()) as EntryResponse;
 
 		entryCleanup(entry.id);
 
-		await page.goto(
-			`/entry-log/${entry.id}?date=${entryDate.toISOString()}`,
-		);
-		await page.waitForURL(`**/entry-log/${entry.id}**`, { timeout: 15000 });
+		const entryView = new EntryViewPage(page);
 
-		await expect(page.locator(".title-display")).toHaveText(E2E_ENTRY_TITLE, {
-			timeout: 15000,
-		});
+		await entryView.goto(entry.id, entryDate.toISOString());
+		await entryView.expectTitle(E2E_ENTRY_TITLE);
 	});
 
 	test("can create an entry with notes via UI", async ({
@@ -151,24 +156,9 @@ test.describe("Entry Log CRUD", () => {
 	});
 
 	test("entry view displays notes", async ({ page, api, entryCleanup }) => {
-		const entryDate = new Date();
-
-		entryDate.setHours(12, 0, 0, 0);
-
+		const entryDate = buildEntryDate();
 		const res = await api.post("/entries", {
-			data: {
-				date: entryDate.toISOString(),
-				time: null,
-				notes: E2E_ENTRY_NOTES,
-				title: E2E_ENTRY_TITLE,
-				soilTemperature: null,
-				activityIds: [],
-				lawnSegmentIds: [],
-				products: [],
-				soilTemperatureUnit: "fahrenheit",
-				mowingHeight: null,
-				mowingHeightUnit: "inches",
-			},
+			data: buildEntryPayload(E2E_ENTRY_TITLE, E2E_ENTRY_NOTES),
 		});
 		const entry = (await res.json()) as EntryResponse;
 
@@ -186,24 +176,8 @@ test.describe("Entry Log CRUD", () => {
 		api,
 		entryCleanup,
 	}) => {
-		const entryDate = new Date();
-
-		entryDate.setHours(12, 0, 0, 0);
-
 		const res = await api.post("/entries", {
-			data: {
-				date: entryDate.toISOString(),
-				time: null,
-				notes: null,
-				title: E2E_ENTRY_TITLE,
-				soilTemperature: null,
-				activityIds: [],
-				lawnSegmentIds: [],
-				products: [],
-				soilTemperatureUnit: "fahrenheit",
-				mowingHeight: null,
-				mowingHeightUnit: "inches",
-			},
+			data: buildEntryPayload(E2E_ENTRY_TITLE),
 		});
 		const entry = (await res.json()) as EntryResponse;
 
@@ -222,27 +196,11 @@ test.describe("Entry Log CRUD", () => {
 		setEntryUsage,
 		resetEntryUsage,
 	}) => {
-		const entryDate = new Date();
-
-		entryDate.setHours(12, 0, 0, 0);
-
-		const payload = {
-			date: entryDate.toISOString(),
-			time: null,
-			notes: null,
-			title: E2E_LIMIT_TITLE,
-			soilTemperature: null,
-			activityIds: [],
-			lawnSegmentIds: [],
-			products: [],
-			soilTemperatureUnit: "fahrenheit",
-			mowingHeight: null,
-			mowingHeightUnit: "inches",
-		};
-
 		await setEntryUsage(6);
 
-		const blockedRes = await api.post("/entries", { data: payload });
+		const blockedRes = await api.post("/entries", {
+			data: buildEntryPayload(E2E_LIMIT_TITLE),
+		});
 
 		await resetEntryUsage();
 
@@ -254,24 +212,9 @@ test.describe("Entry Log CRUD", () => {
 		api,
 		entryCleanup,
 	}) => {
-		const entryDate = new Date();
-
-		entryDate.setHours(12, 0, 0, 0);
-
+		const entryDate = buildEntryDate();
 		const res = await api.post("/entries", {
-			data: {
-				date: entryDate.toISOString(),
-				time: null,
-				notes: null,
-				title: null,
-				soilTemperature: null,
-				activityIds: [],
-				lawnSegmentIds: [],
-				products: [],
-				soilTemperatureUnit: "fahrenheit",
-				mowingHeight: null,
-				mowingHeightUnit: "inches",
-			},
+			data: buildEntryPayload(null),
 		});
 		const entry = (await res.json()) as EntryResponse;
 
@@ -280,7 +223,9 @@ test.describe("Entry Log CRUD", () => {
 		const entryView = new EntryViewPage(page);
 
 		await entryView.goto(entry.id, entryDate.toISOString());
-		await expect(page.locator(".info-items").first()).toBeVisible({ timeout: 15000 });
+		await expect(page.locator(".info-items").first()).toBeVisible({
+			timeout: 15000,
+		});
 
 		await expect(page.locator(".title-display")).not.toBeVisible();
 	});

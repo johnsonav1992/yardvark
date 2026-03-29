@@ -156,6 +156,7 @@ export class DashboardComponent {
 		);
 	});
 
+
 	public isDashboardDataLoading =
 		this._entriesService.dashboardSummary.isLoading;
 

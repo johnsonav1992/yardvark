@@ -6,6 +6,7 @@ import { AuthService } from "@auth0/auth0-angular";
 import { App } from "@capacitor/app";
 import { Browser } from "@capacitor/browser";
 import { ConfirmationService } from "primeng/api";
+import { Button } from "primeng/button";
 import { ConfirmDialog } from "primeng/confirmdialog";
 import { ToastModule } from "primeng/toast";
 import { catchError, mergeMap, of } from "rxjs";
@@ -16,6 +17,7 @@ import { MainSideNavComponent } from "./components/layout/main-side-nav/main-sid
 import { MobileBottomNavbarComponent } from "./components/layout/mobile-bottom-navbar/mobile-bottom-navbar.component";
 import { PwaInstallBannerComponent } from "./components/layout/pwa-install-banner/pwa-install-banner.component";
 import { LoadingSpinnerComponent } from "./components/miscellanious/loading-spinner/loading-spinner.component";
+import { AppErrorService } from "./services/app-error.service";
 import { ChangelogService } from "./services/changelog.service";
 import { GlobalUiService } from "./services/global-ui.service";
 
@@ -30,6 +32,7 @@ import { GlobalUiService } from "./services/global-ui.service";
 		ToastModule,
 		LoadingSpinnerComponent,
 		ConfirmDialog,
+		Button,
 	],
 	templateUrl: "./app.component.html",
 	styleUrl: "./app.component.scss",
@@ -41,8 +44,10 @@ export class AppComponent {
 	private _confirmationService = inject(ConfirmationService);
 	private _changelogService = inject(ChangelogService);
 	private _ngZone = inject(NgZone);
+	private _appErrorService = inject(AppErrorService);
 
 	public isMobile = this._globalUiService.isMobile;
+	public hasFatalError = this._appErrorService.hasFatalError;
 
 	public isLoggedIn = signal(false);
 	public isAuthLoading = toSignal(this._auth.isLoading$);
@@ -90,6 +95,10 @@ export class AppComponent {
         </ul>
       </div>
     `;
+	}
+
+	public reloadPage(): void {
+		window.location.reload();
 	}
 
 	public ngOnInit(): void {

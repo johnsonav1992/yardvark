@@ -1,4 +1,17 @@
-@if (isAuthLoading()) {
+@if (hasFatalError()) {
+  <div class="fatal-error-wrapper">
+    <div class="fatal-error-content">
+      <div class="icon-wrap">
+        <i class="ti ti-alert-triangle"></i>
+      </div>
+      <div class="text-wrap">
+        <h1>Something went wrong</h1>
+        <p>An unexpected error occurred. Try reloading — if the problem persists, <a href="mailto:yardvarkapp@gmail.com">contact support</a>.</p>
+      </div>
+      <p-button label="Reload" icon="ti ti-refresh" (onClick)="reloadPage()" />
+    </div>
+  </div>
+} @else if (isAuthLoading()) {
   <div class="loading-wrapper auth-loading">
     <img
       src="assets/yardvark-logo-transparent.png"

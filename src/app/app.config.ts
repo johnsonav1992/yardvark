@@ -1,7 +1,9 @@
 import { provideHttpClient, withInterceptors } from "@angular/common/http";
 import {
 	type ApplicationConfig,
+	ErrorHandler,
 	isDevMode,
+	provideBrowserGlobalErrorListeners,
 	provideZonelessChangeDetection,
 } from "@angular/core";
 import {
@@ -11,6 +13,8 @@ import {
 } from "@angular/router";
 import { provideServiceWorker } from "@angular/service-worker";
 import { authHttpInterceptorFn, provideAuth0 } from "@auth0/auth0-angular";
+import { GlobalErrorHandler } from "./handlers/global-error.handler";
+import { httpErrorInterceptor } from "./interceptors/http-error.interceptor";
 import { ConfirmationService, MessageService } from "primeng/api";
 import { providePrimeNG } from "primeng/config";
 import { environment } from "../environments/environment";
@@ -24,6 +28,8 @@ import { provideHttpUtils } from "./utils/httpUtils";
 export const appConfig: ApplicationConfig = {
 	providers: [
 		provideZonelessChangeDetection(),
+		provideBrowserGlobalErrorListeners(),
+		{ provide: ErrorHandler, useClass: GlobalErrorHandler },
 		provideRouter(
 			mainRoutes,
 			withInMemoryScrolling({
@@ -31,7 +37,7 @@ export const appConfig: ApplicationConfig = {
 			}),
 			withViewTransitions({ skipInitialTransition: true }),
 		),
-		provideHttpClient(withInterceptors([authHttpInterceptorFn])),
+		provideHttpClient(withInterceptors([authHttpInterceptorFn, httpErrorInterceptor])),
 		providePrimeNG({
 			theme: {
 				preset: theme,

@@ -16,6 +16,11 @@ export class EntryLogPage {
 		await expect(this.page.locator(".fab-container")).toBeVisible({ timeout: 15000 });
 	}
 
+	async clickCreateEntry() {
+		await this.page.locator(".fab-container").locator("button").last().click();
+		await this.page.waitForURL("**/entry-log/add", { timeout: 15000 });
+	}
+
 	async clickFirstEntryMarker() {
 		const marker = this.page.locator(".marker-container button").first();
 

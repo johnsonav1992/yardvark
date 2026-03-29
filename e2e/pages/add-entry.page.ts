@@ -34,6 +34,11 @@ export class AddEntryPage {
 			.click();
 	}
 
+	async cancel() {
+		await this.page.getByRole("button", { name: "Cancel" }).click();
+		await this.page.waitForURL("**/entry-log", { timeout: 15000 });
+	}
+
 	async submit() {
 		await this.page.getByRole("button", { name: /^Create/ }).click();
 		await this.page.waitForURL(/entry-log\?/, { timeout: 15000 });

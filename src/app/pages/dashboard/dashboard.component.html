@@ -22,18 +22,35 @@
     </div>
   </ng-template>
   @if (userIsNewWithNoEntries()) {
-    <p-message
-      icon="ti ti-comet"
-      text="Welcome to Yardvark! Click below to create your first entry."
-      severity="success"
-    />
+    <p-message icon="ti ti-comet" severity="success" [closable]="false">
+      <div class="location-banner">
+        <span>Welcome to Yardvark! Start by creating your first entry.</span>
+        <p-button
+          label="Create Entry"
+          icon="ti ti-plus"
+          size="small"
+          [text]="true"
+          severity="success"
+          (onClick)="goToCreateEntry()"
+        />
+      </div>
+    </p-message>
   }
   @if (!userHasALocation() && !isLocationLoading()) {
-    <p-message
-      icon="ti ti-info-circle"
-      text="It looks like you haven't set your location yet! Go to settings to set your location and start receiving soil temperature data."
-      severity="warn"
-    />
+    <p-message icon="ti ti-map-pin" severity="info" [closable]="false">
+      <div class="location-banner">
+        <span>Set your location to enable weather forecasts, soil data, and GDD tracking.</span>
+        <p-button
+          label="Go to Settings"
+          icon="ti ti-arrow-right"
+          iconPos="right"
+          size="small"
+          [text]="true"
+          severity="info"
+          (onClick)="goToSettings()"
+        />
+      </div>
+    </p-message>
   }
   @if (allWidgetsHidden()) {
     <empty-message

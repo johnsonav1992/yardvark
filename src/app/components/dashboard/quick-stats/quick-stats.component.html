@@ -25,6 +25,13 @@
       </div>
     </div>
   </ng-template>
+  @if (hasNoData()) {
+    <empty-message
+      icon="ti ti-chart-line"
+      message="No data yet"
+      description="Your stats will appear here once you've logged some entries."
+    />
+  } @else {
   <div class="stats-container">
     <p class="stat">
       <i class="ti ti-calendar icon"></i> Days since last entry:
@@ -95,4 +102,5 @@
       </div>
     }
   </div>
+  }
 </p-card>

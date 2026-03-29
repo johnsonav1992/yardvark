@@ -6,7 +6,6 @@ import {
 } from "@angular/cdk/drag-drop";
 import { Component, computed, inject, signal } from "@angular/core";
 import { Router } from "@angular/router";
-import { isToday } from "date-fns";
 import type { MenuItem } from "primeng/api";
 import { ButtonModule } from "primeng/button";
 import { MessageModule } from "primeng/message";
@@ -26,8 +25,6 @@ import { LawnHealthScoreService } from "../../services/lawn-health-score.service
 import { LocationService } from "../../services/location.service";
 import { SettingsService } from "../../services/settings.service";
 import { WeatherService } from "../../services/weather-service";
-import type { YVUser } from "../../types/user.types";
-import { injectUserData } from "../../utils/authUtils";
 
 @Component({
 	selector: "dashboard",
@@ -59,7 +56,6 @@ export class DashboardComponent {
 	private _lawnHealthScoreService = inject(LawnHealthScoreService);
 	private _weatherService = inject(WeatherService);
 
-	public user = injectUserData();
 	public isMobile = this._globalUiService.isMobile;
 
 	public isEntrySearchSidebarOpen = signal(false);
@@ -146,15 +142,9 @@ export class DashboardComponent {
 		() => this._entriesService.dashboardSummary.value()?.recentEntry ?? null,
 	);
 
-	public userIsNewWithNoEntries = computed(() => {
-		const user = this.user() as YVUser;
-
-		return (
-			user &&
-			isToday(user["https://yardvark.netlify.app/signup-date"]) &&
-			!this.recentEntry()
-		);
-	});
+	public userIsNewWithNoEntries = computed(
+		() => !this.isDashboardDataLoading() && !this.recentEntry(),
+	);
 
 
 	public isDashboardDataLoading =
@@ -211,6 +201,14 @@ export class DashboardComponent {
 		//   command: () => {}
 		// }
 	]);
+
+	public goToSettings(): void {
+		this._router.navigate(["settings"]);
+	}
+
+	public goToCreateEntry(): void {
+		this._router.navigate(["entry-log", "add"]);
+	}
 
 	public openEntrySearchSidebar(): void {
 		this.isEntrySearchSidebarOpen.set(true);

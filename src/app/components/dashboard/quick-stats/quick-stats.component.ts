@@ -7,6 +7,7 @@ import { CardModule } from "primeng/card";
 import { DividerModule } from "primeng/divider";
 import { ProgressBarModule } from "primeng/progressbar";
 import { TooltipModule } from "primeng/tooltip";
+import { EmptyMessageComponent } from "../../miscellanious/empty-message/empty-message.component";
 import { EntriesService } from "../../../services/entries.service";
 import { GddService } from "../../../services/gdd.service";
 import { GlobalUiService } from "../../../services/global-ui.service";
@@ -26,6 +27,7 @@ import { computeSoilTrend } from "../../../utils/soilTemperatureUtils";
 		ProgressBarModule,
 		DividerModule,
 		CdkDragHandle,
+		EmptyMessageComponent,
 	],
 	templateUrl: "./quick-stats.component.html",
 	styleUrl: "./quick-stats.component.scss",
@@ -165,6 +167,13 @@ export class QuickStatsComponent {
 
 	public gddPercentage = computed(
 		() => this.currentGddData.value()?.percentageToTarget ?? 0,
+	);
+
+	public hasNoData = computed(
+		() =>
+			this.daysSinceLastEntry() === "N/A" &&
+			this.daysSinceLastMow() === "N/A" &&
+			this.daysSinceLastProductApplication() === "N/A",
 	);
 
 	public dividerDt: DividerDesignTokens = {

@@ -18,13 +18,11 @@ const PRODUCT_TABS = [
 
 type ProductResponse = { id: number; name: string };
 
-function buildProductPayload() {
-	return {
-		name: E2E_PRODUCT_NAME,
-		brand: "E2E Brand",
-		category: "other",
-	};
-}
+const E2E_PRODUCT_PAYLOAD = {
+	name: E2E_PRODUCT_NAME,
+	brand: "E2E Brand",
+	category: "other",
+};
 
 test.describe("Products", () => {
 	test("products page renders", async ({ page }) => {
@@ -68,7 +66,7 @@ test.describe("Products", () => {
 
 	test("can view a created product", async ({ api, page, productCleanup }) => {
 		const res = await api.post("/products", {
-			multipart: buildProductPayload(),
+			multipart: E2E_PRODUCT_PAYLOAD,
 		});
 		const product = (await res.json()) as ProductResponse;
 

@@ -1,4 +1,5 @@
 import { expect, test } from "../fixtures";
+import { buildEntryDate, buildEntryPayload, type EntryResponse } from "../helpers/entries";
 import { AddEntryPage } from "../pages/add-entry.page";
 import { EntryLogPage } from "../pages/entry-log.page";
 import { EntryViewPage } from "../pages/entry-view.page";
@@ -8,32 +9,6 @@ const E2E_ENTRY_NOTES = "These are e2e test notes for creation.";
 const E2E_BATCH_TITLES = ["E2E Batch Entry 1", "E2E Batch Entry 2"] as const;
 const E2E_LIMIT_TITLE = "E2E Limit Test Entry";
 const ALL_E2E_TITLES = [E2E_ENTRY_TITLE, ...E2E_BATCH_TITLES, E2E_LIMIT_TITLE];
-
-type EntryResponse = { id: number; title?: string | null; notes?: string | null };
-
-function buildEntryDate() {
-	const date = new Date();
-
-	date.setHours(12, 0, 0, 0);
-
-	return date;
-}
-
-function buildEntryPayload(title: string | null, notes: string | null = null) {
-	return {
-		date: buildEntryDate().toISOString(),
-		time: null,
-		notes,
-		title,
-		soilTemperature: null,
-		activityIds: [],
-		lawnSegmentIds: [],
-		products: [],
-		soilTemperatureUnit: "fahrenheit",
-		mowingHeight: null,
-		mowingHeightUnit: "inches",
-	};
-}
 
 test.describe("Entry Log CRUD", () => {
 	test.describe.configure({ mode: "serial" });

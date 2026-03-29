@@ -1,9 +1,8 @@
 import { test } from "../fixtures";
 import { SettingsPage } from "../pages/settings.page";
 
-test.describe.configure({ mode: "serial" });
-
 test.describe("Settings", () => {
+	test.describe.configure({ mode: "serial" });
 	test("shows page title", async ({ page }) => {
 		const settings = new SettingsPage(page);
 

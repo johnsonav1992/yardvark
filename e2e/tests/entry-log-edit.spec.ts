@@ -1,36 +1,11 @@
 import { expect, test } from "../fixtures";
+import { buildEntryDate, buildEntryPayload, type EntryResponse } from "../helpers/entries";
 import { EntryViewPage } from "../pages/entry-view.page";
 
 const E2E_ENTRY_TITLE = "E2E Edit Test Entry";
 const E2E_UPDATED_TITLE = "E2E Edit Test Entry (Updated)";
 const E2E_ENTRY_NOTES = "These are e2e test notes.";
 const E2E_UPDATED_NOTES = "These notes were updated via e2e.";
-
-type EntryResponse = { id: number; title?: string };
-
-function buildEntryDate() {
-	const date = new Date();
-
-	date.setHours(12, 0, 0, 0);
-
-	return date;
-}
-
-function buildEntryPayload(title: string, notes: string | null = null) {
-	return {
-		date: buildEntryDate().toISOString(),
-		time: null,
-		notes,
-		title,
-		soilTemperature: null,
-		activityIds: [],
-		lawnSegmentIds: [],
-		products: [],
-		soilTemperatureUnit: "fahrenheit",
-		mowingHeight: null,
-		mowingHeightUnit: "inches",
-	};
-}
 
 test.describe("Entry Log Edit/Delete", () => {
 	test.describe.configure({ mode: "serial" });

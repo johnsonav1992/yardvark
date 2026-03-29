@@ -33,6 +33,7 @@ function buildEntryPayload(title: string, notes: string | null = null) {
 }
 
 test.describe("Entry Log Edit/Delete", () => {
+	test.describe.configure({ mode: "serial" });
 	test.beforeEach(async ({ api, resetEntryUsage }) => {
 		const startDate = new Date(0).toISOString();
 		const endDate = new Date().toISOString();

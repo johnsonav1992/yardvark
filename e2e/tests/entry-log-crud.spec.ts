@@ -12,6 +12,7 @@ const ALL_E2E_TITLES = [E2E_ENTRY_TITLE, ...E2E_BATCH_TITLES, E2E_LIMIT_TITLE];
 type EntryResponse = { id: number; title?: string; notes?: string | null };
 
 test.describe("Entry Log CRUD", () => {
+	test.describe.configure({ mode: "serial" });
 	test.beforeEach(async ({ api, resetEntryUsage }) => {
 		const startDate = new Date(0).toISOString();
 		const endDate = new Date().toISOString();
@@ -218,8 +219,8 @@ test.describe("Entry Log CRUD", () => {
 
 	test("free tier entry creation is blocked after the monthly limit is reached", async ({
 		api,
-		entryCleanup,
 		setEntryUsage,
+		resetEntryUsage,
 	}) => {
 		const entryDate = new Date();
 
@@ -239,14 +240,11 @@ test.describe("Entry Log CRUD", () => {
 			mowingHeightUnit: "inches",
 		};
 
-		await setEntryUsage(5);
-
-		const allowedRes = await api.post("/entries", { data: payload });
-
-		expect(allowedRes.status()).toBe(201);
-		entryCleanup((await allowedRes.json() as EntryResponse).id);
+		await setEntryUsage(6);
 
 		const blockedRes = await api.post("/entries", { data: payload });
+
+		await resetEntryUsage();
 
 		expect(blockedRes.status()).toBe(402);
 	});
